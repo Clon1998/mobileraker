@@ -29,13 +29,13 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   # websocket
-  web_socket_channel: ^1.2.0
+  web_socket_channel: ^2.0.0
   # rxdart
   rxdart: ^0.26.0
 
   #stacked
-  stacked: ^1.9.1+2
-  stacked_services: ^0.7.3
+  stacked: ^2.1.1
+  stacked_services: ^0.8.5
 
   enum_to_string: ^2.0.1
 
@@ -47,12 +47,12 @@ dependencies:
   flutter_settings_screens: ^0.2.1+1
   validators: 
   flutter_spinkit: ^5.0.0
-  progress_indicators: ^0.1.5
-  flutter_form_builder_fixed:
+  progress_indicators: ^1.0.0
+  flutter_form_builder : ^6.0.0
   badges: ^1.2.0
 #  better_player: ^0.0.61
   flutter_boom_menu: ^1.0.2
-  flutter_speed_dial:
+  flutter_speed_dial: ^3.0.5
   awesome_notifications: any
 
 
@@ -62,8 +62,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  build_runner: ^1.11.1
-  stacked_generator: ^0.2.3
+  build_runner: ^2.0.1
+  stacked_generator: ^0.4.1
 
 #
 #dependency_overrides:

@@ -30,6 +30,8 @@
 .pub-cache/
 .pub/
 /build/
+*.locator.dart
+*.router.dart
 
 # Web related
 lib/generated_plugin_registrant.dart
@@ -39,3 +41,4 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
