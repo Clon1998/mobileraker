@@ -1,15 +1,43 @@
-import 'package:stacked/stacked.dart';
-import 'package:mobileraker/WsHelper.dart';
+import 'package:flutter_fgbg/flutter_fgbg.dart';
+import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
+import 'package:mobileraker/service/SelectedMachineService.dart';
+import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class ConnectionStateViewModel extends StreamViewModel<WebSocketState> {
-  final _webSocket = locator<WebSocketsNotifications>();
+const String _WebSocketStreamKey = 'websocket';
+const String _DisplayStreamKey = 'display';
+
+class ConnectionStateViewModel extends MultipleStreamViewModel {
+  final WebSocketWrapper _webSocket = SelectedMachineService.instance.webSocket;
   final _snackBarService = locator<SnackbarService>();
 
   @override
-  void onData(WebSocketState data) {
-    super.onData(data);
+  Map<String, StreamData> get streamsMap => {
+        _WebSocketStreamKey: StreamData<WebSocketState>(_webSocket.stateStream),
+        _DisplayStreamKey: StreamData<FGBGType>(FGBGEvents.stream),
+      };
+
+  @override
+  onData(String key, data) {
+    super.onData(key, data);
+    switch (key) {
+      case _WebSocketStreamKey:
+        onDataWebSocket(data);
+        break;
+      case _DisplayStreamKey:
+        switch (data) {
+          case FGBGType.foreground:
+            //Todo: Decide to use ENSURE CONNECTION!
+            break;
+          case FGBGType.background:
+            break;
+        }
+        break;
+    }
+  }
+
+  onDataWebSocket(WebSocketState data) {
     switch (data) {
       case WebSocketState.disconnected:
         // TODO: Handle this case.
@@ -23,8 +51,7 @@ class ConnectionStateViewModel extends StreamViewModel<WebSocketState> {
         break;
       case WebSocketState.error:
         _snackBarService.showSnackbar(
-            message:
-                "Error while trying to connect: ${_webSocket.lastError}");
+            message: "Error while trying to connect:TODO");
         break;
     }
   }
@@ -33,10 +60,5 @@ class ConnectionStateViewModel extends StreamViewModel<WebSocketState> {
     _webSocket.initCommunication();
   }
 
-  @override
-  // TODO: implement stream
-  Stream<WebSocketState> get stream => _webSocket.stateStream;
-
-  WebSocketState get connectionState => data;
-  int get retryCount => _webSocket.retries;
+  WebSocketState get connectionState => dataMap?[_WebSocketStreamKey] ?? WebSocketState.disconnected;
 }

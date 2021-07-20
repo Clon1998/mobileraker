@@ -1,12 +1,15 @@
 import 'package:mobileraker/dto/machine/Printer.dart';
 
 class KlipperInstance {
+  bool klippyConnected;
 
-  bool klippyConnected = false;
-  PrinterState klippyState = PrinterState.error;//Matches Printer state
+  PrinterState klippyState; //Matches Printer state
   String get klippyStateName => printerStateName(klippyState);
 
-  List<String> plugins = [];
+  List<String> plugins;
 
-  KlipperInstance({this.klippyConnected, this.klippyState, this.plugins});
+  KlipperInstance(
+      {this.klippyConnected = false,
+      this.klippyState = PrinterState.error,
+      this.plugins = const []});
 }

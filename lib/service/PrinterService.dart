@@ -1,21 +1,21 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mobileraker/WsHelper.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
+import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/app/AppSetup.logger.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:simple_logger/simple_logger.dart';
 
 final Set<String> skipGCodes = {"PAUSE", "RESUME", "CANCEL_PRINT"};
 
 class PrinterService {
-  final _webSocket = locator<WebSocketsNotifications>();
-  final logger = locator<SimpleLogger>();
+  final WebSocketWrapper _webSocket;
+  final _logger = getLogger('PrinterService');
 
   ObserverList<MapEntry<String, Function>> _statusUpdateListener =
-      new ObserverList();
+      ObserverList();
 
   final List<String> subToPrinterObjects = [
     'toolhead',
@@ -28,151 +28,77 @@ class PrinterService {
     'print_stats',
     'heater_fan',
   ];
-  BehaviorSubject<Printer> _printerStream;
+  final BehaviorSubject<Printer> printerStream = BehaviorSubject<Printer>();
 
-  PrinterService() {
-    _webSocket.addMethodListener(_onStatusUpdate, "notify_status_update");
+  PrinterService(this._webSocket) {
+    _webSocket.addMethodListener(
+        _onStatusUpdateHandler, "notify_status_update");
+    _webSocket.stateStream.listen((value) {
+      switch (value) {
+        case WebSocketState.connected:
+          _fetchPrinter();
+          break;
+        default:
+      }
+    });
   }
 
-  Stream<Printer> fetchPrinter() {
-    _printerStream = BehaviorSubject<Printer>();
+  _fetchPrinter() {
+    _logger.i("Fetching printer Info");
     _webSocket.sendObject("printer.info", _printerInfo);
     _webSocket.sendObject("printer.objects.list", _printerObjectsList);
-
-    return _printerStream.stream;
   }
 
-  resumePrint() {
-    _webSocket.sendObject("printer.print.resume", null);
-  }
-
-  pausePrint() {
-    _webSocket.sendObject("printer.print.pause", null);
-  }
-
-  cancelPrint() {
-    _webSocket.sendObject("printer.print.cancel", null);
-  }
-
+  /**
+   * Adds a callback to the notify_status_update method of moonraker
+   */
   addStatusUpdateListener(Function callback, [String object = ""]) {
-    _statusUpdateListener.add(new MapEntry(object, callback));
+    _statusUpdateListener.add(MapEntry(object, callback));
   }
 
-  void setGcodeOffset({double x, double y, double z, int move}) {
-    List<String> moves = [];
-    if (x != null) moves.add("X_ADJUST=$x");
-    if (y != null) moves.add("Y_ADJUST=$y");
-    if (z != null) moves.add("Z_ADJUST=$z");
-
-    String gcode = "SET_GCODE_OFFSET ${moves.join(" ")}";
-    if (move != null) gcode += " MOVE=$move";
-
-    _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
-  }
-
-  void movePrintHead({x, y, z}) {
-    List<String> moves = [];
-    if (x != null) moves.add(_gcodeMoveCode("X", x));
-    if (y != null) moves.add(_gcodeMoveCode("Y", y));
-    if (z != null) moves.add(_gcodeMoveCode("Z", z));
-
-    String gcode = "G91\n" + "G1 ${moves.join(" ")} F${100 * 60}\nG90";
-    _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
-  }
-
-  void moveExtruder(double length, [double feedRate = 5]) {
-    String gcode = "M83\n" + "G1 E$length F${feedRate * 60}";
-    _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
-  }
-
-  void homePrintHead(Set<PrinterAxis> axis) {
-    if (axis.contains(PrinterAxis.E)) {
-      throw FormatException("E axis cant be homed");
-    }
-    String gcode = "G28 ";
-    if (axis.length < 3) {
-      gcode += axis.map(EnumToString.convertToString).join(" ");
-    }
-
-    _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
-  }
-
-  void quadGantryLevel() {
-    _webSocket.sendObject("printer.gcode.script", null,
-        params: {'script': "QUAD_GANTRY_LEVEL"});
-  }
-
-  void bedMeshLevel() {
-    _webSocket.sendObject("printer.gcode.script", null,
-        params: {'script': "BED_MESH_CALIBRATE"});
-  }
-
-  void gCodeMacro(String macro) {
-    _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': macro});
-  }
-
-  void setTemperature(String heater, int target) {
-    String gcode = "SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target";
-
-    _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
-  }
-
-  String _gcodeMoveCode(String axis, double value) {
-    return "$axis${value <= 0 ? '' : '+'}${value.toStringAsFixed(2)}";
-  }
-
-  _onStatusUpdate(Map<String, dynamic> rawMessage) {
+  _onStatusUpdateHandler(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];
     Printer latestPrinter = _getLatestPrinter();
     for (MapEntry<String, Function> listener in _statusUpdateListener) {
       if (params[listener.key] != null)
         listener.value(params[listener.key], printer: latestPrinter);
     }
-    _printerStream.add(latestPrinter);
-  }
-
-  Printer _getLatestPrinter() {
-    return _printerStream.hasValue ? _printerStream.value : new Printer();
+    printerStream.add(latestPrinter);
   }
 
   _printerInfo(response) {
     Printer printer = _getLatestPrinter();
-    logger.shout('PrinterInfo: $response');
+    _logger.v('PrinterInfo: ${JsonEncoder.withIndent('  ').convert(response)}');
     var fromString =
         EnumToString.fromString(PrinterState.values, response['state']);
     printer.state = fromString ?? PrinterState.error;
-    _printerStream.add(printer);
+    printerStream.add(printer);
   }
 
   _printerObjectsList(response) {
     Printer printer = _getLatestPrinter();
-    logger.shout('PrinterObjList: $response');
+    _logger
+        .v('PrinterObjList: ${JsonEncoder.withIndent('  ').convert(response)}');
     List<String> objects = response['objects'].cast<String>();
 
-    if (objects != null)
-      objects.forEach((element) {
-        printer.queryableObjects.add(element);
+    objects.forEach((element) {
+      printer.queryableObjects.add(element);
 
-        if (element.startsWith("gcode_macro ")) {
-          String macro = element.split(" ")[1];
-          if (!skipGCodes.contains(macro)) printer.gcodeMacros.add(macro);
-        }
-      });
-    _printerStream.add(printer);
+      if (element.startsWith("gcode_macro ")) {
+        String macro = element.split(" ")[1];
+        if (!skipGCodes.contains(macro)) printer.gcodeMacros.add(macro);
+      }
+    });
+    printerStream.add(printer);
 
-    _queryImportant(printer);
+    _queryPrinterObjects(printer);
     _makeSubscribeRequest(printer);
   }
 
   _printerObjectsQuery(response) {
     Printer printer = _getLatestPrinter();
-    logger.shout('PrinterObjectsQuery: $response');
+    _logger.v(
+        'PrinterObjectsQuery: ${JsonEncoder.withIndent('  ').convert(response)}');
     Map<String, dynamic> data = response['status'];
     if (data.containsKey('toolhead')) {
       var toolHeadJson = data['toolhead'];
@@ -215,6 +141,7 @@ class PrinterService {
       _updateConfigFile(printConfigJson, printer: printer);
     }
 
+    //Partcooling Fan
     if (data.containsKey('fan')) {
       var fanJson = data['fan'];
       if (fanJson.containsKey('speed'))
@@ -231,15 +158,15 @@ class PrinterService {
 
         HeaterFan heaterFan = printer.heaterFans.firstWhere(
             (element) => element.name == hName,
-            orElse: () => new HeaterFan(hName));
+            orElse: () => HeaterFan(hName));
         if (fanJson.containsKey('speed')) heaterFan.speed = fanJson['speed'];
         printer.heaterFans.add(heaterFan);
       }
     }
-    _printerStream.add(printer);
+    printerStream.add(printer);
   }
 
-  void _updateGCodeMove(Map<String, dynamic> gCodeJson, {Printer printer}) {
+  _updateGCodeMove(Map<String, dynamic> gCodeJson, {Printer? printer}) {
     printer ??= _getLatestPrinter();
     if (gCodeJson.containsKey('speed_factor'))
       printer.gCodeMove.speedFactor = gCodeJson['speed_factor'];
@@ -266,7 +193,7 @@ class PrinterService {
     }
   }
 
-  void _updateVirtualSd(Map<String, dynamic> virtualSDJson, {Printer printer}) {
+  _updateVirtualSd(Map<String, dynamic> virtualSDJson, {Printer? printer}) {
     printer ??= _getLatestPrinter();
     if (virtualSDJson.containsKey('progress'))
       printer.virtualSdCard.progress = virtualSDJson['progress'];
@@ -276,11 +203,11 @@ class PrinterService {
       printer.virtualSdCard.filePosition = virtualSDJson['file_position'];
   }
 
-  void _updatePrintStat(Map<String, dynamic> printStatJson, {Printer printer}) {
+  _updatePrintStat(Map<String, dynamic> printStatJson, {Printer? printer}) {
     printer ??= _getLatestPrinter();
     if (printStatJson.containsKey('state'))
       printer.print.state =
-          EnumToString.fromString(PrintState.values, printStatJson['state']);
+          EnumToString.fromString(PrintState.values, printStatJson['state'])!;
     if (printStatJson.containsKey('filename'))
       printer.print.filename = printStatJson['filename'];
     if (printStatJson.containsKey('total_duration'))
@@ -293,8 +220,7 @@ class PrinterService {
       printer.print.message = printStatJson['message'];
   }
 
-  void _updateConfigFile(Map<String, dynamic> printStatJson,
-      {Printer printer}) {
+  _updateConfigFile(Map<String, dynamic> printStatJson, {Printer? printer}) {
     printer ??= _getLatestPrinter();
 
     if (printStatJson.containsKey('config'))
@@ -304,7 +230,7 @@ class PrinterService {
           printStatJson['save_config_pending'];
   }
 
-  void _updateHeaterBed(Map<String, dynamic> heatedBedJson, {Printer printer}) {
+  _updateHeaterBed(Map<String, dynamic> heatedBedJson, {Printer? printer}) {
     printer ??= _getLatestPrinter();
     if (heatedBedJson.containsKey('temperature'))
       printer.heaterBed.temperature = heatedBedJson['temperature'];
@@ -314,7 +240,7 @@ class PrinterService {
       printer.heaterBed.power = heatedBedJson['power'];
   }
 
-  void _updateExtruder(Map<String, dynamic> extruderJson, {Printer printer}) {
+  _updateExtruder(Map<String, dynamic> extruderJson, {Printer? printer}) {
     printer ??= _getLatestPrinter();
     if (extruderJson.containsKey('temperature'))
       printer.extruder.temperature = extruderJson['temperature'];
@@ -328,13 +254,13 @@ class PrinterService {
       printer.extruder.power = extruderJson['power'];
   }
 
-  void _updateToolhead(Map<String, dynamic> toolHeadJson, {Printer printer}) {
+  _updateToolhead(Map<String, dynamic> toolHeadJson, {Printer? printer}) {
     printer ??= _getLatestPrinter();
     if (toolHeadJson.containsKey('homed_axes')) {
       String hAxes = toolHeadJson['homed_axes'];
       Set<PrinterAxis> homed = {};
       hAxes.toUpperCase().split('').forEach(
-          (e) => homed.add(EnumToString.fromString(PrinterAxis.values, e)));
+          (e) => homed.add(EnumToString.fromString(PrinterAxis.values, e)!));
       printer.toolhead.homedAxes = homed;
     }
 
@@ -360,8 +286,8 @@ class PrinterService {
           toolHeadJson['estimated_print_time'];
   }
 
-  _queryImportant(Printer printer) {
-    Map<String, List<String>> queryObjects = new Map();
+  _queryPrinterObjects(Printer printer) {
+    Map<String, List<String>?> queryObjects = Map();
     printer.queryableObjects.forEach((element) {
       List<String> split = element.split(" ");
 
@@ -373,25 +299,128 @@ class PrinterService {
   }
 
   _makeSubscribeRequest(Printer printer) {
-    Map<String, List<String>> queryObjects = new Map();
-    _addToSubParams(printer, queryObjects, 'toolhead', _updateToolhead);
-    _addToSubParams(printer, queryObjects, 'extruder', _updateExtruder);
-    _addToSubParams(printer, queryObjects, 'heater_bed', _updateHeaterBed);
-    _addToSubParams(printer, queryObjects, 'configfile', _updateConfigFile);
-    _addToSubParams(printer, queryObjects, 'gcode_move', _updateGCodeMove);
-    _addToSubParams(printer, queryObjects, 'print_stats', _updatePrintStat);
-    _addToSubParams(printer, queryObjects, 'virtual_sdcard', _updateVirtualSd);
+    Map<String, List<String>?> queryObjects = Map();
+    queryObjects =
+        _addToSubParams(printer, queryObjects, 'toolhead', _updateToolhead);
+    queryObjects =
+        _addToSubParams(printer, queryObjects, 'extruder', _updateExtruder);
+    queryObjects =
+        _addToSubParams(printer, queryObjects, 'heater_bed', _updateHeaterBed);
+    queryObjects =
+        _addToSubParams(printer, queryObjects, 'configfile', _updateConfigFile);
+    queryObjects =
+        _addToSubParams(printer, queryObjects, 'gcode_move', _updateGCodeMove);
+    queryObjects =
+        _addToSubParams(printer, queryObjects, 'print_stats', _updatePrintStat);
+    queryObjects = _addToSubParams(
+        printer, queryObjects, 'virtual_sdcard', _updateVirtualSd);
 
     _webSocket.sendObject("printer.objects.subscribe", null,
         params: {'objects': queryObjects});
   }
 
-  void _addToSubParams(Printer printer, Map<String, List<String>> queryObjects,
-      String key, Function func) {
+  Map<String, List<String>?> _addToSubParams(Printer printer,
+      Map<String, List<String>?> queryObjects, String key, Function func) {
+    Map<String, List<String>?> tmp = Map.from(queryObjects);
     if (printer.queryableObjects.contains(key)) {
       addStatusUpdateListener(func, key);
-      queryObjects[key] =
-          null; //Kinda dirty here since it has a SideEffect (queryObjects changes) but I am to lazy doing it another way rn :)
+      tmp[key] = null;
     }
+    return tmp;
+  }
+
+  // PRINTER PUBLIC METHODS
+
+  resumePrint() {
+    _webSocket.sendObject("printer.print.resume", null);
+  }
+
+  pausePrint() {
+    _webSocket.sendObject("printer.print.pause", null);
+  }
+
+  cancelPrint() {
+    _webSocket.sendObject("printer.print.cancel", null);
+  }
+
+  setGcodeOffset({double? x, double? y, double? z, int? move}) {
+    List<String> moves = [];
+    if (x != null) moves.add("X_ADJUST=$x");
+    if (y != null) moves.add("Y_ADJUST=$y");
+    if (z != null) moves.add("Z_ADJUST=$z");
+
+    String gcode = "SET_GCODE_OFFSET ${moves.join(" ")}";
+    if (move != null) gcode += " MOVE=$move";
+
+    _webSocket
+        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+  }
+
+  movePrintHead({x, y, z}) {
+    List<String> moves = [];
+    if (x != null) moves.add(_gcodeMoveCode("X", x));
+    if (y != null) moves.add(_gcodeMoveCode("Y", y));
+    if (z != null) moves.add(_gcodeMoveCode("Z", z));
+
+    String gcode = "G91\n" + "G1 ${moves.join(" ")} F${100 * 60}\nG90";
+    _webSocket
+        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+  }
+
+  moveExtruder(double length, [double feedRate = 5]) {
+    String gcode = "M83\n" + "G1 E$length F${feedRate * 60}";
+    _webSocket
+        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+  }
+
+  homePrintHead(Set<PrinterAxis> axis) {
+    if (axis.contains(PrinterAxis.E)) {
+      throw FormatException("E axis cant be homed");
+    }
+    String gcode = "G28 ";
+    if (axis.length < 3) {
+      gcode += axis.map(EnumToString.convertToString).join(" ");
+    }
+
+    _webSocket
+        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+  }
+
+  quadGantryLevel() {
+    _webSocket.sendObject("printer.gcode.script", null,
+        params: {'script': "QUAD_GANTRY_LEVEL"});
+  }
+
+  bedMeshLevel() {
+    _webSocket.sendObject("printer.gcode.script", null,
+        params: {'script': "BED_MESH_CALIBRATE"});
+  }
+
+  partCoolingFan(double perc) {
+    Printer printer = _getLatestPrinter();
+    printer.printFan.speed = perc;
+    _webSocket.sendObject("printer.gcode.script", null,
+        params: {'script': "M106 S${min(255, 255 * perc).toInt()}"});
+    printerStream.add(printer);
+  }
+
+  gCodeMacro(String macro) {
+    _webSocket
+        .sendObject("printer.gcode.script", null, params: {'script': macro});
+  }
+
+  setTemperature(String heater, int target) {
+    String gcode = "SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target";
+
+    _webSocket
+        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+  }
+
+  String _gcodeMoveCode(String axis, double value) {
+    return "$axis${value <= 0 ? '' : '+'}${value.toStringAsFixed(2)}";
+  }
+
+  Printer _getLatestPrinter() {
+    return printerStream.hasValue ? printerStream.value : Printer();
   }
 }

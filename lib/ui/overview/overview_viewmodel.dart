@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:mobileraker/app/AppSetup.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
@@ -8,7 +6,7 @@ import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
-import 'package:simple_logger/simple_logger.dart';
+import 'package:mobileraker/service/SelectedMachineService.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -18,19 +16,22 @@ const String _PrinterStreamKey = 'printer';
 class OverViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
   final _dialogService = locator<DialogService>();
-  final _printerService = locator<PrinterService>();
-  final _klippyService = locator<KlippyService>();
+  final PrinterService _printerService;
+  final KlippyService _klippyService;
   final _snackBarService = locator<SnackbarService>();
-  final logger = locator<SimpleLogger>();
+
+  OverViewModel()
+      : _printerService = SelectedMachineService.instance.printerService,
+        _klippyService = SelectedMachineService.instance.klippyService;
 
   String get title =>
       '${Settings.getValue('klipper.name', 'Printer')} - Dashboard';
 
-  KlipperInstance get server => dataMap[_ServerStreamKey];
+  KlipperInstance get server => dataMap![_ServerStreamKey];
 
   bool get hasServer => dataReady(_ServerStreamKey);
 
-  Printer get printer => dataMap[_PrinterStreamKey];
+  Printer get printer => dataMap![_PrinterStreamKey];
 
   bool get hasPrinter => dataReady(_PrinterStreamKey);
 
@@ -49,8 +50,8 @@ class OverViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _ServerStreamKey:
-            StreamData<KlipperInstance>(_klippyService.fetchKlippy()),
-        _PrinterStreamKey: StreamData<Printer>(_printerService.fetchPrinter()),
+            StreamData<KlipperInstance>(_klippyService.klipperStream),
+        _PrinterStreamKey: StreamData<Printer>(_printerService.printerStream),
       };
 
   onSelectedAxisStepSizeChanged(int index) {
@@ -65,43 +66,43 @@ class OverViewModel extends MultipleStreamViewModel {
     selectedRetractLength = index;
   }
 
-  void onEmergencyPressed() {
+  onEmergencyPressed() {
     _klippyService.emergencyStop();
   }
 
-  void onRestartMoonrakerPressed() {
+  onRestartMoonrakerPressed() {
     _klippyService.restartMoonraker();
   }
 
-  void onRestartKlipperPressed() {
+  onRestartKlipperPressed() {
     _klippyService.restartKlipper();
   }
 
-  void onRestartMCUPressed() {
+  onRestartMCUPressed() {
     _klippyService.restartMCUs();
   }
 
-  void onRestartHostPressed() {
+  onRestartHostPressed() {
     _klippyService.rebootHost();
   }
 
-  void onPausePrintPressed() {
+  onPausePrintPressed() {
     _printerService.pausePrint();
   }
 
-  void onCancelPrintPressed() {
+  onCancelPrintPressed() {
     _printerService.cancelPrint();
   }
 
-  void onResumePrintPressed() {
+  onResumePrintPressed() {
     _printerService.resumePrint();
   }
 
-  void onMacroPressed(int macroIndex) {
+  onMacroPressed(int macroIndex) {
     _printerService.gCodeMacro(printer.gcodeMacros[macroIndex]);
   }
 
-  void editDialog([bool isHeatedBed = false]) {
+  editDialog([bool isHeatedBed = false]) {
     if (isHeatedBed) {
       _dialogService
           .showCustomDialog(
@@ -109,11 +110,11 @@ class OverViewModel extends MultipleStreamViewModel {
               title: "Edit Heated Bed Temperature",
               mainButtonTitle: "Confirm",
               secondaryButtonTitle: "Cancel",
-              customData: printer.heaterBed.target.round())
+              data: printer.heaterBed.target.round())
           .then((value) {
         if (value != null && value.confirmed && value.responseData != null) {
           num v = value.responseData;
-          _printerService.setTemperature('heater_bed', v);
+          _printerService.setTemperature('heater_bed', v.toInt());
         }
       });
     } else {
@@ -123,17 +124,17 @@ class OverViewModel extends MultipleStreamViewModel {
               title: "Edit Extruder Temperature",
               mainButtonTitle: "Confirm",
               secondaryButtonTitle: "Cancel",
-              customData: printer.extruder.target.round())
+              data: printer.extruder.target.round())
           .then((value) {
         if (value != null && value.confirmed && value.responseData != null) {
           num v = value.responseData;
-          _printerService.setTemperature('extruder', v);
+          _printerService.setTemperature('extruder', v.toInt());
         }
       });
     }
   }
 
-  void onMoveBtn(PrinterAxis axis, [bool positive = true]) {
+  onMoveBtn(PrinterAxis axis, [bool positive = true]) {
     double step = axisStepSize[selectedAxisStepSizeIndex].toDouble();
     double dirStep = (positive) ? step : -1 * step;
     switch (axis) {
@@ -149,48 +150,52 @@ class OverViewModel extends MultipleStreamViewModel {
     }
   }
 
-  void onBabyStepping([bool positive = true]) {
+  onBabyStepping([bool positive = true]) {
     double step = babySteppingSizes[selectedBabySteppingSize].toDouble();
     double dirStep = (positive) ? step : -1 * step;
-    int m = (printer.toolhead.homedAxes
+    int? m = (printer.toolhead.homedAxes
             .containsAll({PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z}))
         ? 1
         : null;
     _printerService.setGcodeOffset(z: dirStep, move: m);
   }
 
-  void onHomeAxisBtn(Set<PrinterAxis> axis) {
+  onHomeAxisBtn(Set<PrinterAxis> axis) {
     _printerService.homePrintHead(axis);
   }
 
-  void onRetractBtn() {
+  onPartFanSlider(double value) {
+    _printerService.partCoolingFan(value);
+  }
+
+  onRetractBtn() {
     var double = (retractLengths[selectedRetractLength] * -1).toDouble();
     _printerService.moveExtruder(double);
   }
 
-  void onDeRetractBtn() {
+  onDeRetractBtn() {
     var double = (retractLengths[selectedRetractLength]).toDouble();
     _printerService.moveExtruder(double);
   }
 
-  void onQuadGantry() {
+  onQuadGantry() {
     _printerService.quadGantryLevel();
   }
 
-  void onBedMesh() {
+  onBedMesh() {
     _printerService.bedMeshLevel();
   }
 
-  void navigateToSettings() {
+  navigateToSettings() {
     //Navigate to other View:::
     _navigationService.navigateTo(Routes.settingView);
   }
 
-  void showNotImplementedToast() {
+  showNotImplementedToast() {
     _snackBarService.showSnackbar(message: "WIP!... Not implemented yet.");
   }
 
-  void fffff() {
+  fffff() {
     _navigationService.navigateTo(Routes.testView);
     // print("asdasd");
   }

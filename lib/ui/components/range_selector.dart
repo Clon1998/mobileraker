@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:stacked/stacked.dart';
 
 class RangeSelector extends StatefulWidget {
   final Function onSelected;
@@ -10,12 +9,13 @@ class RangeSelector extends StatefulWidget {
   @override
   _RangeSelectorState createState() => _RangeSelectorState();
 
-  const RangeSelector({@required this.onSelected, @required this.values, this.defaultIndex = 0});
+  const RangeSelector(
+      {required this.onSelected, required this.values, this.defaultIndex = 0});
 }
 
 class _RangeSelectorState extends State<RangeSelector> {
-  List<bool> selectedMap;
-  int selectedIndex;
+  late List<bool> selectedMap;
+  late int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class _RangeSelectorState extends State<RangeSelector> {
         children: widget.values.map((e) => Text(e.toString())).toList());
   }
 
-  void _onSelectionChanged(int newIndex) {
+  _onSelectionChanged(int newIndex) {
     setState(() {
       widget.onSelected(newIndex);
       selectedMap[newIndex] = true;
@@ -35,7 +35,7 @@ class _RangeSelectorState extends State<RangeSelector> {
   }
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     selectedIndex = widget.defaultIndex;
     List<bool> tmp = List.filled(widget.values.length, false);

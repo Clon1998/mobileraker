@@ -4,27 +4,24 @@ import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:mobileraker/app/AppSetup.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
-import 'package:intl/date_symbol_data_file.dart';
+
 import 'app/AppSetup.router.dart';
 
 Future<void> main() async {
   await Settings.init();
   setupLocator();
+  registerPrinters();
   setupDialogUi();
-  setupLogger();
   setupNotifications();
   runApp(MyApp());
 
-  AwesomeNotifications().actionStream.listen(
-          (receivedNotification){
-        print("Received Press-Notifi:$receivedNotification");
-        // Navigator.of(context).pushName(context,
-        //     '/NotificationPage',
-        //     arguments: { id: receivedNotification.id } // your page params. I recommend to you to pass all *receivedNotification* object
-        // );
-
-      }
-  );
+  AwesomeNotifications().actionStream.listen((receivedNotification) {
+    print("Received Press-Notifi:$receivedNotification");
+    // Navigator.of(context).pushName(context,
+    //     '/NotificationPage',
+    //     arguments: { id: receivedNotification.id } // your page params. I recommend to you to pass all *receivedNotification* object
+    // );
+  });
 }
 
 class MyApp extends StatelessWidget {

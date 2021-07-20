@@ -1,7 +1,7 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:expandable_page_view/expandable_page_view.dart';
+import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_boom_menu/flutter_boom_menu.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -17,7 +17,7 @@ import 'package:stacked/stacked.dart';
 import 'overview_viewmodel.dart';
 
 class OverView extends StatelessWidget {
-  const OverView({Key key}) : super(key: key);
+  const OverView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,11 +51,11 @@ class OverView extends StatelessWidget {
         body: ConnectionStateView(
           pChild: Center(
               child: (model.hasPrinter &&
-                      model?.printer?.state == PrinterState.ready)
+                      model.printer.state == PrinterState.ready)
                   ? ListView(
                       children: [
                         if (model.hasPrinter &&
-                            model?.printer?.state == PrinterState.ready) ...[
+                            model.printer.state == PrinterState.ready) ...[
                           PrintCard(),
                           ThermoPages(),
                           ControlPages(),
@@ -66,12 +66,12 @@ class OverView extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SpinKitFadingCube(
-                          color: Colors.red,
+                          color: Colors.orange,
                         ),
                         SizedBox(
                           height: 30,
                         ),
-                        FadingText("Loading printer..."),
+                        FadingText("Fetching printer..."),
                       ],
                     )),
         ),
@@ -81,85 +81,50 @@ class OverView extends StatelessWidget {
     );
   }
 
-  Widget printingStateToFab(OverViewModel model) {
+  Widget? printingStateToFab(OverViewModel model) {
     if (!model.hasPrinter) return null;
 
-    switch (model?.printer?.print?.state) {
+    switch (model.printer.print.state) {
       case PrintState.printing:
         return FloatingActionButton(
           onPressed: model.onPausePrintPressed,
           child: Icon(Icons.pause),
         );
-        break;
       case PrintState.paused:
         return SpeedDialPaused();
-        break;
       default:
-        return BoomMenuNonPrinting();
-        break;
+        return MenuNonPrinting();
     }
   }
 }
 
-class BoomMenuNonPrinting extends ViewModelWidget<OverViewModel> {
-  const BoomMenuNonPrinting({
-    Key key,
+class MenuNonPrinting extends ViewModelWidget<OverViewModel> {
+  const MenuNonPrinting({
+    Key? key,
   }) : super(key: key, reactive: false);
 
   @override
   Widget build(BuildContext context, OverViewModel model) {
-    return BoomMenu(
-      // animatedIcon: AnimatedIcons.add_event,
-      animatedIconTheme: IconThemeData(size: 22.0),
-      child: Icon(FlutterIcons.server_off_mco),
-      scrollVisible: true,
-      overlayColor: Colors.black,
-      overlayOpacity: 0.3,
-      children: [
-        MenuItem(
-          child: Icon(FlutterIcons.API_ant, color: Colors.black),
-          title: "Moonraker",
-          titleColor: Colors.white,
-          subtitle: "Restart",
-          subTitleColor: Colors.white,
-          backgroundColor: Colors.deepOrange,
-          onTap: model.onRestartMoonrakerPressed,
-        ),
-        MenuItem(
-          child: Icon(FlutterIcons.brain_faw5s, color: Colors.black),
-          title: "Klipper",
-          titleColor: Colors.white,
-          subtitle: "Restart",
-          subTitleColor: Colors.white,
-          backgroundColor: Colors.green,
-          onTap: model.onRestartKlipperPressed,
-        ),
-        MenuItem(
-          child: Icon(FlutterIcons.raspberry_pi_faw5d, color: Colors.black),
-          title: "Host",
-          titleColor: Colors.white,
-          subtitle: "Reboot",
-          subTitleColor: Colors.white,
-          backgroundColor: Colors.blue,
-          onTap: model.onRestartHostPressed,
-        ),
-        MenuItem(
-          child: Icon(FlutterIcons.circuit_board_oct, color: Colors.black),
-          title: "Firmware",
-          titleColor: Colors.white,
-          subtitle: "Restart",
-          subTitleColor: Colors.white,
-          backgroundColor: Colors.blue,
-          onTap: model.onRestartMCUPressed,
-        )
-      ],
-    );
+    return FabCircularMenu(children: <Widget>[
+      IconButton(
+          icon: Icon(FlutterIcons.API_ant),
+          onPressed: model.onRestartMoonrakerPressed),
+      IconButton(
+          icon: Icon(FlutterIcons.brain_faw5s),
+          onPressed: model.onRestartKlipperPressed),
+      IconButton(
+          icon: Icon(FlutterIcons.raspberry_pi_faw5d),
+          onPressed: model.onRestartHostPressed),
+      IconButton(
+          icon: Icon(FlutterIcons.circuit_board_oct),
+          onPressed: model.onRestartMCUPressed),
+    ]);
   }
 }
 
 class SpeedDialPaused extends ViewModelWidget<OverViewModel> {
   const SpeedDialPaused({
-    Key key,
+    Key? key,
   }) : super(key: key, reactive: false);
 
   @override
@@ -219,7 +184,7 @@ class SpeedDialPaused extends ViewModelWidget<OverViewModel> {
 
 class PrintCard extends ViewModelWidget<OverViewModel> {
   const PrintCard({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -329,8 +294,8 @@ class PrintCard extends ViewModelWidget<OverViewModel> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text("ETA"),
-                            Text((model.printer?.eta != null)
-                                ? DateFormat.Hm().format(model.printer.eta)
+                            Text((model.printer.eta != null)
+                                ? DateFormat.Hm().format(model.printer.eta!)
                                 : '00:00'),
                           ],
                         ),
@@ -347,7 +312,7 @@ class PrintCard extends ViewModelWidget<OverViewModel> {
 
 class ThermoPages extends ViewModelWidget<OverViewModel> {
   const ThermoPages({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -362,7 +327,7 @@ class ThermoPages extends ViewModelWidget<OverViewModel> {
 
 class HeaterCard extends ViewModelWidget<OverViewModel> {
   const HeaterCard({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -403,7 +368,7 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
                         color: Color.alphaBlend(
                             Colors.deepOrange
                                 .withOpacity(model.printer.extruder.power),
-                            Theme.of(context).iconTheme.color),
+                            Theme.of(context).iconTheme.color!),
                       ),
                     ),
                     Padding(
@@ -443,7 +408,7 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
                           color: Color.alphaBlend(
                               Colors.deepOrange
                                   .withOpacity(model.printer.heaterBed.power),
-                              Theme.of(context).iconTheme.color),
+                              Theme.of(context).iconTheme.color!),
                         ),
                       ),
                       Padding(
@@ -484,7 +449,7 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
 
 class FanCard extends ViewModelWidget<OverViewModel> {
   const FanCard({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -522,27 +487,27 @@ class FanCard extends ViewModelWidget<OverViewModel> {
   List<TableRow> buildFans(OverViewModel model, BuildContext context) {
     List<TableRow> rows = [];
 
-    if (model?.printer?.printFan != null) {
-      var printFan = model.printer.printFan;
-      rows.add(_fanRow(model,
-          speed: printFan.speed, name: "Part cooling", controllable: true));
-    }
+    var printFan = model.printer.printFan;
+    rows.add(_fanRow(model,
+        speed: printFan.speed,
+        name: "Part cooling",
+        onSlider: model.onPartFanSlider,
+        controllable: true));
 
-    if (model?.printer?.heaterFans != null) {
-      for (HeaterFan fan in model.printer.heaterFans) {
-        var row = _fanRow(model, speed: fan.speed, name: fan.name);
-        rows.add(row);
-      }
+    for (HeaterFan fan in model.printer.heaterFans) {
+      var row = _fanRow(model, speed: fan.speed, name: fan.name);
+      rows.add(row);
     }
 
     return rows;
   }
 
   TableRow _fanRow(OverViewModel model,
-      {@required double speed,
-      @required String name,
-      IconData icon,
-      bool controllable = false}) {
+      {required double speed,
+      required String name,
+      IconData? icon,
+      bool controllable = false,
+      Function? onSlider}) {
     Widget w;
     if (icon != null) {
       w = Icon(icon);
@@ -567,8 +532,8 @@ class FanCard extends ViewModelWidget<OverViewModel> {
             Text("${(speed * 100).round()}%"),
             Slider(
                 value: speed,
-                onChanged: (controllable)
-                    ? (v) => model.showNotImplementedToast()
+                onChanged: (controllable && onSlider != null)
+                    ? (v) => onSlider(v)
                     : null),
           ],
         ),
@@ -584,8 +549,8 @@ class SpinningFan extends StatefulWidget {
 
 class _SpinningFanState extends State<SpinningFan>
     with TickerProviderStateMixin {
-  AnimationController _controller;
-  Animation<double> _animation;
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   _SpinningFanState() {
     _controller = AnimationController(
@@ -600,6 +565,12 @@ class _SpinningFanState extends State<SpinningFan>
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: _animation,
@@ -610,7 +581,7 @@ class _SpinningFanState extends State<SpinningFan>
 
 class ControlPages extends ViewModelWidget<OverViewModel> {
   const ControlPages({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -633,7 +604,7 @@ class ControlPages extends ViewModelWidget<OverViewModel> {
 
 class ControlXYZCard extends ViewModelWidget<OverViewModel> {
   const ControlXYZCard({
-    Key key,
+    Key? key,
   }) : super(key: key, reactive: false);
 
   @override
@@ -820,7 +791,7 @@ class ControlXYZCard extends ViewModelWidget<OverViewModel> {
 
 class HomedAxisChip extends ViewModelWidget<OverViewModel> {
   const HomedAxisChip({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -851,7 +822,7 @@ class HomedAxisChip extends ViewModelWidget<OverViewModel> {
 
 class BabySteppingCard extends ViewModelWidget<OverViewModel> {
   const BabySteppingCard({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override
@@ -932,7 +903,7 @@ class BabySteppingCard extends ViewModelWidget<OverViewModel> {
 
 class ExtruderControlCard extends ViewModelWidget<OverViewModel> {
   const ExtruderControlCard({
-    Key key,
+    Key? key,
   }) : super(key: key, reactive: false);
 
   @override
@@ -1015,7 +986,7 @@ class ExtruderControlCard extends ViewModelWidget<OverViewModel> {
 
 class GcodeMacroCard extends ViewModelWidget<OverViewModel> {
   const GcodeMacroCard({
-    Key key,
+    Key? key,
   }) : super(key: key);
 
   @override

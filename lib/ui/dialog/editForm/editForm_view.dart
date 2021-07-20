@@ -6,7 +6,7 @@ import 'package:stacked_services/stacked_services.dart';
 import 'editForm_viewmodel.dart';
 
 class FormDialogView extends StatelessWidget {
-  const FormDialogView({Key key, this.request, this.completer}) : super(key: key);
+  const FormDialogView({Key? key, required this.request, required this.completer}) : super(key: key);
 
   final DialogRequest request;
   final Function(DialogResponse) completer;
@@ -24,20 +24,20 @@ class FormDialogView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min, // To make the card compact
               children: <Widget>[
                 Text(
-                  request.title,
+                  request.title!,
                   style: Theme.of(context).textTheme.headline5,
                 ),
                 NumField(request: request),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    FlatButton(
+                    TextButton(
                       onPressed: model.onFormDecline,
-                      child: Text(request.secondaryButtonTitle),
+                      child: Text(request.secondaryButtonTitle!),
                     ),
-                    FlatButton(
+                    TextButton(
                       onPressed: model.onFormConfirm,
-                      child: Text(request.mainButtonTitle),
+                      child: Text(request.mainButtonTitle!),
                     )
                   ],
                 )
@@ -52,7 +52,7 @@ class FormDialogView extends StatelessWidget {
 }
 
 class NumField extends ViewModelWidget<EditFormViewModel> {
-  const NumField({Key key, @required this.request}) : super(key: key);
+  const NumField({Key? key, required this.request}) : super(key: key);
   final DialogRequest request;
 
   @override

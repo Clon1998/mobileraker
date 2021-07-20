@@ -1,29 +1,26 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:mobileraker/WsHelper.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:simple_logger/simple_logger.dart';
+import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/app/AppSetup.logger.dart';
+import 'package:mobileraker/service/SelectedMachineService.dart';
 import 'package:stacked/stacked.dart';
 
 class SettingViewModel extends BaseViewModel {
-  final _logger = locator<SimpleLogger>();
-  final _webSocket = locator<WebSocketsNotifications>();
+  final _logger = getLogger("SettingViewModel");
+  final WebSocketWrapper _webSocket = SelectedMachineService.instance.webSocket;
 
-  void onUrlChanged(String address) {
-    _logger.info("Add changed to: $address");
+  onUrlChanged(String address) {
+    _logger.i("Add changed to: $address");
     _webSocket.initCommunication(1);
   }
 
-  void testNotify() {
+  testNotify() {
     AwesomeNotifications().createNotification(
-
         content: NotificationContent(
             id: 10,
             progress: 50,
             notificationLayout: NotificationLayout.ProgressBar,
             channelKey: 'basic_channel',
             title: 'Printer Progress',
-            body: 'Printing since 2h 5min ....'
-        )
-    );
+            body: 'Printing since 2h 5min ....'));
   }
 }

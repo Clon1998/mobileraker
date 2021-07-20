@@ -12,8 +12,8 @@ class EditFormViewModel extends BaseViewModel {
   Key get formKey => _fbKey;
 
   onFormConfirm() {
-    if (_fbKey.currentState.saveAndValidate()) {
-      completer(DialogResponse(confirmed: true, responseData:  _fbKey.currentState.value['newValue']));
+    if (_fbKey.currentState!.saveAndValidate()) {
+      completer(DialogResponse(confirmed: true, data:  _fbKey.currentState!.value['newValue']));
     }
   }
 

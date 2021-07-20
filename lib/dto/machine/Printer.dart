@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -41,31 +39,30 @@ String printStateName(PrintState printState) {
 }
 
 class Printer {
-  PrinterState state = PrinterState.error; //MAtches ServerState
+  PrinterState state = PrinterState.error; //Matches ServerState
 
-  Toolhead toolhead = new Toolhead();
-  Extruder extruder = new Extruder();
-  HeaterBed heaterBed = new HeaterBed();
-  PrintFan printFan = new PrintFan();
-  GCodeMove gCodeMove = new GCodeMove();
-  Print print = new Print();
+  Toolhead toolhead = Toolhead();
+  Extruder extruder = Extruder();
+  HeaterBed heaterBed = HeaterBed();
+  PrintFan printFan = PrintFan();
+  GCodeMove gCodeMove = GCodeMove();
+  Print print = Print();
 
-  ConfigFile configFile = new ConfigFile();
+  ConfigFile configFile = ConfigFile();
 
   Set<HeaterFan> heaterFans = {};
 
-  VirtualSdCard virtualSdCard = new VirtualSdCard();
+  VirtualSdCard virtualSdCard = VirtualSdCard();
 
   List<String> queryableObjects = [];
   List<String> gcodeMacros = [];
 
   String get stateName => printerStateName(state);
 
-  double get zOffset => gCodeMove?.homingOrigin[2] ?? 0.0;
+  double get zOffset => gCodeMove.homingOrigin[2];
 
-  DateTime get eta {
-    if ((this.print?.printDuration ?? 0) > 0 &&
-        (virtualSdCard?.progress ?? 0) > 0) {
+  DateTime? get eta {
+    if ((this.print.printDuration) > 0 && (virtualSdCard.progress) > 0) {
       var est =
           print.printDuration / virtualSdCard.progress - print.printDuration;
       return DateTime.now().add(Duration(seconds: est.round()));
@@ -77,7 +74,6 @@ class Printer {
     switch (state) {
       case PrinterState.ready:
         return Colors.green;
-        break;
       case PrinterState.error:
         return Colors.red;
       case PrinterState.shutdown:
@@ -85,7 +81,6 @@ class Printer {
       case PrinterState.disconnected:
       default:
         return Colors.orange;
-        break;
     }
   }
 
@@ -134,13 +129,13 @@ class Toolhead {
   Set<PrinterAxis> homedAxes = {};
   List<double> position = [0.0, 0.0, 0.0, 0.0];
 
-  String activeExtruder;
-  double printTime;
-  double estimatedPrintTime;
-  double maxVelocity;
-  double maxAccel;
-  double maxAccelToDecel;
-  double squareCornerVelocity;
+  String? activeExtruder;
+  double? printTime;
+  double? estimatedPrintTime;
+  double? maxVelocity;
+  double? maxAccel;
+  double? maxAccelToDecel;
+  double? squareCornerVelocity;
 
   @override
   String toString() {
@@ -180,7 +175,7 @@ class ConfigFile {
 }
 
 abstract class Fan {
-  double speed;
+  double speed = 0;
 }
 
 class PrintFan implements Fan {
