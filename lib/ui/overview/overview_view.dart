@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
@@ -56,7 +59,7 @@ class OverView extends StatelessWidget {
                       children: [
                         if (model.hasPrinter &&
                             model.printer.state == PrinterState.ready) ...[
-                          PrintCard(),
+                          PrintPages(),
                           ThermoPages(),
                           ControlPages(),
                         ]
@@ -178,6 +181,21 @@ class SpeedDialPaused extends ViewModelWidget<OverViewModel> {
           onTap: model.onResumePrintPressed,
         ),
       ],
+    );
+  }
+}
+
+class PrintPages extends ViewModelWidget<OverViewModel> {
+  const PrintPages({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, OverViewModel model) {
+    return ExpandablePageView(
+      estimatedPageSize: 200,
+      animateFirstPage: true,
+      children: [PrintCard(), CamCard()],
     );
   }
 }
@@ -309,6 +327,45 @@ class PrintCard extends ViewModelWidget<OverViewModel> {
     );
   }
 }
+
+class CamCard extends ViewModelWidget<OverViewModel> {
+  const CamCard({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, OverViewModel model) {
+    var matrix4 = Matrix4.identity()
+    ..rotateX(model.webCamXSwap)
+    ..rotateY(model.webCamYSwap);
+
+
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            leading: Icon(
+              FlutterIcons.webcam_mco,
+            ),
+            title: Text('Webcam'),
+          ),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 15),
+              child: Transform(
+                  alignment: Alignment.center,
+                  transform: matrix4,
+                  child: Mjpeg(
+                    isLive: true,
+                    stream: model.webCamUrl,
+                  ))
+
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class ThermoPages extends ViewModelWidget<OverViewModel> {
   const ThermoPages({

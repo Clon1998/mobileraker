@@ -69,6 +69,25 @@ class SettingView extends StatelessWidget {
               ),
             ],
           ),
+          SettingsGroup(
+            title: 'Webcam',
+            subtitle: 'Settings related to the webcam',
+            children: <Widget>[
+              SwitchSettingsTile(
+                settingKey: 'webcam.swap-horizontal',
+                title: 'Flip horizontal',
+                leading: Icon(FlutterIcons.swap_vertical_mco),
+                defaultValue: false,
+              ),
+              SwitchSettingsTile(
+                settingKey: 'webcam.swap-vertical',
+                title: 'Flip vertical',
+                leading: Icon(FlutterIcons.swap_horizontal_mco),
+                defaultValue: false,
+              ),
+            ],
+          ),
+
         ],
       )),
     );

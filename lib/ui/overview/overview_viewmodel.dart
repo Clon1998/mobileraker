@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:mobileraker/app/AppSetup.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
@@ -26,6 +28,28 @@ class OverViewModel extends MultipleStreamViewModel {
 
   String get title =>
       '${Settings.getValue('klipper.name', 'Printer')} - Dashboard';
+
+  String get webCamUrl =>
+      'http://192.168.178.135/webcam/?action=stream';//TODO
+
+  double get webCamYSwap {
+
+    var vertical = Settings.getValue('webcam.swap-vertical', false);
+
+    if (vertical)
+      return pi;
+    else
+      return 0;
+  }
+
+  double get webCamXSwap {
+    var vertical = Settings.getValue('webcam.swap-horizontal', false);
+
+    if (vertical)
+      return pi;
+    else
+      return 0;
+  }
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 

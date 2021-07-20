@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:stacked/stacked.dart';
 
 class TestView extends StatelessWidget {
@@ -15,15 +18,12 @@ class TestView extends StatelessWidget {
         //   stream: 'http://192.168.178.135/webcam/?action=stream',
         // )
 
-        // AspectRatio(
-        //   aspectRatio: 16 / 9,
-        //   child: BetterPlayer.network(
-        //     "http://192.168.178.135/webcam/?action=stream",
-        //     betterPlayerConfiguration: BetterPlayerConfiguration(
-        //       aspectRatio: 16 / 9,
-        //     ),
-        //   ),
-        // ),
+        body: Transform.rotate(
+            angle: pi,
+            child: Mjpeg(
+              isLive: true,
+              stream: 'http://192.168.178.135/webcam/?action=stream',
+            )),
       ),
       viewModelBuilder: () => TestViewModel(),
     );
