@@ -2,14 +2,15 @@ import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileraker/WsHelper.dart';
+import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
 import 'package:mobileraker/ui/overview/overview_view.dart';
 import 'package:mobileraker/ui/setting/setting_view.dart';
 import 'package:mobileraker/ui/test_view.dart';
-import 'package:simple_logger/simple_logger.dart';
+import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -23,16 +24,25 @@ import 'AppSetup.locator.dart';
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
   LazySingleton(classType: DialogService),
-  LazySingleton(classType: PrinterService),
-  LazySingleton(classType: KlippyService),
-  LazySingleton(classType: SimpleLogger),
-  Singleton(classType: WebSocketsNotifications),
-])
+], logger: StackedLogger())
 class AppSetup {}
 
 enum DialogType { editForm, connectionError }
 
-void setupDialogUi() {
+registerPrinters() {
+  // replace with loop for all printers added to local storage TODO
+  final locator = StackedLocator.instance;
+
+  var url = Settings.getValue("klipper.url", "ws://mainsailos.local/websocket");
+  WebSocketWrapper ws = WebSocketWrapper(url, Duration(seconds: 5));
+  PrinterService printerService = PrinterService(ws);
+  KlippyService klippyService = KlippyService(ws);
+  locator.registerSingleton(ws, instanceName: "printerA");
+  locator.registerSingleton(printerService, instanceName: "printerA");
+  locator.registerSingleton(klippyService, instanceName: "printerA");
+}
+
+setupDialogUi() {
   final dialogService = locator<DialogService>();
 
   final builders = {
@@ -42,15 +52,9 @@ void setupDialogUi() {
   dialogService.registerCustomDialogBuilders(builders);
 }
 
-void setupLogger() {
-  final logger = locator<SimpleLogger>();
-
-  logger.setLevel(Level.INFO);
-}
-
-void setupNotifications() {
+setupNotifications() {
   AwesomeNotifications().initialize(
-    // set the icon to null if you want to use the default app icon
+      // set the icon to null if you want to use the default app icon
       null,
       [
         NotificationChannel(
@@ -58,10 +62,8 @@ void setupNotifications() {
             channelName: 'Basic notifications',
             channelDescription: 'Notification channel for basic tests',
             defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white
-        )
-      ]
-  );
+            ledColor: Colors.white)
+      ]);
 
   AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
     if (!isAllowed) {
