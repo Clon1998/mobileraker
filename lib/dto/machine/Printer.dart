@@ -51,6 +51,8 @@ class Printer {
   ConfigFile configFile = ConfigFile();
 
   Set<HeaterFan> heaterFans = {};
+  Set<TemperatureSensor> temperatureSensors = {};
+  Set<OutputPin> outputPins = {};
 
   VirtualSdCard virtualSdCard = VirtualSdCard();
 
@@ -190,4 +192,21 @@ class HeaterFan implements Fan {
   double speed = 0.0;
 
   HeaterFan(this.name);
+}
+
+class TemperatureSensor {
+  String name;
+
+  double temperature = 0.0;
+  double measuredMinTemp = 0.0;
+  double measuredMaxTemp = 0.0;
+
+  TemperatureSensor(this.name);
+}
+
+class OutputPin {
+  String name;
+  double value = 0.0;
+
+  OutputPin(this.name);
 }

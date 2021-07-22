@@ -15,6 +15,7 @@ import 'package:mobileraker/ui/connection/connectionState_view.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 
 import 'overview_viewmodel.dart';
@@ -24,6 +25,9 @@ class OverView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return ViewModelBuilder<OverViewModel>.reactive(
       builder: (context, model, child) => Scaffold(
         appBar: AppBar(
@@ -55,16 +59,21 @@ class OverView extends StatelessWidget {
           pChild: Center(
               child: (model.hasPrinter &&
                       model.printer.state == PrinterState.ready)
-                  ? ListView(
-                      children: [
-                        if (model.hasPrinter &&
-                            model.printer.state == PrinterState.ready) ...[
-                          PrintPages(),
-                          ThermoPages(),
-                          ControlPages(),
-                        ]
-                      ],
-                    )
+                  ? SmartRefresher(
+                    controller: model.refreshController,
+                    onRefresh: model.onRefresh,
+
+                    child: ListView(
+                        children: [
+                          if (model.hasPrinter &&
+                              model.printer.state == PrinterState.ready) ...[
+                            PrintPages(),
+                            ThermoPages(),
+                            ControlPages(),
+                          ]
+                        ],
+                      ),
+                  )
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -336,9 +345,8 @@ class CamCard extends ViewModelWidget<OverViewModel> {
   @override
   Widget build(BuildContext context, OverViewModel model) {
     var matrix4 = Matrix4.identity()
-    ..rotateX(model.webCamXSwap)
-    ..rotateY(model.webCamYSwap);
-
+      ..rotateX(model.webCamXSwap)
+      ..rotateY(model.webCamYSwap);
 
     return Card(
       child: Column(
@@ -357,15 +365,12 @@ class CamCard extends ViewModelWidget<OverViewModel> {
                   child: Mjpeg(
                     isLive: true,
                     stream: model.webCamUrl,
-                  ))
-
-          ),
+                  ))),
         ],
       ),
     );
   }
 }
-
 
 class ThermoPages extends ViewModelWidget<OverViewModel> {
   const ThermoPages({
@@ -377,7 +382,7 @@ class ThermoPages extends ViewModelWidget<OverViewModel> {
     return ExpandablePageView(
       estimatedPageSize: 200,
       animateFirstPage: true,
-      children: [HeaterCard(), FanCard()],
+      children: [HeaterCard(), FanCard(), PinCard()],
     );
   }
 }
@@ -439,7 +444,7 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
                         children: [
                           Text("Current"),
                           Text(
-                              '${model.printer.extruder.temperature.toStringAsFixed(2)}°C'),
+                              '${model.printer.extruder.temperature.toStringAsFixed(1)}°C'),
                         ],
                       ),
                     ),
@@ -450,7 +455,7 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
                         children: [
                           Text("Target"),
                           Text(
-                              '${model.printer.extruder.target.toStringAsFixed(2)}°C'),
+                              '${model.printer.extruder.target.toStringAsFixed(1)}°C'),
                         ],
                       ),
                     ),
@@ -495,13 +500,56 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
                         ),
                       ),
                     ],
-                  )
+                  ),
+                  ...buildTempSensors(model, context)
                 ],
               )),
         ],
       ),
     );
   }
+}
+
+List<TableRow> buildTempSensors(OverViewModel model, BuildContext context) {
+  List<TableRow> rows = [];
+  var temperatureSensors = model.printer.temperatureSensors;
+  for (var sensor in temperatureSensors) {
+    var tr = TableRow(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Icon(FlutterIcons.thermometer_faw,
+              color: Theme.of(context).iconTheme.color!),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text("${sensor.name}"),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("Current"),
+              Text('${sensor.temperature.toStringAsFixed(1)}°C'),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text("Max"),
+              Text('${sensor.measuredMaxTemp.toStringAsFixed(1)}°C '),
+            ],
+          ),
+        ),
+      ],
+    );
+    rows.add(tr);
+  }
+  return rows;
 }
 
 class FanCard extends ViewModelWidget<OverViewModel> {
@@ -633,6 +681,86 @@ class _SpinningFanState extends State<SpinningFan>
       turns: _animation,
       child: Icon(FlutterIcons.fan_mco),
     );
+  }
+}
+
+class PinCard extends ViewModelWidget<OverViewModel> {
+  const PinCard({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, OverViewModel model) {
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            leading: Icon(
+              FlutterIcons.fan_mco,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            title: Text(
+                "Output Pin${(model.printer.outputPins.length > 0) ? 's' : ''}"),
+          ),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+              child: Table(
+                border: TableBorder(
+                    horizontalInside: BorderSide(
+                        width: 1,
+                        color: Theme.of(context).dividerColor,
+                        style: BorderStyle.solid)),
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                columnWidths: {
+                  0: FractionColumnWidth(.1),
+                },
+                children: buildPin(model, context),
+              )),
+        ],
+      ),
+    );
+  }
+
+  List<TableRow> buildPin(OverViewModel model, BuildContext context) {
+    List<TableRow> rows = [];
+
+    for (var pin in model.printer.outputPins) {
+      var row = _pinRow(model, name: pin.name, value: pin.value);
+      rows.add(row);
+    }
+
+    return rows;
+  }
+
+  TableRow _pinRow(
+    OverViewModel model, {
+    required String name,
+    required double value,
+  }) {
+    Widget w = Icon(FlutterIcons.microchip_faw);
+
+    return TableRow(children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(8.0, 4, 8, 4),
+        child: w,
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(8.0, 4, 8, 4),
+        child: Text(name),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(8.0, 4, 8, 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text("${(value * 100).round()}%"),
+            Slider(
+                value: value,
+                onChanged: null),
+          ],
+        ),
+      ),
+    ]);
   }
 }
 

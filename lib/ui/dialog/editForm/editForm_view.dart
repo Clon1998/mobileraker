@@ -57,7 +57,7 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
 
   @override
   Widget build(BuildContext context, EditFormViewModel model) {
-    num currentValue = request.customData != null ? request.customData : 0;
+    num currentValue = request.data != null ? request.data : 0;
     num lowerBorder = 0;
     num upperBorder = 300; //ToDo set to printers Max temp
 
@@ -68,7 +68,7 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
         FormBuilderValidators.numeric(context),
         FormBuilderValidators.required(context)
       ]),
-      valueTransformer: (text) => num.tryParse(text),
+      valueTransformer: (String? text) => text == null ? 0: num.tryParse(text),
       initialValue: currentValue.toStringAsFixed(0),
       name: 'newValue',
       style: Theme.of(context).inputDecorationTheme.counterStyle,

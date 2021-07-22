@@ -43,20 +43,20 @@ dependencies:
 
   flutter_mjpeg: ^2.0.1
   logger:
-#  flutter_icons: ^1.1.0
+  #  flutter_icons: ^1.1.0
   flutter_icons:
     git: https://github.com/jibiel/flutter-icons.git
   flutter_settings_screens: ^0.3.0-null-safety
   validators: ^3.0.0
   flutter_spinkit: ^5.0.0
   progress_indicators: ^1.0.0
-  flutter_form_builder : ^6.0.0
+  flutter_form_builder: ^6.0.0
   badges: ^2.0.1
   fab_circular_menu: ^1.0.2
   flutter_speed_dial: ^3.0.5
   awesome_notifications: any
   flutter_fgbg: ^0.1.0
-
+  pull_to_refresh: ^2.0.0
 
   expandable_page_view: ^1.0.4
 dev_dependencies:

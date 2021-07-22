@@ -9,6 +9,7 @@ import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
 import 'package:mobileraker/service/SelectedMachineService.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -21,6 +22,8 @@ class OverViewModel extends MultipleStreamViewModel {
   final PrinterService _printerService;
   final KlippyService _klippyService;
   final _snackBarService = locator<SnackbarService>();
+  RefreshController refreshController =
+      RefreshController(initialRefresh: false);
 
   OverViewModel()
       : _printerService = SelectedMachineService.instance.printerService,
@@ -29,11 +32,9 @@ class OverViewModel extends MultipleStreamViewModel {
   String get title =>
       '${Settings.getValue('klipper.name', 'Printer')} - Dashboard';
 
-  String get webCamUrl =>
-      'http://192.168.178.135/webcam/?action=stream';//TODO
+  String get webCamUrl => 'http://192.168.178.135/webcam/?action=stream'; //TODO
 
   double get webCamYSwap {
-
     var vertical = Settings.getValue('webcam.swap-vertical', false);
 
     if (vertical)
@@ -77,6 +78,16 @@ class OverViewModel extends MultipleStreamViewModel {
             StreamData<KlipperInstance>(_klippyService.klipperStream),
         _PrinterStreamKey: StreamData<Printer>(_printerService.printerStream),
       };
+
+  onRefresh() {
+    var oldPrinter = _printerService.printerStream.value;
+    _printerService.refreshPrinter();
+    var subscription;
+    subscription = _printerService.printerStream.stream.listen((event) {
+      if (event != oldPrinter) refreshController.refreshCompleted();
+      subscription.cancel();
+    });
+  }
 
   onSelectedAxisStepSizeChanged(int index) {
     selectedAxisStepSizeIndex = index;
@@ -136,8 +147,8 @@ class OverViewModel extends MultipleStreamViewModel {
               secondaryButtonTitle: "Cancel",
               data: printer.heaterBed.target.round())
           .then((value) {
-        if (value != null && value.confirmed && value.responseData != null) {
-          num v = value.responseData;
+        if (value != null && value.confirmed && value.data != null) {
+          num v = value.data;
           _printerService.setTemperature('heater_bed', v.toInt());
         }
       });
@@ -150,8 +161,8 @@ class OverViewModel extends MultipleStreamViewModel {
               secondaryButtonTitle: "Cancel",
               data: printer.extruder.target.round())
           .then((value) {
-        if (value != null && value.confirmed && value.responseData != null) {
-          num v = value.responseData;
+        if (value != null && value.confirmed && value.data != null) {
+          num v = value.data;
           _printerService.setTemperature('extruder', v.toInt());
         }
       });
