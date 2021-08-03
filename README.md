@@ -1,9 +1,11 @@
 # mobileraker
 
-A new Flutter project.
+Mobileraker (working title) is a Flutter app to control a single or multiple 3D printers running Klipper+Moonraker.
+
+Checkout the first release to download an Android APK!
 
 ## Getting Started
-
+WIP!
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
