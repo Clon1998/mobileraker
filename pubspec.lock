@@ -197,13 +197,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.5"
-  fab_circular_menu:
-    dependency: "direct main"
-    description:
-      name: fab_circular_menu
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -286,6 +279,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.0-null-safety"
+  flutter_slidable:
+    dependency: "direct main"
+    description:
+      name: flutter_slidable
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.0"
+  flutter_slider_drawer:
+    dependency: "direct main"
+    description:
+      name: flutter_slider_drawer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   flutter_speed_dial:
     dependency: "direct main"
     description:
@@ -317,6 +324,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  full_screen_menu:
+    dependency: "direct main"
+    description:
+      name: full_screen_menu
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   get:
     dependency: transitive
     description:
@@ -345,6 +359,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  hive:
+    dependency: "direct main"
+    description:
+      name: hive
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.4"
+  hive_flutter:
+    dependency: "direct main"
+    description:
+      name: hive_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
+  hive_generator:
+    dependency: "direct dev"
+    description:
+      name: hive_generator
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   http:
     dependency: transitive
     description:
@@ -394,6 +429,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.1"
+  listenable_stream:
+    dependency: "direct main"
+    description:
+      name: listenable_stream
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   logger:
     dependency: "direct main"
     description:
@@ -644,6 +686,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  source_helper:
+    dependency: transitive
+    description:
+      name: source_helper
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.0"
   source_span:
     dependency: transitive
     description:
@@ -735,6 +784,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.4"
+  uuid:
+    dependency: "direct main"
+    description:
+      name: uuid
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.4"
   validators:
     dependency: "direct main"
     description:

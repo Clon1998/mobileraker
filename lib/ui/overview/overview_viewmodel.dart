@@ -1,10 +1,13 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:mobileraker/app/AppSetup.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
+import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
@@ -14,20 +17,43 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 const String _ServerStreamKey = 'server';
+const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _PrinterStreamKey = 'printer';
 
 class OverViewModel extends MultipleStreamViewModel {
+  final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
   final _dialogService = locator<DialogService>();
-  final PrinterService _printerService;
-  final KlippyService _klippyService;
-  final _snackBarService = locator<SnackbarService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
+  GlobalKey<SliderMenuContainerState> menuContainerKey =
+      GlobalKey<SliderMenuContainerState>();
+
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
+  PrinterSetting? _printerSetting;
 
-  OverViewModel()
-      : _printerService = SelectedMachineService.instance.printerService,
-        _klippyService = SelectedMachineService.instance.klippyService;
+  PrinterService? _printerService;
+  KlippyService? _klippyService;
+
+  @override
+  Map<String, StreamData> get streamsMap => {
+        _SelectedPrinterStreamKey: StreamData<PrinterSetting?>(
+            _selectedMachineService.selectedPrinter),
+        if (_printerSetting?.printerService != null) ...{
+          _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
+        },
+
+        if (_printerSetting?.klippyService != null) ...{
+          _ServerStreamKey:
+              StreamData<KlipperInstance>(_klippyService!.klipperStream)
+        }
+        // _ServerStreamKey:
+        // StreamData<KlipperInstance>(),
+        // _PrinterStreamKey: StreamData<Printer>(),
+      };
+
+  bool get isPrinterSelected =>
+      _selectedMachineService.selectedPrinter.hasValue;
 
   String get title =>
       '${Settings.getValue('klipper.name', 'Printer')} - Dashboard';
@@ -73,17 +99,34 @@ class OverViewModel extends MultipleStreamViewModel {
   int selectedBabySteppingSize = 0;
 
   @override
-  Map<String, StreamData> get streamsMap => {
-        _ServerStreamKey:
-            StreamData<KlipperInstance>(_klippyService.klipperStream),
-        _PrinterStreamKey: StreamData<Printer>(_printerService.printerStream),
-      };
+  onData(String key, data) {
+    super.onData(key, data);
+    switch (key) {
+      case _SelectedPrinterStreamKey:
+        PrinterSetting? nPrinterSetting = data;
+        if (nPrinterSetting == _printerSetting) break;
+        _printerSetting = nPrinterSetting;
+
+        if (nPrinterSetting?.printerService != null) {
+          _printerService = nPrinterSetting?.printerService;
+        }
+
+        if (nPrinterSetting?.klippyService != null) {
+          _klippyService = nPrinterSetting?.klippyService;
+        }
+        notifySourceChanged(clearOldData: true);
+        break;
+      default:
+        // Do nothing
+        break;
+    }
+  }
 
   onRefresh() {
-    var oldPrinter = _printerService.printerStream.value;
-    _printerService.refreshPrinter();
+    var oldPrinter = _printerService?.printerStream.value;
+    _printerService?.refreshPrinter();
     var subscription;
-    subscription = _printerService.printerStream.stream.listen((event) {
+    subscription = _printerService?.printerStream.stream.listen((event) {
       if (event != oldPrinter) refreshController.refreshCompleted();
       subscription.cancel();
     });
@@ -102,39 +145,39 @@ class OverViewModel extends MultipleStreamViewModel {
   }
 
   onEmergencyPressed() {
-    _klippyService.emergencyStop();
+    _klippyService?.emergencyStop();
   }
 
   onRestartMoonrakerPressed() {
-    _klippyService.restartMoonraker();
+    _klippyService?.restartMoonraker();
   }
 
   onRestartKlipperPressed() {
-    _klippyService.restartKlipper();
+    _klippyService?.restartKlipper();
   }
 
   onRestartMCUPressed() {
-    _klippyService.restartMCUs();
+    _klippyService?.restartMCUs();
   }
 
   onRestartHostPressed() {
-    _klippyService.rebootHost();
+    _klippyService?.rebootHost();
   }
 
   onPausePrintPressed() {
-    _printerService.pausePrint();
+    _printerService?.pausePrint();
   }
 
   onCancelPrintPressed() {
-    _printerService.cancelPrint();
+    _printerService?.cancelPrint();
   }
 
   onResumePrintPressed() {
-    _printerService.resumePrint();
+    _printerService?.resumePrint();
   }
 
   onMacroPressed(int macroIndex) {
-    _printerService.gCodeMacro(printer.gcodeMacros[macroIndex]);
+    _printerService?.gCodeMacro(printer.gcodeMacros[macroIndex]);
   }
 
   editDialog([bool isHeatedBed = false]) {
@@ -149,7 +192,7 @@ class OverViewModel extends MultipleStreamViewModel {
           .then((value) {
         if (value != null && value.confirmed && value.data != null) {
           num v = value.data;
-          _printerService.setTemperature('heater_bed', v.toInt());
+          _printerService?.setTemperature('heater_bed', v.toInt());
         }
       });
     } else {
@@ -163,7 +206,7 @@ class OverViewModel extends MultipleStreamViewModel {
           .then((value) {
         if (value != null && value.confirmed && value.data != null) {
           num v = value.data;
-          _printerService.setTemperature('extruder', v.toInt());
+          _printerService?.setTemperature('extruder', v.toInt());
         }
       });
     }
@@ -174,13 +217,13 @@ class OverViewModel extends MultipleStreamViewModel {
     double dirStep = (positive) ? step : -1 * step;
     switch (axis) {
       case PrinterAxis.X:
-        _printerService.movePrintHead(x: dirStep);
+        _printerService?.movePrintHead(x: dirStep);
         break;
       case PrinterAxis.Y:
-        _printerService.movePrintHead(y: dirStep);
+        _printerService?.movePrintHead(y: dirStep);
         break;
       case PrinterAxis.Z:
-        _printerService.movePrintHead(z: dirStep);
+        _printerService?.movePrintHead(z: dirStep);
         break;
     }
   }
@@ -192,33 +235,33 @@ class OverViewModel extends MultipleStreamViewModel {
             .containsAll({PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z}))
         ? 1
         : null;
-    _printerService.setGcodeOffset(z: dirStep, move: m);
+    _printerService?.setGcodeOffset(z: dirStep, move: m);
   }
 
   onHomeAxisBtn(Set<PrinterAxis> axis) {
-    _printerService.homePrintHead(axis);
+    _printerService?.homePrintHead(axis);
   }
 
   onPartFanSlider(double value) {
-    _printerService.partCoolingFan(value);
+    _printerService?.partCoolingFan(value);
   }
 
   onRetractBtn() {
     var double = (retractLengths[selectedRetractLength] * -1).toDouble();
-    _printerService.moveExtruder(double);
+    _printerService?.moveExtruder(double);
   }
 
   onDeRetractBtn() {
     var double = (retractLengths[selectedRetractLength]).toDouble();
-    _printerService.moveExtruder(double);
+    _printerService?.moveExtruder(double);
   }
 
   onQuadGantry() {
-    _printerService.quadGantryLevel();
+    _printerService?.quadGantryLevel();
   }
 
   onBedMesh() {
-    _printerService.bedMeshLevel();
+    _printerService?.bedMeshLevel();
   }
 
   navigateToSettings() {
@@ -231,7 +274,7 @@ class OverViewModel extends MultipleStreamViewModel {
   }
 
   fffff() {
-    _navigationService.navigateTo(Routes.testView);
+    // _navigationService.navigateTo(Routes.testView);
     // print("asdasd");
   }
 }

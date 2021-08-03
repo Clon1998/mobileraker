@@ -3,11 +3,18 @@ import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:logger/logger.dart';
 import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
+import 'package:mobileraker/service/PrinterSettingsService.dart';
+import 'package:mobileraker/service/SelectedMachineService.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
 import 'package:mobileraker/ui/overview/overview_view.dart';
+import 'package:mobileraker/ui/printers/add/printers_add_view.dart';
+import 'package:mobileraker/ui/printers/printers_view.dart';
 import 'package:mobileraker/ui/setting/setting_view.dart';
 import 'package:mobileraker/ui/test_view.dart';
 import 'package:stacked/stacked.dart';
@@ -19,7 +26,8 @@ import 'AppSetup.locator.dart';
 @StackedApp(routes: [
   MaterialRoute(page: OverView, initial: true),
   CupertinoRoute(page: SettingView),
-  CupertinoRoute(page: TestView),
+  CupertinoRoute(page: Printers),
+  MaterialRoute(page: PrintersAdd),
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
@@ -29,17 +37,23 @@ class AppSetup {}
 
 enum DialogType { editForm, connectionError }
 
-registerPrinters() {
+registerPrinters() async {
   // replace with loop for all printers added to local storage TODO
   final locator = StackedLocator.instance;
+  var selectedMachineService = SelectedMachineService();
+  var printerSettingsService = PrinterSettingsService(selectedMachineService);
+  locator.registerSingleton<SelectedMachineService>(selectedMachineService);
+  locator.registerSingleton<PrinterSettingsService>(printerSettingsService);
+}
 
-  var url = Settings.getValue("klipper.url", "ws://mainsailos.local/websocket");
-  WebSocketWrapper ws = WebSocketWrapper(url, Duration(seconds: 5));
-  PrinterService printerService = PrinterService(ws);
-  KlippyService klippyService = KlippyService(ws);
-  locator.registerSingleton(ws, instanceName: "printerA");
-  locator.registerSingleton(printerService, instanceName: "printerA");
-  locator.registerSingleton(klippyService, instanceName: "printerA");
+openBoxes() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(PrinterSettingAdapter());
+  // Hive.deleteBoxFromDisk('printers');
+  await Future.wait([
+    Hive.openBox<PrinterSetting>('printers'),
+    Hive.openBox<String>('uuidbox'),
+  ]);
 }
 
 setupDialogUi() {

@@ -52,17 +52,23 @@ dependencies:
   progress_indicators: ^1.0.0
   flutter_form_builder: ^6.0.0
   badges: ^2.0.1
-  fab_circular_menu: ^1.0.2
   flutter_speed_dial: ^3.0.5
   awesome_notifications: any
   flutter_fgbg: ^0.1.0
   pull_to_refresh: ^2.0.0
-
   expandable_page_view: ^1.0.4
+  full_screen_menu: ^1.0.0
+  flutter_slider_drawer: ^2.0.0
+  hive: ^2.0.4
+  hive_flutter: ^1.1.0
+  listenable_stream: ^1.1.0
+  flutter_slidable: ^0.6.0
+  uuid: ^3.0.4
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  hive_generator: ^1.1.0
   build_runner: ^2.0.6
   stacked_generator: ^0.5.1
 
@@ -83,8 +89,8 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+  - assets/images/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

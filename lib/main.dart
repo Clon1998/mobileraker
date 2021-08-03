@@ -1,6 +1,8 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:logger/logger.dart';
 import 'package:mobileraker/app/AppSetup.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -8,9 +10,14 @@ import 'package:stacked_services/stacked_services.dart';
 import 'app/AppSetup.router.dart';
 
 Future<void> main() async {
+  Logger.level = Level.info;
+
   await Settings.init();
+  await openBoxes();
   setupLocator();
-  registerPrinters();
+  await registerPrinters();
+
+
   setupDialogUi();
   setupNotifications();
   runApp(MyApp());

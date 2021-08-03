@@ -2,14 +2,17 @@ import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:expandable_page_view/expandable_page_view.dart';
-import 'package:fab_circular_menu/fab_circular_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
+import 'package:flutter_slider_drawer/flutter_slider_drawer.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:full_screen_menu/full_screen_menu.dart';
 import 'package:intl/intl.dart';
+import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
+import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/connection/connectionState_view.dart';
 import 'package:mobileraker/util/time_util.dart';
@@ -25,16 +28,9 @@ class OverView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-
-
     return ViewModelBuilder<OverViewModel>.reactive(
       builder: (context, model, child) => Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(FlutterIcons.cogs_faw),
-            onPressed: () => model.navigateToSettings(),
-          ),
           title: Text(model.title),
           actions: <Widget>[
             IconButton(
@@ -60,10 +56,9 @@ class OverView extends StatelessWidget {
               child: (model.hasPrinter &&
                       model.printer.state == PrinterState.ready)
                   ? SmartRefresher(
-                    controller: model.refreshController,
-                    onRefresh: model.onRefresh,
-
-                    child: ListView(
+                      controller: model.refreshController,
+                      onRefresh: model.onRefresh,
+                      child: ListView(
                         children: [
                           if (model.hasPrinter &&
                               model.printer.state == PrinterState.ready) ...[
@@ -73,7 +68,7 @@ class OverView extends StatelessWidget {
                           ]
                         ],
                       ),
-                  )
+                    )
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -83,11 +78,13 @@ class OverView extends StatelessWidget {
                         SizedBox(
                           height: 30,
                         ),
-                        FadingText("Fetching printer..."),
+                        // FadingText("Fetching printer..."),
+                        Text("Fetching printer ...")
                       ],
                     )),
         ),
         floatingActionButton: printingStateToFab(model),
+        drawer: NavigationDrawerWidget(curPath: Routes.overView),
       ),
       viewModelBuilder: () => OverViewModel(),
     );
@@ -117,20 +114,31 @@ class MenuNonPrinting extends ViewModelWidget<OverViewModel> {
 
   @override
   Widget build(BuildContext context, OverViewModel model) {
-    return FabCircularMenu(children: <Widget>[
-      IconButton(
-          icon: Icon(FlutterIcons.API_ant),
-          onPressed: model.onRestartMoonrakerPressed),
-      IconButton(
-          icon: Icon(FlutterIcons.brain_faw5s),
-          onPressed: model.onRestartKlipperPressed),
-      IconButton(
-          icon: Icon(FlutterIcons.raspberry_pi_faw5d),
-          onPressed: model.onRestartHostPressed),
-      IconButton(
-          icon: Icon(FlutterIcons.circuit_board_oct),
-          onPressed: model.onRestartMCUPressed),
-    ]);
+    return FloatingActionButton(
+        child: Icon(Icons.menu),
+        onPressed: () => FullScreenMenu.show(context, items: <Widget>[
+              FSMenuItem(
+                text: Text("Moonraker - Restart"),
+                icon: Icon(FlutterIcons.API_ant, color: Colors.black),
+                onTap: model.onRestartMoonrakerPressed,
+              ),
+              FSMenuItem(
+                text: Text("Klipper - Restart"),
+                icon: Icon(FlutterIcons.brain_faw5s, color: Colors.black),
+                onTap: model.onRestartKlipperPressed,
+              ),
+              FSMenuItem(
+                text: Text("Host - Restart"),
+                icon:
+                    Icon(FlutterIcons.raspberry_pi_faw5d, color: Colors.black),
+                onTap: model.onRestartHostPressed,
+              ),
+              FSMenuItem(
+                text: Text("Firmware - Restart"),
+                icon: Icon(FlutterIcons.circuit_board_oct, color: Colors.black),
+                onTap: model.onRestartMCUPressed,
+              ),
+            ]));
   }
 }
 
@@ -754,9 +762,7 @@ class PinCard extends ViewModelWidget<OverViewModel> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text("${(value * 100).round()}%"),
-            Slider(
-                value: value,
-                onChanged: null),
+            Slider(value: value, onChanged: null),
           ],
         ),
       ),

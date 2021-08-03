@@ -14,65 +14,81 @@ class ConnectionStateView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<ConnectionStateViewModel>.reactive(
       builder: (context, model, child) {
-        switch (model.connectionState) {
-          case WebSocketState.connected:
-            return pChild;
-
-          case WebSocketState.disconnected:
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-              Icon(Icons.warning_amber_outlined),
-              SizedBox(
-                height: 30,
-              ),
-              Text(
-                  "Error while trying to connect. Please retry later."),
-              TextButton.icon(
-                  onPressed: model.onRetryPressed,
-                  icon: Icon(Icons.stream),
-                  label: Text("Reconnect"))
-                ],
-              ),
-            );
-          case WebSocketState.connecting:
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SpinKitPouringHourglass(
-                    color: Theme.of(context).accentColor,
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  FadingText("Trying to connect ..."),
-                ],
-              ),
-            );
-          case WebSocketState.error:
-          default:
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-              Icon(Icons.warning_amber_outlined),
-              SizedBox(
-                height: 30,
-              ),
-              Text(
-                  "Error while trying to connect. Please retry later."),
-              TextButton.icon(
-                  onPressed: model.onRetryPressed,
-                  icon: Icon(Icons.stream),
-                  label: Text("Reconnect"))
-                ],
-              ),
-            );
-        }
+        if (model.hasPrinter)
+          return checkWebsocket(context, model);
+        else
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline),
+                SizedBox(
+                  height: 30,
+                ),
+                Text("You'll have to add a printer first!"),
+              ],
+            ),
+          );
       },
       viewModelBuilder: () => ConnectionStateViewModel(),
     );
+  }
+
+  Widget checkWebsocket(BuildContext context, ConnectionStateViewModel model) {
+    switch (model.connectionState) {
+      case WebSocketState.connected:
+        return pChild;
+
+      case WebSocketState.disconnected:
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.warning_amber_outlined),
+              SizedBox(
+                height: 30,
+              ),
+              Text("Error while trying to connect. Please retry later."),
+              TextButton.icon(
+                  onPressed: model.onRetryPressed,
+                  icon: Icon(Icons.stream),
+                  label: Text("Reconnect"))
+            ],
+          ),
+        );
+      case WebSocketState.connecting:
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SpinKitPouringHourglass(
+                color: Theme.of(context).accentColor,
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              FadingText("Trying to connect ..."),
+            ],
+          ),
+        );
+      case WebSocketState.error:
+      default:
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.warning_amber_outlined),
+              SizedBox(
+                height: 30,
+              ),
+              Text("Error while trying to connect. Please retry later."),
+              TextButton.icon(
+                  onPressed: model.onRetryPressed,
+                  icon: Icon(Icons.stream),
+                  label: Text("Reconnect"))
+            ],
+          ),
+        );
+    }
   }
 }
