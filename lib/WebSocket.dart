@@ -59,7 +59,6 @@ class WebSocketWrapper {
     _logger.i("Trying to connect to $url");
     state = WebSocketState.connecting;
     reset();
-    var serverAdd = Settings.getValue("klipper.url", url); //TODO: Rework this
 
     WebSocket.connect(url.toString()).timeout(_defaultTimeout).then((socket) {
       socket.pingInterval = _defaultTimeout;

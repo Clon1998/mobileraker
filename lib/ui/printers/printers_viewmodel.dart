@@ -1,15 +1,9 @@
-import 'dart:ui';
-
-import 'package:flutter/material.dart';
-import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:listenable_stream/listenable_stream.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
-import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/service/PrinterSettingsService.dart';
 import 'package:stacked/stacked.dart';
-import 'package:listenable_stream/listenable_stream.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class PrintersViewModel extends StreamViewModel<Box<PrinterSetting>> {
@@ -18,10 +12,12 @@ class PrintersViewModel extends StreamViewModel<Box<PrinterSetting>> {
   var printers = Hive.box<PrinterSetting>('printers');
 
   Iterable<PrinterSetting> fetchSettings() {
-    if (data == null)
+    if (dataReady) {
+      var list = data!.values.toList();
+      list.sort((a, b) => a.name.compareTo(b.name));
+      return list;
+    } else
       return Iterable.empty();
-    else
-      return data!.values;
   }
 
   @override

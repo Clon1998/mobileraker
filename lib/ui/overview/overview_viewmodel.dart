@@ -56,7 +56,7 @@ class OverViewModel extends MultipleStreamViewModel {
       _selectedMachineService.selectedPrinter.hasValue;
 
   String get title =>
-      '${Settings.getValue('klipper.name', 'Printer')} - Dashboard';
+      '${_selectedMachineService.selectedPrinter.valueOrNull?.name??'Printer'} - Dashboard';
 
   String get webCamUrl => 'http://192.168.178.135/webcam/?action=stream'; //TODO
 

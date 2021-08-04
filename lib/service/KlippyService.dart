@@ -42,6 +42,12 @@ class KlippyService {
         case WebSocketState.connected:
           _webSocket.sendObject("server.info", _parseServerInfo);
           break;
+        case WebSocketState.disconnected:
+        case WebSocketState.error:
+          KlipperInstance l = _getLatestKlippy();
+          l.klippyState = PrinterState.error;
+          klipperStream.add(l);
+          break;
         default:
       }
     });

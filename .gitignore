@@ -32,6 +32,8 @@
 /build/
 *.locator.dart
 *.router.dart
+*.logger.dart
+*.g.dart
 
 # Web related
 lib/generated_plugin_registrant.dart

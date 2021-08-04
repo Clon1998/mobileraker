@@ -15,7 +15,7 @@ class NavDrawerViewModel extends BaseViewModel {
       _selectedMachineService.selectedPrinter.valueOrNull?.name ?? 'No PRINTER';
 
   String get printerUrl =>
-      _selectedMachineService.selectedPrinter.valueOrNull?.baseUrl ??
+      _selectedMachineService.selectedPrinter.valueOrNull?.wsUrl ??
       'Please add Printer';
 
   navigateTo(String route) {

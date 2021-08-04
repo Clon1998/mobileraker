@@ -31,7 +31,7 @@ class OverView extends StatelessWidget {
     return ViewModelBuilder<OverViewModel>.reactive(
       builder: (context, model, child) => Scaffold(
         appBar: AppBar(
-          title: Text(model.title),
+          title: Text(model.title, overflow: TextOverflow.fade,),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.radio_button_on,
@@ -430,16 +430,13 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
                 },
                 children: [
                   TableRow(children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: IconButton(
-                        icon: Icon(FlutterIcons.printer_3d_nozzle_mco),
-                        onPressed: () => model.editDialog(false),
-                        color: Color.alphaBlend(
-                            Colors.deepOrange
-                                .withOpacity(model.printer.extruder.power),
-                            Theme.of(context).iconTheme.color!),
-                      ),
+                    IconButton(
+                      icon: Icon(FlutterIcons.printer_3d_nozzle_mco),
+                      onPressed: () => model.editDialog(false),
+                      color: Color.alphaBlend(
+                          Colors.deepOrange
+                              .withOpacity(model.printer.extruder.power),
+                          Theme.of(context).iconTheme.color!),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -470,16 +467,14 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
                   ]),
                   TableRow(
                     children: [
-                      Padding(
+                      IconButton(
                         padding: const EdgeInsets.all(8.0),
-                        child: IconButton(
-                          icon: Icon(FlutterIcons.radiator_mco),
-                          onPressed: () => model.editDialog(true),
-                          color: Color.alphaBlend(
-                              Colors.deepOrange
-                                  .withOpacity(model.printer.heaterBed.power),
-                              Theme.of(context).iconTheme.color!),
-                        ),
+                        icon: Icon(FlutterIcons.radiator_mco),
+                        onPressed: () => model.editDialog(true),
+                        color: Color.alphaBlend(
+                            Colors.deepOrange
+                                .withOpacity(model.printer.heaterBed.power),
+                            Theme.of(context).iconTheme.color!),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),

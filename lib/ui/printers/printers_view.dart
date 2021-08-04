@@ -37,11 +37,12 @@ class Printers extends StatelessWidget {
       ));
 
     return ListView.builder(
+      padding: EdgeInsets.only(top: 8),
         itemCount: settings.length,
         itemBuilder: (context, index) {
           var cur = settings.elementAt(index);
 
-          return PrintersSlidable(printerSetting: cur);
+          return PrintersSlidable(key: ValueKey(cur.uuid), printerSetting: cur);
         });
   }
 }

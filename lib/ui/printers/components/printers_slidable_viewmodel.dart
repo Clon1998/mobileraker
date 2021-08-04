@@ -66,7 +66,7 @@ class PrintersSlidableViewModel extends MultipleStreamViewModel {
   }
 
   String get name => _printerSetting.name;
-  String get baseUrl => _printerSetting.baseUrl;
+  String get baseUrl => _printerSetting.wsUrl;
 
   bool get isSelectedPrinter => _selectedMachineService.isSelectedMachine(_printerSetting);
 

@@ -39,9 +39,7 @@ class _RangeSelectorState extends State<RangeSelector> {
     super.initState();
     selectedIndex = widget.defaultIndex;
     List<bool> tmp = List.filled(widget.values.length, false);
-    for (int i = 0; i < widget.values.length; i++) {
-      tmp[i] = i == selectedIndex;
-    }
+    tmp[selectedIndex] = true;
     selectedMap = tmp;
   }
 }

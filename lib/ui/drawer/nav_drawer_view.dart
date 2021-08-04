@@ -21,7 +21,7 @@ class NavigationDrawerWidget extends StatelessWidget {
             children: <Widget>[
               buildHeader(
                 name: model.printerDisplayName,
-                email: model.printerUrl,
+                email: Uri.parse(model.printerUrl).host,
                 onClicked: () => model.navigateTo(Routes.printers),
               ),
               Container(
@@ -79,11 +79,14 @@ class NavigationDrawerWidget extends StatelessWidget {
               children: [
                 Text(
                   name,
+                  softWrap: false,
+                  overflow: TextOverflow.fade,
                   style: TextStyle(fontSize: 20, color: Colors.white),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   email,
+                  overflow: TextOverflow.fade,
                   style: TextStyle(fontSize: 14, color: Colors.white),
                 ),
               ],
@@ -94,7 +97,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                 icon: Icon(
                   FlutterIcons.printer_3d_mco,
                   color: Colors.white,
-                  size: 28,
+                  size: 36,
                 ))
           ],
         ),

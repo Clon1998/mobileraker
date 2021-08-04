@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:mobileraker/WebSocket.dart';
 import 'package:stacked/stacked.dart';
 
 import 'printers_add_viewmodel.dart';
@@ -15,6 +16,12 @@ class PrintersAdd extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: Text('Add new printer'),
+              actions: [
+                IconButton(
+                    onPressed: model.onFormConfirm,
+                    tooltip: 'Add printer',
+                    icon: Icon(Icons.save_outlined))
+              ],
             ),
             body: FormBuilder(
               key: model.formKey,
@@ -29,33 +36,49 @@ class PrintersAdd extends StatelessWidget {
                         labelText: 'Displayname',
                       ),
                       name: 'printerName',
+                      initialValue: model.defaultPrinterName,
                       validator: FormBuilderValidators.compose(
                           [FormBuilderValidators.required(context)]),
                     ),
                     FormBuilderTextField(
                       decoration: InputDecoration(
-                        labelText: 'Printer-Address',
-                      ),
+                          labelText: 'Printer-Address',
+                          helperText: model.wsUrl != null
+                              ? 'WS-URL: ${model.wsUrl}'
+                              : '' //TODO
+                          ),
+                      onChanged: model.onUrlEntered,
                       name: 'printerUrl',
-                      initialValue: 'mainsailos.local',
+                      initialValue: model.inputUrl,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(context),
-                        FormBuilderValidators.url(context)
+                        FormBuilderValidators.url(context,
+                            protocols: ['ws', 'wss'])
                       ]),
                     ),
                     Divider(),
                     _SectionHeader(title: 'Misc'),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Connection is not tested'),
-                        ElevatedButton(
-                            onPressed: model.onTestConnectionTap, child: Text('Test'))
-                      ],
-                    ),
-                    TextButton(
-                      onPressed: model.onFormConfirm,
-                      child: Text('Add printer'),
+                    InputDecorator(
+
+                      decoration: InputDecoration(
+                        labelText: 'Test websocket connection',
+                        border: InputBorder.none
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.radio_button_on,
+                            size: 10,
+                            color: model.wsStateColor,
+                          ),
+                          Spacer(flex: 1),
+                          Text('Result: ${model.wsResult}'),
+                          Spacer(flex: 30),
+                          ElevatedButton(
+                              onPressed: (model.dataReady && model.data != WebSocketState.connecting)? model.onTestConnectionTap:null,
+                              child: Text('Test'))
+                        ],
+                      ),
                     ),
                   ],
                 ),

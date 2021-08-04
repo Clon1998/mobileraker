@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/WebSocket.dart';
@@ -25,7 +26,24 @@ class ConnectionStateView extends StatelessWidget {
                 SizedBox(
                   height: 30,
                 ),
-                Text("You'll have to add a printer first!"),
+                RichText(
+                  text: TextSpan(
+                    text: 'You will have to ',
+                    style: DefaultTextStyle.of(context).style,
+                    children: <TextSpan>[
+
+                      TextSpan(
+                          text: 'add',
+                          style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = model.onAddPrinterTap),
+                      TextSpan(
+                          text: ' a printer first!',
+                          ),
+                    ],
+                  ),
+                )
+
               ],
             ),
           );

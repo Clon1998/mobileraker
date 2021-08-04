@@ -24,7 +24,7 @@ class PrinterSettingsService {
   removePrinter(PrinterSetting printerSetting) async {
     await printerSetting.delete();
     if (_boxUuid.get('selectedPrinter') == printerSetting.uuid) {
-      var key = (_boxPrinterSettings.isEmpty)? null: _boxPrinterSettings.keys.first;
+      var key = (_boxPrinterSettings.isEmpty)? null: _boxPrinterSettings.values.first;
 
         await _selectedMachineService.setPrinterActive(key);
     }

@@ -2,6 +2,7 @@ import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.logger.dart';
+import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/service/SelectedMachineService.dart';
 import 'package:stacked/stacked.dart';
@@ -15,6 +16,7 @@ const String _DisplayStreamKey = 'display';
 class ConnectionStateViewModel extends MultipleStreamViewModel {
   final _selectedMachineService = locator<SelectedMachineService>();
   final _snackBarService = locator<SnackbarService>();
+  final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
   WebSocketWrapper? _webSocket;
   PrinterSetting? _printerSetting;
@@ -82,6 +84,10 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
 
   onRetryPressed() {
     _webSocket?.initCommunication();
+  }
+
+  onAddPrinterTap() {
+    _navigationService.navigateTo(Routes.printers);
   }
 
   WebSocketState get connectionState =>

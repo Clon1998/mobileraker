@@ -32,7 +32,7 @@ class PrintersSlidable extends StatelessWidget {
             onPressed: () => null,
           ),
         ),
-        actionPane: SlidableBehindActionPane(),
+        actionPane: SlidableDrawerActionPane(),
         actions: [
           IconSlideAction(
             caption: 'Delete',
