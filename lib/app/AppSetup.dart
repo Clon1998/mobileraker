@@ -7,6 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
+import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
 import 'package:mobileraker/service/PrinterSettingsService.dart';
@@ -14,6 +15,7 @@ import 'package:mobileraker/service/SelectedMachineService.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
 import 'package:mobileraker/ui/overview/overview_view.dart';
 import 'package:mobileraker/ui/printers/add/printers_add_view.dart';
+import 'package:mobileraker/ui/printers/edit/printers_edit_view.dart';
 import 'package:mobileraker/ui/printers/printers_view.dart';
 import 'package:mobileraker/ui/setting/setting_view.dart';
 import 'package:mobileraker/ui/test_view.dart';
@@ -28,6 +30,7 @@ import 'AppSetup.locator.dart';
   CupertinoRoute(page: SettingView),
   CupertinoRoute(page: Printers),
   MaterialRoute(page: PrintersAdd),
+  MaterialRoute(page: PrintersEdit),
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
@@ -49,6 +52,7 @@ registerPrinters() async {
 openBoxes() async {
   await Hive.initFlutter();
   Hive.registerAdapter(PrinterSettingAdapter());
+  Hive.registerAdapter(WebcamSettingAdapter());
   // Hive.deleteBoxFromDisk('printers');
   await Future.wait([
     Hive.openBox<PrinterSetting>('printers'),

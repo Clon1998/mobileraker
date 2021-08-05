@@ -8,6 +8,7 @@ import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
+import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
@@ -56,12 +57,21 @@ class OverViewModel extends MultipleStreamViewModel {
       _selectedMachineService.selectedPrinter.hasValue;
 
   String get title =>
-      '${_selectedMachineService.selectedPrinter.valueOrNull?.name??'Printer'} - Dashboard';
+      '${_selectedMachineService.selectedPrinter.valueOrNull?.name ?? 'Printer'} - Dashboard';
 
-  String get webCamUrl => 'http://192.168.178.135/webcam/?action=stream'; //TODO
+  WebcamSetting? _camHack() {
+    if (_printerSetting != null && _printerSetting!.cams.isNotEmpty) {
+      return _printerSetting?.cams.first;
+    }
+    return null;
+  }
+
+  String? get webCamUrl {
+    return _camHack()?.url;
+  }
 
   double get webCamYSwap {
-    var vertical = Settings.getValue('webcam.swap-vertical', false);
+    var vertical = _camHack()?.flipVertical?? false;
 
     if (vertical)
       return pi;
@@ -70,9 +80,9 @@ class OverViewModel extends MultipleStreamViewModel {
   }
 
   double get webCamXSwap {
-    var vertical = Settings.getValue('webcam.swap-horizontal', false);
+    var horizontal = _camHack()?.flipVertical?? false;
 
-    if (vertical)
+    if (horizontal)
       return pi;
     else
       return 0;

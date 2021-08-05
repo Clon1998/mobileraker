@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
 import 'package:uuid/uuid.dart';
@@ -14,13 +15,14 @@ class PrinterSetting extends HiveObject {
   String wsUrl;
   @HiveField(2)
   String uuid = Uuid().v4();
+  @HiveField(3)
+  List<WebcamSetting> cams = List.empty(growable: true);
 
   WebSocketWrapper? _webSocket;
 
   WebSocketWrapper get websocket {
     if (_webSocket == null)
-      _webSocket =
-          WebSocketWrapper(wsUrl, Duration(seconds: 5));
+      _webSocket = WebSocketWrapper(wsUrl, Duration(seconds: 5));
 
     return _webSocket!;
   }
@@ -28,16 +30,14 @@ class PrinterSetting extends HiveObject {
   PrinterService? _printerService;
 
   PrinterService get printerService {
-    if (_printerService == null)
-      _printerService = PrinterService(websocket);
+    if (_printerService == null) _printerService = PrinterService(websocket);
     return _printerService!;
   }
 
   KlippyService? _klippyService;
 
   KlippyService get klippyService {
-    if (_klippyService == null)
-      _klippyService = KlippyService(websocket);
+    if (_klippyService == null) _klippyService = KlippyService(websocket);
     return _klippyService!;
   }
 
@@ -48,6 +48,7 @@ class PrinterSetting extends HiveObject {
     await super.delete();
     _printerService?.printerStream.close();
     _klippyService?.klipperStream.close();
+    _webSocket?.reset();
     _webSocket?.stateStream.close();
     return;
   }

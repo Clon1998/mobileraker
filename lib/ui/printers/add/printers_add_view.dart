@@ -75,7 +75,7 @@ class PrintersAdd extends StatelessWidget {
                           Text('Result: ${model.wsResult}'),
                           Spacer(flex: 30),
                           ElevatedButton(
-                              onPressed: (model.dataReady && model.data != WebSocketState.connecting)? model.onTestConnectionTap:null,
+                              onPressed: (model.data != WebSocketState.connecting)? model.onTestConnectionTap:null,
                               child: Text('Test'))
                         ],
                       ),

@@ -28,4 +28,6 @@ class PrintersViewModel extends StreamViewModel<Box<PrinterSetting>> {
   onAddPrinterPressed() {
     _navigationService.navigateTo(Routes.printersAdd);
   }
+
+
 }

@@ -59,11 +59,9 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
 
   String? get wsUrl {
     var printerUrl = inputUrl;
-    if (printerUrl != null) {
-      return (Uri.parse(printerUrl).hasScheme)
-          ? printerUrl
-          : 'ws://$printerUrl/websocket';
-    }
+    return (Uri.parse(printerUrl).hasScheme)
+        ? printerUrl
+        : 'ws://$printerUrl/websocket';
   }
 
   onUrlEntered(value) {
@@ -79,7 +77,6 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
         printerUrl = 'ws://$printerUrl/websocket';
       }
       var printerSetting = PrinterSetting(printerName, printerUrl);
-      print('$printerUrl');
       _printerSettingService
           .addPrinter(printerSetting)
           .then((value) => _navigationService.popUntil((route) {

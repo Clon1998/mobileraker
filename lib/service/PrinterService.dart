@@ -270,7 +270,7 @@ class PrinterService {
     if (virtualSDJson.containsKey('is_active'))
       printer.virtualSdCard.isActive = virtualSDJson['is_active'];
     if (virtualSDJson.containsKey('file_position'))
-      printer.virtualSdCard.filePosition = virtualSDJson['file_position'];
+      printer.virtualSdCard.filePosition = int.parse(virtualSDJson['file_position'].toString());
   }
 
   _updatePrintStat(Map<String, dynamic> printStatJson, {Printer? printer}) {

@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
+import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
@@ -16,7 +17,7 @@ const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _ServerStreamKey = 'server';
 
 class PrintersSlidableViewModel extends MultipleStreamViewModel {
-  final _snackbarService = locator<SnackbarService>();
+  final _navigationService = locator<NavigationService>();
   final _printerSettingsService = locator<PrinterSettingsService>();
   final _selectedMachineService = locator<SelectedMachineService>();
   
@@ -37,7 +38,7 @@ class PrintersSlidableViewModel extends MultipleStreamViewModel {
   }
 
   onEditTap() {
-    _snackbarService.showSnackbar(message: "WIP!... Not yet implemented.");
+    _navigationService.navigateTo(Routes.printersEdit, arguments: PrintersEditArguments(printerSetting: _printerSetting));
   }
 
   onSetActiveTap() {

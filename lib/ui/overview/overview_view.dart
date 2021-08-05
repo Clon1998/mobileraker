@@ -31,7 +31,10 @@ class OverView extends StatelessWidget {
     return ViewModelBuilder<OverViewModel>.reactive(
       builder: (context, model, child) => Scaffold(
         appBar: AppBar(
-          title: Text(model.title, overflow: TextOverflow.fade,),
+          title: Text(
+            model.title,
+            overflow: TextOverflow.fade,
+          ),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.radio_button_on,
@@ -367,13 +370,15 @@ class CamCard extends ViewModelWidget<OverViewModel> {
           ),
           Padding(
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 15),
-              child: Transform(
-                  alignment: Alignment.center,
-                  transform: matrix4,
-                  child: Mjpeg(
-                    isLive: true,
-                    stream: model.webCamUrl,
-                  ))),
+              child: (model.webCamUrl == null)
+                  ? Center(child: Text('You will have to add a cam first!'))
+                  : Transform(
+                      alignment: Alignment.center,
+                      transform: matrix4,
+                      child: Mjpeg(
+                        isLive: true,
+                        stream: model.webCamUrl!,
+                      ))),
         ],
       ),
     );
@@ -417,7 +422,7 @@ class HeaterCard extends ViewModelWidget<OverViewModel> {
             title: Text('Heaters'),
           ),
           Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+              padding: const EdgeInsets.only(top: 15),
               child: Table(
                 border: TableBorder(
                     horizontalInside: BorderSide(

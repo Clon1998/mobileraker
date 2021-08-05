@@ -28,6 +28,11 @@ class NavigationDrawerWidget extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 00),
                 child: Column(
                   children: [
+                    // Divider(),
+                    // ExpansionTile(title: const Text('Change Printer', style: TextStyle(color: Colors.white),),
+                    //   children: [],
+                    // ),
+                    // Divider(),
                     buildMenuItem(
                       model,
                       text: 'Overview',

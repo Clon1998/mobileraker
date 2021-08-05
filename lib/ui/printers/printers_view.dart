@@ -12,14 +12,15 @@ class Printers extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: Text("Printers"),
+              actions: [
+                IconButton(
+                    onPressed: model.onAddPrinterPressed,
+                    tooltip: 'Add Printer',
+                    icon: Icon(Icons.add))
+              ],
             ),
             body: getBody(model, context),
-            floatingActionButton: FloatingActionButton(
-              mini: true,
-              tooltip: "Add Printer",
-              child: Icon(Icons.add),
-              onPressed: model.onAddPrinterPressed,
-            ),
+
             floatingActionButtonLocation:
                 FloatingActionButtonLocation.miniCenterFloat,
           );
@@ -37,7 +38,6 @@ class Printers extends StatelessWidget {
       ));
 
     return ListView.builder(
-      padding: EdgeInsets.only(top: 8),
         itemCount: settings.length,
         itemBuilder: (context, index) {
           var cur = settings.elementAt(index);
