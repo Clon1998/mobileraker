@@ -19,7 +19,7 @@ class SelectedMachineService {
   }
 
   setPrinterActive(PrinterSetting? printerSetting) async {
-    if (printerSetting == selectedPrinter.value)
+    if (printerSetting == selectedPrinter.valueOrNull)
       return;
     if (printerSetting == null) {
       await _boxUuid.delete('selectedPrinter');
