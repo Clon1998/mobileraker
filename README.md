@@ -13,6 +13,7 @@ Home           |  More images...
 
 ## Planed features
 * [x] Support for multiple printers
+* [ ] Multiple colors/themes and dark mode
 * [ ] Notifications (Might need an klipper addon?)
   * [ ] Print done
   * [ ] Print progress
