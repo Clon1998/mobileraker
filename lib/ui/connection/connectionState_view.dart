@@ -76,6 +76,7 @@ class ConnectionStateView extends StatelessWidget {
         );
       case WebSocketState.connecting:
         return Center(
+          key:UniqueKey(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

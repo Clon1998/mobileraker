@@ -64,6 +64,9 @@ dependencies:
   listenable_stream: ^1.1.0
   flutter_slidable: ^0.6.0
   uuid: ^3.0.4
+  animated_bottom_navigation_bar: ^0.3.2
+  animations: ^2.0.1
+  flutter_easyrefresh: ^2.2.1
 
 dev_dependencies:
   flutter_test:

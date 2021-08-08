@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:mobileraker/app/AppSetup.logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
@@ -33,7 +32,9 @@ class WebSocketWrapper {
     stateStream.add(newState);
   }
 
-  String get errorReason => _channel?.closeReason ?? "No error Reason";
+  bool get hasError => errorReason != null;
+
+  Exception? errorReason;
 
   ///
   /// Listeners
@@ -153,6 +154,7 @@ class WebSocketWrapper {
 
   _onWSError(error) {
     _logger.e("WS-Stream error: $error");
+    errorReason = error;
     state = WebSocketState.error;
   }
 

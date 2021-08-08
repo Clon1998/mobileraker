@@ -5,7 +5,6 @@ import 'package:stacked_services/stacked_services.dart';
 
 class NavDrawerViewModel extends BaseViewModel {
   final _navigationService = locator<NavigationService>();
-  final _snackbarService = locator<SnackbarService>();
   final _selectedMachineService = locator<SelectedMachineService>();
   final String currentPath;
 
@@ -24,8 +23,4 @@ class NavDrawerViewModel extends BaseViewModel {
   }
 
   bool isSelected(String route) => route == currentPath;
-
-  notImpl() {
-    _snackbarService.showSnackbar(message: "WIP!... Not yet implemented.");
-  }
 }

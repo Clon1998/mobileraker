@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_viewmodel.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
-import 'package:stacked_services/stacked_services.dart';
 
 class NavigationDrawerWidget extends StatelessWidget {
   final String curPath;
@@ -13,10 +12,14 @@ class NavigationDrawerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Color bgCol = Color.fromRGBO(50, 75, 205, 1);
+    var themeData = Theme.of(context);
+    if (themeData.brightness == Brightness.dark)
+      bgCol = themeData.primaryColor;
     return ViewModelBuilder<NavDrawerViewModel>.reactive(
       builder: (context, model, child) => Drawer(
         child: Material(
-          color: Color.fromRGBO(50, 75, 205, 1),
+          color: bgCol,
           child: ListView(
             children: <Widget>[
               buildHeader(
@@ -45,7 +48,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                       text: 'Files',
                       icon: Icons.file_present,
                       path: '',
-                      onClicked: () => model.notImpl(),
+                      onClicked: () => showWIPSnackbar(),
                     ),
                     // Divider(color: Colors.white70),
                     // const SizedBox(height: 16),
@@ -99,10 +102,11 @@ class NavigationDrawerWidget extends StatelessWidget {
             Spacer(),
             IconButton(
                 onPressed: onClicked,
+                tooltip: 'Printers',
                 icon: Icon(
-                  FlutterIcons.printer_3d_mco,
+                  FlutterIcons.settings_fea,
                   color: Colors.white,
-                  size: 36,
+                  size: 27,
                 ))
           ],
         ),

@@ -62,7 +62,10 @@ class PrintersAdd extends StatelessWidget {
 
                       decoration: InputDecoration(
                         labelText: 'Test websocket connection',
-                        border: InputBorder.none
+                        border: InputBorder.none,
+                        errorText: model.wsError,
+                        errorMaxLines: 3,
+
                       ),
                       child: Row(
                         children: [

@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 class RangeSelector extends StatefulWidget {
   final Function onSelected;
   final List<String> values;
-  final int defaultIndex;
+  final int selectedIndex;
 
   @override
   _RangeSelectorState createState() => _RangeSelectorState();
 
   const RangeSelector(
-      {required this.onSelected, required this.values, this.defaultIndex = 0});
+      {required this.onSelected, required this.values, this.selectedIndex = 0});
 }
 
 class _RangeSelectorState extends State<RangeSelector> {
@@ -37,7 +37,7 @@ class _RangeSelectorState extends State<RangeSelector> {
   @override
   initState() {
     super.initState();
-    selectedIndex = widget.defaultIndex;
+    selectedIndex = widget.selectedIndex;
     List<bool> tmp = List.filled(widget.values.length, false);
     tmp[selectedIndex] = true;
     selectedMap = tmp;

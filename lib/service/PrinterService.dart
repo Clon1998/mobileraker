@@ -26,11 +26,11 @@ class PrinterService {
       'extruder': _updateExtruder,
       'gcode_move': _updateGCodeMove,
       'heater_bed': _updateHeaterBed,
-      'fan': null,
+      'fan': _updatePartFan,
       'virtual_sdcard': _updateVirtualSd,
       'configfile': null,
       'print_stats': _updatePrintStat,
-      'heater_fan': null,
+      'heater_fan': _updateHeaterFan,
       'output_pin': _updateOutputPin,
       'temperature_sensor': _updateTemperatureSensor,
     };
@@ -69,11 +69,11 @@ class PrinterService {
     Map<String, dynamic> params = rawMessage['params'][0];
     Printer latestPrinter = _getLatestPrinter();
     for (MapEntry<String, Function> listener in _statusUpdateListener) {
-      if (params[listener.key] != null)
-        if (listener.key.split(" ").length > 1)
-          listener.value(listener.key ,params[listener.key], printer: latestPrinter);
-          else
-          listener.value(params[listener.key], printer: latestPrinter);
+      if (params[listener.key] != null) if (listener.key.split(" ").length > 1)
+        listener.value(listener.key, params[listener.key],
+            printer: latestPrinter);
+      else
+        listener.value(params[listener.key], printer: latestPrinter);
     }
     printerStream.add(latestPrinter);
   }
@@ -155,9 +155,7 @@ class PrinterService {
 
     //Partcooling Fan
     if (data.containsKey('fan')) {
-      var fanJson = data['fan'];
-      if (fanJson.containsKey('speed'))
-        printer.printFan.speed = fanJson['speed'];
+      _updatePartFan(data, printer: printer);
     }
 
     var heaterFans =
@@ -165,17 +163,7 @@ class PrinterService {
     if (heaterFans.isNotEmpty) {
       for (var heaterFanName in heaterFans) {
         var fanJson = data[heaterFanName];
-        List<String> split = heaterFanName.split(" ");
-        String hName = split.length > 1 ? split[1] : split[0];
-
-        HeaterFan heaterFan = printer.heaterFans
-            .firstWhere((element) => element.name == hName, orElse: () {
-          var f = HeaterFan(hName);
-          printer.heaterFans.add(f);
-          return f;
-        });
-        if (fanJson.containsKey('speed')) heaterFan.speed = fanJson['speed'];
-        printer.heaterFans.add(heaterFan);
+        _updateHeaterFan(heaterFanName, fanJson, printer: printer);
       }
     }
 
@@ -184,23 +172,45 @@ class PrinterService {
     if (temperatureSensors.isNotEmpty) {
       for (var sensor in temperatureSensors) {
         var sensorJson = data[sensor];
-        _updateTemperatureSensor(sensor, sensorJson, printer:printer);
+        _updateTemperatureSensor(sensor, sensorJson, printer: printer);
       }
     }
 
     var outputPins =
-    data.keys.where((element) => element.startsWith('output_pin'));
+        data.keys.where((element) => element.startsWith('output_pin'));
     if (outputPins.isNotEmpty) {
       for (var pins in outputPins) {
         var pinJson = data[pins];
-        _updateOutputPin(pins, pinJson, printer:printer);
+        _updateOutputPin(pins, pinJson, printer: printer);
       }
     }
 
     printerStream.add(printer);
   }
 
-  void _updateTemperatureSensor(String sensor, Map<String, dynamic> sensorJson, {Printer? printer}) {
+  void _updateHeaterFan(String heaterFanName, Map<String, dynamic> fanJson,
+      {Printer? printer}) {
+    printer ??= _getLatestPrinter();
+    List<String> split = heaterFanName.split(" ");
+    String hName = split.length > 1 ? split[1] : split[0];
+
+    HeaterFan heaterFan = printer.heaterFans
+        .firstWhere((element) => element.name == hName, orElse: () {
+      var f = HeaterFan(hName);
+      printer!.heaterFans.add(f);
+      return f;
+    });
+    if (fanJson.containsKey('speed')) heaterFan.speed = fanJson['speed'];
+    printer.heaterFans.add(heaterFan);
+  }
+
+  void _updatePartFan(Map<String, dynamic> fanJson, {Printer? printer}) {
+    printer ??= _getLatestPrinter();
+    if (fanJson.containsKey('speed')) printer.printFan.speed = fanJson['speed'];
+  }
+
+  void _updateTemperatureSensor(String sensor, Map<String, dynamic> sensorJson,
+      {Printer? printer}) {
     printer ??= _getLatestPrinter();
     List<String> split = sensor.split(" ");
     String sName = split.length > 1 ? split[1] : split[0];
@@ -220,7 +230,8 @@ class PrinterService {
       tempSensor.measuredMaxTemp = sensorJson['measured_max_temp'];
   }
 
-  void _updateOutputPin(String pin, Map<String, dynamic> pinJson, {Printer? printer}) {
+  void _updateOutputPin(String pin, Map<String, dynamic> pinJson,
+      {Printer? printer}) {
     printer ??= _getLatestPrinter();
     List<String> split = pin.split(" ");
     String sName = split.length > 1 ? split[1] : split[0];
@@ -232,8 +243,7 @@ class PrinterService {
       return t;
     });
 
-    if (pinJson.containsKey('value'))
-      output.value = pinJson['value'];
+    if (pinJson.containsKey('value')) output.value = pinJson['value'];
   }
 
   _updateGCodeMove(Map<String, dynamic> gCodeJson, {Printer? printer}) {
@@ -270,7 +280,8 @@ class PrinterService {
     if (virtualSDJson.containsKey('is_active'))
       printer.virtualSdCard.isActive = virtualSDJson['is_active'];
     if (virtualSDJson.containsKey('file_position'))
-      printer.virtualSdCard.filePosition = int.parse(virtualSDJson['file_position'].toString());
+      printer.virtualSdCard.filePosition =
+          int.parse(virtualSDJson['file_position'].toString());
   }
 
   _updatePrintStat(Map<String, dynamic> printStatJson, {Printer? printer}) {
@@ -453,11 +464,13 @@ class PrinterService {
   }
 
   partCoolingFan(double perc) {
-    Printer printer = _getLatestPrinter();
-    printer.printFan.speed = perc;
     _webSocket.sendObject("printer.gcode.script", null,
         params: {'script': "M106 S${min(255, 255 * perc).toInt()}"});
-    printerStream.add(printer);
+  }
+
+  outputPin(String pinName, double perc) {
+    _webSocket.sendObject("printer.gcode.script", null,
+        params: {'script': "SET_PIN PIN=$pinName VALUE=${perc.toInt()}"});
   }
 
   gCodeMacro(String macro) {

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:hive/hive.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
@@ -9,7 +7,6 @@ import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:mobileraker/service/PrinterSettingsService.dart';
 import 'package:mobileraker/service/SelectedMachineService.dart';
-import 'package:mobileraker/ui/printers/printers_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 

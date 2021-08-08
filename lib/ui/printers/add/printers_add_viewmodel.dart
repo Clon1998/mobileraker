@@ -35,10 +35,19 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
           return 'connected';
         case WebSocketState.error:
           return 'error';
+        default:
+          return 'Unknown';
       }
     }
 
     return 'not tested';
+  }
+
+  String? get wsError {
+  if (dataReady) {
+    return _testWebSocket?.errorReason?.toString();
+  }
+  return null;
   }
 
   Color get wsStateColor {

@@ -14,12 +14,13 @@ Home           |  More images...
 ## Planed features
 * [x] Support for multiple printers
 * [ ] Multiple colors/themes and dark mode
+  * [x] Dark mode
 * [ ] Notifications (Might need an klipper addon?)
   * [ ] Print done
   * [ ] Print progress
   * [ ] Klipper errors
-* [ ] Overview page
-  * [ ] Refactor current layout with multiple and clearer menu-tabs
+* [x] Overview page
+  * [x] Refactor current layout with multiple and clearer menu-tabs
   * [ ] Add temperature graphs
   * [ ] Add a console
   * [ ] Add mesh selection

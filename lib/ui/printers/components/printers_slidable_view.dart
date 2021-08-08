@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/ui/printers/components/printers_slidable_viewmodel.dart';
-import 'package:mobileraker/ui/printers/printers_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 
 class PrintersSlidable extends StatelessWidget {

@@ -5,11 +5,21 @@ import 'package:stacked_services/stacked_services.dart';
 
 import 'editForm_viewmodel.dart';
 
-class FormDialogView extends StatelessWidget {
-  const FormDialogView({Key? key, required this.request, required this.completer}) : super(key: key);
+class EditFormDialogViewArguments {
+  final num? min;
+  final num? max;
+  final num? current;
 
+  EditFormDialogViewArguments({this.min, this.max, this.current});
+}
+
+class EditFormDialogView extends StatelessWidget {
   final DialogRequest request;
   final Function(DialogResponse) completer;
+
+  const EditFormDialogView(
+      {Key? key, required this.request, required this.completer})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,24 +67,30 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
 
   @override
   Widget build(BuildContext context, EditFormViewModel model) {
-    num currentValue = request.data != null ? request.data : 0;
-    num lowerBorder = 0;
-    num upperBorder = 300; //ToDo set to printers Max temp
+    EditFormDialogViewArguments passedData = request.data;
+    num currentValue = passedData.current ?? 0;
+    num lowerBorder = passedData.min ?? 0;
+    num upperBorder = passedData.max ?? 300; //ToDo set to printers Max temp
 
     return FormBuilderTextField(
       validator: FormBuilderValidators.compose([
-        FormBuilderValidators.max(context,upperBorder),
-        FormBuilderValidators.min(context,lowerBorder),
+        FormBuilderValidators.max(context, upperBorder),
+        FormBuilderValidators.min(context, lowerBorder),
         FormBuilderValidators.numeric(context),
         FormBuilderValidators.required(context)
       ]),
-      valueTransformer: (String? text) => text == null ? 0: num.tryParse(text),
+      valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),
       initialValue: currentValue.toStringAsFixed(0),
       name: 'newValue',
       style: Theme.of(context).inputDecorationTheme.counterStyle,
-      keyboardType: TextInputType.numberWithOptions(signed: false, decimal: false),
+      keyboardType:
+          TextInputType.numberWithOptions(signed: false, decimal: false),
       decoration: InputDecoration(
-          border: const UnderlineInputBorder(), contentPadding: EdgeInsets.all(12.0), labelText: request.description),
+          border: const UnderlineInputBorder(),
+          contentPadding: EdgeInsets.all(8.0),
+          labelText: request.description,
+          helperText: "Enter a value between $lowerBorder and $upperBorder",
+      ),
     );
   }
 }
