@@ -8,7 +8,7 @@ Checkout the first release to download an Android APK!
 Home           |  More images...
 :------------------------------------------------------:|:-------------------------------------------------------:
 ![Floating Style](misc/images/Screenshot_1628195007.png)  |  ![Grounded Style](misc/images/Screenshot_1628195012.png)
-![Floating Style](misc/images/Screenshot_1628195031.png)  |  ![Grounded Style](misc/images/Screenshot_1628195044.png)
+![Floating Style](misc/images/Screenshot_20210808-223102.jpg)  |  ![Grounded Style](misc/images/Screenshot_20210808-223110.jpg)
 
 
 ## Planed features
