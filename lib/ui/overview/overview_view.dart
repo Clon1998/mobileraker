@@ -166,7 +166,10 @@ class MenuNonPrinting extends ViewModelWidget<OverViewModel> {
   Widget build(BuildContext context, OverViewModel model) {
     return FloatingActionButton(
         child: Icon(Icons.menu),
-        onPressed: () => FullScreenMenu.show(context, items: <Widget>[
+        onPressed: () =>
+            // model.showNonPrintingMenu()
+
+            FullScreenMenu.show(context, items: <Widget>[
               FSMenuItem(
                 text: Text("Moonraker - Restart"),
                 icon: Icon(FlutterIcons.API_ant, color: Colors.black),
@@ -188,7 +191,8 @@ class MenuNonPrinting extends ViewModelWidget<OverViewModel> {
                 icon: Icon(FlutterIcons.circuit_board_oct, color: Colors.black),
                 onTap: model.onRestartMCUPressed,
               ),
-            ]));
+            ])
+    );
   }
 }
 

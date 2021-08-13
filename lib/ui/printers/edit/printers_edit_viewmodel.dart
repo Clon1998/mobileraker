@@ -73,7 +73,6 @@ class PrintersEditViewModel extends BaseViewModel {
         ..name = printerName
         ..wsUrl = printerUrl
         ..cams = webcams;
-      print(printerSetting.cams);
       printerSetting
           .save()
           .then((value) => _navigationService.popUntil((route) {

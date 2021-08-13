@@ -5,6 +5,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/app/AppSetup.logger.dart';
+import 'package:mobileraker/dto/config/ConfigFile.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -305,7 +306,7 @@ class PrinterService {
     printer ??= _getLatestPrinter();
 
     if (printStatJson.containsKey('config'))
-      printer.configFile.config = printStatJson['config'];
+      printer.configFile = ConfigFile.parse(printStatJson['config']);
     if (printStatJson.containsKey('save_config_pending'))
       printer.configFile.saveConfigPending =
           printStatJson['save_config_pending'];

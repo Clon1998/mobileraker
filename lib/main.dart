@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    var accentColorDarkTheme = Color.fromRGBO(178,24,24,1);
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -43,8 +44,10 @@ class MyApp extends StatelessWidget {
       ),
       darkTheme: ThemeData(
           brightness: Brightness.dark,
+          toggleButtonsTheme: ToggleButtonsThemeData(fillColor: accentColorDarkTheme, selectedColor: Colors.white),
           // primarySwatch: Colors.orange,
-        accentColor: Color.fromRGBO(178,24,24,1)
+        accentColor: accentColorDarkTheme,
+
       ),
       navigatorKey: StackedService.navigatorKey,
       onGenerateRoute: StackedRouter().onGenerateRoute,

@@ -6,7 +6,7 @@ import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
-import 'package:mobileraker/service/SelectedMachineService.dart';
+import 'package:mobileraker/service/MachineService.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -17,7 +17,7 @@ const String _PrinterStreamKey = 'printer';
 
 class ControlTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
-  final _selectedMachineService = locator<SelectedMachineService>();
+  final _machineService = locator<MachineService>();
 
   List<int> retractLengths = [1, 10, 25, 50];
 
@@ -32,7 +32,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
     _SelectedPrinterStreamKey: StreamData<PrinterSetting?>(
-        _selectedMachineService.selectedPrinter),
+        _machineService.selectedPrinter),
     if (_printerSetting?.printerService != null) ...{
       _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
     },

@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
-import 'package:mobileraker/service/PrinterSettingsService.dart';
-import 'package:mobileraker/service/SelectedMachineService.dart';
+import 'package:mobileraker/service/MachineService.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
 import 'package:mobileraker/ui/overview/overview_view.dart';
 import 'package:mobileraker/ui/overview/tabs/general_tab_viewmodel.dart';
@@ -30,6 +29,7 @@ import 'AppSetup.locator.dart';
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
   LazySingleton(classType: DialogService),
+  LazySingleton(classType: BottomSheetService),
 ], logger: StackedLogger())
 class AppSetup {}
 
@@ -42,10 +42,8 @@ registerViewmodels() async {
 
 registerPrinters() async {
   final locator = StackedLocator.instance;
-  var selectedMachineService = SelectedMachineService();
-  var printerSettingsService = PrinterSettingsService(selectedMachineService);
-  locator.registerSingleton<SelectedMachineService>(selectedMachineService);
-  locator.registerSingleton<PrinterSettingsService>(printerSettingsService);
+  var selectedMachineService = MachineService();
+  locator.registerSingleton<MachineService>(selectedMachineService);
 }
 
 openBoxes() async {

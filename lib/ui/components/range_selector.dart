@@ -26,6 +26,8 @@ class _RangeSelectorState extends State<RangeSelector> {
   }
 
   _onSelectionChanged(int newIndex) {
+    if (newIndex == selectedIndex)
+      return;
     setState(() {
       widget.onSelected(newIndex);
       selectedMap[newIndex] = true;

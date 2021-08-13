@@ -1,21 +1,54 @@
 import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/service/SelectedMachineService.dart';
+import 'package:mobileraker/app/AppSetup.router.dart';
+import 'package:mobileraker/dto/machine/PrinterSetting.dart';
+import 'package:mobileraker/service/MachineService.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class NavDrawerViewModel extends BaseViewModel {
   final _navigationService = locator<NavigationService>();
-  final _selectedMachineService = locator<SelectedMachineService>();
+  final _machineService = locator<MachineService>();
   final String currentPath;
 
   NavDrawerViewModel(this.currentPath);
 
-  String get printerDisplayName =>
-      _selectedMachineService.selectedPrinter.valueOrNull?.name ?? 'No PRINTER';
+  List<PrinterSetting> get printers {
+    var iterable = _machineService.fetchAll();
+    var selectedUUID = _machineService.selectedPrinter.valueOrNull?.uuid;
+    List<PrinterSetting> list = List.of(iterable);
+    list.sort((a,b){
+      if (a.uuid == selectedUUID)
+        return -1;//Move selected to first position
+      if (b.uuid == selectedUUID)
+        return 1;//Move selected to first position
 
-  String get printerUrl =>
-      _selectedMachineService.selectedPrinter.valueOrNull?.wsUrl ??
-      'Please add Printer';
+      return a.name.compareTo(b.name);
+    });
+
+    return list;
+  }
+
+  onEditTap(PrinterSetting printerSetting) {
+    _navigationService.back();
+    _navigationService.navigateTo(Routes.printersEdit, arguments: PrintersEditArguments(printerSetting: printerSetting));
+  }
+
+  onSetActiveTap(PrinterSetting printerSetting) {
+    _navigationService.back();
+    _machineService.setPrinterActive(printerSetting);
+  }
+
+  String get printerDisplayName =>
+      _machineService.selectedPrinter.valueOrNull?.name ?? 'NO PRINTER';
+
+  String get printerUrl {
+    var printerSetting = _machineService.selectedPrinter.valueOrNull;
+    if (printerSetting != null)
+      return Uri.parse(printerSetting.wsUrl).host;
+
+    return 'Add printer first';
+  }
+
 
   navigateTo(String route) {
     _navigationService.back();

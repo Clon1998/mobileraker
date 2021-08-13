@@ -1,6 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
+import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
@@ -14,8 +16,7 @@ class NavigationDrawerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Color bgCol = Color.fromRGBO(50, 75, 205, 1);
     var themeData = Theme.of(context);
-    if (themeData.brightness == Brightness.dark)
-      bgCol = themeData.primaryColor;
+    if (themeData.brightness == Brightness.dark) bgCol = themeData.primaryColor;
     return ViewModelBuilder<NavDrawerViewModel>.reactive(
       builder: (context, model, child) => Drawer(
         child: Material(
@@ -24,18 +25,20 @@ class NavigationDrawerWidget extends StatelessWidget {
             children: <Widget>[
               buildHeader(
                 name: model.printerDisplayName,
-                email: Uri.parse(model.printerUrl).host,
+                email: model.printerUrl,
                 onClicked: () => model.navigateTo(Routes.printers),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 00),
                 child: Column(
                   children: [
-                    // Divider(),
-                    // ExpansionTile(title: const Text('Change Printer', style: TextStyle(color: Colors.white),),
-                    //   children: [],
-                    // ),
-                    // Divider(),
+                    ExpansionTile(
+                      title: const Text(
+                        'Manager Printers',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      children: buildPrinterSelection(context, model),
+                    ),
                     buildMenuItem(
                       model,
                       text: 'Overview',
@@ -68,38 +71,84 @@ class NavigationDrawerWidget extends StatelessWidget {
     );
   }
 
+  // Note always the first is the currently selected!
+  List<Widget> buildPrinterSelection(
+      BuildContext context, NavDrawerViewModel model) {
+    var theme = Theme.of(context);
+    Color highlightColor = theme.brightness == Brightness.dark
+        ? theme.accentColor
+        : theme.primaryColor;
+
+    List<PrinterSetting> printers = model.printers;
+    if (printers.isEmpty) {
+      return List.generate(
+          1,
+          (index) => ListTile(
+                title: Text('Add Printer'),
+                contentPadding: EdgeInsets.only(left: 32, right: 16),
+                trailing: Icon(Icons.add, color: highlightColor),
+                onTap: () => model.navigateTo(Routes.printersAdd),
+              ));
+    } else {
+      return List.generate(printers.length, (index) {
+        PrinterSetting curPS = printers[index];
+        var textStyle = TextStyle(color: Colors.white);
+        return ListTile(
+          title: Text(
+            curPS.name,
+            maxLines: 1,
+            style: textStyle,
+          ),
+          trailing: Icon(
+              index == 0 ? Icons.check : Icons.arrow_forward_ios_sharp,
+              color: highlightColor),
+          selectedTileColor: Colors.white12,
+          contentPadding: EdgeInsets.only(left: 32, right: 16),
+          selected: index == 0,
+          onTap: () => model.onSetActiveTap(curPS),
+          onLongPress: () => model.onEditTap(curPS),
+        );
+      });
+    }
+  }
+
   Widget buildHeader({
     required String name,
     required String email,
     required VoidCallback onClicked,
   }) =>
       Container(
-        padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+        margin: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.transparent,
-                backgroundImage: AssetImage('assets/images/voron_design.png')),
-            const SizedBox(width: 20),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                  style: TextStyle(fontSize: 20, color: Colors.white),
+                backgroundImage: AssetImage('assets/icon/mr_logo.png')),
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 20, color: Colors.white),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      email,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  email,
-                  overflow: TextOverflow.fade,
-                  style: TextStyle(fontSize: 14, color: Colors.white),
-                ),
-              ],
+              ),
             ),
-            Spacer(),
             IconButton(
                 onPressed: onClicked,
                 tooltip: 'Printers',
@@ -112,7 +161,8 @@ class NavigationDrawerWidget extends StatelessWidget {
         ),
       );
 
-  Widget buildMenuItem(NavDrawerViewModel model,{
+  Widget buildMenuItem(
+    NavDrawerViewModel model, {
     required String text,
     required IconData icon,
     required String path,
@@ -120,8 +170,7 @@ class NavigationDrawerWidget extends StatelessWidget {
   }) {
     final color = Colors.white;
     final hoverColor = Colors.white70;
-    if (onClicked == null)
-      onClicked = () => model.navigateTo(path);
+    if (onClicked == null) onClicked = () => model.navigateTo(path);
 
     return ListTile(
       selected: model.isSelected(path),
@@ -133,9 +182,9 @@ class NavigationDrawerWidget extends StatelessWidget {
     );
   }
 
-  // Widget buildFooter() {
-  //   return Row(children: [
-  //     TextButton(onPressed: onPressed, child: Text('Imprint'))
-  //   ]);
-  // }
+// Widget buildFooter() {
+//   return Row(children: [
+//     TextButton(onPressed: onPressed, child: Text('Imprint'))
+//   ]);
+// }
 }

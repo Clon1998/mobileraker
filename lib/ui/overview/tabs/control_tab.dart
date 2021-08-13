@@ -9,32 +9,31 @@ import 'package:mobileraker/ui/components/refreshPrinter.dart';
 import 'package:mobileraker/ui/overview/tabs/control_tab_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 
-class ControlTab extends StatelessWidget {
+class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   const ControlTab({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return ViewModelBuilder<ControlTabViewModel>.reactive(
-      builder: (context, model, child) => PullToRefreshPrinter(
-        child: ListView(
-          padding: EdgeInsets.only(bottom: 20),
-          children: [
-            if (model.hasPrinter &&
-                model.hasServer &&
-                model.isPrinterSelected) ...[
-              GcodeMacroCard(),
-              if (model.printer.print.state != PrintState.printing)
-                ExtruderControlCard(),
-              FansCard(),
-              PinsCard(),
-            ]
-          ],
-        ),
+  Widget builder(BuildContext context, ControlTabViewModel model, Widget? child) {
+    return PullToRefreshPrinter(
+      child: ListView(
+        padding: EdgeInsets.only(bottom: 20),
+        children: [
+          if (model.hasPrinter &&
+              model.hasServer &&
+              model.isPrinterSelected) ...[
+            GcodeMacroCard(),
+            if (model.printer.print.state != PrintState.printing)
+              ExtruderControlCard(),
+            FansCard(),
+            PinsCard(),
+          ]
+        ],
       ),
-      viewModelBuilder: () =>
-          ControlTabViewModel(), // ToDo: Maybe use a singletoN!
     );
   }
+
+  @override
+  ControlTabViewModel viewModelBuilder(BuildContext context) => ControlTabViewModel();
 }
 
 class FansCard extends ViewModelWidget<ControlTabViewModel> {
@@ -194,6 +193,8 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
 
   @override
   Widget build(BuildContext context, ControlTabViewModel model) {
+    Color textBtnColor = Theme.of(context).brightness == Brightness.dark? Colors.white: Colors.black;
+
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -219,7 +220,7 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(5.0))),
-                            primary: Colors.black),
+                            primary: textBtnColor),
                       ),
                       color: Theme.of(context).accentColor,
                     ),
@@ -234,7 +235,7 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(5.0))),
-                            primary: Colors.black),
+                            primary: textBtnColor),
                       ),
                       color: Theme.of(context).accentColor,
                     ),
@@ -290,7 +291,7 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: Wrap(
               spacing: 5.0,
-              children: _generateGCodeChips(model),
+              children: _generateGCodeChips(context, model),
             ),
           ),
         ],
@@ -298,13 +299,17 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
     );
   }
 
-  List<Widget> _generateGCodeChips(ControlTabViewModel model) {
+  List<Widget> _generateGCodeChips(BuildContext context ,ControlTabViewModel model) {
+    var themeData = Theme.of(context);
+    var bgCol = themeData.brightness == Brightness.dark? themeData.accentColor:themeData.primaryColor;
     return List<Widget>.generate(
       model.printer.gcodeMacros.length,
       (int index) {
         String macro = model.printer.gcodeMacros[index];
+
         return ActionChip(
           label: Text(macro.replaceAll("_", " ")),
+          backgroundColor: bgCol,
           onPressed: () => model.onMacroPressed(index),
         );
       },

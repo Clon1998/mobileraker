@@ -17,37 +17,41 @@ import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:stacked/stacked.dart';
 
-class GeneralTab extends StatelessWidget {
+class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
   const GeneralTab({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return ViewModelBuilder<GeneralTabViewModel>.reactive(
-      builder: (context, model, child) => Center(
-        child: PullToRefreshPrinter(
-          child: ListView(
-            padding: EdgeInsets.only(bottom: 20),
-            children: [
-              if (model.hasPrinter &&
-                  model.hasServer &&
-                  model.isPrinterSelected) ...[
-                PrintCard(),
-                TemperatureCard(),
-                if (model.webCamUrl != null) CamCard(),
-                if (model.printer.print.state != PrintState.printing)
-                  ControlXYZCard(),
-                if (model.printer.print.state == PrintState.printing)
-                  BabySteppingCard(),
-              ]
-            ],
-          ),
-        ),
+  bool get disposeViewModel => false;
+
+  @override
+  bool get initialiseSpecialViewModelsOnce => true;
+
+  @override
+  Widget builder(
+      BuildContext context, GeneralTabViewModel model, Widget? child) {
+    return PullToRefreshPrinter(
+      child: ListView(
+        padding: EdgeInsets.only(bottom: 20),
+        children: [
+          if (model.hasPrinter &&
+              model.hasServer &&
+              model.isPrinterSelected) ...[
+            PrintCard(),
+            TemperatureCard(),
+            if (model.webCamUrl != null) CamCard(),
+            if (model.printer.print.state != PrintState.printing)
+              ControlXYZCard(),
+            if (model.printer.print.state == PrintState.printing)
+              BabySteppingCard(),
+          ]
+        ],
       ),
-      viewModelBuilder: () => locator<GeneralTabViewModel>(),
-      disposeViewModel: false,
-      initialiseSpecialViewModelsOnce: true,
     );
   }
+
+  @override
+  GeneralTabViewModel viewModelBuilder(BuildContext context) =>
+      locator<GeneralTabViewModel>();
 }
 
 class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
@@ -354,6 +358,8 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
+    var marginForBtns = const EdgeInsets.all(10);
+    var txtBtnCOl = Theme.of(context).brightness == Brightness.dark? Colors.white:Colors.black;
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -364,112 +370,112 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
             trailing: HomedAxisChip(),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
             child: Column(
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
                     Column(
                       children: [
                         Row(
                           children: [
                             Container(
-                              margin: EdgeInsets.all(5),
+                              margin: marginForBtns,
+                              color: Theme.of(context).accentColor,
+                              height: 40,
+                              width: 40,
                               child: IconButton(
                                   onPressed: () =>
                                       model.onMoveBtn(PrinterAxis.Y),
                                   icon: Icon(FlutterIcons.upsquare_ant)),
-                              color: Theme.of(context).accentColor,
-                              height: 40,
-                              width: 40,
                             ),
                           ],
                         ),
                         Row(
                           children: [
                             Container(
-                                margin: EdgeInsets.all(5),
-                                child: IconButton(
-                                    onPressed: () =>
-                                        model.onMoveBtn(PrinterAxis.X, false),
-                                    icon: Icon(FlutterIcons.leftsquare_ant)),
-                                color: Theme.of(context).accentColor,
-                                height: 40,
-                                width: 40),
+                              margin: marginForBtns,
+                              color: Theme.of(context).accentColor,
+                              height: 40,
+                              width: 40,
+                              child: IconButton(
+                                  onPressed: () =>
+                                      model.onMoveBtn(PrinterAxis.X, false),
+                                  icon: Icon(FlutterIcons.leftsquare_ant)),
+                            ),
                             Container(
-                              margin: EdgeInsets.all(5),
+                              margin: marginForBtns,
+                              color: Theme.of(context).accentColor,
+                              height: 40,
+                              width: 40,
                               child: IconButton(
                                   onPressed: () => model.onHomeAxisBtn(
                                       {PrinterAxis.X, PrinterAxis.Y}),
                                   icon: Icon(FlutterIcons.home_faw5s)),
+                            ),
+                            Container(
+                              margin: marginForBtns,
                               color: Theme.of(context).accentColor,
                               height: 40,
                               width: 40,
-                            ),
-                            Container(
-                              margin: EdgeInsets.all(5),
                               child: IconButton(
                                   onPressed: () =>
                                       model.onMoveBtn(PrinterAxis.X),
                                   icon: Icon(FlutterIcons.rightsquare_ant)),
-                              color: Theme.of(context).accentColor,
-                              height: 40,
-                              width: 40,
                             ),
                           ],
                         ),
                         Row(
                           children: [
                             Container(
-                              margin: EdgeInsets.all(5),
+                              margin: marginForBtns,
+                              color: Theme.of(context).accentColor,
+                              height: 40,
+                              width: 40,
                               child: IconButton(
                                 onPressed: () =>
                                     model.onMoveBtn(PrinterAxis.Y, false),
                                 icon: Icon(FlutterIcons.downsquare_ant),
                               ),
-                              color: Theme.of(context).accentColor,
-                              height: 40,
-                              width: 40,
                             ),
                           ],
                         ),
                       ],
                     ),
-                    Spacer(flex: 1),
                     Column(
                       children: [
                         Container(
-                          margin: EdgeInsets.all(5),
-                          child: IconButton(
-                              onPressed: () => model.onMoveBtn(PrinterAxis.Z),
-                              icon: Icon(FlutterIcons.upsquare_ant)),
+                          margin: marginForBtns,
                           color: Theme.of(context).accentColor,
                           height: 40,
                           width: 40,
+                          child: IconButton(
+                              onPressed: () => model.onMoveBtn(PrinterAxis.Z),
+                              icon: Icon(FlutterIcons.upsquare_ant)),
                         ),
                         Container(
-                          margin: EdgeInsets.all(5),
+                          margin: marginForBtns,
+                          color: Theme.of(context).accentColor,
+                          height: 40,
+                          width: 40,
                           child: IconButton(
                               onPressed: () =>
                                   model.onHomeAxisBtn({PrinterAxis.Z}),
                               icon: Icon(FlutterIcons.home_faw5s)),
+                        ),
+                        Container(
+                          margin: marginForBtns,
                           color: Theme.of(context).accentColor,
                           height: 40,
                           width: 40,
-                        ),
-                        Container(
-                          margin: EdgeInsets.all(5),
                           child: IconButton(
                               onPressed: () =>
                                   model.onMoveBtn(PrinterAxis.Z, false),
                               icon: Icon(FlutterIcons.downsquare_ant)),
-                          color: Theme.of(context).accentColor,
-                          height: 40,
-                          width: 40,
                         ),
                       ],
                     ),
-                    Spacer(flex: 3),
                     Column(
                       children: [
                         TextButton.icon(
@@ -482,7 +488,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               shape: RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(5.0))),
-                              primary: Colors.black),
+                              primary: txtBtnCOl),
                         ),
                         if (model.printer.configFile.hasQuadGantry)
                           TextButton.icon(
@@ -494,7 +500,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(5.0))),
-                                primary: Colors.black),
+                                primary: txtBtnCOl),
                           ),
                         if (model.printer.configFile.hasBedMesh)
                           TextButton.icon(
@@ -506,7 +512,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(5.0))),
-                                primary: Colors.black),
+                                primary: txtBtnCOl),
                             // color: Theme.of(context).accentColor,
                           ),
                       ],

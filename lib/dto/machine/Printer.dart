@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:mobileraker/dto/config/ConfigFile.dart';
 
 enum PrinterAxis { X, Y, Z, E }
 enum PrinterState { ready, error, shutdown, startup, disconnected }
@@ -166,15 +167,7 @@ class GCodeMove {
   }
 }
 
-class ConfigFile {
-  Map<String, dynamic> config = {};
 
-  bool saveConfigPending = false;
-
-  bool get hasQuadGantry => config.containsKey("quad_gantry_level");
-
-  bool get hasBedMesh => config.containsKey("bed_mesh");
-}
 
 abstract class Fan {
   double speed = 0;

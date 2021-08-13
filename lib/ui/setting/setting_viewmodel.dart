@@ -4,7 +4,7 @@ import 'package:stacked/stacked.dart';
 
 class SettingViewModel extends BaseViewModel {
   final _logger = getLogger("SettingViewModel");
-  // late final WebSocketWrapper _webSocket = _selectedMachineService.webSocket;
+  // late final WebSocketWrapper _webSocket = _machineService.webSocket;
 
   onUrlChanged(String address) {
     _logger.i("Add changed to: $address");

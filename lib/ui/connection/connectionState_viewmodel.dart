@@ -4,7 +4,7 @@ import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.logger.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/service/SelectedMachineService.dart';
+import 'package:mobileraker/service/MachineService.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -14,7 +14,7 @@ const String _DisplayStreamKey = 'display';
 
 
 class ConnectionStateViewModel extends MultipleStreamViewModel {
-  final _selectedMachineService = locator<SelectedMachineService>();
+  final _machineService = locator<MachineService>();
   final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
@@ -25,7 +25,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
   Map<String, StreamData> get streamsMap =>
       {
         _SelectedPrinterStreamKey:
-        StreamData<PrinterSetting?>(_selectedMachineService.selectedPrinter),
+        StreamData<PrinterSetting?>(_machineService.selectedPrinter),
         _DisplayStreamKey: StreamData<FGBGType>(FGBGEvents.stream),
         if (_printerSetting?.websocket != null) ...{
           _WebSocketStreamKey:
@@ -54,7 +54,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
       case _DisplayStreamKey:
         switch (data) {
           case FGBGType.foreground:
-          //Todo: Decide to use ENSURE CONNECTION!
+            _webSocket?.ensureConnection();
             break;
           case FGBGType.background:
             break;
@@ -77,6 +77,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
         break;
       case WebSocketState.error:
         _snackBarService.showSnackbar(
+            title: "Websocket",
             message: "Error while trying to connect:TODO");
         break;
     }
@@ -87,11 +88,11 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
   }
 
   onAddPrinterTap() {
-    _navigationService.navigateTo(Routes.printers);
+    _navigationService.navigateTo(Routes.printersAdd);
   }
 
   WebSocketState get connectionState =>
       dataMap?[_WebSocketStreamKey] ?? WebSocketState.disconnected;
 
-  bool get hasPrinter  => _selectedMachineService.printerAvailable();
+  bool get hasPrinter  => _machineService.printerAvailable();
 }

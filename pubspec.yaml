@@ -71,10 +71,20 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: "^0.9.1"
   hive_generator: ^1.1.0
   build_runner: ^2.0.6
   stacked_generator: ^0.5.1
 
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/mr_rec.png"
+  #image_path_ios: "assets/icon/mr_rec.png"
+  adaptive_icon_background: "#2A2A2A"
+  adaptive_icon_foreground: "assets/icon/ic_launcher_foreground.png"
+  remove_alpha_ios: true
 #
 #dependency_overrides:
 #  date_range_picker:
@@ -94,6 +104,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
   - assets/images/
+  - assets/icon/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -182,7 +182,7 @@ class _WebCamItem extends StatelessWidget {
             decoration: InputDecoration(
                 border: InputBorder.none
             ),
-            secondary: const Icon(FlutterIcons.swap_horizontal_mco),
+            secondary: const Icon(FlutterIcons.swap_vertical_mco),
             initialValue: cam.flipVertical,
             name: '${cam.uuid}-camFV',
           ),
@@ -191,7 +191,7 @@ class _WebCamItem extends StatelessWidget {
             decoration: InputDecoration(
                 border: InputBorder.none
             ),
-            secondary: const Icon(FlutterIcons.swap_vertical_mco),
+            secondary: const Icon(FlutterIcons.swap_horizontal_mco),
             initialValue: cam.flipHorizontal,
             name: '${cam.uuid}-camFH',
           ),

@@ -5,8 +5,7 @@ import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
-import 'package:mobileraker/service/PrinterSettingsService.dart';
-import 'package:mobileraker/service/SelectedMachineService.dart';
+import 'package:mobileraker/service/MachineService.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -15,8 +14,7 @@ const String _ServerStreamKey = 'server';
 
 class PrintersSlidableViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
-  final _printerSettingsService = locator<PrinterSettingsService>();
-  final _selectedMachineService = locator<SelectedMachineService>();
+  final _machineService = locator<MachineService>();
   
   final PrinterSetting _printerSetting;
 
@@ -26,12 +24,12 @@ class PrintersSlidableViewModel extends MultipleStreamViewModel {
   Map<String, StreamData> get streamsMap => {
     _ServerStreamKey : StreamData(_printerSetting.klippyService.klipperStream),
     _SelectedPrinterStreamKey : StreamData<PrinterSetting?>(
-        _selectedMachineService.selectedPrinter)
+        _machineService.selectedPrinter)
   };
 
 
   onDeleteTap() {
-    _printerSettingsService.removePrinter(_printerSetting);
+    _machineService.removePrinter(_printerSetting);
   }
 
   onEditTap() {
@@ -39,7 +37,7 @@ class PrintersSlidableViewModel extends MultipleStreamViewModel {
   }
 
   onSetActiveTap() {
-    _selectedMachineService.setPrinterActive(_printerSetting);
+    _machineService.setPrinterActive(_printerSetting);
   }
 
 
@@ -66,6 +64,6 @@ class PrintersSlidableViewModel extends MultipleStreamViewModel {
   String get name => _printerSetting.name;
   String get baseUrl => _printerSetting.wsUrl;
 
-  bool get isSelectedPrinter => _selectedMachineService.isSelectedMachine(_printerSetting);
+  bool get isSelectedPrinter => _machineService.isSelectedMachine(_printerSetting);
 
 }

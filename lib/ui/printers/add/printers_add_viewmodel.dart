@@ -6,14 +6,14 @@ import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/service/PrinterSettingsService.dart';
+import 'package:mobileraker/service/MachineService.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
   final _navigationService = locator<NavigationService>();
   final _snackbarService = locator<SnackbarService>();
-  final _printerSettingService = locator<PrinterSettingsService>();
+  final _printerSettingService = locator<MachineService>();
   final _fbKey = GlobalKey<FormBuilderState>();
   final printers = Hive.box<PrinterSetting>('printers');
   final String defaultPrinterName = 'My Printer';
@@ -88,9 +88,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
       var printerSetting = PrinterSetting(printerName, printerUrl);
       _printerSettingService
           .addPrinter(printerSetting)
-          .then((value) => _navigationService.popUntil((route) {
-                return route.settings.name == Routes.printers;
-              }));
+          .then((value) => _navigationService.clearStackAndShow(Routes.overView));
     }
   }
 
