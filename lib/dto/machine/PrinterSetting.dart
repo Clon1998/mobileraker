@@ -17,12 +17,15 @@ class PrinterSetting extends HiveObject {
   String uuid = Uuid().v4();
   @HiveField(3)
   List<WebcamSetting> cams = List.empty(growable: true);
+  @HiveField(4)
+  String? apiKey;
 
   WebSocketWrapper? _webSocket;
 
   WebSocketWrapper get websocket {
     if (_webSocket == null)
-      _webSocket = WebSocketWrapper(wsUrl, Duration(seconds: 5));
+      _webSocket =
+          WebSocketWrapper(wsUrl, Duration(seconds: 5), apiKey: apiKey);
 
     return _webSocket!;
   }
@@ -41,7 +44,17 @@ class PrinterSetting extends HiveObject {
     return _klippyService!;
   }
 
-  PrinterSetting(this.name, this.wsUrl);
+  PrinterSetting(this.name, this.wsUrl, {this.apiKey});
+
+  @override
+  Future<void> save() async {
+    await super.save();
+
+    _webSocket?.reset();
+    if (_webSocket != null && _webSocket!.stateStream.isClosed)
+      _webSocket?.stateStream.close();
+    _webSocket = null;
+  }
 
   @override
   Future<void> delete() async {

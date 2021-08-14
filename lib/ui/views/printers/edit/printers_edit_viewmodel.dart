@@ -22,8 +22,9 @@ class PrintersEditViewModel extends BaseViewModel {
 
   GlobalKey get formKey => _fbKey;
 
-  String get printerDisplayName =>
-      printerSetting.name;
+  String get printerDisplayName => printerSetting.name;
+
+  String? get printerApiKey => printerSetting.apiKey;
 
   String? get wsUrl {
     var printerUrl = inputUrl;
@@ -68,6 +69,7 @@ class PrintersEditViewModel extends BaseViewModel {
   onFormConfirm() {
     if (_fbKey.currentState!.saveAndValidate()) {
       var printerName = _fbKey.currentState!.value['printerName'];
+      var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
       if (!Uri.parse(printerUrl).hasScheme) {
         printerUrl = 'ws://$printerUrl/websocket';
@@ -78,26 +80,25 @@ class PrintersEditViewModel extends BaseViewModel {
       printerSetting
         ..name = printerName
         ..wsUrl = printerUrl
+        ..apiKey = printerAPIKey
         ..cams = webcams;
-      printerSetting
-          .save()
-          .then((value) => _navigationService.popUntil((route) {
-                return route.settings.name == Routes.printers;
-              }));
+      printerSetting.save().then(
+          (value) => _navigationService.clearStackAndShow(Routes.overView));
     }
   }
 
   onDeleteTap() async {
     _dialogService
         .showConfirmationDialog(
-            title: "Delete ${printerSetting.name}?",
-            description:
-                "Are you sure you want to remove the printer ${printerSetting.name} running under the address ${wsUrl}.",
-            confirmationTitle: "Delete",
+      title: "Delete ${printerSetting.name}?",
+      description:
+          "Are you sure you want to remove the printer ${printerSetting.name} running under the address ${wsUrl}.",
+      confirmationTitle: "Delete",
     )
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false)
-        _machineService.removePrinter(printerSetting);
+        _machineService.removePrinter(printerSetting).then(
+            (value) => _navigationService.clearStackAndShow(Routes.overView));
     });
   }
 }

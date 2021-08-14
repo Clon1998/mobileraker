@@ -24,7 +24,7 @@ class MachineService {
     return printerSetting;
   }
 
-  removePrinter(PrinterSetting printerSetting) async {
+  Future<void> removePrinter(PrinterSetting printerSetting) async {
     await printerSetting.delete();
     if (_boxUuid.get('selectedPrinter') == printerSetting.uuid) {
       var key = (_boxPrinterSettings.isEmpty)

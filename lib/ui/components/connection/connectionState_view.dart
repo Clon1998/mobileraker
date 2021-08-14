@@ -66,7 +66,7 @@ class ConnectionStateView extends StatelessWidget {
               SizedBox(
                 height: 30,
               ),
-              Text("Error while trying to connect. Please retry later."),
+              Text("Disconnected!"),
               TextButton.icon(
                   onPressed: model.onRetryPressed,
                   icon: Icon(Icons.stream),
@@ -92,15 +92,17 @@ class ConnectionStateView extends StatelessWidget {
         );
       case WebSocketState.error:
       default:
-        return Center(
+        return Container(
+          alignment: Alignment.center,
+          padding: EdgeInsets.all(22),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.warning_amber_outlined),
               SizedBox(
-                height: 30,
+                height: 20,
               ),
-              Text("Error while trying to connect. Please retry later."),
+              Text(model.websocketErrorMessage, textAlign: TextAlign.center,),
               TextButton.icon(
                   onPressed: model.onRetryPressed,
                   icon: Icon(Icons.stream),

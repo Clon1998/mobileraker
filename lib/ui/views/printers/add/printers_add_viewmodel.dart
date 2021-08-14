@@ -27,6 +27,10 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
   WebSocketWrapper? _testWebSocket;
 
   String get wsResult {
+    if (_testWebSocket?.requiresAPIKey ?? false) {
+      return 'Requires API-Key';
+    }
+
     if (dataReady) {
       switch (data) {
         case WebSocketState.connecting:
@@ -44,15 +48,14 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
   }
 
   String? get wsError {
-  if (dataReady) {
-    return _testWebSocket?.errorReason?.toString();
-  }
-  return null;
+    if (dataReady) {
+      return _testWebSocket?.errorReason?.toString();
+    }
+    return null;
   }
 
   Color get wsStateColor {
-    if (!dataReady)
-      return Colors.red;
+    if (!dataReady) return Colors.red;
     switch (data) {
       case WebSocketState.connected:
         return Colors.green;
@@ -64,7 +67,6 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
         return Colors.orange;
     }
   }
-
 
   String? get wsUrl {
     var printerUrl = inputUrl;
@@ -81,20 +83,22 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
   onFormConfirm() {
     if (_fbKey.currentState!.saveAndValidate()) {
       var printerName = _fbKey.currentState!.value['printerName'];
+      var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
       if (!Uri.parse(printerUrl).hasScheme) {
         printerUrl = 'ws://$printerUrl/websocket';
       }
-      var printerSetting = PrinterSetting(printerName, printerUrl);
-      _printerSettingService
-          .addPrinter(printerSetting)
-          .then((value) => _navigationService.clearStackAndShow(Routes.overView));
+      var printerSetting =
+          PrinterSetting(printerName, printerUrl, apiKey: printerAPIKey);
+      _printerSettingService.addPrinter(printerSetting).then(
+          (value) => _navigationService.clearStackAndShow(Routes.overView));
     }
   }
 
   onTestConnectionTap() async {
     if (_fbKey.currentState!.saveAndValidate()) {
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
+      var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
       var uri = Uri.parse(printerUrl);
       if (!uri.hasScheme) {
         printerUrl = 'ws://$printerUrl/websocket';
@@ -102,7 +106,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
       _testWebSocket?.reset();
       _testWebSocket?.stateStream.close();
 
-      _testWebSocket = WebSocketWrapper(printerUrl, Duration(seconds: 2));
+      _testWebSocket = WebSocketWrapper(printerUrl, Duration(seconds: 2), apiKey: printerAPIKey);
 
       _wsStream = _testWebSocket!.stateStream;
       notifySourceChanged();

@@ -13,13 +13,14 @@ enum WebSocketState { disconnected, connecting, connected, error }
 class WebSocketWrapper {
   final _logger = getLogger('WebSocketWrapper');
   final String url;
-  final int _defaultMaxRetries;
+  final int defaultMaxRetries;
   final Duration _defaultTimeout;
   IOWebSocketChannel? _channel;
+  String? apiKey;
 
   WebSocketWrapper(this.url, this._defaultTimeout,
-      [this._defaultMaxRetries = 3]) {
-    this.initCommunication(_defaultMaxRetries);
+      {this.defaultMaxRetries = 3, this.apiKey}) {
+    this.initCommunication(defaultMaxRetries);
   }
 
   BehaviorSubject<WebSocketState> stateStream =
@@ -53,15 +54,19 @@ class WebSocketWrapper {
   /// Initialization the WebSockets connection with the server
   /// ----------------------------------------------------------
   initCommunication([int? tries]) {
-    _tryConnect(tries ?? _defaultMaxRetries);
+    _tryConnect(tries ?? defaultMaxRetries);
   }
 
   _tryConnect(int maxRetries) {
-    _logger.i("Trying to connect to $url");
+    _logger.i("Trying to connect to $url with APIkey: `$apiKey`");
     state = WebSocketState.connecting;
     reset();
 
-    WebSocket.connect(url.toString()).timeout(_defaultTimeout).then((socket) {
+    Map<String, dynamic> headers = {};
+    if (apiKey != null) headers['X-Api-Key'] = apiKey;
+    WebSocket.connect(url.toString(), headers: headers)
+        .timeout(_defaultTimeout)
+        .then((socket) {
       socket.pingInterval = _defaultTimeout;
       _channel = IOWebSocketChannel(socket);
 
@@ -158,12 +163,23 @@ class WebSocketWrapper {
     state = WebSocketState.error;
   }
 
+  bool get requiresAPIKey {
+    if (errorReason != null) {
+      if (errorReason is WebSocketException) {
+        return (errorReason as WebSocketException)
+            .message
+            .contains('was not upgraded to websocket');
+      }
+    }
+
+    return false;
+  }
+
   _onWSClosesNormal(int maxRetries) {
     var t = state;
     if (t != WebSocketState.error) {
       t = WebSocketState.disconnected;
     }
-
-    state = t;
+    if (!stateStream.isClosed) state = t;
   }
 }

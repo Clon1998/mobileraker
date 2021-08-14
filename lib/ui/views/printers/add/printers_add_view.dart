@@ -56,6 +56,13 @@ class PrintersAdd extends StatelessWidget {
                             protocols: ['ws', 'wss'])
                       ]),
                     ),
+                    FormBuilderTextField(
+                      decoration: InputDecoration(
+                          labelText: 'Moonraker - API Key',
+                          helperText: 'Only needed if youre using trusted clients. FluiddPI enforces this!',
+                      ),
+                      name: 'printerApiKey',
+                    ),
                     Divider(),
                     _SectionHeader(title: 'Misc'),
                     InputDecorator(

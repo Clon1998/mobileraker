@@ -12,7 +12,6 @@ const String _WebSocketStreamKey = 'websocket';
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _DisplayStreamKey = 'display';
 
-
 class ConnectionStateViewModel extends MultipleStreamViewModel {
   final _machineService = locator<MachineService>();
   final _snackBarService = locator<SnackbarService>();
@@ -22,14 +21,13 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
   PrinterSetting? _printerSetting;
 
   @override
-  Map<String, StreamData> get streamsMap =>
-      {
+  Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-        StreamData<PrinterSetting?>(_machineService.selectedPrinter),
+            StreamData<PrinterSetting?>(_machineService.selectedPrinter),
         _DisplayStreamKey: StreamData<FGBGType>(FGBGEvents.stream),
         if (_printerSetting?.websocket != null) ...{
           _WebSocketStreamKey:
-          StreamData<WebSocketState>(_webSocket!.stateStream)
+              StreamData<WebSocketState>(_webSocket!.stateStream)
         }
       };
 
@@ -66,19 +64,18 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
   onDataWebSocket(WebSocketState data) {
     switch (data) {
       case WebSocketState.disconnected:
-      // TODO: Handle this case.
+        // TODO: Handle this case.
         break;
       case WebSocketState.connecting:
-      // _snackBarService.showSnackbar(
-      //     message: "Trying to connect to Moonraker. Retry: ${_webSocket.retries}");
+        // _snackBarService.showSnackbar(
+        //     message: "Trying to connect to Moonraker. Retry: ${_webSocket.retries}");
         break;
       case WebSocketState.connected:
-      // _snackBarService.showSnackbar(message: "Connected to Moonraker");
+        // _snackBarService.showSnackbar(message: "Connected to Moonraker");
         break;
       case WebSocketState.error:
         _snackBarService.showSnackbar(
-            title: "Websocket",
-            message: "Error while trying to connect:TODO");
+            title: "Websocket", message: "Error while trying to connect:TODO");
         break;
     }
   }
@@ -94,5 +91,12 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
   WebSocketState get connectionState =>
       dataMap?[_WebSocketStreamKey] ?? WebSocketState.disconnected;
 
-  bool get hasPrinter  => _machineService.printerAvailable();
+  bool get hasPrinter => _machineService.printerAvailable();
+
+  String get websocketErrorMessage {
+    if (_webSocket?.requiresAPIKey ?? false)
+      return "It seems like you configured trusted clients for moonraker. Please add the API key in the printers settings!";
+    else
+      return "Error while trying to connect. Please retry later.";
+  }
 }
