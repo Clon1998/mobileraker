@@ -10,7 +10,7 @@ import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/ui/components/CardWithButton.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refreshPrinter.dart';
-import 'package:mobileraker/ui/overview/tabs/general_tab_viewmodel.dart';
+import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:intl/intl.dart';

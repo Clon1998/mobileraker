@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_settings_screens/flutter_settings_screens.dart';
-import 'package:mobileraker/ui/setting/setting_viewmodel.dart';
+import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:validators/validators.dart';
 

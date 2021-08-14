@@ -6,18 +6,14 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/service/MachineService.dart';
-import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
-import 'package:mobileraker/ui/overview/overview_view.dart';
-import 'package:mobileraker/ui/overview/tabs/general_tab_viewmodel.dart';
-import 'package:mobileraker/ui/printers/add/printers_add_view.dart';
-import 'package:mobileraker/ui/printers/edit/printers_edit_view.dart';
-import 'package:mobileraker/ui/printers/printers_view.dart';
-import 'package:mobileraker/ui/setting/setting_view.dart';
-import 'package:stacked/stacked.dart';
+import 'package:mobileraker/ui/views/printers/add/printers_add_view.dart';
+import 'package:mobileraker/ui/views/printers/edit/printers_edit_view.dart';
+import 'package:mobileraker/ui/views/printers/printers_view.dart';
+import 'package:mobileraker/ui/views/setting/setting_view.dart';
+import 'package:mobileraker/ui/views/overview/overview_view.dart';
+import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
-
-import 'AppSetup.locator.dart';
 
 @StackedApp(routes: [
   MaterialRoute(page: OverView, initial: true),
@@ -30,21 +26,10 @@ import 'AppSetup.locator.dart';
   LazySingleton(classType: SnackbarService),
   LazySingleton(classType: DialogService),
   LazySingleton(classType: BottomSheetService),
+  LazySingleton(classType: GeneralTabViewModel),
+  Singleton(classType: MachineService),
 ], logger: StackedLogger())
 class AppSetup {}
-
-enum DialogType { editForm, connectionError }
-
-registerViewmodels() async {
-  final locator = StackedLocator.instance;
-  locator.registerLazySingleton(() => GeneralTabViewModel());
-}
-
-registerPrinters() async {
-  final locator = StackedLocator.instance;
-  var selectedMachineService = MachineService();
-  locator.registerSingleton<MachineService>(selectedMachineService);
-}
 
 openBoxes() async {
   await Hive.initFlutter();
@@ -55,16 +40,6 @@ openBoxes() async {
     Hive.openBox<PrinterSetting>('printers'),
     Hive.openBox<String>('uuidbox'),
   ]);
-}
-
-setupDialogUi() {
-  final dialogService = locator<DialogService>();
-
-  final builders = {
-    DialogType.editForm: (context, sheetRequest, completer) =>
-        EditFormDialogView(request: sheetRequest, completer: completer),
-  };
-  dialogService.registerCustomDialogBuilders(builders);
 }
 
 setupNotifications() {

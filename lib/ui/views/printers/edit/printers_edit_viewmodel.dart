@@ -5,11 +5,14 @@ import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
+import 'package:mobileraker/service/MachineService.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class PrintersEditViewModel extends BaseViewModel {
   final _navigationService = locator<NavigationService>();
+  final _dialogService = locator<DialogService>();
+  final _machineService = locator<MachineService>();
   final _fbKey = GlobalKey<FormBuilderState>();
   final PrinterSetting printerSetting;
   late final webcams = printerSetting.cams.toList();
@@ -18,6 +21,9 @@ class PrintersEditViewModel extends BaseViewModel {
   PrintersEditViewModel(this.printerSetting);
 
   GlobalKey get formKey => _fbKey;
+
+  String get printerDisplayName =>
+      printerSetting.name;
 
   String? get wsUrl {
     var printerUrl = inputUrl;
@@ -79,5 +85,19 @@ class PrintersEditViewModel extends BaseViewModel {
                 return route.settings.name == Routes.printers;
               }));
     }
+  }
+
+  onDeleteTap() async {
+    _dialogService
+        .showConfirmationDialog(
+            title: "Delete ${printerSetting.name}?",
+            description:
+                "Are you sure you want to remove the printer ${printerSetting.name} running under the address ${wsUrl}.",
+            confirmationTitle: "Delete",
+    )
+        .then((dialogResponse) {
+      if (dialogResponse?.confirmed ?? false)
+        _machineService.removePrinter(printerSetting);
+    });
   }
 }

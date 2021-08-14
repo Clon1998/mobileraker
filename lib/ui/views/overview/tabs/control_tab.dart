@@ -6,7 +6,7 @@ import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/ui/components/CardWithButton.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refreshPrinter.dart';
-import 'package:mobileraker/ui/overview/tabs/control_tab_viewmodel.dart';
+import 'package:mobileraker/ui/views/overview/tabs/control_tab_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 
 class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {

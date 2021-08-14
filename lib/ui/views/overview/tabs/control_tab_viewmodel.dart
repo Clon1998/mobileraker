@@ -1,13 +1,12 @@
-
-import 'package:mobileraker/app/AppSetup.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:mobileraker/service/KlippyService.dart';
-import 'package:mobileraker/service/PrinterService.dart';
 import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/service/PrinterService.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
+import 'package:mobileraker/ui/setup_dialog_ui.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -23,7 +22,6 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   int selectedIndexRetractLength = 0;
 
-
   PrinterSetting? _printerSetting;
   PrinterService? _printerService;
   KlippyService? _klippyService;
@@ -31,16 +29,16 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   //ToDO: Maybe to pass these down from the overview viewmodel..
   @override
   Map<String, StreamData> get streamsMap => {
-    _SelectedPrinterStreamKey: StreamData<PrinterSetting?>(
-        _machineService.selectedPrinter),
-    if (_printerSetting?.printerService != null) ...{
-      _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
-    },
-    if (_printerSetting?.klippyService != null) ...{
-      _ServerStreamKey:
-      StreamData<KlipperInstance>(_klippyService!.klipperStream)
-    }
-  };
+        _SelectedPrinterStreamKey:
+            StreamData<PrinterSetting?>(_machineService.selectedPrinter),
+        if (_printerSetting?.printerService != null) ...{
+          _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
+        },
+        if (_printerSetting?.klippyService != null) ...{
+          _ServerStreamKey:
+              StreamData<KlipperInstance>(_klippyService!.klipperStream)
+        }
+      };
 
   @override
   onData(String key, data) {
@@ -61,7 +59,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
         notifySourceChanged(clearOldData: true);
         break;
       default:
-      // Do nothing
+        // Do nothing
         break;
     }
   }
@@ -79,15 +77,16 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   onEditPin(OutputPin pin) {
     _dialogService
         .showCustomDialog(
-        variant: DialogType.editForm,
-        title: "Edit ${pin.name} %",
-        mainButtonTitle: "Confirm",
-        secondaryButtonTitle: "Cancel",
-        data: EditFormDialogViewArguments(max: 100, current: pin.value*100.round()))
+            variant: DialogType.editForm,
+            title: "Edit ${pin.name} %",
+            mainButtonTitle: "Confirm",
+            secondaryButtonTitle: "Cancel",
+            data: EditFormDialogViewArguments(
+                max: 100, current: pin.value * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
-        _printerService?.outputPin(pin.name,v.toDouble()/10);
+        _printerService?.outputPin(pin.name, v.toDouble() / 10);
       }
     });
   }
@@ -95,15 +94,16 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   onEditFan() {
     _dialogService
         .showCustomDialog(
-        variant: DialogType.editForm,
-        title: "Edit Part Cooling fan %",
-        mainButtonTitle: "Confirm",
-        secondaryButtonTitle: "Cancel",
-        data: EditFormDialogViewArguments(max: 100,current: printer.printFan.speed*100.round()))
+            variant: DialogType.editForm,
+            title: "Edit Part Cooling fan %",
+            mainButtonTitle: "Confirm",
+            secondaryButtonTitle: "Cancel",
+            data: EditFormDialogViewArguments(
+                max: 100, current: printer.printFan.speed * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
-        _printerService?.partCoolingFan(v.toDouble()/100);
+        _printerService?.partCoolingFan(v.toDouble() / 100);
       }
     });
   }
@@ -125,5 +125,4 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   onMacroPressed(int macroIndex) {
     _printerService?.gCodeMacro(printer.gcodeMacros[macroIndex]);
   }
-
 }

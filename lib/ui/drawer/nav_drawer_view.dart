@@ -26,7 +26,7 @@ class NavigationDrawerWidget extends StatelessWidget {
               buildHeader(
                 name: model.printerDisplayName,
                 email: model.printerUrl,
-                onClicked: () => model.navigateTo(Routes.printers),
+                onClicked: () => model.onEditTap(null),
               ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 00),
@@ -80,36 +80,32 @@ class NavigationDrawerWidget extends StatelessWidget {
         : theme.primaryColor;
 
     List<PrinterSetting> printers = model.printers;
-    if (printers.isEmpty) {
-      return List.generate(
-          1,
-          (index) => ListTile(
-                title: Text('Add Printer'),
-                contentPadding: EdgeInsets.only(left: 32, right: 16),
-                trailing: Icon(Icons.add, color: highlightColor),
-                onTap: () => model.navigateTo(Routes.printersAdd),
-              ));
-    } else {
-      return List.generate(printers.length, (index) {
-        PrinterSetting curPS = printers[index];
-        var textStyle = TextStyle(color: Colors.white);
+    return List.generate(printers.length + 1, (index) {
+      if (index == printers.length) {
         return ListTile(
-          title: Text(
-            curPS.name,
-            maxLines: 1,
-            style: textStyle,
-          ),
-          trailing: Icon(
-              index == 0 ? Icons.check : Icons.arrow_forward_ios_sharp,
-              color: highlightColor),
-          selectedTileColor: Colors.white12,
+          title: Text('Add new printer'),
           contentPadding: EdgeInsets.only(left: 32, right: 16),
-          selected: index == 0,
-          onTap: () => model.onSetActiveTap(curPS),
-          onLongPress: () => model.onEditTap(curPS),
+          trailing: Icon(Icons.add, color: highlightColor),
+          onTap: () => model.navigateTo(Routes.printersAdd),
         );
-      });
-    }
+      }
+      PrinterSetting curPS = printers[index];
+      var textStyle = TextStyle(color: Colors.white);
+      return ListTile(
+        title: Text(
+          curPS.name,
+          maxLines: 1,
+          style: textStyle,
+        ),
+        trailing: Icon(index == 0 ? Icons.check : Icons.arrow_forward_ios_sharp,
+            color: highlightColor),
+        selectedTileColor: Colors.white12,
+        contentPadding: EdgeInsets.only(left: 32, right: 16),
+        selected: index == 0,
+        onTap: () => model.onSetActiveTap(curPS),
+        onLongPress: () => model.onEditTap(curPS),
+      );
+    });
   }
 
   Widget buildHeader({
@@ -151,7 +147,7 @@ class NavigationDrawerWidget extends StatelessWidget {
             ),
             IconButton(
                 onPressed: onClicked,
-                tooltip: 'Printers',
+                tooltip: 'Printer settings',
                 icon: Icon(
                   FlutterIcons.settings_fea,
                   color: Colors.white,

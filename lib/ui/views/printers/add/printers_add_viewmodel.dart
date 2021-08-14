@@ -95,7 +95,8 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
   onTestConnectionTap() async {
     if (_fbKey.currentState!.saveAndValidate()) {
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
-      if (!Uri.parse(printerUrl).hasScheme) {
+      var uri = Uri.parse(printerUrl);
+      if (!uri.hasScheme) {
         printerUrl = 'ws://$printerUrl/websocket';
       }
       _testWebSocket?.reset();

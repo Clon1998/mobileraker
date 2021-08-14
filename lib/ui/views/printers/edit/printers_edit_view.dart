@@ -19,7 +19,11 @@ class PrintersEdit extends StatelessWidget {
         builder: (context, model, child) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Edit'),
+              title: Text(
+                'Edit ${model.printerDisplayName}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               actions: [
                 IconButton(
                     onPressed: model.onFormConfirm,
@@ -41,7 +45,7 @@ class PrintersEdit extends StatelessWidget {
                           labelText: 'Displayname',
                         ),
                         name: 'printerName',
-                        initialValue: model.printerSetting.name,
+                        initialValue: model.printerDisplayName,
                         validator: FormBuilderValidators.compose(
                             [FormBuilderValidators.required(context)]),
                       ),
@@ -82,6 +86,13 @@ class PrintersEdit extends StatelessWidget {
                       ),
                       ..._buildWebCams(model),
                       Divider(),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: TextButton.icon(
+                            onPressed: model.onDeleteTap,
+                            icon: Icon(Icons.delete_forever_outlined),
+                            label: Text('Remove printer')),
+                      )
                     ],
                   ),
                 ),
@@ -169,28 +180,26 @@ class _WebCamItem extends StatelessWidget {
           FormBuilderTextField(
             decoration: InputDecoration(
                 labelText: 'Webcam-Address',
-                helperText: 'Default address: http://<URL>/webcam/?action=stream'),
+                helperText:
+                    'Default address: http://<URL>/webcam/?action=stream'),
             name: '${cam.uuid}-camUrl',
             initialValue: cam.url,
             validator: FormBuilderValidators.compose([
               FormBuilderValidators.required(context),
-              FormBuilderValidators.url(context, protocols: ['http', 'https'], requireProtocol: true)
+              FormBuilderValidators.url(context,
+                  protocols: ['http', 'https'], requireProtocol: true)
             ]),
           ),
           FormBuilderSwitch(
             title: const Text('Flip vertical'),
-            decoration: InputDecoration(
-                border: InputBorder.none
-            ),
+            decoration: InputDecoration(border: InputBorder.none),
             secondary: const Icon(FlutterIcons.swap_vertical_mco),
             initialValue: cam.flipVertical,
             name: '${cam.uuid}-camFV',
           ),
           FormBuilderSwitch(
             title: const Text('Flip horizontal'),
-            decoration: InputDecoration(
-                border: InputBorder.none
-            ),
+            decoration: InputDecoration(border: InputBorder.none),
             secondary: const Icon(FlutterIcons.swap_horizontal_mco),
             initialValue: cam.flipHorizontal,
             name: '${cam.uuid}-camFH',

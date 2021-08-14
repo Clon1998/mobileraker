@@ -27,7 +27,9 @@ class MachineService {
   removePrinter(PrinterSetting printerSetting) async {
     await printerSetting.delete();
     if (_boxUuid.get('selectedPrinter') == printerSetting.uuid) {
-      var key = (_boxPrinterSettings.isEmpty)? null: _boxPrinterSettings.values.first;
+      var key = (_boxPrinterSettings.isEmpty)
+          ? null
+          : _boxPrinterSettings.values.first;
 
       await setPrinterActive(key);
     }
@@ -38,8 +40,7 @@ class MachineService {
   }
 
   setPrinterActive(PrinterSetting? printerSetting) async {
-    if (printerSetting == selectedPrinter.valueOrNull)
-      return;
+    if (printerSetting == selectedPrinter.valueOrNull) return;
     if (printerSetting == null) {
       await _boxUuid.delete('selectedPrinter');
       selectedPrinter.add(null);
@@ -54,7 +55,8 @@ class MachineService {
     return selectedPrinter.valueOrNull != null;
   }
 
-  bool isSelectedMachine(PrinterSetting toCheck) => toCheck == selectedPrinter.valueOrNull;
+  bool isSelectedMachine(PrinterSetting toCheck) =>
+      toCheck == selectedPrinter.valueOrNull;
 
   dispose() {
     selectedPrinter.close();

@@ -16,11 +16,9 @@ class NavDrawerViewModel extends BaseViewModel {
     var iterable = _machineService.fetchAll();
     var selectedUUID = _machineService.selectedPrinter.valueOrNull?.uuid;
     List<PrinterSetting> list = List.of(iterable);
-    list.sort((a,b){
-      if (a.uuid == selectedUUID)
-        return -1;//Move selected to first position
-      if (b.uuid == selectedUUID)
-        return 1;//Move selected to first position
+    list.sort((a, b) {
+      if (a.uuid == selectedUUID) return -1; //Move selected to first position
+      if (b.uuid == selectedUUID) return 1; //Move selected to first position
 
       return a.name.compareTo(b.name);
     });
@@ -28,9 +26,14 @@ class NavDrawerViewModel extends BaseViewModel {
     return list;
   }
 
-  onEditTap(PrinterSetting printerSetting) {
-    _navigationService.back();
-    _navigationService.navigateTo(Routes.printersEdit, arguments: PrintersEditArguments(printerSetting: printerSetting));
+  onEditTap(PrinterSetting? printerSetting) {
+    printerSetting ??= _machineService.selectedPrinter.valueOrNull;
+    if (printerSetting == null) {
+      navigateTo(Routes.printersAdd);
+    } else {
+      navigateTo(Routes.printersEdit,
+          arguments: PrintersEditArguments(printerSetting: printerSetting));
+    }
   }
 
   onSetActiveTap(PrinterSetting printerSetting) {
@@ -43,16 +46,15 @@ class NavDrawerViewModel extends BaseViewModel {
 
   String get printerUrl {
     var printerSetting = _machineService.selectedPrinter.valueOrNull;
-    if (printerSetting != null)
-      return Uri.parse(printerSetting.wsUrl).host;
+    if (printerSetting != null) return Uri.parse(printerSetting.wsUrl).host;
 
     return 'Add printer first';
   }
 
-
-  navigateTo(String route) {
+  navigateTo(String route, {dynamic arguments}) {
     _navigationService.back();
-    if (currentPath != route) _navigationService.navigateTo(route);
+    if (currentPath != route)
+      _navigationService.navigateTo(route, arguments: arguments);
   }
 
   bool isSelected(String route) => route == currentPath;

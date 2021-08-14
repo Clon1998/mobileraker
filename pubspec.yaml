@@ -71,10 +71,11 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: "^0.9.1"
+  flutter_launcher_icons: ^0.9.1
   hive_generator: ^1.1.0
-  build_runner: ^2.0.6
   stacked_generator: ^0.5.1
+  build_runner: ^2.0.6
+
 
 
 flutter_icons:

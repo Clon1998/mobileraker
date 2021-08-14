@@ -8,10 +8,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:full_screen_menu/full_screen_menu.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
-import 'package:mobileraker/ui/connection/connectionState_view.dart';
+import 'package:mobileraker/ui/components/connection/connectionState_view.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
-import 'package:mobileraker/ui/overview/tabs/control_tab.dart';
-import 'package:mobileraker/ui/overview/tabs/general_tab.dart';
+import 'package:mobileraker/ui/views/overview/tabs/control_tab.dart';
+import 'package:mobileraker/ui/views/overview/tabs/general_tab.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 
@@ -42,7 +42,7 @@ class OverView extends StatelessWidget {
               onPressed: () => null,
             ),
             IconButton(
-              icon: Icon(FlutterIcons.zap_off_fea, color: Colors.red),
+              icon: Icon(Icons.dangerous_outlined, color: Colors.red, size: 30,),
               tooltip: 'Emergency-Stop',
               onPressed: model.onEmergencyPressed,
             ),

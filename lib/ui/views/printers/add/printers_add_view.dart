@@ -49,7 +49,7 @@ class PrintersAdd extends StatelessWidget {
                           ),
                       onChanged: model.onUrlEntered,
                       name: 'printerUrl',
-                      initialValue: model.inputUrl,
+                      // initialValue: model.inputUrl,
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(context),
                         FormBuilderValidators.url(context,
