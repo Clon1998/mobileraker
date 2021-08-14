@@ -2,7 +2,7 @@
 
 
 
-Mobileraker (working title) is a Flutter app to control a single or multiple 3D printers running Klipper+Moonraker.
+Mobileraker is a Flutter app to control a single or multiple 3D printers running Klipper+Moonraker.
 
 Checkout the first release to download an Android APK!
 
