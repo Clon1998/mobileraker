@@ -3,113 +3,111 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
+import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:stacked/stacked.dart';
 
 import 'printers_edit_viewmodel.dart';
 
-class PrintersEdit extends StatelessWidget {
+class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
   const PrintersEdit({Key? key, required this.printerSetting})
       : super(key: key);
   final PrinterSetting printerSetting;
 
   @override
-  Widget build(BuildContext context) {
-    return ViewModelBuilder<PrintersEditViewModel>.reactive(
-        builder: (context, model, child) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                'Edit ${model.printerDisplayName}',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              actions: [
-                IconButton(
-                    onPressed: model.onFormConfirm,
-                    tooltip: 'Add printer',
-                    icon: Icon(Icons.save_outlined))
+  Widget builder(
+      BuildContext context, PrintersEditViewModel model, Widget? child) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Edit ${model.printerDisplayName}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        actions: [
+          IconButton(
+              onPressed: model.onFormConfirm,
+              tooltip: 'Add printer',
+              icon: Icon(Icons.save_outlined))
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: FormBuilder(
+          key: model.formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: <Widget>[
+                _SectionHeader(title: 'General'),
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                    labelText: 'Displayname',
+                  ),
+                  name: 'printerName',
+                  initialValue: model.printerDisplayName,
+                  validator: FormBuilderValidators.compose(
+                      [FormBuilderValidators.required(context)]),
+                ),
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                      labelText: 'Printer-Address',
+                      helperText: model.wsUrl != null
+                          ? 'WS-URL: ${model.wsUrl}'
+                          : '' //TODO
+                      ),
+                  onChanged: model.onUrlEntered,
+                  name: 'printerUrl',
+                  initialValue: model.inputUrl,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.url(context, protocols: ['ws', 'wss'])
+                  ]),
+                ),
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                      labelText: 'Moonraker - API Key',
+                      helperText:
+                          'Only needed if youre using trusted clients. FluiddPI enforces this!'),
+                  name: 'printerApiKey',
+                  initialValue: model.printerApiKey,
+                ),
+                Divider(),
+                _SectionHeaderWithAction(
+                    title: 'WEBCAM',
+                    action: TextButton.icon(
+                      onPressed: model.onWebCamAdd,
+                      label: Text('Add'),
+                      icon: Icon(FlutterIcons.webcam_mco),
+                    )),
+                ..._buildWebCams(model),
+                _SectionHeaderWithAction(
+                    title: 'TEMPERATURE PRESETS',
+                    action: TextButton.icon(
+                      onPressed: model.onTempPresetAdd,
+                      label: Text('Add'),
+                      icon: Icon(FlutterIcons.thermometer_lines_mco),
+                    )),
+                ..._buildTempPresets(model),
+                Divider(),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: TextButton.icon(
+                      onPressed: model.onDeleteTap,
+                      icon: Icon(Icons.delete_forever_outlined),
+                      label: Text('Remove printer')),
+                )
               ],
             ),
-            body: SingleChildScrollView(
-              child: FormBuilder(
-                key: model.formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    children: <Widget>[
-                      _SectionHeader(title: 'General'),
-                      FormBuilderTextField(
-                        decoration: InputDecoration(
-                          labelText: 'Displayname',
-                        ),
-                        name: 'printerName',
-                        initialValue: model.printerDisplayName,
-                        validator: FormBuilderValidators.compose(
-                            [FormBuilderValidators.required(context)]),
-                      ),
-                      FormBuilderTextField(
-                        decoration: InputDecoration(
-                            labelText: 'Printer-Address',
-                            helperText: model.wsUrl != null
-                                ? 'WS-URL: ${model.wsUrl}'
-                                : '' //TODO
-                            ),
-                        onChanged: model.onUrlEntered,
-                        name: 'printerUrl',
-                        initialValue: model.inputUrl,
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.url(context,
-                              protocols: ['ws', 'wss'])
-                        ]),
-                      ),
-                      FormBuilderTextField(
-                        decoration: InputDecoration(
-                            labelText: 'Moonraker - API Key',
-                            helperText: 'Only needed if youre using trusted clients. FluiddPI enforces this!'
-                        ),
-                        name: 'printerApiKey',
-                        initialValue: model.printerApiKey,
-                      ),
-                      Divider(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'WEBCAM',
-                            style: TextStyle(
-                              color: Theme.of(context).accentColor,
-                              fontSize: 12.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          TextButton.icon(
-                            onPressed: model.onWebCamAdd,
-                            label: Text('Add'),
-                            icon: Icon(FlutterIcons.webcam_mco),
-                          )
-                        ],
-                      ),
-                      ..._buildWebCams(model),
-                      Divider(),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: TextButton.icon(
-                            onPressed: model.onDeleteTap,
-                            icon: Icon(Icons.delete_forever_outlined),
-                            label: Text('Remove printer')),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-        viewModelBuilder: () => PrintersEditViewModel(printerSetting));
+          ),
+        ),
+      ),
+    );
   }
+
+  @override
+  PrintersEditViewModel viewModelBuilder(BuildContext context) =>
+      PrintersEditViewModel(printerSetting);
 
   List<Widget> _buildWebCams(PrintersEditViewModel model) {
     if (model.webcams.isEmpty) {
@@ -121,7 +119,7 @@ class PrintersEdit extends StatelessWidget {
       ];
     }
 
-    List<Widget> camW = List.generate(model.webcams.length, (index) {
+    return List.generate(model.webcams.length, (index) {
       WebcamSetting cam = model.webcams[index];
       return _WebCamItem(
         key: ValueKey(cam.uuid),
@@ -130,27 +128,55 @@ class PrintersEdit extends StatelessWidget {
         idx: index,
       );
     });
-    return camW;
+  }
+
+  List<Widget> _buildTempPresets(PrintersEditViewModel model) {
+    if (model.tempPresets.isEmpty) {
+      return [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text('No presets added'),
+        )
+      ];
+    }
+
+    return List.generate(model.tempPresets.length, (index) {
+      TemperaturePreset preset = model.tempPresets[index];
+      return _TempPresetItem(
+        key: ValueKey(preset.uuid),
+        model: model,
+        temperaturePreset: preset,
+        idx: index,
+      );
+    });
   }
 }
 
-class _SectionHeader extends StatelessWidget {
+class _SectionHeaderWithAction extends StatelessWidget {
   final String title;
+  final Widget action;
 
-  const _SectionHeader({Key? key, required this.title}) : super(key: key);
+  const _SectionHeaderWithAction({
+    Key? key,
+    required this.title,
+    required this.action,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          color: Theme.of(context).accentColor,
-          fontSize: 12.0,
-          fontWeight: FontWeight.bold,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            color: Theme.of(context).accentColor,
+            fontSize: 12.0,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ),
+        action
+      ],
     );
   }
 }
@@ -220,5 +246,118 @@ class _WebCamItem extends StatelessWidget {
             ),
           )
         ]));
+  }
+}
+
+class _TempPresetItem extends StatefulWidget {
+  final TemperaturePreset temperaturePreset;
+  final PrintersEditViewModel model;
+  final int idx;
+
+  const _TempPresetItem({
+    Key? key,
+    required this.model,
+    required this.temperaturePreset,
+    required this.idx,
+  }) : super(key: key);
+
+  @override
+  _TempPresetItemState createState() => _TempPresetItemState();
+}
+
+class _TempPresetItemState extends State<_TempPresetItem> {
+  late String _cardName = widget.temperaturePreset.name;
+
+  @override
+  Widget build(BuildContext context) {
+    var temperaturePreset = widget.temperaturePreset;
+    var model = widget.model;
+    return Card(
+        child: ExpansionTile(
+            maintainState: true,
+            tilePadding: EdgeInsets.symmetric(horizontal: 10),
+            childrenPadding: EdgeInsets.symmetric(horizontal: 10),
+            title: Text('$_cardName'),
+            children: [
+          FormBuilderTextField(
+            decoration: InputDecoration(
+              labelText: 'Displayname',
+            ),
+            name: '${temperaturePreset.uuid}-presetName',
+            initialValue: temperaturePreset.name,
+            onChanged: onNameChanged,
+            validator: FormBuilderValidators.compose(
+                [FormBuilderValidators.required(context)]),
+          ),
+          FormBuilderTextField(
+            decoration: InputDecoration(
+                labelText: 'Extruder Temperature [°C]', helperText: ''),
+            name: '${temperaturePreset.uuid}-extruderTemp',
+            initialValue: temperaturePreset.extruderTemp.toString(),
+            valueTransformer: (String? text) => (text != null)
+                ? int.tryParse(text)
+                : model.extruderMinTemperature,
+            validator: FormBuilderValidators.compose(
+              [
+                FormBuilderValidators.required(context),
+                FormBuilderValidators.min(
+                    context, 0),
+                FormBuilderValidators.max(
+                    context, model.extruderMaxTemperature),
+              ],
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          FormBuilderTextField(
+            decoration: InputDecoration(
+                labelText: 'Bed Temperature [°C]', helperText: ''),
+            name: '${temperaturePreset.uuid}-bedTemp',
+            initialValue: temperaturePreset.bedTemp.toString(),
+            valueTransformer: (String? text) =>
+                (text != null) ? int.tryParse(text) : model.bedMinTemperature,
+            validator: FormBuilderValidators.compose(
+              [
+                FormBuilderValidators.required(context),
+                FormBuilderValidators.min(context, 0),
+                FormBuilderValidators.max(context, model.bedMaxTemperature),
+              ],
+            ),
+            keyboardType: TextInputType.number,
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ElevatedButton(
+              onPressed: () => model.onTempPresetRemove(temperaturePreset),
+              child: Text('Remove'),
+            ),
+          )
+        ]));
+  }
+
+  void onNameChanged(String? name) {
+    setState(() {
+      _cardName = (name?.isEmpty ?? true) ? 'New Preset' : name!;
+    });
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+
+  const _SectionHeader({Key? key, required this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        title.toUpperCase(),
+        style: TextStyle(
+          color: Theme.of(context).accentColor,
+          fontSize: 12.0,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
   }
 }

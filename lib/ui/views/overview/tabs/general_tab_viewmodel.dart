@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
+import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:mobileraker/enums/BottomSheetType.dart';
@@ -84,6 +85,10 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   bool get hasPrinter => dataReady(_PrinterStreamKey);
 
+  List<TemperaturePreset> get temperaturePresets {
+    return _printerSetting?.temperaturePresets.toList() ?? List.empty();
+  }
+
   WebcamSetting? _camHack() {
     if (_printerSetting != null && _printerSetting!.cams.isNotEmpty) {
       return _printerSetting?.cams.first;
@@ -113,6 +118,12 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
       return 0;
   }
 
+  setTemperaturePreset(int extruderTemp, int bedTemp) {
+    _printerService?.setTemperature('extruder', extruderTemp);
+    _printerService?.setTemperature('heater_bed', bedTemp);
+    flipTemperatureCard();
+  }
+
   editDialog([bool isHeatedBed = false]) {
     if (isHeatedBed) {
       _dialogService
@@ -124,7 +135,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
               data: EditFormDialogViewArguments(
                   current: printer.heaterBed.target.round(),
                   min: printer.configFile.configHeaterBed?.minTemp.toInt() ?? 0,
-                  max: printer.configFile.configHeaterBed?.maxTemp.toInt() ?? 150))
+                  max: printer.configFile.configHeaterBed?.maxTemp.toInt() ??
+                      150))
           .then((value) {
         if (value != null && value.confirmed && value.data != null) {
           num v = value.data;
@@ -141,7 +153,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
               data: EditFormDialogViewArguments(
                   current: printer.extruder.target.round(),
                   min: printer.configFile.primaryExtruder?.minTemp.toInt() ?? 0,
-                  max: printer.configFile.primaryExtruder?.maxTemp.toInt() ?? 500))
+                  max: printer.configFile.primaryExtruder?.maxTemp.toInt() ??
+                      500))
           .then((value) {
         if (value != null && value.confirmed && value.data != null) {
           num v = value.data;

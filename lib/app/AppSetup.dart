@@ -3,18 +3,16 @@ import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:logger/logger.dart';
-import 'package:mobileraker/app/AppSetup.logger.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
+import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/service/MachineService.dart';
-import 'package:mobileraker/ui/bottomsheet/setup_bottom_sheet_ui.dart';
+import 'package:mobileraker/ui/views/overview/overview_view.dart';
+import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/ui/views/printers/add/printers_add_view.dart';
 import 'package:mobileraker/ui/views/printers/edit/printers_edit_view.dart';
 import 'package:mobileraker/ui/views/printers/printers_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_view.dart';
-import 'package:mobileraker/ui/views/overview/overview_view.dart';
-import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -30,7 +28,6 @@ import 'package:stacked_services/stacked_services.dart';
   LazySingleton(classType: DialogService),
   LazySingleton(classType: BottomSheetService),
   LazySingleton(classType: GeneralTabViewModel),
-
   Singleton(classType: MachineService),
 ], logger: StackedLogger())
 class AppSetup {}
@@ -39,6 +36,7 @@ openBoxes() async {
   await Hive.initFlutter();
   Hive.registerAdapter(PrinterSettingAdapter());
   Hive.registerAdapter(WebcamSettingAdapter());
+  Hive.registerAdapter(TemperaturePresetAdapter());
   // Hive.deleteBoxFromDisk('printers');
   await Future.wait([
     Hive.openBox<PrinterSetting>('printers'),

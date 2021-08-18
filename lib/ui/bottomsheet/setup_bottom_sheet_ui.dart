@@ -70,7 +70,7 @@ class _NonPrintingBottomSheet
                 margin: EdgeInsets.symmetric(horizontal: 10),
                 child: Icon(
                   FlutterIcons.raspberry_pi_faw5d,
-                  color: isDark? Colors.white: Colors.black,
+                  color: isDark ? Colors.white : Colors.black,
                 ),
               ),
               Flexible(
@@ -88,27 +88,18 @@ class _NonPrintingBottomSheet
           SizedBox(
             height: 5,
           ),
-          Container(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: model.onRestartKlipperPressed,
-                child: Text("Klipper restart"),
-                style: buttonStyle,
-              )),
-          Container(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: model.onRestartMoonrakerPressed,
-                child: Text("Moonraker restart"),
-                style: buttonStyle,
-              )),
-          Container(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: model.onRestartMCUPressed,
-                child: Text("Firmware restart"),
-                style: buttonStyle,
-              )),
+          FullWidthButton(
+              child: Text("Klipper restart"),
+              onPressed: model.onRestartKlipperPressed,
+              buttonStyle: buttonStyle),
+          FullWidthButton(
+              child: Text("Moonraker restart"),
+              onPressed: model.onRestartMoonrakerPressed,
+              buttonStyle: buttonStyle),
+          FullWidthButton(
+              child: Text("Firmware restart"),
+              onPressed: model.onRestartKlipperPressed,
+              buttonStyle: buttonStyle),
           ElevatedButton.icon(
             label: Text("Close"),
             icon: Icon(Icons.keyboard_arrow_down),
@@ -123,6 +114,32 @@ class _NonPrintingBottomSheet
   @override
   NonPrintingBottomSheetViewModel viewModelBuilder(BuildContext context) =>
       NonPrintingBottomSheetViewModel(request, completer);
+}
+
+class FullWidthButton extends StatelessWidget {
+  final VoidCallback onPressed;
+
+  final Widget child;
+
+  final ButtonStyle? buttonStyle;
+
+  const FullWidthButton({
+    Key? key,
+    required this.onPressed,
+    required this.child,
+    this.buttonStyle,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: double.infinity,
+        child: ElevatedButton(
+          onPressed: onPressed,
+          child: child,
+          style: buttonStyle,
+        ));
+  }
 }
 
 class NonPrintingBottomSheetViewModel extends BaseViewModel {

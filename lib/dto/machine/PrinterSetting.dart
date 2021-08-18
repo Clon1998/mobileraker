@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
@@ -19,6 +20,8 @@ class PrinterSetting extends HiveObject {
   List<WebcamSetting> cams = List.empty(growable: true);
   @HiveField(4)
   String? apiKey;
+  @HiveField(5)
+  List<TemperaturePreset> temperaturePresets = List.empty(growable: true);
 
   WebSocketWrapper? _webSocket;
 

@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
+import 'package:intl/intl.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
+import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
 import 'package:mobileraker/ui/components/CardWithButton.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refreshPrinter.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/time_util.dart';
-import 'package:intl/intl.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:stacked/stacked.dart';
 
@@ -252,8 +252,8 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
               ),
               title: Text('Temperature controls'),
               trailing: TextButton(
-                // onPressed: () => model.flipTemperatureCard(),
-                onPressed: () => showWIPSnackbar(),
+                onPressed: () => model.flipTemperatureCard(),
+                // onPressed: () => showWIPSnackbar(),
                 child: Text('Presets'),
               ),
             ),
@@ -280,7 +280,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                             target: model.printer.heaterBed.target,
                             onTap: () => model.editDialog(true),
                           ),
-                          ...buildTempSensors(model, context, elementWidth)
+                          ...buildTempSensors(model, elementWidth)
                         ],
                       ),
                     );
@@ -315,21 +315,8 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
-                        children: [
-                          CardWithButton(
-                              width: constraints.maxWidth / 2,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text("PresetName", style: Theme.of(context).textTheme.caption),
-                                  Text('Extruder: 170 °C',
-                                      style: Theme.of(context).textTheme.headline6),
-                                  Text('Bed: 100 °C'),
-                                ],
-                              ),
-                              buttonChild: Text("Set"),
-                              onTap: () => null)
-                        ],
+                        children: _buildTemperaturePresetCards(
+                            constraints.maxWidth / 2, model),
                       ),
                     );
                   },
@@ -340,8 +327,33 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
     );
   }
 
-  List<Widget> buildTempSensors(
-      GeneralTabViewModel model, BuildContext context, double width) {
+  List<Widget> _buildTemperaturePresetCards(
+      double width, GeneralTabViewModel model) {
+    var coolOf = _TemperaturePresetCard(
+      width: width,
+      presetName: 'Cooloff',
+      extruderTemp: 0,
+      bedTemp: 0,
+      onTap: () => model.setTemperaturePreset(0, 0),
+    );
+
+    List<TemperaturePreset> tempPresets = model.temperaturePresets;
+    var presetWidgets = List.generate(tempPresets.length, (index) {
+      TemperaturePreset preset = tempPresets[index];
+      return _TemperaturePresetCard(
+        width: width,
+        presetName: preset.name,
+        extruderTemp: preset.extruderTemp,
+        bedTemp: preset.bedTemp,
+        onTap: () =>
+            model.setTemperaturePreset(preset.extruderTemp, preset.bedTemp),
+      );
+    });
+    presetWidgets.insert(0, coolOf);
+    return presetWidgets;
+  }
+
+  List<Widget> buildTempSensors(GeneralTabViewModel model, double width) {
     List<Widget> rows = [];
     var temperatureSensors = model.printer.temperatureSensors;
     for (var sensor in temperatureSensors) {
@@ -354,6 +366,43 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
       rows.add(tr);
     }
     return rows;
+  }
+}
+
+class _TemperaturePresetCard extends StatelessWidget {
+  final double width;
+  final String presetName;
+  final int extruderTemp;
+  final int bedTemp;
+  final VoidCallback? onTap;
+
+  const _TemperaturePresetCard(
+      {Key? key,
+      required this.width,
+      required this.presetName,
+      required this.extruderTemp,
+      required this.bedTemp,
+      required this.onTap})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CardWithButton(
+        width: width,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(presetName,
+                style: Theme.of(context).textTheme.headline6,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+            Text('Extruder: $extruderTemp°C',
+                style: Theme.of(context).textTheme.caption),
+            Text('Bed: $bedTemp°C', style: Theme.of(context).textTheme.caption),
+          ],
+        ),
+        buttonChild: Text("Set"),
+        onTap: onTap);
   }
 }
 
