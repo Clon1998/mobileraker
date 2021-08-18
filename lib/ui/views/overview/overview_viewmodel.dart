@@ -3,6 +3,7 @@ import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
+import 'package:mobileraker/enums/BottomSheetType.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
 import 'package:mobileraker/service/MachineService.dart';
@@ -102,34 +103,12 @@ class OverViewModel extends MultipleStreamViewModel {
 
 
   showNonPrintingMenu() async {
-    var confirmationResponse =
-    await _bottomSheetService.showBottomSheet(
-      title: 'Confirm this action with one of the options below',
-      description:
-      'The result from this call will return a SheetResponse object with confirmed set to true. See the logs where we print out the confirmed value for you.',
-      confirmButtonTitle: 'I confirm',
-      cancelButtonTitle: 'I DONT confirm',
-    );
+    await _bottomSheetService.showCustomSheet(
+        variant: BottomSheetType.ManagementMenu);
   }
 
   onEmergencyPressed() {
     _klippyService?.emergencyStop();
-  }
-
-  onRestartMoonrakerPressed() {
-    _klippyService?.restartMoonraker();
-  }
-
-  onRestartKlipperPressed() {
-    _klippyService?.restartKlipper();
-  }
-
-  onRestartMCUPressed() {
-    _klippyService?.restartMCUs();
-  }
-
-  onRestartHostPressed() {
-    _klippyService?.rebootHost();
   }
 
   onPausePrintPressed() {

@@ -3,9 +3,7 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:full_screen_menu/full_screen_menu.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/ui/components/connection/connectionState_view.dart';
@@ -13,6 +11,7 @@ import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/overview/tabs/control_tab.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:simple_speed_dial/simple_speed_dial.dart';
 import 'package:stacked/stacked.dart';
 
 import 'overview_viewmodel.dart';
@@ -42,7 +41,11 @@ class OverView extends StatelessWidget {
               onPressed: () => null,
             ),
             IconButton(
-              icon: Icon(Icons.dangerous_outlined, color: Colors.red, size: 30,),
+              icon: Icon(
+                Icons.dangerous_outlined,
+                color: Colors.red,
+                size: 30,
+              ),
               tooltip: 'Emergency-Stop',
               onPressed: model.onEmergencyPressed,
             ),
@@ -165,34 +168,7 @@ class MenuNonPrinting extends ViewModelWidget<OverViewModel> {
   @override
   Widget build(BuildContext context, OverViewModel model) {
     return FloatingActionButton(
-        child: Icon(Icons.menu),
-        onPressed: () =>
-            // model.showNonPrintingMenu()
-
-            FullScreenMenu.show(context, items: <Widget>[
-              FSMenuItem(
-                text: Text("Moonraker - Restart"),
-                icon: Icon(FlutterIcons.API_ant, color: Colors.black),
-                onTap: model.onRestartMoonrakerPressed,
-              ),
-              FSMenuItem(
-                text: Text("Klipper - Restart"),
-                icon: Icon(FlutterIcons.brain_faw5s, color: Colors.black),
-                onTap: model.onRestartKlipperPressed,
-              ),
-              FSMenuItem(
-                text: Text("Host - Restart"),
-                icon:
-                    Icon(FlutterIcons.raspberry_pi_faw5d, color: Colors.black),
-                onTap: model.onRestartHostPressed,
-              ),
-              FSMenuItem(
-                text: Text("Firmware - Restart"),
-                icon: Icon(FlutterIcons.circuit_board_oct, color: Colors.black),
-                onTap: model.onRestartMCUPressed,
-              ),
-            ])
-    );
+        child: Icon(Icons.menu), onPressed: () => model.showNonPrintingMenu());
   }
 }
 
@@ -204,54 +180,61 @@ class SpeedDialPaused extends ViewModelWidget<OverViewModel> {
   @override
   Widget build(BuildContext context, OverViewModel model) {
     return SpeedDial(
-      // animatedIcon: AnimatedIcons.menu_close,
-      // animatedIconTheme: IconThemeData(size: 22.0),
-      /// This is ignored if animatedIcon is non null
-      icon: FlutterIcons.options_vertical_sli,
-      activeIcon: Icons.close,
-      // iconTheme: IconThemeData(color: Colors.grey[50], size: 30),
-      /// The label of the main button.
-      // label: Text("Open Speed Dial"),
-      /// The active label of the main button, Defaults to label if not specified.
-      // activeLabel: Text("Close Speed Dial"),
-      /// Transition Builder between label and activeLabel, defaults to FadeTransition.
-      // labelTransitionBuilder: (widget, animation) => ScaleTransition(scale: animation,child: widget),
-      /// The below button size defaults to 56 itself, its the FAB size + It also affects relative padding and other elements
-      buttonSize: 56.0,
-      visible: true,
-
-      /// If true user is forced to close dial manually
-      /// by tapping main button and overlay is not rendered.
-      closeManually: false,
-
-      /// If true overlay will render no matter what.
-      renderOverlay: false,
-      // curve: Curves.bounceIn,
-      overlayColor: Colors.black,
-      overlayOpacity: 0.3,
-      backgroundColor: Colors.white,
-      foregroundColor: Colors.black,
-      elevation: 8.0,
-      shape: CircleBorder(),
-      // orientation: SpeedDialOrientation.Up,
-      // childMarginBottom: 2,
-      // childMarginTop: 2,
-      children: [
+      child: Icon(FlutterIcons.options_vertical_sli),
+      speedDialChildren: [
         SpeedDialChild(
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
           label: 'Cancel',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: model.onCancelPrintPressed,
+          onPressed: model.onCancelPrintPressed,
         ),
         SpeedDialChild(
           child: Icon(Icons.play_arrow),
           backgroundColor: Colors.blue,
           label: 'Resume',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: model.onResumePrintPressed,
+          onPressed: model.onResumePrintPressed,
         ),
       ],
     );
+
+    //   SpeedDial(
+    //
+    //   child:  FlutterIcons.options_vertical_sli,
+    //   activeIcon: Icons.close,
+    //    visible: true,
+    //
+    //   /// If true user is forced to close dial manually
+    //   /// by tapping main button and overlay is not rendered.
+    //   closeManually: false,
+    //
+    //   /// If true overlay will render no matter what.
+    //   renderOverlay: false,
+    //   // curve: Curves.bounceIn,
+    //   overlayColor: Colors.black,
+    //   overlayOpacity: 0.3,
+    //   backgroundColor: Colors.white,
+    //   foregroundColor: Colors.black,
+    //   elevation: 8.0,
+    //   shape: CircleBorder(),
+    //   // orientation: SpeedDialOrientation.Up,
+    //   // childMarginBottom: 2,
+    //   // childMarginTop: 2,
+    //   children: [
+    //     SpeedDialChild(
+    //       child: Icon(Icons.cleaning_services),
+    //       backgroundColor: Colors.red,
+    //       label: 'Cancel',
+    //       labelStyle: TextStyle(fontSize: 18.0),
+    //       onTap: model.onCancelPrintPressed,
+    //     ),
+    //     SpeedDialChild(
+    //       child: Icon(Icons.play_arrow),
+    //       backgroundColor: Colors.blue,
+    //       label: 'Resume',
+    //       labelStyle: TextStyle(fontSize: 18.0),
+    //       onTap: model.onResumePrintPressed,
+    //     ),
+    //   ],
+    // );
   }
 }

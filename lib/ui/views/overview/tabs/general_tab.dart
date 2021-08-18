@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -233,54 +234,108 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            leading: Icon(
-              FlutterIcons.fire_alt_faw5s,
-              color: ((model.printer.extruder.target +
-                          model.printer.heaterBed.target) >
-                      0)
-                  ? Colors.deepOrange
-                  : Theme.of(context).iconTheme.color,
+    return FlipCard(
+      key: model.tmpCardKey,
+      flipOnTouch: false,
+      direction: FlipDirection.VERTICAL,
+      front: Card(
+        child: Column(
+          children: [
+            ListTile(
+              leading: Icon(
+                FlutterIcons.fire_alt_faw5s,
+                color: ((model.printer.extruder.target +
+                            model.printer.heaterBed.target) >
+                        0)
+                    ? Colors.deepOrange
+                    : Theme.of(context).iconTheme.color,
+              ),
+              title: Text('Temperature controls'),
+              trailing: TextButton(
+                // onPressed: () => model.flipTemperatureCard(),
+                onPressed: () => showWIPSnackbar(),
+                child: Text('Presets'),
+              ),
             ),
-            title: Text('Temperature controls'),
-            trailing: TextButton(
-              onPressed: () => showWIPSnackbar(),
-              child: Text('Presets'),
+            Padding(
+                padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    var elementWidth = constraints.maxWidth / 2;
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          TempTile(
+                            name: 'Hotend',
+                            width: constraints.maxWidth / 2,
+                            current: model.printer.extruder.temperature,
+                            target: model.printer.extruder.target,
+                            onTap: () => model.editDialog(false),
+                          ),
+                          TempTile(
+                            name: 'Bed',
+                            width: constraints.maxWidth / 2,
+                            current: model.printer.heaterBed.temperature,
+                            target: model.printer.heaterBed.target,
+                            onTap: () => model.editDialog(true),
+                          ),
+                          ...buildTempSensors(model, context, elementWidth)
+                        ],
+                      ),
+                    );
+                  },
+                )),
+          ],
+        ),
+      ),
+      back: Card(
+        child: Column(
+          children: [
+            ListTile(
+              leading: Icon(
+                FlutterIcons.fire_alt_faw5s,
+                color: ((model.printer.extruder.target +
+                            model.printer.heaterBed.target) >
+                        0)
+                    ? Colors.deepOrange
+                    : Theme.of(context).iconTheme.color,
+              ),
+              title: Text('Temperature presets'),
+              trailing: TextButton(
+                onPressed: () => model.flipTemperatureCard(),
+                child: Text('Sensors'),
+              ),
             ),
-          ),
-          Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  var elementWidth = constraints.maxWidth / 2;
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        TempTile(
-                          name: 'Hotend',
-                          width: constraints.maxWidth / 2,
-                          current: model.printer.extruder.temperature,
-                          target: model.printer.extruder.target,
-                          onTap: () => model.editDialog(false),
-                        ),
-                        TempTile(
-                          name: 'Bed',
-                          width: constraints.maxWidth / 2,
-                          current: model.printer.heaterBed.temperature,
-                          target: model.printer.heaterBed.target,
-                          onTap: () => model.editDialog(true),
-                        ),
-                        ...buildTempSensors(model, context, elementWidth)
-                      ],
-                    ),
-                  );
-                },
-              )),
-        ],
+            Padding(
+                padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    var elementWidth = constraints.maxWidth / 2;
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          CardWithButton(
+                              width: constraints.maxWidth / 2,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text("PresetName", style: Theme.of(context).textTheme.caption),
+                                  Text('Extruder: 170 °C',
+                                      style: Theme.of(context).textTheme.headline6),
+                                  Text('Bed: 100 °C'),
+                                ],
+                              ),
+                              buttonChild: Text("Set"),
+                              onTap: () => null)
+                        ],
+                      ),
+                    );
+                  },
+                )),
+          ],
+        ),
       ),
     );
   }
@@ -354,12 +409,14 @@ class TempTile extends StatelessWidget {
 class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
   const ControlXYZCard({
     Key? key,
-  }) : super(key: key, reactive: false);
+  }) : super(key: key, reactive: true);
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
     var marginForBtns = const EdgeInsets.all(10);
-    var txtBtnCOl = Theme.of(context).brightness == Brightness.dark? Colors.white:Colors.black;
+    var txtBtnCOl = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : Colors.black;
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,

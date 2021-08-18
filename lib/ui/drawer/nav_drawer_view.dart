@@ -80,17 +80,18 @@ class NavigationDrawerWidget extends StatelessWidget {
         : theme.primaryColor;
 
     List<PrinterSetting> printers = model.printers;
+    var textStyle = TextStyle(color: Colors.white);
     return List.generate(printers.length + 1, (index) {
       if (index == printers.length) {
         return ListTile(
-          title: Text('Add new printer'),
+          title: Text('Add new printer', style: textStyle),
           contentPadding: EdgeInsets.only(left: 32, right: 16),
           trailing: Icon(Icons.add, color: highlightColor),
           onTap: () => model.navigateTo(Routes.printersAdd),
         );
       }
       PrinterSetting curPS = printers[index];
-      var textStyle = TextStyle(color: Colors.white);
+
       return ListTile(
         title: Text(
           curPS.name,

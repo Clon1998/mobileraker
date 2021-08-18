@@ -2,11 +2,11 @@ import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
+import 'package:mobileraker/enums/DialogType.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/MachineService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
-import 'package:mobileraker/ui/setup_dialog_ui.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 

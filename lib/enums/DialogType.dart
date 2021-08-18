@@ -1,0 +1,1 @@
+enum DialogType { editForm, connectionError }

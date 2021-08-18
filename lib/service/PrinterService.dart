@@ -305,8 +305,8 @@ class PrinterService {
   _updateConfigFile(Map<String, dynamic> printStatJson, {Printer? printer}) {
     printer ??= _getLatestPrinter();
 
-    if (printStatJson.containsKey('config'))
-      printer.configFile = ConfigFile.parse(printStatJson['config']);
+    if (printStatJson.containsKey('settings'))
+      printer.configFile = ConfigFile.parse(printStatJson['settings']);
     if (printStatJson.containsKey('save_config_pending'))
       printer.configFile.saveConfigPending =
           printStatJson['save_config_pending'];

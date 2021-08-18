@@ -136,7 +136,7 @@ class WebSocketWrapper {
   /// a message from the server
   /// ----------------------------------------------------------
   _onWSMessage(message) {
-    // _logger.shout("@Rec: $message");
+    _logger.v("@Rec: $message");
     var jsonOb = jsonDecode(message);
     if (jsonOb['error'] != null && jsonOb['error']['message'] != null) {
       _logger.e("Error message received: $message");

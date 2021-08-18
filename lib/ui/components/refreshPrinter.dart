@@ -31,11 +31,11 @@ class RefreshPrinterViewModel extends BaseViewModel {
     var _printerService =
         _machineService.selectedPrinter.valueOrNull?.printerService;
     var oldPrinter = _printerService?.printerStream.value;
-    _printerService?.refreshPrinter();
     var subscription;
     subscription = _printerService?.printerStream.stream.listen((event) {
       if (event != oldPrinter) refreshController.refreshCompleted();
       subscription.cancel();
     });
+    _printerService?.refreshPrinter();
   }
 }

@@ -3,7 +3,8 @@ import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/app/AppSetup.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/ui/setup_dialog_ui.dart';
+import 'package:mobileraker/ui/bottomsheet/setup_bottom_sheet_ui.dart';
+import 'package:mobileraker/ui/dialog/setup_dialog_ui.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import 'app/AppSetup.router.dart';
@@ -15,6 +16,7 @@ Future<void> main() async {
   await openBoxes();
   setupLocator();
   setupDialogUi();
+  setupBottomSheetUi();
 
   setupNotifications();
   runApp(MyApp());

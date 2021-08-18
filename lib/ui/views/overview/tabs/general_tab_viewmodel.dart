@@ -1,15 +1,18 @@
 import 'dart:math';
 
+import 'package:flip_card/flip_card.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
+import 'package:mobileraker/enums/BottomSheetType.dart';
+import 'package:mobileraker/enums/DialogType.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/MachineService.dart';
 import 'package:mobileraker/service/PrinterService.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
-import 'package:mobileraker/ui/setup_dialog_ui.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -20,10 +23,13 @@ const String _PrinterStreamKey = 'printer';
 class GeneralTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
+  final _bottomSheetService = locator<BottomSheetService>();
 
   PrinterSetting? _printerSetting;
   PrinterService? _printerService;
   KlippyService? _klippyService;
+
+  GlobalKey<FlipCardState> tmpCardKey = GlobalKey<FlipCardState>();
 
   List<int> axisStepSize = [100, 25, 10, 1];
   int selectedIndexAxisStepSizeIndex = 0;
@@ -117,7 +123,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
               secondaryButtonTitle: "Cancel",
               data: EditFormDialogViewArguments(
                   current: printer.heaterBed.target.round(),
-                  max: 150)) //ToDo: read from config file
+                  min: printer.configFile.configHeaterBed?.minTemp.toInt() ?? 0,
+                  max: printer.configFile.configHeaterBed?.maxTemp.toInt() ?? 150))
           .then((value) {
         if (value != null && value.confirmed && value.data != null) {
           num v = value.data;
@@ -133,7 +140,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
               secondaryButtonTitle: "Cancel",
               data: EditFormDialogViewArguments(
                   current: printer.extruder.target.round(),
-                  max: 500)) //ToDo: read from config file
+                  min: printer.configFile.primaryExtruder?.minTemp.toInt() ?? 0,
+                  max: printer.configFile.primaryExtruder?.maxTemp.toInt() ?? 500))
           .then((value) {
         if (value != null && value.confirmed && value.data != null) {
           num v = value.data;
@@ -187,5 +195,14 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
         ? 1
         : null;
     _printerService?.setGcodeOffset(z: dirStep, move: m);
+  }
+
+  flipTemperatureCard() {
+    tmpCardKey.currentState?.toggleCard();
+  }
+
+  meep() async {
+    await _bottomSheetService.showCustomSheet(
+        variant: BottomSheetType.ManagementMenu);
   }
 }

@@ -3,9 +3,12 @@ import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:logger/logger.dart';
+import 'package:mobileraker/app/AppSetup.logger.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/ui/bottomsheet/setup_bottom_sheet_ui.dart';
 import 'package:mobileraker/ui/views/printers/add/printers_add_view.dart';
 import 'package:mobileraker/ui/views/printers/edit/printers_edit_view.dart';
 import 'package:mobileraker/ui/views/printers/printers_view.dart';
@@ -27,6 +30,7 @@ import 'package:stacked_services/stacked_services.dart';
   LazySingleton(classType: DialogService),
   LazySingleton(classType: BottomSheetService),
   LazySingleton(classType: GeneralTabViewModel),
+
   Singleton(classType: MachineService),
 ], logger: StackedLogger())
 class AppSetup {}

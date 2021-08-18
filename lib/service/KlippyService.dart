@@ -83,6 +83,10 @@ class KlippyService {
     _webSocket.sendObject("machine.reboot", null);
   }
 
+  shutdownHost() {
+    _webSocket.sendObject("machine.shutdown", null);
+  }
+
   restartKlipper() {
     _webSocket.sendObject("machine.services.restart", null,
         params: {'service': 'klipper'});
