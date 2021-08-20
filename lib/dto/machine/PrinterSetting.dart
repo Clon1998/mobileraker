@@ -16,12 +16,12 @@ class PrinterSetting extends HiveObject {
   String wsUrl;
   @HiveField(2)
   String uuid = Uuid().v4();
-  @HiveField(3)
-  List<WebcamSetting> cams = List.empty(growable: true);
+  @HiveField(3, defaultValue: [])
+  List<WebcamSetting> cams;
   @HiveField(4)
   String? apiKey;
-  @HiveField(5)
-  List<TemperaturePreset> temperaturePresets = List.empty(growable: true);
+  @HiveField(5, defaultValue: [])
+  List<TemperaturePreset> temperaturePresets;
 
   WebSocketWrapper? _webSocket;
 
@@ -47,16 +47,19 @@ class PrinterSetting extends HiveObject {
     return _klippyService!;
   }
 
-  PrinterSetting(this.name, this.wsUrl, {this.apiKey});
+  PrinterSetting(
+      {required this.name,
+      required this.wsUrl,
+      this.apiKey,
+      this.temperaturePresets = const [],
+      this.cams = const []});
 
   @override
   Future<void> save() async {
     await super.save();
 
-    _webSocket?.reset();
-    if (_webSocket != null && _webSocket!.stateStream.isClosed)
-      _webSocket?.stateStream.close();
-    _webSocket = null;
+    // ensure websocket gets updated with the changed URL+API KEY
+    _webSocket?.update(this.wsUrl, this.apiKey);
   }
 
   @override

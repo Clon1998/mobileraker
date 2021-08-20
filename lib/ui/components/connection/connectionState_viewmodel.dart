@@ -24,7 +24,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
             StreamData<PrinterSetting?>(_machineService.selectedPrinter),
-        _DisplayStreamKey: StreamData<FGBGType>(FGBGEvents.stream),
+        // _DisplayStreamKey: StreamData<FGBGType>(FGBGEvents.stream),
         if (_printerSetting?.websocket != null) ...{
           _WebSocketStreamKey:
               StreamData<WebSocketState>(_webSocket!.stateStream)
@@ -52,7 +52,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
       case _DisplayStreamKey:
         switch (data) {
           case FGBGType.foreground:
-            _webSocket?.ensureConnection();
+            // _webSocket?.ensureConnection();
             break;
           case FGBGType.background:
             break;

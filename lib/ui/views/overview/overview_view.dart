@@ -41,13 +41,13 @@ class OverView extends StatelessWidget {
               onPressed: () => null,
             ),
             IconButton(
+              color: Colors.red,
               icon: Icon(
                 Icons.dangerous_outlined,
-                color: Colors.red,
                 size: 30,
               ),
               tooltip: 'Emergency-Stop',
-              onPressed: model.onEmergencyPressed,
+              onPressed: (model.hasServer) ? model.onEmergencyPressed : null,
             ),
           ],
         ),

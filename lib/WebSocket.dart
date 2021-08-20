@@ -12,9 +12,9 @@ enum WebSocketState { disconnected, connecting, connected, error }
 
 class WebSocketWrapper {
   final _logger = getLogger('WebSocketWrapper');
-  final String url;
   final int defaultMaxRetries;
   final Duration _defaultTimeout;
+  String url;
   IOWebSocketChannel? _channel;
   String? apiKey;
 
@@ -91,6 +91,16 @@ class WebSocketWrapper {
   /// ----------------------------------------------------------
   reset() {
     _channel?.sink.close(status.goingAway);
+  }
+
+  update(String nurl, String? napiKey) {
+    if (url == nurl && apiKey == napiKey) // No need to update
+      return;
+    _logger
+        .i("Updating WebSocket URL:$url -> $nurl APIKEY: $apiKey -> $napiKey");
+    url = nurl;
+    apiKey = napiKey;
+    initCommunication();
   }
 
   /// ----------------------------------------------------------

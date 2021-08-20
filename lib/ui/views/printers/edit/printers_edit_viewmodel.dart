@@ -152,7 +152,7 @@ class PrintersEditViewModel extends BaseViewModel {
         .showConfirmationDialog(
       title: "Delete ${printerSetting.name}?",
       description:
-          "Are you sure you want to remove the printer ${printerSetting.name} running under the address ${wsUrl}.",
+          "Are you sure you want to remove the printer ${printerSetting.name} running under the address $wsUrl.",
       confirmationTitle: "Delete",
     )
         .then((dialogResponse) {

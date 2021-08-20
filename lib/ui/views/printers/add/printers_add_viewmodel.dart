@@ -88,8 +88,8 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
       if (!Uri.parse(printerUrl).hasScheme) {
         printerUrl = 'ws://$printerUrl/websocket';
       }
-      var printerSetting =
-          PrinterSetting(printerName, printerUrl, apiKey: printerAPIKey);
+      var printerSetting = PrinterSetting(
+          name: printerName, wsUrl: printerUrl, apiKey: printerAPIKey);
       _printerSettingService.addPrinter(printerSetting).then(
           (value) => _navigationService.clearStackAndShow(Routes.overView));
     }
@@ -106,7 +106,8 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
       _testWebSocket?.reset();
       _testWebSocket?.stateStream.close();
 
-      _testWebSocket = WebSocketWrapper(printerUrl, Duration(seconds: 2), apiKey: printerAPIKey);
+      _testWebSocket = WebSocketWrapper(printerUrl, Duration(seconds: 2),
+          apiKey: printerAPIKey);
 
       _wsStream = _testWebSocket!.stateStream;
       notifySourceChanged();

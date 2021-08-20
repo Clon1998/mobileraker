@@ -41,6 +41,7 @@ class MachineService {
 
   setPrinterActive(PrinterSetting? printerSetting) async {
     if (printerSetting == selectedPrinter.valueOrNull) return;
+    // This case will be called when no printer is left! -> Select no printer as active printer
     if (printerSetting == null) {
       await _boxUuid.delete('selectedPrinter');
       selectedPrinter.add(null);
