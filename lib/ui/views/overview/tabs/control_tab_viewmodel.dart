@@ -91,7 +91,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     });
   }
 
-  onEditFan() {
+  onEditPartFan() {
     _dialogService
         .showCustomDialog(
             variant: DialogType.editForm,
@@ -106,6 +106,32 @@ class ControlTabViewModel extends MultipleStreamViewModel {
         _printerService?.partCoolingFan(v.toDouble() / 100);
       }
     });
+  }
+
+  onEditGenericFan(NamedFan namedFan) {
+    _dialogService
+        .showCustomDialog(
+            variant: DialogType.editForm,
+            title: "Edit ${beautifyName(namedFan.name)} %",
+            mainButtonTitle: "Confirm",
+            secondaryButtonTitle: "Cancel",
+            data: EditFormDialogViewArguments(
+                max: 100, current: namedFan.speed * 100.round()))
+        .then((value) {
+      if (value != null && value.confirmed && value.data != null) {
+        num v = value.data;
+        _printerService?.genericFanFan(namedFan.name, v.toDouble() / 100);
+      }
+    });
+  }
+
+  String beautifyName(String name) {
+    return name.replaceAll("_", " ").capitalize!;
+  }
+
+  String beautifyOutputName(NamedFan namedFan) {
+    String name = namedFan.name;
+    return name.replaceAll("_", " ").capitalize!;
   }
 
   onSelectedRetractChanged(int index) {

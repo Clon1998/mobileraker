@@ -51,7 +51,8 @@ class Printer {
 
   ConfigFile configFile = ConfigFile();
 
-  Set<HeaterFan> heaterFans = {};
+  Set<NamedFan> fans = {};
+
   Set<TemperatureSensor> temperatureSensors = {};
   Set<OutputPin> outputPins = {};
 
@@ -89,7 +90,7 @@ class Printer {
 
   @override
   String toString() {
-    return 'Printer{state: $state, toolhead: $toolhead, extruder: $extruder, heaterBed: $heaterBed, printFan: $printFan, heaterFans: $heaterFans, virtualSdCard: $virtualSdCard, queryableObjects: $queryableObjects, gcodes: $gcodeMacros}';
+    return 'Printer{state: $state, toolhead: $toolhead, extruder: $extruder, heaterBed: $heaterBed, printFan: $printFan, gCodeMove: $gCodeMove, print: $print, configFile: $configFile, fans: $fans, temperatureSensors: $temperatureSensors, outputPins: $outputPins, virtualSdCard: $virtualSdCard, queryableObjects: $queryableObjects, gcodeMacros: $gcodeMacros}';
   }
 }
 
@@ -167,10 +168,14 @@ class GCodeMove {
   }
 }
 
-
-
 abstract class Fan {
   double speed = 0;
+}
+
+abstract class NamedFan implements Fan {
+  String name;
+
+  NamedFan(this.name);
 }
 
 class PrintFan implements Fan {
@@ -178,13 +183,42 @@ class PrintFan implements Fan {
   double speed = 0.0;
 }
 
-class HeaterFan implements Fan {
+class HeaterFan implements NamedFan {
+  @override
   String name;
 
   @override
   double speed = 0.0;
 
   HeaterFan(this.name);
+}
+
+class ControllerFan implements NamedFan {
+  @override
+  String name;
+  @override
+  double speed = 0.0;
+
+  ControllerFan(this.name);
+}
+
+class TemperatureFan implements NamedFan {
+  @override
+  String name;
+  @override
+  double speed = 0.0;
+
+  TemperatureFan(this.name);
+}
+
+class GenericFan implements NamedFan {
+  @override
+  String name;
+
+  @override
+  double speed = 0.0;
+
+  GenericFan(this.name);
 }
 
 class TemperatureSensor {

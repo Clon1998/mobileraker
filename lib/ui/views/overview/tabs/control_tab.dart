@@ -13,7 +13,8 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   const ControlTab({Key? key}) : super(key: key);
 
   @override
-  Widget builder(BuildContext context, ControlTabViewModel model, Widget? child) {
+  Widget builder(
+      BuildContext context, ControlTabViewModel model, Widget? child) {
     return PullToRefreshPrinter(
       child: ListView(
         padding: EdgeInsets.only(bottom: 20),
@@ -33,7 +34,8 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   }
 
   @override
-  ControlTabViewModel viewModelBuilder(BuildContext context) => ControlTabViewModel();
+  ControlTabViewModel viewModelBuilder(BuildContext context) =>
+      ControlTabViewModel();
 }
 
 class FansCard extends ViewModelWidget<ControlTabViewModel> {
@@ -51,8 +53,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
               FlutterIcons.fan_mco,
               color: Theme.of(context).iconTheme.color,
             ),
-            title:
-                Text("Fan${(model.printer.heaterFans.length > 0) ? 's' : ''}"),
+            title: Text("Fan${(model.printer.fans.length > 0) ? 's' : ''}"),
           ),
           Padding(
               padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
@@ -78,13 +79,20 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
 
     var printFan = model.printer.printFan;
     rows.add(_FanTile(
-        name: "Part cooling",
+        name: "Part Cooling",
         speed: printFan.speed,
         width: width,
-        onTap: model.onEditFan));
+        onTap: model.onEditPartFan));
 
-    for (HeaterFan fan in model.printer.heaterFans) {
-      var row = _FanTile(name: fan.name, speed: fan.speed, width: width);
+    for (NamedFan fan in model.printer.fans) {
+      VoidCallback? f;
+      if (fan is GenericFan) f = () => model.onEditGenericFan(fan);
+      var row = _FanTile(
+        name: model.beautifyName(fan.name),
+        speed: fan.speed,
+        width: width,
+        onTap: f,
+      );
       rows.add(row);
     }
 
@@ -193,7 +201,9 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
 
   @override
   Widget build(BuildContext context, ControlTabViewModel model) {
-    Color textBtnColor = Theme.of(context).brightness == Brightness.dark? Colors.white: Colors.black;
+    Color textBtnColor = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : Colors.black;
 
     return Card(
       child: Column(
@@ -299,9 +309,12 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
     );
   }
 
-  List<Widget> _generateGCodeChips(BuildContext context ,ControlTabViewModel model) {
+  List<Widget> _generateGCodeChips(
+      BuildContext context, ControlTabViewModel model) {
     var themeData = Theme.of(context);
-    var bgCol = themeData.brightness == Brightness.dark? themeData.accentColor:themeData.primaryColor;
+    var bgCol = themeData.brightness == Brightness.dark
+        ? themeData.accentColor
+        : themeData.primaryColor;
     return List<Widget>.generate(
       model.printer.gcodeMacros.length,
       (int index) {
@@ -357,7 +370,12 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
     List<Widget> rows = [];
 
     for (var pin in model.printer.outputPins) {
-      var row = _PinTile(name: pin.name, value: pin.value, width: width, onTap: () => model.onEditPin(pin),);
+      var row = _PinTile(
+        name: model.beautifyName(pin.name),
+        value: pin.value,
+        width: width,
+        onTap: () => model.onEditPin(pin),
+      );
       rows.add(row);
     }
     return rows;
