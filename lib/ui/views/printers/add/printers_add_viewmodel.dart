@@ -70,7 +70,8 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
 
   String? get wsUrl {
     var printerUrl = inputUrl;
-    return (Uri.parse(printerUrl).hasScheme)
+    var parse = Uri.tryParse(printerUrl);
+    return (parse?.hasScheme ?? false)
         ? printerUrl
         : 'ws://$printerUrl/websocket';
   }

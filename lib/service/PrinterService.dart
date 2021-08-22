@@ -102,7 +102,7 @@ class PrinterService {
     List<String> qObjects = [];
 
     objects.forEach((element) {
-          qObjects.add(element);
+      qObjects.add(element);
 
       if (element.startsWith("gcode_macro ")) {
         String macro = element.split(" ")[1];
@@ -177,7 +177,7 @@ class PrinterService {
     }
 
     var controllerFans =
-    data.keys.where((element) => element.startsWith('controller_fan'));
+        data.keys.where((element) => element.startsWith('controller_fan'));
     if (controllerFans.isNotEmpty) {
       for (var controllerFanName in controllerFans) {
         var fanJson = data[controllerFanName];
@@ -186,7 +186,7 @@ class PrinterService {
     }
 
     var tempFans =
-    data.keys.where((element) => element.startsWith('temperature_fan'));
+        data.keys.where((element) => element.startsWith('temperature_fan'));
     if (tempFans.isNotEmpty) {
       for (var tempFanName in tempFans) {
         var fanJson = data[tempFanName];
@@ -195,7 +195,7 @@ class PrinterService {
     }
 
     var genericFans =
-    data.keys.where((element) => element.startsWith('fan_generic'));
+        data.keys.where((element) => element.startsWith('fan_generic'));
     if (genericFans.isNotEmpty) {
       for (var genFanName in genericFans) {
         var fanJson = data[genFanName];
@@ -282,9 +282,9 @@ class PrinterService {
     List<String> split = fanName.split(" ");
     String hName = split.length > 1 ? split.skip(1).join(" ") : split[0];
 
-    NamedFan namedFan = printer.fans.firstWhere(
-        (element) => element.name == hName && element is GenericFan,
-        orElse: () {
+    NamedFan namedFan = printer.fans
+        .firstWhere((element) => element.name == hName && element is GenericFan,
+            orElse: () {
       var f = GenericFan(hName);
       printer!.fans.add(f);
       return f;
@@ -554,10 +554,10 @@ class PrinterService {
   }
 
   genericFanFan(String fanName, double perc) {
-    _webSocket.sendObject("printer.gcode.script", null,
-        params: {'script': "SET_FAN_SPEED  FAN=$fanName SPEED=${perc.toStringAsFixed(2)}"});
+    _webSocket.sendObject("printer.gcode.script", null, params: {
+      'script': "SET_FAN_SPEED  FAN=$fanName SPEED=${perc.toStringAsFixed(2)}"
+    });
   }
-
 
   outputPin(String pinName, double perc) {
     _webSocket.sendObject("printer.gcode.script", null,
