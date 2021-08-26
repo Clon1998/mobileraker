@@ -53,7 +53,7 @@ class OverView extends StatelessWidget {
         ),
         body: ConnectionStateView(
           pChild:
-              (model.hasPrinter && model.printer.state == PrinterState.ready)
+              (model.hasPrinter)
                   ? PageTransitionSwitcher(
                       duration: const Duration(milliseconds: 300),
                       reverse: model.reverse,

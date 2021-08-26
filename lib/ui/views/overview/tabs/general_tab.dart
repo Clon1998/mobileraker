@@ -10,9 +10,9 @@ import 'package:intl/intl.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
-import 'package:mobileraker/ui/components/CardWithButton.dart';
+import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
-import 'package:mobileraker/ui/components/refreshPrinter.dart';
+import 'package:mobileraker/ui/components/refresh_printer.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -62,127 +62,159 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.only(top: 3, left: 16, right: 16),
-            leading: Icon(FlutterIcons.monitor_dashboard_mco),
-            title: Text('${model.printer.print.stateName}'),
-            subtitle: (model.printer.print.state == PrintState.printing)
-                ? Text(
-                    "Printing: ${model.printer.print.filename}\nFor: ${secondsToDurationText(model.printer.print.totalDuration)}")
-                : null,
-            trailing: (model.printer.print.state == PrintState.printing)
-                ? CircularPercentIndicator(
-                    radius: 50,
-                    lineWidth: 4,
-                    percent: model.printer.virtualSdCard.progress,
-                    center: Text(
-                        "${(model.printer.virtualSdCard.progress * 100).round()}%"),
-                    progressColor:
-                        (model.printer.print.state == PrintState.complete)
-                            ? Colors.green
-                            : Colors.deepOrange,
-                  )
-                : null,
+    switch (model.printer.print.state) {
+      case PrintState.printing:
+        return Card(
+          child: Column(
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.only(top: 3, left: 16, right: 16),
+                leading: Icon(FlutterIcons.monitor_dashboard_mco),
+                title: Text('${model.printer.print.stateName}'),
+                subtitle: Text(
+                    "Printing: ${model.printer.print.filename}\nFor: ${secondsToDurationText(model.printer.print.totalDuration)}"),
+                trailing: CircularPercentIndicator(
+                  radius: 50,
+                  lineWidth: 4,
+                  percent: model.printer.virtualSdCard.progress,
+                  center: Text(
+                      "${(model.printer.virtualSdCard.progress * 100).round()}%"),
+                  progressColor:
+                      (model.printer.print.state == PrintState.complete)
+                          ? Colors.green
+                          : Colors.deepOrange,
+                ),
+              ),
+              _buildTableView(context, model),
+            ],
           ),
-          Padding(
-              padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
-              child: Table(
-                border: TableBorder(
-                    horizontalInside: BorderSide(
-                        width: 1,
-                        color: Theme.of(context).dividerColor,
-                        style: BorderStyle.solid)),
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                columnWidths: {
-                  0: FractionColumnWidth(.1),
-                },
-                children: [
-                  TableRow(children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(FlutterIcons.axis_arrow_mco),
-                    ),
-                    Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text("X"),
-                            Text(
-                                '${model.printer.toolhead.position[0].toStringAsFixed(2)}'),
-                          ],
-                        )),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text("Y"),
-                          Text(
-                              '${model.printer.toolhead.position[1].toStringAsFixed(2)}'),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text("Z"),
-                          Text(
-                              '${model.printer.toolhead.position[2].toStringAsFixed(2)}'),
-                        ],
-                      ),
-                    ),
-                  ]),
-                  TableRow(
+        );
+
+      case PrintState.error:
+        return Card(
+          child: Column(
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.only(top: 3, left: 16, right: 16),
+                leading: Icon(FlutterIcons.monitor_dashboard_mco),
+                title: Text('${model.printer.print.stateName}'),
+                subtitle: Text('${model.printer.print.message}'),
+              ),
+              _buildTableView(context, model),
+            ],
+          ),
+        );
+
+      default:
+        return Card(
+          child: Column(
+            children: [
+              ListTile(
+                contentPadding: EdgeInsets.only(top: 3, left: 16, right: 16),
+                leading: Icon(FlutterIcons.monitor_dashboard_mco),
+                title: Text('${model.printer.print.stateName}'),
+              ),
+              _buildTableView(context, model),
+            ],
+          ),
+        );
+    }
+  }
+
+  Padding _buildTableView(BuildContext context, GeneralTabViewModel model) {
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+        child: Table(
+          border: TableBorder(
+              horizontalInside: BorderSide(
+                  width: 1,
+                  color: Theme.of(context).dividerColor,
+                  style: BorderStyle.solid)),
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          columnWidths: {
+            0: FractionColumnWidth(.1),
+          },
+          children: [
+            TableRow(children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(FlutterIcons.axis_arrow_mco),
+              ),
+              Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Icon(FlutterIcons.printer_3d_mco),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text("Speed"),
-                            Text('${model.printer.gCodeMove.mmSpeed} mm/s'),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text("Layer"),
-                            Text('Todo'),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text("ETA"),
-                            Text((model.printer.eta != null)
-                                ? DateFormat.Hm().format(model.printer.eta!)
-                                : '00:00'),
-                          ],
-                        ),
-                      ),
+                      Text("X"),
+                      Text(
+                          '${model.printer.toolhead.position[0].toStringAsFixed(2)}'),
                     ],
-                  )
-                ],
-              )),
-        ],
-      ),
-    );
+                  )),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text("Y"),
+                    Text(
+                        '${model.printer.toolhead.position[1].toStringAsFixed(2)}'),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text("Z"),
+                    Text(
+                        '${model.printer.toolhead.position[2].toStringAsFixed(2)}'),
+                  ],
+                ),
+              ),
+            ]),
+            TableRow(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Icon(FlutterIcons.printer_3d_mco),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text("Speed"),
+                      Text('${model.printer.gCodeMove.mmSpeed} mm/s'),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text("Layer"),
+                      Text('Todo'),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text("ETA"),
+                      Text((model.printer.eta != null)
+                          ? DateFormat.Hm().format(model.printer.eta!)
+                          : '00:00'),
+                    ],
+                  ),
+                ),
+              ],
+            )
+          ],
+        ));
   }
 }
 

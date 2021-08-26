@@ -191,5 +191,6 @@ class WebSocketWrapper {
       t = WebSocketState.disconnected;
     }
     if (!stateStream.isClosed) state = t;
+    _logger.i("WS-Stream close normal!");
   }
 }

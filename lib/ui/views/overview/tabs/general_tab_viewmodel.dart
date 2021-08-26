@@ -134,7 +134,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
               secondaryButtonTitle: "Cancel",
               data: EditFormDialogViewArguments(
                   current: printer.heaterBed.target.round(),
-                  min: printer.configFile.configHeaterBed?.minTemp.toInt() ?? 0,
+                  min: 0,
                   max: printer.configFile.configHeaterBed?.maxTemp.toInt() ??
                       150))
           .then((value) {
@@ -152,7 +152,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
               secondaryButtonTitle: "Cancel",
               data: EditFormDialogViewArguments(
                   current: printer.extruder.target.round(),
-                  min: printer.configFile.primaryExtruder?.minTemp.toInt() ?? 0,
+                  min: 0,
                   max: printer.configFile.primaryExtruder?.maxTemp.toInt() ??
                       500))
           .then((value) {

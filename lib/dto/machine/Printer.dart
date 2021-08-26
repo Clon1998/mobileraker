@@ -47,7 +47,7 @@ class Printer {
   HeaterBed heaterBed = HeaterBed();
   PrintFan printFan = PrintFan();
   GCodeMove gCodeMove = GCodeMove();
-  Print print = Print();
+  PrintStats print = PrintStats();
 
   ConfigFile configFile = ConfigFile();
 
@@ -92,9 +92,46 @@ class Printer {
   String toString() {
     return 'Printer{state: $state, toolhead: $toolhead, extruder: $extruder, heaterBed: $heaterBed, printFan: $printFan, gCodeMove: $gCodeMove, print: $print, configFile: $configFile, fans: $fans, temperatureSensors: $temperatureSensors, outputPins: $outputPins, virtualSdCard: $virtualSdCard, queryableObjects: $queryableObjects, gcodeMacros: $gcodeMacros}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Printer &&
+          runtimeType == other.runtimeType &&
+          state == other.state &&
+          toolhead == other.toolhead &&
+          extruder == other.extruder &&
+          heaterBed == other.heaterBed &&
+          printFan == other.printFan &&
+          gCodeMove == other.gCodeMove &&
+          print == other.print &&
+          configFile == other.configFile &&
+          fans == other.fans &&
+          temperatureSensors == other.temperatureSensors &&
+          outputPins == other.outputPins &&
+          virtualSdCard == other.virtualSdCard &&
+          queryableObjects == other.queryableObjects &&
+          gcodeMacros == other.gcodeMacros;
+
+  @override
+  int get hashCode =>
+      state.hashCode ^
+      toolhead.hashCode ^
+      extruder.hashCode ^
+      heaterBed.hashCode ^
+      printFan.hashCode ^
+      gCodeMove.hashCode ^
+      print.hashCode ^
+      configFile.hashCode ^
+      fans.hashCode ^
+      temperatureSensors.hashCode ^
+      outputPins.hashCode ^
+      virtualSdCard.hashCode ^
+      queryableObjects.hashCode ^
+      gcodeMacros.hashCode;
 }
 
-class Print {
+class PrintStats {
   PrintState state = PrintState.error;
   double totalDuration = 0;
   double printDuration = 0;
@@ -103,6 +140,27 @@ class Print {
   String filename = "";
 
   String get stateName => printStateName(state);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PrintStats &&
+          runtimeType == other.runtimeType &&
+          state == other.state &&
+          totalDuration == other.totalDuration &&
+          printDuration == other.printDuration &&
+          filamentUsed == other.filamentUsed &&
+          message == other.message &&
+          filename == other.filename;
+
+  @override
+  int get hashCode =>
+      state.hashCode ^
+      totalDuration.hashCode ^
+      printDuration.hashCode ^
+      filamentUsed.hashCode ^
+      message.hashCode ^
+      filename.hashCode;
 }
 
 class HeaterBed {
@@ -114,6 +172,18 @@ class HeaterBed {
   String toString() {
     return 'HeaterBed{temperature: $temperature, target: $target}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HeaterBed &&
+          runtimeType == other.runtimeType &&
+          temperature == other.temperature &&
+          target == other.target &&
+          power == other.power;
+
+  @override
+  int get hashCode => temperature.hashCode ^ target.hashCode ^ power.hashCode;
 }
 
 class Extruder {
@@ -127,6 +197,25 @@ class Extruder {
   String toString() {
     return 'Extruder{temperature: $temperature, target: $target, pressureAdvance: $pressureAdvance, smoothTime: $smoothTime}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Extruder &&
+          runtimeType == other.runtimeType &&
+          temperature == other.temperature &&
+          target == other.target &&
+          pressureAdvance == other.pressureAdvance &&
+          smoothTime == other.smoothTime &&
+          power == other.power;
+
+  @override
+  int get hashCode =>
+      temperature.hashCode ^
+      target.hashCode ^
+      pressureAdvance.hashCode ^
+      smoothTime.hashCode ^
+      power.hashCode;
 }
 
 class Toolhead {
@@ -145,12 +234,52 @@ class Toolhead {
   String toString() {
     return 'Toolhead{homedAxes: $homedAxes, position: $position, activeExtruder: $activeExtruder, printTime: $printTime, estimatedPrintTime: $estimatedPrintTime, maxVelocity: $maxVelocity, maxAccel: $maxAccel, maxAccelToDecel: $maxAccelToDecel, squareCornerVelocity: $squareCornerVelocity}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Toolhead &&
+          runtimeType == other.runtimeType &&
+          homedAxes == other.homedAxes &&
+          position == other.position &&
+          activeExtruder == other.activeExtruder &&
+          printTime == other.printTime &&
+          estimatedPrintTime == other.estimatedPrintTime &&
+          maxVelocity == other.maxVelocity &&
+          maxAccel == other.maxAccel &&
+          maxAccelToDecel == other.maxAccelToDecel &&
+          squareCornerVelocity == other.squareCornerVelocity;
+
+  @override
+  int get hashCode =>
+      homedAxes.hashCode ^
+      position.hashCode ^
+      activeExtruder.hashCode ^
+      printTime.hashCode ^
+      estimatedPrintTime.hashCode ^
+      maxVelocity.hashCode ^
+      maxAccel.hashCode ^
+      maxAccelToDecel.hashCode ^
+      squareCornerVelocity.hashCode;
 }
 
 class VirtualSdCard {
   double progress = 0;
   bool isActive = false;
   int filePosition = 0;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is VirtualSdCard &&
+          runtimeType == other.runtimeType &&
+          progress == other.progress &&
+          isActive == other.isActive &&
+          filePosition == other.filePosition;
+
+  @override
+  int get hashCode =>
+      progress.hashCode ^ isActive.hashCode ^ filePosition.hashCode;
 }
 
 class GCodeMove {
@@ -166,6 +295,31 @@ class GCodeMove {
   int get mmSpeed {
     return (speed / 60 * speedFactor).round();
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GCodeMove &&
+          runtimeType == other.runtimeType &&
+          speedFactor == other.speedFactor &&
+          speed == other.speed &&
+          extrudeFactor == other.extrudeFactor &&
+          absoluteCoordinates == other.absoluteCoordinates &&
+          absoluteExtrude == other.absoluteExtrude &&
+          homingOrigin == other.homingOrigin &&
+          position == other.position &&
+          gcodePosition == other.gcodePosition;
+
+  @override
+  int get hashCode =>
+      speedFactor.hashCode ^
+      speed.hashCode ^
+      extrudeFactor.hashCode ^
+      absoluteCoordinates.hashCode ^
+      absoluteExtrude.hashCode ^
+      homingOrigin.hashCode ^
+      position.hashCode ^
+      gcodePosition.hashCode;
 }
 
 abstract class Fan {
@@ -181,6 +335,16 @@ abstract class NamedFan implements Fan {
 class PrintFan implements Fan {
   @override
   double speed = 0.0;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PrintFan &&
+          runtimeType == other.runtimeType &&
+          speed == other.speed;
+
+  @override
+  int get hashCode => speed.hashCode;
 }
 
 class HeaterFan implements NamedFan {
@@ -191,6 +355,17 @@ class HeaterFan implements NamedFan {
   double speed = 0.0;
 
   HeaterFan(this.name);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HeaterFan &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          speed == other.speed;
+
+  @override
+  int get hashCode => name.hashCode ^ speed.hashCode;
 }
 
 class ControllerFan implements NamedFan {
@@ -200,6 +375,17 @@ class ControllerFan implements NamedFan {
   double speed = 0.0;
 
   ControllerFan(this.name);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ControllerFan &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          speed == other.speed;
+
+  @override
+  int get hashCode => name.hashCode ^ speed.hashCode;
 }
 
 class TemperatureFan implements NamedFan {
@@ -209,6 +395,17 @@ class TemperatureFan implements NamedFan {
   double speed = 0.0;
 
   TemperatureFan(this.name);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TemperatureFan &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          speed == other.speed;
+
+  @override
+  int get hashCode => name.hashCode ^ speed.hashCode;
 }
 
 class GenericFan implements NamedFan {
@@ -219,6 +416,17 @@ class GenericFan implements NamedFan {
   double speed = 0.0;
 
   GenericFan(this.name);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GenericFan &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          speed == other.speed;
+
+  @override
+  int get hashCode => name.hashCode ^ speed.hashCode;
 }
 
 class TemperatureSensor {
@@ -229,6 +437,23 @@ class TemperatureSensor {
   double measuredMaxTemp = 0.0;
 
   TemperatureSensor(this.name);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TemperatureSensor &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          temperature == other.temperature &&
+          measuredMinTemp == other.measuredMinTemp &&
+          measuredMaxTemp == other.measuredMaxTemp;
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      temperature.hashCode ^
+      measuredMinTemp.hashCode ^
+      measuredMaxTemp.hashCode;
 }
 
 class OutputPin {
@@ -236,4 +461,15 @@ class OutputPin {
   double value = 0.0;
 
   OutputPin(this.name);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OutputPin &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          value == other.value;
+
+  @override
+  int get hashCode => name.hashCode ^ value.hashCode;
 }

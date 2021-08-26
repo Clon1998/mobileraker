@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
-import 'package:mobileraker/ui/components/CardWithButton.dart';
+import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
-import 'package:mobileraker/ui/components/refreshPrinter.dart';
+import 'package:mobileraker/ui/components/refresh_printer.dart';
 import 'package:mobileraker/ui/views/overview/tabs/control_tab_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 
@@ -79,7 +79,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
 
     var printFan = model.printer.printFan;
     rows.add(_FanTile(
-        name: "Part Cooling",
+        name: "Part Fan",
         speed: printFan.speed,
         width: width,
         onTap: model.onEditPartFan));

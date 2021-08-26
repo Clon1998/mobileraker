@@ -18,30 +18,28 @@ class PrinterService {
   final _logger = getLogger('PrinterService');
   final _snackBarService = locator<SnackbarService>();
 
-  ObserverList<MapEntry<String, Function>> _statusUpdateListener =
-      ObserverList();
+  /// This map defines how different printerObjects will be parsed
+  /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
+  late final Map<String, Function?> subToPrinterObjects = {
+    'toolhead': _updateToolhead,
+    'extruder': _updateExtruder,
+    'gcode_move': _updateGCodeMove,
+    'heater_bed': _updateHeaterBed,
+    'virtual_sdcard': _updateVirtualSd,
+    'configfile': _updateConfigFile,
+    'print_stats': _updatePrintStat,
+    'fan': _updatePartFan,
+    'heater_fan': _updateHeaterFan,
+    'controller_fan': _updateControllerFan,
+    'temperature_fan': _updateTemperatureFan,
+    'fan_generic': _updateGenericFan,
+    'output_pin': _updateOutputPin,
+    'temperature_sensor': _updateTemperatureSensor,
+  };
 
-  late final Map<String, Function?> subToPrinterObjects;
   final BehaviorSubject<Printer> printerStream = BehaviorSubject<Printer>();
 
   PrinterService(this._webSocket) {
-    subToPrinterObjects = {
-      'toolhead': _updateToolhead,
-      'extruder': _updateExtruder,
-      'gcode_move': _updateGCodeMove,
-      'heater_bed': _updateHeaterBed,
-      'virtual_sdcard': _updateVirtualSd,
-      'configfile': null,
-      'print_stats': _updatePrintStat,
-      'fan': _updatePartFan,
-      'heater_fan': _updateHeaterFan,
-      'controller_fan': _updateControllerFan,
-      'temperature_fan': _updateTemperatureFan,
-      'fan_generic': _updateGenericFan,
-      'output_pin': _updateOutputPin,
-      'temperature_sensor': _updateTemperatureSensor,
-    };
-
     _webSocket.addMethodListener(
         _onStatusUpdateHandler, "notify_status_update");
     _webSocket.stateStream.listen((value) {
@@ -55,9 +53,9 @@ class PrinterService {
   }
 
   _fetchPrinter() {
-    _logger.i("Fetching printer Info");
-    printerStream.value = Printer();
-    _webSocket.sendObject("printer.info", _printerInfo);
+    // printerStream.value = Printer();
+    // _webSocket.sendObject("printer.info", _printerInfo); // ToDo remove this, isn't needed anymore!
+    _logger.i(">>>Querying printers object list");
     _webSocket.sendObject("printer.objects.list", _printerObjectsList);
   }
 
@@ -65,23 +63,28 @@ class PrinterService {
     _fetchPrinter();
   }
 
-  /**
-   * Adds a callback to the notify_status_update method of moonraker
-   */
-  addStatusUpdateListener(Function callback, [String object = ""]) {
-    _statusUpdateListener.add(MapEntry(object, callback));
-  }
+
+  /// Method Handler for registered in the Websocket wrapper.
+  /// Handles all incoming messages and maps the correct method to it!
 
   _onStatusUpdateHandler(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];
     Printer latestPrinter = _latestPrinter;
-    for (MapEntry<String, Function> listener in _statusUpdateListener) {
-      if (params[listener.key] != null) if (listener.key.split(" ").length > 1)
-        listener.value(listener.key, params[listener.key],
-            printer: latestPrinter);
-      else
-        listener.value(params[listener.key], printer: latestPrinter);
-    }
+
+    params.forEach((key, value) {
+      // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
+      List<String> split = key.split(" ");
+      String mainObjectType = split[0];
+      if (subToPrinterObjects.containsKey(mainObjectType)) {
+        var method = subToPrinterObjects[mainObjectType];
+        if (method != null) {
+          if (split.length > 1)
+            method(key, params[key], printer: latestPrinter);
+          else
+            method(params[key], printer: latestPrinter);
+        }
+      }
+    });
     printerStream.add(latestPrinter);
   }
 
@@ -96,132 +99,50 @@ class PrinterService {
 
   _printerObjectsList(response) {
     Printer printer = _latestPrinter;
+    _logger.i("<<<Received printer objects list!");
     _logger
         .v('PrinterObjList: ${JsonEncoder.withIndent('  ').convert(response)}');
     List<String> objects = response['objects'].cast<String>();
     List<String> qObjects = [];
+    List<String> gCodeMacros = [];
 
     objects.forEach((element) {
       qObjects.add(element);
 
       if (element.startsWith("gcode_macro ")) {
         String macro = element.split(" ")[1];
-        if (!skipGCodes.contains(macro)) printer.gcodeMacros.add(macro);
+        if (!skipGCodes.contains(macro)) gCodeMacros.add(macro);
       }
     });
     printer.queryableObjects = qObjects;
-    printerStream.add(printer);
-
+    printer.gcodeMacros = gCodeMacros;
     _queryPrinterObjects(printer);
-    _makeSubscribeRequest(printer);
   }
 
-  _printerObjectsQuery(response) {
-    Printer printer = _latestPrinter;
+  _printerObjectsQuery(dynamic response, Printer printer) {
+    _logger.i("<<<Received queried printer objects");
     _logger.v(
         'PrinterObjectsQuery: ${JsonEncoder.withIndent('  ').convert(response)}');
     Map<String, dynamic> data = response['status'];
-    if (data.containsKey('toolhead')) {
-      var toolHeadJson = data['toolhead'];
 
-      _updateToolhead(toolHeadJson, printer: printer);
-    }
-
-    if (data.containsKey('extruder')) {
-      var extruderJson = data['extruder'];
-
-      _updateExtruder(extruderJson, printer: printer);
-    }
-
-    if (data.containsKey('heater_bed')) {
-      var heatedBedJson = data['heater_bed'];
-
-      _updateHeaterBed(heatedBedJson, printer: printer);
-    }
-
-    if (data.containsKey('virtual_sdcard')) {
-      var virtualSDJson = data['virtual_sdcard'];
-
-      _updateVirtualSd(virtualSDJson, printer: printer);
-    }
-
-    if (data.containsKey('gcode_move')) {
-      var gCodeJson = data['gcode_move'];
-
-      _updateGCodeMove(gCodeJson, printer: printer);
-    }
-
-    if (data.containsKey('print_stats')) {
-      var printStateJson = data['print_stats'];
-
-      _updatePrintStat(printStateJson, printer: printer);
-    }
-
-    if (data.containsKey('configfile')) {
-      var printConfigJson = data['configfile'];
-      _updateConfigFile(printConfigJson, printer: printer);
-    }
-
-    //Partcooling Fan
-    if (data.containsKey('fan')) {
-      _updatePartFan(data, printer: printer);
-    }
-
-    var heaterFans =
-        data.keys.where((element) => element.startsWith('heater_fan'));
-    if (heaterFans.isNotEmpty) {
-      for (var heaterFanName in heaterFans) {
-        var fanJson = data[heaterFanName];
-        _updateHeaterFan(heaterFanName, fanJson, printer: printer);
+    data.forEach((key, value) {
+      // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
+      List<String> split = key.split(" ");
+      String mainObjectType = split[0];
+      if (subToPrinterObjects.containsKey(mainObjectType)) {
+        var method = subToPrinterObjects[mainObjectType];
+        if (method != null) {
+          if (split.length > 1) // Multi word objectsType e.g.'temperature_sensor sensor_name'
+            method(key, data[key], printer: printer);
+          else
+            method(data[key], printer: printer);
+        }
       }
-    }
-
-    var controllerFans =
-        data.keys.where((element) => element.startsWith('controller_fan'));
-    if (controllerFans.isNotEmpty) {
-      for (var controllerFanName in controllerFans) {
-        var fanJson = data[controllerFanName];
-        _updateControllerFan(controllerFanName, fanJson, printer: printer);
-      }
-    }
-
-    var tempFans =
-        data.keys.where((element) => element.startsWith('temperature_fan'));
-    if (tempFans.isNotEmpty) {
-      for (var tempFanName in tempFans) {
-        var fanJson = data[tempFanName];
-        _updateTemperatureFan(tempFanName, fanJson, printer: printer);
-      }
-    }
-
-    var genericFans =
-        data.keys.where((element) => element.startsWith('fan_generic'));
-    if (genericFans.isNotEmpty) {
-      for (var genFanName in genericFans) {
-        var fanJson = data[genFanName];
-        _updateGenericFan(genFanName, fanJson, printer: printer);
-      }
-    }
-
-    var temperatureSensors =
-        data.keys.where((element) => element.startsWith('temperature_sensor'));
-    if (temperatureSensors.isNotEmpty) {
-      for (var sensor in temperatureSensors) {
-        var sensorJson = data[sensor];
-        _updateTemperatureSensor(sensor, sensorJson, printer: printer);
-      }
-    }
-
-    var outputPins =
-        data.keys.where((element) => element.startsWith('output_pin'));
-    if (outputPins.isNotEmpty) {
-      for (var pins in outputPins) {
-        var pinJson = data[pins];
-        _updateOutputPin(pins, pinJson, printer: printer);
-      }
-    }
+    });
 
     printerStream.add(printer);
+    // After initally getting all information we can get the data!
+    _makeSubscribeRequest(printer);
   }
 
   void _updatePartFan(Map<String, dynamic> fanJson, {Printer? printer}) {
@@ -364,7 +285,7 @@ class PrinterService {
       printer.virtualSdCard.isActive = virtualSDJson['is_active'];
     if (virtualSDJson.containsKey('file_position'))
       printer.virtualSdCard.filePosition =
-          int.parse(virtualSDJson['file_position'].toString());
+          int.tryParse(virtualSDJson['file_position'].toString()) ?? 0;
   }
 
   _updatePrintStat(Map<String, dynamic> printStatJson, {Printer? printer}) {
@@ -461,19 +382,24 @@ class PrinterService {
         queryObjects[element] = null;
     });
 
-    _webSocket.sendObject("printer.objects.query", _printerObjectsQuery,
+    _logger.i(">>>Querying Printer Objects!");
+
+    _webSocket.sendObject("printer.objects.query",
+        (response) => _printerObjectsQuery(response, printer),
         params: {'objects': queryObjects});
   }
 
+  /// This method registeres every printer object for websocket updates!
   _makeSubscribeRequest(Printer printer) {
+    _logger.i("Subscribing printer objects for ws-updates!");
     Map<String, List<String>?> queryObjects = Map();
-    for (var obj in printer.queryableObjects) {
-      List<String> split = obj.split(" ");
+    for (var object in printer.queryableObjects) {
       // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-      String objType = split[0];
-      if (subToPrinterObjects[objType] != null) {
-        addStatusUpdateListener(subToPrinterObjects[objType]!, obj);
-        queryObjects[obj] = null;
+      List<String> split = object.split(" ");
+      String objTypeKey = split[0];
+      if (subToPrinterObjects[objTypeKey] != null) {
+        queryObjects[object] =
+            null; // This is needed for the subscribe request!
       }
     }
 
