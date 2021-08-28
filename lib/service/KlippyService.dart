@@ -7,9 +7,9 @@ import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
 import 'package:rxdart/rxdart.dart';
 
-/**
- * Handley Server connections/services
- */
+///
+/// Handley Server connections/services
+///
 class KlippyService {
   final WebSocketWrapper _webSocket;
   final _logger = getLogger('KlippyService');

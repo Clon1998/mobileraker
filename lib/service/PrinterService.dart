@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:flutter/foundation.dart';
 import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.logger.dart';
@@ -62,7 +61,6 @@ class PrinterService {
   refreshPrinter() {
     _fetchPrinter();
   }
-
 
   /// Method Handler for registered in the Websocket wrapper.
   /// Handles all incoming messages and maps the correct method to it!
@@ -132,7 +130,8 @@ class PrinterService {
       if (subToPrinterObjects.containsKey(mainObjectType)) {
         var method = subToPrinterObjects[mainObjectType];
         if (method != null) {
-          if (split.length > 1) // Multi word objectsType e.g.'temperature_sensor sensor_name'
+          if (split.length >
+              1) // Multi word objectsType e.g.'temperature_sensor sensor_name'
             method(key, data[key], printer: printer);
           else
             method(data[key], printer: printer);
@@ -145,29 +144,27 @@ class PrinterService {
     _makeSubscribeRequest(printer);
   }
 
-  void _updatePartFan(Map<String, dynamic> fanJson, {Printer? printer}) {
-    printer ??= _latestPrinter;
+  void _updatePartFan(Map<String, dynamic> fanJson,
+      {required Printer printer}) {
     if (fanJson.containsKey('speed')) printer.printFan.speed = fanJson['speed'];
   }
 
   void _updateHeaterFan(String heaterFanName, Map<String, dynamic> fanJson,
-      {Printer? printer}) {
-    printer ??= _latestPrinter;
+      {required Printer printer}) {
     List<String> split = heaterFanName.split(" ");
     String hName = split.length > 1 ? split.skip(1).join(" ") : split[0];
 
     NamedFan namedFan = printer.fans.firstWhere(
         (element) => element.name == hName && element is HeaterFan, orElse: () {
       var f = HeaterFan(hName);
-      printer!.fans.add(f);
+      printer.fans.add(f);
       return f;
     });
     if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
   }
 
   void _updateControllerFan(String fanName, Map<String, dynamic> fanJson,
-      {Printer? printer}) {
-    printer ??= _latestPrinter;
+      {required Printer printer}) {
     List<String> split = fanName.split(" ");
     String hName = split.length > 1 ? split.skip(1).join(" ") : split[0];
 
@@ -175,15 +172,14 @@ class PrinterService {
         (element) => element.name == hName && element is ControllerFan,
         orElse: () {
       var f = ControllerFan(hName);
-      printer!.fans.add(f);
+      printer.fans.add(f);
       return f;
     });
     if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
   }
 
   void _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson,
-      {Printer? printer}) {
-    printer ??= _latestPrinter;
+      {required Printer printer}) {
     List<String> split = fanName.split(" ");
     String hName = split.length > 1 ? split.skip(1).join(" ") : split[0];
 
@@ -191,15 +187,14 @@ class PrinterService {
         (element) => element.name == hName && element is TemperatureFan,
         orElse: () {
       var f = TemperatureFan(hName);
-      printer!.fans.add(f);
+      printer.fans.add(f);
       return f;
     });
     if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
   }
 
   void _updateGenericFan(String fanName, Map<String, dynamic> fanJson,
-      {Printer? printer}) {
-    printer ??= _latestPrinter;
+      {required Printer printer}) {
     List<String> split = fanName.split(" ");
     String hName = split.length > 1 ? split.skip(1).join(" ") : split[0];
 
@@ -207,22 +202,21 @@ class PrinterService {
         .firstWhere((element) => element.name == hName && element is GenericFan,
             orElse: () {
       var f = GenericFan(hName);
-      printer!.fans.add(f);
+      printer.fans.add(f);
       return f;
     });
     if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
   }
 
   void _updateTemperatureSensor(String sensor, Map<String, dynamic> sensorJson,
-      {Printer? printer}) {
-    printer ??= _latestPrinter;
+      {required Printer printer}) {
     List<String> split = sensor.split(" ");
     String sName = split.length > 1 ? split.skip(1).join(" ") : split[0];
 
     TemperatureSensor tempSensor = printer.temperatureSensors
         .firstWhere((element) => element.name == sName, orElse: () {
       var t = TemperatureSensor(sName);
-      printer!.temperatureSensors.add(t);
+      printer.temperatureSensors.add(t);
       return t;
     });
 
@@ -235,23 +229,21 @@ class PrinterService {
   }
 
   void _updateOutputPin(String pin, Map<String, dynamic> pinJson,
-      {Printer? printer}) {
-    printer ??= _latestPrinter;
+      {required Printer printer}) {
     List<String> split = pin.split(" ");
     String sName = split.length > 1 ? split.skip(1).join(" ") : split[0];
 
     OutputPin output = printer.outputPins
         .firstWhere((element) => element.name == sName, orElse: () {
       var t = OutputPin(sName);
-      printer!.outputPins.add(t);
+      printer.outputPins.add(t);
       return t;
     });
 
     if (pinJson.containsKey('value')) output.value = pinJson['value'];
   }
 
-  _updateGCodeMove(Map<String, dynamic> gCodeJson, {Printer? printer}) {
-    printer ??= _latestPrinter;
+  _updateGCodeMove(Map<String, dynamic> gCodeJson, {required Printer printer}) {
     if (gCodeJson.containsKey('speed_factor'))
       printer.gCodeMove.speedFactor = gCodeJson['speed_factor'];
     if (gCodeJson.containsKey('speed'))
@@ -277,8 +269,8 @@ class PrinterService {
     }
   }
 
-  _updateVirtualSd(Map<String, dynamic> virtualSDJson, {Printer? printer}) {
-    printer ??= _latestPrinter;
+  _updateVirtualSd(Map<String, dynamic> virtualSDJson,
+      {required Printer printer}) {
     if (virtualSDJson.containsKey('progress'))
       printer.virtualSdCard.progress = virtualSDJson['progress'];
     if (virtualSDJson.containsKey('is_active'))
@@ -288,8 +280,8 @@ class PrinterService {
           int.tryParse(virtualSDJson['file_position'].toString()) ?? 0;
   }
 
-  _updatePrintStat(Map<String, dynamic> printStatJson, {Printer? printer}) {
-    printer ??= _latestPrinter;
+  _updatePrintStat(Map<String, dynamic> printStatJson,
+      {required Printer printer}) {
     if (printStatJson.containsKey('state'))
       printer.print.state =
           EnumToString.fromString(PrintState.values, printStatJson['state'])!;
@@ -307,9 +299,8 @@ class PrinterService {
     }
   }
 
-  _updateConfigFile(Map<String, dynamic> printStatJson, {Printer? printer}) {
-    printer ??= _latestPrinter;
-
+  _updateConfigFile(Map<String, dynamic> printStatJson,
+      {required Printer printer}) {
     if (printStatJson.containsKey('settings'))
       printer.configFile = ConfigFile.parse(printStatJson['settings']);
     if (printStatJson.containsKey('save_config_pending'))
@@ -317,8 +308,8 @@ class PrinterService {
           printStatJson['save_config_pending'];
   }
 
-  _updateHeaterBed(Map<String, dynamic> heatedBedJson, {Printer? printer}) {
-    printer ??= _latestPrinter;
+  _updateHeaterBed(Map<String, dynamic> heatedBedJson,
+      {required Printer printer}) {
     if (heatedBedJson.containsKey('temperature'))
       printer.heaterBed.temperature = heatedBedJson['temperature'];
     if (heatedBedJson.containsKey('target'))
@@ -327,8 +318,8 @@ class PrinterService {
       printer.heaterBed.power = heatedBedJson['power'];
   }
 
-  _updateExtruder(Map<String, dynamic> extruderJson, {Printer? printer}) {
-    printer ??= _latestPrinter;
+  _updateExtruder(Map<String, dynamic> extruderJson,
+      {required Printer printer}) {
     if (extruderJson.containsKey('temperature'))
       printer.extruder.temperature = extruderJson['temperature'];
     if (extruderJson.containsKey('target'))
@@ -341,8 +332,8 @@ class PrinterService {
       printer.extruder.power = extruderJson['power'];
   }
 
-  _updateToolhead(Map<String, dynamic> toolHeadJson, {Printer? printer}) {
-    printer ??= _latestPrinter;
+  _updateToolhead(Map<String, dynamic> toolHeadJson,
+      {required Printer printer}) {
     if (toolHeadJson.containsKey('homed_axes')) {
       String hAxes = toolHeadJson['homed_axes'];
       Set<PrinterAxis> homed = {};

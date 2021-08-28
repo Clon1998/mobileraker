@@ -43,8 +43,10 @@ class PrintersAdd extends StatelessWidget {
                     FormBuilderTextField(
                       decoration: InputDecoration(
                           labelText: 'Printer-Address',
+                          hintText: 'Host, IP, or full URL',
+                          helperMaxLines: 2,
                           helperText: model.wsUrl != null
-                              ? 'WS-URL: ${model.wsUrl}'
+                              ? 'Resulting WebSocket-URL: ${model.wsUrl}'
                               : '' //TODO
                           ),
                       onChanged: model.onUrlEntered,
@@ -53,7 +55,7 @@ class PrintersAdd extends StatelessWidget {
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(context),
                         FormBuilderValidators.url(context,
-                            protocols: ['ws', 'wss'])
+                            protocols: ['ws', 'wss', 'http','https'])
                       ]),
                     ),
                     FormBuilderTextField(

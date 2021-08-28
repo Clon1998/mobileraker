@@ -6,7 +6,6 @@ import 'package:mobileraker/enums/BottomSheetType.dart';
 import 'package:mobileraker/service/KlippyService.dart';
 import 'package:mobileraker/service/MachineService.dart';
 import 'package:stacked/stacked.dart';
-import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 void setupBottomSheetUi() {

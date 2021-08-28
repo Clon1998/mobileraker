@@ -7,6 +7,7 @@ import 'package:mobileraker/app/AppSetup.locator.dart';
 import 'package:mobileraker/app/AppSetup.router.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -22,7 +23,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
 
   GlobalKey get formKey => _fbKey;
 
-  String inputUrl = 'mainsailos.local';
+  String inputUrl = '';
 
   WebSocketWrapper? _testWebSocket;
 
@@ -69,11 +70,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
   }
 
   String? get wsUrl {
-    var printerUrl = inputUrl;
-    var parse = Uri.tryParse(printerUrl);
-    return (parse?.hasScheme ?? false)
-        ? printerUrl
-        : 'ws://$printerUrl/websocket';
+    return urlToWebsocketUrl(inputUrl);
   }
 
   onUrlEntered(value) {
@@ -86,9 +83,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
       var printerName = _fbKey.currentState!.value['printerName'];
       var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
-      if (!Uri.parse(printerUrl).hasScheme) {
-        printerUrl = 'ws://$printerUrl/websocket';
-      }
+      printerUrl = urlToWebsocketUrl(printerUrl);
       var printerSetting = PrinterSetting(
           name: printerName, wsUrl: printerUrl, apiKey: printerAPIKey);
       _printerSettingService.addPrinter(printerSetting).then(
@@ -100,10 +95,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
     if (_fbKey.currentState!.saveAndValidate()) {
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
       var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
-      var uri = Uri.parse(printerUrl);
-      if (!uri.hasScheme) {
-        printerUrl = 'ws://$printerUrl/websocket';
-      }
+      printerUrl = urlToWebsocketUrl(printerUrl);
       _testWebSocket?.reset();
       _testWebSocket?.stateStream.close();
 

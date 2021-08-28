@@ -52,16 +52,18 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 FormBuilderTextField(
                   decoration: InputDecoration(
                       labelText: 'Printer-Address',
+                      hintText: 'Host, IP, or full URL',
+                      helperMaxLines: 2,
                       helperText: model.wsUrl != null
-                          ? 'WS-URL: ${model.wsUrl}'
+                          ? 'Resulting WebSocket-URL: ${model.wsUrl}'
                           : '' //TODO
-                      ),
+                  ),
                   onChanged: model.onUrlEntered,
                   name: 'printerUrl',
                   initialValue: model.inputUrl,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(context),
-                    FormBuilderValidators.url(context, protocols: ['ws', 'wss'])
+                    FormBuilderValidators.url(context, protocols: ['ws', 'wss', 'http','https'])
                   ]),
                 ),
                 FormBuilderTextField(

@@ -7,6 +7,7 @@ import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
 import 'package:mobileraker/dto/machine/WebcamSetting.dart';
 import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -29,11 +30,7 @@ class PrintersEditViewModel extends BaseViewModel {
   String? get printerApiKey => printerSetting.apiKey;
 
   String? get wsUrl {
-    var printerUrl = inputUrl;
-    var parse = Uri.tryParse(printerUrl);
-    return (parse?.hasScheme ?? false)
-        ? printerUrl
-        : 'ws://$printerUrl/websocket';
+    return urlToWebsocketUrl(inputUrl);
   }
 
   int get extruderMinTemperature =>
@@ -132,9 +129,7 @@ class PrintersEditViewModel extends BaseViewModel {
       var printerName = _fbKey.currentState!.value['printerName'];
       var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
-      if (!Uri.parse(printerUrl).hasScheme) {
-        printerUrl = 'ws://$printerUrl/websocket';
-      }
+      printerUrl = urlToWebsocketUrl(printerUrl);
       _saveAllCams();
       _saveAllPresets();
       printerSetting
