@@ -73,6 +73,7 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
     num upperBorder = passedData.max ?? 300; //ToDo set to printers Max temp
 
     return FormBuilderTextField(
+      autofocus: true,
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.max(context, upperBorder),
         FormBuilderValidators.min(context, lowerBorder),
@@ -86,10 +87,10 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
       keyboardType:
           TextInputType.numberWithOptions(signed: false, decimal: false),
       decoration: InputDecoration(
-          border: const UnderlineInputBorder(),
-          contentPadding: EdgeInsets.all(8.0),
-          labelText: request.description,
-          helperText: "Enter a value between $lowerBorder and $upperBorder",
+        border: const UnderlineInputBorder(),
+        contentPadding: EdgeInsets.all(8.0),
+        labelText: request.description,
+        helperText: "Enter a value between $lowerBorder and $upperBorder",
       ),
     );
   }
