@@ -458,6 +458,7 @@ class TemperatureSensor {
 
 class OutputPin {
   String name;
+  // This value is between 0-1
   double value = 0.0;
 
   OutputPin(this.name);

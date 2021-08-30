@@ -12,15 +12,22 @@ enum WebSocketState { disconnected, connecting, connected, error }
 
 class WebSocketWrapper {
   final _logger = getLogger('WebSocketWrapper');
-  final int defaultMaxRetries;
-  final Duration _defaultTimeout;
+
+  int tries = 0;
+
   String url;
-  IOWebSocketChannel? _channel;
+
   String? apiKey;
 
-  WebSocketWrapper(this.url, this._defaultTimeout,
-      {this.defaultMaxRetries = 3, this.apiKey}) {
-    this.initCommunication(defaultMaxRetries);
+  IOWebSocketChannel? _channel;
+
+  final Duration _defaultTimeout;
+
+  Map<String, dynamic> _headers = {};
+
+  WebSocketWrapper(this.url, this._defaultTimeout, {this.apiKey}) {
+    if (apiKey != null) _headers['X-Api-Key'] = apiKey;
+    this.initCommunication();
   }
 
   BehaviorSubject<WebSocketState> stateStream =
@@ -29,7 +36,7 @@ class WebSocketWrapper {
   WebSocketState get state => stateStream.value;
 
   set state(WebSocketState newState) {
-    _logger.i("WebSocket: $state ➝ $newState");
+    _logger.i("$state ➝ $newState");
     stateStream.add(newState);
   }
 
@@ -53,22 +60,21 @@ class WebSocketWrapper {
   /// ----------------------------------------------------------
   /// Initialization the WebSockets connection with the server
   /// ----------------------------------------------------------
-  initCommunication([int? tries]) {
-    _tryConnect(tries ?? defaultMaxRetries);
+  initCommunication() {
+    _tryConnect();
   }
 
-  _tryConnect(int maxRetries) {
-    _logger.i("Trying to connect to $url with APIkey: `$apiKey`");
+  _tryConnect() {
+    _logger.i("Trying to connect to $url with APIkey: `${apiKey??'NO-APIKEY'}`");
     state = WebSocketState.connecting;
     reset();
 
-    Map<String, dynamic> headers = {};
-    if (apiKey != null) headers['X-Api-Key'] = apiKey;
-    WebSocket.connect(url.toString(), headers: headers)
+    WebSocket.connect(url.toString(), headers: _headers)
         .timeout(_defaultTimeout)
         .then((socket) {
       socket.pingInterval = _defaultTimeout;
       _channel = IOWebSocketChannel(socket);
+      tries = 0;
 
       ///
       /// Start listening to notifications / messages
@@ -76,7 +82,7 @@ class WebSocketWrapper {
       _channel!.stream.listen(
         _onWSMessage,
         onError: _onWSError,
-        onDone: () => _onWSClosesNormal(maxRetries),
+        onDone: () => _onWSClosesNormal(),
       );
       // Send a req msg to be sure we are connected!
 
@@ -185,12 +191,13 @@ class WebSocketWrapper {
     return false;
   }
 
-  _onWSClosesNormal(int maxRetries) {
+  _onWSClosesNormal() {
     var t = state;
     if (t != WebSocketState.error) {
       t = WebSocketState.disconnected;
     }
     if (!stateStream.isClosed) state = t;
+    initCommunication();
     _logger.i("WS-Stream close normal!");
   }
 }

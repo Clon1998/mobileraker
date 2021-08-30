@@ -476,9 +476,9 @@ class PrinterService {
     });
   }
 
-  outputPin(String pinName, double perc) {
+  outputPin(String pinName, double value) {
     _webSocket.sendObject("printer.gcode.script", null,
-        params: {'script': "SET_PIN PIN=$pinName VALUE=${perc.toInt()}"});
+        params: {'script': "SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}"});
   }
 
   gCodeMacro(String macro) {

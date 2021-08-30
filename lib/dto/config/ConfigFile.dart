@@ -53,11 +53,22 @@ class ConfigExtruder {
   }
 }
 
+class ConfigOutput {
+  final String name;
+  late double scale;
+  late bool pwm;
+  ConfigOutput.parse(this.name, Map<String, dynamic> json) {
+    scale = json['scale']?? 1;
+    pwm = json['pwm']??false;
+  }
+}
+
 //TODO Decide regarding null values or not!
 class ConfigFile {
   ConfigPrinter? configPrinter;
   ConfigHeaterBed? configHeaterBed;
   Map<String, ConfigExtruder> extruders = HashMap();
+  Map<String, ConfigOutput> outputs = HashMap();
 
   ConfigFile();
 
@@ -79,6 +90,13 @@ class ConfigFile {
           jsonChild.addAll(sharedHeaterConfig);
         }
         extruders[key] = ConfigExtruder.parse(key, jsonChild);
+      }
+
+      if (key.startsWith('output')) {
+        List<String> split = key.split(" ");
+        String name = split.length > 1 ? split.skip(1).join(" ") : split[0];
+        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
+        outputs[name] = ConfigOutput.parse(name, jsonChild);
       }
     });
 

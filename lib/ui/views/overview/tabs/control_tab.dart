@@ -370,11 +370,12 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
     List<Widget> rows = [];
 
     for (var pin in model.printer.outputPins) {
+      var configForOutput = model.configForOutput(pin.name);
       var row = _PinTile(
         name: model.beautifyName(pin.name),
-        value: pin.value,
+        value: pin.value * (configForOutput?.scale ?? 1),
         width: width,
-        onTap: () => model.onEditPin(pin),
+        onTap: () => model.onEditPin(pin, configForOutput),
       );
       rows.add(row);
     }
@@ -384,6 +385,8 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
 
 class _PinTile extends StatelessWidget {
   final String name;
+
+  /// Expect a value between 0-Scale!
   final double value;
   final double width;
   final VoidCallback? onTap;
@@ -397,8 +400,9 @@ class _PinTile extends StatelessWidget {
   }) : super(key: key);
 
   String get pinValue {
-    double perc = value * 100;
-    if (value > 0) return '${perc.toStringAsFixed(0)} %';
+    // double perc = value * 100;
+    if (value == value.round()) return value.toStringAsFixed(0);
+    if (value > 0) return value.toStringAsFixed(2);
     return 'Off';
   }
 

@@ -9,8 +9,9 @@ class EditFormDialogViewArguments {
   final num? min;
   final num? max;
   final num? current;
+  final int? fraction;
 
-  EditFormDialogViewArguments({this.min, this.max, this.current});
+  EditFormDialogViewArguments({this.min, this.max, this.current, this.fraction});
 }
 
 class EditFormDialogView extends StatelessWidget {
@@ -70,7 +71,8 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
     EditFormDialogViewArguments passedData = request.data;
     num currentValue = passedData.current ?? 0;
     num lowerBorder = passedData.min ?? 0;
-    num upperBorder = passedData.max ?? 300; //ToDo set to printers Max temp
+    num upperBorder = passedData.max ?? 100;
+    int frac = passedData.fraction ?? 0;
 
     return FormBuilderTextField(
       autofocus: true,
@@ -81,7 +83,7 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
         FormBuilderValidators.required(context)
       ]),
       valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),
-      initialValue: currentValue.toStringAsFixed(0),
+      initialValue: currentValue.toStringAsFixed(frac.toInt()),
       name: 'newValue',
       style: Theme.of(context).inputDecorationTheme.counterStyle,
       keyboardType:

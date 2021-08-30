@@ -1,4 +1,5 @@
 import 'package:mobileraker/app/AppSetup.locator.dart';
+import 'package:mobileraker/dto/config/ConfigFile.dart';
 import 'package:mobileraker/dto/machine/Printer.dart';
 import 'package:mobileraker/dto/machine/PrinterSetting.dart';
 import 'package:mobileraker/dto/server/Klipper.dart';
@@ -74,19 +75,26 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   bool get hasPrinter => dataReady(_PrinterStreamKey);
 
-  onEditPin(OutputPin pin) {
+  ConfigOutput? configForOutput(String name) {
+    return printer.configFile.outputs[name];
+  }
+
+  onEditPin(OutputPin pin, ConfigOutput? configOutput) {
+    int fractionToShow = (configOutput == null || !configOutput.pwm) ? 0 : 2;
     _dialogService
         .showCustomDialog(
             variant: DialogType.editForm,
-            title: "Edit ${pin.name} %",
+            title: "Edit ${beautifyName(pin.name)} value!",
             mainButtonTitle: "Confirm",
             secondaryButtonTitle: "Cancel",
             data: EditFormDialogViewArguments(
-                max: 100, current: pin.value * 100.round()))
+                max: configOutput?.scale.toInt() ?? 1,
+                current: pin.value * (configOutput?.scale ?? 1),
+                fraction: fractionToShow))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
-        _printerService?.outputPin(pin.name, v.toDouble() / 10);
+        _printerService?.outputPin(pin.name, v.toDouble());
       }
     });
   }
