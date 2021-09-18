@@ -6,7 +6,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
@@ -84,7 +83,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         ? theme.colorScheme.secondary
         : theme.primaryColor;
     return Container(
-      margin: EdgeInsets.all(4.0),
+      margin: const EdgeInsets.all(4.0),
       color: theme.colorScheme.background,
       child: Column(
         children: [
@@ -99,7 +98,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                         width: 64,
                         height: 64,
                         color: Colors.white,
-                        margin: EdgeInsets.symmetric(vertical: 2),
+                        margin: const EdgeInsets.symmetric(vertical: 2),
                       ),
                       title: Container(
                         width: double.infinity,
@@ -129,7 +128,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
     ThemeData theme = Theme.of(context);
 
     return Container(
-      margin: EdgeInsets.all(4.0),
+      margin: const EdgeInsets.all(4.0),
       color: theme.colorScheme.background,
       child: Column(
         children: [

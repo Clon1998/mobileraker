@@ -4,7 +4,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_viewmodel.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 
 class NavigationDrawerWidget extends StatelessWidget {
@@ -29,7 +28,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                 onClicked: () => model.onEditTap(null),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 00),
+                padding: const EdgeInsets.symmetric(horizontal: 00),
                 child: Column(
                   children: [
                     ExpansionTile(
@@ -84,7 +83,7 @@ class NavigationDrawerWidget extends StatelessWidget {
       if (index == printers.length) {
         return ListTile(
           title: Text('Add new printer', style: textStyle),
-          contentPadding: EdgeInsets.only(left: 32, right: 16),
+          contentPadding: const EdgeInsets.only(left: 32, right: 16),
           trailing: Icon(Icons.add, color: highlightColor),
           onTap: () => model.navigateTo(Routes.printersAdd),
         );
@@ -100,7 +99,7 @@ class NavigationDrawerWidget extends StatelessWidget {
         trailing: Icon(index == 0 ? Icons.check : Icons.arrow_forward_ios_sharp,
             color: highlightColor),
         selectedTileColor: Colors.white12,
-        contentPadding: EdgeInsets.only(left: 32, right: 16),
+        contentPadding: const EdgeInsets.only(left: 32, right: 16),
         selected: index == 0,
         onTap: () => model.onSetActiveTap(curPS),
         onLongPress: () => model.onEditTap(curPS),
@@ -114,7 +113,7 @@ class NavigationDrawerWidget extends StatelessWidget {
     required VoidCallback onClicked,
   }) =>
       Container(
-        margin: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+        margin: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

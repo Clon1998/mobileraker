@@ -11,7 +11,8 @@ class EditFormDialogViewArguments {
   final num? current;
   final int? fraction;
 
-  EditFormDialogViewArguments({this.min, this.max, this.current, this.fraction});
+  EditFormDialogViewArguments(
+      {this.min, this.max, this.current, this.fraction});
 }
 
 class EditFormDialogView extends StatelessWidget {
@@ -90,7 +91,7 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
           TextInputType.numberWithOptions(signed: false, decimal: false),
       decoration: InputDecoration(
         border: const UnderlineInputBorder(),
-        contentPadding: EdgeInsets.all(8.0),
+        contentPadding: const EdgeInsets.all(8.0),
         labelText: request.description,
         helperText: "Enter a value between $lowerBorder and $upperBorder",
       ),

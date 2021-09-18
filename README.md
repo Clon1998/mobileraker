@@ -6,6 +6,12 @@ Mobileraker is a Flutter app to control a single or multiple 3D printers running
 
 Checkout the first release to download an Android APK!
 
+## Support me
+Want to support me?
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/PadS)
+
+
 
 Home           |  More images...
 :------------------------------------------------------:|:-------------------------------------------------------:
@@ -26,7 +32,7 @@ Home           |  More images...
   * [ ] Add temperature graphs
   * [ ] Add a console
   * [ ] Add mesh selection
-  * [ ] Add qery endstops
+  * [ ] Add query endstops
 * [ ] Files(STL) page
   * [ ] Upload stls
   * [ ] Stl preview
@@ -37,8 +43,3 @@ Home           |  More images...
 
 ## Getting Started
 After importing this project into your IDE be sure to run `flutter packages pub run build_runner build` in order to generate required files!
-
-## Support me
-Want to support me?
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/PadS)

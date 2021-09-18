@@ -126,7 +126,7 @@ class OverView extends StatelessWidget {
 
   Color? getActiveTextColor(context) {
     var themeData = Theme.of(context);
-    if (themeData.brightness == Brightness.dark) return themeData.accentColor;
+    if (themeData.brightness == Brightness.dark) return themeData.colorScheme.secondary;
     return Colors.white;
   }
 

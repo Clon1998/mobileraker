@@ -114,7 +114,7 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: Theme.of(context).accentColor,
+          color: Theme.of(context).colorScheme.secondary,
           fontSize: 12.0,
           fontWeight: FontWeight.bold,
         ),

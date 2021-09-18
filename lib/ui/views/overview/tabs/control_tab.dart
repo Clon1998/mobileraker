@@ -17,7 +17,7 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
       BuildContext context, ControlTabViewModel model, Widget? child) {
     return PullToRefreshPrinter(
       child: ListView(
-        padding: EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 20),
         children: [
           if (model.hasPrinter &&
               model.hasServer &&
@@ -220,34 +220,34 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                 Column(
                   children: [
                     Container(
-                      margin: EdgeInsets.all(5),
+                      margin: const EdgeInsets.all(5),
                       child: TextButton.icon(
                         onPressed: model.onDeRetractBtn,
                         icon: Icon(FlutterIcons.plus_ant),
                         label: Text("Extrude"),
                         style: TextButton.styleFrom(
-                            backgroundColor: Theme.of(context).accentColor,
+                            backgroundColor: Theme.of(context).colorScheme.secondary,
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(5.0))),
                             primary: textBtnColor),
                       ),
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                     Container(
-                      margin: EdgeInsets.all(5),
+                      margin: const EdgeInsets.all(5),
                       child: TextButton.icon(
                         onPressed: model.onRetractBtn,
                         icon: Icon(FlutterIcons.minus_ant),
                         label: Text("Retract"),
                         style: TextButton.styleFrom(
-                            backgroundColor: Theme.of(context).accentColor,
+                            backgroundColor: Theme.of(context).colorScheme.secondary,
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(5.0))),
                             primary: textBtnColor),
                       ),
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),
@@ -313,7 +313,7 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
       BuildContext context, ControlTabViewModel model) {
     var themeData = Theme.of(context);
     var bgCol = themeData.brightness == Brightness.dark
-        ? themeData.accentColor
+        ? themeData.colorScheme.secondary
         : themeData.primaryColor;
     return List<Widget>.generate(
       model.printer.gcodeMacros.length,

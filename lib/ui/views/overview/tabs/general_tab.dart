@@ -32,7 +32,7 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
       BuildContext context, GeneralTabViewModel model, Widget? child) {
     return PullToRefreshPrinter(
       child: ListView(
-        padding: EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.only(bottom: 20),
         children: [
           if (model.hasPrinter &&
               model.hasServer &&
@@ -68,7 +68,8 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
           child: Column(
             children: [
               ListTile(
-                contentPadding: EdgeInsets.only(top: 3, left: 16, right: 16),
+                contentPadding:
+                    const EdgeInsets.only(top: 3, left: 16, right: 16),
                 leading: Icon(FlutterIcons.monitor_dashboard_mco),
                 title: Text('${model.printer.print.stateName}'),
                 subtitle: Text(
@@ -95,7 +96,8 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
           child: Column(
             children: [
               ListTile(
-                contentPadding: EdgeInsets.only(top: 3, left: 16, right: 16),
+                contentPadding:
+                    const EdgeInsets.only(top: 3, left: 16, right: 16),
                 leading: Icon(FlutterIcons.monitor_dashboard_mco),
                 title: Text('${model.printer.print.stateName}'),
                 subtitle: Text('${model.printer.print.message}'),
@@ -110,7 +112,8 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
           child: Column(
             children: [
               ListTile(
-                contentPadding: EdgeInsets.only(top: 3, left: 16, right: 16),
+                contentPadding:
+                    const EdgeInsets.only(top: 3, left: 16, right: 16),
                 leading: Icon(FlutterIcons.monitor_dashboard_mco),
                 title: Text('${model.printer.print.stateName}'),
               ),
@@ -225,10 +228,11 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
-    var matrix4 = Matrix4.identity()
+    Matrix4 matrix4 = Matrix4.identity()
       ..rotateX(model.webCamXSwap)
       ..rotateY(model.webCamYSwap);
 
+    const double webCamHeight = 280;
     return Card(
       child: Column(
         children: [
@@ -239,19 +243,28 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
             title: Text('Webcam'),
           ),
           Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 15),
-              child: InteractiveViewer(
-                panEnabled: true,
-                minScale: 1,
-                maxScale: 10,
-                child: Transform(
-                    alignment: Alignment.center,
-                    transform: matrix4,
-                    child: Mjpeg(
-                      height: 280,
-                      isLive: true,
-                      stream: model.webCamUrl!,
-                    )),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+              child: Container(
+                width: double.infinity,
+                height: webCamHeight,
+                child: Stack(children: [
+                  Transform(
+                      alignment: Alignment.center,
+                      transform: matrix4,
+                      child: Mjpeg(
+                        height: webCamHeight,
+                        isLive: true,
+                        stream: model.webCamUrl!,
+                      )),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: IconButton(
+                      icon: Icon(Icons.aspect_ratio_outlined),
+                      tooltip: 'Fullscreen',
+                      onPressed: model.onFullScreenTap,
+                    ),
+                  ),
+                ]),
               )),
         ],
       ),
@@ -399,7 +412,6 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
     }
     return rows;
   }
-
 }
 
 class _TemperaturePresetCard extends StatelessWidget {
@@ -521,7 +533,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           children: [
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).accentColor,
+                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
                               child: IconButton(
@@ -535,7 +547,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           children: [
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).accentColor,
+                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
                               child: IconButton(
@@ -545,7 +557,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                             ),
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).accentColor,
+                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
                               child: IconButton(
@@ -555,7 +567,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                             ),
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).accentColor,
+                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
                               child: IconButton(
@@ -569,7 +581,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           children: [
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).accentColor,
+                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
                               child: IconButton(
@@ -586,7 +598,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                       children: [
                         Container(
                           margin: marginForBtns,
-                          color: Theme.of(context).accentColor,
+                          color: Theme.of(context).colorScheme.secondary,
                           height: 40,
                           width: 40,
                           child: IconButton(
@@ -595,7 +607,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                         ),
                         Container(
                           margin: marginForBtns,
-                          color: Theme.of(context).accentColor,
+                          color: Theme.of(context).colorScheme.secondary,
                           height: 40,
                           width: 40,
                           child: IconButton(
@@ -605,7 +617,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                         ),
                         Container(
                           margin: marginForBtns,
-                          color: Theme.of(context).accentColor,
+                          color: Theme.of(context).colorScheme.secondary,
                           height: 40,
                           width: 40,
                           child: IconButton(
@@ -623,7 +635,8 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           icon: Icon(FlutterIcons.home_faw5s),
                           label: Text("ALL"),
                           style: TextButton.styleFrom(
-                              backgroundColor: Theme.of(context).accentColor,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.secondary,
                               shape: RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(5.0))),
@@ -635,7 +648,8 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                             icon: Icon(FlutterIcons.quadcopter_mco),
                             label: Text("QGL"),
                             style: TextButton.styleFrom(
-                                backgroundColor: Theme.of(context).accentColor,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(5.0))),
@@ -647,12 +661,13 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                             icon: Icon(FlutterIcons.map_marker_path_mco),
                             label: Text("MESH"),
                             style: TextButton.styleFrom(
-                                backgroundColor: Theme.of(context).accentColor,
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.secondary,
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                         BorderRadius.all(Radius.circular(5.0))),
                                 primary: txtBtnCOl),
-                            // color: Theme.of(context).accentColor,
+                            // color: Theme.of(context).colorScheme.secondary,
                           ),
                       ],
                     ),
@@ -743,20 +758,20 @@ class BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
                 Column(
                   children: [
                     Container(
-                      margin: EdgeInsets.all(5),
+                      margin: const EdgeInsets.all(5),
                       child: IconButton(
                           onPressed: () => model.onBabyStepping(),
                           icon: Icon(FlutterIcons.upsquare_ant)),
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                       height: 40,
                       width: 40,
                     ),
                     Container(
-                      margin: EdgeInsets.all(5),
+                      margin: const EdgeInsets.all(5),
                       child: IconButton(
                           onPressed: () => model.onBabyStepping(false),
                           icon: Icon(FlutterIcons.downsquare_ant)),
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).colorScheme.secondary,
                       height: 40,
                       width: 40,
                     ),

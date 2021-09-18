@@ -36,14 +36,14 @@ class _NonPrintingBottomSheet
     var themeData = Theme.of(context);
     var isDark = themeData.brightness == Brightness.dark;
     var buttonStyle = ElevatedButton.styleFrom(
-        primary: isDark ? themeData.accentColor : themeData.primaryColor,
+        primary: isDark ? themeData.colorScheme.secondary : themeData.primaryColor,
         onSurface: Colors.pink,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18.0),
         ));
 
     return Container(
-      padding: EdgeInsets.fromLTRB(25, 15, 25, 10),
+      padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
       decoration: BoxDecoration(
         color: isDark ? themeData.primaryColor : Colors.white,
         borderRadius: BorderRadius.only(
@@ -66,7 +66,7 @@ class _NonPrintingBottomSheet
                     ),
                   )),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 10),
+                margin: const EdgeInsets.symmetric(horizontal: 10),
                 child: Icon(
                   FlutterIcons.raspberry_pi_faw5d,
                   color: isDark ? Colors.white : Colors.black,

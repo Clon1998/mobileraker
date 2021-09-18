@@ -1,15 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
-import 'package:mobileraker/dto/files/folder.dart';
-import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:path/path.dart' as p;
+
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:mobileraker/dto/files/folder.dart';
+import 'package:mobileraker/dto/files/gcode_file.dart';
 
 enum FileRoot { gcodes, config, config_examples, docs }
 
@@ -96,12 +91,12 @@ class FileService {
       response, String forPath, Completer<FolderReqWrapper> completer) {
     List<dynamic> filesResponse = response['files']; // Just add an type
     List<dynamic> directoriesResponse = response['dirs']; // Just add an type
-    
+
     directoriesResponse.removeWhere((element) {
       String name = element['dirname'];
       return name.startsWith('.');
     });
-    
+
     List<Folder> listOfFolder =
         List.generate(directoriesResponse.length, (index) {
       var element = directoriesResponse[index];

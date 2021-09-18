@@ -51,26 +51,28 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 FormBuilderTextField(
                   decoration: InputDecoration(
-                      labelText: 'Printer-Address',
-                      hintText: 'Full URL',
+                    labelText: 'Printer-Address',
+                    hintText: 'Full URL',
                   ),
                   name: 'printerUrl',
                   initialValue: model.printerHttpUrl,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(context),
-                    FormBuilderValidators.url(context, protocols: ['http','https'], requireProtocol: true)
+                    FormBuilderValidators.url(context,
+                        protocols: ['http', 'https'], requireProtocol: true)
                   ]),
                 ),
                 FormBuilderTextField(
                   decoration: InputDecoration(
-                      labelText: 'Websocket-Address',
-                      hintText: 'Full URL',
+                    labelText: 'Websocket-Address',
+                    hintText: 'Full URL',
                   ),
                   name: 'wsUrl',
                   initialValue: model.printerWsUrl,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(context),
-                    FormBuilderValidators.url(context, protocols: ['ws', 'wss'], requireProtocol: true)
+                    FormBuilderValidators.url(context,
+                        protocols: ['ws', 'wss'], requireProtocol: true)
                   ]),
                 ),
                 FormBuilderTextField(
@@ -179,7 +181,7 @@ class _SectionHeaderWithAction extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: Theme.of(context).accentColor,
+            color: Theme.of(context).colorScheme.secondary,
             fontSize: 12.0,
             fontWeight: FontWeight.bold,
           ),
@@ -207,8 +209,8 @@ class _WebCamItem extends StatelessWidget {
     return Card(
         child: ExpansionTile(
             maintainState: true,
-            tilePadding: EdgeInsets.symmetric(horizontal: 10),
-            childrenPadding: EdgeInsets.symmetric(horizontal: 10),
+            tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+            childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
             title: Text('CAM#$idx'),
             children: [
           FormBuilderTextField(
@@ -284,8 +286,8 @@ class _TempPresetItemState extends State<_TempPresetItem> {
     return Card(
         child: ExpansionTile(
             maintainState: true,
-            tilePadding: EdgeInsets.symmetric(horizontal: 10),
-            childrenPadding: EdgeInsets.symmetric(horizontal: 10),
+            tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+            childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
             title: Text('$_cardName'),
             children: [
           FormBuilderTextField(
@@ -309,8 +311,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
             validator: FormBuilderValidators.compose(
               [
                 FormBuilderValidators.required(context),
-                FormBuilderValidators.min(
-                    context, 0),
+                FormBuilderValidators.min(context, 0),
                 FormBuilderValidators.max(
                     context, model.extruderMaxTemperature),
               ],
@@ -362,7 +363,7 @@ class _SectionHeader extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: Theme.of(context).accentColor,
+          color: Theme.of(context).colorScheme.secondary,
           fontSize: 12.0,
           fontWeight: FontWeight.bold,
         ),

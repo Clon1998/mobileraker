@@ -4,6 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/WebSocket.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
+
 import 'connection_state_viewmodel.dart';
 
 class ConnectionStateView extends StatelessWidget {
@@ -31,19 +32,19 @@ class ConnectionStateView extends StatelessWidget {
                     text: 'You will have to ',
                     style: DefaultTextStyle.of(context).style,
                     children: <TextSpan>[
-
                       TextSpan(
                           text: 'add',
-                          style: TextStyle(fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline),
                           recognizer: TapGestureRecognizer()
                             ..onTap = model.onAddPrinterTap),
                       TextSpan(
-                          text: ' a printer first!',
-                          ),
+                        text: ' a printer first!',
+                      ),
                     ],
                   ),
                 )
-
               ],
             ),
           );
@@ -76,12 +77,12 @@ class ConnectionStateView extends StatelessWidget {
         );
       case WebSocketState.connecting:
         return Center(
-          key:UniqueKey(),
+          key: UniqueKey(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SpinKitPouringHourGlassRefined(
-                color: Theme.of(context).accentColor,
+                color: Theme.of(context).colorScheme.secondary,
               ),
               SizedBox(
                 height: 30,
@@ -94,7 +95,7 @@ class ConnectionStateView extends StatelessWidget {
       default:
         return Container(
           alignment: Alignment.center,
-          padding: EdgeInsets.all(22),
+          padding: const EdgeInsets.all(22),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -102,7 +103,10 @@ class ConnectionStateView extends StatelessWidget {
               SizedBox(
                 height: 20,
               ),
-              Text(model.websocketErrorMessage, textAlign: TextAlign.center,),
+              Text(
+                model.websocketErrorMessage,
+                textAlign: TextAlign.center,
+              ),
               TextButton.icon(
                   onPressed: model.onRetryPressed,
                   icon: Icon(Icons.stream),

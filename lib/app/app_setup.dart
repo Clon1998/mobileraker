@@ -3,10 +3,12 @@ import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
-import 'package:mobileraker/dto/machine/WebcamSetting.dart';
-import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/dto/machine/temperature_preset.dart';
+import 'package:mobileraker/dto/machine/webcam_setting.dart';
+import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/ui/views/files/files_view.dart';
+import 'package:mobileraker/ui/views/fullcam/full_cam_view.dart';
 import 'package:mobileraker/ui/views/overview/overview_view.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/ui/views/printers/add/printers_add_view.dart';
@@ -20,8 +22,10 @@ import 'package:stacked_services/stacked_services.dart';
   MaterialRoute(page: OverView, initial: true),
   CupertinoRoute(page: SettingView),
   CupertinoRoute(page: Printers),
+  MaterialRoute(page: FullCamView),
   MaterialRoute(page: PrintersAdd),
   MaterialRoute(page: PrintersEdit),
+  MaterialRoute(page: FilesView),
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),

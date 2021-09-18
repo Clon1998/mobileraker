@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/machine/temperature_preset.dart';
@@ -24,7 +25,7 @@ const String _PrinterStreamKey = 'printer';
 class GeneralTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
-  final _bottomSheetService = locator<BottomSheetService>();
+  final _navigationService = locator<NavigationService>();
 
   PrinterSetting? _printerSetting;
   PrinterService? _printerService;
@@ -214,9 +215,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     tmpCardKey.currentState?.toggleCard();
   }
 
-  meep() async {
-    await _bottomSheetService.showCustomSheet(
-        variant: BottomSheetType.ManagementMenu);
+  onFullScreenTap() {
+    _navigationService.navigateTo(Routes.fullCamView);
   }
 
 
