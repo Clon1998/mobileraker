@@ -1,4 +1,4 @@
-import 'package:mobileraker/dto/machine/Printer.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
 
 class KlipperInstance {
   bool klippyConnected;

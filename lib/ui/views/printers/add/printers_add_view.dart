@@ -45,7 +45,7 @@ class PrintersAdd extends StatelessWidget {
                           labelText: 'Printer-Address',
                           hintText: 'Host, IP, or full URL',
                           helperMaxLines: 2,
-                          helperText: model.wsUrl != null
+                          helperText: model.wsUrl?.isNotEmpty ?? false
                               ? 'Resulting WebSocket-URL: ${model.wsUrl}'
                               : '' //TODO
                           ),

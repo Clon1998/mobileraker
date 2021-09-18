@@ -1,5 +1,5 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:mobileraker/app/AppSetup.logger.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:stacked/stacked.dart';
 
 class SettingViewModel extends BaseViewModel {

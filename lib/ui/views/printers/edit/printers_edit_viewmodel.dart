@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/app/AppSetup.router.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
-import 'package:mobileraker/dto/machine/WebcamSetting.dart';
-import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/dto/machine/temperature_preset.dart';
+import 'package:mobileraker/dto/machine/webcam_setting.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -19,7 +19,6 @@ class PrintersEditViewModel extends BaseViewModel {
   final PrinterSetting printerSetting;
   late final webcams = printerSetting.cams.toList();
   late final tempPresets = printerSetting.temperaturePresets.toList();
-  late String inputUrl = printerSetting.wsUrl;
 
   PrintersEditViewModel(this.printerSetting);
 
@@ -29,9 +28,9 @@ class PrintersEditViewModel extends BaseViewModel {
 
   String? get printerApiKey => printerSetting.apiKey;
 
-  String? get wsUrl {
-    return urlToWebsocketUrl(inputUrl);
-  }
+  String? get printerWsUrl => printerSetting.wsUrl;
+
+  String? get printerHttpUrl => printerSetting.httpUrl;
 
   int get extruderMinTemperature =>
       printerSetting.printerService.printerStream.valueOrNull?.configFile
@@ -56,11 +55,6 @@ class PrintersEditViewModel extends BaseViewModel {
           .configHeaterBed?.maxTemp
           .toInt() ??
       150;
-
-  onUrlEntered(value) {
-    inputUrl = value;
-    notifyListeners();
-  }
 
   onWebCamAdd() {
     WebcamSetting cam = WebcamSetting('New Webcam',
@@ -129,12 +123,13 @@ class PrintersEditViewModel extends BaseViewModel {
       var printerName = _fbKey.currentState!.value['printerName'];
       var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
-      printerUrl = urlToWebsocketUrl(printerUrl);
+      var wsUrl = _fbKey.currentState!.value['wsUrl'];
       _saveAllCams();
       _saveAllPresets();
       printerSetting
         ..name = printerName
-        ..wsUrl = printerUrl
+        ..wsUrl = wsUrl
+        ..httpUrl = printerUrl
         ..apiKey = printerAPIKey
         ..cams = webcams
         ..temperaturePresets = tempPresets;
@@ -148,7 +143,7 @@ class PrintersEditViewModel extends BaseViewModel {
         .showConfirmationDialog(
       title: "Delete ${printerSetting.name}?",
       description:
-          "Are you sure you want to remove the printer ${printerSetting.name} running under the address $wsUrl.",
+          "Are you sure you want to remove the printer ${printerSetting.name} running under the address $printerHttpUrl.",
       confirmationTitle: "Delete",
     )
         .then((dialogResponse) {

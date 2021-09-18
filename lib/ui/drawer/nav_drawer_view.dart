@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:mobileraker/app/AppSetup.router.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
@@ -50,8 +50,7 @@ class NavigationDrawerWidget extends StatelessWidget {
                       model,
                       text: 'Files',
                       icon: Icons.file_present,
-                      path: '',
-                      onClicked: () => showWIPSnackbar(),
+                      path: Routes.filesView,
                     ),
                     // Divider(color: Colors.white70),
                     // const SizedBox(height: 16),
@@ -76,7 +75,7 @@ class NavigationDrawerWidget extends StatelessWidget {
       BuildContext context, NavDrawerViewModel model) {
     var theme = Theme.of(context);
     Color highlightColor = theme.brightness == Brightness.dark
-        ? theme.accentColor
+        ? theme.colorScheme.secondary
         : theme.primaryColor;
 
     List<PrinterSetting> printers = model.printers;
@@ -167,7 +166,7 @@ class NavigationDrawerWidget extends StatelessWidget {
   }) {
     final color = Colors.white;
     final hoverColor = Colors.white70;
-    if (onClicked == null) onClicked = () => model.navigateTo(path);
+    if (onClicked == null) onClicked = () => model.navigateMenu(path);
 
     return ListTile(
       selected: model.isSelected(path),

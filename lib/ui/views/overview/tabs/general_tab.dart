@@ -7,9 +7,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:intl/intl.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/dto/machine/Printer.dart';
-import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/machine/temperature_preset.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
@@ -399,6 +399,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
     }
     return rows;
   }
+
 }
 
 class _TemperaturePresetCard extends StatelessWidget {

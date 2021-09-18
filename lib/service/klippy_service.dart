@@ -2,9 +2,9 @@ import 'dart:convert';
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/WebSocket.dart';
-import 'package:mobileraker/app/AppSetup.logger.dart';
-import 'package:mobileraker/dto/machine/Printer.dart';
-import 'package:mobileraker/dto/server/Klipper.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:rxdart/rxdart.dart';
 
 ///

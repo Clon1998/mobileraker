@@ -1,10 +1,10 @@
 import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:mobileraker/WebSocket.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/app/AppSetup.logger.dart';
-import 'package:mobileraker/app/AppSetup.router.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 

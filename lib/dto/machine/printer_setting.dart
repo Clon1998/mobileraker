@@ -1,12 +1,13 @@
 import 'package:hive/hive.dart';
 import 'package:mobileraker/WebSocket.dart';
-import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
-import 'package:mobileraker/dto/machine/WebcamSetting.dart';
-import 'package:mobileraker/service/KlippyService.dart';
-import 'package:mobileraker/service/PrinterService.dart';
+import 'package:mobileraker/dto/machine/temperature_preset.dart';
+import 'package:mobileraker/dto/machine/webcam_setting.dart';
+import 'package:mobileraker/service/file_service.dart';
+import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/printer_service.dart';
 import 'package:uuid/uuid.dart';
 
-part 'PrinterSetting.g.dart';
+part 'printer_setting.g.dart';
 
 @HiveType(typeId: 1)
 class PrinterSetting extends HiveObject {
@@ -22,6 +23,10 @@ class PrinterSetting extends HiveObject {
   String? apiKey;
   @HiveField(5, defaultValue: [])
   List<TemperaturePreset> temperaturePresets;
+  @HiveField(6,
+      defaultValue:
+          '') //TODO: Remove defaultValue section once more ppl. used this version
+  String httpUrl;
 
   WebSocketWrapper? _webSocket;
 
@@ -47,12 +52,23 @@ class PrinterSetting extends HiveObject {
     return _klippyService!;
   }
 
+  FileService? _fileService;
+
+  FileService get fileService {
+    if (_fileService == null) _fileService = FileService(websocket);
+    return _fileService!;
+  }
+
   PrinterSetting(
       {required this.name,
       required this.wsUrl,
+      required this.httpUrl,
       this.apiKey,
       this.temperaturePresets = const [],
-      this.cams = const []});
+      this.cams = const []}) {
+    //TODO: Remove this section once more ppl. used this version
+    if (httpUrl.isEmpty) this.httpUrl = 'http://${Uri.parse(wsUrl).host}';
+  }
 
   @override
   Future<void> save() async {

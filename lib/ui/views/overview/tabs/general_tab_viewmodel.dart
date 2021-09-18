@@ -2,17 +2,17 @@ import 'dart:math';
 
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/dto/machine/Printer.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
-import 'package:mobileraker/dto/machine/WebcamSetting.dart';
-import 'package:mobileraker/dto/server/Klipper.dart';
-import 'package:mobileraker/enums/BottomSheetType.dart';
-import 'package:mobileraker/enums/DialogType.dart';
-import 'package:mobileraker/service/KlippyService.dart';
-import 'package:mobileraker/service/MachineService.dart';
-import 'package:mobileraker/service/PrinterService.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/dto/machine/temperature_preset.dart';
+import 'package:mobileraker/dto/machine/webcam_setting.dart';
+import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/enums/bottom_sheet_type.dart';
+import 'package:mobileraker/enums/dialog_type.dart';
+import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -218,4 +218,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     await _bottomSheetService.showCustomSheet(
         variant: BottomSheetType.ManagementMenu);
   }
+
+
 }

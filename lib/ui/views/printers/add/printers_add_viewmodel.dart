@@ -3,10 +3,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/WebSocket.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/app/AppSetup.router.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -73,6 +73,10 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
     return urlToWebsocketUrl(inputUrl);
   }
 
+  String? get httpUrl {
+    return urlToHttpUrl(inputUrl);
+  }
+
   onUrlEntered(value) {
     inputUrl = value;
     notifyListeners();
@@ -83,9 +87,14 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
       var printerName = _fbKey.currentState!.value['printerName'];
       var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
       var printerUrl = _fbKey.currentState!.value['printerUrl'];
-      printerUrl = urlToWebsocketUrl(printerUrl);
+      String wsUrl = urlToWebsocketUrl(printerUrl);
+      String httpUrl = urlToHttpUrl(printerUrl);
+
       var printerSetting = PrinterSetting(
-          name: printerName, wsUrl: printerUrl, apiKey: printerAPIKey);
+          name: printerName,
+          wsUrl: wsUrl,
+          httpUrl: httpUrl,
+          apiKey: printerAPIKey);
       _printerSettingService.addPrinter(printerSetting).then(
           (value) => _navigationService.clearStackAndShow(Routes.overView));
     }

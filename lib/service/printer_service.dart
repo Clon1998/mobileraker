@@ -3,10 +3,10 @@ import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/WebSocket.dart';
-import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/app/AppSetup.logger.dart';
-import 'package:mobileraker/dto/config/ConfigFile.dart';
-import 'package:mobileraker/dto/machine/Printer.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/dto/config/config_file.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
 

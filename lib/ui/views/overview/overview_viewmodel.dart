@@ -1,12 +1,12 @@
-import 'package:mobileraker/app/AppSetup.locator.dart';
-import 'package:mobileraker/app/AppSetup.router.dart';
-import 'package:mobileraker/dto/machine/Printer.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/dto/server/Klipper.dart';
-import 'package:mobileraker/enums/BottomSheetType.dart';
-import 'package:mobileraker/service/KlippyService.dart';
-import 'package:mobileraker/service/PrinterService.dart';
-import 'package:mobileraker/service/MachineService.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/enums/bottom_sheet_type.dart';
+import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -19,20 +19,18 @@ class OverViewModel extends MultipleStreamViewModel {
   final _bottomSheetService = locator<BottomSheetService>();
   final _machineService = locator<MachineService>();
 
-
   PrinterSetting? _printerSetting;
-
-  PrinterService? _printerService;
-  KlippyService? _klippyService;
+  PrinterService? get _printerService => _printerSetting?.printerService;
+  KlippyService? get _klippyService => _printerSetting?.klippyService;
 
   @override
   Map<String, StreamData> get streamsMap => {
-        _SelectedPrinterStreamKey: StreamData<PrinterSetting?>(
-            _machineService.selectedPrinter),
-        if (_printerSetting?.printerService != null) ...{
+        _SelectedPrinterStreamKey:
+            StreamData<PrinterSetting?>(_machineService.selectedPrinter),
+        if (_printerService != null) ...{
           _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },
-        if (_printerSetting?.klippyService != null) ...{
+        if (_klippyService != null) ...{
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
         }
@@ -85,14 +83,6 @@ class OverViewModel extends MultipleStreamViewModel {
         PrinterSetting? nPrinterSetting = data;
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
-
-        if (nPrinterSetting?.printerService != null) {
-          _printerService = nPrinterSetting?.printerService;
-        }
-
-        if (nPrinterSetting?.klippyService != null) {
-          _klippyService = nPrinterSetting?.klippyService;
-        }
         notifySourceChanged(clearOldData: true);
         break;
       default:
@@ -100,7 +90,6 @@ class OverViewModel extends MultipleStreamViewModel {
         break;
     }
   }
-
 
   showNonPrintingMenu() async {
     await _bottomSheetService.showCustomSheet(
@@ -127,7 +116,6 @@ class OverViewModel extends MultipleStreamViewModel {
     //Navigate to other View:::
     _navigationService.navigateTo(Routes.settingView);
   }
-
 
   fffff() {
     // _navigationService.navigateTo(Routes.testView);

@@ -1,4 +1,4 @@
-import 'package:mobileraker/app/AppSetup.locator.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 void showWIPSnackbar() {
@@ -15,6 +15,20 @@ String urlToWebsocketUrl(String enteredURL) {
   else if (parse.isScheme('http'))
     parse = parse.replace(scheme: 'ws');
   else if (parse.isScheme('https')) parse = parse.replace(scheme: 'wss');
+
+  return parse.toString();
+}
+
+
+String urlToHttpUrl(String enteredURL) {
+
+  var parse = Uri.tryParse(enteredURL);
+  if (parse == null) return enteredURL;
+  if (!parse.hasScheme)
+    parse = Uri.tryParse('http://$enteredURL');
+  else if (parse.isScheme('ws'))
+    parse = parse.replace(scheme: 'http');
+  else if (parse.isScheme('wss')) parse = parse.replace(scheme: 'http');
 
   return parse.toString();
 

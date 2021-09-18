@@ -1,7 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-part 'TemperaturePreset.g.dart';
+part 'temperature_preset.g.dart';
 
 @HiveType(typeId: 3)
 class TemperaturePreset {

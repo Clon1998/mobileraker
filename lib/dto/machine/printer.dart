@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:mobileraker/dto/config/ConfigFile.dart';
+import 'package:mobileraker/dto/config/config_file.dart';
 
 enum PrinterAxis { X, Y, Z, E }
 enum PrinterState { ready, error, shutdown, startup, disconnected }

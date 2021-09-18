@@ -1,7 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-part 'WebcamSetting.g.dart';
+part 'webcam_setting.g.dart';
 
 @HiveType(typeId: 2)
 class WebcamSetting {

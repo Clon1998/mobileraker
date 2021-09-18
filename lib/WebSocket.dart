@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:mobileraker/app/AppSetup.logger.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/status.dart' as status;
@@ -143,7 +143,7 @@ class WebSocketWrapper {
     return json;
   }
 
-  addMethodListener(Function callback, [String method = "ALL"]) {
+  addMethodListener(Function(Map<String, dynamic> rawMessage) callback, [String method = "ALL"]) {
     _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
   }
 

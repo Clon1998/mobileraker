@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/ui/views/printers/components/printers_slidable_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 

@@ -4,7 +4,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/WebSocket.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
-import 'connectionState_viewmodel.dart';
+import 'connection_state_viewmodel.dart';
 
 class ConnectionStateView extends StatelessWidget {
   ConnectionStateView({required this.pChild, Key? key}) : super(key: key);
@@ -80,7 +80,7 @@ class ConnectionStateView extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SpinKitPouringHourglass(
+              SpinKitPouringHourGlassRefined(
                 color: Theme.of(context).accentColor,
               ),
               SizedBox(

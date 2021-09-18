@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:mobileraker/dto/machine/PrinterSetting.dart';
-import 'package:mobileraker/dto/machine/TemperaturePreset.dart';
-import 'package:mobileraker/dto/machine/WebcamSetting.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/dto/machine/temperature_preset.dart';
+import 'package:mobileraker/dto/machine/webcam_setting.dart';
 import 'package:stacked/stacked.dart';
 
 import 'printers_edit_viewmodel.dart';
@@ -52,18 +52,25 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 FormBuilderTextField(
                   decoration: InputDecoration(
                       labelText: 'Printer-Address',
-                      hintText: 'Host, IP, or full URL',
-                      helperMaxLines: 2,
-                      helperText: model.wsUrl != null
-                          ? 'Resulting WebSocket-URL: ${model.wsUrl}'
-                          : '' //TODO
+                      hintText: 'Full URL',
                   ),
-                  onChanged: model.onUrlEntered,
                   name: 'printerUrl',
-                  initialValue: model.inputUrl,
+                  initialValue: model.printerHttpUrl,
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(context),
-                    FormBuilderValidators.url(context, protocols: ['ws', 'wss', 'http','https'])
+                    FormBuilderValidators.url(context, protocols: ['http','https'], requireProtocol: true)
+                  ]),
+                ),
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                      labelText: 'Websocket-Address',
+                      hintText: 'Full URL',
+                  ),
+                  name: 'wsUrl',
+                  initialValue: model.printerWsUrl,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.url(context, protocols: ['ws', 'wss'], requireProtocol: true)
                   ]),
                 ),
                 FormBuilderTextField(
