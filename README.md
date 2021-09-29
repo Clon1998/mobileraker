@@ -6,7 +6,7 @@ Mobileraker is a Flutter app to control a single or multiple 3D printers running
 
 Checkout the first release to download an Android APK!
 
-<a href="https://play.google.com/store/apps/details?id=com.mobileraker.android"><img src="https://raw.githubusercontent.com/steverichey/google-play-badge-svg/266d2b2df26f10d3c00b8129a0bd9f6da6b19f00/img/en_get.svg" height="100" ></a><br>
+<a href="https://play.google.com/store/apps/details?id=com.mobileraker.android"><img src="https://raw.githubusercontent.com/steverichey/google-play-badge-svg/266d2b2df26f10d3c00b8129a0bd9f6da6b19f00/img/en_get.svg" height="100" ></a>
 <a href="https://testflight.apple.com/join/ekk3AM5z "><img src="https://raw.githubusercontent.com/gist/colinwilson/7b70db6c57868d68e107b36b633ec6fa/raw/061b687dd67b310229f5c15a01a65c080665a42f/apple_app_store_badge.svg" height="80" ></a>
 
 
