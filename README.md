@@ -1,14 +1,19 @@
 # mobileraker
+![GitHub](https://img.shields.io/github/license/Clon1998/mobileraker?style=for-the-badge)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/clon1998/mobileraker?style=for-the-badge)
+![GitHub issues](https://img.shields.io/github/issues/Clon1998/mobileraker?style=for-the-badge)
 
-
+![GitHub Repo stars](https://img.shields.io/github/stars/Clon1998/mobileraker?style=for-the-badge)
+![GitHub all releases](https://img.shields.io/github/downloads/clon1998/mobileraker/total?style=for-the-badge)
+![Custom badge](https://img.shields.io/endpoint?color=%235fd102&style=for-the-badge&url=https%3A%2F%2Fplayshields.herokuapp.com%2Fplay%3Fi%3Dcom.mobileraker.android%26l%3DAndroid%26m%3D%24installs)
 
 Mobileraker is a Flutter app to control a single or multiple 3D printers running Klipper+Moonraker.
 
 Checkout the first release to download an Android APK!
 
-<a href="https://play.google.com/store/apps/details?id=com.mobileraker.android"><img src="https://raw.githubusercontent.com/steverichey/google-play-badge-svg/266d2b2df26f10d3c00b8129a0bd9f6da6b19f00/img/en_get.svg" height="100" ></a><br>
-<a href="https://testflight.apple.com/join/ekk3AM5z "><img src="https://raw.githubusercontent.com/gist/colinwilson/7b70db6c57868d68e107b36b633ec6fa/raw/061b687dd67b310229f5c15a01a65c080665a42f/apple_app_store_badge.svg" height="80" ></a>
 
+[!["PlayStore"](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.mobileraker.android)
+[!["AppStore"](https://img.shields.io/badge/App_Store-0D96F6?style=for-the-badge&logo=app-store&logoColor=white)](https://testflight.apple.com/join/ekk3AM5z)
 
 
 
