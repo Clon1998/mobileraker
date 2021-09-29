@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/files/folder.dart';
+import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
@@ -27,6 +29,8 @@ class FilesViewModel extends MultipleStreamViewModel {
   final _bottomSheetService = locator<BottomSheetService>();
   final _machineService = locator<MachineService>();
 
+  bool isSearching = false;
+
   PrinterSetting? _printerSetting;
 
   FileService? get _fileService => _printerSetting?.fileService;
@@ -37,6 +41,8 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
+
+  TextEditingController searchEditingController = TextEditingController();
 
   StreamController<FolderReqWrapper> _foldersStream =
       StreamController.broadcast();
@@ -78,11 +84,14 @@ class FilesViewModel extends MultipleStreamViewModel {
   }
 
   onRefresh() {
-    runBusyFuture(_fetchDirectoryData(newPath: folderContent.reqPath.split('/'))).then((value) => refreshController.refreshCompleted());
+    runBusyFuture(
+            _fetchDirectoryData(newPath: folderContent.reqPath.split('/')))
+        .then((value) => refreshController.refreshCompleted());
   }
 
-  onEmergencyPressed() {
-    _klippyService?.emergencyStop();
+  onFileTapped(GCodeFile file) {
+    _navigationService.navigateTo(Routes.fileDetailView,
+        arguments: FileDetailViewArguments(file: file));
   }
 
   onFolderPressed(Folder folder) {
@@ -91,7 +100,21 @@ class FilesViewModel extends MultipleStreamViewModel {
     runBusyFuture(_fetchDirectoryData(newPath: newPath));
   }
 
-  Future<bool> onPopFolder() async {
+  Future<bool> onWillPop() async {
+    List<String> newPath = folderContent.reqPath.split('/');
+
+    if (isSearching) {
+      stopSearching();
+      return false;
+    } else if (newPath.length > 1 && !isBusy) {
+      newPath.removeLast();
+      runBusyFuture(_fetchDirectoryData(newPath: newPath));
+      return false;
+    }
+    return true;
+  }
+
+  onPopFolder() async {
     List<String> newPath = folderContent.reqPath.split('/');
     if (newPath.length > 1 && !isBusy) {
       newPath.removeLast();
@@ -101,15 +124,49 @@ class FilesViewModel extends MultipleStreamViewModel {
     return true;
   }
 
+  startSearching() {
+    isSearching = true;
+  }
+
+  stopSearching() {
+    isSearching = false;
+  }
+
+  resetSearchQuery() {
+    searchEditingController.text = '';
+  }
+
   Future _fetchDirectoryData({List<String> newPath = const ['gcodes']}) {
     requestedPath = newPath;
     return _foldersStream.addStream(
         _fileService!.fetchDirectoryInfo(newPath.join('/'), true).asStream());
   }
 
+  FolderReqWrapper get folderContent {
+    FolderReqWrapper fullContent = _folderContent;
+    List<Folder> folders = _folderContent.folders.toList(growable: false);
+    List<GCodeFile> files = _folderContent.gCodes.toList(growable: false);
+
+    String queryTerm = searchEditingController.text.toLowerCase();
+    if (queryTerm.isNotEmpty && isSearching) {
+      folders = folders
+          .where((element) => element.name.toLowerCase().contains(queryTerm))
+          .toList(growable: false);
+
+      files = files
+          .where((element) => element.name.toLowerCase().contains(queryTerm))
+          .toList(growable: false);
+    }
+
+    folders.sort((fileA, fileB) => fileB.modified.compareTo(fileA.modified));
+    files.sort((fileA, fileB) => fileB.modified.compareTo(fileA.modified));
+
+    return FolderReqWrapper(fullContent.reqPath, folders, files);
+  }
+
   bool get hasFolderContent => dataReady(_FolderContentStreamKey);
 
-  FolderReqWrapper get folderContent => dataMap![_FolderContentStreamKey];
+  FolderReqWrapper get _folderContent => dataMap![_FolderContentStreamKey];
 
   bool get hasServer => dataReady(_ServerStreamKey);
 
@@ -131,10 +188,10 @@ class FilesViewModel extends MultipleStreamViewModel {
     }
   }
 
-
   @override
   void dispose() {
-      super.dispose();
-      refreshController.dispose();
+    super.dispose();
+    refreshController.dispose();
+    searchEditingController.dispose();
   }
 }

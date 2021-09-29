@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:mobileraker/WebSocket.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/dto/config/config_file.dart';
+import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -53,7 +54,6 @@ class PrinterService {
 
   _fetchPrinter() {
     // printerStream.value = Printer();
-    // _webSocket.sendObject("printer.info", _printerInfo); // ToDo remove this, isn't needed anymore!
     _logger.i(">>>Querying printers object list");
     _webSocket.sendObject("printer.objects.list", _printerObjectsList);
   }
@@ -84,15 +84,6 @@ class PrinterService {
       }
     });
     printerStream.add(latestPrinter);
-  }
-
-  _printerInfo(response) {
-    Printer printer = _latestPrinter;
-    _logger.v('PrinterInfo: ${JsonEncoder.withIndent('  ').convert(response)}');
-    var fromString =
-        EnumToString.fromString(PrinterState.values, response['state']);
-    printer.state = fromString ?? PrinterState.error;
-    printerStream.add(printer);
   }
 
   _printerObjectsList(response) {
@@ -477,8 +468,9 @@ class PrinterService {
   }
 
   outputPin(String pinName, double value) {
-    _webSocket.sendObject("printer.gcode.script", null,
-        params: {'script': "SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}"});
+    _webSocket.sendObject("printer.gcode.script", null, params: {
+      'script': "SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}"
+    });
   }
 
   gCodeMacro(String macro) {
@@ -491,6 +483,16 @@ class PrinterService {
 
     _webSocket
         .sendObject("printer.gcode.script", null, params: {'script': gcode});
+  }
+
+  startPrintFile(GCodeFile file) {
+    _webSocket.sendObject("printer.print.start", null,
+        params: {'filename': file.pathForPrint});
+  }
+
+  resetPrintStat() {
+    _webSocket.sendObject("printer.gcode.script", null,
+        params: {'script': 'SDCARD_RESET_FILE'});
   }
 
   String _gcodeMoveCode(String axis, double value) {

@@ -1,27 +1,7 @@
-import 'dart:ui';
-
-import 'package:flutter/material.dart';
 import 'package:mobileraker/dto/config/config_file.dart';
 
 enum PrinterAxis { X, Y, Z, E }
-enum PrinterState { ready, error, shutdown, startup, disconnected }
 enum PrintState { standby, printing, paused, complete, error }
-
-String printerStateName(PrinterState printerState) {
-  switch (printerState) {
-    case PrinterState.ready:
-      return "Ready";
-    case PrinterState.shutdown:
-      return "Shutdown";
-    case PrinterState.startup:
-      return "Starting";
-    case PrinterState.disconnected:
-      return "Disconnected";
-    case PrinterState.error:
-    default:
-      return "Error";
-  }
-}
 
 String printStateName(PrintState printState) {
   switch (printState) {
@@ -40,8 +20,6 @@ String printStateName(PrintState printState) {
 }
 
 class Printer {
-  PrinterState state = PrinterState.error; //Matches ServerState
-
   Toolhead toolhead = Toolhead();
   Extruder extruder = Extruder();
   HeaterBed heaterBed = HeaterBed();
@@ -61,8 +39,6 @@ class Printer {
   List<String> queryableObjects = [];
   List<String> gcodeMacros = [];
 
-  String get stateName => printerStateName(state);
-
   double get zOffset => gCodeMove.homingOrigin[2];
 
   DateTime? get eta {
@@ -74,23 +50,9 @@ class Printer {
     return null;
   }
 
-  static Color stateToColor(PrinterState state) {
-    switch (state) {
-      case PrinterState.ready:
-        return Colors.green;
-      case PrinterState.error:
-        return Colors.red;
-      case PrinterState.shutdown:
-      case PrinterState.startup:
-      case PrinterState.disconnected:
-      default:
-        return Colors.orange;
-    }
-  }
-
   @override
   String toString() {
-    return 'Printer{state: $state, toolhead: $toolhead, extruder: $extruder, heaterBed: $heaterBed, printFan: $printFan, gCodeMove: $gCodeMove, print: $print, configFile: $configFile, fans: $fans, temperatureSensors: $temperatureSensors, outputPins: $outputPins, virtualSdCard: $virtualSdCard, queryableObjects: $queryableObjects, gcodeMacros: $gcodeMacros}';
+    return 'Printer{toolhead: $toolhead, extruder: $extruder, heaterBed: $heaterBed, printFan: $printFan, gCodeMove: $gCodeMove, print: $print, configFile: $configFile, fans: $fans, temperatureSensors: $temperatureSensors, outputPins: $outputPins, virtualSdCard: $virtualSdCard, queryableObjects: $queryableObjects, gcodeMacros: $gcodeMacros}';
   }
 
   @override
@@ -98,7 +60,6 @@ class Printer {
       identical(this, other) ||
       other is Printer &&
           runtimeType == other.runtimeType &&
-          state == other.state &&
           toolhead == other.toolhead &&
           extruder == other.extruder &&
           heaterBed == other.heaterBed &&
@@ -115,7 +76,6 @@ class Printer {
 
   @override
   int get hashCode =>
-      state.hashCode ^
       toolhead.hashCode ^
       extruder.hashCode ^
       heaterBed.hashCode ^
@@ -458,6 +418,7 @@ class TemperatureSensor {
 
 class OutputPin {
   String name;
+
   // This value is between 0-1
   double value = 0.0;
 

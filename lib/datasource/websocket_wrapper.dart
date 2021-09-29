@@ -33,10 +33,10 @@ class WebSocketWrapper {
   BehaviorSubject<WebSocketState> stateStream =
       BehaviorSubject.seeded(WebSocketState.disconnected);
 
-  WebSocketState get state => stateStream.value;
+  WebSocketState get _state => stateStream.value;
 
-  set state(WebSocketState newState) {
-    _logger.i("$state ➝ $newState");
+  set _state(WebSocketState newState) {
+    _logger.i("$_state ➝ $newState");
     stateStream.add(newState);
   }
 
@@ -66,7 +66,7 @@ class WebSocketWrapper {
 
   _tryConnect() {
     _logger.i("Trying to connect to $url with APIkey: `${apiKey??'NO-APIKEY'}`");
-    state = WebSocketState.connecting;
+    _state = WebSocketState.connecting;
     reset();
 
     WebSocket.connect(url.toString(), headers: _headers)
@@ -86,8 +86,8 @@ class WebSocketWrapper {
       );
       // Send a req msg to be sure we are connected!
 
-      if (state != WebSocketState.connected) {
-        state = WebSocketState.connected;
+      if (_state != WebSocketState.connected) {
+        _state = WebSocketState.connected;
       }
     }, onError: _onWSError);
   }
@@ -113,7 +113,7 @@ class WebSocketWrapper {
   /// Ensures that the ws is still connected.
   /// ----------------------------------------------------------
   ensureConnection() {
-    if (state != WebSocketState.connected && state != WebSocketState.connecting)
+    if (_state != WebSocketState.connected && _state != WebSocketState.connecting)
       initCommunication();
   }
 
@@ -176,7 +176,7 @@ class WebSocketWrapper {
   _onWSError(error) {
     _logger.e("WS-Stream error: $error");
     errorReason = error;
-    state = WebSocketState.error;
+    _state = WebSocketState.error;
   }
 
   bool get requiresAPIKey {
@@ -192,11 +192,11 @@ class WebSocketWrapper {
   }
 
   _onWSClosesNormal() {
-    var t = state;
+    var t = _state;
     if (t != WebSocketState.error) {
       t = WebSocketState.disconnected;
     }
-    if (!stateStream.isClosed) state = t;
+    if (!stateStream.isClosed) _state = t;
     initCommunication();
     _logger.i("WS-Stream close normal!");
   }

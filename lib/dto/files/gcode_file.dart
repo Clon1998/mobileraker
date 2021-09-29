@@ -60,8 +60,11 @@ class GCodeFile {
   /// Path to the location/directory where the file is located
   String parentPath;
 
-
-  GCodeFile({required this.name, required this.size, required this.modified, required this.parentPath});
+  GCodeFile(
+      {required this.name,
+      required this.size,
+      required this.modified,
+      required this.parentPath});
 
   GCodeFile.fromJson(Map<String, dynamic> json, this.parentPath) {
     this.name = json['filename'];
@@ -101,8 +104,29 @@ class GCodeFile {
 
   String? get smallImagePath {
     //ToDo: Filter for small <.<
-    if (thumbnails.isNotEmpty)
-      return thumbnails.first.relativePath;
+    if (thumbnails.isNotEmpty) return thumbnails.first.relativePath;
+  }
+
+  String? get bigImagePath {
+    //ToDo: Filter for big <.<
+    if (thumbnails.isNotEmpty) return thumbnails.last.relativePath;
+  }
+
+  DateTime? get modifiedDate {
+    return DateTime.fromMillisecondsSinceEpoch(modified.toInt() * 1000);
+  }
+
+  DateTime? get lastPrintDate {
+    return DateTime.fromMillisecondsSinceEpoch(
+        (printStartTime?.toInt() ?? 0) * 1000);
+  }
+
+  /// combines parentpath and name to the correct path to request a print!
+  String get pathForPrint {
+    List<String> split = parentPath.split('/');
+    split.removeAt(0); // remove 'gcodes'
+    split.add(name);
+    return split.join('/');
   }
 
   @override

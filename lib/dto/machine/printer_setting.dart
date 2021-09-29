@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/dto/machine/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/webcam_setting.dart';
 import 'package:mobileraker/service/file_service.dart';

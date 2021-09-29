@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/machine/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:stacked/stacked.dart';
@@ -10,28 +11,22 @@ import 'package:stacked_services/stacked_services.dart';
 class FullCamViewModel extends BaseViewModel {
   final _navigationService = locator<NavigationService>();
   final _machineService = locator<MachineService>();
+  WebcamSetting? selectedCam;
 
-  WebcamSetting? _camHack() {
-    var printSetting = _machineService.selectedPrinter.valueOrNull;
-    if (printSetting != null && printSetting.cams.isNotEmpty) {
-      return printSetting.cams.first;
-    }
-    return null;
-  }
+  FullCamViewModel(this.selectedCam);
 
-  bool get hasCam => _camHack() != null;
-
-  WebcamSetting get selectedCam => _camHack()!;
+  PrinterSetting? get _printerSetting =>
+      _machineService.selectedPrinter.valueOrNull;
 
   double get yTransformation {
-    if (selectedCam.flipHorizontal)
+    if (selectedCam?.flipHorizontal ?? false)
       return pi;
     else
       return 0;
   }
 
   double get xTransformation {
-    if (selectedCam.flipVertical)
+    if (selectedCam?.flipVertical ?? false)
       return pi;
     else
       return 0;
@@ -40,6 +35,18 @@ class FullCamViewModel extends BaseViewModel {
   Matrix4 get transformMatrix => Matrix4.identity()
     ..rotateX(xTransformation)
     ..rotateY(yTransformation);
+
+  onWebcamSettingSelected(WebcamSetting? webcamSetting) {
+    selectedCam = webcamSetting;
+    notifyListeners();
+  }
+
+  List<WebcamSetting> get webcams {
+    if (_printerSetting != null && _printerSetting!.cams.isNotEmpty) {
+      return _printerSetting!.cams;
+    }
+    return List.empty();
+  }
 
   onCloseTapped() {
     _navigationService.back();

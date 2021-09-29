@@ -7,6 +7,7 @@ import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/service/file_service.dart';
+import 'package:mobileraker/ui/components/EaseIn.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/files/files_viewmodel.dart';
@@ -21,32 +22,63 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   @override
   Widget builder(BuildContext context, FilesViewModel model, Widget? child) {
     return WillPopScope(
-      onWillPop: model.onPopFolder,
+      onWillPop: model.onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'File Browser',
-            overflow: TextOverflow.fade,
-          ),
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () => null,
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.sort,
-              ),
-              onPressed: () => null,
-            ),
-          ],
-        ),
+        appBar: buildAppBar(context, model),
         drawer: NavigationDrawerWidget(curPath: Routes.filesView),
         body: ConnectionStateView(
           pChild: buildBody(context, model),
         ),
       ),
     );
+  }
+
+  AppBar buildAppBar(BuildContext context, FilesViewModel model) {
+    if (model.isSearching) {
+      return AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: model.stopSearching,
+        ),
+        title: EaseIn(
+          child: TextField(
+            controller: model.searchEditingController,
+            autofocus: true,
+            style: Theme.of(context).textTheme.headline6,
+            decoration: InputDecoration(
+              hintText: 'Search files...',
+              border: InputBorder.none,
+              suffixIcon: model.searchEditingController.text.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: 'Clear search',
+                      icon: Icon(Icons.close),
+                      color: Theme.of(context).colorScheme.onPrimary,
+                      onPressed: model.resetSearchQuery,
+                    ),
+            ),
+          ),
+        ),
+      );
+    } else
+      return AppBar(
+        title: Text(
+          'File Browser',
+          overflow: TextOverflow.fade,
+        ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.sort,
+            ),
+            onPressed: () => null,
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: model.startSearching,
+          ),
+        ],
+      );
   }
 
   Widget buildBody(BuildContext context, FilesViewModel model) {
@@ -214,6 +246,7 @@ class FolderItem extends ViewModelWidget<FilesViewModel> {
   @override
   Widget build(BuildContext context, FilesViewModel model) {
     return ListTile(
+      key: ValueKey(folder),
       leading: SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
       title: Text(folder.name),
       onTap: () => model.onFolderPressed(folder),
@@ -229,11 +262,13 @@ class FileItem extends ViewModelWidget<FilesViewModel> {
   @override
   Widget build(BuildContext context, FilesViewModel model) {
     return ListTile(
+      key: ValueKey(gCode),
       leading: SizedBox(
           width: 64,
           height: 64,
           child: buildLeading(gCode, model.curPathToPrinterUrl)),
       title: Text(gCode.name),
+      onTap: () => model.onFileTapped(gCode),
     );
 
     // return ListTile(

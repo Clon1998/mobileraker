@@ -7,6 +7,7 @@ import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/machine/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/ui/views/files/details/file_details_view.dart';
 import 'package:mobileraker/ui/views/files/files_view.dart';
 import 'package:mobileraker/ui/views/fullcam/full_cam_view.dart';
 import 'package:mobileraker/ui/views/overview/overview_view.dart';
@@ -26,6 +27,7 @@ import 'package:stacked_services/stacked_services.dart';
   MaterialRoute(page: PrintersAdd),
   MaterialRoute(page: PrintersEdit),
   MaterialRoute(page: FilesView),
+  MaterialRoute(page: FileDetailView),
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),

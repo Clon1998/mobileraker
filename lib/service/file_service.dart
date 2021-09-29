@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
@@ -27,22 +27,20 @@ class FileService {
   final WebSocketWrapper _webSocket;
   final _logger = getLogger('FileService');
 
-  // final BehaviorSubject<List<GCode>> fileStream =
-  //     BehaviorSubject<List<GCode>>();
 
   FileService(this._webSocket) {
     _webSocket.addMethodListener(_onFileListChanged, "notify_filelist_changed");
 
-    _webSocket.stateStream.listen((value) {
-      switch (value) {
-        case WebSocketState.connected:
-          // _fetchAvailableFiles(FileRoot.gcodes);
-
-          // _fetchDirectoryInfo('gcodes', true);
-          break;
-        default:
-      }
-    });
+    // _webSocket.stateStream.listen((value) {
+    //   switch (value) {
+    //     case WebSocketState.connected:
+    //       // _fetchAvailableFiles(FileRoot.gcodes);
+    //
+    //       // _fetchDirectoryInfo('gcodes', true);
+    //       break;
+    //     default:
+    //   }
+    // });
   }
 
   _onFileListChanged(Map<String, dynamic> rawMessage) {
@@ -54,7 +52,7 @@ class FileService {
   Future<FolderReqWrapper> fetchDirectoryInfo(String path,
       [bool extended = false]) async {
     Completer<FolderReqWrapper> reqCompleter = Completer();
-    _logger.i('Fetching for $path [extended:$extended]');
+    _logger.i('Fetching for `$path` [extended:$extended]');
 
 
     _webSocket.sendObject("server.files.get_directory",
@@ -67,6 +65,18 @@ class FileService {
     _webSocket.sendObject(
         "server.files.list", (response) => _parseResult(response, root),
         params: {'root': EnumToString.convertToString(root)});
+  }
+
+
+  Future<GCodeFile> getGCodeMetadata(String filename) async {
+    Completer<GCodeFile> reqCompleter = Completer();
+    _logger.i('Getting meta for file: `$filename`');
+
+
+    _webSocket.sendObject("server.files.metadata",
+            (response) => _parseFileMeta(response, filename, reqCompleter),
+        params: {'filename': filename});
+    return reqCompleter.future;
   }
 
   _parseResult(response, FileRoot root) {
@@ -118,6 +128,15 @@ class FileService {
     });
 
     completer.complete(FolderReqWrapper(forPath,listOfFolder, listOfFiles));
+  }
+
+  _parseFileMeta(response, String forFile, Completer<GCodeFile> completer) {
+    var split = forFile.split('/');
+    split.removeLast();
+    split.insert(0, 'gcodes');// we need to add the gcodes here since the getMetaInfo omits gcodes path.
+
+    ;
+    completer.complete(GCodeFile.fromJson(response, split.join('/')));
   }
 }
 

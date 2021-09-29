@@ -3,15 +3,16 @@ import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/overview/tabs/control_tab.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab.dart';
 import 'package:progress_indicators/progress_indicators.dart';
-import 'package:simple_speed_dial/simple_speed_dial.dart';
 import 'package:stacked/stacked.dart';
 
 import 'overview_viewmodel.dart';
@@ -32,9 +33,9 @@ class OverView extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.radio_button_on,
                   size: 10,
-                  color: Printer.stateToColor(model.hasServer
+                  color: KlipperInstance.stateToColor(model.hasServer
                       ? model.server.klippyState
-                      : PrinterState.error)),
+                      : KlipperState.error)),
               tooltip: model.hasServer
                   ? 'Server State is ${model.server.klippyStateName} and Moonraker is ${model.server.klippyConnected ? 'connected' : 'disconnected'} to Klipper'
                   : 'Server is not connected',
@@ -52,61 +53,61 @@ class OverView extends StatelessWidget {
           ],
         ),
         body: ConnectionStateView(
-          pChild:
-              (model.hasPrinter)
-                  ? PageTransitionSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      reverse: model.reverse,
-                      transitionBuilder: (
-                        Widget child,
-                        Animation<double> animation,
-                        Animation<double> secondaryAnimation,
-                      ) {
-                        return SharedAxisTransition(
-                          child: child,
-                          animation: animation,
-                          secondaryAnimation: secondaryAnimation,
-                          transitionType: SharedAxisTransitionType.horizontal,
-                        );
-                      },
-                      child: getViewForIndex(model.currentIndex),
-                    )
-                  : Center(
-                      child: Column(
-                        key: UniqueKey(),
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SpinKitFadingCube(
-                            color: Colors.orange,
-                          ),
-                          SizedBox(
-                            height: 30,
-                          ),
-                          FadingText("Fetching printer..."),
-                          // Text("Fetching printer ...")
-                        ],
+          pChild: (model.hasPrinter)
+              ? PageTransitionSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  reverse: model.reverse,
+                  transitionBuilder: (
+                    Widget child,
+                    Animation<double> animation,
+                    Animation<double> secondaryAnimation,
+                  ) {
+                    return SharedAxisTransition(
+                      child: child,
+                      animation: animation,
+                      secondaryAnimation: secondaryAnimation,
+                      transitionType: SharedAxisTransitionType.horizontal,
+                    );
+                  },
+                  child: getViewForIndex(model.currentIndex),
+                )
+              : Center(
+                  child: Column(
+                    key: UniqueKey(),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SpinKitFadingCube(
+                        color: Colors.orange,
                       ),
-                    ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      FadingText("Fetching printer..."),
+                      // Text("Fetching printer ...")
+                    ],
+                  ),
+                ),
         ),
         floatingActionButton: printingStateToFab(model),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-        bottomNavigationBar: (model.isPrinterSelected)
-            ? AnimatedBottomNavigationBar(
-                // ToDo swap with Text
-                icons: [
-                  FlutterIcons.tachometer_faw,
-                  // FlutterIcons.camera_control_mco,
-                  FlutterIcons.settings_oct,
-                ],
+        bottomNavigationBar:
+            (model.isPrinterSelected && model.isKlippyConnected)
+                ? AnimatedBottomNavigationBar(
+                    // ToDo swap with Text
+                    icons: [
+                      FlutterIcons.tachometer_faw,
+                      // FlutterIcons.camera_control_mco,
+                      FlutterIcons.settings_oct,
+                    ],
 
-                activeColor: getActiveTextColor(context),
-                gapLocation: GapLocation.end,
-                backgroundColor: Theme.of(context).primaryColor,
-                notchSmoothness: NotchSmoothness.softEdge,
-                activeIndex: model.currentIndex,
-                onTap: model.setIndex,
-              )
-            : null,
+                    activeColor: getActiveTextColor(context),
+                    gapLocation: GapLocation.end,
+                    backgroundColor: Theme.of(context).primaryColor,
+                    notchSmoothness: NotchSmoothness.softEdge,
+                    activeIndex: model.currentIndex,
+                    onTap: model.setIndex,
+                  )
+                : null,
         // ConvexAppBar(
         //
         //   style: TabStyle.textIn,
@@ -126,7 +127,8 @@ class OverView extends StatelessWidget {
 
   Color? getActiveTextColor(context) {
     var themeData = Theme.of(context);
-    if (themeData.brightness == Brightness.dark) return themeData.colorScheme.secondary;
+    if (themeData.brightness == Brightness.dark)
+      return themeData.colorScheme.secondary;
     return Colors.white;
   }
 
@@ -144,7 +146,7 @@ class OverView extends StatelessWidget {
   Widget? printingStateToFab(OverViewModel model) {
     if (!model.hasPrinter || !model.hasServer) return null;
 
-    if (model.server.klippyState == PrinterState.error) return null;
+    if (model.server.klippyState == KlipperState.error) return null;
 
     switch (model.printer.print.state) {
       case PrintState.printing:
@@ -153,15 +155,15 @@ class OverView extends StatelessWidget {
           child: Icon(Icons.pause),
         );
       case PrintState.paused:
-        return SpeedDialPaused();
+        return PausedFAB();
       default:
-        return MenuNonPrinting();
+      return IdleFAB();
     }
   }
 }
 
-class MenuNonPrinting extends ViewModelWidget<OverViewModel> {
-  const MenuNonPrinting({
+class IdleFAB extends ViewModelWidget<OverViewModel> {
+  const IdleFAB({
     Key? key,
   }) : super(key: key, reactive: false);
 
@@ -172,69 +174,32 @@ class MenuNonPrinting extends ViewModelWidget<OverViewModel> {
   }
 }
 
-class SpeedDialPaused extends ViewModelWidget<OverViewModel> {
-  const SpeedDialPaused({
+class PausedFAB extends ViewModelWidget<OverViewModel> {
+  const PausedFAB({
     Key? key,
   }) : super(key: key, reactive: false);
 
   @override
   Widget build(BuildContext context, OverViewModel model) {
     return SpeedDial(
-      child: Icon(FlutterIcons.options_vertical_sli),
-      speedDialChildren: [
+      icon: FlutterIcons.options_vertical_sli,
+      activeIcon: Icons.close,
+      children: [
         SpeedDialChild(
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
           label: 'Cancel',
-          onPressed: model.onCancelPrintPressed,
+          onTap: model.onCancelPrintPressed,
         ),
         SpeedDialChild(
           child: Icon(Icons.play_arrow),
           backgroundColor: Colors.blue,
           label: 'Resume',
-          onPressed: model.onResumePrintPressed,
+          onTap: model.onResumePrintPressed,
         ),
       ],
+      spacing: 5,
+      overlayOpacity: 0,
     );
-
-    //   SpeedDial(
-    //
-    //   child:  FlutterIcons.options_vertical_sli,
-    //   activeIcon: Icons.close,
-    //    visible: true,
-    //
-    //   /// If true user is forced to close dial manually
-    //   /// by tapping main button and overlay is not rendered.
-    //   closeManually: false,
-    //
-    //   /// If true overlay will render no matter what.
-    //   renderOverlay: false,
-    //   // curve: Curves.bounceIn,
-    //   overlayColor: Colors.black,
-    //   overlayOpacity: 0.3,
-    //   backgroundColor: Colors.white,
-    //   foregroundColor: Colors.black,
-    //   elevation: 8.0,
-    //   shape: CircleBorder(),
-    //   // orientation: SpeedDialOrientation.Up,
-    //   // childMarginBottom: 2,
-    //   // childMarginTop: 2,
-    //   children: [
-    //     SpeedDialChild(
-    //       child: Icon(Icons.cleaning_services),
-    //       backgroundColor: Colors.red,
-    //       label: 'Cancel',
-    //       labelStyle: TextStyle(fontSize: 18.0),
-    //       onTap: model.onCancelPrintPressed,
-    //     ),
-    //     SpeedDialChild(
-    //       child: Icon(Icons.play_arrow),
-    //       backgroundColor: Colors.blue,
-    //       label: 'Resume',
-    //       labelStyle: TextStyle(fontSize: 18.0),
-    //       onTap: model.onResumePrintPressed,
-    //     ),
-    //   ],
-    // );
   }
 }

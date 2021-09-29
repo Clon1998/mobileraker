@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:stacked/stacked.dart';
 
 import 'printers_add_viewmodel.dart';

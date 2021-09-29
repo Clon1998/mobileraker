@@ -1,5 +1,5 @@
 import 'package:flutter_fgbg/flutter_fgbg.dart';
-import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';

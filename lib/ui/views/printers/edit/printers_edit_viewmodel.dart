@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/machine/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class PrintersEditViewModel extends BaseViewModel {
+  final _logger = getLogger('PrintersEditViewModel');
+
   final _navigationService = locator<NavigationService>();
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
@@ -151,5 +153,17 @@ class PrintersEditViewModel extends BaseViewModel {
         _machineService.removePrinter(printerSetting).then(
             (value) => _navigationService.clearStackAndShow(Routes.overView));
     });
+  }
+
+  onPresetReorder(int oldIndex, int newIndex) {
+    TemperaturePreset _row = tempPresets.removeAt(oldIndex);
+    tempPresets.insert(newIndex, _row);
+    notifyListeners();
+  }
+
+  onWebCamReorder(int oldIndex, int newIndex) {
+    WebcamSetting _row = webcams.removeAt(oldIndex);
+    webcams.insert(newIndex, _row);
+    notifyListeners();
   }
 }

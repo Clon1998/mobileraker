@@ -97,7 +97,7 @@ class _NonPrintingBottomSheet
               buttonStyle: buttonStyle),
           FullWidthButton(
               child: Text("Firmware restart"),
-              onPressed: model.onRestartMCUPressed(),
+              onPressed: model.onRestartMCUPressed,
               buttonStyle: buttonStyle),
           ElevatedButton.icon(
             label: Text("Close"),

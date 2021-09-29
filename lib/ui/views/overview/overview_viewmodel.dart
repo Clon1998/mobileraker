@@ -5,8 +5,8 @@ import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/enums/bottom_sheet_type.dart';
 import 'package:mobileraker/service/klippy_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/printer_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -20,7 +20,9 @@ class OverViewModel extends MultipleStreamViewModel {
   final _machineService = locator<MachineService>();
 
   PrinterSetting? _printerSetting;
+
   PrinterService? get _printerService => _printerSetting?.printerService;
+
   KlippyService? get _klippyService => _printerSetting?.klippyService;
 
   @override
@@ -75,6 +77,9 @@ class OverViewModel extends MultipleStreamViewModel {
 
   bool get hasPrinter => dataReady(_PrinterStreamKey);
 
+  bool get isKlippyConnected =>
+      _klippyService?.isKlippyConnected ?? false;
+
   @override
   onData(String key, data) {
     super.onData(key, data);
@@ -85,6 +90,7 @@ class OverViewModel extends MultipleStreamViewModel {
         _printerSetting = nPrinterSetting;
         notifySourceChanged(clearOldData: true);
         break;
+
       default:
         // Do nothing
         break;

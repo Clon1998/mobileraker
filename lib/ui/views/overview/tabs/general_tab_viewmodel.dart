@@ -4,13 +4,14 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/machine/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/webcam_setting.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/enums/bottom_sheet_type.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
+import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
@@ -28,8 +29,12 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
 
   PrinterSetting? _printerSetting;
-  PrinterService? _printerService;
-  KlippyService? _klippyService;
+
+  PrinterService? get _printerService => _printerSetting?.printerService;
+
+  KlippyService? get _klippyService => _printerSetting?.klippyService;
+
+  FileService? get _fileService => _printerSetting?.fileService;
 
   GlobalKey<FlipCardState> tmpCardKey = GlobalKey<FlipCardState>();
 
@@ -38,6 +43,10 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   List<double> babySteppingSizes = [0.005, 0.01, 0.05, 0.1];
   int selectedIndexBabySteppingSize = 0;
+
+  GCodeFile? currentFile;
+
+  WebcamSetting? selectedCam;
 
   @override
   Map<String, StreamData> get streamsMap => {
@@ -60,15 +69,19 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
         PrinterSetting? nPrinterSetting = data;
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
-
-        if (nPrinterSetting?.printerService != null) {
-          _printerService = nPrinterSetting?.printerService;
-        }
-
-        if (nPrinterSetting?.klippyService != null) {
-          _klippyService = nPrinterSetting?.klippyService;
-        }
+        selectedCam = _printerSetting?.cams.first;
         notifySourceChanged(clearOldData: true);
+        break;
+
+      case _PrinterStreamKey:
+        Printer nPrinter = data;
+
+        String filename = nPrinter.print.filename;
+        if (filename.isNotEmpty && currentFile?.pathForPrint != filename)
+          _fileService!
+              .getGCodeMetadata(filename)
+              .then((value) => currentFile = value);
+
         break;
       default:
         // Do nothing
@@ -90,19 +103,19 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     return _printerSetting?.temperaturePresets.toList() ?? List.empty();
   }
 
-  WebcamSetting? _camHack() {
+  List<WebcamSetting> get webcams {
     if (_printerSetting != null && _printerSetting!.cams.isNotEmpty) {
-      return _printerSetting?.cams.first;
+      return _printerSetting!.cams;
     }
-    return null;
+    return List.empty();
   }
 
-  String? get webCamUrl {
-    return _camHack()?.url;
+  String get webCamUrl {
+    return selectedCam!.url;
   }
 
-  double get webCamYSwap {
-    var vertical = _camHack()?.flipVertical ?? false;
+  double get yTransformation {
+    var vertical = selectedCam?.flipVertical ?? false;
 
     if (vertical)
       return pi;
@@ -110,14 +123,18 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
       return 0;
   }
 
-  double get webCamXSwap {
-    var horizontal = _camHack()?.flipVertical ?? false;
+  double get xTransformation {
+    var horizontal = selectedCam?.flipVertical ?? false;
 
     if (horizontal)
       return pi;
     else
       return 0;
   }
+
+  Matrix4 get transformMatrix => Matrix4.identity()
+    ..rotateX(xTransformation)
+    ..rotateY(yTransformation);
 
   setTemperaturePreset(int extruderTemp, int bedTemp) {
     _printerService?.setTemperature('extruder', extruderTemp);
@@ -216,8 +233,50 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   }
 
   onFullScreenTap() {
-    _navigationService.navigateTo(Routes.fullCamView);
+    _navigationService.navigateTo(Routes.fullCamView,
+        arguments: FullCamViewArguments(webcamSetting: selectedCam!));
   }
 
+  onResetPrintTap() {
+    _printerService?.resetPrintStat();
+  }
 
+  onWebcamSettingSelected(WebcamSetting? webcamSetting) {
+    selectedCam = webcamSetting;
+  }
+
+  int get maxLayers {
+    if (!_canCalcMaxLayer) return 0;
+    GCodeFile crntFile = currentFile!;
+    int max = ((crntFile.objectHeight! - crntFile.firstLayerHeight!) /
+                crntFile.layerHeight! +
+            1)
+        .ceil();
+    return max > 0 ? max : 0;
+  }
+
+  bool get _canCalcMaxLayer =>
+      hasPrinter &&
+      currentFile != null &&
+      currentFile!.firstLayerHeight != null &&
+      currentFile!.layerHeight != null &&
+      currentFile!.objectHeight != null;
+
+  int get layer {
+    if (!_canCalcLayer) return 0;
+    GCodeFile crntFile = currentFile!;
+    int currentLayer =
+        ((printer.toolhead.position[3] - crntFile.firstLayerHeight!) /
+                    crntFile.layerHeight! +
+                1)
+            .ceil();
+    currentLayer = (currentLayer <= maxLayers) ? currentLayer : maxLayers;
+    return currentLayer > 0 ? currentLayer : 0;
+  }
+
+  bool get _canCalcLayer =>
+      hasPrinter &&
+      currentFile != null &&
+      currentFile!.firstLayerHeight != null &&
+      currentFile!.layerHeight != null;
 }

@@ -1,9 +1,8 @@
 import 'dart:convert';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:mobileraker/WebSocket.dart';
+import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -16,24 +15,24 @@ class KlippyService {
 
   final BehaviorSubject<KlipperInstance> klipperStream = BehaviorSubject.seeded(
       KlipperInstance(
-          klippyConnected: false, klippyState: PrinterState.startup));
+          klippyConnected: false, klippyState: KlipperState.startup));
 
   KlippyService(this._webSocket) {
     _webSocket.addMethodListener((m) {
       KlipperInstance l = _getLatestKlippy();
-      l.klippyState = PrinterState.ready;
+      l.klippyState = KlipperState.ready;
       klipperStream.add(l);
     }, "notify_klippy_ready");
 
     _webSocket.addMethodListener((m) {
       KlipperInstance l = _getLatestKlippy();
-      l.klippyState = PrinterState.shutdown;
+      l.klippyState = KlipperState.shutdown;
       klipperStream.add(l);
     }, "notify_klippy_shutdown");
 
     _webSocket.addMethodListener((m) {
       KlipperInstance l = _getLatestKlippy();
-      l.klippyState = PrinterState.disconnected;
+      l.klippyState = KlipperState.disconnected;
       klipperStream.add(l);
     }, "notify_klippy_disconnected");
 
@@ -45,7 +44,7 @@ class KlippyService {
         case WebSocketState.disconnected:
         case WebSocketState.error:
           KlipperInstance l = _getLatestKlippy();
-          l.klippyState = PrinterState.error;
+          l.klippyState = KlipperState.error;
           klipperStream.add(l);
           break;
         default:
@@ -61,8 +60,8 @@ class KlippyService {
   _parseServerInfo(response) {
     _logger.v('ServerInfo: ${JsonEncoder.withIndent('  ').convert(response)}');
 
-    PrinterState state =
-        EnumToString.fromString(PrinterState.values, response['klippy_state'])!;
+    KlipperState state =
+        EnumToString.fromString(KlipperState.values, response['klippy_state'])!;
     bool con = response['klippy_connected'];
     List<String> plugins = response['plugins'].cast<String>();
     KlipperInstance klipperInstance = _getLatestKlippy();
@@ -100,4 +99,6 @@ class KlippyService {
   emergencyStop() {
     _webSocket.sendObject("printer.emergency_stop", null);
   }
+
+  bool get isKlippyConnected => klipperStream.valueOrNull?.klippyConnected ?? false;
 }

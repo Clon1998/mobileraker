@@ -5,6 +5,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/machine/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/webcam_setting.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:stacked/stacked.dart';
 
 import 'printers_edit_viewmodel.dart';
@@ -27,7 +28,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
         actions: [
           IconButton(
               onPressed: model.onFormConfirm,
-              tooltip: 'Add printer',
+              tooltip: 'Save',
               icon: Icon(Icons.save_outlined))
         ],
       ),
@@ -91,7 +92,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                       label: Text('Add'),
                       icon: Icon(FlutterIcons.webcam_mco),
                     )),
-                ..._buildWebCams(model),
+                _buildWebCams(model),
                 _SectionHeaderWithAction(
                     title: 'TEMPERATURE PRESETS',
                     action: TextButton.icon(
@@ -99,7 +100,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                       label: Text('Add'),
                       icon: Icon(FlutterIcons.thermometer_lines_mco),
                     )),
-                ..._buildTempPresets(model),
+                _buildTempPresets(model),
                 Divider(),
                 Align(
                   alignment: Alignment.bottomCenter,
@@ -120,46 +121,47 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
   PrintersEditViewModel viewModelBuilder(BuildContext context) =>
       PrintersEditViewModel(printerSetting);
 
-  List<Widget> _buildWebCams(PrintersEditViewModel model) {
+  Widget _buildWebCams(PrintersEditViewModel model) {
     if (model.webcams.isEmpty) {
-      return [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('No webcams added'),
-        )
-      ];
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text('No webcams added'),
+      );
     }
 
-    return List.generate(model.webcams.length, (index) {
-      WebcamSetting cam = model.webcams[index];
-      return _WebCamItem(
-        key: ValueKey(cam.uuid),
-        model: model,
-        cam: cam,
-        idx: index,
-      );
-    });
+    return ReorderableColumn(
+        children: List.generate(model.webcams.length, (index) {
+          WebcamSetting cam = model.webcams[index];
+          return _WebCamItem(
+            key: ValueKey(cam.uuid),
+            model: model,
+            cam: cam,
+            idx: index,
+          );
+        }),
+        onReorder: model.onWebCamReorder);
   }
 
-  List<Widget> _buildTempPresets(PrintersEditViewModel model) {
+  Widget _buildTempPresets(PrintersEditViewModel model) {
     if (model.tempPresets.isEmpty) {
-      return [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('No presets added'),
-        )
-      ];
-    }
-
-    return List.generate(model.tempPresets.length, (index) {
-      TemperaturePreset preset = model.tempPresets[index];
-      return _TempPresetItem(
-        key: ValueKey(preset.uuid),
-        model: model,
-        temperaturePreset: preset,
-        idx: index,
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text('No presets added'),
       );
-    });
+    }
+    return ReorderableColumn(
+        children: List.generate(model.tempPresets.length, (index) {
+          TemperaturePreset preset = model.tempPresets[index];
+          return _TempPresetItem(
+            key: ValueKey(preset.uuid),
+            model: model,
+            temperaturePreset: preset,
+            idx: index,
+          );
+        }),
+        onReorder: model.onPresetReorder,
+
+    );
   }
 }
 

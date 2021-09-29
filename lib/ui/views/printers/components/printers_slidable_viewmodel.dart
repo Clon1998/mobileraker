@@ -49,7 +49,7 @@ class PrintersSlidableViewModel extends MultipleStreamViewModel {
   Color get stateColor {
 
     if (hasServer) {
-      return Printer.stateToColor(server.klippyState);
+      return KlipperInstance.stateToColor(server.klippyState);
     }
     return Colors.red;
   }

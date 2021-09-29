@@ -39,7 +39,7 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
               model.isPrinterSelected) ...[
             PrintCard(),
             TemperatureCard(),
-            if (model.webCamUrl != null) CamCard(),
+            if (model.webcams.isNotEmpty) CamCard(),
             if (model.printer.print.state != PrintState.printing)
               ControlXYZCard(),
             if (model.printer.print.state == PrintState.printing)
@@ -62,65 +62,54 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
+    return Card(
+      child: Column(
+        children: [
+          ListTile(
+            contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
+            leading: Icon(FlutterIcons.monitor_dashboard_mco),
+            title: Text('${model.printer.print.stateName}'),
+            subtitle: _subTitle(model),
+            trailing: _trailing(model),
+          ),
+          _buildTableView(context, model),
+        ],
+      ),
+    );
+  }
+
+  Widget? _trailing(GeneralTabViewModel model) {
     switch (model.printer.print.state) {
       case PrintState.printing:
-        return Card(
-          child: Column(
-            children: [
-              ListTile(
-                contentPadding:
-                    const EdgeInsets.only(top: 3, left: 16, right: 16),
-                leading: Icon(FlutterIcons.monitor_dashboard_mco),
-                title: Text('${model.printer.print.stateName}'),
-                subtitle: Text(
-                    "Printing: ${model.printer.print.filename}\nFor: ${secondsToDurationText(model.printer.print.totalDuration)}"),
-                trailing: CircularPercentIndicator(
-                  radius: 50,
-                  lineWidth: 4,
-                  percent: model.printer.virtualSdCard.progress,
-                  center: Text(
-                      "${(model.printer.virtualSdCard.progress * 100).round()}%"),
-                  progressColor:
-                      (model.printer.print.state == PrintState.complete)
-                          ? Colors.green
-                          : Colors.deepOrange,
-                ),
-              ),
-              _buildTableView(context, model),
-            ],
-          ),
+        return CircularPercentIndicator(
+          radius: 50,
+          lineWidth: 4,
+          percent: model.printer.virtualSdCard.progress,
+          center:
+              Text("${(model.printer.virtualSdCard.progress * 100).round()}%"),
+          progressColor: (model.printer.print.state == PrintState.complete)
+              ? Colors.green
+              : Colors.deepOrange,
         );
-
-      case PrintState.error:
-        return Card(
-          child: Column(
-            children: [
-              ListTile(
-                contentPadding:
-                    const EdgeInsets.only(top: 3, left: 16, right: 16),
-                leading: Icon(FlutterIcons.monitor_dashboard_mco),
-                title: Text('${model.printer.print.stateName}'),
-                subtitle: Text('${model.printer.print.message}'),
-              ),
-              _buildTableView(context, model),
-            ],
-          ),
-        );
-
+      case PrintState.complete:
+        return TextButton.icon(
+            onPressed: model.onResetPrintTap,
+            icon: Icon(Icons.restart_alt_outlined),
+            label: Text('Reset'));
       default:
-        return Card(
-          child: Column(
-            children: [
-              ListTile(
-                contentPadding:
-                    const EdgeInsets.only(top: 3, left: 16, right: 16),
-                leading: Icon(FlutterIcons.monitor_dashboard_mco),
-                title: Text('${model.printer.print.stateName}'),
-              ),
-              _buildTableView(context, model),
-            ],
-          ),
-        );
+        return null;
+    }
+  }
+
+  Widget? _subTitle(GeneralTabViewModel model) {
+    switch (model.printer.print.state) {
+      case PrintState.printing:
+        return Text(
+            "Printing: ${model.printer.print.filename}\nFor: ${secondsToDurationText(model.printer.print.totalDuration)}");
+      case PrintState.error:
+        return Text('${model.printer.print.message}');
+      default:
+        return null;
     }
   }
 
@@ -198,7 +187,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text("Layer"),
-                      Text('Todo'),
+                      Text('${model.layer}/${model.maxLayers}'),
                     ],
                   ),
                 ),
@@ -228,11 +217,7 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
-    Matrix4 matrix4 = Matrix4.identity()
-      ..rotateX(model.webCamXSwap)
-      ..rotateY(model.webCamYSwap);
-
-    const double webCamHeight = 280;
+    const double minWebCamHeight = 280;
     return Card(
       child: Column(
         children: [
@@ -241,27 +226,40 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
               FlutterIcons.webcam_mco,
             ),
             title: Text('Webcam'),
+            trailing: (model.webcams.length > 1)
+                ? DropdownButton(
+                    value: model.selectedCam,
+                    onChanged: model.onWebcamSettingSelected,
+                    items: model.webcams.map((e) {
+                      return DropdownMenuItem(
+                        child: Text(e.name),
+                        value: e,
+                      );
+                    }).toList())
+                : null,
           ),
           Padding(
               padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
               child: Container(
-                width: double.infinity,
-                height: webCamHeight,
+                constraints: BoxConstraints(minHeight: minWebCamHeight),
                 child: Stack(children: [
-                  Transform(
-                      alignment: Alignment.center,
-                      transform: matrix4,
-                      child: Mjpeg(
-                        height: webCamHeight,
-                        isLive: true,
-                        stream: model.webCamUrl!,
-                      )),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: IconButton(
-                      icon: Icon(Icons.aspect_ratio_outlined),
-                      tooltip: 'Fullscreen',
-                      onPressed: model.onFullScreenTap,
+                  Center(
+                    child: Transform(
+                        alignment: Alignment.center,
+                        transform: model.transformMatrix,
+                        child: Mjpeg(
+                          isLive: true,
+                          stream: model.webCamUrl,
+                        )),
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: IconButton(
+                        icon: Icon(Icons.aspect_ratio_outlined),
+                        tooltip: 'Fullscreen',
+                        onPressed: model.onFullScreenTap,
+                      ),
                     ),
                   ),
                 ]),

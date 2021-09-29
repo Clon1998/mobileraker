@@ -1,75 +1,109 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_viewmodel.dart';
 import 'package:stacked/stacked.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class NavigationDrawerWidget extends StatelessWidget {
+class NavigationDrawerWidget
+    extends ViewModelBuilderWidget<NavDrawerViewModel> {
   final String curPath;
 
   NavigationDrawerWidget({required this.curPath});
 
   @override
-  Widget build(BuildContext context) {
+  NavDrawerViewModel viewModelBuilder(BuildContext context) =>
+      NavDrawerViewModel(curPath);
+
+  @override
+  Widget builder(
+      BuildContext context, NavDrawerViewModel model, Widget? child) {
     Color bgCol = Color.fromRGBO(50, 75, 205, 1);
     var themeData = Theme.of(context);
     if (themeData.brightness == Brightness.dark) bgCol = themeData.primaryColor;
-    return ViewModelBuilder<NavDrawerViewModel>.reactive(
-      builder: (context, model, child) => Drawer(
-        child: Material(
-          color: bgCol,
-          child: ListView(
-            children: <Widget>[
-              buildHeader(
-                name: model.printerDisplayName,
-                email: model.printerUrl,
-                onClicked: () => model.onEditTap(null),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 00),
-                child: Column(
-                  children: [
-                    ExpansionTile(
-                      title: const Text(
-                        'Manager Printers',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      children: buildPrinterSelection(context, model),
+    return Drawer(
+      child: Material(
+        color: bgCol,
+        child: Column(
+          children: [
+            buildHeader(
+              name: model.printerDisplayName,
+              email: model.printerUrl,
+              onClicked: () => model.onEditTap(null),
+            ),
+            Expanded(
+              child: Column(
+                children: [
+                  ExpansionTile(
+                    title: const Text(
+                      'Manager Printers',
+                      style: TextStyle(color: Colors.white),
                     ),
-                    buildMenuItem(
-                      model,
-                      text: 'Overview',
-                      icon: Icons.home,
-                      path: Routes.overView,
-                    ),
+                    children: buildPrinterSelection(context, model),
+                  ),
+                  buildMenuItem(
+                    model,
+                    text: 'Overview',
+                    icon: Icons.home,
+                    path: Routes.overView,
+                  ),
 
-                    buildMenuItem(
-                      model,
-                      text: 'Files',
-                      icon: Icons.file_present,
-                      path: Routes.filesView,
-                    ),
-                    // Divider(color: Colors.white70),
-                    // const SizedBox(height: 16),
-                    // buildMenuItem(
-                    //   text: 'Notifications',
-                    //   icon: Icons.notifications_outlined,
-                    //   onClicked: () => selectedItem(context, 5),
-                    // ),
-                  ],
-                ),
+                  buildMenuItem(
+                    model,
+                    text: 'Files',
+                    icon: Icons.file_present,
+                    path: Routes.filesView,
+                  ),
+                  // Divider(color: Colors.white70),
+                  // const SizedBox(height: 16),
+                  // buildMenuItem(
+                  //   text: 'Notifications',
+                  //   icon: Icons.notifications_outlined,
+                  //   onClicked: () => selectedItem(context, 5),
+                  // ),
+                ],
               ),
-            ],
-          ),
+            ),
+            Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.only(bottom: 20, top: 10),
+                child: RichText(
+                  text: TextSpan(
+                      text:
+                          'Made with ❤️ by Patrick Schmidt\nCheckout the project',
+                      children: [
+                        new TextSpan(
+                          text: ' GitHub ',
+                          style: new TextStyle(color: Colors.blue),
+                          children: [
+                            WidgetSpan(
+                              child:
+                                  Icon(FlutterIcons.github_alt_faw, size: 18),
+                            ),
+                          ],
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              const String url =
+                                  'https://github.com/Clon1998/mobileraker';
+                              if (await canLaunch(url)) {//TODO Fix this... neds Android Package Visibility
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                        ),
+                      ]),
+                  textAlign: TextAlign.center,
+                )),
+          ],
         ),
       ),
-      viewModelBuilder: () => NavDrawerViewModel(curPath),
     );
-  }
+  } // Note always the first is the currently selected!
 
-  // Note always the first is the currently selected!
   List<Widget> buildPrinterSelection(
       BuildContext context, NavDrawerViewModel model) {
     var theme = Theme.of(context);
@@ -113,7 +147,7 @@ class NavigationDrawerWidget extends StatelessWidget {
     required VoidCallback onClicked,
   }) =>
       Container(
-        margin: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+        margin: const EdgeInsets.fromLTRB(20, 90, 20, 20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
