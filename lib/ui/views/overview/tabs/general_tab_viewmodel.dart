@@ -64,12 +64,15 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   @override
   onData(String key, data) {
     super.onData(key, data);
+
     switch (key) {
       case _SelectedPrinterStreamKey:
         PrinterSetting? nPrinterSetting = data;
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
-        selectedCam = _printerSetting?.cams.first;
+        List<WebcamSetting>? tmpCams = _printerSetting?.cams;
+        if (tmpCams?.isNotEmpty??false)
+          selectedCam = tmpCams!.first;
         notifySourceChanged(clearOldData: true);
         break;
 
