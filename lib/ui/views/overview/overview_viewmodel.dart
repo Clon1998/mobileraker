@@ -120,7 +120,7 @@ class OverViewModel extends MultipleStreamViewModel {
 
   navigateToSettings() {
     //Navigate to other View:::
-    _navigationService.navigateTo(Routes.settingView);
+    // _navigationService.navigateTo(Routes.settingView);
   }
 
   fffff() {

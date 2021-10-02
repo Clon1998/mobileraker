@@ -1,4 +1,3 @@
-import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
@@ -48,15 +47,6 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
         break;
       case _WebSocketStreamKey:
         onDataWebSocket(data);
-        break;
-      case _DisplayStreamKey:
-        switch (data) {
-          case FGBGType.foreground:
-            // _webSocket?.ensureConnection();
-            break;
-          case FGBGType.background:
-            break;
-        }
         break;
     }
   }

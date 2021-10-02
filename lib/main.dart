@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_settings_screens/flutter_settings_screens.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/app/app_setup.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
@@ -12,7 +11,6 @@ import 'app/app_setup.router.dart';
 Future<void> main() async {
   Logger.level = Level.info;
 
-  await Settings.init();
   await openBoxes();
   setupLocator();
   setupDialogUi();
