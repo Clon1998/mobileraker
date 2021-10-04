@@ -169,7 +169,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   }
 
   Widget buildListView(BuildContext context, FilesViewModel model) {
-    FolderReqWrapper folderContent = model.folderContent;
+    FolderContentWrapper folderContent = model.folderContent;
 
     int lenFolders = folderContent.folders.length;
     int lenGcodes = folderContent.gCodes.length;

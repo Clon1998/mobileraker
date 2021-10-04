@@ -144,7 +144,7 @@ class WebSocketWrapper {
     return json;
   }
 
-  addMethodListener(Function(Map<String, dynamic> rawMessage) callback, [String method = "ALL"]) {
+  addMethodListener(Function(Map<String, dynamic> rawMessage) callback, [String method = "*"]) {
     _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
   }
 
@@ -168,8 +168,8 @@ class WebSocketWrapper {
       } else if (method != null && _methodListeners.isNotEmpty) {
         if (_methodListeners.containsKey(method))
           _methodListeners[method]!.forEach((element) => element(jsonOb));
-        if (_methodListeners.containsKey("ALL"))
-          _methodListeners["ALL"]!.forEach((element) => element(jsonOb));
+        if (_methodListeners.containsKey("*"))
+          _methodListeners["*"]!.forEach((element) => element(jsonOb));
       }
     }
   }

@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/datasource/websocket_wrapper.dart';
+import 'package:mobileraker/dto/files/file_list_changed_notification.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 
@@ -19,6 +20,9 @@ enum FileAction {
   root_update
 }
 
+typedef FileListChangedListener = Function(
+    Map<String, dynamic> item, Map<String, dynamic>? srcItem);
+
 /// The FileService handles all file changes of the different roots of moonraker
 /// For more information check out
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
@@ -27,33 +31,37 @@ class FileService {
   final WebSocketWrapper _webSocket;
   final _logger = getLogger('FileService');
 
+  StreamController<FileListChangedNotification> _fileActionStreamCtrler =
+      StreamController.broadcast();
+
+  Stream<FileListChangedNotification> get fileNotificationStream =>
+      _fileActionStreamCtrler.stream;
 
   FileService(this._webSocket) {
     _webSocket.addMethodListener(_onFileListChanged, "notify_filelist_changed");
-
-    // _webSocket.stateStream.listen((value) {
-    //   switch (value) {
-    //     case WebSocketState.connected:
-    //       // _fetchAvailableFiles(FileRoot.gcodes);
-    //
-    //       // _fetchDirectoryInfo('gcodes', true);
-    //       break;
-    //     default:
-    //   }
-    // });
   }
 
   _onFileListChanged(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];
     FileAction? fileAction =
         EnumToString.fromString(FileAction.values, params['action']);
+
+    if (fileAction != null) {
+      FileListChangedItem fileListChangedItem =
+          FileListChangedItem.fromJson(params['item']);
+      FileListChangedSourceItem? srcItem = (params['source_item'] != null)
+          ? FileListChangedSourceItem.fromJson(params['source_item'])
+          : null;
+
+      _fileActionStreamCtrler.add(FileListChangedNotification(
+          fileAction, fileListChangedItem, srcItem));
+    }
   }
 
-  Future<FolderReqWrapper> fetchDirectoryInfo(String path,
+  Future<FolderContentWrapper> fetchDirectoryInfo(String path,
       [bool extended = false]) async {
-    Completer<FolderReqWrapper> reqCompleter = Completer();
+    Completer<FolderContentWrapper> reqCompleter = Completer();
     _logger.i('Fetching for `$path` [extended:$extended]');
-
 
     _webSocket.sendObject("server.files.get_directory",
         (response) => _parseDirectory(response, path, reqCompleter),
@@ -67,14 +75,12 @@ class FileService {
         params: {'root': EnumToString.convertToString(root)});
   }
 
-
   Future<GCodeFile> getGCodeMetadata(String filename) async {
     Completer<GCodeFile> reqCompleter = Completer();
     _logger.i('Getting meta for file: `$filename`');
 
-
     _webSocket.sendObject("server.files.metadata",
-            (response) => _parseFileMeta(response, filename, reqCompleter),
+        (response) => _parseFileMeta(response, filename, reqCompleter),
         params: {'filename': filename});
     return reqCompleter.future;
   }
@@ -98,7 +104,7 @@ class FileService {
   }
 
   _parseDirectory(
-      response, String forPath, Completer<FolderReqWrapper> completer) {
+      response, String forPath, Completer<FolderContentWrapper> completer) {
     List<dynamic> filesResponse = response['files']; // Just add an type
     List<dynamic> directoriesResponse = response['dirs']; // Just add an type
 
@@ -127,23 +133,24 @@ class FileService {
       return GCodeFile.fromJson(element, forPath);
     });
 
-    completer.complete(FolderReqWrapper(forPath,listOfFolder, listOfFiles));
+    completer.complete(FolderContentWrapper(forPath, listOfFolder, listOfFiles));
   }
 
   _parseFileMeta(response, String forFile, Completer<GCodeFile> completer) {
     var split = forFile.split('/');
     split.removeLast();
-    split.insert(0, 'gcodes');// we need to add the gcodes here since the getMetaInfo omits gcodes path.
+    split.insert(0,
+        'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
 
     ;
     completer.complete(GCodeFile.fromJson(response, split.join('/')));
   }
 }
 
-class FolderReqWrapper {
+class FolderContentWrapper {
   String reqPath;
   List<Folder> folders;
   List<GCodeFile> gCodes;
 
-  FolderReqWrapper(this.reqPath, this.folders, this.gCodes);
+  FolderContentWrapper(this.reqPath, this.folders, this.gCodes);
 }
