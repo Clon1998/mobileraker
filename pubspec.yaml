@@ -26,11 +26,11 @@ dependencies:
   # websocket
   web_socket_channel: ^2.1.0
   # rxdart
-  rxdart: ^0.27.1
+  rxdart: ^0.27.2
 
   #stacked
-  stacked: ^2.2.3
-  stacked_services: ^0.8.11
+  stacked: ^2.2.5
+  stacked_services: ^0.8.13
 
   enum_to_string: ^2.0.1
 
@@ -97,6 +97,7 @@ flutter:
   assets:
     - assets/images/
     - assets/icon/
+    - assets/translations/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

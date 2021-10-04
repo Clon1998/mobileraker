@@ -22,4 +22,23 @@ class WebcamSetting {
   String toString() {
     return 'WebcamSetting{name: $name, uuid: $uuid, url: $url, flipHorizontal: $flipHorizontal, flipVertical: $flipVertical}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WebcamSetting &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          uuid == other.uuid &&
+          url == other.url &&
+          flipHorizontal == other.flipHorizontal &&
+          flipVertical == other.flipVertical;
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      uuid.hashCode ^
+      url.hashCode ^
+      flipHorizontal.hashCode ^
+      flipVertical.hashCode;
 }

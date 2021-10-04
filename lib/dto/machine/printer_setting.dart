@@ -87,4 +87,35 @@ class PrinterSetting extends HiveObject {
     _webSocket?.stateStream.close();
     return;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PrinterSetting &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          wsUrl == other.wsUrl &&
+          uuid == other.uuid &&
+          cams == other.cams &&
+          apiKey == other.apiKey &&
+          temperaturePresets == other.temperaturePresets &&
+          httpUrl == other.httpUrl &&
+          _webSocket == other._webSocket &&
+          _printerService == other._printerService &&
+          _klippyService == other._klippyService &&
+          _fileService == other._fileService;
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      wsUrl.hashCode ^
+      uuid.hashCode ^
+      cams.hashCode ^
+      apiKey.hashCode ^
+      temperaturePresets.hashCode ^
+      httpUrl.hashCode ^
+      _webSocket.hashCode ^
+      _printerService.hashCode ^
+      _klippyService.hashCode ^
+      _fileService.hashCode;
 }

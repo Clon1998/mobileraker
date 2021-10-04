@@ -71,8 +71,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
         List<WebcamSetting>? tmpCams = _printerSetting?.cams;
-        if (tmpCams?.isNotEmpty??false)
-          selectedCam = tmpCams!.first;
+        if (tmpCams?.isNotEmpty ?? false) selectedCam = tmpCams!.first;
         notifySourceChanged(clearOldData: true);
         break;
 
@@ -112,6 +111,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     }
     return List.empty();
   }
+
+  bool get webCamAvailable => webcams.isNotEmpty && selectedCam != null;
 
   String get webCamUrl {
     return selectedCam!.url;
@@ -269,7 +270,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     if (!_canCalcLayer) return 0;
     GCodeFile crntFile = currentFile!;
     int currentLayer =
-        ((printer.toolhead.position[3] - crntFile.firstLayerHeight!) /
+        ((printer.toolhead.position[2] - crntFile.firstLayerHeight!) /
                     crntFile.layerHeight! +
                 1)
             .ceil();

@@ -1,0 +1,18 @@
+{
+  "temp_card_title": "Temperature controls",
+  "overview": {
+    "general": {
+      "reset": "Reset",
+      "printing_for": "Printing: {}\\nFor: {}",
+      "speed": "Speed",
+      "layer": "Layer",
+      "webcam": "Webcam",
+      "fullscreen": "Fullscreen",
+      "presets": "Presets",
+      "hotend": "Hotend",
+      "bed": "Bed",
+      "temp_presets": "Temperature presets",
+      "sensors": "Sensors"
+    }
+  }
+}

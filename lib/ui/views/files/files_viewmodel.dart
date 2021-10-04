@@ -31,6 +31,20 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   bool isSearching = false;
 
+  int selectedSorting = 0;
+
+  List<Comparator<Folder>?> folderComparators = [
+    (folderA, folderB) => folderB.modified.compareTo(folderA.modified),
+    (folderA, folderB) => folderA.name.compareTo(folderB.name),
+    null,
+  ];
+  List<Comparator<GCodeFile>?> fileComparators = [
+    (fileA, fileB) => fileB.modified.compareTo(fileA.modified),
+    (fileA, fileB) => fileA.name.compareTo(fileB.name),
+    (fileA, fileB) =>
+        fileB.printStartTime?.compareTo(fileA.printStartTime ?? 0) ?? -1,
+  ];
+
   PrinterSetting? _printerSetting;
 
   FileService? get _fileService => _printerSetting?.fileService;
@@ -44,8 +58,7 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   TextEditingController searchEditingController = TextEditingController();
 
-  StreamController<FolderReqWrapper> _foldersStream =
-      StreamController.broadcast();
+  StreamController<FolderReqWrapper> _foldersStream = StreamController();
 
   List<String> requestedPath = [];
 
@@ -78,7 +91,6 @@ class FilesViewModel extends MultipleStreamViewModel {
         notifySourceChanged(clearOldData: true);
         break;
       default:
-        // Do nothing
         break;
     }
   }
@@ -142,6 +154,10 @@ class FilesViewModel extends MultipleStreamViewModel {
         _fileService!.fetchDirectoryInfo(newPath.join('/'), true).asStream());
   }
 
+  onSortSelected(int index) {
+    selectedSorting = index;
+  }
+
   FolderReqWrapper get folderContent {
     FolderReqWrapper fullContent = _folderContent;
     List<Folder> folders = _folderContent.folders.toList(growable: false);
@@ -158,8 +174,8 @@ class FilesViewModel extends MultipleStreamViewModel {
           .toList(growable: false);
     }
 
-    folders.sort((fileA, fileB) => fileB.modified.compareTo(fileA.modified));
-    files.sort((fileA, fileB) => fileB.modified.compareTo(fileA.modified));
+    folders.sort(folderComparators[selectedSorting]);
+    files.sort(fileComparators[selectedSorting]);
 
     return FolderReqWrapper(fullContent.reqPath, folders, files);
   }

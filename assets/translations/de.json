@@ -1,0 +1,18 @@
+{
+  "temp_card_title": "Temperaturen ",
+  "overview": {
+    "general": {
+      "reset": "Zurücksetzen",
+      "printing_for": "Drucke: {}\\nSeit: {}",
+      "speed": "Geschwindigkeit",
+      "layer": "Schicht",
+      "webcam": "Webcam",
+      "fullscreen": "Vollbild",
+      "presets": "Voreinstellungen",
+      "hotend": "Hotend",
+      "bed": "Bed",
+      "temp_presets": "Temperatur Voreinstellungen",
+      "sensors": "Sensoren"
+    }
+  }
+}

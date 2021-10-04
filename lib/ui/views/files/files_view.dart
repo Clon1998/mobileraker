@@ -11,7 +11,6 @@ import 'package:mobileraker/ui/components/EaseIn.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/files/files_viewmodel.dart';
-import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:stacked/stacked.dart';
@@ -67,11 +66,29 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
           overflow: TextOverflow.fade,
         ),
         actions: <Widget>[
-          IconButton(
+          //TODO: Rework this properly...
+          PopupMenuButton(
             icon: Icon(
               Icons.sort,
             ),
-            onPressed: () => null,
+            onSelected: model.onSortSelected,
+            itemBuilder: (BuildContext context) => [
+              CheckedPopupMenuItem(
+                child: Text("Last modified"),
+                value: 0,
+                checked: model.selectedSorting == 0,
+              ),
+              CheckedPopupMenuItem(
+                child: Text("Name"),
+                value: 1,
+                checked: model.selectedSorting == 1,
+              ),
+              CheckedPopupMenuItem(
+                child: Text("Last printed"),
+                value: 2,
+                checked: model.selectedSorting == 2,
+              ),
+            ],
           ),
           IconButton(
             icon: Icon(Icons.search),
@@ -102,7 +119,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
           SizedBox(
             height: 30,
           ),
-          FadingText("Fetching files..."),
+          Text("Fetching files..."),
           // Text("Fetching printer ...")
         ],
       ),
@@ -126,15 +143,18 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                   itemCount: 15,
                   itemBuilder: (context, index) {
                     return ListTile(
+                      contentPadding: EdgeInsets.symmetric(horizontal: 4),
                       leading: Container(
                         width: 64,
                         height: 64,
                         color: Colors.white,
-                        margin: const EdgeInsets.symmetric(vertical: 2),
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 2, horizontal: 2),
                       ),
                       title: Container(
                         width: double.infinity,
                         height: 16.0,
+                        margin: EdgeInsets.only(right: 10),
                         color: Colors.white,
                       ),
                     );
@@ -175,6 +195,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                     if (model.isSubFolder) {
                       if (index == 0)
                         return ListTile(
+                          contentPadding: EdgeInsets.zero,
                           leading: SizedBox(
                               width: 64, height: 64, child: Icon(Icons.folder)),
                           title: Text("..."),
@@ -246,6 +267,7 @@ class FolderItem extends ViewModelWidget<FilesViewModel> {
   @override
   Widget build(BuildContext context, FilesViewModel model) {
     return ListTile(
+      contentPadding: EdgeInsets.zero,
       key: ValueKey(folder),
       leading: SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
       title: Text(folder.name),
@@ -262,6 +284,7 @@ class FileItem extends ViewModelWidget<FilesViewModel> {
   @override
   Widget build(BuildContext context, FilesViewModel model) {
     return ListTile(
+      contentPadding: EdgeInsets.zero,
       key: ValueKey(gCode),
       leading: SizedBox(
           width: 64,

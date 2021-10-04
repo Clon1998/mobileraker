@@ -125,6 +125,7 @@ class WebSocketWrapper {
   }
 
   sendObject(String method, Function? function, {dynamic params}) {
+    _logger.d('Sending for method "$method"');
     var createJsonRPC2 = createJsonRPC(method, params: params);
     if (function != null) _requests[createJsonRPC2['id']] = function;
     send(jsonEncode(createJsonRPC2));

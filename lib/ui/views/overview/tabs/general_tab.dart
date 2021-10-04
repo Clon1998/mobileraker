@@ -39,7 +39,7 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
               model.isPrinterSelected) ...[
             PrintCard(),
             TemperatureCard(),
-            if (model.webcams.isNotEmpty) CamCard(),
+            if (model.webCamAvailable) CamCard(),
             if (model.printer.print.state != PrintState.printing)
               ControlXYZCard(),
             if (model.printer.print.state == PrintState.printing)
@@ -295,7 +295,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
               ),
               title: Text('Temperature controls'),
               trailing: TextButton(
-                onPressed: () => model.flipTemperatureCard(),
+                onPressed: model.flipTemperatureCard,
                 // onPressed: () => showWIPSnackbar(),
                 child: Text('Presets'),
               ),
@@ -346,7 +346,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
               ),
               title: Text('Temperature presets'),
               trailing: TextButton(
-                onPressed: () => model.flipTemperatureCard(),
+                onPressed:model.flipTemperatureCard,
                 child: Text('Sensors'),
               ),
             ),
