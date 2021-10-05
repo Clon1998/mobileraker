@@ -101,4 +101,8 @@ class KlippyService {
   }
 
   bool get isKlippyConnected => klipperStream.valueOrNull?.klippyConnected ?? false;
+
+  dispose() {
+    klipperStream.close();
+  }
 }

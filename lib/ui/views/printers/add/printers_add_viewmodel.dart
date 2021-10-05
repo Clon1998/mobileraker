@@ -5,7 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';

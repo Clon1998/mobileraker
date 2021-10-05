@@ -36,8 +36,6 @@ class _NonPrintingBottomSheet
     var themeData = Theme.of(context);
     var isDark = themeData.brightness == Brightness.dark;
     var buttonStyle = ElevatedButton.styleFrom(
-        primary: isDark ? themeData.colorScheme.secondary : themeData.primaryColor,
-        onSurface: Colors.pink,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18.0),
         ));

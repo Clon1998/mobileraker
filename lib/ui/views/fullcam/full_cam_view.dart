@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
-import 'package:mobileraker/dto/machine/webcam_setting.dart';
+import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/ui/views/fullcam/full_cam_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 

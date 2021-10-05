@@ -1,7 +1,7 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/enums/bottom_sheet_type.dart';
 import 'package:mobileraker/service/klippy_service.dart';

@@ -6,7 +6,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
@@ -33,11 +33,11 @@ class OverView extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.radio_button_on,
                   size: 10,
-                  color: KlipperInstance.stateToColor(model.hasServer
+                  color: stateToColor(model.hasServer
                       ? model.server.klippyState
                       : KlipperState.error)),
               tooltip: model.hasServer
-                  ? 'Server State is ${model.server.klippyStateName} and Moonraker is ${model.server.klippyConnected ? 'connected' : 'disconnected'} to Klipper'
+                  ? 'Server State is ${toName(model.server.klippyState)} and Moonraker is ${model.server.klippyConnected ? 'connected' : 'disconnected'} to Klipper'
                   : 'Server is not connected',
               onPressed: () => null,
             ),
@@ -157,7 +157,7 @@ class OverView extends StatelessWidget {
       case PrintState.paused:
         return PausedFAB();
       default:
-      return IdleFAB();
+        return IdleFAB();
     }
   }
 }

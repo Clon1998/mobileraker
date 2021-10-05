@@ -1,8 +1,11 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/dto/config/config_file.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/dto/config/config_output.dart';
+import 'package:mobileraker/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/dto/machine/output_pin.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/dto/machine/printer_setting.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
+
 import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';

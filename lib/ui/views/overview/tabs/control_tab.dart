@@ -2,7 +2,11 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
+import 'package:mobileraker/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
@@ -232,7 +236,6 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                                     BorderRadius.all(Radius.circular(5.0))),
                             primary: textBtnColor),
                       ),
-                      color: Theme.of(context).colorScheme.secondary,
                     ),
                     Container(
                       margin: const EdgeInsets.all(5),
@@ -247,7 +250,6 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                                     BorderRadius.all(Radius.circular(5.0))),
                             primary: textBtnColor),
                       ),
-                      color: Theme.of(context).colorScheme.secondary,
                     ),
                   ],
                 ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -13,13 +14,13 @@ enum WebSocketState { disconnected, connecting, connected, error }
 class WebSocketWrapper {
   final _logger = getLogger('WebSocketWrapper');
 
-  int tries = 0;
-
   String url;
 
   String? apiKey;
 
   IOWebSocketChannel? _channel;
+
+  StreamSubscription? _channelSub;
 
   final Duration _defaultTimeout;
 
@@ -65,7 +66,8 @@ class WebSocketWrapper {
   }
 
   _tryConnect() {
-    _logger.i("Trying to connect to $url with APIkey: `${apiKey??'NO-APIKEY'}`");
+    _logger
+        .i("Trying to connect to $url with APIkey: `${apiKey ?? 'NO-APIKEY'}`");
     _state = WebSocketState.connecting;
     reset();
 
@@ -74,15 +76,14 @@ class WebSocketWrapper {
         .then((socket) {
       socket.pingInterval = _defaultTimeout;
       _channel = IOWebSocketChannel(socket);
-      tries = 0;
 
       ///
       /// Start listening to notifications / messages
       ///
-      _channel!.stream.listen(
+      _channelSub = _channel!.stream.listen(
         _onWSMessage,
         onError: _onWSError,
-        onDone: () => _onWSClosesNormal(),
+        onDone: _onWSClosesNormal,
       );
       // Send a req msg to be sure we are connected!
 
@@ -113,8 +114,8 @@ class WebSocketWrapper {
   /// Ensures that the ws is still connected.
   /// ----------------------------------------------------------
   ensureConnection() {
-    if (_state != WebSocketState.connected && _state != WebSocketState.connecting)
-      initCommunication();
+    if (_state != WebSocketState.connected &&
+        _state != WebSocketState.connecting) initCommunication();
   }
 
   /// ---------------------------------------------------------
@@ -144,7 +145,8 @@ class WebSocketWrapper {
     return json;
   }
 
-  addMethodListener(Function(Map<String, dynamic> rawMessage) callback, [String method = "*"]) {
+  addMethodListener(Function(Map<String, dynamic> rawMessage) callback,
+      [String method = "*"]) {
     _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
   }
 
@@ -200,5 +202,11 @@ class WebSocketWrapper {
     if (!stateStream.isClosed) _state = t;
     initCommunication();
     _logger.i("WS-Stream close normal!");
+  }
+
+  dispose() {
+    _channelSub?.cancel();
+    reset();
+    stateStream.close();
   }
 }

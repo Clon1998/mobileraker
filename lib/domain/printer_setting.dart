@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/dto/machine/temperature_preset.dart';
-import 'package:mobileraker/dto/machine/webcam_setting.dart';
+import 'package:mobileraker/domain/temperature_preset.dart';
+import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
@@ -81,10 +81,10 @@ class PrinterSetting extends HiveObject {
   @override
   Future<void> delete() async {
     await super.delete();
-    _printerService?.printerStream.close();
-    _klippyService?.klipperStream.close();
-    _webSocket?.reset();
-    _webSocket?.stateStream.close();
+    _printerService?.dispose();
+    _klippyService?.dispose();
+    _fileService?.dispose();
+    _webSocket?.dispose();
     return;
   }
 

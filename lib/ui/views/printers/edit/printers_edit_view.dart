@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:mobileraker/dto/machine/printer_setting.dart';
-import 'package:mobileraker/dto/machine/temperature_preset.dart';
-import 'package:mobileraker/dto/machine/webcam_setting.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/temperature_preset.dart';
+import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:stacked/stacked.dart';
 

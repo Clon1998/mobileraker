@@ -7,7 +7,7 @@ import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/service/file_service.dart';
-import 'package:mobileraker/ui/components/EaseIn.dart';
+import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/files/files_viewmodel.dart';

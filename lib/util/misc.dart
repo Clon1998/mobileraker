@@ -7,7 +7,6 @@ void showWIPSnackbar() {
 }
 
 String urlToWebsocketUrl(String enteredURL) {
-  
   var parse = Uri.tryParse(enteredURL);
   if (parse == null) return enteredURL;
   if (!parse.hasScheme)
@@ -19,9 +18,7 @@ String urlToWebsocketUrl(String enteredURL) {
   return parse.toString();
 }
 
-
 String urlToHttpUrl(String enteredURL) {
-
   var parse = Uri.tryParse(enteredURL);
   if (parse == null) return enteredURL;
   if (!parse.hasScheme)

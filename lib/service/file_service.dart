@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/dto/files/file_list_changed_notification.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
+import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
+import 'package:mobileraker/dto/files/notification/file_list_changed_notification.dart';
+import 'package:mobileraker/dto/files/notification/file_list_changed_source_item.dart';
 
 enum FileRoot { gcodes, config, config_examples, docs }
 
@@ -144,6 +146,11 @@ class FileService {
 
     ;
     completer.complete(GCodeFile.fromJson(response, split.join('/')));
+  }
+
+
+  dispose() {
+    _fileActionStreamCtrler.close();
   }
 }
 

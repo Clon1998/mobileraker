@@ -7,7 +7,16 @@ import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/dto/config/config_file.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
+import 'package:mobileraker/dto/machine/fans/controller_fan.dart';
+import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
+import 'package:mobileraker/dto/machine/fans/heater_fan.dart';
+import 'package:mobileraker/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/dto/machine/fans/temperature_fan.dart';
+import 'package:mobileraker/dto/machine/output_pin.dart';
+import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/machine/temperature_sensor.dart';
+import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -506,5 +515,9 @@ class PrinterService {
   void _onMessage(String message) {
     if (message.isEmpty) return;
     _snackBarService.showSnackbar(message: message, title: 'Klipper-Error');
+  }
+
+  dispose() {
+    printerStream.close();
   }
 }

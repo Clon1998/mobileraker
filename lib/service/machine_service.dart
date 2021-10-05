@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobileraker/dto/machine/printer_setting.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MachineService {
