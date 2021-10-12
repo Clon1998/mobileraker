@@ -146,7 +146,7 @@ class OverView extends StatelessWidget {
   Widget? printingStateToFab(OverViewModel model) {
     if (!model.hasPrinter || !model.hasServer) return null;
 
-    if (model.server.klippyState == KlipperState.error) return null;
+    if (model.server.klippyState == KlipperState.error) return IdleFAB();
 
     switch (model.printer.print.state) {
       case PrintState.printing:

@@ -5,7 +5,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
@@ -26,11 +25,11 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
           if (model.hasPrinter &&
               model.hasServer &&
               model.isPrinterSelected) ...[
-            GcodeMacroCard(),
+            if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
             if (model.printer.print.state != PrintState.printing)
               ExtruderControlCard(),
             FansCard(),
-            PinsCard(),
+            if (model.printer.outputPins.isNotEmpty) PinsCard(),
           ]
         ],
       ),
@@ -86,7 +85,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
         name: "Part Fan",
         speed: printFan.speed,
         width: width,
-        onTap: model.onEditPartFan));
+        onTap: model.canUsePrinter ? model.onEditPartFan : null));
 
     for (NamedFan fan in model.printer.fans) {
       VoidCallback? f;
@@ -95,7 +94,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
         name: model.beautifyName(fan.name),
         speed: fan.speed,
         width: width,
-        onTap: f,
+        onTap: model.canUsePrinter ? f : null,
       );
       rows.add(row);
     }
@@ -226,11 +225,13 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                     Container(
                       margin: const EdgeInsets.all(5),
                       child: TextButton.icon(
-                        onPressed: model.onDeRetractBtn,
+                        onPressed:
+                            model.canUsePrinter ? model.onDeRetractBtn : null,
                         icon: Icon(FlutterIcons.plus_ant),
                         label: Text("Extrude"),
                         style: TextButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.secondary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(5.0))),
@@ -240,11 +241,13 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                     Container(
                       margin: const EdgeInsets.all(5),
                       child: TextButton.icon(
-                        onPressed: model.onRetractBtn,
+                        onPressed:
+                            model.canUsePrinter ? model.onRetractBtn : null,
                         icon: Icon(FlutterIcons.minus_ant),
                         label: Text("Retract"),
                         style: TextButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.secondary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.secondary,
                             shape: RoundedRectangleBorder(
                                 borderRadius:
                                     BorderRadius.all(Radius.circular(5.0))),
@@ -377,7 +380,9 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
         name: model.beautifyName(pin.name),
         value: pin.value * (configForOutput?.scale ?? 1),
         width: width,
-        onTap: () => model.onEditPin(pin, configForOutput),
+        onTap: model.canUsePrinter
+            ? () => model.onEditPin(pin, configForOutput)
+            : null,
       );
       rows.add(row);
     }

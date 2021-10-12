@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -5,6 +6,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/config/config_file.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/fans/controller_fan.dart';
@@ -17,13 +19,14 @@ import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
+import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 final Set<String> skipGCodes = {"PAUSE", "RESUME", "CANCEL_PRINT"};
 
 class PrinterService {
-  final WebSocketWrapper _webSocket;
+  final PrinterSetting _owner;
   final _logger = getLogger('PrinterService');
   final _snackBarService = locator<SnackbarService>();
 
@@ -47,28 +50,34 @@ class PrinterService {
   };
 
   final BehaviorSubject<Printer> printerStream = BehaviorSubject<Printer>();
+  late final StreamSubscription<KlipperInstance> klippySubscription;
 
-  PrinterService(this._webSocket) {
+  PrinterService(this._owner) {
     _webSocket.addMethodListener(
         _onStatusUpdateHandler, "notify_status_update");
-    _webSocket.stateStream.listen((value) {
-      switch (value) {
-        case WebSocketState.connected:
-          _fetchPrinter();
+
+    klippySubscription =
+        _owner.klippyService.klipperStream.listen((KlipperInstance value) {
+      switch (value.klippyState) {
+        case KlipperState.ready:
+          _printerObjectsList();
           break;
         default:
+          printerStream.add(Printer());
       }
     });
   }
 
-  _fetchPrinter() {
+  WebSocketWrapper get _webSocket => _owner.websocket;
+
+  _printerObjectsList() {
     // printerStream.value = Printer();
     _logger.i(">>>Querying printers object list");
-    _webSocket.sendObject("printer.objects.list", _printerObjectsList);
+    _webSocket.sendObject("printer.objects.list", _parsePrinterObjectsList);
   }
 
   refreshPrinter() {
-    _fetchPrinter();
+    _printerObjectsList();
   }
 
   /// Method Handler for registered in the Websocket wrapper.
@@ -95,7 +104,7 @@ class PrinterService {
     printerStream.add(latestPrinter);
   }
 
-  _printerObjectsList(response) {
+  _parsePrinterObjectsList(response) {
     Printer printer = _latestPrinter;
     _logger.i("<<<Received printer objects list!");
     _logger
@@ -508,16 +517,17 @@ class PrinterService {
     return "$axis${value <= 0 ? '' : '+'}${value.toStringAsFixed(2)}";
   }
 
-  Printer get _latestPrinter {
-    return printerStream.hasValue ? printerStream.value : Printer();
-  }
-
   void _onMessage(String message) {
     if (message.isEmpty) return;
     _snackBarService.showSnackbar(message: message, title: 'Klipper-Error');
   }
 
+  Printer get _latestPrinter {
+    return printerStream.hasValue ? printerStream.value : Printer();
+  }
+
   dispose() {
+    klippySubscription.cancel();
     printerStream.close();
   }
 }

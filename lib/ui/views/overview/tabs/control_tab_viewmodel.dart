@@ -77,7 +77,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   Printer get printer => dataMap![_PrinterStreamKey];
 
   bool get hasPrinter => dataReady(_PrinterStreamKey);
-
+  bool get canUsePrinter => server.klippyState == KlipperState.ready;
   ConfigOutput? configForOutput(String name) {
     return printer.configFile.outputs[name];
   }

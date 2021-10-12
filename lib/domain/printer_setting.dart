@@ -41,21 +41,22 @@ class PrinterSetting extends HiveObject {
   PrinterService? _printerService;
 
   PrinterService get printerService {
-    if (_printerService == null) _printerService = PrinterService(websocket);
+    if (_printerService == null)
+      _printerService = PrinterService(this);
     return _printerService!;
   }
 
   KlippyService? _klippyService;
 
   KlippyService get klippyService {
-    if (_klippyService == null) _klippyService = KlippyService(websocket);
+    if (_klippyService == null) _klippyService = KlippyService(this);
     return _klippyService!;
   }
 
   FileService? _fileService;
 
   FileService get fileService {
-    if (_fileService == null) _fileService = FileService(websocket);
+    if (_fileService == null) _fileService = FileService(this);
     return _fileService!;
   }
 

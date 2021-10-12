@@ -39,6 +39,8 @@ class KlipperInstance {
 
   List<String> plugins;
 
+  String? klippyStateMessage;
+
   KlipperInstance(
       {this.klippyConnected = false,
       this.klippyState = KlipperState.error,

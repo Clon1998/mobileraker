@@ -122,6 +122,7 @@ class WebSocketWrapper {
   /// Sends a message to the server
   /// ---------------------------------------------------------
   send(String message) {
+    _logger.d('>>> $message');
     _channel?.sink.add(message);
   }
 

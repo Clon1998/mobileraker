@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
@@ -30,7 +31,7 @@ typedef FileListChangedListener = Function(
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  final WebSocketWrapper _webSocket;
+  final PrinterSetting _owner;
   final _logger = getLogger('FileService');
 
   StreamController<FileListChangedNotification> _fileActionStreamCtrler =
@@ -39,9 +40,11 @@ class FileService {
   Stream<FileListChangedNotification> get fileNotificationStream =>
       _fileActionStreamCtrler.stream;
 
-  FileService(this._webSocket) {
+  FileService(this._owner) {
     _webSocket.addMethodListener(_onFileListChanged, "notify_filelist_changed");
   }
+
+  WebSocketWrapper get _webSocket => _owner.websocket;
 
   _onFileListChanged(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];

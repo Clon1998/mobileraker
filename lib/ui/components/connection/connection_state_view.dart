@@ -36,6 +36,7 @@ class ConnectionStateView extends StatelessWidget {
                           text: 'add',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
                               decoration: TextDecoration.underline),
                           recognizer: TapGestureRecognizer()
                             ..onTap = model.onAddPrinterTap),

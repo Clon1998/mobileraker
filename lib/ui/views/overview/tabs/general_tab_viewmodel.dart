@@ -4,11 +4,11 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/dto/files/gcode_file.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
@@ -92,6 +92,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     }
   }
 
+  bool get canUsePrinter => server.klippyState == KlipperState.ready;
+
   bool get isPrinterSelected => dataReady(_SelectedPrinterStreamKey);
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
@@ -101,6 +103,14 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   Printer get printer => dataMap![_PrinterStreamKey];
 
   bool get hasPrinter => dataReady(_PrinterStreamKey);
+
+  String get status {
+    if (server.klippyState == KlipperState.ready) {
+      return printer.print.stateName;
+    } else
+      return server.klippyStateMessage ??
+          'Klipper: ${toName(server.klippyState)}';
+  }
 
   List<TemperaturePreset> get temperaturePresets {
     return _printerSetting?.temperaturePresets.toList() ?? List.empty();

@@ -14,6 +14,7 @@ import 'package:mobileraker/ui/views/overview/overview_view.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/ui/views/printers/add/printers_add_view.dart';
 import 'package:mobileraker/ui/views/printers/edit/printers_edit_view.dart';
+import 'package:mobileraker/ui/views/setting/setting_view.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -24,6 +25,7 @@ import 'package:stacked_services/stacked_services.dart';
   MaterialRoute(page: PrintersEdit),
   MaterialRoute(page: FilesView),
   MaterialRoute(page: FileDetailView),
+  MaterialRoute(page: SettingView),
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),

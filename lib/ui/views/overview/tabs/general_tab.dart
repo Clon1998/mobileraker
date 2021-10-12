@@ -8,10 +8,10 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:intl/intl.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
+import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
+import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
@@ -69,8 +69,12 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
         children: [
           ListTile(
             contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
-            leading: Icon(FlutterIcons.monitor_dashboard_mco),
-            title: Text('${model.printer.print.stateName}'),
+            leading: Icon((model.server.klippyState != KlipperState.ready)?Icons.error_outline_outlined:FlutterIcons.monitor_dashboard_mco),
+            title: Text(model.status,
+                style: TextStyle(
+                    color: (model.server.klippyState != KlipperState.ready)
+                        ? Theme.of(context).colorScheme.error
+                        : null)),
             subtitle: _subTitle(model),
             trailing: _trailing(model),
           ),
@@ -348,7 +352,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
               ),
               title: Text('Temperature presets'),
               trailing: TextButton(
-                onPressed:model.flipTemperatureCard,
+                onPressed: model.flipTemperatureCard,
                 child: Text('Sensors'),
               ),
             ),
@@ -537,7 +541,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               height: 40,
                               width: 40,
                               child: IconButton(
-                                  onPressed: () =>
+                                  onPressed: !model.canUsePrinter?null: () =>
                                       model.onMoveBtn(PrinterAxis.Y),
                                   icon: Icon(FlutterIcons.upsquare_ant)),
                             ),
@@ -551,7 +555,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               height: 40,
                               width: 40,
                               child: IconButton(
-                                  onPressed: () =>
+                                  onPressed: !model.canUsePrinter?null:() =>
                                       model.onMoveBtn(PrinterAxis.X, false),
                                   icon: Icon(FlutterIcons.leftsquare_ant)),
                             ),
@@ -561,7 +565,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               height: 40,
                               width: 40,
                               child: IconButton(
-                                  onPressed: () => model.onHomeAxisBtn(
+                                  onPressed: !model.canUsePrinter?null:() => model.onHomeAxisBtn(
                                       {PrinterAxis.X, PrinterAxis.Y}),
                                   icon: Icon(FlutterIcons.home_faw5s)),
                             ),
@@ -571,7 +575,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               height: 40,
                               width: 40,
                               child: IconButton(
-                                  onPressed: () =>
+                                  onPressed: !model.canUsePrinter?null:() =>
                                       model.onMoveBtn(PrinterAxis.X),
                                   icon: Icon(FlutterIcons.rightsquare_ant)),
                             ),
@@ -585,7 +589,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               height: 40,
                               width: 40,
                               child: IconButton(
-                                onPressed: () =>
+                                onPressed: !model.canUsePrinter?null:() =>
                                     model.onMoveBtn(PrinterAxis.Y, false),
                                 icon: Icon(FlutterIcons.downsquare_ant),
                               ),
@@ -602,7 +606,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           height: 40,
                           width: 40,
                           child: IconButton(
-                              onPressed: () => model.onMoveBtn(PrinterAxis.Z),
+                              onPressed: !model.canUsePrinter?null:() => model.onMoveBtn(PrinterAxis.Z),
                               icon: Icon(FlutterIcons.upsquare_ant)),
                         ),
                         Container(
@@ -611,7 +615,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           height: 40,
                           width: 40,
                           child: IconButton(
-                              onPressed: () =>
+                              onPressed: !model.canUsePrinter?null:() =>
                                   model.onHomeAxisBtn({PrinterAxis.Z}),
                               icon: Icon(FlutterIcons.home_faw5s)),
                         ),
@@ -621,7 +625,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           height: 40,
                           width: 40,
                           child: IconButton(
-                              onPressed: () =>
+                              onPressed:!model.canUsePrinter?null: () =>
                                   model.onMoveBtn(PrinterAxis.Z, false),
                               icon: Icon(FlutterIcons.downsquare_ant)),
                         ),
@@ -630,7 +634,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                     Column(
                       children: [
                         TextButton.icon(
-                          onPressed: () => model.onHomeAxisBtn(
+                          onPressed:!model.canUsePrinter?null: () => model.onHomeAxisBtn(
                               {PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z}),
                           icon: Icon(FlutterIcons.home_faw5s),
                           label: Text("ALL"),
@@ -644,7 +648,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                         ),
                         if (model.printer.configFile.hasQuadGantry)
                           TextButton.icon(
-                            onPressed: model.onQuadGantry,
+                            onPressed: !model.canUsePrinter?null:model.onQuadGantry,
                             icon: Icon(FlutterIcons.quadcopter_mco),
                             label: Text("QGL"),
                             style: TextButton.styleFrom(
@@ -657,7 +661,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           ),
                         if (model.printer.configFile.hasBedMesh)
                           TextButton.icon(
-                            onPressed: () => model.onBedMesh(),
+                            onPressed: !model.canUsePrinter?null:model.onBedMesh,
                             icon: Icon(FlutterIcons.map_marker_path_mco),
                             label: Text("MESH"),
                             style: TextButton.styleFrom(
