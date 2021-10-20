@@ -8,6 +8,7 @@ import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
+import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
@@ -260,6 +261,10 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     selectedCam = webcamSetting;
   }
 
+  bool get isPrinting => printer.print.state == PrintState.printing;
+
+  bool get isNotPrinting => !isPrinting;
+
   int get maxLayers {
     if (!_canCalcMaxLayer) return 0;
     GCodeFile crntFile = currentFile!;
@@ -294,4 +299,12 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
       currentFile != null &&
       currentFile!.firstLayerHeight != null &&
       currentFile!.layerHeight != null;
+
+  onRestartKlipperPressed() {
+    _klippyService?.restartKlipper();
+  }
+
+  onRestartMCUPressed() {
+    _klippyService?.restartMCUs();
+  }
 }

@@ -39,8 +39,10 @@ class KlippyService {
     _webSocket.addMethodListener((m) {
       KlipperInstance l = _latestKlippy;
       l.klippyState = KlipperState.disconnected;
+      l.klippyStateMessage = null;
       klipperStream.add(l);
       _logger.i('State: notify_klippy_disconnected: $m');
+
       Future.delayed(Duration(seconds: 2)).then((value) => _fetchPrinterInfo()); // need to delay this until its bac connected!
     }, "notify_klippy_disconnected");
 
@@ -98,7 +100,7 @@ class KlippyService {
   }
 
   _parsePrinterInfo(response) {
-    _logger.i('PrinterInfo: ${JsonEncoder.withIndent('  ').convert(response)}');
+    _logger.v('PrinterInfo: ${JsonEncoder.withIndent('  ').convert(response)}');
 
     KlipperInstance latestKlippy = _latestKlippy;
     _latestKlippy.klippyState =

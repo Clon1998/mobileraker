@@ -4,20 +4,19 @@ import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_notification.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_source_item.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/util/path_utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -25,7 +24,6 @@ const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _FolderContentStreamKey = 'folderContent';
 const String _FileNotification = 'fileNotification';
 const String _ServerStreamKey = 'server';
-const String _PrinterStreamKey = 'printer';
 
 class FilesViewModel extends MultipleStreamViewModel {
   final _logger = getLogger('FilesViewModel');
@@ -54,8 +52,6 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   FileService? get _fileService => _printerSetting?.fileService;
 
-  PrinterService? get _printerService => _printerSetting?.printerService;
-
   KlippyService? get _klippyService => _printerSetting?.klippyService;
 
   RefreshController refreshController =
@@ -64,7 +60,7 @@ class FilesViewModel extends MultipleStreamViewModel {
   TextEditingController searchEditingController = TextEditingController();
 
   StreamController<FolderContentWrapper> _folderContentStreamController =
-      StreamController();
+      BehaviorSubject<FolderContentWrapper>();
 
   List<String> requestedPath = [];
 
@@ -76,14 +72,9 @@ class FilesViewModel extends MultipleStreamViewModel {
             StreamData<PrinterSetting?>(_machineService.selectedPrinter),
         if (_fileService != null) ...{
           _FolderContentStreamKey: StreamData<FolderContentWrapper>(
-              _folderContentStreamController.stream)
-        },
-        if (_fileService != null) ...{
+              _folderContentStreamController.stream),
           _FileNotification: StreamData<FileListChangedNotification>(
               _fileService!.fileNotificationStream)
-        },
-        if (_printerService != null) ...{
-          _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },
         if (_klippyService != null) ...{
           _ServerStreamKey:
@@ -120,7 +111,9 @@ class FilesViewModel extends MultipleStreamViewModel {
     bool itemInParent = isWithin(requestedPathAsString, item.fullPath) == 0;
 
     FileListChangedSourceItem? srcItem = fileListChangedNotification.sourceItem;
-    bool srcInParent = (srcItem != null)? isWithin(requestedPathAsString, srcItem.fullPath) == 0: false;
+    bool srcInParent = (srcItem != null)
+        ? isWithin(requestedPathAsString, srcItem.fullPath) == 0
+        : false;
 
     if (!itemInParent && !srcInParent) {
       return;
@@ -171,14 +164,17 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   startSearching() {
     isSearching = true;
+    notifyListeners();
   }
 
   stopSearching() {
     isSearching = false;
+    notifyListeners();
   }
 
   resetSearchQuery() {
     searchEditingController.text = '';
+    notifyListeners();
   }
 
   Future _fetchDirectoryData({List<String> newPath = const ['gcodes']}) {
@@ -194,6 +190,7 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   onSortSelected(int index) {
     selectedSorting = index;
+    notifyListeners();
   }
 
   FolderContentWrapper get folderContent {
@@ -202,6 +199,7 @@ class FilesViewModel extends MultipleStreamViewModel {
     List<GCodeFile> files = _folderContent.gCodes.toList(growable: false);
 
     String queryTerm = searchEditingController.text.toLowerCase();
+
     if (queryTerm.isNotEmpty && isSearching) {
       folders = folders
           .where((element) => element.name.toLowerCase().contains(queryTerm))
@@ -229,10 +227,6 @@ class FilesViewModel extends MultipleStreamViewModel {
   bool get isPrinterSelected => dataReady(_SelectedPrinterStreamKey);
 
   PrinterSetting? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
-
-  Printer get printer => dataMap![_PrinterStreamKey];
-
-  bool get hasPrinter => dataReady(_PrinterStreamKey);
 
   bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
 

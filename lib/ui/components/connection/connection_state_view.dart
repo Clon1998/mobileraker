@@ -1,63 +1,25 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
+import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 
 import 'connection_state_viewmodel.dart';
 
-class ConnectionStateView extends StatelessWidget {
+class ConnectionStateView
+    extends ViewModelBuilderWidget<ConnectionStateViewModel> {
   ConnectionStateView({required this.pChild, Key? key}) : super(key: key);
 
   final Widget pChild;
 
-  @override
-  Widget build(BuildContext context) {
-    return ViewModelBuilder<ConnectionStateViewModel>.reactive(
-      builder: (context, model, child) {
-        if (model.hasPrinter)
-          return checkWebsocket(context, model);
-        else
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.info_outline),
-                SizedBox(
-                  height: 30,
-                ),
-                RichText(
-                  text: TextSpan(
-                    text: 'You will have to ',
-                    style: DefaultTextStyle.of(context).style,
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: 'add',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                              decoration: TextDecoration.underline),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = model.onAddPrinterTap),
-                      TextSpan(
-                        text: ' a printer first!',
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-      },
-      viewModelBuilder: () => ConnectionStateViewModel(),
-    );
-  }
-
-  Widget checkWebsocket(BuildContext context, ConnectionStateViewModel model) {
+  Widget widgetForWebsocketState(
+      BuildContext context, ConnectionStateViewModel model) {
     switch (model.connectionState) {
       case WebSocketState.connected:
-        return pChild;
+        return widgetForKlippyState(context, model);
 
       case WebSocketState.disconnected:
         return Center(
@@ -117,4 +79,95 @@ class ConnectionStateView extends StatelessWidget {
         );
     }
   }
+
+  Widget widgetForKlippyState(
+      BuildContext context, ConnectionStateViewModel model) {
+    if (model.hasPrinter) return pChild;
+    switch (model.server.klippyState) {
+      case KlipperState.error:
+        return Center(
+          child: Column(
+            children: [
+              Spacer(),
+              Card(
+                  child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        FlutterIcons.disconnect_ant,
+                      ),
+                      title: Text(model.klippyState),
+                    ),
+                    Text(model.errorMessage,
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.error)),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ElevatedButton(
+                          onPressed: model.onRestartKlipperPressed,
+                          child: Text('Restart Klipper'),
+                        ),
+                        ElevatedButton(
+                          onPressed: model.onRestartMCUPressed,
+                          child: Text('Restart MCU'),
+                        )
+                      ],
+                    )
+                  ],
+                ),
+              )),
+              Spacer()
+            ],
+          ),
+        );
+      case KlipperState.ready:
+      default:
+        return pChild;
+    }
+  }
+
+  @override
+  Widget builder(
+      BuildContext context, ConnectionStateViewModel model, Widget? child) {
+    return model.hasPrinterSettings
+        ? widgetForWebsocketState(context, model)
+        : Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline),
+                SizedBox(
+                  height: 30,
+                ),
+                RichText(
+                  text: TextSpan(
+                    text: 'You will have to ',
+                    style: DefaultTextStyle.of(context).style,
+                    children: <TextSpan>[
+                      TextSpan(
+                          text: 'add',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                              decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = model.onAddPrinterTap),
+                      TextSpan(
+                        text: ' a printer first!',
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+  }
+
+  @override
+  ConnectionStateViewModel viewModelBuilder(BuildContext context) =>
+      ConnectionStateViewModel();
 }

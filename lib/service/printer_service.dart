@@ -63,7 +63,6 @@ class PrinterService {
           _printerObjectsList();
           break;
         default:
-          printerStream.add(Printer());
       }
     });
   }
