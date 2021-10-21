@@ -150,7 +150,7 @@ class PrintersEditViewModel extends BaseViewModel {
     )
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false)
-        _machineService.removePrinter(printerSetting).then(
+        _machineService.removeMachine(printerSetting).then(
             (value) => _navigationService.clearStackAndShow(Routes.overView));
     });
   }

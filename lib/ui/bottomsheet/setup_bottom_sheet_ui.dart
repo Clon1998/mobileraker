@@ -149,7 +149,7 @@ class NonPrintingBottomSheetViewModel extends BaseViewModel {
   NonPrintingBottomSheetViewModel(this.request, this.completer);
 
   KlippyService? get _klippyService {
-    return _machineService.selectedPrinter.valueOrNull?.klippyService;
+    return _machineService.selectedMachine.valueOrNull?.klippyService;
   }
 
   onClosePressed() {

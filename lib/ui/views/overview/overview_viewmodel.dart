@@ -28,7 +28,7 @@ class OverViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedPrinter),
+            StreamData<PrinterSetting?>(_machineService.selectedMachine),
         if (_printerService != null) ...{
           _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },

@@ -6,32 +6,31 @@ class MachineService {
   late final _boxPrinterSettings = Hive.box<PrinterSetting>('printers');
   late final _boxUuid = Hive.box<String>('uuidbox');
 
-  // Todo: Close this stream
-  late final BehaviorSubject<PrinterSetting?> selectedPrinter;
+  late final BehaviorSubject<PrinterSetting?> selectedMachine;
 
   MachineService() {
     String? selectedUUID = _boxUuid.get('selectedPrinter');
     var fromBox = _boxPrinterSettings.get(selectedUUID);
     if (selectedUUID != null && fromBox != null) {
-      selectedPrinter = BehaviorSubject<PrinterSetting?>.seeded(fromBox);
+      selectedMachine = BehaviorSubject<PrinterSetting?>.seeded(fromBox);
     } else
-      selectedPrinter = BehaviorSubject<PrinterSetting?>();
+      selectedMachine = BehaviorSubject<PrinterSetting?>();
   }
 
-  Future<PrinterSetting> addPrinter(PrinterSetting printerSetting) async {
+  Future<PrinterSetting> addMachine(PrinterSetting printerSetting) async {
     await _boxPrinterSettings.put(printerSetting.uuid, printerSetting);
-    await setPrinterActive(printerSetting);
+    await setMachineActive(printerSetting);
     return printerSetting;
   }
 
-  Future<void> removePrinter(PrinterSetting printerSetting) async {
+  Future<void> removeMachine(PrinterSetting printerSetting) async {
     await printerSetting.delete();
     if (_boxUuid.get('selectedPrinter') == printerSetting.uuid) {
       var key = (_boxPrinterSettings.isEmpty)
           ? null
           : _boxPrinterSettings.values.first;
 
-      await setPrinterActive(key);
+      await setMachineActive(key);
     }
   }
 
@@ -39,27 +38,27 @@ class MachineService {
     return _boxPrinterSettings.values;
   }
 
-  setPrinterActive(PrinterSetting? printerSetting) async {
-    if (printerSetting == selectedPrinter.valueOrNull) return;
+  setMachineActive(PrinterSetting? printerSetting) async {
+    if (printerSetting == selectedMachine.valueOrNull) return;
     // This case will be called when no printer is left! -> Select no printer as active printer
     if (printerSetting == null) {
       await _boxUuid.delete('selectedPrinter');
-      selectedPrinter.add(null);
+      selectedMachine.add(null);
       return;
     }
 
     await _boxUuid.put('selectedPrinter', printerSetting.key);
-    selectedPrinter.add(printerSetting);
+    selectedMachine.add(printerSetting);
   }
 
-  bool printerAvailable() {
-    return selectedPrinter.valueOrNull != null;
+  bool machineAvailable() {
+    return selectedMachine.valueOrNull != null;
   }
 
   bool isSelectedMachine(PrinterSetting toCheck) =>
-      toCheck == selectedPrinter.valueOrNull;
+      toCheck == selectedMachine.valueOrNull;
 
   dispose() {
-    selectedPrinter.close();
+    selectedMachine.close();
   }
 }

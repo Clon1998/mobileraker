@@ -23,7 +23,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   final _machineService = locator<MachineService>();
 
   PrinterSetting? get _printerSetting =>
-      _machineService.selectedPrinter.valueOrNull;
+      _machineService.selectedMachine.valueOrNull;
 
   PrinterService? get _printerService => _printerSetting?.printerService;
 

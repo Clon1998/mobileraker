@@ -34,7 +34,7 @@ class RefreshPrinterViewModel extends BaseViewModel {
 
   onRefresh() {
     var _printerService =
-        _machineService.selectedPrinter.valueOrNull?.printerService;
+        _machineService.selectedMachine.valueOrNull?.printerService;
     // We need to work with hashes since the PrinterObject never gets destroyed <.< (TODO: USE FREEZE FOR IMMUTABLE OBJECTS!!!!)
     var oldPrinterHash = _printerService?.printerStream.valueOrNull?.hashCode??0;
     var subscription;

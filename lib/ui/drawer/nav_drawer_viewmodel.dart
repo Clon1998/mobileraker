@@ -14,7 +14,7 @@ class NavDrawerViewModel extends BaseViewModel {
 
   List<PrinterSetting> get printers {
     var iterable = _machineService.fetchAll();
-    var selectedUUID = _machineService.selectedPrinter.valueOrNull?.uuid;
+    var selectedUUID = _machineService.selectedMachine.valueOrNull?.uuid;
     List<PrinterSetting> list = List.of(iterable);
     list.sort((a, b) {
       if (a.uuid == selectedUUID) return -1; //Move selected to first position
@@ -27,7 +27,7 @@ class NavDrawerViewModel extends BaseViewModel {
   }
 
   onEditTap(PrinterSetting? printerSetting) {
-    printerSetting ??= _machineService.selectedPrinter.valueOrNull;
+    printerSetting ??= _machineService.selectedMachine.valueOrNull;
     if (printerSetting == null) {
       navigateTo(Routes.printersAdd);
     } else {
@@ -38,14 +38,14 @@ class NavDrawerViewModel extends BaseViewModel {
 
   onSetActiveTap(PrinterSetting printerSetting) {
     _navigationService.back();
-    _machineService.setPrinterActive(printerSetting);
+    _machineService.setMachineActive(printerSetting);
   }
 
   String get printerDisplayName =>
-      _machineService.selectedPrinter.valueOrNull?.name ?? 'NO PRINTER';
+      _machineService.selectedMachine.valueOrNull?.name ?? 'NO PRINTER';
 
   String get printerUrl {
-    var printerSetting = _machineService.selectedPrinter.valueOrNull;
+    var printerSetting = _machineService.selectedMachine.valueOrNull;
     if (printerSetting != null) return Uri.parse(printerSetting.httpUrl).host;
 
     return 'Add printer first';

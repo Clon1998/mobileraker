@@ -57,6 +57,13 @@ class NavigationDrawerWidget
                     icon: Icons.file_present,
                     path: Routes.filesView,
                   ),
+                  Divider(),
+                  buildMenuItem(
+                    model,
+                    text: 'App-Settings',
+                    icon: Icons.engineering_outlined,
+                    path: Routes.settingView,
+                  ),
                   // Divider(color: Colors.white70),
                   // const SizedBox(height: 16),
                   // buildMenuItem(

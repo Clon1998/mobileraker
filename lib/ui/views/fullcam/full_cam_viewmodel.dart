@@ -16,7 +16,7 @@ class FullCamViewModel extends BaseViewModel {
   FullCamViewModel(this.selectedCam);
 
   PrinterSetting? get _printerSetting =>
-      _machineService.selectedPrinter.valueOrNull;
+      _machineService.selectedMachine.valueOrNull;
 
   double get yTransformation {
     if (selectedCam?.flipHorizontal ?? false)
