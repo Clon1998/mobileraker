@@ -1,24 +1,31 @@
-// import 'package:awesome_notifications/awesome_notifications.dart';
-// import 'package:mobileraker/app/app_setup.logger.dart';
-// import 'package:stacked/stacked.dart';
-//
-// class SettingViewModel extends BaseViewModel {
-//   final _logger = getLogger("SettingViewModel");
-//   // late final WebSocketWrapper _webSocket = _machineService.webSocket;
-//
-//   onUrlChanged(String address) {
-//     _logger.i("Add changed to: $address");
-//     // _webSocket.initCommunication(1);
-//   }
-//
-//   testNotify() {
-//     AwesomeNotifications().createNotification(
-//         content: NotificationContent(
-//             id: 10,
-//             progress: 50,
-//             notificationLayout: NotificationLayout.ProgressBar,
-//             channelKey: 'basic_channel',
-//             title: 'Printer Progress',
-//             body: 'Printing since 2h 5min ....'));
-//   }
-// }
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/service/setting_service.dart';
+import 'package:stacked/stacked.dart';
+
+const String emsKey = 'ems_setting';
+const String showBabyAlwaysKey = 'always_babystepping_setting';
+
+class SettingViewModel extends BaseViewModel {
+  final _logger = getLogger("SettingViewModel");
+  final _settingService = locator<SettingService>();
+
+  // late final WebSocketWrapper _webSocket = _machineService.webSocket;
+  final _fbKey = GlobalKey<FormBuilderState>();
+
+  GlobalKey get formKey => _fbKey;
+
+  onEMSChanged(bool? newVal) async {
+    await _settingService.writeBool(emsKey, newVal ?? false);
+  }
+
+  onAlwaysShowBabyChanged(bool? newVal) async {
+    await _settingService.writeBool(showBabyAlwaysKey, newVal ?? false);
+  }
+
+  bool get emsValue => _settingService.readBool(emsKey);
+
+  bool get showBabyAlwaysValue => _settingService.readBool(showBabyAlwaysKey);
+}

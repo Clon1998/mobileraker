@@ -44,7 +44,7 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
             TemperatureCard(),
             if (model.webCamAvailable) CamCard(),
             if (model.isNotPrinting) ControlXYZCard(),
-            if (model.isPrinting) BabySteppingCard(),
+            if (model.showBabyStepping) BabySteppingCard(),
           }
         ],
       ),
@@ -381,7 +381,6 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                 padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    var elementWidth = constraints.maxWidth / 2;
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
@@ -755,7 +754,7 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("Step size:"),
+                    Text("Step size [mm]"),
                     RangeSelector(
                         selectedIndex: model.selectedIndexAxisStepSizeIndex,
                         onSelected: model.onSelectedAxisStepSizeChanged,
@@ -858,7 +857,7 @@ class BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
                 Spacer(flex: 1),
                 Column(
                   children: [
-                    Text("Step size"),
+                    Text("Step size [mm]"),
                     RangeSelector(
                         selectedIndex: model.selectedIndexBabySteppingSize,
                         onSelected: model.onSelectedBabySteppingSizeChanged,

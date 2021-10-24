@@ -433,13 +433,13 @@ class PrinterService {
         .sendObject("printer.gcode.script", null, params: {'script': gcode});
   }
 
-  movePrintHead({x, y, z}) {
+  movePrintHead({double? x,double? y,double? z, double feedRate = 100}) {
     List<String> moves = [];
     if (x != null) moves.add(_gcodeMoveCode("X", x));
     if (y != null) moves.add(_gcodeMoveCode("Y", y));
     if (z != null) moves.add(_gcodeMoveCode("Z", z));
 
-    String gcode = "G91\n" + "G1 ${moves.join(" ")} F${100 * 60}\nG90";
+    String gcode = "G91\n" + "G1 ${moves.join(" ")} F${feedRate * 60}\nG90";
     _webSocket
         .sendObject("printer.gcode.script", null, params: {'script': gcode});
   }

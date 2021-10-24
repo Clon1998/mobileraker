@@ -80,7 +80,7 @@ class NavigationDrawerWidget
                 child: RichText(
                   text: TextSpan(
                       text:
-                          'Made with ❤️ by Patrick Schmidt\nCheckout the project',
+                          'Made with ❤️ by Patrick Schmidt\nCheckout the project\'s',
                       children: [
                         new TextSpan(
                           text: ' GitHub ',

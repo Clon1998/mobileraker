@@ -58,6 +58,18 @@ class PrintersEditViewModel extends BaseViewModel {
           .toInt() ??
       150;
 
+  bool get printerInvertX => printerSetting.inverts[0];
+
+  bool get printerInvertY => printerSetting.inverts[1];
+
+  bool get printerInvertZ => printerSetting.inverts[2];
+
+  int get printerSpeedXY => printerSetting.speedXY;
+
+  int get printerSpeedZ => printerSetting.speedZ;
+
+  int get printerExtruderFeedrate => printerSetting.extrudeFeedrate;
+
   onWebCamAdd() {
     WebcamSetting cam = WebcamSetting('New Webcam',
         'http://${Uri.parse(printerSetting.wsUrl).host}/webcam/?action=stream');
@@ -121,11 +133,22 @@ class PrintersEditViewModel extends BaseViewModel {
   }
 
   onFormConfirm() {
-    if (_fbKey.currentState!.saveAndValidate()) {
-      var printerName = _fbKey.currentState!.value['printerName'];
-      var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
-      var printerUrl = _fbKey.currentState!.value['printerUrl'];
-      var wsUrl = _fbKey.currentState!.value['wsUrl'];
+    FormBuilderState currentState = _fbKey.currentState!;
+    if (currentState.saveAndValidate()) {
+      var printerName = currentState.value['printerName'];
+      var printerAPIKey = currentState.value['printerApiKey'];
+      var printerUrl = currentState.value['printerUrl'];
+      var wsUrl = currentState.value['wsUrl'];
+
+      List<bool> inverts = [
+        currentState.value['invertX'],
+        currentState.value['invertY'],
+        currentState.value['invertZ']
+      ];
+      var speedXY = currentState.value['speedXY'];
+      var speedZ = currentState.value['speedZ'];
+      var extrudeSpeed = currentState.value['extrudeSpeed'];
+
       _saveAllCams();
       _saveAllPresets();
       printerSetting
@@ -134,7 +157,11 @@ class PrintersEditViewModel extends BaseViewModel {
         ..httpUrl = printerUrl
         ..apiKey = printerAPIKey
         ..cams = webcams
-        ..temperaturePresets = tempPresets;
+        ..temperaturePresets = tempPresets
+        ..inverts = inverts
+        ..speedXY = speedXY
+        ..speedZ = speedZ
+        ..extrudeFeedrate = extrudeSpeed;
       printerSetting.save().then(
           (value) => _navigationService.clearStackAndShow(Routes.overView));
     }
@@ -145,7 +172,7 @@ class PrintersEditViewModel extends BaseViewModel {
         .showConfirmationDialog(
       title: "Delete ${printerSetting.name}?",
       description:
-          "Are you sure you want to remove the printer ${printerSetting.name} running under the address $printerHttpUrl.",
+          "Are you sure you want to remove the printer ${printerSetting.name} running under the address '$printerHttpUrl'?",
       confirmationTitle: "Delete",
     )
         .then((dialogResponse) {

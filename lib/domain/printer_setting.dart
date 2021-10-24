@@ -27,6 +27,20 @@ class PrinterSetting extends HiveObject {
       defaultValue:
           '') //TODO: Remove defaultValue section once more ppl. used this version
   String httpUrl;
+  @HiveField(7, defaultValue: [false, false, false])
+  List<bool> inverts; // [X,Y,Z]
+  @HiveField(8, defaultValue: 100)
+  int speedXY;
+  @HiveField(9, defaultValue: 30)
+  int speedZ;
+  @HiveField(10, defaultValue: 5)
+  int extrudeFeedrate;
+  @HiveField(11, defaultValue: [1, 10, 25, 50])
+  List<int> moveSteps;
+  @HiveField(12, defaultValue: [0.005, 0.01, 0.05, 0.1])
+  List<double> babySteps;
+  @HiveField(13, defaultValue: [1, 10, 25, 50])
+  List<double> extrudeSteps;
 
   WebSocketWrapper? _webSocket;
 
@@ -41,8 +55,7 @@ class PrinterSetting extends HiveObject {
   PrinterService? _printerService;
 
   PrinterService get printerService {
-    if (_printerService == null)
-      _printerService = PrinterService(this);
+    if (_printerService == null) _printerService = PrinterService(this);
     return _printerService!;
   }
 
@@ -60,13 +73,21 @@ class PrinterSetting extends HiveObject {
     return _fileService!;
   }
 
-  PrinterSetting(
-      {required this.name,
-      required this.wsUrl,
-      required this.httpUrl,
-      this.apiKey,
-      this.temperaturePresets = const [],
-      this.cams = const []}) {
+  PrinterSetting({
+    required this.name,
+    required this.wsUrl,
+    required this.httpUrl,
+    this.apiKey,
+    this.temperaturePresets = const [],
+    this.cams = const [],
+    this.inverts = const [false, false, false],
+    this.speedXY = 100,
+    this.speedZ = 30,
+    this.extrudeFeedrate = 5,
+    this.moveSteps = const [1, 10, 25, 50],
+    this.babySteps = const [0.005, 0.01, 0.05, 0.1],
+    this.extrudeSteps = const [1, 10, 25, 50],
+  }) {
     //TODO: Remove this section once more ppl. used this version
     if (httpUrl.isEmpty) this.httpUrl = 'http://${Uri.parse(wsUrl).host}';
   }

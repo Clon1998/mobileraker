@@ -25,12 +25,10 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        actions: [
-          IconButton(
-              onPressed: model.onFormConfirm,
-              tooltip: 'Save',
-              icon: Icon(Icons.save_outlined))
-        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: model.onFormConfirm,
+        child: Icon(Icons.save_outlined),
       ),
       body: SingleChildScrollView(
         child: FormBuilder(
@@ -85,6 +83,83 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   initialValue: model.printerApiKey,
                 ),
                 Divider(),
+                _SectionHeader(title: 'Controls'),
+                FormBuilderSwitch(
+                  name: 'invertX',
+                  initialValue: model.printerInvertX,
+                  title: Text('Invert X-Axis'),
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: Theme.of(context).colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'invertY',
+                  initialValue: model.printerInvertY,
+                  title: Text('Invert Y-Axis'),
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: Theme.of(context).colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'invertZ',
+                  initialValue: model.printerInvertZ,
+                  title: Text('Invert Z-Axis'),
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: Theme.of(context).colorScheme.primary,
+                ),
+                FormBuilderTextField(
+                  name: 'speedXY',
+                  initialValue: model.printerSpeedXY.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText: 'Speed X/Y-Axis',
+                      suffixText: 'mm/s',
+                      isDense: true),
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.min(context, 1)
+                  ]),
+                ),
+                FormBuilderTextField(
+                  name: 'speedZ',
+                  initialValue: model.printerSpeedZ.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText: 'Speed Z-Axis', suffixText: 'mm/s', isDense: true),
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.min(context, 1)
+                  ]),
+                ),
+                Text('Move steps [mm]'),
+                Text('Babystepping Z-steps [mm]'),
+                Divider(),
+                _SectionHeader(title: 'Extruder(s)'),
+                FormBuilderTextField(
+                  name: 'extrudeSpeed',
+                  initialValue: model.printerExtruderFeedrate.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText: 'Extruder feed rate',
+                      suffixText: 'mm/s',
+                      isDense: true),
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.min(context, 1)
+                  ]),
+                ),
+                Text('Extruder steps [mm]'),
+                Divider(),
                 _SectionHeaderWithAction(
                     title: 'WEBCAM',
                     action: TextButton.icon(
@@ -93,6 +168,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                       icon: Icon(FlutterIcons.webcam_mco),
                     )),
                 _buildWebCams(model),
+                Divider(),
                 _SectionHeaderWithAction(
                     title: 'TEMPERATURE PRESETS',
                     action: TextButton.icon(
@@ -107,7 +183,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   child: TextButton.icon(
                       onPressed: model.onDeleteTap,
                       icon: Icon(Icons.delete_forever_outlined),
-                      label: Text('Remove printer')),
+                      label: Text('Remove Printer')),
                 )
               ],
             ),
@@ -150,17 +226,16 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
       );
     }
     return ReorderableColumn(
-        children: List.generate(model.tempPresets.length, (index) {
-          TemperaturePreset preset = model.tempPresets[index];
-          return _TempPresetItem(
-            key: ValueKey(preset.uuid),
-            model: model,
-            temperaturePreset: preset,
-            idx: index,
-          );
-        }),
-        onReorder: model.onPresetReorder,
-
+      children: List.generate(model.tempPresets.length, (index) {
+        TemperaturePreset preset = model.tempPresets[index];
+        return _TempPresetItem(
+          key: ValueKey(preset.uuid),
+          model: model,
+          temperaturePreset: preset,
+          idx: index,
+        );
+      }),
+      onReorder: model.onPresetReorder,
     );
   }
 }
@@ -181,7 +256,7 @@ class _SectionHeaderWithAction extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          title,
+          title.toUpperCase(),
           style: TextStyle(
             color: Theme.of(context).colorScheme.secondary,
             fontSize: 12.0,

@@ -1,12 +1,13 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/enums/bottom_sheet_type.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -17,7 +18,9 @@ const String _PrinterStreamKey = 'printer';
 class OverViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
   final _bottomSheetService = locator<BottomSheetService>();
+  final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
+  final _settingService = locator<SettingService>();
 
   PrinterSetting? _printerSetting;
 
@@ -77,8 +80,7 @@ class OverViewModel extends MultipleStreamViewModel {
 
   bool get hasPrinter => dataReady(_PrinterStreamKey);
 
-  bool get isKlippyConnected =>
-      _klippyService?.isKlippyConnected ?? false;
+  bool get isKlippyConnected => _klippyService?.isKlippyConnected ?? false;
 
   @override
   onData(String key, data) {
@@ -103,7 +105,18 @@ class OverViewModel extends MultipleStreamViewModel {
   }
 
   onEmergencyPressed() {
-    _klippyService?.emergencyStop();
+    if (_settingService.readBool(emsKey))
+      _dialogService
+          .showConfirmationDialog(
+        title: "Emergency Stop - Confirmation",
+        description: "Are you sure?",
+        confirmationTitle: "STOP!",
+      )
+          .then((dialogResponse) {
+        if (dialogResponse?.confirmed ?? false) _klippyService?.emergencyStop();
+      });
+    else
+      _klippyService?.emergencyStop();
   }
 
   onPausePrintPressed() {

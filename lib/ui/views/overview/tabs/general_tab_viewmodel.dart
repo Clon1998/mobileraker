@@ -17,7 +17,9 @@ import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
+import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -29,6 +31,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
   final _navigationService = locator<NavigationService>();
+  final _settingService = locator<SettingService>();
 
   PrinterSetting? _printerSetting;
 
@@ -207,13 +210,19 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     double dirStep = (positive) ? step : -1 * step;
     switch (axis) {
       case PrinterAxis.X:
-        _printerService?.movePrintHead(x: dirStep);
+        if (_printerSetting!.inverts[0]) dirStep *= -1;
+        _printerService?.movePrintHead(
+            x: dirStep, feedRate: _printerSetting!.speedXY.toDouble());
         break;
       case PrinterAxis.Y:
-        _printerService?.movePrintHead(y: dirStep);
+        if (_printerSetting!.inverts[1]) dirStep *= -1;
+        _printerService?.movePrintHead(
+            y: dirStep, feedRate: _printerSetting!.speedXY.toDouble());
         break;
       case PrinterAxis.Z:
-        _printerService?.movePrintHead(z: dirStep);
+        if (_printerSetting!.inverts[2]) dirStep *= -1;
+        _printerService?.movePrintHead(
+            z: dirStep, feedRate: _printerSetting!.speedZ.toDouble());
         break;
     }
   }
@@ -262,6 +271,9 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   }
 
   bool get isPrinting => printer.print.state == PrintState.printing;
+
+  bool get showBabyStepping =>
+      isPrinting || _settingService.readBool(showBabyAlwaysKey);
 
   bool get isNotPrinting => !isPrinting;
 

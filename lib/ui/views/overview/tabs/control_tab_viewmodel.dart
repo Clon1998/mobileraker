@@ -5,7 +5,6 @@ import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/output_pin.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-
 import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
@@ -77,7 +76,9 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   Printer get printer => dataMap![_PrinterStreamKey];
 
   bool get hasPrinter => dataReady(_PrinterStreamKey);
+
   bool get canUsePrinter => server.klippyState == KlipperState.ready;
+
   ConfigOutput? configForOutput(String name) {
     return printer.configFile.outputs[name];
   }
@@ -151,12 +152,15 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   onRetractBtn() {
     var double = (retractLengths[selectedIndexRetractLength] * -1).toDouble();
-    _printerService?.moveExtruder(double);
+
+    _printerService?.moveExtruder(
+        double, _printerSetting!.extrudeFeedrate.toDouble());
   }
 
   onDeRetractBtn() {
     var double = (retractLengths[selectedIndexRetractLength]).toDouble();
-    _printerService?.moveExtruder(double);
+    _printerService?.moveExtruder(
+        double, _printerSetting!.extrudeFeedrate.toDouble());
   }
 
   onMacroPressed(int macroIndex) {
