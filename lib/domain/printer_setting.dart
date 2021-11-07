@@ -1,7 +1,9 @@
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
@@ -41,6 +43,17 @@ class PrinterSetting extends HiveObject {
   List<double> babySteps;
   @HiveField(13, defaultValue: [1, 10, 25, 50])
   List<double> extrudeSteps;
+
+  @HiveField(14)
+  int? lastPrintProgress;
+  @HiveField(15)
+  String? _lastPrintState;
+
+  PrintState? get lastPrintState =>
+      EnumToString.fromString(PrintState.values, _lastPrintState ?? '');
+
+  set lastPrintState(PrintState? n) =>
+      _lastPrintState = (n == null) ? null : EnumToString.convertToString(n);
 
   WebSocketWrapper? _webSocket;
 
@@ -103,11 +116,15 @@ class PrinterSetting extends HiveObject {
   @override
   Future<void> delete() async {
     await super.delete();
+    disposeServices();
+    return;
+  }
+
+  void disposeServices() {
     _printerService?.dispose();
     _klippyService?.dispose();
     _fileService?.dispose();
     _webSocket?.dispose();
-    return;
   }
 
   @override

@@ -11,10 +11,14 @@ class MachineService {
   MachineService() {
     String? selectedUUID = _boxUuid.get('selectedPrinter');
     var fromBox = _boxPrinterSettings.get(selectedUUID);
-    if (selectedUUID != null && fromBox != null) {
-      selectedMachine = BehaviorSubject<PrinterSetting?>.seeded(fromBox);
-    } else
-      selectedMachine = BehaviorSubject<PrinterSetting?>();
+    selectedMachine = BehaviorSubject<PrinterSetting?>();
+
+    if (selectedUUID != null && fromBox != null) setMachineActive(fromBox);
+  }
+
+  Future<void> updateMachine(PrinterSetting printerSetting) async {
+    if (!selectedMachine.isClosed) selectedMachine.add(printerSetting);
+    return printerSetting.save();
   }
 
   Future<PrinterSetting> addMachine(PrinterSetting printerSetting) async {
@@ -43,12 +47,12 @@ class MachineService {
     // This case will be called when no printer is left! -> Select no printer as active printer
     if (printerSetting == null) {
       await _boxUuid.delete('selectedPrinter');
-      selectedMachine.add(null);
+      if (!selectedMachine.isClosed) selectedMachine.add(null);
       return;
     }
 
     await _boxUuid.put('selectedPrinter', printerSetting.key);
-    selectedMachine.add(printerSetting);
+    if (!selectedMachine.isClosed) selectedMachine.add(printerSetting);
   }
 
   bool machineAvailable() {
@@ -60,5 +64,8 @@ class MachineService {
 
   dispose() {
     selectedMachine.close();
+    for (PrinterSetting machine in fetchAll()) {
+      machine.disposeServices();
+    }
   }
 }

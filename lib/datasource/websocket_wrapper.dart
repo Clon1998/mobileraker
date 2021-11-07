@@ -14,6 +14,8 @@ enum WebSocketState { disconnected, connecting, connected, error }
 class WebSocketWrapper {
   final _logger = getLogger('WebSocketWrapper');
 
+  bool _disposed = false;
+
   String url;
 
   String? apiKey;
@@ -74,6 +76,11 @@ class WebSocketWrapper {
     WebSocket.connect(url.toString(), headers: _headers)
         .timeout(_defaultTimeout)
         .then((socket) {
+      if (_disposed) {
+        socket.close();
+        return;
+      }
+
       socket.pingInterval = _defaultTimeout;
       _channel = IOWebSocketChannel(socket);
 
@@ -86,6 +93,13 @@ class WebSocketWrapper {
         onDone: _onWSClosesNormal,
       );
       // Send a req msg to be sure we are connected!
+
+      // Just ensure to prevent memory leaks!
+      if (stateStream.isClosed) {
+        _channelSub?.cancel();
+        _channel?.sink.close();
+        return;
+      }
 
       if (_state != WebSocketState.connected) {
         _state = WebSocketState.connected;
@@ -112,10 +126,15 @@ class WebSocketWrapper {
 
   /// ----------------------------------------------------------
   /// Ensures that the ws is still connected.
+  /// returns [bool] regarding if the connection still was valid/open!
   /// ----------------------------------------------------------
-  ensureConnection() {
+  bool ensureConnection() {
     if (_state != WebSocketState.connected &&
-        _state != WebSocketState.connecting) initCommunication();
+        _state != WebSocketState.connecting) {
+      initCommunication();
+      return false;
+    }
+    return true;
   }
 
   /// ---------------------------------------------------------
@@ -206,6 +225,7 @@ class WebSocketWrapper {
   }
 
   dispose() {
+    _disposed = true;
     _channelSub?.cancel();
     reset();
     stateStream.close();
