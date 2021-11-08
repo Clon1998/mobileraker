@@ -124,15 +124,15 @@ class PrintersEditViewModel extends BaseViewModel {
   _savePreset(TemperaturePreset toSave) {
     _fbKey.currentState?.save();
     var name = _fbKey.currentState!.value['${toSave.uuid}-presetName'];
-    int extruderTemp =
+    int? extruderTemp =
         _fbKey.currentState!.value['${toSave.uuid}-extruderTemp'];
-    int bedTemp = _fbKey.currentState!.value['${toSave.uuid}-bedTemp'];
+    int? bedTemp = _fbKey.currentState!.value['${toSave.uuid}-bedTemp'];
     if (name != null) toSave.name = name;
     if (extruderTemp != null) toSave.extruderTemp = extruderTemp;
     if (bedTemp != null) toSave.bedTemp = bedTemp;
   }
 
-  onFormConfirm() {
+  onFormConfirm() async {
     FormBuilderState currentState = _fbKey.currentState!;
     if (currentState.saveAndValidate()) {
       var printerName = currentState.value['printerName'];
@@ -162,8 +162,9 @@ class PrintersEditViewModel extends BaseViewModel {
         ..speedXY = speedXY
         ..speedZ = speedZ
         ..extrudeFeedrate = extrudeSpeed;
-      printerSetting.save().then(
-          (value) => _navigationService.clearStackAndShow(Routes.overView));
+
+      await _machineService.updateMachine(printerSetting);
+      _navigationService.back();
     }
   }
 

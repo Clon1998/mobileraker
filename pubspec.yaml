@@ -34,7 +34,7 @@ dependencies:
 
   enum_to_string: ^2.0.1
 
-  percent_indicator: ^3.0.1
+  percent_indicator: ^3.4.0
 
   flutter_mjpeg: ^2.0.1
   logger:
@@ -45,20 +45,21 @@ dependencies:
   flutter_spinkit: ^5.1.0
   progress_indicators: ^1.0.0
   flutter_form_builder: ^6.1.0+1
-  awesome_notifications: any
+  awesome_notifications: ^0.0.6+12
   pull_to_refresh: ^2.0.0
   hive: ^2.0.4
   hive_flutter: ^1.1.0
-  uuid: ^3.0.4
+  uuid: ^3.0.5
   animated_bottom_navigation_bar: ^0.3.2
-  animations: ^2.0.1
-  flip_card: ^0.5.0
+  animations: ^2.0.2
+  flip_card: ^0.6.0
   flutter_breadcrumb: ^1.0.1
   cached_network_image: ^3.1.0
   shimmer: ^2.0.0
   url_launcher: ^6.0.11
   reorderables: ^0.4.1
-  flutter_speed_dial: ^4.4.0+1
+  flutter_speed_dial: ^4.6.0
+  workmanager: ^0.4.1
 
 dev_dependencies:
   flutter_test:

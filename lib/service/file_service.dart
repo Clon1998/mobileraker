@@ -138,7 +138,8 @@ class FileService {
       return GCodeFile.fromJson(element, forPath);
     });
 
-    completer.complete(FolderContentWrapper(forPath, listOfFolder, listOfFiles));
+    completer
+        .complete(FolderContentWrapper(forPath, listOfFolder, listOfFiles));
   }
 
   _parseFileMeta(response, String forFile, Completer<GCodeFile> completer) {
@@ -147,10 +148,8 @@ class FileService {
     split.insert(0,
         'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
 
-    ;
     completer.complete(GCodeFile.fromJson(response, split.join('/')));
   }
-
 
   dispose() {
     _fileActionStreamCtrler.close();

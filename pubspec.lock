@@ -28,7 +28,7 @@ packages:
       name: animations
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.1"
+    version: "2.0.2"
   archive:
     dependency: transitive
     description:
@@ -56,7 +56,7 @@ packages:
       name: awesome_notifications
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.6+10"
+    version: "0.0.6+12"
   boolean_selector:
     dependency: transitive
     description:
@@ -252,7 +252,7 @@ packages:
       name: flip_card
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.0"
+    version: "0.6.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -327,7 +327,7 @@ packages:
       name: flutter_speed_dial
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.4.0+2"
+    version: "4.6.6"
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -903,6 +903,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.9"
+  workmanager:
+    dependency: "direct main"
+    description:
+      name: workmanager
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.1"
   xdg_directories:
     dependency: transitive
     description:

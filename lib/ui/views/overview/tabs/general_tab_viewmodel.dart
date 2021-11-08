@@ -34,6 +34,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   final _settingService = locator<SettingService>();
 
   PrinterSetting? _printerSetting;
+  int _printerSettingHash = -1;
 
   PrinterService? get _printerService => _printerSetting?.printerService;
 
@@ -73,10 +74,15 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     switch (key) {
       case _SelectedPrinterStreamKey:
         PrinterSetting? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting) break;
+        if (nPrinterSetting == _printerSetting &&
+            nPrinterSetting.hashCode == _printerSettingHash) break;
         _printerSetting = nPrinterSetting;
+        _printerSettingHash = nPrinterSetting.hashCode;
         List<WebcamSetting>? tmpCams = _printerSetting?.cams;
-        if (tmpCams?.isNotEmpty ?? false) selectedCam = tmpCams!.first;
+        if (tmpCams?.isNotEmpty ?? false)
+          selectedCam = tmpCams!.first;
+        else
+          selectedCam = null;
         notifySourceChanged(clearOldData: true);
         break;
 

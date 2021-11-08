@@ -222,7 +222,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                         Text("ETA"),
                         Text((model.printer.eta != null)
                             ? DateFormat.Hm().format(model.printer.eta!)
-                            : '00:00'),
+                            : '--:--'),
                       ],
                     ),
                   ),
@@ -501,11 +501,15 @@ class _HeaterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var col = Theme.of(context).primaryColorLight;
-
-    if (target > 0 && onTap != null)
+    var textCol = Theme.of(context).colorScheme.onSurface;
+    if (target > 0 && onTap != null) {
       col = Color.alphaBlend(
           Color.fromRGBO(178, 24, 24, 1).withOpacity(min(current / target, 1)),
           col);
+      textCol = Color.alphaBlend(
+          Colors.white.withOpacity(min(current / target, 1)),
+          Theme.of(context).colorScheme.onSecondary);
+    }
 
     return CardWithButton(
         width: width,
@@ -513,10 +517,17 @@ class _HeaterCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(name, style: Theme.of(context).textTheme.caption),
+            Text(name,
+                style: Theme.of(context)
+                    .textTheme
+                    .caption
+                    ?.copyWith(color: textCol)),
             Text('${current.toStringAsFixed(1)} °C',
-                style: Theme.of(context).textTheme.headline6),
-            Text(targetTemp),
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6
+                    ?.copyWith(color: textCol)),
+            Text(targetTemp, style: TextStyle(color: textCol)),
           ],
         ),
         buttonChild: const Text('Set'),

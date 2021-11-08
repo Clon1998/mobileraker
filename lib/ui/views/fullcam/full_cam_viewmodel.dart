@@ -36,6 +36,14 @@ class FullCamViewModel extends BaseViewModel {
     ..rotateX(xTransformation)
     ..rotateY(yTransformation);
 
+  // double get nozzleCurrent => this.data!.extruder.temperature;
+  //
+  // double get nozzleTarget => this.data!.extruder.target;
+  //
+  // double get bedCurrent => this.data!.heaterBed.temperature;
+  //
+  // double get bedTarget => this.data!.heaterBed.target;
+
   onWebcamSettingSelected(WebcamSetting? webcamSetting) {
     selectedCam = webcamSetting;
     notifyListeners();

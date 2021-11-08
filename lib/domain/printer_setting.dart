@@ -139,6 +139,15 @@ class PrinterSetting extends HiveObject {
           apiKey == other.apiKey &&
           temperaturePresets == other.temperaturePresets &&
           httpUrl == other.httpUrl &&
+          inverts == other.inverts &&
+          speedXY == other.speedXY &&
+          speedZ == other.speedZ &&
+          extrudeFeedrate == other.extrudeFeedrate &&
+          moveSteps == other.moveSteps &&
+          babySteps == other.babySteps &&
+          extrudeSteps == other.extrudeSteps &&
+          lastPrintProgress == other.lastPrintProgress &&
+          _lastPrintState == other._lastPrintState &&
           _webSocket == other._webSocket &&
           _printerService == other._printerService &&
           _klippyService == other._klippyService &&
@@ -153,8 +162,19 @@ class PrinterSetting extends HiveObject {
       apiKey.hashCode ^
       temperaturePresets.hashCode ^
       httpUrl.hashCode ^
+      inverts.hashCode ^
+      speedXY.hashCode ^
+      speedZ.hashCode ^
+      extrudeFeedrate.hashCode ^
+      moveSteps.hashCode ^
+      babySteps.hashCode ^
+      extrudeSteps.hashCode ^
+      lastPrintProgress.hashCode ^
+      _lastPrintState.hashCode ^
       _webSocket.hashCode ^
       _printerService.hashCode ^
       _klippyService.hashCode ^
       _fileService.hashCode;
+
+
 }
