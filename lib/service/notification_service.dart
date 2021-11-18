@@ -16,7 +16,8 @@ class NotificationService {
   final _logger = getLogger('NotificationService');
   final _machineService = locator<MachineService>();
   final _notifyAPI = AwesomeNotifications();
-  Map<String, StreamSubscription<Printer>> printerStreamMap = {};
+  Map<String, StreamSubscription<Printer>> _printerStreamMap = {};
+  StreamSubscription<ReceivedAction>? _actionStreamListen;
 
   initialize() {
     //TODO: Track added, and removed machines!
@@ -25,9 +26,14 @@ class NotificationService {
 
     for (PrinterSetting setting in allMachines) {
       PrinterService printerService = setting.printerService;
-      printerStreamMap[setting.uuid] = printerService.printerStream
+      _printerStreamMap[setting.uuid] = printerService.printerStream
           .listen((value) => _onPrinterChanged(setting, value));
     }
+
+    _actionStreamListen = _notifyAPI.actionStream.listen(
+        (receivedNotification) => _machineService
+            .selectedMachine.valueOrNull?.websocket
+            .ensureConnection());
   }
 
   Future<void> updatePrintStateOnce() async {
@@ -52,6 +58,15 @@ class NotificationService {
   //         'WS-Connection for ${setting.name} was ${connection ? 'OPEN' : 'CLOSED -  Trying to open again'}');
   //   }
   // }
+
+  onMachineAdded(PrinterSetting setting) {
+    _printerStreamMap[setting.uuid] = setting.printerService.printerStream
+        .listen((value) => _onPrinterChanged(setting, value));
+  }
+
+  onMachineRemoved(PrinterSetting setting) {
+    _printerStreamMap.remove(setting.uuid)?.cancel();
+  }
 
   Future<void> _onPrinterChanged(
       PrinterSetting printerSetting, Printer printer) async {
@@ -143,6 +158,7 @@ class NotificationService {
   }
 
   dispose() {
-    printerStreamMap.values.forEach((element) => element.cancel());
+    _printerStreamMap.values.forEach((element) => element.cancel());
+    _actionStreamListen?.cancel();
   }
 }

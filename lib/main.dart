@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/app/app_setup.dart';
@@ -19,7 +21,6 @@ Future<void> main() async {
   await setupNotifications();
   locator<NotificationService>().initialize();
 
-
   setupDialogUi();
   setupBottomSheetUi();
 
@@ -29,11 +30,12 @@ Future<void> main() async {
           false // If enabled it will post a notification whenever the task is running. Handy for debugging tasks
       );
 
-  await Workmanager().registerPeriodicTask(
-    "1",
-    "periodicPrintStatusTask",
-    frequency: Duration(minutes: 15),
-  );
+  if (Platform.isAndroid)
+    await Workmanager().registerPeriodicTask(
+      "1",
+      "periodicPrintStatusTask",
+      frequency: Duration(minutes: 15),
+    );
 
   runApp(MyApp());
 }

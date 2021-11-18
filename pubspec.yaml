@@ -45,7 +45,7 @@ dependencies:
   flutter_spinkit: ^5.1.0
   progress_indicators: ^1.0.0
   flutter_form_builder: ^6.1.0+1
-  awesome_notifications: ^0.0.6+12
+  awesome_notifications: ^0.6.17
   pull_to_refresh: ^2.0.0
   hive: ^2.0.4
   hive_flutter: ^1.1.0
@@ -60,6 +60,7 @@ dependencies:
   reorderables: ^0.4.1
   flutter_speed_dial: ^4.6.0
   workmanager: ^0.4.1
+  flutter_fgbg: ^0.1.0
 
 dev_dependencies:
   flutter_test:

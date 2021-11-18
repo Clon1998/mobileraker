@@ -1,12 +1,20 @@
+import 'dart:async';
+
+import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'notification_service.dart';
+
 class MachineService {
+  // NotificationService notificationService = locator<NotificationService>();
   late final _boxPrinterSettings = Hive.box<PrinterSetting>('printers');
   late final _boxUuid = Hive.box<String>('uuidbox');
 
   late final BehaviorSubject<PrinterSetting?> selectedMachine;
+  StreamSubscription<FGBGType>? _fgbgStreamSub;
 
   MachineService() {
     String? selectedUUID = _boxUuid.get('selectedPrinter');
@@ -14,6 +22,11 @@ class MachineService {
     selectedMachine = BehaviorSubject<PrinterSetting?>();
 
     if (selectedUUID != null && fromBox != null) setMachineActive(fromBox);
+
+    _fgbgStreamSub = FGBGEvents.stream.listen((event) {
+      if (event == FGBGType.foreground)
+        selectedMachine.valueOrNull?.websocket.ensureConnection();
+    });
   }
 
   Future<void> updateMachine(PrinterSetting printerSetting) async {
@@ -64,6 +77,7 @@ class MachineService {
 
   dispose() {
     selectedMachine.close();
+    _fgbgStreamSub?.cancel();
     for (PrinterSetting machine in fetchAll()) {
       machine.disposeServices();
     }
