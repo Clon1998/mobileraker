@@ -190,7 +190,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                       .toList(growable: false),
                   onSelected: model.removeExtruderStep,
                   onAdd: model.addExtruderStep,
-                  inputType: TextInputType.numberWithOptions(decimal: true),
+                  inputType: TextInputType.number,
                 ),
                 Divider(),
                 _SectionHeaderWithAction(
