@@ -21,13 +21,16 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
 
-  List<int> retractLengths = [1, 10, 25, 50];
 
   int selectedIndexRetractLength = 0;
 
   PrinterSetting? _printerSetting;
   PrinterService? _printerService;
   KlippyService? _klippyService;
+
+  List<int> get retractLengths {
+    return _printerSetting?.extrudeSteps.toList() ?? const  [1, 10, 25, 50];
+  }
 
   //ToDO: Maybe to pass these down from the overview viewmodel..
   @override

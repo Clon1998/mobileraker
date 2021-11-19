@@ -15,12 +15,19 @@ class PrintersEditViewModel extends BaseViewModel {
   final _logger = getLogger('PrintersEditViewModel');
 
   final _navigationService = locator<NavigationService>();
+  final _snackbarService = locator<SnackbarService>();
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
   final _fbKey = GlobalKey<FormBuilderState>();
   final PrinterSetting printerSetting;
   late final webcams = printerSetting.cams.toList();
   late final tempPresets = printerSetting.temperaturePresets.toList();
+
+  late final printerMoveSteps = printerSetting.moveSteps.toList();
+
+  late final printerBabySteps = printerSetting.babySteps.toList();
+
+  late final printerExtruderSteps = printerSetting.extrudeSteps.toList();
 
   PrintersEditViewModel(this.printerSetting);
 
@@ -69,6 +76,75 @@ class PrintersEditViewModel extends BaseViewModel {
   int get printerSpeedZ => printerSetting.speedZ;
 
   int get printerExtruderFeedrate => printerSetting.extrudeFeedrate;
+
+  removeExtruderStep(int step) {
+    printerExtruderSteps.remove(step);
+    notifyListeners();
+  }
+
+  addExtruderStep(String rawValue) {
+    int? nStep = int.tryParse(rawValue);
+
+    if (nStep == null) {
+      _snackbarService.showSnackbar(
+          title: 'Input-Error', message: 'Can not parse Input');
+    } else {
+      if (printerExtruderSteps.contains(nStep)) {
+        _snackbarService.showSnackbar(
+            title: 'Error', message: 'Step already present!');
+      } else {
+        printerExtruderSteps.add(nStep);
+        printerExtruderSteps.sort();
+        notifyListeners();
+      }
+    }
+  }
+
+  removeBabyStep(double step) {
+    printerBabySteps.remove(step);
+    notifyListeners();
+  }
+
+  addBabyStep(String rawValue) {
+    double? nStep = double.tryParse(rawValue);
+
+    if (nStep == null) {
+      _snackbarService.showSnackbar(
+          title: 'Input-Error', message: 'Can not parse Input');
+    } else {
+      if (printerBabySteps.contains(nStep)) {
+        _snackbarService.showSnackbar(
+            title: 'Error', message: 'Step already present!');
+      } else {
+        printerBabySteps.add(nStep);
+        printerBabySteps.sort();
+        notifyListeners();
+      }
+    }
+  }
+
+  removeMoveStep(int step) {
+    printerMoveSteps.remove(step);
+    notifyListeners();
+  }
+
+  addMoveStep(String rawValue) {
+    int? nStep = int.tryParse(rawValue);
+
+    if (nStep == null) {
+      _snackbarService.showSnackbar(
+          title: 'Input-Error', message: 'Can not parse Input');
+    } else {
+      if (printerMoveSteps.contains(nStep)) {
+        _snackbarService.showSnackbar(
+            title: 'Error', message: 'Step already present!');
+      } else {
+        printerMoveSteps.add(nStep);
+        printerMoveSteps.sort();
+        notifyListeners();
+      }
+    }
+  }
 
   onWebCamAdd() {
     WebcamSetting cam = WebcamSetting('New Webcam',
@@ -161,7 +237,10 @@ class PrintersEditViewModel extends BaseViewModel {
         ..inverts = inverts
         ..speedXY = speedXY
         ..speedZ = speedZ
-        ..extrudeFeedrate = extrudeSpeed;
+        ..extrudeFeedrate = extrudeSpeed
+        ..moveSteps = printerMoveSteps
+        ..babySteps = printerBabySteps
+        ..extrudeSteps = printerExtruderSteps;
 
       await _machineService.updateMachine(printerSetting);
       _navigationService.back();

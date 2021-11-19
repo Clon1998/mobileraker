@@ -18,6 +18,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
   @override
   Widget builder(
       BuildContext context, PrintersEditViewModel model, Widget? child) {
+    var themeData = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -83,14 +84,14 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   initialValue: model.printerApiKey,
                 ),
                 Divider(),
-                _SectionHeader(title: 'Controls'),
+                _SectionHeader(title: 'Motion System'),
                 FormBuilderSwitch(
                   name: 'invertX',
                   initialValue: model.printerInvertX,
                   title: Text('Invert X-Axis'),
                   decoration: InputDecoration(
                       border: InputBorder.none, isCollapsed: true),
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeColor: themeData.colorScheme.primary,
                 ),
                 FormBuilderSwitch(
                   name: 'invertY',
@@ -98,7 +99,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   title: Text('Invert Y-Axis'),
                   decoration: InputDecoration(
                       border: InputBorder.none, isCollapsed: true),
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeColor: themeData.colorScheme.primary,
                 ),
                 FormBuilderSwitch(
                   name: 'invertZ',
@@ -106,7 +107,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   title: Text('Invert Z-Axis'),
                   decoration: InputDecoration(
                       border: InputBorder.none, isCollapsed: true),
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeColor: themeData.colorScheme.primary,
                 ),
                 FormBuilderTextField(
                   name: 'speedXY',
@@ -130,7 +131,9 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   valueTransformer: (text) =>
                       (text != null) ? int.tryParse(text) : 0,
                   decoration: InputDecoration(
-                      labelText: 'Speed Z-Axis', suffixText: 'mm/s', isDense: true),
+                      labelText: 'Speed Z-Axis',
+                      suffixText: 'mm/s',
+                      isDense: true),
                   keyboardType: TextInputType.numberWithOptions(
                       signed: false, decimal: false),
                   validator: FormBuilderValidators.compose([
@@ -138,8 +141,28 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                     FormBuilderValidators.min(context, 1)
                   ]),
                 ),
-                Text('Move steps [mm]'),
-                Text('Babystepping Z-steps [mm]'),
+                Segments(
+                  decoration: InputDecoration(
+                      labelText: 'Move steps', suffixText: 'mm'),
+                  options: model.printerMoveSteps
+                      .map((e) =>
+                          FormBuilderFieldOption(value: e, child: Text('$e')))
+                      .toList(growable: false),
+                  onSelected: model.removeMoveStep,
+                  onAdd: model.addMoveStep,
+                  inputType: TextInputType.number,
+                ),
+                Segments(
+                  decoration: InputDecoration(
+                      labelText: 'Babystepping Z-steps', suffixText: 'mm'),
+                  options: model.printerBabySteps
+                      .map((e) =>
+                      FormBuilderFieldOption(value: e, child: Text('$e')))
+                      .toList(growable: false),
+                  onSelected: model.removeBabyStep,
+                  onAdd: model.addBabyStep,
+                  inputType: TextInputType.numberWithOptions(decimal: true),
+                ),
                 Divider(),
                 _SectionHeader(title: 'Extruder(s)'),
                 FormBuilderTextField(
@@ -158,7 +181,17 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                     FormBuilderValidators.min(context, 1)
                   ]),
                 ),
-                Text('Extruder steps [mm]'),
+                Segments(
+                  decoration: InputDecoration(
+                      labelText: 'Extruder steps', suffixText: 'mm'),
+                  options: model.printerExtruderSteps
+                      .map((e) =>
+                      FormBuilderFieldOption(value: e, child: Text('$e')))
+                      .toList(growable: false),
+                  onSelected: model.removeExtruderStep,
+                  onAdd: model.addExtruderStep,
+                  inputType: TextInputType.numberWithOptions(decimal: true),
+                ),
                 Divider(),
                 _SectionHeaderWithAction(
                     title: 'WEBCAM',
@@ -446,5 +479,136 @@ class _SectionHeader extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+//ToDo: Better name for this widget
+class Segments<T> extends StatefulWidget {
+  const Segments(
+      {Key? key,
+      this.decoration = const InputDecoration(),
+      this.maxOptions = 5,
+      required this.options,
+      this.onSelected,
+      this.onAdd,
+      this.inputType})
+      : super(key: key);
+
+  final InputDecoration decoration;
+
+  final int maxOptions;
+
+  final List<FormBuilderFieldOption<T>> options;
+
+  final Function(T)? onSelected;
+
+  final Function(String)? onAdd;
+
+  final TextInputType? inputType;
+
+  @override
+  _SegmentsState<T> createState() => _SegmentsState<T>();
+}
+
+class _SegmentsState<T> extends State<Segments<T>> {
+  bool editing = false;
+  TextEditingController textCtrler = TextEditingController();
+
+  submit() {
+    setState(() {
+      String curText = textCtrler.text;
+      if (curText.isNotEmpty) widget.onAdd!(curText);
+      editing = false;
+    });
+  }
+
+  Future<bool> cancel() {
+    setState(() {
+      editing = false;
+    });
+    return Future.value(false);
+  }
+
+  onChipPressed(FormBuilderFieldOption<T> option) {
+    if (widget.onSelected != null) widget.onSelected!(option.value);
+  }
+
+  goIntoEditing() {
+    setState(() {
+      textCtrler.clear();
+      editing = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        transitionBuilder: (Widget child, Animation<double> animation) =>
+            SizeTransition(
+              sizeFactor: animation,
+              child: child,
+            ),
+        child: editing
+            ? buildEditing(context)
+            : buildNonEditing(context));
+  }
+
+  WillPopScope buildEditing(BuildContext context) {
+    return WillPopScope(
+              onWillPop: () => cancel(),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: TextField(
+                    controller: textCtrler,
+                    onEditingComplete: submit,
+                    decoration: widget.decoration,
+                    keyboardType: widget.inputType,
+                  )),
+                  IconButton(
+                    color: Theme.of(context).colorScheme.primary,
+                    icon: Icon(Icons.done),
+                    onPressed: submit,
+                  )
+                ],
+              ),
+            );
+  }
+
+  InputDecorator buildNonEditing(BuildContext context) {
+    return InputDecorator(
+              decoration: widget.decoration,
+              child: Wrap(
+                direction: Axis.horizontal,
+                verticalDirection: VerticalDirection.down,
+                children: <Widget>[
+                  for (FormBuilderFieldOption<T> option in widget.options)
+                    ChoiceChip(
+                        selected: false,
+                        label: option,
+                        onSelected: (s) => onChipPressed(option)),
+                  if (widget.options.isEmpty)
+                    ChoiceChip(
+                      label: Text('No values Found!'),
+                      selected: false,
+                      onSelected: (v) => null,
+                    ),
+                  if (widget.onAdd != null &&
+                      widget.options.length < widget.maxOptions)
+                    ChoiceChip(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      label: Text(
+                        '+',
+                        style: DefaultTextStyle.of(context).style.copyWith(
+                              color: Theme.of(context).colorScheme.onPrimary,
+                            ),
+                      ),
+                      selected: false,
+                      onSelected: (v) => goIntoEditing(),
+                    ),
+                ],
+              ),
+            );
   }
 }

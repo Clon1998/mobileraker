@@ -766,12 +766,12 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text("Step size [mm]"),
-                    RangeSelector(
-                        selectedIndex: model.selectedIndexAxisStepSizeIndex,
-                        onSelected: model.onSelectedAxisStepSizeChanged,
-                        values: model.axisStepSize
-                            .map((e) => e.toString())
-                            .toList())
+                      RangeSelector(
+                          selectedIndex: model.selectedIndexAxisStepSizeIndex,
+                          onSelected: model.onSelectedAxisStepSizeChanged,
+                          values: model.axisStepSize
+                              .map((e) => e.toString())
+                              .toList())
                   ],
                 )
               ],

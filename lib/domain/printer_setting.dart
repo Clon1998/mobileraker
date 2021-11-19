@@ -42,7 +42,7 @@ class PrinterSetting extends HiveObject {
   @HiveField(12, defaultValue: [0.005, 0.01, 0.05, 0.1])
   List<double> babySteps;
   @HiveField(13, defaultValue: [1, 10, 25, 50])
-  List<double> extrudeSteps;
+  List<int> extrudeSteps;
 
   @HiveField(14)
   int? lastPrintProgress;

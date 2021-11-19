@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -19,15 +21,17 @@ class _RangeSelectorState extends State<RangeSelector> {
 
   @override
   Widget build(BuildContext context) {
-    return ToggleButtons(
-        isSelected: selectedMap,
-        onPressed: _onSelectionChanged,
-        children: widget.values.map((e) => Text(e.toString())).toList());
+    if (widget.values.isEmpty)
+      return Text('No Steps configured!');
+    else
+      return ToggleButtons(
+          isSelected: selectedMap,
+          onPressed: _onSelectionChanged,
+          children: widget.values.map((e) => Text(e.toString())).toList());
   }
 
   _onSelectionChanged(int newIndex) {
-    if (newIndex == selectedIndex)
-      return;
+    if (newIndex == selectedIndex) return;
     setState(() {
       widget.onSelected(newIndex);
       selectedMap[newIndex] = true;
@@ -39,9 +43,9 @@ class _RangeSelectorState extends State<RangeSelector> {
   @override
   initState() {
     super.initState();
-    selectedIndex = widget.selectedIndex;
+    selectedIndex = max(min(widget.selectedIndex, widget.values.length - 1), 0);
     List<bool> tmp = List.filled(widget.values.length, false);
-    tmp[selectedIndex] = true;
+    if (tmp.isNotEmpty) tmp[selectedIndex] = true;
     selectedMap = tmp;
   }
 }

@@ -44,10 +44,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   GlobalKey<FlipCardState> tmpCardKey = GlobalKey<FlipCardState>();
 
-  List<int> axisStepSize = [100, 25, 10, 1];
   int selectedIndexAxisStepSizeIndex = 0;
 
-  List<double> babySteppingSizes = [0.005, 0.01, 0.05, 0.1];
   int selectedIndexBabySteppingSize = 0;
 
   GCodeFile? currentFile;
@@ -120,6 +118,14 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     } else
       return server.klippyStateMessage ??
           'Klipper: ${toName(server.klippyState)}';
+  }
+
+  List<int> get axisStepSize {
+    return _printerSetting?.moveSteps.toList() ?? const [100, 25, 10, 1];
+  }
+
+  List<double> get babySteppingSizes {
+    return _printerSetting?.babySteps.toList() ?? const [0.005, 0.01, 0.05, 0.1];
   }
 
   List<TemperaturePreset> get temperaturePresets {
