@@ -133,7 +133,7 @@ class ConnectionStateView
   @override
   Widget builder(
       BuildContext context, ConnectionStateViewModel model, Widget? child) {
-    return model.hasPrinterSettings
+    return model.isMachineAvailable
         ? widgetForWebsocketState(context, model)
         : Center(
             child: Column(

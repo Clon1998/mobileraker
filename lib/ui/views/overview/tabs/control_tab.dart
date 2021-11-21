@@ -24,7 +24,7 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
         children: [
           if (model.hasPrinter &&
               model.hasServer &&
-              model.isPrinterSelected) ...[
+              model.isMachineAvailable) ...[
             if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
             if (model.printer.print.state != PrintState.printing)
               ExtruderControlCard(),

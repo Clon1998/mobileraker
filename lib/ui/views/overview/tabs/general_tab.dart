@@ -39,7 +39,7 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
         children: [
           if (model.hasPrinter &&
               model.hasServer &&
-              model.isPrinterSelected) ...{
+              model.isMachineAvailable) ...{
             PrintCard(),
             TemperatureCard(),
             if (model.webCamAvailable) CamCard(),

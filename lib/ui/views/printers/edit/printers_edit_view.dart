@@ -33,6 +33,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
       ),
       body: SingleChildScrollView(
         child: FormBuilder(
+          autoFocusOnValidationFailure: true,
           key: model.formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Padding(

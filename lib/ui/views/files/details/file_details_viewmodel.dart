@@ -2,10 +2,10 @@ import 'package:intl/intl.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
@@ -35,13 +35,12 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
 
   @override
   Map<String, StreamData> get streamsMap => {
-        if (_printerService != null) ...{
-          _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
-        },
-        if (_klippyService != null) ...{
+        if (_printerService != null)
+          _PrinterStreamKey:
+              StreamData<Printer>(_printerService!.printerStream),
+        if (_klippyService != null)
           _ServerStreamKey:
-              StreamData<KlipperInstance>(_klippyService!.klipperStream)
-        }
+              StreamData<KlipperInstance>(_klippyService!.klipperStream),
       };
 
   bool get hasServer => dataReady(_ServerStreamKey);
@@ -60,10 +59,9 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   bool get canStartPrint {
     if (!hasServer || !hasPrinter || server.klippyState != KlipperState.ready)
       return false;
-    else {
+    else
       return (printer.print.state == PrintState.complete ||
           printer.print.state == PrintState.standby);
-    }
   }
 
   String? get curPathToPrinterUrl {

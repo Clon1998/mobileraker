@@ -216,15 +216,15 @@ class FilesViewModel extends MultipleStreamViewModel {
     return FolderContentWrapper(fullContent.reqPath, folders, files);
   }
 
-  bool get hasFolderContent => dataReady(_FolderContentStreamKey);
+  bool get isFolderContentAvailable => dataReady(_FolderContentStreamKey);
 
   FolderContentWrapper get _folderContent => dataMap![_FolderContentStreamKey];
 
-  bool get hasServer => dataReady(_ServerStreamKey);
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
-  bool get isPrinterSelected => dataReady(_SelectedPrinterStreamKey);
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
   PrinterSetting? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
 

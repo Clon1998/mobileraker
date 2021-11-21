@@ -91,7 +91,7 @@ class OverView extends StatelessWidget {
         floatingActionButton: printingStateToFab(model),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
         bottomNavigationBar:
-            (model.isPrinterSelected && model.isKlippyConnected)
+            (model.isMachineAvailable && model.hasPrinter && model.hasServer)
                 ? AnimatedBottomNavigationBar(
                     // ToDo swap with Text
                     icons: [
@@ -99,7 +99,6 @@ class OverView extends StatelessWidget {
                       // FlutterIcons.camera_control_mco,
                       FlutterIcons.settings_oct,
                     ],
-
                     activeColor: getActiveTextColor(context),
                     gapLocation: GapLocation.end,
                     backgroundColor: Theme.of(context).primaryColor,

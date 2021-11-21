@@ -7,6 +7,7 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/ui/bottomsheet/setup_bottom_sheet_ui.dart';
 import 'package:mobileraker/ui/dialog/setup_dialog_ui.dart';
+import 'package:mobileraker/ui/snackbar/setup_snackbar.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:workmanager/workmanager.dart';
@@ -21,6 +22,7 @@ Future<void> main() async {
   await setupNotifications();
   locator<NotificationService>().initialize();
 
+  setupSnackbarUi();
   setupDialogUi();
   setupBottomSheetUi();
 

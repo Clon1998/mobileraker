@@ -102,7 +102,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   Widget buildBody(BuildContext context, FilesViewModel model) {
     if (model.isBusy)
       return buildBusyListView(context, model);
-    else if (model.hasFolderContent)
+    else if (model.isFolderContentAvailable && model.isServerAvailable && model.isMachineAvailable)
       return buildListView(context, model);
     else
       return buildFetchingView();

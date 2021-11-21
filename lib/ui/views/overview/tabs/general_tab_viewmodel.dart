@@ -102,7 +102,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   bool get canUsePrinter => server.klippyState == KlipperState.ready;
 
-  bool get isPrinterSelected => dataReady(_SelectedPrinterStreamKey);
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 

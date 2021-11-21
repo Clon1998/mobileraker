@@ -32,16 +32,13 @@ class OverViewModel extends MultipleStreamViewModel {
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
             StreamData<PrinterSetting?>(_machineService.selectedMachine),
-        if (_printerService != null) ...{
-          _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
-        },
-        if (_klippyService != null) ...{
+        if (_printerService != null)
+          _PrinterStreamKey:
+              StreamData<Printer>(_printerService!.printerStream),
+
+        if (_klippyService != null)
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
-        }
-        // _ServerStreamKey:
-        // StreamData<KlipperInstance>(),
-        // _PrinterStreamKey: StreamData<Printer>(),
       };
 
   int _currentIndex = 0;
@@ -66,13 +63,13 @@ class OverViewModel extends MultipleStreamViewModel {
 
   bool isIndexSelected(int index) => _currentIndex == index;
 
-  String get title => '${selectedPrinter?.name ?? 'Printer'} - Dashboard';
+  String get title => '${machine?.name ?? 'Printer'} - Dashboard';
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
-  bool get isPrinterSelected => dataReady(_SelectedPrinterStreamKey);
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
-  PrinterSetting? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
+  PrinterSetting? get machine => dataMap?[_SelectedPrinterStreamKey];
 
   bool get hasServer => dataReady(_ServerStreamKey);
 
@@ -129,15 +126,5 @@ class OverViewModel extends MultipleStreamViewModel {
 
   onResumePrintPressed() {
     _printerService?.resumePrint();
-  }
-
-  navigateToSettings() {
-    //Navigate to other View:::
-    // _navigationService.navigateTo(Routes.settingView);
-  }
-
-  fffff() {
-    // _navigationService.navigateTo(Routes.testView);
-    // print("asdasd");
   }
 }

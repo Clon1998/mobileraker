@@ -8,6 +8,7 @@ import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/ui/snackbar/setup_snackbar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -21,12 +22,14 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
   final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
-  WebSocketWrapper? _webSocket;
+
   PrinterSetting? _printerSetting;
 
   KlippyService? get _klippyService => _printerSetting?.klippyService;
 
   PrinterService? get _printerService => _printerSetting?.printerService;
+
+  WebSocketWrapper? get _webSocket => _printerSetting?.websocket;
 
   @override
   Map<String, StreamData> get streamsMap => {
@@ -52,9 +55,6 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
 
-        if (nPrinterSetting?.websocket != null) {
-          _webSocket = nPrinterSetting?.websocket;
-        }
         notifySourceChanged(clearOldData: true);
         break;
       case _WebSocketStreamKey:
@@ -76,8 +76,12 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
         // _snackBarService.showSnackbar(message: "Connected to Moonraker");
         break;
       case WebSocketState.error:
-        _snackBarService.showSnackbar(
-            title: "Websocket", message: "Error while trying to connect:TODO");
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: "Websocket-Error",
+            message:
+                "Error while trying to connect:\n${_webSocket?.errorReason.toString() ?? 'UNKNOWN'}");
         break;
     }
   }
@@ -93,7 +97,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
   WebSocketState get connectionState =>
       dataMap?[_WebSocketStreamKey] ?? WebSocketState.disconnected;
 
-  bool get hasPrinterSettings => _machineService.machineAvailable();
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
   bool get hasServer => dataReady(_ServerStreamKey);
 
