@@ -5,10 +5,10 @@ import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/enums/snackbar_type.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
-import 'package:mobileraker/ui/snackbar/setup_snackbar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -99,11 +99,11 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
 
   bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
-  bool get hasServer => dataReady(_ServerStreamKey);
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
-  bool get hasPrinter => dataReady(_PrinterStreamKey);
+  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
   Printer get printer => dataMap![_PrinterStreamKey];
 

@@ -1,1 +1,1 @@
-enum DialogType { editForm, connectionError }
+enum DialogType { editForm, importSettings }

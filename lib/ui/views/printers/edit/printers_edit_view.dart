@@ -26,6 +26,15 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
+        actions: [
+          if (model.canShowImportSettings)
+            IconButton(
+                icon: Icon(
+                  FlutterIcons.import_mco,
+                ),
+                tooltip: 'Import-Settings',
+                onPressed: model.onImportSettings),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: model.onFormConfirm,
@@ -158,7 +167,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                       labelText: 'Babystepping Z-steps', suffixText: 'mm'),
                   options: model.printerBabySteps
                       .map((e) =>
-                      FormBuilderFieldOption(value: e, child: Text('$e')))
+                          FormBuilderFieldOption(value: e, child: Text('$e')))
                       .toList(growable: false),
                   onSelected: model.removeBabyStep,
                   onAdd: model.addBabyStep,
@@ -184,10 +193,10 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 Segments(
                   decoration: InputDecoration(
-                      labelText: 'Extruder steps', suffixText: 'mm'),
+                      labelText: 'Extrude steps', suffixText: 'mm'),
                   options: model.printerExtruderSteps
                       .map((e) =>
-                      FormBuilderFieldOption(value: e, child: Text('$e')))
+                          FormBuilderFieldOption(value: e, child: Text('$e')))
                       .toList(growable: false),
                   onSelected: model.removeExtruderStep,
                   onAdd: model.addExtruderStep,
@@ -352,6 +361,7 @@ class _WebCamItem extends StatelessWidget {
             secondary: const Icon(FlutterIcons.swap_vertical_mco),
             initialValue: cam.flipVertical,
             name: '${cam.uuid}-camFV',
+            activeColor: Theme.of(context).colorScheme.primary,
           ),
           FormBuilderSwitch(
             title: const Text('Flip horizontal'),
@@ -359,6 +369,7 @@ class _WebCamItem extends StatelessWidget {
             secondary: const Icon(FlutterIcons.swap_horizontal_mco),
             initialValue: cam.flipHorizontal,
             name: '${cam.uuid}-camFH',
+            activeColor: Theme.of(context).colorScheme.primary,
           ),
           Align(
             alignment: Alignment.centerLeft,
@@ -550,66 +561,63 @@ class _SegmentsState<T> extends State<Segments<T>> {
               sizeFactor: animation,
               child: child,
             ),
-        child: editing
-            ? buildEditing(context)
-            : buildNonEditing(context));
+        child: editing ? buildEditing(context) : buildNonEditing(context));
   }
 
   WillPopScope buildEditing(BuildContext context) {
     return WillPopScope(
-              onWillPop: () => cancel(),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: TextField(
-                    controller: textCtrler,
-                    onEditingComplete: submit,
-                    decoration: widget.decoration,
-                    keyboardType: widget.inputType,
-                  )),
-                  IconButton(
-                    color: Theme.of(context).colorScheme.primary,
-                    icon: Icon(Icons.done),
-                    onPressed: submit,
-                  )
-                ],
-              ),
-            );
+      onWillPop: () => cancel(),
+      child: Row(
+        children: [
+          Expanded(
+              child: TextField(
+            controller: textCtrler,
+            onEditingComplete: submit,
+            decoration: widget.decoration,
+            keyboardType: widget.inputType,
+          )),
+          IconButton(
+            color: Theme.of(context).colorScheme.primary,
+            icon: Icon(Icons.done),
+            onPressed: submit,
+          )
+        ],
+      ),
+    );
   }
 
   InputDecorator buildNonEditing(BuildContext context) {
     return InputDecorator(
-              decoration: widget.decoration,
-              child: Wrap(
-                direction: Axis.horizontal,
-                verticalDirection: VerticalDirection.down,
-                children: <Widget>[
-                  for (FormBuilderFieldOption<T> option in widget.options)
-                    ChoiceChip(
-                        selected: false,
-                        label: option,
-                        onSelected: (s) => onChipPressed(option)),
-                  if (widget.options.isEmpty)
-                    ChoiceChip(
-                      label: Text('No values Found!'),
-                      selected: false,
-                      onSelected: (v) => null,
+      decoration: widget.decoration,
+      child: Wrap(
+        direction: Axis.horizontal,
+        verticalDirection: VerticalDirection.down,
+        children: <Widget>[
+          for (FormBuilderFieldOption<T> option in widget.options)
+            ChoiceChip(
+                selected: false,
+                label: option,
+                onSelected: (s) => onChipPressed(option)),
+          if (widget.options.isEmpty)
+            ChoiceChip(
+              label: Text('No values Found!'),
+              selected: false,
+              onSelected: (v) => null,
+            ),
+          if (widget.onAdd != null && widget.options.length < widget.maxOptions)
+            ChoiceChip(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              label: Text(
+                '+',
+                style: DefaultTextStyle.of(context).style.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
                     ),
-                  if (widget.onAdd != null &&
-                      widget.options.length < widget.maxOptions)
-                    ChoiceChip(
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      label: Text(
-                        '+',
-                        style: DefaultTextStyle.of(context).style.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimary,
-                            ),
-                      ),
-                      selected: false,
-                      onSelected: (v) => goIntoEditing(),
-                    ),
-                ],
               ),
-            );
+              selected: false,
+              onSelected: (v) => goIntoEditing(),
+            ),
+        ],
+      ),
+    );
   }
 }

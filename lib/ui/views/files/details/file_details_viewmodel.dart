@@ -43,11 +43,11 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
               StreamData<KlipperInstance>(_klippyService!.klipperStream),
       };
 
-  bool get hasServer => dataReady(_ServerStreamKey);
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
-  bool get hasPrinter => dataReady(_PrinterStreamKey);
+  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
   Printer get printer => dataMap![_PrinterStreamKey];
 
@@ -57,7 +57,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   }
 
   bool get canStartPrint {
-    if (!hasServer || !hasPrinter || server.klippyState != KlipperState.ready)
+    if (!isServerAvailable || !isPrinterAvailable || server.klippyState != KlipperState.ready)
       return false;
     else
       return (printer.print.state == PrintState.complete ||

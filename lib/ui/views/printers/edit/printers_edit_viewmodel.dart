@@ -7,7 +7,9 @@ import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/ui/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -76,6 +78,8 @@ class PrintersEditViewModel extends BaseViewModel {
   int get printerSpeedZ => printerSetting.speedZ;
 
   int get printerExtruderFeedrate => printerSetting.extrudeFeedrate;
+
+  bool get canShowImportSettings => _machineService.fetchAll().length > 1;
 
   removeExtruderStep(int step) {
     printerExtruderSteps.remove(step);
@@ -150,13 +154,15 @@ class PrintersEditViewModel extends BaseViewModel {
     WebcamSetting cam = WebcamSetting('New Webcam',
         'http://${Uri.parse(printerSetting.wsUrl).host}/webcam/?action=stream');
     webcams.add(cam);
-
+    _saveAllCams();
+    _saveAllPresets();
     notifyListeners();
   }
 
   onWebCamRemove(WebcamSetting toRemoved) {
     webcams.remove(toRemoved);
     _saveAllCams();
+    _saveAllPresets();
     notifyListeners();
   }
 
@@ -181,13 +187,15 @@ class PrintersEditViewModel extends BaseViewModel {
   onTempPresetAdd() {
     TemperaturePreset preset = TemperaturePreset("New Preset");
     tempPresets.add(preset);
-
+    _saveAllPresets();
+    _saveAllCams();
     notifyListeners();
   }
 
   onTempPresetRemove(TemperaturePreset toRemoved) {
     tempPresets.remove(toRemoved);
     _saveAllPresets();
+    _saveAllCams();
     notifyListeners();
   }
 
@@ -243,7 +251,11 @@ class PrintersEditViewModel extends BaseViewModel {
         ..extrudeSteps = printerExtruderSteps;
 
       await _machineService.updateMachine(printerSetting);
-      _navigationService.back();
+      if (StackedService.navigatorKey?.currentState?.canPop()??false) {
+        _navigationService.back();
+      } else {
+        _navigationService.clearStackAndShow(Routes.overView);
+      }
     }
   }
 
@@ -272,5 +284,63 @@ class PrintersEditViewModel extends BaseViewModel {
     WebcamSetting _row = webcams.removeAt(oldIndex);
     webcams.insert(newIndex, _row);
     notifyListeners();
+  }
+
+  onImportSettings() {
+    _dialogService
+        .showCustomDialog(
+            variant: DialogType.importSettings,
+            title: 'Copy Settings',
+            mainButtonTitle: 'Copy',
+            secondaryButtonTitle: 'Cancle',
+            data: printerSetting)
+        .then(onImportSettingsReturns);
+  }
+
+  onImportSettingsReturns(DialogResponse? response) {
+    if (response != null && response.confirmed) {
+      FormBuilderState currentState = _fbKey.currentState!;
+      ImportSettingsDialogViewResults result = response.data;
+      PrinterSetting src = result.source;
+      Map<String, dynamic> patchingValues = {};
+      for (String field in result.fields) {
+        switch (field) {
+          case 'invertX':
+            patchingValues[field] = src.inverts[0];
+            break;
+          case 'invertY':
+            patchingValues[field] = src.inverts[1];
+            break;
+          case 'invertZ':
+            patchingValues[field] = src.inverts[2];
+            break;
+          case 'speedXY':
+            patchingValues[field] = src.speedXY.toString();
+            break;
+          case 'speedZ':
+            patchingValues[field] = src.speedZ.toString();
+            break;
+          case 'extrudeSpeed':
+            patchingValues[field] = src.extrudeFeedrate.toString();
+            break;
+          case 'moveSteps':
+            printerMoveSteps.clear();
+            printerMoveSteps.addAll(src.moveSteps);
+
+            break;
+          case 'babySteps':
+            printerBabySteps.clear();
+            printerBabySteps.addAll(src.babySteps);
+            break;
+          case 'extrudeSteps':
+            printerExtruderSteps.clear();
+            printerExtruderSteps.addAll(src.extrudeSteps);
+            break;
+        }
+      }
+      currentState.patchValue(patchingValues);
+      tempPresets.addAll(result.presets);
+      notifyListeners();
+    }
   }
 }

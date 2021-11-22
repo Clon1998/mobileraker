@@ -37,8 +37,8 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          if (model.hasPrinter &&
-              model.hasServer &&
+          if (model.isPrinterAvailable &&
+              model.isServerAvailable &&
               model.isMachineAvailable) ...{
             PrintCard(),
             TemperatureCard(),

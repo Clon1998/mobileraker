@@ -106,11 +106,11 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
-  bool get hasServer => dataReady(_ServerStreamKey);
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   Printer get printer => dataMap![_PrinterStreamKey];
 
-  bool get hasPrinter => dataReady(_PrinterStreamKey);
+  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
   String get status {
     if (server.klippyState == KlipperState.ready) {
@@ -300,7 +300,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   }
 
   bool get _canCalcMaxLayer =>
-      hasPrinter &&
+      isPrinterAvailable &&
       currentFile != null &&
       currentFile!.firstLayerHeight != null &&
       currentFile!.layerHeight != null &&
@@ -319,7 +319,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   }
 
   bool get _canCalcLayer =>
-      hasPrinter &&
+      isPrinterAvailable &&
       currentFile != null &&
       currentFile!.firstLayerHeight != null &&
       currentFile!.layerHeight != null;

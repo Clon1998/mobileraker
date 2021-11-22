@@ -30,8 +30,9 @@ class MachineService {
   }
 
   Future<void> updateMachine(PrinterSetting printerSetting) async {
-    if (!selectedMachine.isClosed) selectedMachine.add(printerSetting);
-    return printerSetting.save();
+    await printerSetting.save();
+    if (!selectedMachine.isClosed && isSelectedMachine(printerSetting)) selectedMachine.add(printerSetting);
+    return;
   }
 
   Future<PrinterSetting> addMachine(PrinterSetting printerSetting) async {

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/enums/snackbar_type.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-/// The type of snackbar to show
-enum SnackbarType { error }
 
 void setupSnackbarUi() {
   final service = locator<SnackbarService>();

@@ -19,7 +19,7 @@ class ConnectionStateView
       BuildContext context, ConnectionStateViewModel model) {
     switch (model.connectionState) {
       case WebSocketState.connected:
-        return widgetForKlippyState(context, model);
+        return widgetForKlippyServerState(context, model);
 
       case WebSocketState.disconnected:
         return Center(
@@ -80,10 +80,12 @@ class ConnectionStateView
     }
   }
 
-  Widget widgetForKlippyState(
+  Widget widgetForKlippyServerState(
       BuildContext context, ConnectionStateViewModel model) {
-    if (model.hasPrinter) return pChild;
+    if (model.isPrinterAvailable) return pChild;
     switch (model.server.klippyState) {
+      case KlipperState.disconnected:
+      case KlipperState.shutdown:
       case KlipperState.error:
         return Center(
           child: Column(
@@ -117,6 +119,31 @@ class ConnectionStateView
                         )
                       ],
                     )
+                  ],
+                ),
+              )),
+              Spacer()
+            ],
+          ),
+        );
+        case KlipperState.startup:
+        return Center(
+          child: Column(
+            children: [
+              Spacer(),
+              Card(
+                  child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        FlutterIcons.disconnect_ant,
+                      ),
+                      title: Text(model.klippyState),
+                    ),
+                    Text('Server is starting.')
                   ],
                 ),
               )),

@@ -74,11 +74,11 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
-  bool get hasServer => dataReady(_ServerStreamKey);
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   Printer get printer => dataMap![_PrinterStreamKey];
 
-  bool get hasPrinter => dataReady(_PrinterStreamKey);
+  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
   bool get canUsePrinter => server.klippyState == KlipperState.ready;
 

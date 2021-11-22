@@ -22,8 +22,8 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
       child: ListView(
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          if (model.hasPrinter &&
-              model.hasServer &&
+          if (model.isPrinterAvailable &&
+              model.isServerAvailable &&
               model.isMachineAvailable) ...[
             if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
             if (model.printer.print.state != PrintState.printing)

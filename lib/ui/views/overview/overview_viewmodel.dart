@@ -71,11 +71,11 @@ class OverViewModel extends MultipleStreamViewModel {
 
   PrinterSetting? get machine => dataMap?[_SelectedPrinterStreamKey];
 
-  bool get hasServer => dataReady(_ServerStreamKey);
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   Printer get printer => dataMap![_PrinterStreamKey];
 
-  bool get hasPrinter => dataReady(_PrinterStreamKey);
+  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
   bool get isKlippyConnected => _klippyService?.isKlippyConnected ?? false;
 
