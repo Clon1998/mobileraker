@@ -34,5 +34,8 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. stock browser, safari]
  - Version [e.g. 22]
 
+**Mobileraker-Version
+This information can be found in Android's and IOS's App-Info.
+
 **Additional context**
 Add any other context about the problem here.
