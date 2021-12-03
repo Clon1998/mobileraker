@@ -26,11 +26,11 @@ dependencies:
   # websocket
   web_socket_channel: ^2.1.0
   # rxdart
-  rxdart: ^0.27.2
+  rxdart: ^0.27.3
 
   #stacked
-  stacked: ^2.2.7
-  stacked_services: ^0.8.15
+  stacked: ^2.2.7+1
+  stacked_services: ^0.8.16
 
   enum_to_string: ^2.0.1
 
@@ -44,8 +44,9 @@ dependencies:
   validators: ^3.0.0
   flutter_spinkit: ^5.1.0
   progress_indicators: ^1.0.0
-  flutter_form_builder: ^6.1.0+1
-  awesome_notifications: ^0.6.17
+  flutter_form_builder: ^7.0.0
+  form_builder_validators: ^7.2.0
+  awesome_notifications: ^0.6.18+2
   pull_to_refresh: ^2.0.0
   hive: ^2.0.4
   hive_flutter: ^1.1.0
@@ -54,11 +55,11 @@ dependencies:
   animations: ^2.0.2
   flip_card: ^0.6.0
   flutter_breadcrumb: ^1.0.1
-  cached_network_image: ^3.1.0
+  cached_network_image: ^3.2.0
   shimmer: ^2.0.0
-  url_launcher: ^6.0.11
-  reorderables: ^0.4.1
-  flutter_speed_dial: ^4.6.0
+  url_launcher: ^6.0.17
+  reorderables: ^0.4.2
+  flutter_speed_dial: ^4.6.6
   workmanager: ^0.4.1
   flutter_fgbg: ^0.1.0
 
@@ -67,8 +68,8 @@ dev_dependencies:
     sdk: flutter
   flutter_launcher_icons: ^0.9.2
   hive_generator: ^1.1.1
-  stacked_generator: ^0.5.5
-  build_runner: ^2.1.4
+  stacked_generator: ^0.5.6
+  build_runner: ^2.1.5
 
 
 flutter_icons:
