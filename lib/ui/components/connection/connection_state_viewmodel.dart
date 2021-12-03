@@ -1,3 +1,4 @@
+import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -16,12 +17,15 @@ const String _WebSocketStreamKey = 'websocket';
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _ServerStreamKey = 'server';
 const String _PrinterStreamKey = 'printer';
+const String _BGStreamKey = 'bg-detection';
 
 class ConnectionStateViewModel extends MultipleStreamViewModel {
   final _machineService = locator<MachineService>();
   final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
+
+  FGBGType _fgbgType = FGBGType.foreground;
 
   PrinterSetting? _printerSetting;
 
@@ -42,7 +46,9 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream),
         if (_printerService != null)
-          _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
+          _PrinterStreamKey:
+              StreamData<Printer>(_printerService!.printerStream),
+        _BGStreamKey: StreamData<FGBGType>(FGBGEvents.stream),
       };
 
   @override
@@ -60,6 +66,9 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
       case _WebSocketStreamKey:
         onDataWebSocket(data);
         break;
+      case _BGStreamKey:
+        _fgbgType = data;
+        break;
     }
   }
 
@@ -76,12 +85,13 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
         // _snackBarService.showSnackbar(message: "Connected to Moonraker");
         break;
       case WebSocketState.error:
-        _snackBarService.showCustomSnackBar(
-            variant: SnackbarType.error,
-            duration: const Duration(seconds: 5),
-            title: "Websocket-Error",
-            message:
-                "Error while trying to connect:\n${_webSocket?.errorReason.toString() ?? 'UNKNOWN'}");
+        if (_fgbgType == FGBGType.foreground)
+          _snackBarService.showCustomSnackBar(
+              variant: SnackbarType.error,
+              duration: const Duration(seconds: 5),
+              title: "Websocket-Error",
+              message:
+                  "Error while trying to connect:\n${_webSocket?.errorReason.toString() ?? 'UNKNOWN'}");
         break;
     }
   }

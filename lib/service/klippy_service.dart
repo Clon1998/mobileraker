@@ -43,7 +43,8 @@ class KlippyService {
       klipperStream.add(l);
       _logger.i('State: notify_klippy_disconnected: $m');
 
-      Future.delayed(Duration(seconds: 2)).then((value) => _fetchPrinterInfo()); // need to delay this until its bac connected!
+      Future.delayed(Duration(seconds: 2)).then((value) =>
+          _fetchPrinterInfo()); // need to delay this until its bac connected!
     }, "notify_klippy_disconnected");
 
     wsSubscription = _webSocket.stateStream.listen((value) {
@@ -88,7 +89,10 @@ class KlippyService {
     KlipperState state =
         EnumToString.fromString(KlipperState.values, response['klippy_state'])!;
     bool con = response['klippy_connected'];
-    List<String> plugins = response['plugins'].cast<String>();
+
+    List<String> plugins = (response.containsKey('plugins'))
+        ? response['plugins'].cast<String>()
+        : [];
     KlipperInstance klipperInstance = _latestKlippy;
 
     klipperInstance = klipperStream.value;
