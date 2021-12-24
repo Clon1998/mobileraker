@@ -11,6 +11,20 @@ import 'package:web_socket_channel/status.dart' as status;
 
 enum WebSocketState { disconnected, connecting, connected, error }
 
+typedef ReceiveCallback = Function(Map<String, dynamic> response,
+    {Map<String, dynamic>? err});
+
+class BlockingResponse {
+  final Map<String, dynamic> response;
+  final Map<String, dynamic>? err;
+
+  BlockingResponse(this.response, this.err);
+
+  bool get hasError => err != null;
+
+  bool get hasNoError => err == null;
+}
+
 class WebSocketWrapper {
   final _logger = getLogger('WebSocketWrapper');
 
@@ -28,26 +42,8 @@ class WebSocketWrapper {
 
   Map<String, dynamic> _headers = {};
 
-  WebSocketWrapper(this.url, this._defaultTimeout, {this.apiKey}) {
-    if (apiKey != null) _headers['X-Api-Key'] = apiKey;
-    this.initCommunication();
-  }
-
-  BehaviorSubject<WebSocketState> stateStream =
-      BehaviorSubject.seeded(WebSocketState.disconnected);
-
-  WebSocketState get _state => stateStream.value;
-
-  set _state(WebSocketState newState) {
-    _logger.i("$_state ➝ $newState");
-    stateStream.add(newState);
-  }
-
-  bool get hasError => errorReason != null;
-
   Exception? errorReason;
 
-  ///
   /// Listeners
   /// List of methods to be called when a JSON RPC notification
   /// comes in.
@@ -58,7 +54,38 @@ class WebSocketWrapper {
   /// key ='ALL' will be called with all notification messages
   Map<String, ObserverList<Function>> _methodListeners = {};
 
-  Map<int, Function> _requests = {};
+  Map<int, ReceiveCallback> _requests = {};
+
+  Map<int, Completer<BlockingResponse>> _requestsBlocking = {};
+
+  BehaviorSubject<WebSocketState> stateStream =
+      BehaviorSubject.seeded(WebSocketState.disconnected);
+
+  WebSocketWrapper(this.url, this._defaultTimeout, {this.apiKey}) {
+    if (apiKey != null) _headers['X-Api-Key'] = apiKey;
+    this.initCommunication();
+  }
+
+  WebSocketState get _state => stateStream.value;
+
+  set _state(WebSocketState newState) {
+    _logger.i("$_state ➝ $newState");
+    stateStream.add(newState);
+  }
+
+  bool get hasError => errorReason != null;
+
+  bool get requiresAPIKey {
+    if (errorReason != null) {
+      if (errorReason is WebSocketException) {
+        return (errorReason as WebSocketException)
+            .message
+            .contains('was not upgraded to websocket');
+      }
+    }
+
+    return false;
+  }
 
   /// ----------------------------------------------------------
   /// Initialization the WebSockets connection with the server
@@ -145,14 +172,34 @@ class WebSocketWrapper {
     _channel?.sink.add(message);
   }
 
-  sendObject(String method, Function? function, {dynamic params}) {
-    _logger.d('Sending for method "$method"');
-    var createJsonRPC2 = createJsonRPC(method, params: params);
-    if (function != null) _requests[createJsonRPC2['id']] = function;
-    send(jsonEncode(createJsonRPC2));
+  sendJsonRpcMethod(String method,
+      {ReceiveCallback? function, dynamic params}) {
+    var jsonRpc = _createJsonRPC(method, params: params);
+    var mId = jsonRpc['id'];
+    if (function != null) _requests[mId] = function;
+    _logger.d('Sending for method "$method" with ID $mId');
+
+    send(jsonEncode(jsonRpc));
   }
 
-  Map<String, dynamic> createJsonRPC(String method, {dynamic params}) {
+  Future<BlockingResponse> sendAndReceiveJRpcMethod(String method,
+      {dynamic params}) async {
+    var jsonRpc = _createJsonRPC(method, params: params);
+    var mId = jsonRpc['id'];
+    _requests[mId] = _receiveBlocking;
+    var completer = Completer<BlockingResponse>();
+    _requestsBlocking[mId] = completer;
+    _logger.i('Sending(Blocking) for method "$method" with ID $mId');
+    send(jsonEncode(jsonRpc));
+    return completer.future;
+  }
+
+  addMethodListener(Function(Map<String, dynamic> rawMessage) callback,
+      [String method = "*"]) {
+    _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
+  }
+
+  Map<String, dynamic> _createJsonRPC(String method, {dynamic params}) {
     Map<String, dynamic> json = Map();
     json['jsonrpc'] = "2.0";
     // Make sure ID is only used once
@@ -165,34 +212,44 @@ class WebSocketWrapper {
     return json;
   }
 
-  addMethodListener(Function(Map<String, dynamic> rawMessage) callback,
-      [String method = "*"]) {
-    _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
-  }
-
   /// ----------------------------------------------------------
   /// Callback which is invoked each time that we are receiving
   /// a message from the server
   /// ----------------------------------------------------------
   _onWSMessage(message) {
-    _logger.v("@Rec: $message");
-    var jsonOb = jsonDecode(message);
-    if (jsonOb['error'] != null && jsonOb['error']['message'] != null) {
-      _logger.e("Error message received: $message");
-    } else {
-      var mId = jsonOb['id'];
-      var method = jsonOb['method'];
+    Map<String, dynamic> result = jsonDecode(message);
+    var mId = result['id'];
+    _logger.d("@Rec (messageId: $mId): $message");
 
-      if (mId != null && _requests.isNotEmpty) {
-        var foundHandler = _requests[mId];
-        if (foundHandler != null) foundHandler(jsonOb['result']);
-        _requests.remove(foundHandler);
-      } else if (method != null && _methodListeners.isNotEmpty) {
-        if (_methodListeners.containsKey(method))
-          _methodListeners[method]!.forEach((element) => element(jsonOb));
-        if (_methodListeners.containsKey("*"))
-          _methodListeners["*"]!.forEach((element) => element(jsonOb));
+    if (result['error'] != null && result['error']['message'] != null) {
+      _logger.e("Error message received: $message");
+      if (mId != null && _requests.containsKey(mId)) {
+        Function foundHandler = _requests.remove(mId)!;
+        foundHandler(result, err: result['error']);
       }
+    } else {
+      var method = result['method'];
+
+      if (mId != null && _requests.containsKey(mId)) {
+        Function foundHandler = _requests.remove(mId)!;
+        foundHandler(result);
+      } else if (method != null &&
+          (_methodListeners.containsKey(method) ||
+              _methodListeners.containsKey('*'))) {
+        if (_methodListeners.containsKey(method))
+          _methodListeners[method]!.forEach((element) => element(result));
+        if (_methodListeners.containsKey('*'))
+          _methodListeners['*']!.forEach((element) => element(result));
+      }
+    }
+  }
+
+  _receiveBlocking(Map<String, dynamic> response, {Map<String, dynamic>? err}) {
+    var mId = response['id'];
+    _logger.i('Received(Blocking) for id: "$mId"');
+    if (_requestsBlocking.containsKey(mId)) {
+      Completer completer = _requestsBlocking.remove(mId)!;
+      completer.complete(BlockingResponse(response, err));
     }
   }
 
@@ -200,18 +257,6 @@ class WebSocketWrapper {
     _logger.e("WS-Stream error: $error");
     errorReason = error;
     _state = WebSocketState.error;
-  }
-
-  bool get requiresAPIKey {
-    if (errorReason != null) {
-      if (errorReason is WebSocketException) {
-        return (errorReason as WebSocketException)
-            .message
-            .contains('was not upgraded to websocket');
-      }
-    }
-
-    return false;
   }
 
   _onWSClosesNormal() {
@@ -227,6 +272,8 @@ class WebSocketWrapper {
   dispose() {
     _disposed = true;
     _channelSub?.cancel();
+    _requestsBlocking.forEach((key, value) => value.completeError(Future.error(
+        "Websocket is closing, request id=$key never got an response!")));
     reset();
     stateStream.close();
   }

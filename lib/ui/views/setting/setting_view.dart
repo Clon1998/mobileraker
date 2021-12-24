@@ -42,6 +42,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                     activeColor: Theme.of(context).colorScheme.primary,
                   ),
                   Divider(),
+                  Text(model.version, textAlign: TextAlign.center,)
                   // _SectionHeader(title: 'Notifications'),
                 ],
               ),

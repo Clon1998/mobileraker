@@ -4,6 +4,7 @@ import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
+import 'package:mobileraker/service/database_service.dart';
 import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
@@ -44,10 +45,14 @@ class PrinterSetting extends HiveObject {
   @HiveField(13, defaultValue: [1, 10, 25, 50])
   List<int> extrudeSteps;
 
-  @HiveField(14)
-  int? lastPrintProgress;
+  @HiveField(14, defaultValue: 0)
+  double? lastPrintProgress;
   @HiveField(15)
   String? _lastPrintState;
+  @HiveField(16, defaultValue: [])
+  List<MacroGroup> macroGroups;
+  @HiveField(17)
+  String? fcmIdentifier;
 
   PrintState? get lastPrintState =>
       EnumToString.fromString(PrintState.values, _lastPrintState ?? '');
@@ -86,6 +91,13 @@ class PrinterSetting extends HiveObject {
     return _fileService!;
   }
 
+  DatabaseService? _databaseService;
+
+  DatabaseService get databaseService {
+    if (_databaseService == null) _databaseService = DatabaseService(this);
+    return _databaseService!;
+  }
+
   PrinterSetting({
     required this.name,
     required this.wsUrl,
@@ -100,6 +112,7 @@ class PrinterSetting extends HiveObject {
     this.moveSteps = const [1, 10, 25, 50],
     this.babySteps = const [0.005, 0.01, 0.05, 0.1],
     this.extrudeSteps = const [1, 10, 25, 50],
+    this.macroGroups = const [],
   }) {
     //TODO: Remove this section once more ppl. used this version
     if (httpUrl.isEmpty) this.httpUrl = 'http://${Uri.parse(wsUrl).host}';
@@ -124,6 +137,7 @@ class PrinterSetting extends HiveObject {
     _printerService?.dispose();
     _klippyService?.dispose();
     _fileService?.dispose();
+    _databaseService?.dispose();
     _webSocket?.dispose();
   }
 
@@ -175,6 +189,4 @@ class PrinterSetting extends HiveObject {
       _printerService.hashCode ^
       _klippyService.hashCode ^
       _fileService.hashCode;
-
-
 }

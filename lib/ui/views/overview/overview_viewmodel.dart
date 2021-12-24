@@ -35,7 +35,6 @@ class OverViewModel extends MultipleStreamViewModel {
         if (_printerService != null)
           _PrinterStreamKey:
               StreamData<Printer>(_printerService!.printerStream),
-
         if (_klippyService != null)
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
@@ -127,4 +126,20 @@ class OverViewModel extends MultipleStreamViewModel {
   onResumePrintPressed() {
     _printerService?.resumePrint();
   }
+
+// onTitleSwipeDetection(SwipeDirection dir) {
+//   switch (dir) {
+//
+//     case SwipeDirection.left:
+//       _machineService.selectPreviousMachine();
+//       break;
+//     case SwipeDirection.right:
+//       _machineService.selectNextMachine();
+//
+//       break;
+//     default:
+//   }
+//
+// }
+
 }
