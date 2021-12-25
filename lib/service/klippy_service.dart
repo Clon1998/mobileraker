@@ -39,9 +39,12 @@ class KlippyService {
     _webSocket.addMethodListener((m) {
       KlipperInstance l = _latestKlippy;
       l.klippyState = KlipperState.disconnected;
+      l.klippyStateMessage = null;
       klipperStream.add(l);
       _logger.i('State: notify_klippy_disconnected: $m');
-      Future.delayed(Duration(seconds: 2)).then((value) => _fetchPrinterInfo()); // need to delay this until its bac connected!
+
+      Future.delayed(Duration(seconds: 2)).then((value) =>
+          _fetchPrinterInfo()); // need to delay this until its bac connected!
     }, "notify_klippy_disconnected");
 
     wsSubscription = _webSocket.stateStream.listen((value) {
@@ -64,12 +67,12 @@ class KlippyService {
 
   void _fetchServerInfo() {
     _logger.i('>>>Fetching Server.Info');
-    _webSocket.sendObject("server.info", _parseServerInfo);
+    _webSocket.sendJsonRpcMethod("server.info", function: _parseServerInfo);
   }
 
   _fetchPrinterInfo() {
     _logger.i(">>>Fetching Printer.Info");
-    _webSocket.sendObject("printer.info", _parsePrinterInfo);
+    _webSocket.sendJsonRpcMethod("printer.info", function: _parsePrinterInfo);
   }
 
   WebSocketWrapper get _webSocket => _owner.websocket;
@@ -79,14 +82,18 @@ class KlippyService {
     return klipperStream.hasValue ? klipperStream.value : KlipperInstance();
   }
 
-  _parseServerInfo(response) {
+  _parseServerInfo(response, {err}) {
+    if (err != null) return;
+    var result = response['result'];
     _logger.i('<<<Received Server.Info');
-    _logger.v('ServerInfo: ${JsonEncoder.withIndent('  ').convert(response)}');
+    _logger.v('ServerInfo: ${JsonEncoder.withIndent('  ').convert(result)}');
 
     KlipperState state =
-        EnumToString.fromString(KlipperState.values, response['klippy_state'])!;
-    bool con = response['klippy_connected'];
-    List<String> plugins = response['plugins'].cast<String>();
+        EnumToString.fromString(KlipperState.values, result['klippy_state'])!;
+    bool con = result['klippy_connected'];
+
+    List<String> plugins =
+        (result.containsKey('plugins')) ? result['plugins'].cast<String>() : [];
     KlipperInstance klipperInstance = _latestKlippy;
 
     klipperInstance = klipperStream.value;
@@ -97,40 +104,42 @@ class KlippyService {
     klipperStream.add(klipperInstance);
   }
 
-  _parsePrinterInfo(response) {
-    _logger.i('PrinterInfo: ${JsonEncoder.withIndent('  ').convert(response)}');
+  _parsePrinterInfo(response, {err}) {
+    if (err != null) return;
+    var result = response['result'];
+    _logger.v('PrinterInfo: ${JsonEncoder.withIndent('  ').convert(result)}');
 
     KlipperInstance latestKlippy = _latestKlippy;
     _latestKlippy.klippyState =
-        EnumToString.fromString(KlipperState.values, response['state'])!;
-    _latestKlippy.klippyStateMessage = response['state_message'];
+        EnumToString.fromString(KlipperState.values, result['state'])!;
+    _latestKlippy.klippyStateMessage = result['state_message'];
     klipperStream.add(latestKlippy);
   }
 
   restartMCUs() {
-    _webSocket.sendObject("printer.firmware_restart", null);
+    _webSocket.sendJsonRpcMethod("printer.firmware_restart");
   }
 
   rebootHost() {
-    _webSocket.sendObject("machine.reboot", null);
+    _webSocket.sendJsonRpcMethod("machine.reboot");
   }
 
   shutdownHost() {
-    _webSocket.sendObject("machine.shutdown", null);
+    _webSocket.sendJsonRpcMethod("machine.shutdown");
   }
 
   restartKlipper() {
-    _webSocket.sendObject("machine.services.restart", null,
+    _webSocket.sendJsonRpcMethod("machine.services.restart",
         params: {'service': 'klipper'});
   }
 
   restartMoonraker() {
-    _webSocket.sendObject("machine.services.restart", null,
+    _webSocket.sendJsonRpcMethod("machine.services.restart",
         params: {'service': 'moonraker'});
   }
 
   emergencyStop() {
-    _webSocket.sendObject("printer.emergency_stop", null);
+    _webSocket.sendJsonRpcMethod("printer.emergency_stop");
   }
 
   bool get isKlippyConnected =>

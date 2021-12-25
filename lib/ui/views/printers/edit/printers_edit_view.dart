@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
@@ -18,6 +20,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
   @override
   Widget builder(
       BuildContext context, PrintersEditViewModel model, Widget? child) {
+    var themeData = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -26,14 +29,22 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
-          IconButton(
-              onPressed: model.onFormConfirm,
-              tooltip: 'Save',
-              icon: Icon(Icons.save_outlined))
+          if (model.canShowImportSettings)
+            IconButton(
+                icon: Icon(
+                  FlutterIcons.import_mco,
+                ),
+                tooltip: 'Import-Settings',
+                onPressed: model.onImportSettings),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: model.onFormConfirm,
+        child: Icon(Icons.save_outlined),
       ),
       body: SingleChildScrollView(
         child: FormBuilder(
+          autoFocusOnValidationFailure: true,
           key: model.formKey,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Padding(
@@ -85,6 +96,124 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   initialValue: model.printerApiKey,
                 ),
                 Divider(),
+                _SectionHeader(title: 'Motion System'),
+                FormBuilderSwitch(
+                  name: 'invertX',
+                  initialValue: model.printerInvertX,
+                  title: Text('Invert X-Axis'),
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'invertY',
+                  initialValue: model.printerInvertY,
+                  title: Text('Invert Y-Axis'),
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'invertZ',
+                  initialValue: model.printerInvertZ,
+                  title: Text('Invert Z-Axis'),
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderTextField(
+                  name: 'speedXY',
+                  initialValue: model.printerSpeedXY.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText: 'Speed X/Y-Axis',
+                      suffixText: 'mm/s',
+                      isDense: true),
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.min(context, 1)
+                  ]),
+                ),
+                FormBuilderTextField(
+                  name: 'speedZ',
+                  initialValue: model.printerSpeedZ.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText: 'Speed Z-Axis',
+                      suffixText: 'mm/s',
+                      isDense: true),
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.min(context, 1)
+                  ]),
+                ),
+                Segments(
+                  decoration: InputDecoration(
+                      labelText: 'Move steps', suffixText: 'mm'),
+                  options: model.printerMoveSteps
+                      .map((e) =>
+                          FormBuilderFieldOption(value: e, child: Text('$e')))
+                      .toList(growable: false),
+                  onSelected: model.removeMoveStep,
+                  onAdd: model.addMoveStep,
+                  inputType: TextInputType.number,
+                ),
+                Segments(
+                  decoration: InputDecoration(
+                      labelText: 'Babystepping Z-steps', suffixText: 'mm'),
+                  options: model.printerBabySteps
+                      .map((e) =>
+                          FormBuilderFieldOption(value: e, child: Text('$e')))
+                      .toList(growable: false),
+                  onSelected: model.removeBabyStep,
+                  onAdd: model.addBabyStep,
+                  inputType: TextInputType.numberWithOptions(decimal: true),
+                ),
+                Divider(),
+                _SectionHeader(title: 'Extruder(s)'),
+                FormBuilderTextField(
+                  name: 'extrudeSpeed',
+                  initialValue: model.printerExtruderFeedrate.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText: 'Extruder feed rate',
+                      suffixText: 'mm/s',
+                      isDense: true),
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.min(context, 1)
+                  ]),
+                ),
+                Segments(
+                  decoration: InputDecoration(
+                      labelText: 'Extrude steps', suffixText: 'mm'),
+                  options: model.printerExtruderSteps
+                      .map((e) =>
+                          FormBuilderFieldOption(value: e, child: Text('$e')))
+                      .toList(growable: false),
+                  onSelected: model.removeExtruderStep,
+                  onAdd: model.addExtruderStep,
+                  inputType: TextInputType.number,
+                ),
+                Divider(),
+                _SectionHeaderWithAction(
+                    title: 'GCODE-MACROS',
+                    action: TextButton.icon(
+                      onPressed: null,
+                      label: Text('Add'),
+                      icon: Icon(FlutterIcons.screw_machine_round_top_mco),
+                    )),
+                _buildMacroGroups(context, model),
+                Divider(),
                 _SectionHeaderWithAction(
                     title: 'WEBCAM',
                     action: TextButton.icon(
@@ -93,6 +222,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                       icon: Icon(FlutterIcons.webcam_mco),
                     )),
                 _buildWebCams(model),
+                Divider(),
                 _SectionHeaderWithAction(
                     title: 'TEMPERATURE PRESETS',
                     action: TextButton.icon(
@@ -107,7 +237,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   child: TextButton.icon(
                       onPressed: model.onDeleteTap,
                       icon: Icon(Icons.delete_forever_outlined),
-                      label: Text('Remove printer')),
+                      label: Text('Remove Printer')),
                 )
               ],
             ),
@@ -150,18 +280,68 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
       );
     }
     return ReorderableColumn(
-        children: List.generate(model.tempPresets.length, (index) {
-          TemperaturePreset preset = model.tempPresets[index];
-          return _TempPresetItem(
-            key: ValueKey(preset.uuid),
-            model: model,
-            temperaturePreset: preset,
-            idx: index,
-          );
-        }),
-        onReorder: model.onPresetReorder,
-
+      children: List.generate(model.tempPresets.length, (index) {
+        TemperaturePreset preset = model.tempPresets[index];
+        return _TempPresetItem(
+          key: ValueKey(preset.uuid),
+          model: model,
+          temperaturePreset: preset,
+          idx: index,
+        );
+      }),
+      onReorder: model.onPresetReorder,
     );
+  }
+
+  Widget _buildMacroGroups(BuildContext context, PrintersEditViewModel model) {
+    if (model.macroGroups.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text('No macros ${(model.dataReady) ? 'found!' : 'available!'}'),
+      );
+    }
+
+    return ReorderableColumn(
+        children: List.generate(model.macroGroups.length, (index) {
+          MacroGroup macroGroup = model.macroGroups[index];
+          return Card(
+              key: ValueKey(macroGroup.uuid),
+              child: ExpansionTile(
+                  maintainState: true,
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+                  childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
+                  title: Text(macroGroup.name),
+                  children: [
+                    Wrap(
+                      alignment: WrapAlignment.center,
+
+                      spacing: 4.0,
+                      children: macroGroup.macros.map((e) {
+                        final feedback = Material(
+                          color: Colors.transparent,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width),
+                            child: Chip(
+                              label: Text(e.name),
+                              backgroundColor: Colors.amberAccent,
+                            ),
+                          ),
+                        );
+
+                        return LongPressDraggable(
+                          feedback: feedback,
+                          child: Chip(label: Text(e.name)),
+                          childWhenDragging: Chip(
+                            label: Text(e.name),
+                            backgroundColor: Colors.blue,
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  ]));
+        }),
+        onReorder: model.onWebCamReorder);
   }
 }
 
@@ -181,7 +361,7 @@ class _SectionHeaderWithAction extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          title,
+          title.toUpperCase(),
           style: TextStyle(
             color: Theme.of(context).colorScheme.secondary,
             fontSize: 12.0,
@@ -243,6 +423,7 @@ class _WebCamItem extends StatelessWidget {
             secondary: const Icon(FlutterIcons.swap_vertical_mco),
             initialValue: cam.flipVertical,
             name: '${cam.uuid}-camFV',
+            activeColor: Theme.of(context).colorScheme.primary,
           ),
           FormBuilderSwitch(
             title: const Text('Flip horizontal'),
@@ -250,6 +431,7 @@ class _WebCamItem extends StatelessWidget {
             secondary: const Icon(FlutterIcons.swap_horizontal_mco),
             initialValue: cam.flipHorizontal,
             name: '${cam.uuid}-camFH',
+            activeColor: Theme.of(context).colorScheme.primary,
           ),
           Align(
             alignment: Alignment.centerLeft,
@@ -369,6 +551,134 @@ class _SectionHeader extends StatelessWidget {
           fontSize: 12.0,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+}
+
+//ToDo: Better name for this widget
+class Segments<T> extends StatefulWidget {
+  const Segments(
+      {Key? key,
+      this.decoration = const InputDecoration(),
+      this.maxOptions = 5,
+      required this.options,
+      this.onSelected,
+      this.onAdd,
+      this.inputType})
+      : super(key: key);
+
+  final InputDecoration decoration;
+
+  final int maxOptions;
+
+  final List<FormBuilderFieldOption<T>> options;
+
+  final Function(T)? onSelected;
+
+  final Function(String)? onAdd;
+
+  final TextInputType? inputType;
+
+  @override
+  _SegmentsState<T> createState() => _SegmentsState<T>();
+}
+
+class _SegmentsState<T> extends State<Segments<T>> {
+  bool editing = false;
+  TextEditingController textCtrler = TextEditingController();
+
+  submit() {
+    setState(() {
+      String curText = textCtrler.text;
+      if (curText.isNotEmpty) widget.onAdd!(curText);
+      editing = false;
+    });
+  }
+
+  Future<bool> cancel() {
+    setState(() {
+      editing = false;
+    });
+    return Future.value(false);
+  }
+
+  onChipPressed(FormBuilderFieldOption<T> option) {
+    if (widget.onSelected != null) widget.onSelected!(option.value);
+  }
+
+  goIntoEditing() {
+    setState(() {
+      textCtrler.clear();
+      editing = true;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 400),
+        transitionBuilder: (Widget child, Animation<double> animation) =>
+            SizeTransition(
+              sizeFactor: animation,
+              child: child,
+            ),
+        child: editing ? buildEditing(context) : buildNonEditing(context));
+  }
+
+  WillPopScope buildEditing(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () => cancel(),
+      child: Row(
+        children: [
+          Expanded(
+              child: TextField(
+            controller: textCtrler,
+            onEditingComplete: submit,
+            decoration: widget.decoration,
+            keyboardType: widget.inputType,
+          )),
+          IconButton(
+            color: Theme.of(context).colorScheme.primary,
+            icon: Icon(Icons.done),
+            onPressed: submit,
+          )
+        ],
+      ),
+    );
+  }
+
+  InputDecorator buildNonEditing(BuildContext context) {
+    return InputDecorator(
+      decoration: widget.decoration,
+      child: Wrap(
+        direction: Axis.horizontal,
+        verticalDirection: VerticalDirection.down,
+        children: <Widget>[
+          for (FormBuilderFieldOption<T> option in widget.options)
+            ChoiceChip(
+                selected: false,
+                label: option,
+                onSelected: (s) => onChipPressed(option)),
+          if (widget.options.isEmpty)
+            ChoiceChip(
+              label: Text('No values Found!'),
+              selected: false,
+              onSelected: (v) => null,
+            ),
+          if (widget.onAdd != null && widget.options.length < widget.maxOptions)
+            ChoiceChip(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              label: Text(
+                '+',
+                style: DefaultTextStyle.of(context).style.copyWith(
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+              ),
+              selected: false,
+              onSelected: (v) => goIntoEditing(),
+            ),
+        ],
       ),
     );
   }

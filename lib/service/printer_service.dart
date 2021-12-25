@@ -63,7 +63,6 @@ class PrinterService {
           _printerObjectsList();
           break;
         default:
-          printerStream.add(Printer());
       }
     });
   }
@@ -73,7 +72,8 @@ class PrinterService {
   _printerObjectsList() {
     // printerStream.value = Printer();
     _logger.i(">>>Querying printers object list");
-    _webSocket.sendObject("printer.objects.list", _parsePrinterObjectsList);
+    _webSocket.sendJsonRpcMethod("printer.objects.list",
+        function: _parsePrinterObjectsList);
   }
 
   refreshPrinter() {
@@ -104,12 +104,14 @@ class PrinterService {
     printerStream.add(latestPrinter);
   }
 
-  _parsePrinterObjectsList(response) {
+  _parsePrinterObjectsList(response, {err}) {
+    if (err != null) return;
+    var result = response['result'];
     Printer printer = _latestPrinter;
     _logger.i("<<<Received printer objects list!");
     _logger
-        .v('PrinterObjList: ${JsonEncoder.withIndent('  ').convert(response)}');
-    List<String> objects = response['objects'].cast<String>();
+        .v('PrinterObjList: ${JsonEncoder.withIndent('  ').convert(result)}');
+    List<String> objects = result['objects'].cast<String>();
     List<String> qObjects = [];
     List<String> gCodeMacros = [];
 
@@ -384,9 +386,10 @@ class PrinterService {
 
     _logger.i(">>>Querying Printer Objects!");
 
-    _webSocket.sendObject("printer.objects.query",
-        (response) => _printerObjectsQuery(response, printer),
-        params: {'objects': queryObjects});
+    _webSocket.sendJsonRpcMethod("printer.objects.query",
+        function: (response, {err}) {
+      if (err == null) _printerObjectsQuery(response['result'], printer);
+    }, params: {'objects': queryObjects});
   }
 
   /// This method registeres every printer object for websocket updates!
@@ -403,22 +406,22 @@ class PrinterService {
       }
     }
 
-    _webSocket.sendObject("printer.objects.subscribe", null,
+    _webSocket.sendJsonRpcMethod("printer.objects.subscribe",
         params: {'objects': queryObjects});
   }
 
   // PRINTER PUBLIC METHODS
 
   resumePrint() {
-    _webSocket.sendObject("printer.print.resume", null);
+    _webSocket.sendJsonRpcMethod("printer.print.resume");
   }
 
   pausePrint() {
-    _webSocket.sendObject("printer.print.pause", null);
+    _webSocket.sendJsonRpcMethod("printer.print.pause");
   }
 
   cancelPrint() {
-    _webSocket.sendObject("printer.print.cancel", null);
+    _webSocket.sendJsonRpcMethod("printer.print.cancel");
   }
 
   setGcodeOffset({double? x, double? y, double? z, int? move}) {
@@ -431,24 +434,24 @@ class PrinterService {
     if (move != null) gcode += " MOVE=$move";
 
     _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+        .sendJsonRpcMethod("printer.gcode.script", params: {'script': gcode});
   }
 
-  movePrintHead({x, y, z}) {
+  movePrintHead({double? x, double? y, double? z, double feedRate = 100}) {
     List<String> moves = [];
     if (x != null) moves.add(_gcodeMoveCode("X", x));
     if (y != null) moves.add(_gcodeMoveCode("Y", y));
     if (z != null) moves.add(_gcodeMoveCode("Z", z));
 
-    String gcode = "G91\n" + "G1 ${moves.join(" ")} F${100 * 60}\nG90";
+    String gcode = "G91\n" + "G1 ${moves.join(" ")} F${feedRate * 60}\nG90";
     _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+        .sendJsonRpcMethod("printer.gcode.script", params: {'script': gcode});
   }
 
   moveExtruder(double length, [double feedRate = 5]) {
     String gcode = "M83\n" + "G1 E$length F${feedRate * 60}";
     _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+        .sendJsonRpcMethod("printer.gcode.script", params: {'script': gcode});
   }
 
   homePrintHead(Set<PrinterAxis> axis) {
@@ -461,55 +464,55 @@ class PrinterService {
     }
 
     _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+        .sendJsonRpcMethod("printer.gcode.script", params: {'script': gcode});
   }
 
   quadGantryLevel() {
-    _webSocket.sendObject("printer.gcode.script", null,
+    _webSocket.sendJsonRpcMethod("printer.gcode.script",
         params: {'script': "QUAD_GANTRY_LEVEL"});
   }
 
   bedMeshLevel() {
-    _webSocket.sendObject("printer.gcode.script", null,
+    _webSocket.sendJsonRpcMethod("printer.gcode.script",
         params: {'script': "BED_MESH_CALIBRATE"});
   }
 
   partCoolingFan(double perc) {
-    _webSocket.sendObject("printer.gcode.script", null,
+    _webSocket.sendJsonRpcMethod("printer.gcode.script",
         params: {'script': "M106 S${min(255, 255 * perc).toInt()}"});
   }
 
   genericFanFan(String fanName, double perc) {
-    _webSocket.sendObject("printer.gcode.script", null, params: {
+    _webSocket.sendJsonRpcMethod("printer.gcode.script", params: {
       'script': "SET_FAN_SPEED  FAN=$fanName SPEED=${perc.toStringAsFixed(2)}"
     });
   }
 
   outputPin(String pinName, double value) {
-    _webSocket.sendObject("printer.gcode.script", null, params: {
+    _webSocket.sendJsonRpcMethod("printer.gcode.script", params: {
       'script': "SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}"
     });
   }
 
   gCodeMacro(String macro) {
     _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': macro});
+        .sendJsonRpcMethod("printer.gcode.script", params: {'script': macro});
   }
 
   setTemperature(String heater, int target) {
     String gcode = "SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target";
 
     _webSocket
-        .sendObject("printer.gcode.script", null, params: {'script': gcode});
+        .sendJsonRpcMethod("printer.gcode.script", params: {'script': gcode});
   }
 
   startPrintFile(GCodeFile file) {
-    _webSocket.sendObject("printer.print.start", null,
+    _webSocket.sendJsonRpcMethod("printer.print.start",
         params: {'filename': file.pathForPrint});
   }
 
   resetPrintStat() {
-    _webSocket.sendObject("printer.gcode.script", null,
+    _webSocket.sendJsonRpcMethod("printer.gcode.script",
         params: {'script': 'SDCARD_RESET_FILE'});
   }
 

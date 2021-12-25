@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/util/misc.dart';
@@ -95,7 +95,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
           wsUrl: wsUrl,
           httpUrl: httpUrl,
           apiKey: printerAPIKey);
-      _printerSettingService.addPrinter(printerSetting).then(
+      _printerSettingService.addMachine(printerSetting).then(
           (value) => _navigationService.clearStackAndShow(Routes.overView));
     }
   }

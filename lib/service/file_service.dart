@@ -68,25 +68,29 @@ class FileService {
     Completer<FolderContentWrapper> reqCompleter = Completer();
     _logger.i('Fetching for `$path` [extended:$extended]');
 
-    _webSocket.sendObject("server.files.get_directory",
-        (response) => _parseDirectory(response, path, reqCompleter),
-        params: {'path': path, 'extended': extended});
+    _webSocket.sendJsonRpcMethod("server.files.get_directory",
+        function: (response, {err}) {
+      if (err == null) _parseDirectory(response['result'], path, reqCompleter);
+    }, params: {'path': path, 'extended': extended});
     return reqCompleter.future;
   }
 
   _fetchAvailableFiles(FileRoot root) {
-    _webSocket.sendObject(
-        "server.files.list", (response) => _parseResult(response, root),
-        params: {'root': EnumToString.convertToString(root)});
+    _webSocket.sendJsonRpcMethod("server.files.list",
+        function: (response, {err}) {
+      if (err == null) _parseResult(response['result'], root);
+    }, params: {'root': EnumToString.convertToString(root)});
   }
 
   Future<GCodeFile> getGCodeMetadata(String filename) async {
     Completer<GCodeFile> reqCompleter = Completer();
     _logger.i('Getting meta for file: `$filename`');
 
-    _webSocket.sendObject("server.files.metadata",
-        (response) => _parseFileMeta(response, filename, reqCompleter),
-        params: {'filename': filename});
+    _webSocket.sendJsonRpcMethod("server.files.metadata",
+        function: (response, {err}) {
+      if (err == null)
+        _parseFileMeta(response['result'], filename, reqCompleter);
+    }, params: {'filename': filename});
     return reqCompleter.future;
   }
 
@@ -138,7 +142,8 @@ class FileService {
       return GCodeFile.fromJson(element, forPath);
     });
 
-    completer.complete(FolderContentWrapper(forPath, listOfFolder, listOfFiles));
+    completer
+        .complete(FolderContentWrapper(forPath, listOfFolder, listOfFiles));
   }
 
   _parseFileMeta(response, String forFile, Completer<GCodeFile> completer) {
@@ -147,10 +152,8 @@ class FileService {
     split.insert(0,
         'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
 
-    ;
     completer.complete(GCodeFile.fromJson(response, split.join('/')));
   }
-
 
   dispose() {
     _fileActionStreamCtrler.close();

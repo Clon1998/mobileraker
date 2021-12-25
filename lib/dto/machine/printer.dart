@@ -10,7 +10,6 @@ import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/machine/virtual_sd_card.dart';
 
-
 class Printer {
   Toolhead toolhead = Toolhead();
   Extruder extruder = Extruder();

@@ -1,12 +1,10 @@
-import 'dart:ui';
-
-import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/notification_service.dart';
+import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/views/files/details/file_details_view.dart';
 import 'package:mobileraker/ui/views/files/files_view.dart';
 import 'package:mobileraker/ui/views/fullcam/full_cam_view.dart';
@@ -33,39 +31,37 @@ import 'package:stacked_services/stacked_services.dart';
   LazySingleton(classType: BottomSheetService),
   LazySingleton(classType: GeneralTabViewModel),
   Singleton(classType: MachineService),
+  Singleton(classType: SettingService),
+  Singleton(classType: NotificationService),
 ], logger: StackedLogger())
 class AppSetup {}
 
-openBoxes() async {
+setupBoxes() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(PrinterSettingAdapter());
-  Hive.registerAdapter(WebcamSettingAdapter());
-  Hive.registerAdapter(TemperaturePresetAdapter());
+  var printerSettingAdapter = PrinterSettingAdapter();
+  if (!Hive.isAdapterRegistered(printerSettingAdapter.typeId))
+    Hive.registerAdapter(printerSettingAdapter);
+  var webcamSettingAdapter = WebcamSettingAdapter();
+  if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId))
+    Hive.registerAdapter(webcamSettingAdapter);
+  var temperaturePresetAdapter = TemperaturePresetAdapter();
+  if (!Hive.isAdapterRegistered(temperaturePresetAdapter.typeId))
+    Hive.registerAdapter(temperaturePresetAdapter);
   // Hive.deleteBoxFromDisk('printers');
-  await Future.wait([
-    Hive.openBox<PrinterSetting>('printers'),
-    Hive.openBox<String>('uuidbox'),
-  ]);
+  try {
+    await openBoxes();
+  } catch (e) {
+    await Hive.deleteBoxFromDisk('printers');
+    await Hive.deleteBoxFromDisk('uuidbox');
+    await Hive.deleteBoxFromDisk('settingsbox');
+    await openBoxes();
+  }
 }
 
-setupNotifications() {
-  AwesomeNotifications().initialize(
-      // set the icon to null if you want to use the default app icon
-      null,
-      [
-        NotificationChannel(
-            channelKey: 'basic_channel',
-            channelName: 'Basic notifications',
-            channelDescription: 'Notification channel for basic tests',
-            defaultColor: Color(0xFF9D50DD),
-            ledColor: Colors.white)
-      ]);
-
-  AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-    if (!isAllowed) {
-      // Insert here your friendly dialog box before call the request method
-      // This is very important to not harm the user experience
-      AwesomeNotifications().requestPermissionToSendNotifications();
-    }
-  });
+Future<List<Box>> openBoxes() {
+  return Future.wait([
+    Hive.openBox<PrinterSetting>('printers'),
+    Hive.openBox<String>('uuidbox'),
+    Hive.openBox('settingsbox'),
+  ]);
 }

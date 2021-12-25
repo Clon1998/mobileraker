@@ -17,13 +17,12 @@ import 'package:stacked/stacked.dart';
 
 import 'overview_viewmodel.dart';
 
-class OverView extends StatelessWidget {
+class OverView extends ViewModelBuilderWidget<OverViewModel> {
   const OverView({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return ViewModelBuilder<OverViewModel>.reactive(
-      builder: (context, model, child) => Scaffold(
+  Widget builder(BuildContext context, OverViewModel model, Widget? child) =>
+      Scaffold(
         appBar: AppBar(
           title: Text(
             model.title,
@@ -33,12 +32,12 @@ class OverView extends StatelessWidget {
             IconButton(
               icon: Icon(Icons.radio_button_on,
                   size: 10,
-                  color: stateToColor(model.hasServer
+                  color: stateToColor(model.isServerAvailable
                       ? model.server.klippyState
                       : KlipperState.error)),
-              tooltip: model.hasServer
-                  ? 'Server State is ${toName(model.server.klippyState)} and Moonraker is ${model.server.klippyConnected ? 'connected' : 'disconnected'} to Klipper'
-                  : 'Server is not connected',
+              tooltip: model.isServerAvailable
+                  ? 'Server State is ${toName(model.server.klippyState)} and Klippy is ${model.server.klippyConnected ? 'connected' : 'disconnected'}'
+                  : 'No Server available',
               onPressed: () => null,
             ),
             IconButton(
@@ -48,12 +47,13 @@ class OverView extends StatelessWidget {
                 size: 30,
               ),
               tooltip: 'Emergency-Stop',
-              onPressed: (model.hasServer) ? model.onEmergencyPressed : null,
+              onPressed:
+                  (model.isServerAvailable) ? model.onEmergencyPressed : null,
             ),
           ],
         ),
         body: ConnectionStateView(
-          pChild: (model.hasPrinter)
+          pChild: (model.isPrinterAvailable)
               ? PageTransitionSwitcher(
                   duration: const Duration(milliseconds: 300),
                   reverse: model.reverse,
@@ -90,24 +90,24 @@ class OverView extends StatelessWidget {
         ),
         floatingActionButton: printingStateToFab(model),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-        bottomNavigationBar:
-            (model.isPrinterSelected && model.isKlippyConnected)
-                ? AnimatedBottomNavigationBar(
-                    // ToDo swap with Text
-                    icons: [
-                      FlutterIcons.tachometer_faw,
-                      // FlutterIcons.camera_control_mco,
-                      FlutterIcons.settings_oct,
-                    ],
-
-                    activeColor: getActiveTextColor(context),
-                    gapLocation: GapLocation.end,
-                    backgroundColor: Theme.of(context).primaryColor,
-                    notchSmoothness: NotchSmoothness.softEdge,
-                    activeIndex: model.currentIndex,
-                    onTap: model.setIndex,
-                  )
-                : null,
+        bottomNavigationBar: (model.isMachineAvailable &&
+                model.isPrinterAvailable &&
+                model.isServerAvailable)
+            ? AnimatedBottomNavigationBar(
+                // ToDo swap with Text
+                icons: [
+                  FlutterIcons.tachometer_faw,
+                  // FlutterIcons.camera_control_mco,
+                  FlutterIcons.settings_oct,
+                ],
+                activeColor: getActiveTextColor(context),
+                gapLocation: GapLocation.end,
+                backgroundColor: Theme.of(context).primaryColor,
+                notchSmoothness: NotchSmoothness.softEdge,
+                activeIndex: model.currentIndex,
+                onTap: model.setIndex,
+              )
+            : null,
         // ConvexAppBar(
         //
         //   style: TabStyle.textIn,
@@ -120,10 +120,10 @@ class OverView extends StatelessWidget {
         //   onTap: model.setIndex,
         // ),
         drawer: NavigationDrawerWidget(curPath: Routes.overView),
-      ),
-      viewModelBuilder: () => OverViewModel(),
-    );
-  }
+      );
+
+  @override
+  OverViewModel viewModelBuilder(BuildContext context) => OverViewModel();
 
   Color? getActiveTextColor(context) {
     var themeData = Theme.of(context);
@@ -144,7 +144,7 @@ class OverView extends StatelessWidget {
   }
 
   Widget? printingStateToFab(OverViewModel model) {
-    if (!model.hasPrinter || !model.hasServer) return null;
+    if (!model.isPrinterAvailable || !model.isServerAvailable) return null;
 
     if (model.server.klippyState == KlipperState.error) return IdleFAB();
 

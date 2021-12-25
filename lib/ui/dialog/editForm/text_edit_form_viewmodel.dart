@@ -3,17 +3,17 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class EditFormViewModel extends BaseViewModel {
-  EditFormViewModel(this.request, this.completer);
+class TextEditFormViewModel extends BaseViewModel {
+  TextEditFormViewModel(this.request, this.completer);
 
   final DialogRequest request;
   final Function(DialogResponse) completer;
-  final _fbKey = GlobalKey<FormBuilderState>();
-  Key get formKey => _fbKey;
+  final _editFormKey = GlobalKey<FormBuilderState>();
+  Key get formKey => _editFormKey;
 
   onFormConfirm() {
-    if (_fbKey.currentState!.saveAndValidate()) {
-      completer(DialogResponse(confirmed: true, data:  _fbKey.currentState!.value['newValue']));
+    if (_editFormKey.currentState!.saveAndValidate()) {
+      completer(DialogResponse(confirmed: true, data:  _editFormKey.currentState!.value['newValue']));
     }
   }
 

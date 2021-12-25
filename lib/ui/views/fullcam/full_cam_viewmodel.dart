@@ -16,7 +16,7 @@ class FullCamViewModel extends BaseViewModel {
   FullCamViewModel(this.selectedCam);
 
   PrinterSetting? get _printerSetting =>
-      _machineService.selectedPrinter.valueOrNull;
+      _machineService.selectedMachine.valueOrNull;
 
   double get yTransformation {
     if (selectedCam?.flipHorizontal ?? false)
@@ -35,6 +35,14 @@ class FullCamViewModel extends BaseViewModel {
   Matrix4 get transformMatrix => Matrix4.identity()
     ..rotateX(xTransformation)
     ..rotateY(yTransformation);
+
+  // double get nozzleCurrent => this.data!.extruder.temperature;
+  //
+  // double get nozzleTarget => this.data!.extruder.target;
+  //
+  // double get bedCurrent => this.data!.heaterBed.temperature;
+  //
+  // double get bedTarget => this.data!.heaterBed.target;
 
   onWebcamSettingSelected(WebcamSetting? webcamSetting) {
     selectedCam = webcamSetting;

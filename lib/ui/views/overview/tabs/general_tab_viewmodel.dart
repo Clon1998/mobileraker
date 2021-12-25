@@ -8,6 +8,7 @@ import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
+import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
@@ -16,7 +17,9 @@ import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
-import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
+import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/dialog/editForm/num_edit_form_view.dart';
+import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -28,8 +31,10 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
   final _navigationService = locator<NavigationService>();
+  final _settingService = locator<SettingService>();
 
   PrinterSetting? _printerSetting;
+  int _printerSettingHash = -1;
 
   PrinterService? get _printerService => _printerSetting?.printerService;
 
@@ -39,20 +44,33 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   GlobalKey<FlipCardState> tmpCardKey = GlobalKey<FlipCardState>();
 
-  List<int> axisStepSize = [100, 25, 10, 1];
   int selectedIndexAxisStepSizeIndex = 0;
 
-  List<double> babySteppingSizes = [0.005, 0.01, 0.05, 0.1];
   int selectedIndexBabySteppingSize = 0;
 
   GCodeFile? currentFile;
 
   WebcamSetting? selectedCam;
 
+
+  ScrollController _tempsScrollController = new ScrollController(
+    keepScrollOffset: true,
+  );
+  ScrollController get tempsScrollController => _tempsScrollController;
+
+  ScrollController _presetsScrollController = new ScrollController(
+    keepScrollOffset: true,
+  );
+  ScrollController get presetsScrollController => _presetsScrollController;
+
+  int get tempsSteps => 2+printer.temperatureSensors.length;
+
+  int get presetSteps => 1 + temperaturePresets.length;
+
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedPrinter),
+            StreamData<PrinterSetting?>(_machineService.selectedMachine),
         if (_printerSetting?.printerService != null) ...{
           _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },
@@ -69,10 +87,15 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     switch (key) {
       case _SelectedPrinterStreamKey:
         PrinterSetting? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting) break;
+        if (nPrinterSetting == _printerSetting &&
+            nPrinterSetting.hashCode == _printerSettingHash) break;
         _printerSetting = nPrinterSetting;
+        _printerSettingHash = nPrinterSetting.hashCode;
         List<WebcamSetting>? tmpCams = _printerSetting?.cams;
-        if (tmpCams?.isNotEmpty ?? false) selectedCam = tmpCams!.first;
+        if (tmpCams?.isNotEmpty ?? false)
+          selectedCam = tmpCams!.first;
+        else
+          selectedCam = null;
         notifySourceChanged(clearOldData: true);
         break;
 
@@ -92,17 +115,17 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     }
   }
 
-  bool get canUsePrinter => server.klippyState == KlipperState.ready;
+  bool get canUsePrinter => server.klippyState == KlipperState.ready && server.klippyConnected;
 
-  bool get isPrinterSelected => dataReady(_SelectedPrinterStreamKey);
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
-  bool get hasServer => dataReady(_ServerStreamKey);
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   Printer get printer => dataMap![_PrinterStreamKey];
 
-  bool get hasPrinter => dataReady(_PrinterStreamKey);
+  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
   String get status {
     if (server.klippyState == KlipperState.ready) {
@@ -110,6 +133,14 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     } else
       return server.klippyStateMessage ??
           'Klipper: ${toName(server.klippyState)}';
+  }
+
+  List<int> get axisStepSize {
+    return _printerSetting?.moveSteps.toList() ?? const [100, 25, 10, 1];
+  }
+
+  List<double> get babySteppingSizes {
+    return _printerSetting?.babySteps.toList() ?? const [0.005, 0.01, 0.05, 0.1];
   }
 
   List<TemperaturePreset> get temperaturePresets {
@@ -161,11 +192,11 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     if (isHeatedBed) {
       _dialogService
           .showCustomDialog(
-              variant: DialogType.editForm,
+              variant: DialogType.numEditForm,
               title: "Edit Heated Bed Temperature",
               mainButtonTitle: "Confirm",
               secondaryButtonTitle: "Cancel",
-              data: EditFormDialogViewArguments(
+              data: NumEditFormDialogViewArguments(
                   current: printer.heaterBed.target.round(),
                   min: 0,
                   max: printer.configFile.configHeaterBed?.maxTemp.toInt() ??
@@ -179,11 +210,11 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     } else {
       _dialogService
           .showCustomDialog(
-              variant: DialogType.editForm,
+              variant: DialogType.numEditForm,
               title: "Edit Extruder Temperature",
               mainButtonTitle: "Confirm",
               secondaryButtonTitle: "Cancel",
-              data: EditFormDialogViewArguments(
+              data: NumEditFormDialogViewArguments(
                   current: printer.extruder.target.round(),
                   min: 0,
                   max: printer.configFile.primaryExtruder?.maxTemp.toInt() ??
@@ -206,13 +237,19 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     double dirStep = (positive) ? step : -1 * step;
     switch (axis) {
       case PrinterAxis.X:
-        _printerService?.movePrintHead(x: dirStep);
+        if (_printerSetting!.inverts[0]) dirStep *= -1;
+        _printerService?.movePrintHead(
+            x: dirStep, feedRate: _printerSetting!.speedXY.toDouble());
         break;
       case PrinterAxis.Y:
-        _printerService?.movePrintHead(y: dirStep);
+        if (_printerSetting!.inverts[1]) dirStep *= -1;
+        _printerService?.movePrintHead(
+            y: dirStep, feedRate: _printerSetting!.speedXY.toDouble());
         break;
       case PrinterAxis.Z:
-        _printerService?.movePrintHead(z: dirStep);
+        if (_printerSetting!.inverts[2]) dirStep *= -1;
+        _printerService?.movePrintHead(
+            z: dirStep, feedRate: _printerSetting!.speedZ.toDouble());
         break;
     }
   }
@@ -260,6 +297,13 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     selectedCam = webcamSetting;
   }
 
+  bool get isPrinting => printer.print.state == PrintState.printing;
+
+  bool get showBabyStepping =>
+      isPrinting || _settingService.readBool(showBabyAlwaysKey);
+
+  bool get isNotPrinting => !isPrinting;
+
   int get maxLayers {
     if (!_canCalcMaxLayer) return 0;
     GCodeFile crntFile = currentFile!;
@@ -271,7 +315,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   }
 
   bool get _canCalcMaxLayer =>
-      hasPrinter &&
+      isPrinterAvailable &&
       currentFile != null &&
       currentFile!.firstLayerHeight != null &&
       currentFile!.layerHeight != null &&
@@ -290,8 +334,16 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   }
 
   bool get _canCalcLayer =>
-      hasPrinter &&
+      isPrinterAvailable &&
       currentFile != null &&
       currentFile!.firstLayerHeight != null &&
       currentFile!.layerHeight != null;
+
+  onRestartKlipperPressed() {
+    _klippyService?.restartKlipper();
+  }
+
+  onRestartMCUPressed() {
+    _klippyService?.restartMCUs();
+  }
 }

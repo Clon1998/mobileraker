@@ -7,8 +7,8 @@ import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/service/file_service.dart';
-import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
+import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/files/files_viewmodel.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -41,9 +41,10 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         ),
         title: EaseIn(
           child: TextField(
+            onChanged: (str) => model.notifyListeners(),
             controller: model.searchEditingController,
             autofocus: true,
-            style: Theme.of(context).textTheme.headline6,
+            style: Theme.of(context).primaryTextTheme.headline6,
             decoration: InputDecoration(
               hintText: 'Search files...',
               border: InputBorder.none,
@@ -52,7 +53,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                   : IconButton(
                       tooltip: 'Clear search',
                       icon: Icon(Icons.close),
-                      color: Theme.of(context).colorScheme.onPrimary,
+                      color: Theme.of(context).colorScheme.onSecondary,
                       onPressed: model.resetSearchQuery,
                     ),
             ),
@@ -101,7 +102,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   Widget buildBody(BuildContext context, FilesViewModel model) {
     if (model.isBusy)
       return buildBusyListView(context, model);
-    else if (model.hasFolderContent)
+    else if (model.isFolderContentAvailable && model.isServerAvailable && model.isMachineAvailable)
       return buildListView(context, model);
     else
       return buildFetchingView();
@@ -189,30 +190,46 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
             child: SmartRefresher(
               controller: model.refreshController,
               onRefresh: model.onRefresh,
-              child: ListView.builder(
-                  itemCount: lenTotal,
-                  itemBuilder: (context, index) {
-                    if (model.isSubFolder) {
-                      if (index == 0)
-                        return ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          leading: SizedBox(
-                              width: 64, height: 64, child: Icon(Icons.folder)),
-                          title: Text("..."),
-                          onTap: () => model.onPopFolder(),
-                        );
-                      else
-                        index--;
-                    }
+              child: (lenTotal == 0)
+                  ? ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: SizedBox(
+                          width: 64, height: 64, child: Icon(Icons.search_off)),
+                      title: Text("No files found"),
+                    )
+                  : ListView.builder(
+                      itemCount: lenTotal,
+                      itemBuilder: (context, index) {
+                        if (model.isSubFolder) {
+                          if (index == 0)
+                            return ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: SizedBox(
+                                  width: 64,
+                                  height: 64,
+                                  child: Icon(Icons.folder)),
+                              title: Text("..."),
+                              onTap: () => model.onPopFolder(),
+                            );
+                          else
+                            index--;
+                        }
 
-                    if (index < lenFolders) {
-                      Folder folder = folderContent.folders[index];
-                      return FolderItem(folder: folder);
-                    } else {
-                      GCodeFile file = folderContent.gCodes[index - lenFolders];
-                      return FileItem(gCode: file);
-                    }
-                  }),
+                        if (index < lenFolders) {
+                          Folder folder = folderContent.folders[index];
+                          return FolderItem(
+                            folder: folder,
+                            key: ValueKey(folder),
+                          );
+                        } else {
+                          GCodeFile file =
+                              folderContent.gCodes[index - lenFolders];
+                          return FileItem(
+                            gCode: file,
+                            key: ValueKey(file),
+                          );
+                        }
+                      }),
             ),
           ),
         ],
@@ -268,7 +285,6 @@ class FolderItem extends ViewModelWidget<FilesViewModel> {
   Widget build(BuildContext context, FilesViewModel model) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      key: ValueKey(folder),
       leading: SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
       title: Text(folder.name),
       onTap: () => model.onFolderPressed(folder),
@@ -285,7 +301,6 @@ class FileItem extends ViewModelWidget<FilesViewModel> {
   Widget build(BuildContext context, FilesViewModel model) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      key: ValueKey(gCode),
       leading: SizedBox(
           width: 64,
           height: 64,

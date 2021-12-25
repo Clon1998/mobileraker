@@ -1,12 +1,13 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/enums/bottom_sheet_type.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -17,7 +18,9 @@ const String _PrinterStreamKey = 'printer';
 class OverViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
   final _bottomSheetService = locator<BottomSheetService>();
+  final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
+  final _settingService = locator<SettingService>();
 
   PrinterSetting? _printerSetting;
 
@@ -28,17 +31,13 @@ class OverViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedPrinter),
-        if (_printerService != null) ...{
-          _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
-        },
-        if (_klippyService != null) ...{
+            StreamData<PrinterSetting?>(_machineService.selectedMachine),
+        if (_printerService != null)
+          _PrinterStreamKey:
+              StreamData<Printer>(_printerService!.printerStream),
+        if (_klippyService != null)
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
-        }
-        // _ServerStreamKey:
-        // StreamData<KlipperInstance>(),
-        // _PrinterStreamKey: StreamData<Printer>(),
       };
 
   int _currentIndex = 0;
@@ -63,22 +62,21 @@ class OverViewModel extends MultipleStreamViewModel {
 
   bool isIndexSelected(int index) => _currentIndex == index;
 
-  String get title => '${selectedPrinter?.name ?? 'Printer'} - Dashboard';
+  String get title => '${machine?.name ?? 'Printer'} - Dashboard';
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
-  bool get isPrinterSelected => dataReady(_SelectedPrinterStreamKey);
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
-  PrinterSetting? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
+  PrinterSetting? get machine => dataMap?[_SelectedPrinterStreamKey];
 
-  bool get hasServer => dataReady(_ServerStreamKey);
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   Printer get printer => dataMap![_PrinterStreamKey];
 
-  bool get hasPrinter => dataReady(_PrinterStreamKey);
+  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
-  bool get isKlippyConnected =>
-      _klippyService?.isKlippyConnected ?? false;
+  bool get isKlippyConnected => _klippyService?.isKlippyConnected ?? false;
 
   @override
   onData(String key, data) {
@@ -103,7 +101,18 @@ class OverViewModel extends MultipleStreamViewModel {
   }
 
   onEmergencyPressed() {
-    _klippyService?.emergencyStop();
+    if (_settingService.readBool(emsKey))
+      _dialogService
+          .showConfirmationDialog(
+        title: "Emergency Stop - Confirmation",
+        description: "Are you sure?",
+        confirmationTitle: "STOP!",
+      )
+          .then((dialogResponse) {
+        if (dialogResponse?.confirmed ?? false) _klippyService?.emergencyStop();
+      });
+    else
+      _klippyService?.emergencyStop();
   }
 
   onPausePrintPressed() {
@@ -118,13 +127,19 @@ class OverViewModel extends MultipleStreamViewModel {
     _printerService?.resumePrint();
   }
 
-  navigateToSettings() {
-    //Navigate to other View:::
-    // _navigationService.navigateTo(Routes.settingView);
-  }
+// onTitleSwipeDetection(SwipeDirection dir) {
+//   switch (dir) {
+//
+//     case SwipeDirection.left:
+//       _machineService.selectPreviousMachine();
+//       break;
+//     case SwipeDirection.right:
+//       _machineService.selectNextMachine();
+//
+//       break;
+//     default:
+//   }
+//
+// }
 
-  fffff() {
-    // _navigationService.navigateTo(Routes.testView);
-    // print("asdasd");
-  }
 }
