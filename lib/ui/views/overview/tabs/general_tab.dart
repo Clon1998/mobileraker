@@ -13,6 +13,7 @@ import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
@@ -68,12 +69,14 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
         children: [
           ListTile(
             contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
-            leading: Icon((model.server.klippyState != KlipperState.ready)
+            leading: Icon((model.server.klippyState != KlipperState.ready ||
+                    !model.server.klippyConnected)
                 ? FlutterIcons.disconnect_ant
                 : FlutterIcons.monitor_dashboard_mco),
             title: Text(model.status,
                 style: TextStyle(
-                    color: (model.server.klippyState != KlipperState.ready)
+                    color: (model.server.klippyState != KlipperState.ready ||
+                            !model.server.klippyConnected)
                         ? Theme.of(context).colorScheme.error
                         : null)),
             subtitle: _subTitle(model),
@@ -109,7 +112,8 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
   }
 
   Widget? _subTitle(GeneralTabViewModel model) {
-    if (model.server.klippyState != KlipperState.ready)
+    if (model.server.klippyState != KlipperState.ready ||
+        !model.server.klippyConnected)
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -305,36 +309,39 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
       flipOnTouch: false,
       direction: FlipDirection.VERTICAL,
       front: Card(
-        child: Column(
-          children: [
-            ListTile(
-              leading: Icon(
-                FlutterIcons.fire_alt_faw5s,
-                color: ((model.printer.extruder.target +
-                            model.printer.heaterBed.target) >
-                        0)
-                    ? Colors.deepOrange
-                    : Theme.of(context).iconTheme.color,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(
+                  FlutterIcons.fire_alt_faw5s,
+                  color: ((model.printer.extruder.target +
+                              model.printer.heaterBed.target) >
+                          0)
+                      ? Colors.deepOrange
+                      : Theme.of(context).iconTheme.color,
+                ),
+                title: Text('Temperature controls'),
+                trailing: TextButton(
+                  onPressed: model.flipTemperatureCard,
+                  // onPressed: () => showWIPSnackbar(),
+                  child: Text('Presets'),
+                ),
               ),
-              title: Text('Temperature controls'),
-              trailing: TextButton(
-                onPressed: model.flipTemperatureCard,
-                // onPressed: () => showWIPSnackbar(),
-                child: Text('Presets'),
-              ),
-            ),
-            Padding(
-                padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     var elementWidth = constraints.maxWidth / 2;
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
+                      controller: model.tempsScrollController,
                       child: Row(
                         children: [
                           _HeaterCard(
                             name: 'Hotend',
-                            width: constraints.maxWidth / 2,
+                            width: elementWidth,
                             current: model.printer.extruder.temperature,
                             target: model.printer.extruder.target,
                             onTap: model.canUsePrinter
@@ -343,7 +350,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                           ),
                           _HeaterCard(
                             name: 'Bed',
-                            width: constraints.maxWidth / 2,
+                            width: elementWidth,
                             current: model.printer.heaterBed.temperature,
                             target: model.printer.heaterBed.target,
                             onTap: model.canUsePrinter
@@ -355,42 +362,60 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                       ),
                     );
                   },
-                )),
-          ],
+                ),
+              ),
+              if (model.presetSteps + model.tempsSteps > 2)
+                HorizontalScrollIndicator(
+                  steps: model.tempsSteps,
+                  controller: model.tempsScrollController,
+                  childsPerScreen: 2,
+                )
+            ],
+          ),
         ),
       ),
       back: Card(
-        child: Column(
-          children: [
-            ListTile(
-              leading: Icon(
-                FlutterIcons.fire_alt_faw5s,
-                color: ((model.printer.extruder.target +
-                            model.printer.heaterBed.target) >
-                        0)
-                    ? Colors.deepOrange
-                    : Theme.of(context).iconTheme.color,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(
+                  FlutterIcons.fire_alt_faw5s,
+                  color: ((model.printer.extruder.target +
+                              model.printer.heaterBed.target) >
+                          0)
+                      ? Colors.deepOrange
+                      : Theme.of(context).iconTheme.color,
+                ),
+                title: Text('Temperature presets'),
+                trailing: TextButton(
+                  onPressed: model.flipTemperatureCard,
+                  child: Text('Sensors'),
+                ),
               ),
-              title: Text('Temperature presets'),
-              trailing: TextButton(
-                onPressed: model.flipTemperatureCard,
-                child: Text('Sensors'),
-              ),
-            ),
-            Padding(
-                padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: _buildTemperaturePresetCards(
-                            constraints.maxWidth / 2, model),
-                      ),
-                    );
-                  },
-                )),
-          ],
+              Padding(
+                  padding: const EdgeInsets.only(left: 8, right: 8),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        controller: model.presetsScrollController,
+                        child: Row(
+                          children: _buildTemperaturePresetCards(
+                              constraints.maxWidth / 2, model),
+                        ),
+                      );
+                    },
+                  )),
+              if (model.presetSteps + model.tempsSteps > 2)
+                HorizontalScrollIndicator(
+                  steps: model.presetSteps,
+                  controller: model.presetsScrollController,
+                  childsPerScreen: 2,
+                )
+            ],
+          ),
         ),
       ),
     );
@@ -766,12 +791,12 @@ class ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Text("Step size [mm]"),
-                      RangeSelector(
-                          selectedIndex: model.selectedIndexAxisStepSizeIndex,
-                          onSelected: model.onSelectedAxisStepSizeChanged,
-                          values: model.axisStepSize
-                              .map((e) => e.toString())
-                              .toList())
+                    RangeSelector(
+                        selectedIndex: model.selectedIndexAxisStepSizeIndex,
+                        onSelected: model.onSelectedAxisStepSizeChanged,
+                        values: model.axisStepSize
+                            .map((e) => e.toString())
+                            .toList())
                   ],
                 )
               ],

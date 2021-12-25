@@ -4,16 +4,19 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/domain/gcode_macro.dart';
+import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class PrintersEditViewModel extends BaseViewModel {
+class PrintersEditViewModel extends FutureViewModel<Printer> {
   final _logger = getLogger('PrintersEditViewModel');
 
   final _navigationService = locator<NavigationService>();
@@ -22,7 +25,11 @@ class PrintersEditViewModel extends BaseViewModel {
   final _machineService = locator<MachineService>();
   final _fbKey = GlobalKey<FormBuilderState>();
   final PrinterSetting printerSetting;
+
+  late final _macroGroups = printerSetting.macroGroups.toList();
+
   late final webcams = printerSetting.cams.toList();
+
   late final tempPresets = printerSetting.temperaturePresets.toList();
 
   late final printerMoveSteps = printerSetting.moveSteps.toList();
@@ -32,6 +39,45 @@ class PrintersEditViewModel extends BaseViewModel {
   late final printerExtruderSteps = printerSetting.extrudeSteps.toList();
 
   PrintersEditViewModel(this.printerSetting);
+
+  @override
+  Future<Printer> futureToRun() {
+    return printerSetting.printerService.printerStream.first;
+  }
+
+  @override
+  void onData(Printer? data) {
+    MacroGroup defaultGroup = _defaultGroup;
+    if (data != null) {
+      List<String> filteredMacros = data.gcodeMacros.toList();
+      for (MacroGroup grp in _macroGroups) {
+        for (GCodeMacro macro in grp.macros) {
+          filteredMacros.remove(macro.name);
+        }
+      }
+      List<GCodeMacro> modifiableList = defaultGroup.macros.toList();
+      modifiableList.addAll(filteredMacros.map((e) => GCodeMacro(e)));
+      defaultGroup.macros = modifiableList;
+    }
+  }
+
+  List<String> get printersMacros {
+    if (dataReady) {
+      return data!.gcodeMacros;
+    }
+    return [];
+  }
+
+  List<MacroGroup> get macroGroups {
+    return _macroGroups;
+  }
+
+  MacroGroup get _defaultGroup => _macroGroups
+          .firstWhere((element) => element.name == 'Default', orElse: () {
+        MacroGroup group = MacroGroup(name: 'Default');
+        _macroGroups.add(group);
+        return group;
+      });
 
   GlobalKey get formKey => _fbKey;
 
@@ -251,7 +297,7 @@ class PrintersEditViewModel extends BaseViewModel {
         ..extrudeSteps = printerExtruderSteps;
 
       await _machineService.updateMachine(printerSetting);
-      if (StackedService.navigatorKey?.currentState?.canPop()??false) {
+      if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
       } else {
         _navigationService.clearStackAndShow(Routes.overView);

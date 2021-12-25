@@ -18,7 +18,7 @@ import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/dialog/editForm/editForm_view.dart';
+import 'package:mobileraker/ui/dialog/editForm/num_edit_form_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -51,6 +51,21 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   GCodeFile? currentFile;
 
   WebcamSetting? selectedCam;
+
+
+  ScrollController _tempsScrollController = new ScrollController(
+    keepScrollOffset: true,
+  );
+  ScrollController get tempsScrollController => _tempsScrollController;
+
+  ScrollController _presetsScrollController = new ScrollController(
+    keepScrollOffset: true,
+  );
+  ScrollController get presetsScrollController => _presetsScrollController;
+
+  int get tempsSteps => 2+printer.temperatureSensors.length;
+
+  int get presetSteps => 1 + temperaturePresets.length;
 
   @override
   Map<String, StreamData> get streamsMap => {
@@ -100,7 +115,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     }
   }
 
-  bool get canUsePrinter => server.klippyState == KlipperState.ready;
+  bool get canUsePrinter => server.klippyState == KlipperState.ready && server.klippyConnected;
 
   bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
@@ -177,11 +192,11 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     if (isHeatedBed) {
       _dialogService
           .showCustomDialog(
-              variant: DialogType.editForm,
+              variant: DialogType.numEditForm,
               title: "Edit Heated Bed Temperature",
               mainButtonTitle: "Confirm",
               secondaryButtonTitle: "Cancel",
-              data: EditFormDialogViewArguments(
+              data: NumEditFormDialogViewArguments(
                   current: printer.heaterBed.target.round(),
                   min: 0,
                   max: printer.configFile.configHeaterBed?.maxTemp.toInt() ??
@@ -195,11 +210,11 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     } else {
       _dialogService
           .showCustomDialog(
-              variant: DialogType.editForm,
+              variant: DialogType.numEditForm,
               title: "Edit Extruder Temperature",
               mainButtonTitle: "Confirm",
               secondaryButtonTitle: "Cancel",
-              data: EditFormDialogViewArguments(
+              data: NumEditFormDialogViewArguments(
                   current: printer.extruder.target.round(),
                   min: 0,
                   max: printer.configFile.primaryExtruder?.maxTemp.toInt() ??

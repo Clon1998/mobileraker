@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:dots_indicator/dots_indicator.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -6,6 +9,7 @@ import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
+import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
@@ -19,20 +23,21 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   Widget builder(
       BuildContext context, ControlTabViewModel model, Widget? child) {
     return PullToRefreshPrinter(
-      child: ListView(
-        padding: const EdgeInsets.only(bottom: 20),
-        children: [
-          if (model.isPrinterAvailable &&
-              model.isServerAvailable &&
-              model.isMachineAvailable) ...[
-            if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
-            if (model.printer.print.state != PrintState.printing)
-              ExtruderControlCard(),
-            FansCard(),
-            if (model.printer.outputPins.isNotEmpty) PinsCard(),
-          ]
-        ],
-      ),
+      child: SingleChildScrollView(
+          padding: const EdgeInsets.only(bottom: 20),
+          child: Column(
+            children: [
+              if (model.isPrinterAvailable &&
+                  model.isServerAvailable &&
+                  model.isMachineAvailable) ...[
+                if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
+                if (model.printer.print.state != PrintState.printing)
+                  ExtruderControlCard(),
+                FansCard(),
+                if (model.printer.outputPins.isNotEmpty) PinsCard(),
+              ]
+            ],
+          )),
     );
   }
 
@@ -49,29 +54,35 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
   @override
   Widget build(BuildContext context, ControlTabViewModel model) {
     return Card(
-      child: Column(
-        children: [
-          ListTile(
-            leading: Icon(
-              FlutterIcons.fan_mco,
-              color: Theme.of(context).iconTheme.color,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Column(
+          children: [
+            ListTile(
+              leading: Icon(
+                FlutterIcons.fan_mco,
+                color: Theme.of(context).iconTheme.color,
+              ),
+              title: Text("Fan${(model.printer.fans.length > 0) ? 's' : ''}"),
             ),
-            title: Text("Fan${(model.printer.fans.length > 0) ? 's' : ''}"),
-          ),
-          Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  var elementWidth = constraints.maxWidth / 2;
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: buildFans(model, context, elementWidth),
-                    ),
-                  );
-                },
-              )),
-        ],
+            Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    var elementWidth = constraints.maxWidth / 2;
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      controller: model.fansScrollController,
+                      child: Row(
+                        children: buildFans(model, context, elementWidth),
+                      ),
+                    );
+                  },
+                )),
+            if (model.fansSteps > 2)
+              HorizontalScrollIndicator(steps: model.fansSteps, controller: model.fansScrollController, childsPerScreen: 2,)
+          ],
+        ),
       ),
     );
   }
@@ -343,29 +354,35 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
   @override
   Widget build(BuildContext context, ControlTabViewModel model) {
     return Card(
-      child: Column(
-        children: [
-          ListTile(
-            leading: Icon(
-              FlutterIcons.led_outline_mco,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Column(
+          children: [
+            ListTile(
+              leading: Icon(
+                FlutterIcons.led_outline_mco,
+              ),
+              title: Text(
+                  "Output Pin${(model.printer.outputPins.length > 0) ? 's' : ''}"),
             ),
-            title: Text(
-                "Output Pin${(model.printer.outputPins.length > 0) ? 's' : ''}"),
-          ),
-          Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 8, right: 8),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  var elementWidth = constraints.maxWidth / 2;
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: buildPins(model, context, elementWidth),
-                    ),
-                  );
-                },
-              )),
-        ],
+            Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    var elementWidth = constraints.maxWidth / 2;
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      controller: model.outputsScrollController,
+                      child: Row(
+                        children: buildPins(model, context, elementWidth),
+                      ),
+                    );
+                  },
+                )),
+            if (model.outputSteps > 2)
+              HorizontalScrollIndicator(steps: model.outputSteps, childsPerScreen: 2, controller: model.outputsScrollController)
+          ],
+        ),
       ),
     );
   }

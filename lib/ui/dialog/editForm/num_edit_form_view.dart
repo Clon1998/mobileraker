@@ -4,29 +4,31 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-import 'editForm_viewmodel.dart';
+import 'num_edit_form_viewmodel.dart';
 
-class EditFormDialogViewArguments {
+class NumEditFormDialogViewArguments {
   final num? min;
   final num? max;
   final num? current;
   final int? fraction;
 
-  EditFormDialogViewArguments(
+  NumEditFormDialogViewArguments(
       {this.min, this.max, this.current, this.fraction});
 }
 
-class EditFormDialogView extends StatelessWidget {
+class NumEditFormDialogView extends StatelessWidget {
   final DialogRequest request;
   final Function(DialogResponse) completer;
 
-  const EditFormDialogView(
+  const NumEditFormDialogView(
       {Key? key, required this.request, required this.completer})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<EditFormViewModel>.reactive(
+    NumEditFormDialogViewArguments data = request.data;
+
+    return ViewModelBuilder<NumEditFormViewModel>.reactive(
       builder: (context, model, child) => Dialog(
         child: FormBuilder(
           autovalidateMode: AutovalidateMode.always,
@@ -40,7 +42,13 @@ class EditFormDialogView extends StatelessWidget {
                   request.title!,
                   style: Theme.of(context).textTheme.headline5,
                 ),
-                NumField(request: request),
+                NumField(
+                  description: request.description,
+                  initialValue: data.current ?? 0,
+                  upperBorder: data.max ?? 100,
+                  lowerBorder: data.min ?? 0,
+                  frac: data.fraction ?? 1,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -59,23 +67,29 @@ class EditFormDialogView extends StatelessWidget {
           ),
         ),
       ),
-      viewModelBuilder: () => EditFormViewModel(request, completer),
+      viewModelBuilder: () => NumEditFormViewModel(request, completer),
     );
   }
 }
 
-class NumField extends ViewModelWidget<EditFormViewModel> {
-  const NumField({Key? key, required this.request}) : super(key: key);
-  final DialogRequest request;
+class NumField extends StatelessWidget {
+  final num initialValue;
+  final num lowerBorder;
+  final num upperBorder;
+  final int frac;
+  final String? description;
+
+  const NumField(
+      {Key? key,
+      this.initialValue = 0,
+      this.lowerBorder = 0,
+      this.upperBorder = 100,
+      this.frac = 0,
+      this.description})
+      : super(key: key);
 
   @override
-  Widget build(BuildContext context, EditFormViewModel model) {
-    EditFormDialogViewArguments passedData = request.data;
-    num currentValue = passedData.current ?? 0;
-    num lowerBorder = passedData.min ?? 0;
-    num upperBorder = passedData.max ?? 100;
-    int frac = passedData.fraction ?? 0;
-
+  Widget build(BuildContext context) {
     return FormBuilderTextField(
       autofocus: true,
       validator: FormBuilderValidators.compose([
@@ -85,7 +99,7 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
         FormBuilderValidators.required(context)
       ]),
       valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),
-      initialValue: currentValue.toStringAsFixed(frac.toInt()),
+      initialValue: initialValue.toStringAsFixed(frac.toInt()),
       name: 'newValue',
       style: Theme.of(context).inputDecorationTheme.counterStyle,
       keyboardType:
@@ -93,7 +107,7 @@ class NumField extends ViewModelWidget<EditFormViewModel> {
       decoration: InputDecoration(
         border: const UnderlineInputBorder(),
         contentPadding: const EdgeInsets.all(8.0),
-        labelText: request.description,
+        labelText: description,
         helperText: "Enter a value between $lowerBorder and $upperBorder",
       ),
     );

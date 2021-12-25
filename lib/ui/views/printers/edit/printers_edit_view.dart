@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
@@ -205,6 +206,15 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 Divider(),
                 _SectionHeaderWithAction(
+                    title: 'GCODE-MACROS',
+                    action: TextButton.icon(
+                      onPressed: null,
+                      label: Text('Add'),
+                      icon: Icon(FlutterIcons.screw_machine_round_top_mco),
+                    )),
+                _buildMacroGroups(context, model),
+                Divider(),
+                _SectionHeaderWithAction(
                     title: 'WEBCAM',
                     action: TextButton.icon(
                       onPressed: model.onWebCamAdd,
@@ -281,6 +291,57 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
       }),
       onReorder: model.onPresetReorder,
     );
+  }
+
+  Widget _buildMacroGroups(BuildContext context, PrintersEditViewModel model) {
+    if (model.macroGroups.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text('No macros ${(model.dataReady) ? 'found!' : 'available!'}'),
+      );
+    }
+
+    return ReorderableColumn(
+        children: List.generate(model.macroGroups.length, (index) {
+          MacroGroup macroGroup = model.macroGroups[index];
+          return Card(
+              key: ValueKey(macroGroup.uuid),
+              child: ExpansionTile(
+                  maintainState: true,
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+                  childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
+                  title: Text(macroGroup.name),
+                  children: [
+                    Wrap(
+                      alignment: WrapAlignment.center,
+
+                      spacing: 4.0,
+                      children: macroGroup.macros.map((e) {
+                        final feedback = Material(
+                          color: Colors.transparent,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                maxWidth: MediaQuery.of(context).size.width),
+                            child: Chip(
+                              label: Text(e.name),
+                              backgroundColor: Colors.amberAccent,
+                            ),
+                          ),
+                        );
+
+                        return LongPressDraggable(
+                          feedback: feedback,
+                          child: Chip(label: Text(e.name)),
+                          childWhenDragging: Chip(
+                            label: Text(e.name),
+                            backgroundColor: Colors.blue,
+                          ),
+                        );
+                      }).toList(),
+                    )
+                  ]));
+        }),
+        onReorder: model.onWebCamReorder);
   }
 }
 

@@ -36,8 +36,8 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
                       ? model.server.klippyState
                       : KlipperState.error)),
               tooltip: model.isServerAvailable
-                  ? 'Server State is ${toName(model.server.klippyState)} and Moonraker is ${model.server.klippyConnected ? 'connected' : 'disconnected'} to Klipper'
-                  : 'Server is not connected',
+                  ? 'Server State is ${toName(model.server.klippyState)} and Klippy is ${model.server.klippyConnected ? 'connected' : 'disconnected'}'
+                  : 'No Server available',
               onPressed: () => null,
             ),
             IconButton(
