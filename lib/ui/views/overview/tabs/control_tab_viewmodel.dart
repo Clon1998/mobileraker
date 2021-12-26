@@ -11,6 +11,7 @@ import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/ui/dialog/editForm/num_edit_form_view.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -28,22 +29,23 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   PrinterService? _printerService;
   KlippyService? _klippyService;
 
-
   ScrollController _fansScrollController = new ScrollController(
     keepScrollOffset: true,
   );
+
   ScrollController get fansScrollController => _fansScrollController;
 
   ScrollController _outputsScrollController = new ScrollController(
     keepScrollOffset: true,
   );
+
   ScrollController get outputsScrollController => _outputsScrollController;
 
   List<int> get retractLengths {
-    return _printerSetting?.extrudeSteps.toList() ?? const  [1, 10, 25, 50];
+    return _printerSetting?.extrudeSteps.toList() ?? const [1, 10, 25, 50];
   }
 
-  int get fansSteps => 1+printer.fans.length;
+  int get fansSteps => 1 + printer.fans.length;
 
   int get outputSteps => printer.outputPins.length;
 
@@ -96,6 +98,14 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
   bool get canUsePrinter => server.klippyState == KlipperState.ready;
+
+  Set<NamedFan> get filteredFans => printer.fans
+      .where((NamedFan element) => !element.name.startsWith("_"))
+      .toSet();
+
+  Set<OutputPin> get filteredPins => printer.outputPins
+      .where((OutputPin element) => !element.name.startsWith("_"))
+      .toSet();
 
   ConfigOutput? configForOutput(String name) {
     return printer.configFile.outputs[name];
@@ -153,15 +163,6 @@ class ControlTabViewModel extends MultipleStreamViewModel {
         _printerService?.genericFanFan(namedFan.name, v.toDouble() / 100);
       }
     });
-  }
-
-  String beautifyName(String name) {
-    return name.replaceAll("_", " ").capitalize!;
-  }
-
-  String beautifyOutputName(NamedFan namedFan) {
-    String name = namedFan.name;
-    return name.replaceAll("_", " ").capitalize!;
   }
 
   onSelectedRetractChanged(int index) {

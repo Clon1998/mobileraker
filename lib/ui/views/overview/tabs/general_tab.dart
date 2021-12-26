@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
@@ -18,6 +17,7 @@ import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:stacked/stacked.dart';
@@ -452,11 +452,9 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
 
   List<Widget> _buildTempSensors(double width, GeneralTabViewModel model) {
     List<Widget> rows = [];
-    Set<TemperatureSensor> temperatureSensors =
-        model.printer.temperatureSensors;
-    for (var sensor in temperatureSensors) {
+    for (var sensor in model.filteredSensors) {
       _SensorCard tr = _SensorCard(
-        name: sensor.name,
+        name: beautifyName(sensor.name),
         width: width,
         current: sensor.temperature,
         max: sensor.measuredMaxTemp,

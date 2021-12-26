@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -14,6 +11,7 @@ import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
 import 'package:mobileraker/ui/views/overview/tabs/control_tab_viewmodel.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 
 class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
@@ -80,7 +78,11 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
                   },
                 )),
             if (model.fansSteps > 2)
-              HorizontalScrollIndicator(steps: model.fansSteps, controller: model.fansScrollController, childsPerScreen: 2,)
+              HorizontalScrollIndicator(
+                steps: model.fansSteps,
+                controller: model.fansScrollController,
+                childsPerScreen: 2,
+              )
           ],
         ),
       ),
@@ -98,11 +100,11 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
         width: width,
         onTap: model.canUsePrinter ? model.onEditPartFan : null));
 
-    for (NamedFan fan in model.printer.fans) {
+    for (NamedFan fan in model.filteredFans) {
       VoidCallback? f;
       if (fan is GenericFan) f = () => model.onEditGenericFan(fan);
       var row = _FanTile(
-        name: model.beautifyName(fan.name),
+        name: beautifyName(fan.name),
         speed: fan.speed,
         width: width,
         onTap: model.canUsePrinter ? f : null,
@@ -380,7 +382,10 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
                   },
                 )),
             if (model.outputSteps > 2)
-              HorizontalScrollIndicator(steps: model.outputSteps, childsPerScreen: 2, controller: model.outputsScrollController)
+              HorizontalScrollIndicator(
+                  steps: model.outputSteps,
+                  childsPerScreen: 2,
+                  controller: model.outputsScrollController)
           ],
         ),
       ),
@@ -391,10 +396,10 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
       ControlTabViewModel model, BuildContext context, double width) {
     List<Widget> rows = [];
 
-    for (var pin in model.printer.outputPins) {
+    for (var pin in model.filteredPins) {
       var configForOutput = model.configForOutput(pin.name);
       var row = _PinTile(
-        name: model.beautifyName(pin.name),
+        name: beautifyName(pin.name),
         value: pin.value * (configForOutput?.scale ?? 1),
         width: width,
         onTap: model.canUsePrinter

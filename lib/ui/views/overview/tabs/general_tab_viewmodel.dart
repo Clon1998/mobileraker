@@ -4,12 +4,14 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
@@ -36,12 +38,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   PrinterSetting? _printerSetting;
   int _printerSettingHash = -1;
 
-  PrinterService? get _printerService => _printerSetting?.printerService;
-
-  KlippyService? get _klippyService => _printerSetting?.klippyService;
-
-  FileService? get _fileService => _printerSetting?.fileService;
-
   GlobalKey<FlipCardState> tmpCardKey = GlobalKey<FlipCardState>();
 
   int selectedIndexAxisStepSizeIndex = 0;
@@ -63,9 +59,19 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   );
   ScrollController get presetsScrollController => _presetsScrollController;
 
+  PrinterService? get _printerService => _printerSetting?.printerService;
+
+  KlippyService? get _klippyService => _printerSetting?.klippyService;
+
+  FileService? get _fileService => _printerSetting?.fileService;
+
   int get tempsSteps => 2+printer.temperatureSensors.length;
 
   int get presetSteps => 1 + temperaturePresets.length;
+
+  Set<TemperatureSensor> get filteredSensors => printer.temperatureSensors
+      .where((TemperatureSensor element) => !element.name.startsWith("_"))
+      .toSet();
 
   @override
   Map<String, StreamData> get streamsMap => {

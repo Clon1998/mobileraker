@@ -35,3 +35,7 @@ String urlToHttpUrl(String enteredURL) {
   //     ? enteredURL
   //     : 'ws://$enteredURL/websocket';
 }
+
+String beautifyName(String name) {
+  return name.replaceAll("_", " ").capitalize!;
+}
