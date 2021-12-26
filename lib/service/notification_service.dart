@@ -317,14 +317,15 @@ class NotificationService {
         await _removePrintProgressNotification(printerSetting);
         break;
       case PrintState.error:
-        await _notifyAPI.createNotification(
-            content: NotificationContent(
-                id: Random().nextInt(20000000),
-                channelKey: '${printerSetting.uuid}-statusUpdates',
-                title: 'Print state of ${printerSetting.name} changed!',
-                body: 'Error while printing file: "${file ?? "UNKNOWN"}"',
-                notificationLayout: NotificationLayout.BigText,
-                color: Colors.red));
+        if (oldState == PrintState.printing)
+          await _notifyAPI.createNotification(
+              content: NotificationContent(
+                  id: Random().nextInt(20000000),
+                  channelKey: '${printerSetting.uuid}-statusUpdates',
+                  title: 'Print state of ${printerSetting.name} changed!',
+                  body: 'Error while printing file: "${file ?? "UNKNOWN"}"',
+                  notificationLayout: NotificationLayout.BigText,
+                  color: Colors.red));
         await _removePrintProgressNotification(printerSetting);
         break;
     }
