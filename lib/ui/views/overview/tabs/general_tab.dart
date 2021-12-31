@@ -364,7 +364,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                   },
                 ),
               ),
-              if (model.presetSteps + model.tempsSteps > 2)
+              if (model.presetSteps > 2 || model.tempsSteps > 2)
                 HorizontalScrollIndicator(
                   steps: model.tempsSteps,
                   controller: model.tempsScrollController,
@@ -408,7 +408,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                       );
                     },
                   )),
-              if (model.presetSteps + model.tempsSteps > 2)
+              if (model.presetSteps > 2 || model.tempsSteps > 2)
                 HorizontalScrollIndicator(
                   steps: model.presetSteps,
                   controller: model.presetsScrollController,
