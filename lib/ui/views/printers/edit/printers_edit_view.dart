@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:mobileraker/domain/gcode_macro.dart';
 import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
@@ -207,7 +208,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 _SectionHeaderWithAction(
                     title: 'GCODE-MACROS',
                     action: TextButton.icon(
-                      onPressed: null,
+                      onPressed: model.onMacroGroupAdd,
                       label: Text('Add'),
                       icon: Icon(FlutterIcons.screw_machine_round_top_mco),
                     )),
@@ -258,17 +259,33 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
       );
     }
 
-    return Column(
-      children: List.generate(model.webcams.length, (index) {
-        WebcamSetting cam = model.webcams[index];
-        return _WebCamItem(
-          key: ValueKey(cam.uuid),
-          model: model,
-          cam: cam,
-          idx: index,
-        );
-      }),
-    );
+    return ReorderableListView(
+        buildDefaultDragHandles: false,
+        physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        children: List.generate(model.webcams.length, (index) {
+          WebcamSetting cam = model.webcams[index];
+          return _WebCamItem(
+            key: ValueKey(cam.uuid),
+            model: model,
+            cam: cam,
+            idx: index,
+          );
+        }),
+        onReorder: model.onWebCamReorder);
+
+    //
+    // return Column(
+    //   children: List.generate(model.webcams.length, (index) {
+    //     WebcamSetting cam = model.webcams[index];
+    //     return _WebCamItem(
+    //       key: ValueKey(cam.uuid),
+    //       model: model,
+    //       cam: cam,
+    //       idx: index,
+    //     );
+    //   }),
+    // );
   }
 
   Widget _buildTempPresets(PrintersEditViewModel model) {
@@ -278,7 +295,10 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
         child: Text('No presets added'),
       );
     }
-    return Column(
+    return ReorderableListView(
+      buildDefaultDragHandles: false,
+      physics: NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
       children: List.generate(model.tempPresets.length, (index) {
         TemperaturePreset preset = model.tempPresets[index];
         return _TempPresetItem(
@@ -288,6 +308,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
           idx: index,
         );
       }),
+      onReorder: model.onPresetReorder,
     );
   }
 
@@ -302,41 +323,10 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
     return Column(
       children: List.generate(model.macroGroups.length, (index) {
         MacroGroup macroGroup = model.macroGroups[index];
-        return Card(
-            key: ValueKey(macroGroup.uuid),
-            child: ExpansionTile(
-                maintainState: true,
-                tilePadding: const EdgeInsets.symmetric(horizontal: 10),
-                childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
-                title: Text(macroGroup.name),
-                children: [
-                  Wrap(
-                    alignment: WrapAlignment.center,
-                    spacing: 4.0,
-                    children: macroGroup.macros.map((e) {
-                      final feedback = Material(
-                        color: Colors.transparent,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                              maxWidth: MediaQuery.of(context).size.width),
-                          child: Chip(
-                            label: Text(e.name),
-                            backgroundColor: Colors.amberAccent,
-                          ),
-                        ),
-                      );
-
-                      return LongPressDraggable(
-                        feedback: feedback,
-                        child: Chip(label: Text(e.name)),
-                        childWhenDragging: Chip(
-                          label: Text(e.name),
-                          backgroundColor: Colors.blue,
-                        ),
-                      );
-                    }).toList(),
-                  )
-                ]));
+        return _MacroItem(
+            model: model,
+            macroGroup: macroGroup,
+            showDisplayNameEdit: !model.isDefaultMacroGrp(macroGroup));
       }),
     );
   }
@@ -391,6 +381,10 @@ class _WebCamItem extends StatelessWidget {
             tilePadding: const EdgeInsets.symmetric(horizontal: 10),
             childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
             title: Text('CAM#$idx'),
+            leading: ReorderableDragStartListener(
+              index: idx,
+              child: Icon(Icons.drag_handle),
+            ),
             children: [
           FormBuilderTextField(
             decoration: InputDecoration(
@@ -441,6 +435,107 @@ class _WebCamItem extends StatelessWidget {
   }
 }
 
+class _MacroItem extends StatefulWidget {
+  final MacroGroup macroGroup;
+  final bool showDisplayNameEdit;
+  final PrintersEditViewModel model;
+
+  const _MacroItem(
+      {Key? key,
+      required this.model,
+      required this.macroGroup,
+      this.showDisplayNameEdit = true})
+      : super(key: key);
+
+  @override
+  _MacroItemState createState() => _MacroItemState();
+}
+
+class _MacroItemState extends State<_MacroItem> {
+  late String _cardName = widget.macroGroup.name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        key: ValueKey(widget.macroGroup.uuid),
+        child: ExpansionTile(
+            maintainState: true,
+            tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+            childrenPadding:
+                const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            title: DragTarget<GCodeMacro>(
+              builder: (BuildContext context, List<GCodeMacro?> candidateData,
+                  List<dynamic> rejectedData) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(_cardName),
+                    Chip(
+                      label: Text('${widget.macroGroup.macros.length}'),
+                      backgroundColor: Theme.of(context).colorScheme.background,
+                    )
+                  ],
+                );
+              },
+              onMove: (d) => print("onMove"),
+              onAcceptWithDetails: (d) => print("onAcceptWithDetails"),
+              onAccept: (GCodeMacro d) => setState(() {
+                  widget.model.onGCodeDragAccepted(widget.macroGroup, d);
+                }),
+            ),
+            children: [
+              if (widget.showDisplayNameEdit)
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                    labelText: 'Displayname',
+                  ),
+                  name: '${widget.macroGroup.uuid}-macroName',
+                  initialValue: widget.macroGroup.name,
+                  onChanged: onNameChanged,
+                  validator: FormBuilderValidators.compose(
+                      [FormBuilderValidators.required(context)]),
+                ),
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 4.0,
+                children: widget.macroGroup.macros.map((e) {
+                  final feedback = Material(
+                    color: Colors.transparent,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width),
+                      child: Chip(
+                        label: Text(e.name),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  );
+                  return LongPressDraggable(
+                    feedback: feedback,
+                    child: Chip(label: Text(e.name)),
+                    data: e,
+                    childWhenDragging: Chip(
+                      label: Text(e.name),
+                      backgroundColor: Theme.of(context).colorScheme.primaryVariant,
+                    ),
+                    onDragStarted: widget.model.onGCodeDragStart(),
+                    onDragEnd: (DraggableDetails d) => setState(() {
+                      widget.model.onGCodeDragEnd(d, widget.macroGroup, e);
+                    })
+
+                  );
+                }).toList(),
+              )
+            ]));
+  }
+
+  void onNameChanged(String? name) {
+    setState(() {
+      _cardName = (name?.isEmpty ?? true) ? 'New Macro-Group' : name!;
+    });
+  }
+}
+
 class _TempPresetItem extends StatefulWidget {
   final TemperaturePreset temperaturePreset;
   final PrintersEditViewModel model;
@@ -470,6 +565,10 @@ class _TempPresetItemState extends State<_TempPresetItem> {
             tilePadding: const EdgeInsets.symmetric(horizontal: 10),
             childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
             title: Text('$_cardName'),
+            leading: ReorderableDragStartListener(
+              index: widget.idx,
+              child: Icon(Icons.drag_handle),
+            ),
             children: [
           FormBuilderTextField(
             decoration: InputDecoration(

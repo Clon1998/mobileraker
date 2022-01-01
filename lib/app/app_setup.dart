@@ -1,4 +1,6 @@
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobileraker/domain/gcode_macro.dart';
+import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
@@ -47,6 +49,12 @@ setupBoxes() async {
   var temperaturePresetAdapter = TemperaturePresetAdapter();
   if (!Hive.isAdapterRegistered(temperaturePresetAdapter.typeId))
     Hive.registerAdapter(temperaturePresetAdapter);
+  var macroGrpAdapter = MacroGroupAdapter();
+  if (!Hive.isAdapterRegistered(macroGrpAdapter.typeId))
+    Hive.registerAdapter(macroGrpAdapter);
+  var macroAdapter = GCodeMacroAdapter();
+  if (!Hive.isAdapterRegistered(macroAdapter.typeId))
+    Hive.registerAdapter(macroAdapter);
   // Hive.deleteBoxFromDisk('printers');
   try {
     await openBoxes();

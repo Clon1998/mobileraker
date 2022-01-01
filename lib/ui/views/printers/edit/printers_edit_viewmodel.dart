@@ -37,6 +37,7 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
   late final printerBabySteps = printerSetting.babySteps.toList();
 
   late final printerExtruderSteps = printerSetting.extrudeSteps.toList();
+  bool macroDragging = false;
 
   PrintersEditViewModel(this.printerSetting);
 
@@ -49,10 +50,13 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
   void onData(Printer? data) {
     MacroGroup defaultGroup = _defaultGroup;
     if (data != null) {
-      List<String> filteredMacros = data.gcodeMacros.toList();
+      List<String> filteredMacros = data.gcodeMacros
+          .where((element) => !element.startsWith('_'))
+          .toList();
       for (MacroGroup grp in _macroGroups) {
-        for (GCodeMacro macro in grp.macros) {
-          filteredMacros.remove(macro.name);
+        for (GCodeMacro macro in grp.macros.toList(growable: false)) {
+          bool wasInList = filteredMacros.remove(macro.name);
+          if (!wasInList) grp.macros.remove(macro);
         }
       }
       List<GCodeMacro> modifiableList = defaultGroup.macros.toList();
@@ -127,6 +131,10 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
 
   bool get canShowImportSettings => _machineService.fetchAll().length > 1;
 
+  bool isDefaultMacroGrp(MacroGroup macroGroup) {
+    return macroGroup == _defaultGroup;
+  }
+
   removeExtruderStep(int step) {
     printerExtruderSteps.remove(step);
     notifyListeners();
@@ -196,19 +204,34 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
     }
   }
 
+  onMacroGroupAdd() {
+    MacroGroup group = MacroGroup(name: 'New Group', macros: []);
+    _macroGroups.add(group);
+    _saveAllGroupStuff();
+    notifyListeners();
+  }
+
+  _saveAllMacroGroups() {
+    macroGroups.forEach((element) => _saveMacroGroup(element));
+  }
+
+  _saveMacroGroup(MacroGroup toSave) {
+    _fbKey.currentState?.save();
+    var name = _fbKey.currentState!.value['${toSave.uuid}-macroName'];
+    if (name != null) toSave.name = name;
+  }
+
   onWebCamAdd() {
     WebcamSetting cam = WebcamSetting('New Webcam',
         'http://${Uri.parse(printerSetting.wsUrl).host}/webcam/?action=stream');
     webcams.add(cam);
-    _saveAllCams();
-    _saveAllPresets();
+    _saveAllGroupStuff();
     notifyListeners();
   }
 
   onWebCamRemove(WebcamSetting toRemoved) {
     webcams.remove(toRemoved);
-    _saveAllCams();
-    _saveAllPresets();
+    _saveAllGroupStuff();
     notifyListeners();
   }
 
@@ -233,6 +256,7 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
   onTempPresetAdd() {
     TemperaturePreset preset = TemperaturePreset("New Preset");
     tempPresets.add(preset);
+    _saveAllMacroGroups();
     _saveAllPresets();
     _saveAllCams();
     notifyListeners();
@@ -240,6 +264,7 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
 
   onTempPresetRemove(TemperaturePreset toRemoved) {
     tempPresets.remove(toRemoved);
+    _saveAllMacroGroups();
     _saveAllPresets();
     _saveAllCams();
     notifyListeners();
@@ -278,9 +303,7 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
       var speedXY = currentState.value['speedXY'];
       var speedZ = currentState.value['speedZ'];
       var extrudeSpeed = currentState.value['extrudeSpeed'];
-
-      _saveAllCams();
-      _saveAllPresets();
+      _saveAllGroupStuff();
       printerSetting
         ..name = printerName
         ..wsUrl = wsUrl
@@ -294,6 +317,7 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
         ..extrudeFeedrate = extrudeSpeed
         ..moveSteps = printerMoveSteps
         ..babySteps = printerBabySteps
+        ..macroGroups = macroGroups
         ..extrudeSteps = printerExtruderSteps;
 
       await _machineService.updateMachine(printerSetting);
@@ -303,6 +327,12 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
         _navigationService.clearStackAndShow(Routes.overView);
       }
     }
+  }
+
+  void _saveAllGroupStuff() {
+    _saveAllMacroGroups();
+    _saveAllCams();
+    _saveAllPresets();
   }
 
   onDeleteTap() async {
@@ -321,12 +351,18 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
   }
 
   onPresetReorder(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
     TemperaturePreset _row = tempPresets.removeAt(oldIndex);
     tempPresets.insert(newIndex, _row);
     notifyListeners();
   }
 
   onWebCamReorder(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
     WebcamSetting _row = webcams.removeAt(oldIndex);
     webcams.insert(newIndex, _row);
     notifyListeners();
@@ -388,5 +424,26 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
       tempPresets.addAll(result.presets);
       notifyListeners();
     }
+  }
+
+  onGCodeDragStart() {
+    macroDragging = true;
+  }
+
+  onGCodeDragEnd(
+      DraggableDetails details, MacroGroup oldGrp, GCodeMacro macro) {
+    _logger.i("GCode-Drag ended");
+    macroDragging = false;
+    if (details.wasAccepted) {
+      oldGrp.macros.remove(macro);
+    } else {
+      _snackbarService.showSnackbar(
+          message: "Drag to Macro onto the title of the desired group");
+    }
+  }
+
+  onGCodeDragAccepted(MacroGroup newGroup, GCodeMacro macro) {
+    _logger.i("GCode-Drag accepted");
+    newGroup.macros.add(macro);
   }
 }
