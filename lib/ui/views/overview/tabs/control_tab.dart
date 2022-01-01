@@ -2,6 +2,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:mobileraker/domain/gcode_macro.dart';
 import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
@@ -314,6 +315,17 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
           ListTile(
             leading: Icon(FlutterIcons.code_braces_mco),
             title: Text('Gcode-Macros'),
+            trailing: (model.macroGroups.isNotEmpty)
+                ? DropdownButton(
+                    value: model.selectedGrp,
+                    onChanged: model.onMacroGroupSelected,
+                    items: model.macroGroups.map((e) {
+                      return DropdownMenuItem(
+                        child: Text(e.name),
+                        value: e,
+                      );
+                    }).toList())
+                : null,
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
@@ -333,15 +345,18 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
     var bgCol = themeData.brightness == Brightness.dark
         ? themeData.colorScheme.secondary
         : themeData.primaryColor;
-    return List<Widget>.generate(
-      model.printer.gcodeMacros.length,
-      (int index) {
-        String macro = model.printer.gcodeMacros[index];
 
+    List<GCodeMacro> macros = model.selectedGrp?.macros ?? [];
+    return List<Widget>.generate(
+      macros.length,
+      (int index) {
+        GCodeMacro macro = macros[index];
         return ActionChip(
-          label: Text(macro.replaceAll("_", " ")),
+          label: Text(macro.name.replaceAll("_", " ")),
           backgroundColor: bgCol,
-          onPressed: () => model.onMacroPressed(index),
+          onPressed: () => (model.isPrinting && !macro.showWhilePrinting)
+              ? null
+              : model.onMacroPressed(index),
         );
       },
     ).toList();

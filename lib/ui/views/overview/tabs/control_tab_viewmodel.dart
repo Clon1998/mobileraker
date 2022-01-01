@@ -1,9 +1,11 @@
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/config/config_output.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/output_pin.dart';
+import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
@@ -24,6 +26,8 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   final _machineService = locator<MachineService>();
 
   int selectedIndexRetractLength = 0;
+
+  MacroGroup? selectedGrp;
 
   PrinterSetting? _printerSetting;
   PrinterService? _printerService;
@@ -48,6 +52,10 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   int get fansSteps => 1 + printer.fans.length;
 
   int get outputSteps => printer.outputPins.length;
+
+  List<MacroGroup> get macroGroups {
+    return _printerSetting?.macroGroups ?? [];
+  }
 
   //ToDO: Maybe to pass these down from the overview viewmodel..
   @override
@@ -79,6 +87,10 @@ class ControlTabViewModel extends MultipleStreamViewModel {
         if (nPrinterSetting?.klippyService != null) {
           _klippyService = nPrinterSetting?.klippyService;
         }
+        if (nPrinterSetting?.macroGroups.isNotEmpty ?? false)
+          selectedGrp = nPrinterSetting!.macroGroups.first;
+        else
+          selectedGrp = null;
         notifySourceChanged(clearOldData: true);
         break;
       default:
@@ -96,6 +108,8 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   Printer get printer => dataMap![_PrinterStreamKey];
 
   bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
+
+  bool get isPrinting => printer.print.state == PrintState.printing;
 
   bool get canUsePrinter => server.klippyState == KlipperState.ready;
 
@@ -184,6 +198,10 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   onMacroPressed(int macroIndex) {
     _printerService?.gCodeMacro(printer.gcodeMacros[macroIndex]);
+  }
+
+  onMacroGroupSelected(MacroGroup? macroGroup) {
+    selectedGrp = macroGroup;
   }
 
   @override
