@@ -505,17 +505,17 @@ class _MacroItemState extends State<_MacroItem> {
                       constraints: BoxConstraints(
                           maxWidth: MediaQuery.of(context).size.width),
                       child: Chip(
-                        label: Text(e.name),
+                        label: Text(e.beautifiedName),
                         backgroundColor: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   );
                   return LongPressDraggable(
                     feedback: feedback,
-                    child: Chip(label: Text(e.name)),
+                    child: Chip(label: Text(e.beautifiedName)),
                     data: e,
                     childWhenDragging: Chip(
-                      label: Text(e.name),
+                      label: Text(e.beautifiedName),
                       backgroundColor: Theme.of(context).colorScheme.primaryVariant,
                     ),
                     onDragStarted: widget.model.onGCodeDragStart(),

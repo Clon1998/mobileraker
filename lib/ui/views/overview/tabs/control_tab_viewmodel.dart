@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/domain/gcode_macro.dart';
 import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/config/config_output.dart';
@@ -196,8 +197,8 @@ class ControlTabViewModel extends MultipleStreamViewModel {
         double, _printerSetting!.extrudeFeedrate.toDouble());
   }
 
-  onMacroPressed(int macroIndex) {
-    _printerService?.gCodeMacro(printer.gcodeMacros[macroIndex]);
+  onMacroPressed(GCodeMacro macro) {
+    _printerService?.gCodeMacro(macro.name);
   }
 
   onMacroGroupSelected(MacroGroup? macroGroup) {

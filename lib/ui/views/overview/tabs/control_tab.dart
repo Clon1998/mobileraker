@@ -352,11 +352,11 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
       (int index) {
         GCodeMacro macro = macros[index];
         return ActionChip(
-          label: Text(macro.name.replaceAll("_", " ")),
+          label: Text(macro.beautifiedName),
           backgroundColor: bgCol,
           onPressed: () => (model.isPrinting && !macro.showWhilePrinting)
               ? null
-              : model.onMacroPressed(index),
+              : model.onMacroPressed(macro),
         );
       },
     ).toList();

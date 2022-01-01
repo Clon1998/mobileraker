@@ -16,6 +16,8 @@ class GCodeMacro {
 
   GCodeMacro(this.name);
 
+  String get beautifiedName => name.replaceAll("_", " ");
+
   @override
   String toString() {
     return 'GCodeMacro{name: $name, uuid: $uuid, showWhilePrinting: $showWhilePrinting}';
