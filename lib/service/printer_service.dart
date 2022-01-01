@@ -20,6 +20,7 @@ import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/enums/snackbar_type.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -522,7 +523,11 @@ class PrinterService {
 
   void _onMessage(String message) {
     if (message.isEmpty) return;
-    _snackBarService.showSnackbar(message: message, title: 'Klipper-Error');
+    _snackBarService.showCustomSnackBar(
+        variant: SnackbarType.warning,
+        duration: const Duration(seconds: 5),
+        title: 'Print-Message',
+        message: message);
   }
 
   Printer get _latestPrinter {

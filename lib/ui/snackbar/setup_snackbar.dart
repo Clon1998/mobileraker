@@ -18,4 +18,9 @@ void setupSnackbarUi() {
       config: SnackbarConfig(
         backgroundColor: Colors.red
       ));
+  service.registerCustomSnackbarConfig(
+      variant: SnackbarType.warning,
+      config: SnackbarConfig(
+          backgroundColor: Colors.orange
+      ));
 }

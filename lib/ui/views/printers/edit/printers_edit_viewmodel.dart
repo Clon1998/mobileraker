@@ -11,6 +11,7 @@ import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
+import 'package:mobileraker/enums/snackbar_type.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
@@ -144,12 +145,17 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
     int? nStep = int.tryParse(rawValue);
 
     if (nStep == null) {
-      _snackbarService.showSnackbar(
-          title: 'Input-Error', message: 'Can not parse Input');
+      _snackbarService.showCustomSnackBar(
+          variant: SnackbarType.error,
+          duration: const Duration(seconds: 5),
+          title: 'Extruder-Steps',
+          message: "Can not parse input");
     } else {
       if (printerExtruderSteps.contains(nStep)) {
-        _snackbarService.showSnackbar(
-            title: 'Error', message: 'Step already present!');
+        _snackbarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Extruder-Steps', message: 'Step already present!');
       } else {
         printerExtruderSteps.add(nStep);
         printerExtruderSteps.sort();
@@ -167,12 +173,18 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
     double? nStep = double.tryParse(rawValue);
 
     if (nStep == null) {
-      _snackbarService.showSnackbar(
-          title: 'Input-Error', message: 'Can not parse Input');
+      _snackbarService.showCustomSnackBar(
+          variant: SnackbarType.error,
+          duration: const Duration(seconds: 5),
+          title: 'Babystepping-Steps',
+          message: "Can not parse input");
     } else {
       if (printerBabySteps.contains(nStep)) {
-        _snackbarService.showSnackbar(
-            title: 'Error', message: 'Step already present!');
+        _snackbarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Babystepping-Steps',
+            message: "Can not parse input");
       } else {
         printerBabySteps.add(nStep);
         printerBabySteps.sort();
@@ -190,12 +202,20 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
     int? nStep = int.tryParse(rawValue);
 
     if (nStep == null) {
-      _snackbarService.showSnackbar(
-          title: 'Input-Error', message: 'Can not parse Input');
+      _snackbarService.showCustomSnackBar(
+          variant: SnackbarType.error,
+          duration: const Duration(seconds: 5),
+          title: 'Move-Steps',
+          message: "Can not parse input");
+
     } else {
       if (printerMoveSteps.contains(nStep)) {
-        _snackbarService.showSnackbar(
-            title: 'Error', message: 'Step already present!');
+        _snackbarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Move-Steps',
+            message: "Step already present!");
+
       } else {
         printerMoveSteps.add(nStep);
         printerMoveSteps.sort();
@@ -437,8 +457,11 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
     if (details.wasAccepted) {
       oldGrp.macros.remove(macro);
     } else {
-      _snackbarService.showSnackbar(
-          message: "Drag to Macro onto the title of the desired group");
+      _snackbarService.showCustomSnackBar(
+          variant: SnackbarType.error,
+          duration: const Duration(seconds: 5),
+          title: 'Dragging - No Target',
+          message: "Drag to Macro onto the title of the desired group!");
     }
   }
 
