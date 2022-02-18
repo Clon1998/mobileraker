@@ -69,7 +69,7 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
                       transitionType: SharedAxisTransitionType.horizontal,
                     );
                   },
-                  child: getViewForIndex(model.currentIndex),
+                  child: _getViewForIndex(model.currentIndex),
                 )
               : Center(
                   child: Column(
@@ -100,7 +100,7 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
                   // FlutterIcons.camera_control_mco,
                   FlutterIcons.settings_oct,
                 ],
-                activeColor: getActiveTextColor(context),
+                activeColor: _getActiveTextColor(context),
                 gapLocation: GapLocation.end,
                 backgroundColor: Theme.of(context).primaryColor,
                 notchSmoothness: NotchSmoothness.softEdge,
@@ -125,14 +125,14 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
   @override
   OverViewModel viewModelBuilder(BuildContext context) => OverViewModel();
 
-  Color? getActiveTextColor(context) {
+  Color? _getActiveTextColor(context) {
     var themeData = Theme.of(context);
     if (themeData.brightness == Brightness.dark)
       return themeData.colorScheme.secondary;
     return Colors.white;
   }
 
-  Widget getViewForIndex(int index) {
+  Widget _getViewForIndex(int index) {
     switch (index) {
       case 0:
         return GeneralTab();

@@ -24,6 +24,7 @@ import 'package:mobileraker/ui/dialog/editForm/num_edit_form_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 const String _ServerStreamKey = 'server';
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
@@ -48,15 +49,16 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   WebcamSetting? selectedCam;
 
-
   ScrollController _tempsScrollController = new ScrollController(
     keepScrollOffset: true,
   );
+
   ScrollController get tempsScrollController => _tempsScrollController;
 
   ScrollController _presetsScrollController = new ScrollController(
     keepScrollOffset: true,
   );
+
   ScrollController get presetsScrollController => _presetsScrollController;
 
   PrinterService? get _printerService => _printerSetting?.printerService;
@@ -65,7 +67,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   FileService? get _fileService => _printerSetting?.fileService;
 
-  int get tempsSteps => 2+printer.temperatureSensors.length;
+  int get tempsSteps => 2 + printer.temperatureSensors.length;
 
   int get presetSteps => 1 + temperaturePresets.length;
 
@@ -89,7 +91,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   @override
   onData(String key, data) {
     super.onData(key, data);
-
     switch (key) {
       case _SelectedPrinterStreamKey:
         PrinterSetting? nPrinterSetting = data;
@@ -121,7 +122,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     }
   }
 
-  bool get canUsePrinter => server.klippyState == KlipperState.ready && server.klippyConnected;
+  bool get canUsePrinter =>
+      server.klippyState == KlipperState.ready && server.klippyConnected;
 
   bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
@@ -146,7 +148,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   }
 
   List<double> get babySteppingSizes {
-    return _printerSetting?.babySteps.toList() ?? const [0.005, 0.01, 0.05, 0.1];
+    return _printerSetting?.babySteps.toList() ??
+        const [0.005, 0.01, 0.05, 0.1];
   }
 
   List<TemperaturePreset> get temperaturePresets {
@@ -272,6 +275,10 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     _printerService?.bedMeshLevel();
   }
 
+  onMotorOff() {
+    _printerService?.m84();
+  }
+
   onSelectedBabySteppingSizeChanged(int index) {
     selectedIndexBabySteppingSize = index;
   }
@@ -351,5 +358,14 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   onRestartMCUPressed() {
     _klippyService?.restartMCUs();
+  }
+
+  longPressReminder() {
+    Fluttertoast.showToast(
+        msg: "This is Center Short Toast",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        fontSize: 16.0);
   }
 }
