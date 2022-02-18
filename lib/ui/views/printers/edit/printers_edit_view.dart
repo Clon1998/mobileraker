@@ -3,11 +3,11 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
 import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:reorderables/reorderables.dart';
 import 'package:stacked/stacked.dart';
 
 import 'printers_edit_viewmodel.dart';
@@ -210,7 +210,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                     action: TextButton.icon(
                       onPressed: model.onMacroGroupAdd,
                       label: Text('Add'),
-                      icon: Icon(FlutterIcons.screw_machine_round_top_mco),
+                      icon: Icon(Icons.source_outlined),
                     )),
                 _buildMacroGroups(context, model),
                 Divider(),
@@ -316,14 +316,15 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
     if (model.macroGroups.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text('No macros ${(model.dataReady) ? 'found!' : 'available!'}'),
+        child: Text(
+            'No macros ${(model.fetchingPrinter) ? 'found!' : 'available!'}'),
       );
     }
 
     return Column(
       children: List.generate(model.macroGroups.length, (index) {
         MacroGroup macroGroup = model.macroGroups[index];
-        return _MacroItem(
+        return _MacroGroup(
             model: model,
             macroGroup: macroGroup,
             showDisplayNameEdit: !model.isDefaultMacroGrp(macroGroup));
@@ -435,12 +436,12 @@ class _WebCamItem extends StatelessWidget {
   }
 }
 
-class _MacroItem extends StatefulWidget {
+class _MacroGroup extends StatefulWidget {
   final MacroGroup macroGroup;
   final bool showDisplayNameEdit;
   final PrintersEditViewModel model;
 
-  const _MacroItem(
+  const _MacroGroup(
       {Key? key,
       required this.model,
       required this.macroGroup,
@@ -448,10 +449,10 @@ class _MacroItem extends StatefulWidget {
       : super(key: key);
 
   @override
-  _MacroItemState createState() => _MacroItemState();
+  _MacroGroupState createState() => _MacroGroupState();
 }
 
-class _MacroItemState extends State<_MacroItem> {
+class _MacroGroupState extends State<_MacroGroup> {
   late String _cardName = widget.macroGroup.name;
 
   @override
@@ -463,8 +464,8 @@ class _MacroItemState extends State<_MacroItem> {
             tilePadding: const EdgeInsets.symmetric(horizontal: 10),
             childrenPadding:
                 const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            title: DragTarget<GCodeMacro>(
-              builder: (BuildContext context, List<GCodeMacro?> candidateData,
+            title: DragTarget<int>(
+              builder: (BuildContext context, List<int?> candidateData,
                   List<dynamic> rejectedData) {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -477,11 +478,9 @@ class _MacroItemState extends State<_MacroItem> {
                   ],
                 );
               },
-              onMove: (d) => print("onMove"),
-              onAcceptWithDetails: (d) => print("onAcceptWithDetails"),
-              onAccept: (GCodeMacro d) => setState(() {
-                  widget.model.onGCodeDragAccepted(widget.macroGroup, d);
-                }),
+              onAccept: (int d) => setState(() {
+                widget.model.onGCodeDragAccepted(widget.macroGroup, d);
+              }),
             ),
             children: [
               if (widget.showDisplayNameEdit)
@@ -495,36 +494,22 @@ class _MacroItemState extends State<_MacroItem> {
                   validator: FormBuilderValidators.compose(
                       [FormBuilderValidators.required(context)]),
                 ),
-              Wrap(
-                alignment: WrapAlignment.center,
+              ReorderableWrap(
                 spacing: 4.0,
-                children: widget.macroGroup.macros.map((e) {
-                  final feedback = Material(
-                    color: Colors.transparent,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                          maxWidth: MediaQuery.of(context).size.width),
-                      child: Chip(
-                        label: Text(e.beautifiedName),
-                        backgroundColor: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  );
-                  return LongPressDraggable(
-                    feedback: feedback,
-                    child: Chip(label: Text(e.beautifiedName)),
-                    data: e,
-                    childWhenDragging: Chip(
-                      label: Text(e.beautifiedName),
-                      backgroundColor: Theme.of(context).colorScheme.primaryVariant,
-                    ),
-                    onDragStarted: widget.model.onGCodeDragStart(),
-                    onDragEnd: (DraggableDetails d) => setState(() {
-                      widget.model.onGCodeDragEnd(d, widget.macroGroup, e);
-                    })
-
-                  );
-                }).toList(),
+                children: widget.macroGroup.macros
+                    .map((m) => Chip(label: Text(m.beautifiedName)))
+                    .toList(),
+                buildDraggableFeedback: (context, constraint, widget) =>
+                    Material(
+                  color: Colors.transparent,
+                  child: ConstrainedBox(
+                    constraints: constraint,
+                    child: widget,
+                  ),
+                ),
+                onReorderStarted: (index) =>
+                    widget.model.onGCodeDragStart(widget.macroGroup),
+                onReorder: widget.model.onGCodeDragReordered,
               )
             ]));
   }

@@ -17,8 +17,11 @@ import 'package:mobileraker/ui/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class PrintersEditViewModel extends FutureViewModel<Printer> {
+class PrintersEditViewModel extends MultipleFutureViewModel {
   final _logger = getLogger('PrintersEditViewModel');
+
+  final _printerMapKey = 'printer';
+  final _machinesMapKey = 'machines';
 
   final _navigationService = locator<NavigationService>();
   final _snackbarService = locator<SnackbarService>();
@@ -38,20 +41,40 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
   late final printerBabySteps = printerSetting.babySteps.toList();
 
   late final printerExtruderSteps = printerSetting.extrudeSteps.toList();
-  bool macroDragging = false;
+  MacroGroup? srcGrpDragging;
+  bool macroGroupAccepted = false;
 
   PrintersEditViewModel(this.printerSetting);
 
+  Printer get fetchedPrinter => dataMap![_printerMapKey];
+
+  List<PrinterSetting> get fetchedMachines => dataMap![_machinesMapKey];
+
+  bool get fetchingPrinter => busy(_printerMapKey);
+
+  bool get fetchingMachines => busy(_machinesMapKey);
+
   @override
-  Future<Printer> futureToRun() {
+  Map<String, Future Function()> get futuresMap => {
+        _printerMapKey: printerFuture,
+        _machinesMapKey: machineFuture,
+      };
+
+  Future<Printer> printerFuture() {
     return printerSetting.printerService.printerStream.first;
   }
 
+  Future<List<PrinterSetting>> machineFuture() {
+    return _machineService.fetchAll();
+  }
+
   @override
-  void onData(Printer? data) {
+  void onData(String key) {
+    if (key != _printerMapKey) return;
+
     MacroGroup defaultGroup = _defaultGroup;
-    if (data != null) {
-      List<String> filteredMacros = data.gcodeMacros
+    if (fetchedPrinter != null) {
+      List<String> filteredMacros = fetchedPrinter.gcodeMacros
           .where((element) => !element.startsWith('_'))
           .toList();
       for (MacroGroup grp in _macroGroups) {
@@ -67,8 +90,8 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
   }
 
   List<String> get printersMacros {
-    if (dataReady) {
-      return data!.gcodeMacros;
+    if (!fetchingPrinter) {
+      return fetchedPrinter.gcodeMacros;
     }
     return [];
   }
@@ -130,7 +153,8 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
 
   int get printerExtruderFeedrate => printerSetting.extrudeFeedrate;
 
-  bool get canShowImportSettings => _machineService.fetchAll().length > 1;
+  bool get canShowImportSettings =>
+      !fetchingPrinter && fetchedMachines.length > 1;
 
   bool isDefaultMacroGrp(MacroGroup macroGroup) {
     return macroGroup == _defaultGroup;
@@ -155,7 +179,8 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
         _snackbarService.showCustomSnackBar(
             variant: SnackbarType.error,
             duration: const Duration(seconds: 5),
-            title: 'Extruder-Steps', message: 'Step already present!');
+            title: 'Extruder-Steps',
+            message: 'Step already present!');
       } else {
         printerExtruderSteps.add(nStep);
         printerExtruderSteps.sort();
@@ -207,7 +232,6 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
           duration: const Duration(seconds: 5),
           title: 'Move-Steps',
           message: "Can not parse input");
-
     } else {
       if (printerMoveSteps.contains(nStep)) {
         _snackbarService.showCustomSnackBar(
@@ -215,7 +239,6 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
             duration: const Duration(seconds: 5),
             title: 'Move-Steps',
             message: "Step already present!");
-
       } else {
         printerMoveSteps.add(nStep);
         printerMoveSteps.sort();
@@ -446,27 +469,34 @@ class PrintersEditViewModel extends FutureViewModel<Printer> {
     }
   }
 
-  onGCodeDragStart() {
-    macroDragging = true;
-  }
-
-  onGCodeDragEnd(
-      DraggableDetails details, MacroGroup oldGrp, GCodeMacro macro) {
-    _logger.i("GCode-Drag ended");
-    macroDragging = false;
-    if (details.wasAccepted) {
-      oldGrp.macros.remove(macro);
-    } else {
-      _snackbarService.showCustomSnackBar(
-          variant: SnackbarType.error,
-          duration: const Duration(seconds: 5),
-          title: 'Dragging - No Target',
-          message: "Drag to Macro onto the title of the desired group!");
+  onGCodeDragReordered(int oldIndex, int newIndex) {
+    if (macroGroupAccepted) {
+      _logger.i("On drag reordered - CANCEL (macroGroupAccepted)");
+      return;
     }
+
+    _logger.i("On drag reordered");
+    GCodeMacro gCodeMacro = srcGrpDragging!.macros.removeAt(oldIndex);
+    srcGrpDragging!.macros.insert(newIndex, gCodeMacro);
+    notifyListeners();
   }
 
-  onGCodeDragAccepted(MacroGroup newGroup, GCodeMacro macro) {
-    _logger.i("GCode-Drag accepted");
+  onGCodeDragStart(MacroGroup srcGrp) {
+    _logger.i("On drag started from ${srcGrp.name}");
+    srcGrpDragging = srcGrp;
+    macroGroupAccepted = false;
+  }
+
+  onGCodeDragAccepted(MacroGroup newGroup, int index) {
+    if (newGroup == srcGrpDragging) {
+      _logger.d("GCode-Drag NOT accepted (SAME GRP)");
+      return;
+    }
+    GCodeMacro macro = srcGrpDragging!.macros[index];
+    _logger.d("GCode-Drag accepted ${macro.name} in ${newGroup.name}");
+    macroGroupAccepted = true;
     newGroup.macros.add(macro);
+    srcGrpDragging!.macros.remove(macro);
+    notifyListeners();
   }
 }
