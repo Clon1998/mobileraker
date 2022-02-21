@@ -120,4 +120,12 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
 
   @override
   Stream<WebSocketState> get stream => _wsStream;
+
+  openQrScanner() async {
+    var readValue = await _navigationService.navigateTo(Routes.qrScannerView);
+    if (readValue != null) {
+      _fbKey.currentState?.fields['printerApiKey']?.didChange(readValue);
+    }
+    // printerApiKey = resu;
+  }
 }

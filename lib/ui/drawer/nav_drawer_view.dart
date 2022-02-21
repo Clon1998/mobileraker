@@ -5,6 +5,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_viewmodel.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -42,7 +43,9 @@ class NavigationDrawerWidget
                       'Manager Printers',
                       style: TextStyle(color: Colors.white),
                     ),
-                    children: buildPrinterSelection(context, model),
+                    children: [
+                      ..._buildPrinterSelection(context, model),
+                    ],
                   ),
                   buildMenuItem(
                     model,
@@ -95,7 +98,8 @@ class NavigationDrawerWidget
                             ..onTap = () async {
                               const String url =
                                   'https://github.com/Clon1998/mobileraker';
-                              if (await canLaunch(url)) {//TODO Fix this... neds Android Package Visibility
+                              if (await canLaunch(url)) {
+                                //TODO Fix this... neds Android Package Visibility
                                 await launch(url);
                               } else {
                                 throw 'Could not launch $url';
@@ -111,41 +115,47 @@ class NavigationDrawerWidget
     );
   } // Note always the first is the currently selected!
 
-  List<Widget> buildPrinterSelection(
+  List<Widget> _buildPrinterSelection(
       BuildContext context, NavDrawerViewModel model) {
     var theme = Theme.of(context);
-    Color highlightColor = theme.brightness == Brightness.dark
-        ? theme.colorScheme.secondary
-        : theme.primaryColor;
-
-    List<PrinterSetting> printers = model.printers;
-    var textStyle = TextStyle(color: Colors.white);
-    return List.generate(printers.length + 1, (index) {
-      if (index == printers.length) {
+    Color highlightColor = theme.colorScheme.primary;
+    List<Widget> widgetsToReturn;
+    if (model.dataReady) {
+      List<PrinterSetting> printers = model.printers;
+      var textStyle = TextStyle(color: Colors.white);
+      widgetsToReturn = List.generate(printers.length, (index) {
+        PrinterSetting curPS = printers[index];
         return ListTile(
-          title: Text('Add new printer', style: textStyle),
+          title: Text(
+            curPS.name,
+            maxLines: 1,
+            style: textStyle,
+          ),
+          trailing: Icon(
+              index == 0 ? Icons.check : Icons.arrow_forward_ios_sharp,
+              color: highlightColor),
+          selectedTileColor: Colors.white12,
           contentPadding: const EdgeInsets.only(left: 32, right: 16),
-          trailing: Icon(Icons.add, color: highlightColor),
-          onTap: () => model.navigateTo(Routes.printersAdd),
+          selected: index == 0,
+          onTap: () => model.onSetActiveTap(curPS),
+          onLongPress: () => model.onEditTap(curPS),
         );
-      }
-      PrinterSetting curPS = printers[index];
-
-      return ListTile(
-        title: Text(
-          curPS.name,
-          maxLines: 1,
-          style: textStyle,
+      });
+    } else {
+      widgetsToReturn = [
+        ListTile(
+          title: FadingText("Fetching printers..."),
+          contentPadding: const EdgeInsets.only(left: 32, right: 16),
         ),
-        trailing: Icon(index == 0 ? Icons.check : Icons.arrow_forward_ios_sharp,
-            color: highlightColor),
-        selectedTileColor: Colors.white12,
-        contentPadding: const EdgeInsets.only(left: 32, right: 16),
-        selected: index == 0,
-        onTap: () => model.onSetActiveTap(curPS),
-        onLongPress: () => model.onEditTap(curPS),
-      );
-    });
+      ];
+    }
+    widgetsToReturn.add(ListTile(
+      title: Text('Add new printer', style: TextStyle(color: Colors.white)),
+      contentPadding: const EdgeInsets.only(left: 32, right: 16),
+      trailing: Icon(Icons.add, color: highlightColor),
+      onTap: () => model.navigateTo(Routes.printersAdd),
+    ));
+    return widgetsToReturn;
   }
 
   Widget buildHeader({

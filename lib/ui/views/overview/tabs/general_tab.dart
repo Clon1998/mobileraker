@@ -103,6 +103,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
               ? Colors.green
               : Colors.deepOrange,
         );
+      case PrintState.error:
       case PrintState.complete:
         return TextButton.icon(
             onPressed: model.onResetPrintTap,

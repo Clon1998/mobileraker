@@ -4,6 +4,8 @@ import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/repository/printer_setting_hive_repository.dart';
+import 'package:mobileraker/repository/printer_setting_repository.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
@@ -14,6 +16,7 @@ import 'package:mobileraker/ui/views/overview/overview_view.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/ui/views/printers/add/printers_add_view.dart';
 import 'package:mobileraker/ui/views/printers/edit/printers_edit_view.dart';
+import 'package:mobileraker/ui/views/printers/qr_scanner/qr_scanner_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_view.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -26,12 +29,15 @@ import 'package:stacked_services/stacked_services.dart';
   MaterialRoute(page: FilesView),
   MaterialRoute(page: FileDetailView),
   MaterialRoute(page: SettingView),
+  MaterialRoute(page: QrScannerView),
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
+  // LazySingleton(classType: PrinterSettingHiveRepository,asType: PrinterSettingRepository,),
   LazySingleton(classType: DialogService),
   LazySingleton(classType: BottomSheetService),
   LazySingleton(classType: GeneralTabViewModel),
+  Singleton(classType: PrinterSettingHiveRepository),
   Singleton(classType: MachineService),
   Singleton(classType: SettingService),
   Singleton(classType: NotificationService),

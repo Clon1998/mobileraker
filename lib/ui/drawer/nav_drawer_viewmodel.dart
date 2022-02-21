@@ -5,17 +5,21 @@ import 'package:mobileraker/service/machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class NavDrawerViewModel extends BaseViewModel {
+class NavDrawerViewModel extends FutureViewModel<List<PrinterSetting>> {
   final _navigationService = locator<NavigationService>();
   final _machineService = locator<MachineService>();
   final String currentPath;
 
   NavDrawerViewModel(this.currentPath);
 
+
+  @override
+  Future<List<PrinterSetting>> futureToRun() => _machineService.fetchAll();
+
   List<PrinterSetting> get printers {
-    var iterable = _machineService.fetchAll();
+    var list = data!;
     var selectedUUID = _machineService.selectedMachine.valueOrNull?.uuid;
-    List<PrinterSetting> list = List.of(iterable);
+
     list.sort((a, b) {
       if (a.uuid == selectedUUID) return -1; //Move selected to first position
       if (b.uuid == selectedUUID) return 1; //Move selected to first position

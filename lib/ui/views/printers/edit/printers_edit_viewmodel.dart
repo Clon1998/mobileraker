@@ -73,20 +73,19 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     if (key != _printerMapKey) return;
 
     MacroGroup defaultGroup = _defaultGroup;
-    if (fetchedPrinter != null) {
-      List<String> filteredMacros = fetchedPrinter.gcodeMacros
-          .where((element) => !element.startsWith('_'))
-          .toList();
-      for (MacroGroup grp in _macroGroups) {
-        for (GCodeMacro macro in grp.macros.toList(growable: false)) {
-          bool wasInList = filteredMacros.remove(macro.name);
-          if (!wasInList) grp.macros.remove(macro);
-        }
+
+    List<String> filteredMacros = fetchedPrinter.gcodeMacros
+        .where((element) => !element.startsWith('_'))
+        .toList();
+    for (MacroGroup grp in _macroGroups) {
+      for (GCodeMacro macro in grp.macros.toList(growable: false)) {
+        bool wasInList = filteredMacros.remove(macro.name);
+        if (!wasInList) grp.macros.remove(macro);
       }
-      List<GCodeMacro> modifiableList = defaultGroup.macros.toList();
-      modifiableList.addAll(filteredMacros.map((e) => GCodeMacro(e)));
-      defaultGroup.macros = modifiableList;
     }
+    List<GCodeMacro> modifiableList = defaultGroup.macros.toList();
+    modifiableList.addAll(filteredMacros.map((e) => GCodeMacro(e)));
+    defaultGroup.macros = modifiableList;
   }
 
   List<String> get printersMacros {
@@ -498,5 +497,13 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     newGroup.macros.add(macro);
     srcGrpDragging!.macros.remove(macro);
     notifyListeners();
+  }
+
+  openQrScanner() async {
+    var readValue = await _navigationService.navigateTo(Routes.qrScannerView);
+    if (readValue != null) {
+      _fbKey.currentState?.fields['printerApiKey']?.didChange(readValue);
+    }
+    // printerApiKey = resu;
   }
 }

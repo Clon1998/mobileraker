@@ -57,11 +57,14 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   }
 
   bool get canStartPrint {
-    if (!isServerAvailable || !isPrinterAvailable || server.klippyState != KlipperState.ready)
+    if (!isServerAvailable ||
+        !isPrinterAvailable ||
+        server.klippyState != KlipperState.ready)
       return false;
     else
       return (printer.print.state == PrintState.complete ||
-          printer.print.state == PrintState.standby);
+          printer.print.state == PrintState.standby ||
+          printer.print.state == PrintState.error);
   }
 
   String? get curPathToPrinterUrl {

@@ -5,6 +5,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/ui/dialog/importSettings/import_settings_viewmodel.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -41,29 +42,31 @@ class ImportSettingsView
                 request.title!,
                 style: Theme.of(context).textTheme.headline5,
               ),
-              FormBuilderDropdown(
-                name: 'source',
-                decoration: InputDecoration(
-                  labelText: 'Select Source',
-                  hintText: 'Source to copy from',
-                ),
-                items: model.machines
-                    .map(
-                      (e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(e.name),
-                      ),
-                    )
-                    .toList(growable: false),
-                onChanged: model.onSourceSelected,
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(context),
-                ]),
-              ),
+              if (model.dataReady)
+                FormBuilderDropdown(
+                  name: 'source',
+                  decoration: InputDecoration(
+                    labelText: 'Select Source',
+                    hintText: 'Source to copy from',
+                  ),
+                  items: model.data!
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e,
+                          child: Text(e.name),
+                        ),
+                      )
+                      .toList(growable: false),
+                  onChanged: model.onSourceSelected,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                  ]),
+                )
+              else
+                FadingText("Fetching sources"),
               if (model.machineSelected)
                 Expanded(
                   child: ListView(
-
                     children: [
                       FormBuilderCheckboxGroup<String>(
                         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -72,13 +75,20 @@ class ImportSettingsView
                         name: 'motionsysFields',
                         // initialValue: const ['Dart'],
                         options: const [
-                          FormBuilderFieldOption(value:'invertX', child: Text('Invert X')),
-                          FormBuilderFieldOption(value:'invertY', child: Text('Invert Y')),
-                          FormBuilderFieldOption(value:'invertZ', child: Text('Invert Z')),
-                          FormBuilderFieldOption(value:'speedXY', child: Text('Speed X/Y')),
-                          FormBuilderFieldOption(value:'speedZ', child: Text('Speed Z')),
-                          FormBuilderFieldOption(value:'moveSteps', child: Text('Move Steps')),
-                          FormBuilderFieldOption(value:'babySteps', child: Text('Baby Steps')),
+                          FormBuilderFieldOption(
+                              value: 'invertX', child: Text('Invert X')),
+                          FormBuilderFieldOption(
+                              value: 'invertY', child: Text('Invert Y')),
+                          FormBuilderFieldOption(
+                              value: 'invertZ', child: Text('Invert Z')),
+                          FormBuilderFieldOption(
+                              value: 'speedXY', child: Text('Speed X/Y')),
+                          FormBuilderFieldOption(
+                              value: 'speedZ', child: Text('Speed Z')),
+                          FormBuilderFieldOption(
+                              value: 'moveSteps', child: Text('Move Steps')),
+                          FormBuilderFieldOption(
+                              value: 'babySteps', child: Text('Baby Steps')),
                         ],
                         activeColor: Theme.of(context).colorScheme.primary,
                       ),
@@ -89,8 +99,11 @@ class ImportSettingsView
                         name: 'extrudersFields',
                         // initialValue: const ['Dart'],
                         options: const [
-                          FormBuilderFieldOption(value:'extrudeSpeed', child: Text('Feed rate')),
-                          FormBuilderFieldOption(value:'extrudeSteps', child: Text('Extrude Steps')),
+                          FormBuilderFieldOption(
+                              value: 'extrudeSpeed', child: Text('Feed rate')),
+                          FormBuilderFieldOption(
+                              value: 'extrudeSteps',
+                              child: Text('Extrude Steps')),
                         ],
                         activeColor: Theme.of(context).colorScheme.primary,
                       ),

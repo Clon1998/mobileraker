@@ -45,15 +45,16 @@ class PrinterSetting extends HiveObject {
   List<double> babySteps;
   @HiveField(13, defaultValue: [1, 10, 25, 50])
   List<int> extrudeSteps;
-
   @HiveField(14, defaultValue: 0)
   double? lastPrintProgress;
   @HiveField(15)
   String? _lastPrintState;
   @HiveField(16, defaultValue: [])
-  List<MacroGroup> macroGroups;
+  late List<MacroGroup> macroGroups;
   @HiveField(17)
   String? fcmIdentifier;
+  @HiveField(18)
+  DateTime? lastModified;
 
   PrintState? get lastPrintState =>
       EnumToString.fromString(PrintState.values, _lastPrintState ?? '');
@@ -99,6 +100,9 @@ class PrinterSetting extends HiveObject {
     return _databaseService!;
   }
 
+  String get statusUpdatedChannelKey => '$uuid-statusUpdates';
+  String get printProgressChannelKey => '$uuid-progressUpdates';
+
   PrinterSetting({
     required this.name,
     required this.wsUrl,
@@ -113,16 +117,21 @@ class PrinterSetting extends HiveObject {
     this.moveSteps = const [1, 10, 25, 50],
     this.babySteps = const [0.005, 0.01, 0.05, 0.1],
     this.extrudeSteps = const [1, 10, 25, 50],
-    this.macroGroups = const [],
+    List<MacroGroup>? macroGroups,
   }) {
     //TODO: Remove this section once more ppl. used this version
     if (httpUrl.isEmpty) this.httpUrl = 'http://${Uri.parse(wsUrl).host}';
+    if (macroGroups != null) {
+      this.macroGroups = macroGroups;
+    } else {
+      this.macroGroups = [MacroGroup(name: 'Default')];
+    }
   }
 
   @override
   Future<void> save() async {
+    lastModified = DateTime.now();
     await super.save();
-
     // ensure websocket gets updated with the changed URL+API KEY
     _webSocket?.update(this.wsUrl, this.apiKey);
   }

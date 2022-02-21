@@ -24,12 +24,15 @@ import 'package:mobileraker/enums/snackbar_type.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+import 'machine_service.dart';
+
 final Set<String> skipGCodes = {"PAUSE", "RESUME", "CANCEL_PRINT"};
 
 class PrinterService {
   final PrinterSetting _owner;
   final _logger = getLogger('PrinterService');
   final _snackBarService = locator<SnackbarService>();
+  final _machineService = locator<MachineService>();
 
   /// This map defines how different printerObjects will be parsed
   /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
@@ -52,6 +55,7 @@ class PrinterService {
 
   final BehaviorSubject<Printer> printerStream = BehaviorSubject<Printer>();
   late final StreamSubscription<KlipperInstance> klippySubscription;
+  bool _queriedForSession = false;
 
   PrinterService(this._owner) {
     _webSocket.addMethodListener(
@@ -61,9 +65,13 @@ class PrinterService {
         _owner.klippyService.klipperStream.listen((KlipperInstance value) {
       switch (value.klippyState) {
         case KlipperState.ready:
-          _printerObjectsList();
+          if (!_queriedForSession) {
+            _queriedForSession = true;
+            _printerObjectsList();
+          }
           break;
         default:
+          _queriedForSession = false;
       }
     });
   }
@@ -126,6 +134,7 @@ class PrinterService {
     });
     printer.queryableObjects = qObjects;
     printer.gcodeMacros = gCodeMacros;
+    _machineService.updateSettingMacros(_owner, gCodeMacros);
     _queryPrinterObjects(printer);
   }
 
@@ -471,6 +480,11 @@ class PrinterService {
   quadGantryLevel() {
     _webSocket.sendJsonRpcMethod("printer.gcode.script",
         params: {'script': "QUAD_GANTRY_LEVEL"});
+  }
+
+  m84() {
+    _webSocket
+        .sendJsonRpcMethod("printer.gcode.script", params: {'script': "m84"});
   }
 
   bedMeshLevel() {

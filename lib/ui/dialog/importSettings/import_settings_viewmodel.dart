@@ -8,7 +8,7 @@ import 'package:mobileraker/ui/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class ImportSettingsViewModel extends BaseViewModel {
+class ImportSettingsViewModel extends FutureViewModel<List<PrinterSetting>> {
   final _machineService = locator<MachineService>();
   final DialogRequest request;
   final Function(DialogResponse) completer;
@@ -25,8 +25,10 @@ class ImportSettingsViewModel extends BaseViewModel {
     _target = request.data;
   }
 
-  Iterable<PrinterSetting> get machines =>
-      _machineService.fetchAll().where((element) => element != _target);
+  @override
+  Future<List<PrinterSetting>> futureToRun() =>
+      _machineService.fetchAll().then((value) =>
+          value.where((element) => element != _target).toList(growable: false));
 
   List<TemperaturePreset> get presets {
     return _selectedSource?.temperaturePresets ?? List.empty();
@@ -43,11 +45,11 @@ class ImportSettingsViewModel extends BaseViewModel {
     FormBuilderState currentState = _fbKey.currentState!;
     if (currentState.saveAndValidate()) {
       List<TemperaturePreset> selectedPresets =
-          currentState.value['temp_presets']?? [];
+          currentState.value['temp_presets'] ?? [];
 
       List<String> fields = [];
-      fields.addAll(currentState.value['motionsysFields']??[]);
-      fields.addAll(currentState.value['extrudersFields']??[]);
+      fields.addAll(currentState.value['motionsysFields'] ?? []);
+      fields.addAll(currentState.value['extrudersFields'] ?? []);
 
       completer(DialogResponse(
           confirmed: true,

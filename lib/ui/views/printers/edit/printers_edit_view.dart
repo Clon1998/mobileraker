@@ -90,6 +90,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 FormBuilderTextField(
                   decoration: InputDecoration(
                       labelText: 'Moonraker - API Key',
+                      suffix: IconButton(icon: Icon(Icons.qr_code_sharp), onPressed: model.openQrScanner,),
                       helperText:
                           'Only needed if youre using trusted clients. FluiddPI enforces this!'),
                   name: 'printerApiKey',

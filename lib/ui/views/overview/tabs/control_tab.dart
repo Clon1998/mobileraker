@@ -181,26 +181,14 @@ class SpinningFan extends StatefulWidget {
 
 class _SpinningFanState extends State<SpinningFan>
     with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  _SpinningFanState() {
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat();
-
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.linear,
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+  late AnimationController _controller = AnimationController(
+    duration: const Duration(seconds: 2),
+    vsync: this,
+  )..repeat();
+  late Animation<double> _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.linear,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -208,6 +196,12 @@ class _SpinningFanState extends State<SpinningFan>
       turns: _animation,
       child: Icon(FlutterIcons.fan_mco, size: widget.size),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 

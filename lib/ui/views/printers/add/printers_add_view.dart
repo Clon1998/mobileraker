@@ -56,26 +56,29 @@ class PrintersAdd extends StatelessWidget {
                       validator: FormBuilderValidators.compose([
                         FormBuilderValidators.required(context),
                         FormBuilderValidators.url(context,
-                            protocols: ['ws', 'wss', 'http','https'])
+                            protocols: ['ws', 'wss', 'http', 'https'])
                       ]),
                     ),
                     FormBuilderTextField(
                       decoration: InputDecoration(
-                          labelText: 'Moonraker - API Key',
-                          helperText: 'Only needed if youre using trusted clients. FluiddPI enforces this!',
+                        labelText: 'Moonraker - API Key',
+                        suffix: IconButton(
+                          icon: Icon(Icons.qr_code_sharp),
+                          onPressed: model.openQrScanner,
+                        ),
+                        helperText:
+                            'Only needed if youre using trusted clients. FluiddPI enforces this!',
                       ),
                       name: 'printerApiKey',
                     ),
                     Divider(),
                     _SectionHeader(title: 'Misc'),
                     InputDecorator(
-
                       decoration: InputDecoration(
                         labelText: 'Test websocket connection',
                         border: InputBorder.none,
                         errorText: model.wsError,
                         errorMaxLines: 3,
-
                       ),
                       child: Row(
                         children: [
@@ -88,7 +91,10 @@ class PrintersAdd extends StatelessWidget {
                           Text('Result: ${model.wsResult}'),
                           Spacer(flex: 30),
                           ElevatedButton(
-                              onPressed: (model.data != WebSocketState.connecting)? model.onTestConnectionTap:null,
+                              onPressed:
+                                  (model.data != WebSocketState.connecting)
+                                      ? model.onTestConnectionTap
+                                      : null,
                               child: Text('Test'))
                         ],
                       ),

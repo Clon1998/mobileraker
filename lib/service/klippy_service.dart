@@ -96,7 +96,6 @@ class KlippyService {
         (result.containsKey('plugins')) ? result['plugins'].cast<String>() : [];
     KlipperInstance klipperInstance = _latestKlippy;
 
-    klipperInstance = klipperStream.value;
     klipperInstance.klippyState = state;
     klipperInstance.plugins = plugins;
     klipperInstance.klippyConnected = con;
@@ -107,6 +106,7 @@ class KlippyService {
   _parsePrinterInfo(response, {err}) {
     if (err != null) return;
     var result = response['result'];
+    _logger.i('<<<Received Printer.Info');
     _logger.v('PrinterInfo: ${JsonEncoder.withIndent('  ').convert(result)}');
 
     KlipperInstance latestKlippy = _latestKlippy;
