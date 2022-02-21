@@ -94,7 +94,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
     switch (model.printer.print.state) {
       case PrintState.printing:
         return CircularPercentIndicator(
-          radius: 50,
+          radius: 25,
           lineWidth: 4,
           percent: model.printer.virtualSdCard.progress,
           center:
