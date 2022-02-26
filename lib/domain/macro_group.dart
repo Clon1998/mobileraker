@@ -13,11 +13,10 @@ class MacroGroup {
   @HiveField(16, defaultValue: [])
   List<GCodeMacro> macros;
 
-
   MacroGroup({
     required this.name,
-    this.macros = const [],
-  });
+    List<GCodeMacro>? macros,
+  }) : this.macros = macros ?? [];
 
   @override
   String toString() {
