@@ -95,10 +95,10 @@ class NotificationService {
     await setupNotificationChannels(groups, channels);
     await setupFirebaseMessaging();
 
-    for (PrinterSetting setting in allMachines) {
-      _printerStreamMap[setting.uuid] = setting.printerService.printerStream
-          .listen((value) => _processPrinterUpdate(setting, value));
-    }
+    // for (PrinterSetting setting in allMachines) {
+    //   _printerStreamMap[setting.uuid] = setting.printerService.printerStream
+    //       .listen((value) => _processPrinterUpdate(setting, value));
+    // }
 
     _hiveStreamListener = setupHiveBoxListener();
     _actionStreamListener = setupNotificationActionListener();
@@ -175,8 +175,8 @@ class NotificationService {
         _channelsOfPrinterSettings(setting);
     channelsOfPrinterSettings.forEach((e) => _notifyAPI.setChannel(e));
     _setupFCMOnPrinterOnceConnected(setting);
-    _printerStreamMap[setting.uuid] = setting.printerService.printerStream
-        .listen((value) => _processPrinterUpdate(setting, value));
+    // _printerStreamMap[setting.uuid] = setting.printerService.printerStream
+    //     .listen((value) => _processPrinterUpdate(setting, value));
     _logger.i(
         "Added notifications channels and stream-listener for UUID=${setting.uuid}");
   }
@@ -236,6 +236,7 @@ class NotificationService {
           playSound: false,
           enableVibration: false,
           enableLights: false,
+          importance: NotificationImportance.Low,
           defaultColor: brownish.shade500)
     ];
   }
