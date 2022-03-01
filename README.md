@@ -24,6 +24,8 @@ Want to support me?
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/PadS)
 
 
+## Push Notifications / Remote Notification
+In order to use remote notifications be sure to follow the setup guide to install [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion) for Klipper/Moonraker.
 
 Home           |  More images...
 :------------------------------------------------------:|:-------------------------------------------------------:
@@ -35,9 +37,9 @@ Home           |  More images...
 * [x] Support for multiple printers
 * [ ] Multiple colors/themes and dark mode
   * [x] Dark mode
-* [ ] Notifications (Might need an klipper addon?)
-  * [ ] Print done
-  * [ ] Print progress
+* [x] Notifications (Might need an klipper addon?)
+  * [x] Print done
+  * [x] Print progress
   * [ ] Klipper errors
 * [x] Overview page
   * [x] Refactor current layout with multiple and clearer menu-tabs
