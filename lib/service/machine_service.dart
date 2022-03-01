@@ -53,10 +53,17 @@ class MachineService {
   }
 
   Future<void> removeMachine(PrinterSetting printerSetting) async {
-    _printerSettingRepo.remove(printerSetting.uuid);
-    if (_boxUuid.get('selectedPrinter') == printerSetting.uuid) {
-      PrinterSetting? machine = await _printerSettingRepo.get(index: 0);
-      await setMachineActive(machine);
+    _logger.i("Removing machine ${printerSetting.uuid}");
+    await _printerSettingRepo.remove(printerSetting.uuid);
+    if (selectedMachine.valueOrNull == printerSetting) {
+      _logger.i("Machine ${printerSetting.uuid} is active machine");
+      List<PrinterSetting> remainingPrinters =
+          await _printerSettingRepo.fetchAll();
+
+      PrinterSetting? nextMachine =
+          remainingPrinters.length > 0 ? remainingPrinters.first : null;
+
+      await setMachineActive(nextMachine);
     }
   }
 
@@ -65,13 +72,17 @@ class MachineService {
   }
 
   setMachineActive(PrinterSetting? printerSetting) async {
-    if (printerSetting == selectedMachine.valueOrNull) return;
-    // This case will be called when no printer is left! -> Select no printer as active printer
     if (printerSetting == null) {
+      // This case sets no printer as active!
       await _boxUuid.delete('selectedPrinter');
       if (!selectedMachine.isClosed) selectedMachine.add(null);
+
+      _logger.i(
+          "Selecting no printer as active Printer. Stream is closed?: ${selectedMachine.isClosed}");
       return;
     }
+
+    if (printerSetting == selectedMachine.valueOrNull) return;
 
     await _boxUuid.put('selectedPrinter', printerSetting.key);
     if (!selectedMachine.isClosed) selectedMachine.add(printerSetting);
@@ -112,24 +123,63 @@ class MachineService {
   Future<String> fetchOrCreateFcmIdentifier(
       PrinterSetting printerSetting) async {
     var idFromSetting = printerSetting.fcmIdentifier;
-    if (idFromSetting != null)
-      return idFromSetting;
+    if (idFromSetting != null) return idFromSetting;
     DatabaseService databaseService = printerSetting.databaseService;
 
     String? item =
         await databaseService.getDatabaseItem('mobileraker', 'printerId');
     if (item == null) {
       String nId = Uuid().v4();
-      _logger.i("Creating fcm-PrinterId in moonraker-Database: $nId");
       item = await databaseService.addDatabaseItem(
           'mobileraker', 'printerId', nId);
+      _logger.i("Registered fcm-PrinterId in MoonrakerDB: $nId");
+
     }
-    _logger.i(
-        "Fcm-PrinterId from moonraker-Database in PrinterSettings = $item");
+    _logger
+        .i("Got FCM-PrinterID from MoonrakerDB to set in Settings:$item");
 
     printerSetting.fcmIdentifier = item;
     await printerSetting.save();
     return item!;
+  }
+
+  Future<void> registerFCMTokenOnMachineNEW(
+      PrinterSetting printerSetting, String fcmToken) async {
+    DatabaseService databaseService = printerSetting.databaseService;
+    Map<String, dynamic>? item =
+        await databaseService.getDatabaseItem('mobileraker', 'fcm.$fcmToken');
+    if (item == null) {
+      item = {'printerName': printerSetting.name};
+      item = await databaseService.addDatabaseItem(
+          'mobileraker', 'fcm.$fcmToken', item);
+      _logger.i("Registered FCM Token in MoonrakerDB: $item");
+    } else if (item['printerName'] != printerSetting.name) {
+      item['printerName'] = printerSetting.name;
+      item = await databaseService.addDatabaseItem(
+          'mobileraker', 'fcm.$fcmToken', item);
+      _logger.i("Updated Printer's name in MoonrakerDB: $item");
+    }
+    _logger.i("Got FCM data from MoonrakerDB: $item");
+  }
+
+  Future<void> registerFCMTokenOnMachine(
+      PrinterSetting printerSetting, String fcmToken) async {
+    DatabaseService databaseService = printerSetting.databaseService;
+
+    var item =
+        await databaseService.getDatabaseItem('mobileraker', 'fcmTokens');
+    if (item == null) {
+      _logger.i("Creating fcmTokens in moonraker-Database");
+      await databaseService
+          .addDatabaseItem('mobileraker', 'fcmTokens', [fcmToken]);
+    } else {
+      List<String> fcmTokens = List.from(item);
+      if (!fcmTokens.contains(fcmToken)) {
+        _logger.i("Adding token to existing fcmTokens in moonraker-Database");
+        await databaseService.addDatabaseItem(
+            'mobileraker', 'fcmTokens', fcmTokens..add(fcmToken));
+      }
+    }
   }
 
   Future<PrinterSetting?> machineFromFcmIdentifier(String fcmIdentifier) async {
