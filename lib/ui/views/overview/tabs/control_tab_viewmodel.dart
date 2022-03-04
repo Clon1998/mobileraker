@@ -114,12 +114,20 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   bool get canUsePrinter => server.klippyState == KlipperState.ready;
 
+  int get flowMultiplier {
+    return (printer.gCodeMove.extrudeFactor * 100).toInt();
+  }
+
+  int get speedMultiplier {
+    return (printer.gCodeMove.speedFactor * 100).toInt();
+  }
+
   Set<NamedFan> get filteredFans => printer.fans
-      .where((NamedFan element) => !element.name.startsWith("_"))
+      .where((NamedFan element) => !element.name.startsWith('_'))
       .toSet();
 
   Set<OutputPin> get filteredPins => printer.outputPins
-      .where((OutputPin element) => !element.name.startsWith("_"))
+      .where((OutputPin element) => !element.name.startsWith('_'))
       .toSet();
 
   ConfigOutput? configForOutput(String name) {
@@ -131,9 +139,9 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     _dialogService
         .showCustomDialog(
             variant: DialogType.numEditForm,
-            title: "Edit ${beautifyName(pin.name)} value!",
-            mainButtonTitle: "Confirm",
-            secondaryButtonTitle: "Cancel",
+            title: 'Edit ${beautifyName(pin.name)} value!',
+            mainButtonTitle: 'Confirm',
+            secondaryButtonTitle: 'Cancel',
             data: NumEditFormDialogViewArguments(
                 max: configOutput?.scale.toInt() ?? 1,
                 current: pin.value * (configOutput?.scale ?? 1),
@@ -150,9 +158,9 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     _dialogService
         .showCustomDialog(
             variant: DialogType.numEditForm,
-            title: "Edit Part Cooling fan %",
-            mainButtonTitle: "Confirm",
-            secondaryButtonTitle: "Cancel",
+            title: 'Edit Part Cooling fan %',
+            mainButtonTitle: 'Confirm',
+            secondaryButtonTitle: 'Cancel',
             data: NumEditFormDialogViewArguments(
                 max: 100, current: printer.printFan.speed * 100.round()))
         .then((value) {
@@ -167,9 +175,9 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     _dialogService
         .showCustomDialog(
             variant: DialogType.numEditForm,
-            title: "Edit ${beautifyName(namedFan.name)} %",
-            mainButtonTitle: "Confirm",
-            secondaryButtonTitle: "Cancel",
+            title: 'Edit ${beautifyName(namedFan.name)} %',
+            mainButtonTitle: 'Confirm',
+            secondaryButtonTitle: 'Cancel',
             data: NumEditFormDialogViewArguments(
                 max: 100, current: namedFan.speed * 100.round()))
         .then((value) {
@@ -203,6 +211,40 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   onMacroGroupSelected(MacroGroup? macroGroup) {
     selectedGrp = macroGroup;
+  }
+
+  onEditSpeedMultiplier() {
+    _dialogService
+        .showCustomDialog(
+            variant: DialogType.numEditForm,
+            title: 'Edit Speed Multiplier in %',
+            mainButtonTitle: 'Confirm',
+            secondaryButtonTitle: 'Cancel',
+            data: NumEditFormDialogViewArguments(
+                current: printer.gCodeMove.speedFactor * 100.round()))
+        .then((value) {
+      if (value != null && value.confirmed && value.data != null) {
+        num v = value.data;
+        _printerService?.speedMultiplier(v.toInt());
+      }
+    });
+  }
+
+  onEditFlowMultiplier() {
+    _dialogService
+        .showCustomDialog(
+            variant: DialogType.numEditForm,
+            title: 'Edit Flow Multiplier in %',
+            mainButtonTitle: 'Confirm',
+            secondaryButtonTitle: 'Cancel',
+            data: NumEditFormDialogViewArguments(
+                current: printer.gCodeMove.extrudeFactor * 100.round()))
+        .then((value) {
+      if (value != null && value.confirmed && value.data != null) {
+        num v = value.data;
+        _printerService?.flowMultiplier(v.toInt());
+      }
+    });
   }
 
   @override

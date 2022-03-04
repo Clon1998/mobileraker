@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 const String emsKey = 'ems_setting';
 const String showBabyAlwaysKey = 'always_babystepping_setting';
@@ -12,6 +14,7 @@ const String showBabyAlwaysKey = 'always_babystepping_setting';
 class SettingViewModel extends FutureViewModel<PackageInfo> {
   final _logger = getLogger("SettingViewModel");
   final _settingService = locator<SettingService>();
+  final _navigationService = locator<NavigationService>();
 
   // late final WebSocketWrapper _webSocket = _machineService.webSocket;
   final _fbKey = GlobalKey<FormBuilderState>();
@@ -32,6 +35,10 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
 
   @override
   Future<PackageInfo> futureToRun() => PackageInfo.fromPlatform();
+
+  void navigateToLegal() {
+    _navigationService.navigateTo(Routes.imprintView);
+  }
 
   String get version {
     if (isBusy) return "Version: unavailable";

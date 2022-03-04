@@ -514,6 +514,16 @@ class PrinterService {
         .sendJsonRpcMethod("printer.gcode.script", params: {'script': macro});
   }
 
+  speedMultiplier(int speed) {
+    _webSocket.sendJsonRpcMethod("printer.gcode.script",
+        params: {'script': "M220  S$speed"});
+  }
+
+  flowMultiplier(int flow) {
+    _webSocket.sendJsonRpcMethod("printer.gcode.script",
+        params: {'script': "M221 S$flow"});
+  }
+
   setTemperature(String heater, int target) {
     String gcode = "SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target";
 

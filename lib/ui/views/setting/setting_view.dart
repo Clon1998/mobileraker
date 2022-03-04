@@ -42,7 +42,8 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                     activeColor: Theme.of(context).colorScheme.primary,
                   ),
                   Divider(),
-                  Text(model.version, textAlign: TextAlign.center,)
+                  Text(model.version, textAlign: TextAlign.center,),
+                  TextButton(child: Text('Imprint'),onPressed: model.navigateToLegal,),
                   // _SectionHeader(title: 'Notifications'),
                 ],
               ),

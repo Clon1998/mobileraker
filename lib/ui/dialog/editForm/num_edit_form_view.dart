@@ -45,9 +45,9 @@ class NumEditFormDialogView extends StatelessWidget {
                 NumField(
                   description: request.description,
                   initialValue: data.current ?? 0,
-                  upperBorder: data.max ?? 100,
+                  upperBorder: data.max,
                   lowerBorder: data.min ?? 0,
-                  frac: data.fraction ?? 1,
+                  frac: data.fraction ?? 0,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -75,7 +75,7 @@ class NumEditFormDialogView extends StatelessWidget {
 class NumField extends StatelessWidget {
   final num initialValue;
   final num lowerBorder;
-  final num upperBorder;
+  final num? upperBorder;
   final int frac;
   final String? description;
 
@@ -93,13 +93,14 @@ class NumField extends StatelessWidget {
     return FormBuilderTextField(
       autofocus: true,
       validator: FormBuilderValidators.compose([
-        FormBuilderValidators.max(context, upperBorder),
+        if (upperBorder != null)
+          FormBuilderValidators.max(context, upperBorder!),
         FormBuilderValidators.min(context, lowerBorder),
         FormBuilderValidators.numeric(context),
         FormBuilderValidators.required(context)
       ]),
       valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),
-      initialValue: initialValue.toStringAsFixed(frac.toInt()),
+      initialValue: initialValue.toStringAsFixed(frac),
       name: 'newValue',
       style: Theme.of(context).inputDecorationTheme.counterStyle,
       keyboardType:
@@ -108,8 +109,14 @@ class NumField extends StatelessWidget {
         border: const UnderlineInputBorder(),
         contentPadding: const EdgeInsets.all(8.0),
         labelText: description,
-        helperText: "Enter a value between $lowerBorder and $upperBorder",
+        helperText: _helperText(),
       ),
     );
+  }
+  String _helperText() {
+    if (upperBorder == null)
+      return 'Enter a value of at least $lowerBorder';
+
+    return 'Enter a value between $lowerBorder and $upperBorder';
   }
 }
