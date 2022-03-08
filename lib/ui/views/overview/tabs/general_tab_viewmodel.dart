@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
@@ -14,17 +14,16 @@ import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/dialog/editForm/num_edit_form_view.dart';
+import 'package:mobileraker/ui/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 const String _ServerStreamKey = 'server';
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
@@ -199,13 +198,13 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   editDialog([bool isHeatedBed = false]) {
     if (isHeatedBed) {
-      _dialogService
-          .showCustomDialog(
-              variant: DialogType.numEditForm,
+      numberOrRangeDialog(
+              dialogService: _dialogService,
+              settingService: _settingService,
               title: "Edit Heated Bed Temperature",
               mainButtonTitle: "Confirm",
               secondaryButtonTitle: "Cancel",
-              data: NumEditFormDialogViewArguments(
+              data: NumberEditDialogArguments(
                   current: printer.heaterBed.target.round(),
                   min: 0,
                   max: printer.configFile.configHeaterBed?.maxTemp.toInt() ??
@@ -217,13 +216,13 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
         }
       });
     } else {
-      _dialogService
-          .showCustomDialog(
-              variant: DialogType.numEditForm,
+      numberOrRangeDialog(
+              dialogService: _dialogService,
+              settingService: _settingService,
               title: "Edit Extruder Temperature",
               mainButtonTitle: "Confirm",
               secondaryButtonTitle: "Cancel",
-              data: NumEditFormDialogViewArguments(
+              data: NumberEditDialogArguments(
                   current: printer.extruder.target.round(),
                   min: 0,
                   max: printer.configFile.primaryExtruder?.maxTemp.toInt() ??
@@ -335,7 +334,9 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
       currentFile!.objectHeight != null;
 
   int get layer {
-    if (!_canCalcLayer) return 0;
+    if (!isPrinterAvailable ||
+        currentFile?.firstLayerHeight == null ||
+        currentFile?.layerHeight == null) return 0;
     GCodeFile crntFile = currentFile!;
     int currentLayer =
         ((printer.toolhead.position[2] - crntFile.firstLayerHeight!) /
@@ -345,12 +346,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     currentLayer = (currentLayer <= maxLayers) ? currentLayer : maxLayers;
     return currentLayer > 0 ? currentLayer : 0;
   }
-
-  bool get _canCalcLayer =>
-      isPrinterAvailable &&
-      currentFile != null &&
-      currentFile!.firstLayerHeight != null &&
-      currentFile!.layerHeight != null;
 
   onRestartKlipperPressed() {
     _klippyService?.restartKlipper();

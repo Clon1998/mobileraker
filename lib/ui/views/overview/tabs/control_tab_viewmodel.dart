@@ -13,7 +13,8 @@ import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
-import 'package:mobileraker/ui/dialog/editForm/num_edit_form_view.dart';
+import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -24,6 +25,7 @@ const String _PrinterStreamKey = 'printer';
 
 class ControlTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
+  final _settingService = locator<SettingService>();
   final _machineService = locator<MachineService>();
 
   int selectedIndexRetractLength = 0;
@@ -136,13 +138,14 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   onEditPin(OutputPin pin, ConfigOutput? configOutput) {
     int fractionToShow = (configOutput == null || !configOutput.pwm) ? 0 : 2;
-    _dialogService
-        .showCustomDialog(
-            variant: DialogType.numEditForm,
+
+    numberOrRangeDialog(
+            dialogService: _dialogService,
+            settingService: _settingService,
             title: 'Edit ${beautifyName(pin.name)} value!',
             mainButtonTitle: 'Confirm',
             secondaryButtonTitle: 'Cancel',
-            data: NumEditFormDialogViewArguments(
+            data: NumberEditDialogArguments(
                 max: configOutput?.scale.toInt() ?? 1,
                 current: pin.value * (configOutput?.scale ?? 1),
                 fraction: fractionToShow))
@@ -155,13 +158,13 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   }
 
   onEditPartFan() {
-    _dialogService
-        .showCustomDialog(
-            variant: DialogType.numEditForm,
+    numberOrRangeDialog(
+            dialogService: _dialogService,
+            settingService: _settingService,
             title: 'Edit Part Cooling fan %',
             mainButtonTitle: 'Confirm',
             secondaryButtonTitle: 'Cancel',
-            data: NumEditFormDialogViewArguments(
+            data: NumberEditDialogArguments(
                 max: 100, current: printer.printFan.speed * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
@@ -172,13 +175,13 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   }
 
   onEditGenericFan(NamedFan namedFan) {
-    _dialogService
-        .showCustomDialog(
-            variant: DialogType.numEditForm,
+    numberOrRangeDialog(
+            dialogService: _dialogService,
+            settingService: _settingService,
             title: 'Edit ${beautifyName(namedFan.name)} %',
             mainButtonTitle: 'Confirm',
             secondaryButtonTitle: 'Cancel',
-            data: NumEditFormDialogViewArguments(
+            data: NumberEditDialogArguments(
                 max: 100, current: namedFan.speed * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
@@ -220,7 +223,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
             title: 'Edit Speed Multiplier in %',
             mainButtonTitle: 'Confirm',
             secondaryButtonTitle: 'Cancel',
-            data: NumEditFormDialogViewArguments(
+            data: NumberEditDialogArguments(
                 current: printer.gCodeMove.speedFactor * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
@@ -237,7 +240,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
             title: 'Edit Flow Multiplier in %',
             mainButtonTitle: 'Confirm',
             secondaryButtonTitle: 'Cancel',
-            data: NumEditFormDialogViewArguments(
+            data: NumberEditDialogArguments(
                 current: printer.gCodeMove.extrudeFactor * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {

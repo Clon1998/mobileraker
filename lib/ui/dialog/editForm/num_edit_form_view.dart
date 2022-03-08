@@ -1,20 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:mobileraker/ui/dialog/editForm/range_edit_form_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import 'num_edit_form_viewmodel.dart';
-
-class NumEditFormDialogViewArguments {
-  final num? min;
-  final num? max;
-  final num? current;
-  final int? fraction;
-
-  NumEditFormDialogViewArguments(
-      {this.min, this.max, this.current, this.fraction});
-}
 
 class NumEditFormDialogView extends StatelessWidget {
   final DialogRequest request;
@@ -26,7 +17,7 @@ class NumEditFormDialogView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    NumEditFormDialogViewArguments data = request.data;
+    NumberEditDialogArguments data = request.data;
 
     return ViewModelBuilder<NumEditFormViewModel>.reactive(
       builder: (context, model, child) => Dialog(
@@ -42,12 +33,12 @@ class NumEditFormDialogView extends StatelessWidget {
                   request.title!,
                   style: Theme.of(context).textTheme.headline5,
                 ),
-                NumField(
+                _NumField(
                   description: request.description,
-                  initialValue: data.current ?? 0,
+                  initialValue: data.current,
                   upperBorder: data.max,
-                  lowerBorder: data.min ?? 0,
-                  frac: data.fraction ?? 0,
+                  lowerBorder: data.min,
+                  frac: data.fraction,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -72,19 +63,19 @@ class NumEditFormDialogView extends StatelessWidget {
   }
 }
 
-class NumField extends StatelessWidget {
+class _NumField extends StatelessWidget {
   final num initialValue;
   final num lowerBorder;
   final num? upperBorder;
   final int frac;
   final String? description;
 
-  const NumField(
+  const _NumField(
       {Key? key,
-      this.initialValue = 0,
-      this.lowerBorder = 0,
-      this.upperBorder = 100,
-      this.frac = 0,
+      required this.initialValue,
+      required this.lowerBorder,
+      this.upperBorder,
+      required this.frac,
       this.description})
       : super(key: key);
 
@@ -113,9 +104,9 @@ class NumField extends StatelessWidget {
       ),
     );
   }
+
   String _helperText() {
-    if (upperBorder == null)
-      return 'Enter a value of at least $lowerBorder';
+    if (upperBorder == null) return 'Enter a value of at least $lowerBorder';
 
     return 'Enter a value between $lowerBorder and $upperBorder';
   }
