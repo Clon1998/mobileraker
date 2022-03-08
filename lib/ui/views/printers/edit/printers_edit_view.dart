@@ -92,7 +92,8 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                       labelText: 'Moonraker - API Key',
                       suffix: IconButton(icon: Icon(Icons.qr_code_sharp), onPressed: model.openQrScanner,),
                       helperText:
-                          'Only needed if youre using trusted clients. FluiddPI enforces this!'),
+                          'Only needed if youre using trusted clients. FluiddPI enforces this!',
+                  helperMaxLines: 3),
                   name: 'printerApiKey',
                   initialValue: model.printerApiKey,
                 ),
