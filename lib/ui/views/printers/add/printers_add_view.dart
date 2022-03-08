@@ -27,79 +27,81 @@ class PrintersAdd extends StatelessWidget {
             body: FormBuilder(
               key: model.formKey,
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  children: <Widget>[
-                    _SectionHeader(title: 'General'),
-                    FormBuilderTextField(
-                      decoration: InputDecoration(
-                        labelText: 'Displayname',
-                      ),
-                      name: 'printerName',
-                      initialValue: model.defaultPrinterName,
-                      validator: FormBuilderValidators.compose(
-                          [FormBuilderValidators.required(context)]),
-                    ),
-                    FormBuilderTextField(
-                      decoration: InputDecoration(
-                          labelText: 'Printer-Address',
-                          hintText: 'Host, IP, or full URL',
-                          helperMaxLines: 2,
-                          helperText: model.wsUrl?.isNotEmpty ?? false
-                              ? 'Resulting WebSocket-URL: ${model.wsUrl}'
-                              : '' //TODO
-                          ),
-                      onChanged: model.onUrlEntered,
-                      name: 'printerUrl',
-                      // initialValue: model.inputUrl,
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(context),
-                        FormBuilderValidators.url(context,
-                            protocols: ['ws', 'wss', 'http', 'https'])
-                      ]),
-                    ),
-                    FormBuilderTextField(
-                      decoration: InputDecoration(
-                        labelText: 'Moonraker - API Key',
-                        suffix: IconButton(
-                          icon: Icon(Icons.qr_code_sharp),
-                          onPressed: model.openQrScanner,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    children: <Widget>[
+                      _SectionHeader(title: 'General'),
+                      FormBuilderTextField(
+                        decoration: InputDecoration(
+                          labelText: 'Displayname',
                         ),
-                        helperText:
-                            'Only needed if youre using trusted clients. FluiddPI enforces this!',
+                        name: 'printerName',
+                        initialValue: model.defaultPrinterName,
+                        validator: FormBuilderValidators.compose(
+                            [FormBuilderValidators.required(context)]),
                       ),
-                      name: 'printerApiKey',
-                    ),
-                    Divider(),
-                    _SectionHeader(title: 'Misc'),
-                    InputDecorator(
-                      decoration: InputDecoration(
-                        labelText: 'Test websocket connection',
-                        border: InputBorder.none,
-                        errorText: model.wsError,
-                        errorMaxLines: 3,
+                      FormBuilderTextField(
+                        decoration: InputDecoration(
+                            labelText: 'Printer-Address',
+                            hintText: 'Host, IP, or full URL',
+                            helperMaxLines: 2,
+                            helperText: model.wsUrl?.isNotEmpty ?? false
+                                ? 'Resulting WebSocket-URL: ${model.wsUrl}'
+                                : '' //TODO
+                            ),
+                        onChanged: model.onUrlEntered,
+                        name: 'printerUrl',
+                        // initialValue: model.inputUrl,
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.required(context),
+                          FormBuilderValidators.url(context,
+                              protocols: ['ws', 'wss', 'http', 'https'])
+                        ]),
                       ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.radio_button_on,
-                            size: 10,
-                            color: model.wsStateColor,
-                          ),
-                          Spacer(flex: 1),
-                          Text('Result: ${model.wsResult}'),
-                          Spacer(flex: 30),
-                          ElevatedButton(
-                              onPressed:
-                                  (model.data != WebSocketState.connecting)
-                                      ? model.onTestConnectionTap
-                                      : null,
-                              child: Text('Test'))
-                        ],
+                      FormBuilderTextField(
+                        decoration: InputDecoration(
+                            labelText: 'Moonraker - API Key',
+                            suffix: IconButton(
+                              icon: Icon(Icons.qr_code_sharp),
+                              onPressed: model.openQrScanner,
+                            ),
+                            helperText:
+                                'Only needed if youre using trusted clients. FluiddPI enforces this!',
+                            helperMaxLines: 3),
+                        name: 'printerApiKey',
                       ),
-                    ),
-                  ],
+                      Divider(),
+                      _SectionHeader(title: 'Misc'),
+                      InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Test websocket connection',
+                          border: InputBorder.none,
+                          errorText: model.wsError,
+                          errorMaxLines: 3,
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.radio_button_on,
+                              size: 10,
+                              color: model.wsStateColor,
+                            ),
+                            Spacer(flex: 1),
+                            Text('Result: ${model.wsResult}'),
+                            Spacer(flex: 30),
+                            ElevatedButton(
+                                onPressed:
+                                    (model.data != WebSocketState.connecting)
+                                        ? model.onTestConnectionTap
+                                        : null,
+                                child: Text('Test'))
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
