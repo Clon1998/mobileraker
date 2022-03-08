@@ -57,3 +57,5 @@ Home           |  More images...
 
 ## Getting Started
 After importing this project into your IDE be sure to run `flutter packages pub run build_runner build` in order to generate required files!
+
+![Alt](https://repobeats.axiom.co/api/embed/4b14f21342f3066389fba0d6e2ebf469f1033848.svg "Repobeats analytics image")
