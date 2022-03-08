@@ -2,6 +2,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/gcode_macro.dart';
 import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
@@ -19,6 +20,13 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   const ControlTab({Key? key}) : super(key: key);
 
   @override
+  bool get disposeViewModel => false;
+
+  @override
+  bool get initialiseSpecialViewModelsOnce => true;
+
+
+  @override
   Widget builder(
       BuildContext context, ControlTabViewModel model, Widget? child) {
     return PullToRefreshPrinter(
@@ -32,6 +40,7 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
                 if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
                 if (model.printer.print.state != PrintState.printing)
                   ExtruderControlCard(),
+                MultipliersCard(),
                 FansCard(),
                 if (model.printer.outputPins.isNotEmpty) PinsCard(),
               ]
@@ -42,7 +51,7 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
 
   @override
   ControlTabViewModel viewModelBuilder(BuildContext context) =>
-      ControlTabViewModel();
+      locator<ControlTabViewModel>();
 }
 
 class FansCard extends ViewModelWidget<ControlTabViewModel> {
@@ -62,7 +71,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
                 FlutterIcons.fan_mco,
                 color: Theme.of(context).iconTheme.color,
               ),
-              title: Text("Fan${(model.printer.fans.length > 0) ? 's' : ''}"),
+              title: Text('Fan${(model.printer.fans.length > 0) ? 's' : ''}'),
             ),
             Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8),
@@ -96,7 +105,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
 
     var printFan = model.printer.printFan;
     rows.add(_FanTile(
-        name: "Part Fan",
+        name: 'Part Fan',
         speed: printFan.speed,
         width: width,
         onTap: model.canUsePrinter ? model.onEditPartFan : null));
@@ -236,7 +245,7 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                         onPressed:
                             model.canUsePrinter ? model.onDeRetractBtn : null,
                         icon: Icon(FlutterIcons.plus_ant),
-                        label: Text("Extrude"),
+                        label: Text('Extrude'),
                         style: TextButton.styleFrom(
                             backgroundColor:
                                 Theme.of(context).colorScheme.secondary,
@@ -252,7 +261,7 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                         onPressed:
                             model.canUsePrinter ? model.onRetractBtn : null,
                         icon: Icon(FlutterIcons.minus_ant),
-                        label: Text("Retract"),
+                        label: Text('Retract'),
                         style: TextButton.styleFrom(
                             backgroundColor:
                                 Theme.of(context).colorScheme.secondary,
@@ -267,7 +276,10 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                 Spacer(flex: 1),
                 Column(
                   children: [
-                    Text("Extrude length [mm]"),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text('Extrude length [mm]'),
+                    ),
                     RangeSelector(
                         selectedIndex: model.selectedIndexRetractLength,
                         onSelected: model.onSelectedRetractChanged,
@@ -374,7 +386,7 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
                 FlutterIcons.led_outline_mco,
               ),
               title: Text(
-                  "Output Pin${(model.printer.outputPins.length > 0) ? 's' : ''}"),
+                  'Output Pin${(model.printer.outputPins.length > 0) ? 's' : ''}'),
             ),
             Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8),
@@ -460,5 +472,52 @@ class _PinTile extends StatelessWidget {
         ),
         buttonChild: onTap == null ? const Text('Pin') : const Text('Set'),
         onTap: onTap);
+  }
+}
+
+
+
+class MultipliersCard extends ViewModelWidget<ControlTabViewModel> {
+  const MultipliersCard({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ControlTabViewModel model) {
+    Color textBtnColor = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : Colors.black;
+
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            leading: Icon(FlutterIcons.speedometer_slow_mco),
+            title: Text('Multipliers'),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                  TextButton(onPressed: model.onEditSpeedMultiplier, child: Text('Speed: ${model.speedMultiplier}%')),
+                  TextButton(onPressed: model.onEditFlowMultiplier, child: Text('Flow: ${model.flowMultiplier}%')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String homedChipTitle(Set<PrinterAxis> homedAxes) {
+    if (homedAxes.isEmpty)
+      return 'NONE';
+    else {
+      List<PrinterAxis> l = homedAxes.toList();
+      l.sort((a, b) => a.index.compareTo(b.index));
+      return l.map((e) => EnumToString.convertToString(e)).join();
+    }
   }
 }

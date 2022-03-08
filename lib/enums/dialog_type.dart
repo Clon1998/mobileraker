@@ -1,1 +1,1 @@
-enum DialogType { numEditForm, textEditForm, importSettings }
+enum DialogType { numEditForm, rangeEditForm, textEditForm, importSettings }

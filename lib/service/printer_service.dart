@@ -266,11 +266,11 @@ class PrinterService {
 
   _updateGCodeMove(Map<String, dynamic> gCodeJson, {required Printer printer}) {
     if (gCodeJson.containsKey('speed_factor'))
-      printer.gCodeMove.speedFactor = gCodeJson['speed_factor'];
+      printer.gCodeMove.speedFactor = _toPrecision(gCodeJson['speed_factor']);
     if (gCodeJson.containsKey('speed'))
       printer.gCodeMove.speed = gCodeJson['speed'];
     if (gCodeJson.containsKey('extrude_factor'))
-      printer.gCodeMove.extrudeFactor = gCodeJson['extrude_factor'];
+      printer.gCodeMove.extrudeFactor = _toPrecision(gCodeJson['extrude_factor']);
     if (gCodeJson.containsKey('absolute_coordinates'))
       printer.gCodeMove.absoluteCoordinates = gCodeJson['absolute_coordinates'];
     if (gCodeJson.containsKey('absolute_extrude'))
@@ -514,6 +514,16 @@ class PrinterService {
         .sendJsonRpcMethod("printer.gcode.script", params: {'script': macro});
   }
 
+  speedMultiplier(int speed) {
+    _webSocket.sendJsonRpcMethod("printer.gcode.script",
+        params: {'script': "M220  S$speed"});
+  }
+
+  flowMultiplier(int flow) {
+    _webSocket.sendJsonRpcMethod("printer.gcode.script",
+        params: {'script': "M221 S$flow"});
+  }
+
   setTemperature(String heater, int target) {
     String gcode = "SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target";
 
@@ -546,6 +556,10 @@ class PrinterService {
 
   Printer get _latestPrinter {
     return printerStream.hasValue ? printerStream.value : Printer();
+  }
+
+  double _toPrecision(double d,[int fraction=2]) {
+    return d.toPrecision(fraction);
   }
 
   dispose() {

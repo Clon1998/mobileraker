@@ -21,7 +21,6 @@ import 'package:mobileraker/firebase_options.dart';
 import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 
-import 'database_service.dart';
 import 'machine_service.dart';
 
 class NotificationService {
@@ -84,24 +83,24 @@ class NotificationService {
 
   Future<void> initialize() async {
     List<PrinterSetting> allMachines = await _machineService.fetchAll();
-    List<NotificationChannelGroup> groups = [];
-    List<NotificationChannel> channels = [];
-    for (PrinterSetting setting in allMachines) {
-      groups.add(_channelGroupOfPrinterSettings(setting));
-      channels.addAll(_channelsOfPrinterSettings(setting));
-      _setupFCMOnPrinterOnceConnected(setting);
-    }
 
-    await setupNotificationChannels(groups, channels);
-    await setupFirebaseMessaging();
+    allMachines.forEach(_setupFCMOnPrinterOnceConnected);
+
+    await setupNotificationChannels(allMachines);
 
     for (PrinterSetting setting in allMachines) {
-      _printerStreamMap[setting.uuid] = setting.printerService.printerStream
-          .listen((value) => _processPrinterUpdate(setting, value));
+      registerLocalMessageHandling(setting);
     }
 
     _hiveStreamListener = setupHiveBoxListener();
     _actionStreamListener = setupNotificationActionListener();
+    await setupFirebaseMessaging();
+  }
+
+  void registerLocalMessageHandling(PrinterSetting setting) {
+    if (Platform.isIOS) return;
+    _printerStreamMap[setting.uuid] = setting.printerService.printerStream
+        .listen((value) => _processPrinterUpdate(setting, value));
   }
 
   StreamSubscription<ReceivedAction> setupNotificationActionListener() {
@@ -122,13 +121,19 @@ class NotificationService {
     });
   }
 
-  setupNotificationChannels(List<NotificationChannelGroup> printerNotifyGrp,
-      List<NotificationChannel> printerNotifyChan) async {
+  setupNotificationChannels(List<PrinterSetting> machines) async {
+    List<NotificationChannelGroup> groups = [];
+    List<NotificationChannel> channels = [];
+    for (PrinterSetting setting in machines) {
+      groups.add(_channelGroupOfPrinterSettings(setting));
+      channels.addAll(_channelsOfPrinterSettings(setting));
+    }
+
     await AwesomeNotifications().initialize(
         // set the icon to null if you want to use the default app icon
         null,
-        printerNotifyChan,
-        channelGroups: printerNotifyGrp);
+        channels,
+        channelGroups: groups);
 
     await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
       if (!isAllowed) {
@@ -175,8 +180,7 @@ class NotificationService {
         _channelsOfPrinterSettings(setting);
     channelsOfPrinterSettings.forEach((e) => _notifyAPI.setChannel(e));
     _setupFCMOnPrinterOnceConnected(setting);
-    _printerStreamMap[setting.uuid] = setting.printerService.printerStream
-        .listen((value) => _processPrinterUpdate(setting, value));
+    registerLocalMessageHandling(setting);
     _logger.i(
         "Added notifications channels and stream-listener for UUID=${setting.uuid}");
   }
@@ -187,35 +191,6 @@ class NotificationService {
     _printerStreamMap.remove(uuid)?.cancel();
     _logger
         .i("Removed notifications channels and stream-listener for UUID=$uuid");
-  }
-
-  /// Register the FCM token of the device in the moonraker database to ensure
-  /// that our python companion knows the notification targets!
-  Future<String> _registerFCMTokenOnMachine(
-      PrinterSetting printerSetting) async {
-    DatabaseService databaseService = printerSetting.databaseService;
-    String? fcmToken = await FirebaseMessaging.instance.getToken();
-    if (fcmToken == null) {
-      _logger.w("Could not fetch fcm token");
-      return Future.error("No token available for device!");
-    }
-
-    var item =
-        await databaseService.getDatabaseItem('mobileraker', 'fcmTokens');
-    if (item == null) {
-      _logger.i("Creating fcmTokens in moonraker-Database");
-      await databaseService
-          .addDatabaseItem('mobileraker', 'fcmTokens', [fcmToken]);
-    } else {
-      List<String> fcmTokens = List.from(item);
-      if (!fcmTokens.contains(fcmToken)) {
-        _logger.i("Adding token to existing fcmTokens in moonraker-Database");
-        await databaseService.addDatabaseItem(
-            'mobileraker', 'fcmTokens', fcmTokens..add(fcmToken));
-      }
-    }
-
-    return fcmToken;
   }
 
   List<NotificationChannel> _channelsOfPrinterSettings(
@@ -236,6 +211,7 @@ class NotificationService {
           playSound: false,
           enableVibration: false,
           enableLights: false,
+          importance: NotificationImportance.Low,
           defaultColor: brownish.shade500)
     ];
   }
@@ -250,8 +226,17 @@ class NotificationService {
   Future<void> _setupFCMOnPrinterOnceConnected(PrinterSetting setting) async {
     await setting.websocket.stateStream
         .firstWhere((element) => element == WebSocketState.connected);
+
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
+    if (fcmToken == null) {
+      _logger.w("Could not fetch fcm token");
+      return Future.error("No token available for device!");
+    }
+
     _machineService.fetchOrCreateFcmIdentifier(setting);
-    _registerFCMTokenOnMachine(setting);
+    _machineService.registerFCMTokenOnMachine(setting, fcmToken);
+
+    // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
   }
 
   Future<void> _processPrinterUpdate(
@@ -259,7 +244,7 @@ class NotificationService {
     var state = await _updatePrintStatusNotification(
         printerSetting, printer.print.state, printer.print.filename);
 
-    if (state == PrintState.printing)
+    if (state == PrintState.printing && !Platform.isIOS)
       _updatePrintProgressNotification(printerSetting,
           printer.virtualSdCard.progress, printer.print.printDuration);
     await printerSetting.save();

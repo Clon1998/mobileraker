@@ -1,4 +1,8 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/enums/dialog_type.dart';
+import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/dialog/editForm/range_edit_form_view.dart';
+import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 void showWIPSnackbar() {
@@ -38,4 +42,27 @@ String urlToHttpUrl(String enteredURL) {
 
 String beautifyName(String name) {
   return name.replaceAll("_", " ").capitalize!;
+}
+
+Future<DialogResponse<dynamic>?> numberOrRangeDialog(
+    {required DialogService dialogService,
+    required SettingService settingService,
+    String? title,
+    String? mainButtonTitle,
+    String? secondaryButtonTitle,
+    required NumberEditDialogArguments data}) {
+  if (settingService.readBool(useTextInputForNumKey))
+    return dialogService.showCustomDialog(
+        variant: DialogType.numEditForm,
+        title: title,
+        mainButtonTitle: mainButtonTitle,
+        secondaryButtonTitle: secondaryButtonTitle,
+        data: data);
+  else
+    return dialogService.showCustomDialog(
+        variant: DialogType.rangeEditForm,
+        title: title,
+        mainButtonTitle: mainButtonTitle,
+        secondaryButtonTitle: secondaryButtonTitle,
+        data: data);
 }

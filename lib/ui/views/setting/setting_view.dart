@@ -41,8 +41,18 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                         border: InputBorder.none, isCollapsed: true),
                     activeColor: Theme.of(context).colorScheme.primary,
                   ),
+                  FormBuilderSwitch(
+                    name: 'useTextInputForNum',
+                    title: Text('Use keyboard for number input'),
+                    onChanged: model.onUseTextInputForNumChanged,
+                    initialValue: model.useTextInputForNum,
+                    decoration: InputDecoration(
+                        border: InputBorder.none, isCollapsed: true),
+                    activeColor: Theme.of(context).colorScheme.primary,
+                  ),
                   Divider(),
-                  Text(model.version, textAlign: TextAlign.center,)
+                  Text(model.version, textAlign: TextAlign.center,),
+                  TextButton(child: Text('Imprint'),onPressed: model.navigateToLegal,),
                   // _SectionHeader(title: 'Notifications'),
                 ],
               ),

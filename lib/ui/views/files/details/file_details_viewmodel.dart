@@ -18,7 +18,8 @@ const String _PrinterStreamKey = 'printer';
 
 class FileDetailsViewModel extends MultipleStreamViewModel {
   final _logger = getLogger('FileDetailsViewModel');
-
+  final _dialogService = locator<DialogService>();
+  final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
   final _machineService = locator<MachineService>();
 
@@ -34,13 +35,14 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   FileDetailsViewModel(this._file);
 
   @override
-  Map<String, StreamData> get streamsMap => {
+  Map<String, StreamData> get streamsMap =>
+      {
         if (_printerService != null)
           _PrinterStreamKey:
-              StreamData<Printer>(_printerService!.printerStream),
+          StreamData<Printer>(_printerService!.printerStream),
         if (_klippyService != null)
           _ServerStreamKey:
-              StreamData<KlipperInstance>(_klippyService!.klipperStream),
+          StreamData<KlipperInstance>(_klippyService!.klipperStream),
       };
 
   bool get isServerAvailable => dataReady(_ServerStreamKey);
@@ -86,5 +88,28 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
         .add(Duration(seconds: _file.estimatedTime!.toInt()))
         .toLocal();
     return DateFormat.MMMEd().add_Hm().format(eta);
+  }
+
+  bool get preHeatAvailable => _file.firstLayerTempBed != null;
+
+  void preHeatPrinter() {
+    _dialogService
+        .showConfirmationDialog(
+      title: "Preheat?",
+      description: 'Target Temperatures\n'
+          'Extruder: 170°C\n'
+          'Bed: ${_file.firstLayerTempBed?.toStringAsFixed(0)}°C',
+      confirmationTitle: "Preheat",
+    )
+        .then((dialogResponse) {
+      if (dialogResponse?.confirmed ?? false) {
+        _printerService?.setTemperature('extruder', 170);
+        _printerService?.setTemperature(
+            'heater_bed', (_file.firstLayerTempBed ?? 60.0).toInt());
+        _snackBarService.showSnackbar(title: 'Confirmed',
+            message: 'Preheating Extruder: 170°C, Bed: ${_file.firstLayerTempBed
+                ?.toStringAsFixed(0)}°C');
+      }
+    });
   }
 }
