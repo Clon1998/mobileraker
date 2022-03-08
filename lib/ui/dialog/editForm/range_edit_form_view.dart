@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/ui/dialog/editForm/num_edit_form_viewmodel.dart';
 import 'package:stacked/stacked.dart';
+import 'package:intl/intl.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class NumberEditDialogArguments {
@@ -46,8 +47,9 @@ class RangeEditFormDialogView extends StatelessWidget {
                       data.current.toDouble().toPrecision(data.fraction),
                   min: data.min.toDouble(),
                   max: data.max.toDouble(),
-                  divisions: (data.max + data.min.abs()).toInt(),
+                  // divisions: (data.max + data.min.abs()).toInt(),
                   autofocus: true,
+                  numberFormat: NumberFormat("####"),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
