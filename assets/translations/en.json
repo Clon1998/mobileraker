@@ -35,7 +35,7 @@
           "fullscreen": "Fullscreen"
         },
         "temp_card": {
-          "title": "Temperature controls",
+          "title": "Temperature Controls",
           "presets_btn": "Presets",
           "hotend": "Hotend",
           "bed": "Bed",
@@ -92,6 +92,7 @@
           "title": {
             "zero": "Output Pin",
             "one": "Output Pin",
+            "two": "Output Pins",
             "other": "Output Pins"
           },
           "pin_btn": "Pin"

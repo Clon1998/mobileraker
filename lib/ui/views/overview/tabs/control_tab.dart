@@ -376,7 +376,7 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
               leading: Icon(
                 FlutterIcons.led_outline_mco,
               ),
-              title: Text('pages.overview.control.pin_card.title').plural(model.printer.outputPins.length),
+              title: Text(plural('pages.overview.control.pin_card.title',model.printer.outputPins.length)),
             ),
             Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8),

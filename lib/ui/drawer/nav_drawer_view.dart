@@ -145,7 +145,7 @@ class NavigationDrawerWidget
     } else {
       widgetsToReturn = [
         ListTile(
-          title: FadingText("nav_drawer.fetching_printers".tr()),
+          title: FadingText('nav_drawer.fetching_printers'.tr()),
           contentPadding: const EdgeInsets.only(left: 32, right: 16),
         ),
       ];
