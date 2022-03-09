@@ -68,6 +68,7 @@ dependencies:
   dots_indicator: ^2.0.0
   fluttertoast: ^8.0.8
   mobile_scanner: ^0.0.3
+  easy_localization: ^3.0.0
 
 dev_dependencies:
   flutter_test:

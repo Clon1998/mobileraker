@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -12,7 +13,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
   Widget builder(BuildContext context, SettingViewModel model, Widget? child) =>
       Scaffold(
         appBar: AppBar(
-          title: Text('App - Settings'),
+          title: Text('pages.setting.title').tr(),
         ),
         body: FormBuilder(
           key: model.formKey,
@@ -22,10 +23,11 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
             child: SingleChildScrollView(
               child: Column(
                 children: <Widget>[
-                  _SectionHeader(title: 'General'),
+                  _SectionHeader(title: 'pages.setting.general.title'.tr()),
+                  _languageSelector(context),
                   FormBuilderSwitch(
                     name: 'emsConfirmation',
-                    title: Text('Confirm Emergency-Stop'),
+                    title: Text('pages.setting.general.ems_confirm').tr(),
                     onChanged: model.onEMSChanged,
                     initialValue: model.emsValue,
                     decoration: InputDecoration(
@@ -34,7 +36,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                   ),
                   FormBuilderSwitch(
                     name: 'alwaysShowBaby',
-                    title: Text('Always show Babystepping Card'),
+                    title: Text('pages.setting.general.always_baby').tr(),
                     onChanged: model.onAlwaysShowBabyChanged,
                     initialValue: model.showBabyAlwaysValue,
                     decoration: InputDecoration(
@@ -43,7 +45,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                   ),
                   FormBuilderSwitch(
                     name: 'useTextInputForNum',
-                    title: Text('Use keyboard for number input'),
+                    title: Text('pages.setting.general.num_edit').tr(),
                     onChanged: model.onUseTextInputForNumChanged,
                     initialValue: model.useTextInputForNum,
                     decoration: InputDecoration(
@@ -51,8 +53,14 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                     activeColor: Theme.of(context).colorScheme.primary,
                   ),
                   Divider(),
-                  Text(model.version, textAlign: TextAlign.center,),
-                  TextButton(child: Text('Imprint'),onPressed: model.navigateToLegal,),
+                  Text(
+                    model.version,
+                    textAlign: TextAlign.center,
+                  ),
+                  TextButton(
+                    child: Text('pages.setting.imprint').tr(),
+                    onPressed: model.navigateToLegal,
+                  ),
                   // _SectionHeader(title: 'Notifications'),
                 ],
               ),
@@ -85,4 +93,21 @@ class _SectionHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _languageSelector(BuildContext context) {
+  List<Locale> supportedLocals = context.supportedLocales.toList();
+  supportedLocals.sort((a, b) => a.languageCode.compareTo(b.languageCode));
+  return FormBuilderDropdown(
+    initialValue: context.locale,
+    name: 'lan',
+    items: supportedLocals
+        .map((local) =>
+            DropdownMenuItem(value: local, child: Text('languages.${local.languageCode}.nativeName'.tr())))
+        .toList(),
+    decoration: InputDecoration(
+      labelText: 'pages.setting.general.language'.tr(),
+    ),
+    onChanged: (Locale? local) => context.setLocale(local??context.fallbackLocale!),
+  );
 }

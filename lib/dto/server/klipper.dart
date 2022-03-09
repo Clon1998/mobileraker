@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 enum KlipperState { ready, error, shutdown, startup, disconnected }
@@ -5,16 +6,16 @@ enum KlipperState { ready, error, shutdown, startup, disconnected }
 String toName(KlipperState printerState) {
   switch (printerState) {
     case KlipperState.ready:
-      return "Ready";
+      return tr('klipper_state.ready');
     case KlipperState.shutdown:
-      return "Shutdown";
+      return tr('klipper_state.shutdown');
     case KlipperState.startup:
-      return "Starting";
+      return tr('klipper_state.starting');
     case KlipperState.disconnected:
-      return "Disconnected";
+      return tr('klipper_state.disconnected');
     case KlipperState.error:
     default:
-      return "Error";
+      return tr('klipper_state.error');
   }
 }
 

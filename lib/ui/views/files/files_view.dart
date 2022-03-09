@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
@@ -46,12 +47,12 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
             autofocus: true,
             style: Theme.of(context).primaryTextTheme.headline6,
             decoration: InputDecoration(
-              hintText: 'Search files...',
+              hintText: '${tr('pages.files.search_files')}...',
               border: InputBorder.none,
               suffixIcon: model.searchEditingController.text.isEmpty
                   ? null
                   : IconButton(
-                      tooltip: 'Clear search',
+                      tooltip: 'pages.files.clear_search'.tr(),
                       icon: Icon(Icons.close),
                       color: Theme.of(context).colorScheme.onSecondary,
                       onPressed: model.resetSearchQuery,
@@ -63,9 +64,9 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
     } else
       return AppBar(
         title: Text(
-          'File Browser',
+          'pages.files.title',
           overflow: TextOverflow.fade,
-        ),
+        ).tr(),
         actions: <Widget>[
           //TODO: Rework this properly...
           PopupMenuButton(
@@ -75,17 +76,17 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
             onSelected: model.onSortSelected,
             itemBuilder: (BuildContext context) => [
               CheckedPopupMenuItem(
-                child: Text("Last modified"),
+                child: Text('pages.files.last_mod').tr(),
                 value: 0,
                 checked: model.selectedSorting == 0,
               ),
               CheckedPopupMenuItem(
-                child: Text("Name"),
+                child: Text('pages.files.name').tr(),
                 value: 1,
                 checked: model.selectedSorting == 1,
               ),
               CheckedPopupMenuItem(
-                child: Text("Last printed"),
+                child: Text('pages.files.last_printed').tr(),
                 value: 2,
                 checked: model.selectedSorting == 2,
               ),
@@ -122,8 +123,8 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
           SizedBox(
             height: 30,
           ),
-          Text("Fetching files..."),
-          // Text("Fetching printer ...")
+          Text('pages.files.fetching_files').tr(),
+          // Text('Fetching printer ...')
         ],
       ),
     );
@@ -197,7 +198,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                       contentPadding: EdgeInsets.zero,
                       leading: SizedBox(
                           width: 64, height: 64, child: Icon(Icons.search_off)),
-                      title: Text("No files found"),
+                      title: Text('pages.files.no_files_found').tr(),
                     )
                   : ListView.builder(
                       itemCount: lenTotal,
@@ -210,7 +211,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                                   width: 64,
                                   height: 64,
                                   child: Icon(Icons.folder)),
-                              title: Text("..."),
+                              title: Text('...'),
                               onTap: () => model.onPopFolder(),
                             );
                           else

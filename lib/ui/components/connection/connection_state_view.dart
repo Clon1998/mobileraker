@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -111,11 +112,11 @@ class ConnectionStateView
                       children: [
                         ElevatedButton(
                           onPressed: model.onRestartKlipperPressed,
-                          child: Text('Restart Klipper'),
+                          child: Text('pages.overview.general.restart_klipper').tr(),
                         ),
                         ElevatedButton(
                           onPressed: model.onRestartMCUPressed,
-                          child: Text('Restart MCU'),
+                          child: Text('pages.overview.general.restart_mcu').tr(),
                         )
                       ],
                     )

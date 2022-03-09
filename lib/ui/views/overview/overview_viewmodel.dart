@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
@@ -62,7 +63,7 @@ class OverViewModel extends MultipleStreamViewModel {
 
   bool isIndexSelected(int index) => _currentIndex == index;
 
-  String get title => '${machine?.name ?? 'Printer'} - Dashboard';
+  String get title => '${machine?.name ?? 'Printer'} - ${tr('pages.overview.title')}';
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
