@@ -123,11 +123,11 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
         children: [
           ElevatedButton(
             onPressed: model.onRestartKlipperPressed,
-            child: Text('pages.overview.general.print_card.restart_klipper').tr(),
+            child: Text('pages.overview.general.restart_klipper').tr(),
           ),
           ElevatedButton(
             onPressed: model.onRestartMCUPressed,
-            child: Text('pages.overview.general.print_card.restart_mcu').tr(),
+            child: Text('pages.overview.general.restart_mcu').tr(),
           )
         ],
       );

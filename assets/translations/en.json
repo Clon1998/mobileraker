@@ -219,6 +219,26 @@
     "disconnected": "Disconnected",
     "error": "Error"
   },
+  "notifications": {
+    "channel_printer_grp": "Printer {}",
+    "channels": {
+      "status": {
+        "name": "Print Status Updates - {}",
+        "desc": "Notifications regarding the print progress.",
+        "title": "Print state of {} changed!",
+        "body_printing": "Started to print file: \"{}\"",
+        "body_paused": "Paused printing file: \"{}\"",
+        "body_complete": "Finished printing: \"{}\"",
+        "body_error": "Error while printing file: \"{}\""
+      },
+      "progress": {
+        "name": "Print Progress Updates - {}",
+        "desc": "Notifications regarding the print progress.",
+        "title": "Print progress of {}"
+
+      }
+    }
+  },
   "languages": {
     "ab": {
       "name": "Abkhaz",
