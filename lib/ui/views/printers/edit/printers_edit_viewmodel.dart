@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -249,6 +250,16 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
   onMacroGroupAdd() {
     MacroGroup group = MacroGroup(name: 'New Group', macros: []);
     _macroGroups.add(group);
+    _saveAllGroupStuff();
+    notifyListeners();
+  }
+
+  onMacroGroupRemove(MacroGroup group) {
+    _macroGroups.remove(group);
+    if (group.macros.isNotEmpty) {
+      _snackbarService.showSnackbar(message: plural('pages.printer_edit.macros.macros_to_default',group.macros.length));
+      _defaultGroup.macros.addAll(group.macros);
+    }
     _saveAllGroupStuff();
     notifyListeners();
   }

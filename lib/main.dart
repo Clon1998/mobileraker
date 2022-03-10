@@ -24,8 +24,8 @@ Future<void> main() async {
   setupLocator();
   await locator.allReady();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await locator<NotificationService>().initialize();
   await EasyLocalization.ensureInitialized();
+  await locator<NotificationService>().initialize();
   setupSnackbarUi();
   setupDialogUi();
   setupBottomSheetUi();

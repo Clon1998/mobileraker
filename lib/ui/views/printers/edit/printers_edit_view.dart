@@ -492,6 +492,7 @@ class _MacroGroupState extends State<_MacroGroup> {
                 FormBuilderTextField(
                   decoration: InputDecoration(
                     labelText: 'pages.printer_edit.general.displayname'.tr(),
+                    suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => widget.model.onMacroGroupRemove(widget.macroGroup),)
                   ),
                   name: '${widget.macroGroup.uuid}-macroName',
                   initialValue: widget.macroGroup.name,

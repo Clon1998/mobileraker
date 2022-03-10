@@ -187,7 +187,12 @@
       "macros": {
         "new_macro_grp": "New Macro - Group",
         "no_macros_available": "No Macros available!",
-        "no_macros_found": "No Macros found!"
+        "no_macros_found": "No Macros found!",
+        "macros_to_default": {
+          "one": "Moved one macro to default group!",
+          "two": "Moved two macro to default group!",
+          "other": "Moved {} macros to default group!"
+        }
       },
       "presets": {
         "no_presets": "No Presets added!",
