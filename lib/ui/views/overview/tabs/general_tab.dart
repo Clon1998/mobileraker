@@ -933,7 +933,10 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
                 Spacer(flex: 1),
                 Column(
                   children: [
-                    Text('${'pages.overview.general.move_card.step_size'.tr()} [mm]'),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text('${'pages.overview.general.move_card.step_size'.tr()} [mm]'),
+                    ),
                     RangeSelector(
                         selectedIndex: model.selectedIndexBabySteppingSize,
                         onSelected: model.onSelectedBabySteppingSizeChanged,

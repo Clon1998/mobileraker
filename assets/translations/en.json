@@ -5,6 +5,8 @@
     "connected": "Connected",
     "off": "Off",
     "none": "None",
+    "add": "Add",
+    "remove": "Remove",
     "set": "Set",
     "restart": "Restart",
     "shutdown": "Shutdown",
@@ -109,7 +111,7 @@
       "clear_search": "Clear search",
       "name": "Name",
       "last_mod": "Last modified",
-      "last_printed":"Last printed" ,
+      "last_printed": "Last printed",
       "fetching_files": "@:general.fetching Files...",
       "no_files_found": "No files found!",
       "details": {
@@ -134,7 +136,6 @@
         "stat_card": {
           "title": "Statistics"
         }
-
       }
     },
     "setting": {
@@ -147,11 +148,67 @@
         "language": "Language"
       },
       "imprint": "Imprint"
+    },
+    "printer_edit": {
+      "title": "Edit {}",
+      "import_settings": "Import Settings",
+      "remove_printer": "Remove Printer",
+      "no_values_found": "No values Found!",
+      "general": {
+        "displayname": "Displayname",
+        "printer_addr": "Printer - Address",
+        "ws_addr": "Websocket - Address",
+        "moonraker_api_key": "Moonraker - API Key",
+        "moonraker_api_desc": "Only needed if youre using trusted clients. FluiddPI enforces this!",
+        "full_url": "Full URL"
+      },
+      "motion_system": {
+        "title": "Motion System",
+        "invert_x": "Invert X - Axis",
+        "invert_y": "Invert Y - Axis",
+        "invert_z": "Invert Z - Axis",
+        "speed_xy": "Speed X/Y - Axis",
+        "speed_z": "Speed Z - Axis",
+        "steps_move": "Move steps",
+        "steps_baby": "Babystepping Z-steps"
+      },
+      "extruders": {
+        "title": "Extruder(s)",
+        "feedrate": "Extruder feed rate",
+        "steps_extrude": "Extrude steps"
+      },
+      "cams": {
+        "no_webcams": "No Webcams added!",
+        "webcam_addr": "Webcam - Address",
+        "default_addr": "Default Address",
+        "flip_vertical": "Flip vertical",
+        "flip_horizontal": "Flip horizontal"
+      },
+      "macros": {
+        "new_macro_grp": "New Macro - Group",
+        "no_macros_available": "No Macros available!",
+        "no_macros_found": "No Macros found!"
+      },
+      "presets": {
+        "no_presets": "No Presets added!",
+        "hotend_temp": "@:pages.overview.general.temp_card.hotend Temperature",
+        "bed_temp": "@:pages.overview.general.temp_card.bed Temperature",
+        "new_preset": "New Preset"
+      }
+    },
+    "printer_add": {
+      "title": "Add New Printer",
+      "printer_add_helper": "Host, IP, or full URL",
+      "resulting_ws_url": "Resulting WebSocket-URL: {}",
+      "misc": "Misc",
+      "test_ws": "Test websocket connection",
+      "result_ws_test": "Result: {}",
+      "run_test_btn": "Test"
     }
   },
   "nav_drawer": {
+    "printer_settings": "Printer Settings",
     "manage_printers": "Manager Printers",
-    "add_printer": "Add New Printer",
     "fetching_printers": "@:general.fetching printers...",
     "footer": "Made with ❤️ by Patrick Schmidt\nCheckout the project's"
   },

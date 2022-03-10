@@ -151,7 +151,7 @@ class NavigationDrawerWidget
       ];
     }
     widgetsToReturn.add(ListTile(
-      title: Text('nav_drawer.add_printer', style: TextStyle(color: Colors.white)).tr(),
+      title: Text('pages.printer_add.title', style: TextStyle(color: Colors.white)).tr(),
       contentPadding: const EdgeInsets.only(left: 32, right: 16),
       trailing: Icon(Icons.add, color: highlightColor),
       onTap: () => model.navigateTo(Routes.printersAdd),
@@ -198,7 +198,7 @@ class NavigationDrawerWidget
             ),
             IconButton(
                 onPressed: onClicked,
-                tooltip: 'Printer settings',
+                tooltip: 'nav_drawer.printer_settings'.tr(),
                 icon: Icon(
                   FlutterIcons.settings_fea,
                   color: Colors.white,
