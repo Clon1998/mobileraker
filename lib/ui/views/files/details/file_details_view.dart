@@ -1,8 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/ui/views/files/details/file_details_viewmodel.dart';
@@ -84,7 +82,8 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                   placeholder: (context, url) => Icon(Icons.insert_drive_file),
                   errorWidget: (context, url, error) => Column(
                     children: [
-                      Icon(Icons.file_present),
+
+                      Expanded(child: Icon(Icons.file_present)),
                       Container(
                           width: double.infinity,
                           padding:
@@ -156,7 +155,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                     ),
                     PropertyTile(
                       title: 'pages.files.details.meta_card.slicer'.tr(),
-                      subtitle: '${file.slicer} (v${file.slicerVersion})',
+                      subtitle: model.usedSlicerAndVersion,
                     ),
                     PropertyTile(
                       title: 'pages.files.details.meta_card.layer_higher'.tr(),

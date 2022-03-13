@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:intl/intl.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
@@ -35,14 +36,13 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   FileDetailsViewModel(this._file);
 
   @override
-  Map<String, StreamData> get streamsMap =>
-      {
+  Map<String, StreamData> get streamsMap => {
         if (_printerService != null)
           _PrinterStreamKey:
-          StreamData<Printer>(_printerService!.printerStream),
+              StreamData<Printer>(_printerService!.printerStream),
         if (_klippyService != null)
           _ServerStreamKey:
-          StreamData<KlipperInstance>(_klippyService!.klipperStream),
+              StreamData<KlipperInstance>(_klippyService!.klipperStream),
       };
 
   bool get isServerAvailable => dataReady(_ServerStreamKey);
@@ -84,10 +84,18 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   }
 
   String get potentialEta {
+    if (_file.estimatedTime == null) return tr('general.unknown');
     var eta = DateTime.now()
         .add(Duration(seconds: _file.estimatedTime!.toInt()))
         .toLocal();
     return DateFormat.MMMEd().add_Hm().format(eta);
+  }
+
+  String get usedSlicerAndVersion {
+    String ukwn = tr('general.unknown');
+    if (_file.slicerVersion == null) return _file.slicer ?? ukwn;
+
+    return '${_file.slicer ?? ukwn} (v${_file.slicerVersion})';
   }
 
   bool get preHeatAvailable => _file.firstLayerTempBed != null;
@@ -106,9 +114,10 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
         _printerService?.setTemperature('extruder', 170);
         _printerService?.setTemperature(
             'heater_bed', (_file.firstLayerTempBed ?? 60.0).toInt());
-        _snackBarService.showSnackbar(title: 'Confirmed',
-            message: 'Preheating Extruder: 170°C, Bed: ${_file.firstLayerTempBed
-                ?.toStringAsFixed(0)}°C');
+        _snackBarService.showSnackbar(
+            title: 'Confirmed',
+            message:
+                'Preheating Extruder: 170°C, Bed: ${_file.firstLayerTempBed?.toStringAsFixed(0)}°C');
       }
     });
   }

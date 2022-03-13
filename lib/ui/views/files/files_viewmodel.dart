@@ -201,12 +201,14 @@ class FilesViewModel extends MultipleStreamViewModel {
     String queryTerm = searchEditingController.text.toLowerCase();
 
     if (queryTerm.isNotEmpty && isSearching) {
+      List<String> terms = queryTerm.split(RegExp('\\W+'));
+      RegExp regExp = RegExp(terms.where((element) => element.isNotEmpty).join("|"));
       folders = folders
-          .where((element) => element.name.toLowerCase().contains(queryTerm))
+          .where((element) => element.name.toLowerCase().contains(regExp))
           .toList(growable: false);
 
       files = files
-          .where((element) => element.name.toLowerCase().contains(queryTerm))
+          .where((element) => element.name.toLowerCase().contains(regExp))
           .toList(growable: false);
     }
     var folderComparator = folderComparators[selectedSorting];
@@ -234,6 +236,7 @@ class FilesViewModel extends MultipleStreamViewModel {
     if (_printerSetting != null) {
       return '${_printerSetting!.httpUrl}/server/files';
     }
+    return null;
   }
 
   @override

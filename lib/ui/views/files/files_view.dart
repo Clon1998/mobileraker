@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -27,7 +26,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         appBar: buildAppBar(context, model),
         drawer: NavigationDrawerWidget(curPath: Routes.filesView),
         body: ConnectionStateView(
-          pChild: buildBody(context, model),
+          body: buildBody(context, model),
         ),
       ),
     );
