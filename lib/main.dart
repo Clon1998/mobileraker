@@ -30,7 +30,6 @@ Future<void> main() async {
   setupDialogUi();
   setupBottomSheetUi();
   await FirebaseAnalytics.instance.logAppOpen();
-  final _navigationService = locator<NavigationService>();
   runApp(EasyLocalization(
       child: MyApp(),
       supportedLocales: [Locale('en'), Locale('de')],

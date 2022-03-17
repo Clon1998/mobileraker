@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ImprintView extends StatelessWidget {
   const ImprintView({Key? key}) : super(key: key);

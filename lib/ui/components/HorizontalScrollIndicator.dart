@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class HorizontalScrollIndicator extends StatefulWidget {
   final int steps;

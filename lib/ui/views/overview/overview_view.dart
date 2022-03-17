@@ -1,7 +1,6 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:animations/animations.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -57,7 +56,7 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
           ],
         ),
         body: ConnectionStateView(
-          pChild: (model.isPrinterAvailable)
+            body: (model.isPrinterAvailable)
               ? PageTransitionSwitcher(
                   duration: const Duration(milliseconds: 300),
                   reverse: model.reverse,

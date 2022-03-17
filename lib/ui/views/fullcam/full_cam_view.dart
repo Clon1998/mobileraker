@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
