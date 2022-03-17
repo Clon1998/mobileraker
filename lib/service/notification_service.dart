@@ -4,7 +4,6 @@ import 'dart:io' show Platform;
 import 'dart:math';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -42,7 +41,7 @@ class NotificationService {
     await locator.allReady();
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
-    await EasyLocalization.ensureInitialized();
+    // await EasyLocalization.ensureInitialized();
     NotificationService notificationService = locator<NotificationService>();
     notificationService._logger.d(
         "Handling a background message: ${message.messageId} with ${message.data}");
@@ -99,6 +98,8 @@ class NotificationService {
   }
 
   void registerLocalMessageHandling(PrinterSetting setting) {
+    _logger.w('Currently Disabled local notification handling!');
+    return;
     if (Platform.isIOS) return;
     _printerStreamMap[setting.uuid] = setting.printerService.printerStream
         .listen((value) => _processPrinterUpdate(setting, value));
@@ -199,17 +200,15 @@ class NotificationService {
     return [
       NotificationChannel(
           channelKey: printerSetting.statusUpdatedChannelKey,
-          channelName: tr('notifications.channels.status.name',
-              args: [printerSetting.name]),
-          channelDescription: tr('notifications.channels.status.desc'),
+          channelName: 'Print Status Updates - ${printerSetting.name}',
+          channelDescription: 'Notifications regarding the print status.',
           channelGroupKey: printerSetting.uuid,
           importance: NotificationImportance.Max,
           defaultColor: brownish.shade500),
       NotificationChannel(
           channelKey: printerSetting.printProgressChannelKey,
-          channelName: tr('notifications.channels.progress.name',
-              args: [printerSetting.name]),
-          channelDescription: tr('notifications.channels.progress.desc'),
+          channelName: 'Print Progress Updates - ${printerSetting.name}',
+          channelDescription: 'Notifications regarding the print progress.',
           channelGroupKey: printerSetting.uuid,
           playSound: false,
           enableVibration: false,
@@ -223,8 +222,7 @@ class NotificationService {
       PrinterSetting printerSetting) {
     return NotificationChannelGroup(
         channelGroupkey: printerSetting.uuid,
-        channelGroupName: tr('notifications.channel_printer_grp',
-            args: [printerSetting.name]));
+        channelGroupName: 'Printer ${printerSetting.name}');
   }
 
   Future<void> _setupFCMOnPrinterOnceConnected(PrinterSetting setting) async {
@@ -236,9 +234,9 @@ class NotificationService {
       _logger.w("Could not fetch fcm token");
       return Future.error("No token available for device!");
     }
-
-    _machineService.fetchOrCreateFcmIdentifier(setting);
-    _machineService.registerFCMTokenOnMachine(setting, fcmToken);
+    _logger.i("Devices FCM token: $fcmToken");
+    await _machineService.fetchOrCreateFcmIdentifier(setting);
+    await _machineService.registerFCMTokenOnMachine(setting, fcmToken);
 
     // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
   }
@@ -269,37 +267,28 @@ class NotificationService {
     NotificationContent notificationContent = NotificationContent(
       id: Random().nextInt(20000000),
       channelKey: printerSetting.statusUpdatedChannelKey,
-      title: tr('notifications.channels.status.title',
-          args: [printerSetting.name]),
+      title: 'Print state of ${printerSetting.name} changed!',
       notificationLayout: NotificationLayout.BigText,
     );
-
+    String file = updatedFile ?? 'Unknown';
     switch (updatedState) {
       case PrintState.standby:
         await _removePrintProgressNotification(printerSetting);
         break;
       case PrintState.printing:
-        notificationContent.body = tr(
-            'notifications.channels.status.body_printing',
-            args: [updatedFile ?? 'Unknown']);
+        notificationContent.body = 'Started to print file: "$file"';
         printerSetting.lastPrintProgress = null;
         break;
       case PrintState.paused:
-        notificationContent.body = tr(
-            'notifications.channels.status.body_paused',
-            args: [updatedFile ?? 'Unknown']);
+        notificationContent.body = 'Paused printing file: "$file"';
         break;
       case PrintState.complete:
-        notificationContent.body = tr(
-            'notifications.channels.status.body_complete',
-            args: [updatedFile ?? 'Unknown']);
+        notificationContent.body = 'Finished printing: "$file"';
         await _removePrintProgressNotification(printerSetting);
         break;
       case PrintState.error:
         if (oldState == PrintState.printing) {
-          notificationContent.body = tr(
-              'notifications.channels.status.body_error',
-              args: [updatedFile ?? 'Unknown']);
+          notificationContent.body = 'Error while printing file: "$file"';
           notificationContent.color = Colors.red;
         }
         await _removePrintProgressNotification(printerSetting);
@@ -325,9 +314,7 @@ class NotificationService {
       double est = printDuration / progress - printDuration;
       dt = DateTime.now().add(Duration(seconds: est.round()));
     }
-    String eta = (dt != null)
-        ? '${tr('pages.overview.general.print_card.eta')}:${DateFormat.Hm().format(dt)}'
-        : '';
+    String eta = (dt != null) ? 'ETA: ${DateFormat.Hm().format(dt)}' : '';
 
     int index = await _machineService.indexOfMachine(printerSetting);
     if (index < 0) return;
@@ -337,8 +324,7 @@ class NotificationService {
         content: NotificationContent(
             id: index * 3 + 3,
             channelKey: printerSetting.printProgressChannelKey,
-            title: tr('notifications.channels.progress.title',
-                args: [printerSetting.name]),
+            title: 'Print progress of ${printerSetting.name}',
             body: '$eta $progressPerc%',
             notificationLayout: NotificationLayout.ProgressBar,
             locked: true,

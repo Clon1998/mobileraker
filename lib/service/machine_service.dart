@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter_fgbg/flutter_fgbg.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
@@ -20,7 +19,6 @@ class MachineService {
   late final _boxUuid = Hive.box<String>('uuidbox');
 
   late final BehaviorSubject<PrinterSetting?> selectedMachine;
-  StreamSubscription<FGBGType>? _fgbgStreamSub;
 
   Stream<BoxEvent> get printerSettingEventStream =>
       Hive.box<PrinterSetting>('printers').watch();
@@ -32,17 +30,13 @@ class MachineService {
       _printerSettingRepo.get(uuid: selectedUUID).then((value) {
         if (value != null) setMachineActive(value);
       });
-
-    _fgbgStreamSub = FGBGEvents.stream.listen((event) {
-      if (event == FGBGType.foreground)
-        selectedMachine.valueOrNull?.websocket.ensureConnection();
-    });
   }
 
   Future<void> updateMachine(PrinterSetting printerSetting) async {
     await printerSetting.save();
     if (!selectedMachine.isClosed && isSelectedMachine(printerSetting))
       selectedMachine.add(printerSetting);
+
     return;
   }
 
@@ -122,10 +116,7 @@ class MachineService {
   /// Because of that the FCMIdentifier should be set only once!
   Future<String> fetchOrCreateFcmIdentifier(
       PrinterSetting printerSetting) async {
-    var idFromSetting = printerSetting.fcmIdentifier;
-    if (idFromSetting != null) return idFromSetting;
     DatabaseService databaseService = printerSetting.databaseService;
-
     String? item =
         await databaseService.getDatabaseItem('mobileraker', 'printerId');
     if (item == null) {
@@ -133,13 +124,14 @@ class MachineService {
       item = await databaseService.addDatabaseItem(
           'mobileraker', 'printerId', nId);
       _logger.i("Registered fcm-PrinterId in MoonrakerDB: $nId");
-
     }
-    _logger
-        .i("Got FCM-PrinterID from MoonrakerDB to set in Settings:$item");
+    _logger.i("Got FCM-PrinterID from MoonrakerDB to set in Settings:$item");
 
-    printerSetting.fcmIdentifier = item;
-    await printerSetting.save();
+    if (item != printerSetting.fcmIdentifier) {
+      printerSetting.fcmIdentifier = item;
+      await printerSetting.save();
+      _logger.i("Updated FCM-PrinterID in settings");
+    }
     return item!;
   }
 
@@ -222,7 +214,6 @@ class MachineService {
 
   dispose() {
     selectedMachine.close();
-    _fgbgStreamSub?.cancel();
 
     fetchAll().then((machines) {
       for (PrinterSetting machine in machines) {
