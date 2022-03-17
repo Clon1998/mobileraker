@@ -172,10 +172,14 @@ class PrinterSetting extends HiveObject {
           extrudeSteps == other.extrudeSteps &&
           lastPrintProgress == other.lastPrintProgress &&
           _lastPrintState == other._lastPrintState &&
+          macroGroups == other.macroGroups &&
+          fcmIdentifier == other.fcmIdentifier &&
+          lastModified == other.lastModified &&
           _webSocket == other._webSocket &&
           _printerService == other._printerService &&
           _klippyService == other._klippyService &&
-          _fileService == other._fileService;
+          _fileService == other._fileService &&
+          _databaseService == other._databaseService;
 
   @override
   int get hashCode =>
@@ -195,8 +199,12 @@ class PrinterSetting extends HiveObject {
       extrudeSteps.hashCode ^
       lastPrintProgress.hashCode ^
       _lastPrintState.hashCode ^
+      macroGroups.hashCode ^
+      fcmIdentifier.hashCode ^
+      lastModified.hashCode ^
       _webSocket.hashCode ^
       _printerService.hashCode ^
       _klippyService.hashCode ^
-      _fileService.hashCode;
+      _fileService.hashCode ^
+      _databaseService.hashCode;
 }

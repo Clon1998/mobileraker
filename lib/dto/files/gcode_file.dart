@@ -87,11 +87,13 @@ class GCodeFile {
   String? get smallImagePath {
     //ToDo: Filter for small <.<
     if (thumbnails.isNotEmpty) return thumbnails.first.relativePath;
+    return null;
   }
 
   String? get bigImagePath {
     //ToDo: Filter for big <.<
     if (thumbnails.isNotEmpty) return thumbnails.last.relativePath;
+    return null;
   }
 
   DateTime? get modifiedDate {

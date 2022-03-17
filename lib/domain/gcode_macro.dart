@@ -22,4 +22,21 @@ class GCodeMacro {
   String toString() {
     return 'GCodeMacro{name: $name, uuid: $uuid, showWhilePrinting: $showWhilePrinting}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GCodeMacro &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          uuid == other.uuid &&
+          visible == other.visible &&
+          showWhilePrinting == other.showWhilePrinting;
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      uuid.hashCode ^
+      visible.hashCode ^
+      showWhilePrinting.hashCode;
 }
