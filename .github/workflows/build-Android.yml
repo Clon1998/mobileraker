@@ -12,8 +12,8 @@ jobs:
       - run: flutter pub get
       - run: flutter build apk --release
       - name: Create a Release
-      uses: ncipollo/release-action@v1
-      with:
-        artifacts: "build/app/outputs/apk/debug/*.apk"
-        token: ${{ secrets.GITHUB_TOKEN }}
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/apk/debug/*.apk"
+          token: ${{ secrets.GITHUB_TOKEN }}
           
