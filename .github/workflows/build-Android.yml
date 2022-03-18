@@ -9,6 +9,7 @@ jobs:
         with:
           java-version: '12.x'
       - uses: subosito/flutter-action@v2
+      - run: echo ${{ secrets.GOOGLE_SERVICES_JSON }} | base64 -d > ./android/app/google-services.json
       - run: flutter pub get
       - run: flutter packages pub run build_runner build
       - run: flutter build apk --release
