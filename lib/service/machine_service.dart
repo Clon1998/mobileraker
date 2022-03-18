@@ -124,13 +124,14 @@ class MachineService {
       item = await databaseService.addDatabaseItem(
           'mobileraker', 'printerId', nId);
       _logger.i("Registered fcm-PrinterId in MoonrakerDB: $nId");
+    } else {
+      _logger.i("Got FCM-PrinterID from MoonrakerDB to set in Settings:$item");
     }
-    _logger.i("Got FCM-PrinterID from MoonrakerDB to set in Settings:$item");
 
     if (item != printerSetting.fcmIdentifier) {
       printerSetting.fcmIdentifier = item;
       await printerSetting.save();
-      _logger.i("Updated FCM-PrinterID in settings");
+      _logger.i("Updated FCM-PrinterID in settings $item");
     }
     return item!;
   }
