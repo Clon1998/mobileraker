@@ -1,0 +1,8 @@
+name: Build iOS
+on: [push]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: mxcl/xcodebuild@v1.10.0
+      # ^^ this is the simplest use, runs tests for whatever platform `xcodebuild` picks
