@@ -10,3 +10,5 @@ jobs:
       - uses: mxcl/xcodebuild@v1.10.0
         with:
           working-directory: ios
+          action: build
+          
