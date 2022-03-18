@@ -4,7 +4,6 @@ jobs:
   build:
     runs-on: macos-latest
     steps:
-      - run: cd ios
       - uses: mxcl/xcodebuild@v1.10.0
         with:
           working-directory: ios
