@@ -20,4 +20,18 @@ class TemperaturePreset {
   String toString() {
     return 'TemperatureTemplate{name: $name, uuid: $uuid, bedTemp: $bedTemp, extruderTemp: $extruderTemp}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TemperaturePreset &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          uuid == other.uuid &&
+          bedTemp == other.bedTemp &&
+          extruderTemp == other.extruderTemp;
+
+  @override
+  int get hashCode =>
+      name.hashCode ^ uuid.hashCode ^ bedTemp.hashCode ^ extruderTemp.hashCode;
 }

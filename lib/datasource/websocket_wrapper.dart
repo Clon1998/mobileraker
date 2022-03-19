@@ -173,10 +173,10 @@ class WebSocketWrapper {
   }
 
   sendJsonRpcMethod(String method,
-      {ReceiveCallback? function, dynamic params}) {
+      {ReceiveCallback? onReceive, dynamic params}) {
     var jsonRpc = _createJsonRPC(method, params: params);
     var mId = jsonRpc['id'];
-    if (function != null) _requests[mId] = function;
+    if (onReceive != null) _requests[mId] = onReceive;
     _logger.d('Sending for method "$method" with ID $mId');
 
     send(jsonEncode(jsonRpc));

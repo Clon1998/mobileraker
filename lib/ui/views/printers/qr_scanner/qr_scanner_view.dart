@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/ui/views/printers/qr_scanner/qr_scanner_viewmodel.dart';
 import 'package:stacked/stacked.dart';

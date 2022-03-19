@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
@@ -7,6 +8,7 @@ import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/dialog/action_dialogs.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -62,7 +64,8 @@ class OverViewModel extends MultipleStreamViewModel {
 
   bool isIndexSelected(int index) => _currentIndex == index;
 
-  String get title => '${machine?.name ?? 'Printer'} - Dashboard';
+  String get title =>
+      '${machine?.name ?? 'Printer'} - ${tr('pages.overview.title')}';
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
 
@@ -102,13 +105,7 @@ class OverViewModel extends MultipleStreamViewModel {
 
   onEmergencyPressed() {
     if (_settingService.readBool(emsKey))
-      _dialogService
-          .showConfirmationDialog(
-        title: "Emergency Stop - Confirmation",
-        description: "Are you sure?",
-        confirmationTitle: "STOP!",
-      )
-          .then((dialogResponse) {
+      emergencyStopConfirmDialog(_dialogService).then((dialogResponse) {
         if (dialogResponse?.confirmed ?? false) _klippyService?.emergencyStop();
       });
     else
@@ -126,6 +123,9 @@ class OverViewModel extends MultipleStreamViewModel {
   onResumePrintPressed() {
     _printerService?.resumePrint();
   }
+
+  bool get canUseEms =>
+      isServerAvailable && server.klippyState == KlipperState.ready;
 
 // onTitleSwipeDetection(SwipeDirection dir) {
 //   switch (dir) {

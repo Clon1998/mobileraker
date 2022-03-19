@@ -1,6 +1,6 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:animations/animations.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -35,9 +35,12 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
                   color: stateToColor(model.isServerAvailable
                       ? model.server.klippyState
                       : KlipperState.error)),
-              tooltip: model.isServerAvailable
-                  ? 'Server State is ${toName(model.server.klippyState)} and Klippy is ${model.server.klippyConnected ? 'connected' : 'disconnected'}'
-                  : 'No Server available',
+              tooltip: 'pages.overview.server_status'.tr(args: [
+                model.isServerAvailable? toName(model.server.klippyState):'',
+                model.isServerAvailable && model.server.klippyConnected
+                    ? tr('general.connected').toLowerCase()
+                    : tr('klipper_state.disconnected').toLowerCase()
+              ], gender: model.isServerAvailable ? 'available' : 'unavailable'),
               onPressed: () => null,
             ),
             IconButton(
@@ -46,14 +49,14 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
                 Icons.dangerous_outlined,
                 size: 30,
               ),
-              tooltip: 'Emergency-Stop',
+              tooltip: 'pages.overview.ems_btn'.tr(),
               onPressed:
-                  (model.isServerAvailable) ? model.onEmergencyPressed : null,
+                  (model.canUseEms) ? model.onEmergencyPressed : null,
             ),
           ],
         ),
         body: ConnectionStateView(
-          pChild: (model.isPrinterAvailable)
+            body: (model.isPrinterAvailable)
               ? PageTransitionSwitcher(
                   duration: const Duration(milliseconds: 300),
                   reverse: model.reverse,
@@ -82,7 +85,7 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
                       SizedBox(
                         height: 30,
                       ),
-                      FadingText("Fetching printer..."),
+                      FadingText('pages.overview.fetching_printer'.tr()),
                       // Text("Fetching printer ...")
                     ],
                   ),
@@ -108,17 +111,6 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
                 onTap: model.setIndex,
               )
             : null,
-        // ConvexAppBar(
-        //
-        //   style: TabStyle.textIn,
-        //   items: [
-        //     TabItem(icon: Icons.list, title: 'Info'),
-        //     TabItem(icon: Icons.calendar_today, title: 'Control'),
-        //     TabItem(icon: Icons.assessment, title: 'Do'),
-        //   ],
-        //   initialActiveIndex: model.currentIndex,
-        //   onTap: model.setIndex,
-        // ),
         drawer: NavigationDrawerWidget(curPath: Routes.overView),
       );
 
@@ -188,13 +180,13 @@ class PausedFAB extends ViewModelWidget<OverViewModel> {
         SpeedDialChild(
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
-          label: 'Cancel',
+          label: tr('general.cancel'),
           onTap: model.onCancelPrintPressed,
         ),
         SpeedDialChild(
           child: Icon(Icons.play_arrow),
           backgroundColor: Colors.blue,
-          label: 'Resume',
+          label: tr('general.resume'),
           onTap: model.onResumePrintPressed,
         ),
       ],

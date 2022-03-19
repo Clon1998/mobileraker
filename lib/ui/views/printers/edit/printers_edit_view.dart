@@ -1,5 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -24,17 +24,17 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Edit ${model.printerDisplayName}',
+          'pages.printer_edit.title',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-        ),
+        ).tr(args: [model.printerDisplayName]),
         actions: [
           if (model.canShowImportSettings)
             IconButton(
                 icon: Icon(
                   FlutterIcons.import_mco,
                 ),
-                tooltip: 'Import-Settings',
+                tooltip: 'pages.printer_edit.import_settings'.tr(),
                 onPressed: model.onImportSettings),
         ],
       ),
@@ -51,10 +51,10 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: <Widget>[
-                _SectionHeader(title: 'General'),
+                _SectionHeader(title: 'pages.setting.general.title'.tr()),
                 FormBuilderTextField(
                   decoration: InputDecoration(
-                    labelText: 'Displayname',
+                    labelText: 'pages.printer_edit.general.displayname'.tr(),
                   ),
                   name: 'printerName',
                   initialValue: model.printerDisplayName,
@@ -63,8 +63,8 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 FormBuilderTextField(
                   decoration: InputDecoration(
-                    labelText: 'Printer-Address',
-                    hintText: 'Full URL',
+                    labelText: 'pages.printer_edit.general.printer_addr'.tr(),
+                    hintText: 'pages.printer_edit.general.full_url'.tr(),
                   ),
                   name: 'printerUrl',
                   initialValue: model.printerHttpUrl,
@@ -76,8 +76,8 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 FormBuilderTextField(
                   decoration: InputDecoration(
-                    labelText: 'Websocket-Address',
-                    hintText: 'Full URL',
+                    labelText: 'pages.printer_edit.general.ws_addr'.tr(),
+                    hintText: 'pages.printer_edit.general.full_url'.tr(),
                   ),
                   name: 'wsUrl',
                   initialValue: model.printerWsUrl,
@@ -89,20 +89,25 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 FormBuilderTextField(
                   decoration: InputDecoration(
-                      labelText: 'Moonraker - API Key',
-                      suffix: IconButton(icon: Icon(Icons.qr_code_sharp), onPressed: model.openQrScanner,),
+                      labelText:
+                          'pages.printer_edit.general.moonraker_api_key'.tr(),
+                      suffix: IconButton(
+                        icon: Icon(Icons.qr_code_sharp),
+                        onPressed: model.openQrScanner,
+                      ),
                       helperText:
-                          'Only needed if youre using trusted clients. FluiddPI enforces this!',
-                  helperMaxLines: 3),
+                          'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                      helperMaxLines: 3),
                   name: 'printerApiKey',
                   initialValue: model.printerApiKey,
                 ),
                 Divider(),
-                _SectionHeader(title: 'Motion System'),
+                _SectionHeader(
+                    title: 'pages.printer_edit.motion_system.title'.tr()),
                 FormBuilderSwitch(
                   name: 'invertX',
                   initialValue: model.printerInvertX,
-                  title: Text('Invert X-Axis'),
+                  title: Text('pages.printer_edit.motion_system.invert_x').tr(),
                   decoration: InputDecoration(
                       border: InputBorder.none, isCollapsed: true),
                   activeColor: themeData.colorScheme.primary,
@@ -110,7 +115,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 FormBuilderSwitch(
                   name: 'invertY',
                   initialValue: model.printerInvertY,
-                  title: Text('Invert Y-Axis'),
+                  title: Text('pages.printer_edit.motion_system.invert_y').tr(),
                   decoration: InputDecoration(
                       border: InputBorder.none, isCollapsed: true),
                   activeColor: themeData.colorScheme.primary,
@@ -118,7 +123,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 FormBuilderSwitch(
                   name: 'invertZ',
                   initialValue: model.printerInvertZ,
-                  title: Text('Invert Z-Axis'),
+                  title: Text('pages.printer_edit.motion_system.invert_z').tr(),
                   decoration: InputDecoration(
                       border: InputBorder.none, isCollapsed: true),
                   activeColor: themeData.colorScheme.primary,
@@ -129,7 +134,8 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   valueTransformer: (text) =>
                       (text != null) ? int.tryParse(text) : 0,
                   decoration: InputDecoration(
-                      labelText: 'Speed X/Y-Axis',
+                      labelText:
+                          'pages.printer_edit.motion_system.speed_xy'.tr(),
                       suffixText: 'mm/s',
                       isDense: true),
                   keyboardType: TextInputType.numberWithOptions(
@@ -145,7 +151,8 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   valueTransformer: (text) =>
                       (text != null) ? int.tryParse(text) : 0,
                   decoration: InputDecoration(
-                      labelText: 'Speed Z-Axis',
+                      labelText:
+                          'pages.printer_edit.motion_system.speed_z'.tr(),
                       suffixText: 'mm/s',
                       isDense: true),
                   keyboardType: TextInputType.numberWithOptions(
@@ -157,7 +164,9 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 Segments(
                   decoration: InputDecoration(
-                      labelText: 'Move steps', suffixText: 'mm'),
+                      labelText:
+                          'pages.printer_edit.motion_system.steps_move'.tr(),
+                      suffixText: 'mm'),
                   options: model.printerMoveSteps
                       .map((e) =>
                           FormBuilderFieldOption(value: e, child: Text('$e')))
@@ -168,7 +177,9 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 Segments(
                   decoration: InputDecoration(
-                      labelText: 'Babystepping Z-steps', suffixText: 'mm'),
+                      labelText:
+                          'pages.printer_edit.motion_system.steps_baby'.tr(),
+                      suffixText: 'mm'),
                   options: model.printerBabySteps
                       .map((e) =>
                           FormBuilderFieldOption(value: e, child: Text('$e')))
@@ -178,14 +189,15 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   inputType: TextInputType.numberWithOptions(decimal: true),
                 ),
                 Divider(),
-                _SectionHeader(title: 'Extruder(s)'),
+                _SectionHeader(
+                    title: 'pages.printer_edit.extruders.title'.tr()),
                 FormBuilderTextField(
                   name: 'extrudeSpeed',
                   initialValue: model.printerExtruderFeedrate.toString(),
                   valueTransformer: (text) =>
                       (text != null) ? int.tryParse(text) : 0,
                   decoration: InputDecoration(
-                      labelText: 'Extruder feed rate',
+                      labelText: 'pages.printer_edit.extruders.feedrate'.tr(),
                       suffixText: 'mm/s',
                       isDense: true),
                   keyboardType: TextInputType.numberWithOptions(
@@ -197,7 +209,9 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 Segments(
                   decoration: InputDecoration(
-                      labelText: 'Extrude steps', suffixText: 'mm'),
+                      labelText:
+                          'pages.printer_edit.extruders.steps_extrude'.tr(),
+                      suffixText: 'mm'),
                   options: model.printerExtruderSteps
                       .map((e) =>
                           FormBuilderFieldOption(value: e, child: Text('$e')))
@@ -208,28 +222,28 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'GCODE-MACROS',
+                    title: 'pages.overview.control.macro_card.title'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onMacroGroupAdd,
-                      label: Text('Add'),
+                      label: Text('general.add').tr(),
                       icon: Icon(Icons.source_outlined),
                     )),
                 _buildMacroGroups(context, model),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'WEBCAM',
+                    title: 'pages.overview.general.cam_card.webcam'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onWebCamAdd,
-                      label: Text('Add'),
+                      label: Text('general.add').tr(),
                       icon: Icon(FlutterIcons.webcam_mco),
                     )),
                 _buildWebCams(model),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'TEMPERATURE PRESETS',
+                    title: 'pages.overview.general.temp_card.temp_presets'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onTempPresetAdd,
-                      label: Text('Add'),
+                      label: Text('general.add').tr(),
                       icon: Icon(FlutterIcons.thermometer_lines_mco),
                     )),
                 _buildTempPresets(model),
@@ -239,7 +253,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                   child: TextButton.icon(
                       onPressed: model.onDeleteTap,
                       icon: Icon(Icons.delete_forever_outlined),
-                      label: Text('Remove Printer')),
+                      label: Text('pages.printer_edit.remove_printer').tr()),
                 )
               ],
             ),
@@ -257,7 +271,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
     if (model.webcams.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text('No webcams added'),
+        child: Text('pages.printer_edit.cams.no_webcams').tr(),
       );
     }
 
@@ -275,26 +289,13 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
           );
         }),
         onReorder: model.onWebCamReorder);
-
-    //
-    // return Column(
-    //   children: List.generate(model.webcams.length, (index) {
-    //     WebcamSetting cam = model.webcams[index];
-    //     return _WebCamItem(
-    //       key: ValueKey(cam.uuid),
-    //       model: model,
-    //       cam: cam,
-    //       idx: index,
-    //     );
-    //   }),
-    // );
   }
 
   Widget _buildTempPresets(PrintersEditViewModel model) {
     if (model.tempPresets.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text('No presets added'),
+        child: Text('pages.printer_edit.presets.no_presets').tr(),
       );
     }
     return ReorderableListView(
@@ -318,8 +319,9 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
     if (model.macroGroups.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text(
-            'No macros ${(model.fetchingPrinter) ? 'found!' : 'available!'}'),
+        child: Text(model.fetchingPrinter
+            ? 'pages.printer_edit.macros.no_macros_found'
+            : 'pages.printer_edit.macros.no_macros_available').tr(),
       );
     }
 
@@ -391,7 +393,7 @@ class _WebCamItem extends StatelessWidget {
             children: [
           FormBuilderTextField(
             decoration: InputDecoration(
-              labelText: 'Displayname',
+              labelText: 'pages.printer_edit.general.displayname'.tr(),
             ),
             name: '${cam.uuid}-camName',
             initialValue: cam.name,
@@ -400,9 +402,9 @@ class _WebCamItem extends StatelessWidget {
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
-                labelText: 'Webcam-Address',
+                labelText: 'pages.printer_edit.cams.webcam_addr'.tr(),
                 helperText:
-                    'Default address: http://<URL>/webcam/?action=stream'),
+                    '${tr('pages.printer_edit.cams.default_addr')}: http://<URL>/webcam/?action=stream'),
             name: '${cam.uuid}-camUrl',
             initialValue: cam.url,
             validator: FormBuilderValidators.compose([
@@ -412,7 +414,7 @@ class _WebCamItem extends StatelessWidget {
             ]),
           ),
           FormBuilderSwitch(
-            title: const Text('Flip vertical'),
+            title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
             decoration: InputDecoration(border: InputBorder.none),
             secondary: const Icon(FlutterIcons.swap_vertical_mco),
             initialValue: cam.flipVertical,
@@ -420,7 +422,7 @@ class _WebCamItem extends StatelessWidget {
             activeColor: Theme.of(context).colorScheme.primary,
           ),
           FormBuilderSwitch(
-            title: const Text('Flip horizontal'),
+            title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
             decoration: InputDecoration(border: InputBorder.none),
             secondary: const Icon(FlutterIcons.swap_horizontal_mco),
             initialValue: cam.flipHorizontal,
@@ -431,7 +433,7 @@ class _WebCamItem extends StatelessWidget {
             alignment: Alignment.centerLeft,
             child: ElevatedButton(
               onPressed: () => model.onWebCamRemove(cam),
-              child: Text('Remove'),
+              child: const Text('general.remove').tr(),
             ),
           )
         ]));
@@ -488,7 +490,8 @@ class _MacroGroupState extends State<_MacroGroup> {
               if (widget.showDisplayNameEdit)
                 FormBuilderTextField(
                   decoration: InputDecoration(
-                    labelText: 'Displayname',
+                    labelText: 'pages.printer_edit.general.displayname'.tr(),
+                    suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => widget.model.onMacroGroupRemove(widget.macroGroup),)
                   ),
                   name: '${widget.macroGroup.uuid}-macroName',
                   initialValue: widget.macroGroup.name,
@@ -518,7 +521,7 @@ class _MacroGroupState extends State<_MacroGroup> {
 
   void onNameChanged(String? name) {
     setState(() {
-      _cardName = (name?.isEmpty ?? true) ? 'New Macro-Group' : name!;
+      _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.macros.new_macro_grp'.tr() : name!;
     });
   }
 }
@@ -559,7 +562,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
             children: [
           FormBuilderTextField(
             decoration: InputDecoration(
-              labelText: 'Displayname',
+              labelText: 'pages.printer_edit.general.displayname'.tr(),
             ),
             name: '${temperaturePreset.uuid}-presetName',
             initialValue: temperaturePreset.name,
@@ -569,7 +572,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
-                labelText: 'Extruder Temperature [°C]', helperText: ''),
+                labelText: '${tr('pages.printer_edit.presets.hotend_temp')} [°C]', helperText: ''),
             name: '${temperaturePreset.uuid}-extruderTemp',
             initialValue: temperaturePreset.extruderTemp.toString(),
             valueTransformer: (String? text) => (text != null)
@@ -587,7 +590,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
-                labelText: 'Bed Temperature [°C]', helperText: ''),
+                labelText: '${tr('pages.printer_edit.presets.bed_temp')} [°C]', helperText: ''),
             name: '${temperaturePreset.uuid}-bedTemp',
             initialValue: temperaturePreset.bedTemp.toString(),
             valueTransformer: (String? text) =>
@@ -605,7 +608,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
             alignment: Alignment.centerLeft,
             child: ElevatedButton(
               onPressed: () => model.onTempPresetRemove(temperaturePreset),
-              child: Text('Remove'),
+              child: Text('general.remove').tr(),
             ),
           )
         ]));
@@ -613,7 +616,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
 
   void onNameChanged(String? name) {
     setState(() {
-      _cardName = (name?.isEmpty ?? true) ? 'New Preset' : name!;
+      _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.presets.new_preset'.tr() : name!;
     });
   }
 }
@@ -745,7 +748,7 @@ class _SegmentsState<T> extends State<Segments<T>> {
                 onSelected: (s) => onChipPressed(option)),
           if (widget.options.isEmpty)
             ChoiceChip(
-              label: Text('No values Found!'),
+              label: Text('pages.printer_edit.no_values_found').tr(),
               selected: false,
               onSelected: (v) => null,
             ),

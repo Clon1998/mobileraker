@@ -1,5 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/enums/bottom_sheet_type.dart';
@@ -59,7 +59,7 @@ class _NonPrintingBottomSheet
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: model.onShutdownHostPressed,
-                      child: Text("Shutdown"),
+                      child: Text('general.shutdown').tr(),
                       style: buttonStyle,
                     ),
                   )),
@@ -76,7 +76,7 @@ class _NonPrintingBottomSheet
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: model.onRestartHostPressed,
-                      child: Text("Restart"),
+                      child: Text('general.restart').tr(),
                       style: buttonStyle,
                     ),
                   ))
@@ -86,19 +86,19 @@ class _NonPrintingBottomSheet
             height: 5,
           ),
           FullWidthButton(
-              child: Text("Klipper restart"),
+              child: Text('Klipper ${tr('general.restart').toLowerCase()}'),
               onPressed: model.onRestartKlipperPressed,
               buttonStyle: buttonStyle),
           FullWidthButton(
-              child: Text("Moonraker restart"),
+              child: Text('Moonraker ${tr('general.restart').toLowerCase()}'),
               onPressed: model.onRestartMoonrakerPressed,
               buttonStyle: buttonStyle),
           FullWidthButton(
-              child: Text("Firmware restart"),
+              child: Text('${tr('general.firmware')} ${tr('general.restart').toLowerCase()}'),
               onPressed: model.onRestartMCUPressed,
               buttonStyle: buttonStyle),
           ElevatedButton.icon(
-            label: Text("Close"),
+            label: Text('general.close').tr(),
             icon: Icon(Icons.keyboard_arrow_down),
             onPressed: model.onClosePressed,
             style: buttonStyle,

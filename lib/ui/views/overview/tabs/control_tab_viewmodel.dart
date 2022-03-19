@@ -209,7 +209,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   }
 
   onMacroPressed(GCodeMacro macro) {
-    _printerService?.gCodeMacro(macro.name);
+    _printerService?.gCode(macro.name);
   }
 
   onMacroGroupSelected(MacroGroup? macroGroup) {

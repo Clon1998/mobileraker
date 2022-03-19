@@ -1,5 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
@@ -16,11 +16,11 @@ class PrintersAdd extends StatelessWidget {
         builder: (context, model, child) {
           return Scaffold(
             appBar: AppBar(
-              title: Text('Add new printer'),
+              title: Text('pages.printer_add.title').tr(),
               actions: [
                 IconButton(
                     onPressed: model.onFormConfirm,
-                    tooltip: 'Add printer',
+                    tooltip: 'pages.printer_add.title'.tr(),
                     icon: Icon(Icons.save_outlined))
               ],
             ),
@@ -32,10 +32,10 @@ class PrintersAdd extends StatelessWidget {
                   padding: const EdgeInsets.all(10.0),
                   child: Column(
                     children: <Widget>[
-                      _SectionHeader(title: 'General'),
+                      _SectionHeader(title: 'pages.setting.general.title'.tr()),
                       FormBuilderTextField(
                         decoration: InputDecoration(
-                          labelText: 'Displayname',
+                          labelText: 'pages.printer_edit.general.displayname'.tr(),
                         ),
                         name: 'printerName',
                         initialValue: model.defaultPrinterName,
@@ -44,11 +44,11 @@ class PrintersAdd extends StatelessWidget {
                       ),
                       FormBuilderTextField(
                         decoration: InputDecoration(
-                            labelText: 'Printer-Address',
-                            hintText: 'Host, IP, or full URL',
+                            labelText: 'pages.printer_edit.general.printer_addr'.tr(),
+                            hintText: 'pages.printer_add.printer_add_helper'.tr(),
                             helperMaxLines: 2,
                             helperText: model.wsUrl?.isNotEmpty ?? false
-                                ? 'Resulting WebSocket-URL: ${model.wsUrl}'
+                                ? 'pages.printer_add.resulting_ws_url'.tr(args: [model.wsUrl.toString()])
                                 : '' //TODO
                             ),
                         onChanged: model.onUrlEntered,
@@ -62,21 +62,21 @@ class PrintersAdd extends StatelessWidget {
                       ),
                       FormBuilderTextField(
                         decoration: InputDecoration(
-                            labelText: 'Moonraker - API Key',
+                            labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
                             suffix: IconButton(
                               icon: Icon(Icons.qr_code_sharp),
                               onPressed: model.openQrScanner,
                             ),
                             helperText:
-                                'Only needed if youre using trusted clients. FluiddPI enforces this!',
+                                'pages.printer_edit.general.moonraker_api_desc'.tr(),
                             helperMaxLines: 3),
                         name: 'printerApiKey',
                       ),
                       Divider(),
-                      _SectionHeader(title: 'Misc'),
+                      _SectionHeader(title: 'pages.printer_add.misc'.tr()),
                       InputDecorator(
                         decoration: InputDecoration(
-                          labelText: 'Test websocket connection',
+                          labelText: 'pages.printer_add.test_ws'.tr(),
                           border: InputBorder.none,
                           errorText: model.wsError,
                           errorMaxLines: 3,
@@ -89,14 +89,14 @@ class PrintersAdd extends StatelessWidget {
                               color: model.wsStateColor,
                             ),
                             Spacer(flex: 1),
-                            Text('Result: ${model.wsResult}'),
+                            Text('pages.printer_add.result_ws_test').tr(args: [model.wsResult]),
                             Spacer(flex: 30),
                             ElevatedButton(
                                 onPressed:
                                     (model.data != WebSocketState.connecting)
                                         ? model.onTestConnectionTap
                                         : null,
-                                child: Text('Test'))
+                                child: Text('pages.printer_add.run_test_btn').tr())
                           ],
                         ),
                       ),

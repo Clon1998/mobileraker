@@ -1,0 +1,19 @@
+name: Build iOS
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v2
+      - run: echo ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }} | base64 -d > ./ios/Runner/GoogleService-Info.plist
+      - run: flutter pub get
+      - run: flutter packages pub run build_runner build
+      - uses: mxcl/xcodebuild@v1.10.0
+        with:
+          working-directory: ios
+          action: build
+          

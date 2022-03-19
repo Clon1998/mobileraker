@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/ui/views/files/details/file_details_viewmodel.dart';
@@ -35,7 +34,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                   icon: Icon(
                     FlutterIcons.fire_alt_faw5s,
                   ),
-                  tooltip: 'Preheat',
+                  tooltip: 'pages.files.details.preheat'.tr(),
                 )
               ],
               // title: Text(
@@ -83,7 +82,8 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                   placeholder: (context, url) => Icon(Icons.insert_drive_file),
                   errorWidget: (context, url, error) => Column(
                     children: [
-                      Icon(Icons.file_present),
+
+                      Expanded(child: Icon(Icons.file_present)),
                       Container(
                           width: double.infinity,
                           padding:
@@ -120,21 +120,21 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                   children: <Widget>[
                     ListTile(
                       leading: Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
-                      title: Text('General'),
+                      title: Text('pages.setting.general.title').tr(),
                     ),
                     Divider(),
                     PropertyTile(
-                        title: 'Path',
+                        title: 'pages.files.details.general_card.path'.tr(),
                         subtitle: '${file.parentPath}/${file.name}'),
                     PropertyTile(
-                      title: 'Last Modified',
+                      title: 'pages.files.details.general_card.last_mod'.tr(),
                       subtitle: model.formattedLastModified,
                     ),
                     PropertyTile(
-                      title: ('Last Printed'),
+                      title: 'pages.files.details.general_card.last_printed'.tr(),
                       subtitle: (file.printStartTime != null)
                           ? model.formattedLastPrinted
-                          : 'No Data',
+                          : 'pages.files.details.general_card.no_data'.tr(),
                     ),
                   ],
                 ),
@@ -145,29 +145,28 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                   children: <Widget>[
                     ListTile(
                       leading: Icon(FlutterIcons.tags_ant),
-                      title: Text('GCode Meta Data'),
+                      title: Text('pages.files.details.meta_card.title').tr(),
                     ),
                     Divider(),
                     PropertyTile(
-                      title: 'Estimated Print Time',
+                      title: 'pages.files.details.meta_card.est_print_time'.tr(),
                       subtitle:
-                          '${secondsToDurationText(file.estimatedTime ?? 0)}, ETA: ${model.potentialEta}',
+                          '${secondsToDurationText(file.estimatedTime ?? 0)}, ${tr('pages.overview.general.print_card.eta')}: ${model.potentialEta}',
                     ),
                     PropertyTile(
-                      title: 'Used Slicer',
-                      subtitle: '${file.slicer} (v${file.slicerVersion})',
+                      title: 'pages.files.details.meta_card.slicer'.tr(),
+                      subtitle: model.usedSlicerAndVersion,
                     ),
                     PropertyTile(
-                      title: 'Layer Height',
+                      title: 'pages.files.details.meta_card.layer_higher'.tr(),
                       subtitle:
-                          'First Layer: ${file.firstLayerHeight?.toStringAsFixed(2)} mm\n'
-                          'Others: ${file.layerHeight?.toStringAsFixed(2)} mm',
+                          '${tr('pages.files.details.meta_card.first_layer')}: ${file.firstLayerHeight?.toStringAsFixed(2)} mm\n'
+                          '${tr('pages.files.details.meta_card.others')}: ${file.layerHeight?.toStringAsFixed(2)} mm',
                     ),
                     PropertyTile(
-                      title: 'First Layer - Temperatures',
+                      title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
                       subtitle:
-                          'Extruder: ${file.firstLayerTempExtruder?.toStringAsFixed(0)}°C\n'
-                          'Bed: ${file.firstLayerTempBed?.toStringAsFixed(0)}°C',
+                          'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [file.firstLayerTempExtruder?.toStringAsFixed(0)??'general.unknown'.tr(),file.firstLayerTempBed?.toStringAsFixed(0)??'general.unknown'.tr()]),
                     ),
                   ],
                 ),
@@ -178,7 +177,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                   children: <Widget>[
                     ListTile(
                       leading: Icon(FlutterIcons.chart_bar_mco),
-                      title: Text('Statistics'),
+                      title: Text('pages.files.details.stat_card.title').tr(),
                     ),
                     Divider(),
                     PropertyTile(
@@ -201,7 +200,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
             (model.canStartPrint) ? null : Theme.of(context).disabledColor,
         onPressed: (model.canStartPrint) ? model.onStartPrintTap : null,
         icon: Icon(FlutterIcons.printer_3d_nozzle_mco),
-        label: Text('Print'),
+        label: Text('pages.files.details.print').tr(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

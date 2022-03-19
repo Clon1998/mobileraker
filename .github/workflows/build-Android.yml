@@ -1,0 +1,26 @@
+name: Build Android
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '12.x'
+      - uses: subosito/flutter-action@v2
+      - run: echo ${{ secrets.GOOGLE_SERVICES_JSON }} | base64 -d > ./android/app/google-services.json
+      - run: echo ${{ secrets.KEY_PROPERTIES }} | base64 -d > ./android/key.properties
+      - run: echo ${{ secrets.PLAY_STORE_JKS }} | base64 -d > ./android/app/gps.jks
+      - run: flutter pub get
+      - run: flutter packages pub run build_runner build
+      - run: flutter build apk --release
+      - name: Create a Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/app/outputs/apk/debug/*.apk"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          

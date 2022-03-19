@@ -1,7 +1,9 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -11,15 +13,61 @@ import 'connection_state_viewmodel.dart';
 
 class ConnectionStateView
     extends ViewModelBuilderWidget<ConnectionStateViewModel> {
-  ConnectionStateView({required this.pChild, Key? key}) : super(key: key);
 
-  final Widget pChild;
+  @override
+  bool get disposeViewModel => false;
 
-  Widget widgetForWebsocketState(
+  @override
+  bool get initialiseSpecialViewModelsOnce => true;
+
+  // Widget to show when ws is Connected
+  final Widget body;
+
+  ConnectionStateView({Key? key, required this.body})
+      : super(key: key);
+
+  @override
+  Widget builder(
+      BuildContext context, ConnectionStateViewModel model, Widget? child) {
+    return model.isMachineAvailable
+        ? _widgetForWebsocketState(context, model)
+        : Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.info_outline),
+                SizedBox(
+                  height: 30,
+                ),
+                RichText(
+                  text: TextSpan(
+                    text: 'You will have to ',
+                    style: DefaultTextStyle.of(context).style,
+                    children: <TextSpan>[
+                      TextSpan(
+                          text: 'add',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                              decoration: TextDecoration.underline),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = model.onAddPrinterTap),
+                      TextSpan(
+                        text: ' a printer first!',
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+  }
+
+  Widget _widgetForWebsocketState(
       BuildContext context, ConnectionStateViewModel model) {
     switch (model.connectionState) {
       case WebSocketState.connected:
-        return widgetForKlippyServerState(context, model);
+        return _widgetForKlippyServerState(context, model);
 
       case WebSocketState.disconnected:
         return Center(
@@ -73,16 +121,16 @@ class ConnectionStateView
               TextButton.icon(
                   onPressed: model.onRetryPressed,
                   icon: Icon(Icons.stream),
-                  label: Text("Reconnect"))
+                  label: Text("Reconnect!!"))
             ],
           ),
         );
     }
   }
 
-  Widget widgetForKlippyServerState(
+  Widget _widgetForKlippyServerState(
       BuildContext context, ConnectionStateViewModel model) {
-    if (model.isPrinterAvailable) return pChild;
+    if (model.isPrinterAvailable) return body;
     switch (model.server.klippyState) {
       case KlipperState.disconnected:
       case KlipperState.shutdown:
@@ -111,11 +159,13 @@ class ConnectionStateView
                       children: [
                         ElevatedButton(
                           onPressed: model.onRestartKlipperPressed,
-                          child: Text('Restart Klipper'),
+                          child: Text('pages.overview.general.restart_klipper')
+                              .tr(),
                         ),
                         ElevatedButton(
                           onPressed: model.onRestartMCUPressed,
-                          child: Text('Restart MCU'),
+                          child:
+                              Text('pages.overview.general.restart_mcu').tr(),
                         )
                       ],
                     )
@@ -126,7 +176,7 @@ class ConnectionStateView
             ],
           ),
         );
-        case KlipperState.startup:
+      case KlipperState.startup:
         return Center(
           child: Column(
             children: [
@@ -143,7 +193,7 @@ class ConnectionStateView
                       ),
                       title: Text(model.klippyState),
                     ),
-                    Text('Server is starting.')
+                    Text('Server is starting...')
                   ],
                 ),
               )),
@@ -153,48 +203,11 @@ class ConnectionStateView
         );
       case KlipperState.ready:
       default:
-        return pChild;
+        return body;
     }
   }
 
   @override
-  Widget builder(
-      BuildContext context, ConnectionStateViewModel model, Widget? child) {
-    return model.isMachineAvailable
-        ? widgetForWebsocketState(context, model)
-        : Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.info_outline),
-                SizedBox(
-                  height: 30,
-                ),
-                RichText(
-                  text: TextSpan(
-                    text: 'You will have to ',
-                    style: DefaultTextStyle.of(context).style,
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: 'add',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                              decoration: TextDecoration.underline),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = model.onAddPrinterTap),
-                      TextSpan(
-                        text: ' a printer first!',
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-  }
-
-  @override
   ConnectionStateViewModel viewModelBuilder(BuildContext context) =>
-      ConnectionStateViewModel();
+      locator<ConnectionStateViewModel>();
 }

@@ -87,6 +87,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
         }
       };
 
+
   @override
   onData(String key, data) {
     super.onData(key, data);
@@ -102,7 +103,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
           selectedCam = tmpCams!.first;
         else
           selectedCam = null;
-        notifySourceChanged(clearOldData: true);
+        notifySourceChanged();
         break;
 
       case _PrinterStreamKey:

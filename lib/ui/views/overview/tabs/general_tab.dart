@@ -1,12 +1,11 @@
 import 'dart:math';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
-import 'package:intl/intl.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
@@ -84,6 +83,21 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
             subtitle: _subTitle(model),
             trailing: _trailing(model),
           ),
+          if (model.server.klippyState != KlipperState.ready ||
+              !model.server.klippyConnected)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: model.onRestartKlipperPressed,
+                  child: Text('pages.overview.general.restart_klipper').tr(),
+                ),
+                ElevatedButton(
+                  onPressed: model.onRestartMCUPressed,
+                  child: Text('pages.overview.general.restart_mcu').tr(),
+                )
+              ],
+            ),
           _buildTableView(context, model),
         ],
       ),
@@ -98,7 +112,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
           lineWidth: 4,
           percent: model.printer.virtualSdCard.progress,
           center:
-              Text("${(model.printer.virtualSdCard.progress * 100).round()}%"),
+              Text('${(model.printer.virtualSdCard.progress * 100).round()}%'),
           progressColor: (model.printer.print.state == PrintState.complete)
               ? Colors.green
               : Colors.deepOrange,
@@ -108,33 +122,19 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
         return TextButton.icon(
             onPressed: model.onResetPrintTap,
             icon: Icon(Icons.restart_alt_outlined),
-            label: Text('Reset'));
+            label: Text('pages.overview.general.print_card.reset').tr());
       default:
         return null;
     }
   }
 
   Widget? _subTitle(GeneralTabViewModel model) {
-    if (model.server.klippyState != KlipperState.ready ||
-        !model.server.klippyConnected)
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ElevatedButton(
-            onPressed: model.onRestartKlipperPressed,
-            child: Text('Restart Klipper'),
-          ),
-          ElevatedButton(
-            onPressed: model.onRestartMCUPressed,
-            child: Text('Restart MCU'),
-          )
-        ],
-      );
-
     switch (model.printer.print.state) {
       case PrintState.printing:
-        return Text(
-            "Printing: ${model.printer.print.filename}\nFor: ${secondsToDurationText(model.printer.print.totalDuration)}");
+        return Text('pages.overview.general.print_card.printing_for').tr(args: [
+          model.printer.print.filename,
+          secondsToDurationText(model.printer.print.totalDuration)
+        ]);
       case PrintState.error:
         return Text('${model.printer.print.message}');
       default:
@@ -166,7 +166,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text("X"),
+                      Text('X'),
                       Text(
                           '${model.printer.toolhead.position[0].toStringAsFixed(2)}'),
                     ],
@@ -176,7 +176,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("Y"),
+                    Text('Y'),
                     Text(
                         '${model.printer.toolhead.position[1].toStringAsFixed(2)}'),
                   ],
@@ -187,7 +187,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text("Z"),
+                    Text('Z'),
                     Text(
                         '${model.printer.toolhead.position[2].toStringAsFixed(2)}'),
                   ],
@@ -206,7 +206,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text("Speed"),
+                        Text('pages.overview.general.print_card.speed').tr(),
                         Text('${model.printer.gCodeMove.mmSpeed} mm/s'),
                       ],
                     ),
@@ -216,7 +216,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text("Layer"),
+                        Text('pages.overview.general.print_card.layer').tr(),
                         Text('${model.layer}/${model.maxLayers}'),
                       ],
                     ),
@@ -226,7 +226,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text("ETA"),
+                        Text('pages.overview.general.print_card.eta').tr(),
                         Text((model.printer.eta != null)
                             ? DateFormat.Hm().format(model.printer.eta!)
                             : '--:--'),
@@ -255,7 +255,7 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
             leading: Icon(
               FlutterIcons.webcam_mco,
             ),
-            title: Text('Webcam'),
+            title: Text('pages.overview.general.cam_card.webcam').tr(),
             trailing: (model.webcams.length > 1)
                 ? DropdownButton(
                     value: model.selectedCam,
@@ -287,7 +287,8 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
                       alignment: Alignment.bottomRight,
                       child: IconButton(
                         icon: Icon(Icons.aspect_ratio_outlined),
-                        tooltip: 'Fullscreen',
+                        tooltip:
+                            'pages.overview.general.cam_card.fullscreen'.tr(),
                         onPressed: model.onFullScreenTap,
                       ),
                     ),
@@ -325,11 +326,12 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                       ? Colors.deepOrange
                       : Theme.of(context).iconTheme.color,
                 ),
-                title: Text('Temperature controls'),
+                title: Text('pages.overview.general.temp_card.title').tr(),
                 trailing: TextButton(
                   onPressed: model.flipTemperatureCard,
                   // onPressed: () => showWIPSnackbar(),
-                  child: Text('Presets'),
+                  child:
+                      Text('pages.overview.general.temp_card.presets_btn').tr(),
                 ),
               ),
               Padding(
@@ -343,7 +345,8 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                       child: Row(
                         children: [
                           _HeaterCard(
-                            name: 'Hotend',
+                            name:
+                                'pages.overview.general.temp_card.hotend'.tr(),
                             width: elementWidth,
                             current: model.printer.extruder.temperature,
                             target: model.printer.extruder.target,
@@ -352,7 +355,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                                 : null,
                           ),
                           _HeaterCard(
-                            name: 'Bed',
+                            name: 'pages.overview.general.temp_card.bed'.tr(),
                             width: elementWidth,
                             current: model.printer.heaterBed.temperature,
                             target: model.printer.heaterBed.target,
@@ -391,10 +394,11 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
                       ? Colors.deepOrange
                       : Theme.of(context).iconTheme.color,
                 ),
-                title: Text('Temperature presets'),
+                title:
+                    Text('pages.overview.general.temp_card.temp_presets').tr(),
                 trailing: TextButton(
                   onPressed: model.flipTemperatureCard,
-                  child: Text('Sensors'),
+                  child: Text('pages.overview.general.temp_card.sensors').tr(),
                 ),
               ),
               Padding(
@@ -428,7 +432,7 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
       double width, GeneralTabViewModel model) {
     var coolOf = _TemperaturePresetCard(
       width: width,
-      presetName: 'Cooloff',
+      presetName: 'pages.overview.general.temp_preset_card.cooloff'.tr(),
       extruderTemp: 0,
       bedTemp: 0,
       onTap:
@@ -495,12 +499,15 @@ class _TemperaturePresetCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.headline6,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis),
-            Text('Extruder: $extruderTemp°C',
-                style: Theme.of(context).textTheme.caption),
-            Text('Bed: $bedTemp°C', style: Theme.of(context).textTheme.caption),
+            Text('pages.overview.general.temp_preset_card.h_temp',
+                    style: Theme.of(context).textTheme.caption)
+                .tr(args: [extruderTemp.toString()]),
+            Text('pages.overview.general.temp_preset_card.b_temp',
+                    style: Theme.of(context).textTheme.caption)
+                .tr(args: [bedTemp.toString()]),
           ],
         ),
-        buttonChild: Text("Set"),
+        buttonChild: Text('general.set').tr(),
         onTap: onTap);
   }
 }
@@ -512,8 +519,10 @@ class _HeaterCard extends StatelessWidget {
   final double width;
   final VoidCallback? onTap;
 
-  String get targetTemp =>
-      target > 0 ? '${target.toStringAsFixed(1)} °C target' : 'Off';
+  String get targetTemp => target > 0
+      ? 'pages.overview.general.temp_card.heater_on'
+          .tr(args: [target.toStringAsFixed(1)])
+      : 'general.off'.tr();
 
   const _HeaterCard({
     Key? key,
@@ -556,7 +565,7 @@ class _HeaterCard extends StatelessWidget {
             Text(targetTemp, style: TextStyle(color: textCol)),
           ],
         ),
-        buttonChild: const Text('Set'),
+        buttonChild: const Text('general.set').tr(),
         onTap: onTap);
   }
 }
@@ -589,7 +598,8 @@ class _SensorCard extends StatelessWidget {
             Text('${max.toStringAsFixed(1)} °C max'),
           ],
         ),
-        buttonChild: const Text('Sensor'),
+        buttonChild:
+            const Text('pages.overview.general.temp_card.btn_thermistor').tr(),
         onTap: null);
   }
 }
@@ -611,7 +621,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
         children: <Widget>[
           ListTile(
             leading: Icon(FlutterIcons.axis_arrow_mco),
-            title: Text('Move Axis'),
+            title: Text('pages.overview.general.move_card.title').tr(),
             trailing: _HomedAxisChip(),
           ),
           Padding(
@@ -658,7 +668,9 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               height: 40,
                               width: 40,
                               child: Tooltip(
-                                message: "Home X and Y axis",
+                                message:
+                                    'pages.overview.general.move_card.home_xy_tooltip'
+                                        .tr(),
                                 child: IconButton(
                                     onPressed: model.canUsePrinter
                                         ? () => model.onHomeAxisBtn(
@@ -718,7 +730,9 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           height: 40,
                           width: 40,
                           child: Tooltip(
-                            message: "Home Z axis",
+                            message:
+                                'pages.overview.general.move_card.home_z_tooltip'
+                                    .tr(),
                             child: IconButton(
                                 onPressed: model.canUsePrinter
                                     ? () => model.onHomeAxisBtn({PrinterAxis.Z})
@@ -747,14 +761,19 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       Tooltip(
-                        message: "Home all axis",
+                        message:
+                            'pages.overview.general.move_card.home_all_tooltip'
+                                .tr(),
                         child: TextButton.icon(
                           onPressed: model.canUsePrinter
                               ? () => model.onHomeAxisBtn(
                                   {PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z})
                               : null,
                           icon: Icon(Icons.home),
-                          label: Text("ALL"),
+                          label: Text(
+                              'pages.overview.general.move_card.home_all_btn'
+                                  .tr()
+                                  .toUpperCase()),
                           style: TextButton.styleFrom(
                               backgroundColor:
                                   Theme.of(context).colorScheme.secondary,
@@ -766,13 +785,18 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                       ),
                       if (model.printer.configFile.hasQuadGantry)
                         Tooltip(
-                          message: "Run quad-gantry leveling",
+                          message:
+                              'pages.overview.general.move_card.qgl_tooltip'
+                                  .tr(),
                           child: TextButton.icon(
                             onPressed: !model.canUsePrinter
                                 ? null
                                 : model.onQuadGantry,
                             icon: Icon(FlutterIcons.quadcopter_mco),
-                            label: Text("QGL"),
+                            label: Text(
+                                'pages.overview.general.move_card.qgl_btn'
+                                    .tr()
+                                    .toUpperCase()),
                             style: TextButton.styleFrom(
                                 backgroundColor:
                                     Theme.of(context).colorScheme.secondary,
@@ -784,12 +808,17 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                         ),
                       if (model.printer.configFile.hasBedMesh)
                         Tooltip(
-                          message: "Run bed-mesh calibration",
+                          message:
+                              'pages.overview.general.move_card.mesh_tooltip'
+                                  .tr(),
                           child: TextButton.icon(
                             onPressed:
                                 !model.canUsePrinter ? null : model.onBedMesh,
                             icon: Icon(FlutterIcons.map_marker_path_mco),
-                            label: Text("MESH"),
+                            label: Text(
+                                'pages.overview.general.move_card.mesh_btn'
+                                    .tr()
+                                    .toUpperCase()),
                             style: TextButton.styleFrom(
                                 backgroundColor:
                                     Theme.of(context).colorScheme.secondary,
@@ -801,12 +830,15 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           ),
                         ),
                       Tooltip(
-                        message: "Disable Motors",
+                        message:
+                            'pages.overview.general.move_card.m84_tooltip'.tr(),
                         child: TextButton.icon(
                           onPressed:
                               !model.canUsePrinter ? null : model.onMotorOff,
                           icon: Icon(Icons.near_me_disabled),
-                          label: Text("M84"),
+                          label:
+                              Text('pages.overview.general.move_card.m84_btn')
+                                  .tr(),
                           style: TextButton.styleFrom(
                               backgroundColor:
                                   Theme.of(context).colorScheme.secondary,
@@ -823,7 +855,8 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("Step size [mm]"),
+                    Text(
+                        '${'pages.overview.general.move_card.step_size'.tr()} [mm]'),
                     RangeSelector(
                         selectedIndex: model.selectedIndexAxisStepSizeIndex,
                         onSelected: model.onSelectedAxisStepSizeChanged,
@@ -863,7 +896,7 @@ class _HomedAxisChip extends ViewModelWidget<GeneralTabViewModel> {
 
   String _homedChipTitle(Set<PrinterAxis> homedAxes) {
     if (homedAxes.isEmpty)
-      return 'NONE';
+      return 'general.none'.tr().toUpperCase();
     else {
       List<PrinterAxis> l = homedAxes.toList();
       l.sort((a, b) => a.index.compareTo(b.index));
@@ -885,16 +918,16 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
         children: <Widget>[
           ListTile(
               leading: Icon(FlutterIcons.align_vertical_middle_ent),
-              title: Text('Babystepping Z-Axis'),
+              title: Text('pages.overview.general.baby_step_card.title').tr(),
               trailing: Chip(
                 avatar: Icon(
                   FlutterIcons.progress_wrench_mco,
                   color: Theme.of(context).iconTheme.color,
                   size: 20,
                 ),
-                label: Text("${model.printer.zOffset.toStringAsFixed(3)}mm"),
+                label: Text('${model.printer.zOffset.toStringAsFixed(3)}mm'),
                 // ViewModelBuilder.reactive(
-                //     builder: (context, model, child) => Text("0.000 mm"),
+                //     builder: (context, model, child) => Text('0.000 mm'),
                 //     viewModelBuilder: () => model),
               )),
           Padding(
@@ -930,7 +963,11 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
                 Spacer(flex: 1),
                 Column(
                   children: [
-                    Text("Step size [mm]"),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                          '${'pages.overview.general.move_card.step_size'.tr()} [mm]'),
+                    ),
                     RangeSelector(
                         selectedIndex: model.selectedIndexBabySteppingSize,
                         onSelected: model.onSelectedBabySteppingSizeChanged,
@@ -945,15 +982,5 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
         ],
       ),
     );
-  }
-
-  String homedChipTitle(Set<PrinterAxis> homedAxes) {
-    if (homedAxes.isEmpty)
-      return 'NONE';
-    else {
-      List<PrinterAxis> l = homedAxes.toList();
-      l.sort((a, b) => a.index.compareTo(b.index));
-      return l.map((e) => EnumToString.convertToString(e)).join();
-    }
   }
 }

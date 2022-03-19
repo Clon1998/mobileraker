@@ -22,6 +22,10 @@ import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 
 import 'machine_service.dart';
+import 'package:shared_preferences_android/shared_preferences_android.dart';
+import 'package:shared_preferences_ios/shared_preferences_ios.dart';
+import 'package:path_provider_android/path_provider_android.dart';
+import 'package:path_provider_ios/path_provider_ios.dart';
 
 class NotificationService {
   final _logger = getLogger('NotificationService');
@@ -36,12 +40,19 @@ class NotificationService {
     // If you're going to use other Firebase services in the background, such as Firestore,
     // make sure you call `initializeApp` before using other Firebase services.
 
+    // ToDo: on Flutter 2.11 swap this temp fix https://github.com/flutter/flutter/issues/98473#issuecomment-1060952450
+    if (Platform.isAndroid) {
+      PathProviderAndroid.registerWith();
+      SharedPreferencesAndroid.registerWith();}
+    if (Platform.isIOS) {
+      PathProviderIOS.registerWith();
+      SharedPreferencesIOS.registerWith();}
     await setupBoxes();
     setupLocator();
     await locator.allReady();
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
-
+    // await EasyLocalization.ensureInitialized();
     NotificationService notificationService = locator<NotificationService>();
     notificationService._logger.d(
         "Handling a background message: ${message.messageId} with ${message.data}");
@@ -98,6 +109,8 @@ class NotificationService {
   }
 
   void registerLocalMessageHandling(PrinterSetting setting) {
+    _logger.w('Currently Disabled local notification handling!');
+    return;
     if (Platform.isIOS) return;
     _printerStreamMap[setting.uuid] = setting.printerService.printerStream
         .listen((value) => _processPrinterUpdate(setting, value));
@@ -199,7 +212,7 @@ class NotificationService {
       NotificationChannel(
           channelKey: printerSetting.statusUpdatedChannelKey,
           channelName: 'Print Status Updates - ${printerSetting.name}',
-          channelDescription: 'Notifications regarding the print progress.',
+          channelDescription: 'Notifications regarding the print status.',
           channelGroupKey: printerSetting.uuid,
           importance: NotificationImportance.Max,
           defaultColor: brownish.shade500),
@@ -220,7 +233,7 @@ class NotificationService {
       PrinterSetting printerSetting) {
     return NotificationChannelGroup(
         channelGroupkey: printerSetting.uuid,
-        channelGroupName: "Printer ${printerSetting.name}");
+        channelGroupName: 'Printer ${printerSetting.name}');
   }
 
   Future<void> _setupFCMOnPrinterOnceConnected(PrinterSetting setting) async {
@@ -232,9 +245,9 @@ class NotificationService {
       _logger.w("Could not fetch fcm token");
       return Future.error("No token available for device!");
     }
-
-    _machineService.fetchOrCreateFcmIdentifier(setting);
-    _machineService.registerFCMTokenOnMachine(setting, fcmToken);
+    _logger.i("Devices FCM token: $fcmToken");
+    await _machineService.fetchOrCreateFcmIdentifier(setting);
+    await _machineService.registerFCMTokenOnMachine(setting, fcmToken);
 
     // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
   }
@@ -262,57 +275,39 @@ class NotificationService {
     if (oldState == null && updatedState != PrintState.printing)
       return updatedState;
 
+    NotificationContent notificationContent = NotificationContent(
+      id: Random().nextInt(20000000),
+      channelKey: printerSetting.statusUpdatedChannelKey,
+      title: 'Print state of ${printerSetting.name} changed!',
+      notificationLayout: NotificationLayout.BigText,
+    );
+    String file = updatedFile ?? 'Unknown';
     switch (updatedState) {
       case PrintState.standby:
         await _removePrintProgressNotification(printerSetting);
         break;
       case PrintState.printing:
-        await _notifyAPI.createNotification(
-            content: NotificationContent(
-          id: Random().nextInt(20000000),
-          channelKey: printerSetting.statusUpdatedChannelKey,
-          title: 'Print state of ${printerSetting.name} changed!',
-          body: 'Started to print file: "${updatedFile ?? "UNKNOWN"}"',
-          notificationLayout: NotificationLayout.BigText,
-        ));
+        notificationContent.body = 'Started to print file: "$file"';
         printerSetting.lastPrintProgress = null;
         break;
       case PrintState.paused:
-        await _notifyAPI.createNotification(
-            content: NotificationContent(
-          id: Random().nextInt(20000000),
-          channelKey: printerSetting.statusUpdatedChannelKey,
-          title: 'Print state of ${printerSetting.name} changed!',
-          body: 'Paused printing of file: "${updatedFile ?? "UNKNOWN"}"',
-          notificationLayout: NotificationLayout.BigText,
-        ));
+        notificationContent.body = 'Paused printing file: "$file"';
         break;
       case PrintState.complete:
-        await _notifyAPI.createNotification(
-            content: NotificationContent(
-          id: Random().nextInt(20000000),
-          channelKey: printerSetting.statusUpdatedChannelKey,
-          title: 'Print state of ${printerSetting.name} changed!',
-          body: 'Finished printing "${updatedFile ?? "UNKNOWN"}"',
-          notificationLayout: NotificationLayout.BigText,
-        ));
-
+        notificationContent.body = 'Finished printing: "$file"';
         await _removePrintProgressNotification(printerSetting);
         break;
       case PrintState.error:
-        if (oldState == PrintState.printing)
-          await _notifyAPI.createNotification(
-              content: NotificationContent(
-                  id: Random().nextInt(20000000),
-                  channelKey: printerSetting.statusUpdatedChannelKey,
-                  title: 'Print state of ${printerSetting.name} changed!',
-                  body:
-                      'Error while printing file: "${updatedFile ?? "UNKNOWN"}"',
-                  notificationLayout: NotificationLayout.BigText,
-                  color: Colors.red));
+        if (oldState == PrintState.printing) {
+          notificationContent.body = 'Error while printing file: "$file"';
+          notificationContent.color = Colors.red;
+        }
         await _removePrintProgressNotification(printerSetting);
         break;
     }
+    if (updatedState != PrintState.standby)
+      await _notifyAPI.createNotification(content: notificationContent);
+
     return updatedState;
   }
 
@@ -330,7 +325,7 @@ class NotificationService {
       double est = printDuration / progress - printDuration;
       dt = DateTime.now().add(Duration(seconds: est.round()));
     }
-    String eta = (dt != null) ? 'ETA:${DateFormat.Hm().format(dt)}' : '';
+    String eta = (dt != null) ? 'ETA: ${DateFormat.Hm().format(dt)}' : '';
 
     int index = await _machineService.indexOfMachine(printerSetting);
     if (index < 0) return;

@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -40,30 +40,35 @@ class NavigationDrawerWidget
                 children: [
                   ExpansionTile(
                     title: const Text(
-                      'Manager Printers',
+                      'nav_drawer.manage_printers',
                       style: TextStyle(color: Colors.white),
-                    ),
+                    ).tr(),
                     children: [
                       ..._buildPrinterSelection(context, model),
                     ],
                   ),
                   buildMenuItem(
                     model,
-                    text: 'Overview',
+                    text: 'pages.overview.title'.tr(),
                     icon: Icons.home,
                     path: Routes.overView,
                   ),
-
                   buildMenuItem(
                     model,
-                    text: 'Files',
+                    text: 'pages.console.title'.tr(),
+                    icon: Icons.terminal,
+                    path: Routes.consoleView,
+                  ),
+                  buildMenuItem(
+                    model,
+                    text: 'pages.files.title'.tr(),
                     icon: Icons.file_present,
                     path: Routes.filesView,
                   ),
                   Divider(),
                   buildMenuItem(
                     model,
-                    text: 'App-Settings',
+                    text: 'pages.setting.title'.tr(),
                     icon: Icons.engineering_outlined,
                     path: Routes.settingView,
                   ),
@@ -83,7 +88,7 @@ class NavigationDrawerWidget
                 child: RichText(
                   text: TextSpan(
                       text:
-                          'Made with ❤️ by Patrick Schmidt\nCheckout the project\'s',
+                          'nav_drawer.footer'.tr(),
                       children: [
                         new TextSpan(
                           text: ' GitHub ',
@@ -144,13 +149,13 @@ class NavigationDrawerWidget
     } else {
       widgetsToReturn = [
         ListTile(
-          title: FadingText("Fetching printers..."),
+          title: FadingText('nav_drawer.fetching_printers'.tr()),
           contentPadding: const EdgeInsets.only(left: 32, right: 16),
         ),
       ];
     }
     widgetsToReturn.add(ListTile(
-      title: Text('Add new printer', style: TextStyle(color: Colors.white)),
+      title: Text('pages.printer_add.title', style: TextStyle(color: Colors.white)).tr(),
       contentPadding: const EdgeInsets.only(left: 32, right: 16),
       trailing: Icon(Icons.add, color: highlightColor),
       onTap: () => model.navigateTo(Routes.printersAdd),
@@ -197,7 +202,7 @@ class NavigationDrawerWidget
             ),
             IconButton(
                 onPressed: onClicked,
-                tooltip: 'Printer settings',
+                tooltip: 'nav_drawer.printer_settings'.tr(),
                 icon: Icon(
                   FlutterIcons.settings_fea,
                   color: Colors.white,
