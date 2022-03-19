@@ -145,7 +145,8 @@
         "ems_confirm": "Confirm Emergency-Stop",
         "always_baby": "Always show Babystepping Card",
         "num_edit": "Use keyboard for number input",
-        "language": "Language"
+        "language": "Language",
+        "companion": "Learn how to setup Mobileraker's Companion on its "
       },
       "imprint": "Imprint"
     },
@@ -229,7 +230,7 @@
     "channels": {
       "status": {
         "name": "Print Status Updates - {}",
-        "desc": "Notifications regarding the print progress.",
+        "desc": "Notifications regarding the print status.",
         "title": "Print state of {} changed!",
         "body_printing": "Started to print file: \"{}\"",
         "body_paused": "Paused printing file: \"{}\"",

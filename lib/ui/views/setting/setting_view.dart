@@ -1,10 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
   const SettingView({Key? key}) : super(key: key);
@@ -51,6 +54,36 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                     decoration: InputDecoration(
                         border: InputBorder.none, isCollapsed: true),
                     activeColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  Divider(),
+                  RichText(
+                    text: TextSpan(
+                        text:
+                        tr('pages.setting.general.companion'),
+                        children: [
+                          new TextSpan(
+                            text: '\nOfficial GitHub ',
+                            style: new TextStyle(color: Colors.blue),
+                            children: [
+                              WidgetSpan(
+                                child:
+                                Icon(FlutterIcons.github_alt_faw, size: 18),
+                              ),
+                            ],
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () async {
+                                const String url =
+                                    'https://github.com/Clon1998/mobileraker_companion';
+                                if (await canLaunch(url)) {
+                                  //TODO Fix this... neds Android Package Visibility
+                                  await launch(url);
+                                } else {
+                                  throw 'Could not launch $url';
+                                }
+                              },
+                          ),
+                        ]),
+                    textAlign: TextAlign.center,
                   ),
                   Divider(),
                   Text(
