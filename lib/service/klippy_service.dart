@@ -67,12 +67,12 @@ class KlippyService {
 
   void _fetchServerInfo() {
     _logger.i('>>>Fetching Server.Info');
-    _webSocket.sendJsonRpcMethod("server.info", function: _parseServerInfo);
+    _webSocket.sendJsonRpcMethod("server.info", onReceive: _parseServerInfo);
   }
 
   _fetchPrinterInfo() {
     _logger.i(">>>Fetching Printer.Info");
-    _webSocket.sendJsonRpcMethod("printer.info", function: _parsePrinterInfo);
+    _webSocket.sendJsonRpcMethod("printer.info", onReceive: _parsePrinterInfo);
   }
 
   WebSocketWrapper get _webSocket => _owner.websocket;

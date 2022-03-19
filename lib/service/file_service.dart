@@ -69,7 +69,7 @@ class FileService {
     _logger.i('Fetching for `$path` [extended:$extended]');
 
     _webSocket.sendJsonRpcMethod("server.files.get_directory",
-        function: (response, {err}) {
+        onReceive: (response, {err}) {
       if (err == null) _parseDirectory(response['result'], path, reqCompleter);
     }, params: {'path': path, 'extended': extended});
     return reqCompleter.future;
@@ -77,7 +77,7 @@ class FileService {
 
   _fetchAvailableFiles(FileRoot root) {
     _webSocket.sendJsonRpcMethod("server.files.list",
-        function: (response, {err}) {
+        onReceive: (response, {err}) {
       if (err == null) _parseResult(response['result'], root);
     }, params: {'root': EnumToString.convertToString(root)});
   }
@@ -87,7 +87,7 @@ class FileService {
     _logger.i('Getting meta for file: `$filename`');
 
     _webSocket.sendJsonRpcMethod("server.files.metadata",
-        function: (response, {err}) {
+        onReceive: (response, {err}) {
       if (err == null)
         _parseFileMeta(response['result'], filename, reqCompleter);
     }, params: {'filename': filename});

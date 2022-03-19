@@ -51,7 +51,7 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
               ),
               tooltip: 'pages.overview.ems_btn'.tr(),
               onPressed:
-                  (model.isServerAvailable) ? model.onEmergencyPressed : null,
+                  (model.canUseEms) ? model.onEmergencyPressed : null,
             ),
           ],
         ),

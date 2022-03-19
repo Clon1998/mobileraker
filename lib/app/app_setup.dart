@@ -9,6 +9,8 @@ import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_viewmodel.dart';
+import 'package:mobileraker/ui/views/console/console_view.dart';
+import 'package:mobileraker/ui/views/console/console_viewmodel.dart';
 import 'package:mobileraker/ui/views/files/details/file_details_view.dart';
 import 'package:mobileraker/ui/views/files/files_view.dart';
 import 'package:mobileraker/ui/views/fullcam/full_cam_view.dart';
@@ -33,6 +35,7 @@ import 'package:stacked_services/stacked_services.dart';
   MaterialRoute(page: SettingView),
   MaterialRoute(page: ImprintView),
   MaterialRoute(page: QrScannerView),
+  MaterialRoute(page: ConsoleView),
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
@@ -42,6 +45,7 @@ import 'package:stacked_services/stacked_services.dart';
   LazySingleton(classType: GeneralTabViewModel),
   LazySingleton(classType: ControlTabViewModel),
   LazySingleton(classType: ConnectionStateViewModel),
+  LazySingleton(classType: ConsoleViewModel),
   Singleton(classType: PrinterSettingHiveRepository),
   Singleton(classType: MachineService),
   Singleton(classType: SettingService),

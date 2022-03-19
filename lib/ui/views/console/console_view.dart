@@ -1,0 +1,167 @@
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/dto/console/console_entry.dart';
+import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
+import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/views/console/console_viewmodel.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:stacked/stacked.dart';
+
+class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
+  const ConsoleView({Key? key}) : super(key: key);
+
+  @override
+  bool get disposeViewModel => false;
+
+  @override
+  bool get initialiseSpecialViewModelsOnce => true;
+
+
+  @override
+  Widget builder(BuildContext context, ConsoleViewModel model, Widget? child) {
+    return Scaffold(
+      appBar: _buildAppBar(context, model),
+      drawer: NavigationDrawerWidget(curPath: Routes.consoleView),
+      body: ConnectionStateView(
+        body: _buildBody(context, model),
+      ),
+    );
+  }
+
+  AppBar _buildAppBar(BuildContext context, ConsoleViewModel model) {
+    return AppBar(
+      title: Text(
+        'pages.console.title',
+        overflow: TextOverflow.fade,
+      ).tr(),
+      actions: <Widget>[
+        IconButton(
+          color: Colors.red,
+          icon: Icon(
+            Icons.dangerous_outlined,
+            size: 30,
+          ),
+          tooltip: 'pages.overview.ems_btn'.tr(),
+          onPressed: (model.canUseEms) ? model.onEmergencyPressed : null,
+        )
+      ],
+    );
+  }
+
+  Widget _buildBody(BuildContext context, ConsoleViewModel model) {
+    var themeData = Theme.of(context);
+    if (!model.isConsoleHistoryAvailable) {
+      return Center(
+        child: Column(
+          key: UniqueKey(),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitSpinningLines(
+              color: themeData.colorScheme.primary,
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            Text('pages.console.fetching_console').tr()
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.all(4.0),
+      color: themeData.colorScheme.background,
+      child: Column(
+        children: [
+          Expanded(
+              child: SmartRefresher(
+                  controller: model.refreshController,
+                  onRefresh: model.onRefresh,
+                  child: _buildListView(model))),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            child: TextField(
+              enableSuggestions: false,
+              // style: themeData.textTheme.subtitle1!.copyWith(color: _commandTextColor(themeData)),
+              controller: model.textEditingController,
+              decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: model.onCommandSubmit,
+                  ),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10)),
+                  hintText: tr('pages.console.command_input.hint')),
+            ),
+          )
+        ],
+      ),
+    );
+
+    // if (model.isBusy)
+    //   return buildBusyListView(context, model);
+    // else if (model.isFolderContentAvailable &&
+    //     model.isServerAvailable &&
+    //     model.isMachineAvailable)
+    //   return buildListView(context, model);
+    // else
+    //   return buildFetchingView();
+  }
+
+  Widget _buildListView(ConsoleViewModel model) {
+    if (model.consoleEntries.isEmpty)
+      return ListTile(
+          leading: Icon(Icons.browser_not_supported_sharp),
+          title: Text('pages.console.no_entries').tr());
+    return ListView.builder(
+      reverse: true,
+      // controller: model.scrollController,
+      itemCount: model.consoleEntries.length,
+      itemBuilder: (context, index) {
+        int correctedIndex = model.consoleEntries.length - 1 - index;
+        ConsoleEntry entry = model.consoleEntries[correctedIndex];
+        if (entry.type == ConsoleEntryType.COMMAND)
+          return ListTile(
+            title: Text(entry.message,
+                style: _commandTextStyle(
+                    Theme.of(context), ListTileTheme.of(context))),
+            subtitle: Text(DateFormat.Hms().format(entry.timestamp)),
+            onTap: () => model.onCommandTap(entry),
+          );
+
+        return ListTile(
+          title: Text(entry.message),
+          subtitle: Text(DateFormat.Hms().format(entry.timestamp)),
+        );
+      },
+    );
+  }
+
+  TextStyle _commandTextStyle(ThemeData theme, ListTileThemeData tileTheme) {
+    final TextStyle textStyle;
+    switch (
+        tileTheme.style ?? theme.listTileTheme.style ?? ListTileStyle.list) {
+      case ListTileStyle.drawer:
+        textStyle = theme.textTheme.bodyText1!;
+        break;
+      case ListTileStyle.list:
+        textStyle = theme.textTheme.subtitle1!;
+        break;
+    }
+
+    return textStyle.copyWith(color: _commandTextColor(theme));
+  }
+
+  Color _commandTextColor(ThemeData theme) {
+    return theme.brightness == Brightness.light
+        ? theme.colorScheme.onBackground
+        : theme.colorScheme.primary;
+  }
+
+  @override
+  ConsoleViewModel viewModelBuilder(BuildContext context) =>
+      locator<ConsoleViewModel>();
+}

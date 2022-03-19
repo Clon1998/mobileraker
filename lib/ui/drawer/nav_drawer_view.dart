@@ -53,7 +53,12 @@ class NavigationDrawerWidget
                     icon: Icons.home,
                     path: Routes.overView,
                   ),
-
+                  buildMenuItem(
+                    model,
+                    text: 'pages.console.title'.tr(),
+                    icon: Icons.terminal,
+                    path: Routes.consoleView,
+                  ),
                   buildMenuItem(
                     model,
                     text: 'pages.files.title'.tr(),

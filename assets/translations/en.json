@@ -210,6 +210,14 @@
       "test_ws": "Test websocket connection",
       "result_ws_test": "Result: {}",
       "run_test_btn": "Test"
+    },
+    "console": {
+      "title": "Console",
+      "no_entries": "No cached commands found",
+      "fetching_console": "Fetching console entries...",
+      "command_input" : {
+        "hint":"Enter console command"
+      }
     }
   },
   "nav_drawer": {

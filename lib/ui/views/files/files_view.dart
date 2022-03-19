@@ -107,17 +107,17 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         model.isMachineAvailable)
       return buildListView(context, model);
     else
-      return buildFetchingView();
+      return buildFetchingView(context);
   }
 
-  Center buildFetchingView() {
+  Center buildFetchingView(BuildContext context) {
     return Center(
       child: Column(
         key: UniqueKey(),
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SpinKitSpinningLines(
-            color: Colors.orange,
+            color: Theme.of(context).colorScheme.primary,
           ),
           SizedBox(
             height: 30,
