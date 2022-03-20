@@ -145,7 +145,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                     itemCount: 15,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        contentPadding: EdgeInsets.symmetric(horizontal: 4),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                         leading: Container(
                           width: 64,
                           height: 64,
@@ -156,7 +156,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                         title: Container(
                           width: double.infinity,
                           height: 16.0,
-                          margin: EdgeInsets.only(right: 10),
+                          margin: EdgeInsets.only(right: 5),
                           color: Colors.white,
                         ),
                       );
@@ -321,7 +321,7 @@ class FileItem extends ViewModelWidget<FilesViewModel> {
   @override
   Widget build(BuildContext context, FilesViewModel model) {
     return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 5),
+      contentPadding: EdgeInsets.symmetric(horizontal: 5,vertical: 3),
       leading: SizedBox(
           width: 64,
           height: 64,
