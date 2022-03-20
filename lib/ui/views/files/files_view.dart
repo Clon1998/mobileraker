@@ -340,29 +340,32 @@ class FileItem extends ViewModelWidget<FilesViewModel> {
     if (printerUrl != null && gCodeFile.smallImagePath != null)
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0),
-        child: CachedNetworkImage(
-          imageBuilder: (context, imageProvider) => Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.horizontal(
-                  left: const Radius.circular(15.0),
-                  right: const Radius.circular(15.0)),
-              image: DecorationImage(
-                image: imageProvider,
-                fit: BoxFit.cover,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: Offset(-1, 1), // changes position of shadow
+        child: Hero(
+          tag: 'gCodeImage-${gCodeFile.hashCode}',
+          child: CachedNetworkImage(
+            imageBuilder: (context, imageProvider) => Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.horizontal(
+                    left: const Radius.circular(15.0),
+                    right: const Radius.circular(15.0)),
+                image: DecorationImage(
+                  image: imageProvider,
+                  fit: BoxFit.cover,
                 ),
-              ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: Offset(-1, 1), // changes position of shadow
+                  ),
+                ],
+              ),
             ),
+            imageUrl: '$printerUrl/${gCode.parentPath}/${gCode.bigImagePath}',
+            placeholder: (context, url) => Icon(Icons.insert_drive_file),
+            errorWidget: (context, url, error) => Icon(Icons.error),
           ),
-          imageUrl: '$printerUrl/${gCode.parentPath}/${gCode.smallImagePath}',
-          placeholder: (context, url) => Icon(Icons.insert_drive_file),
-          errorWidget: (context, url, error) => Icon(Icons.error),
         ),
       );
     else

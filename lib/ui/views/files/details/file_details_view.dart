@@ -44,69 +44,72 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
               // ),
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.pin,
-                background: CachedNetworkImage(
-                  imageUrl:
-                      '${model.curPathToPrinterUrl}/${file.parentPath}/${file.bigImagePath}',
-                  imageBuilder: (context, imageProvider) => Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      Image(
-                        image: imageProvider,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                      ),
-                      Container(
+                background: Hero(
+                  tag: 'gCodeImage-${file.hashCode}',
+                  child: CachedNetworkImage(
+                    imageUrl:
+                        '${model.curPathToPrinterUrl}/${file.parentPath}/${file.bigImagePath}',
+                    imageBuilder: (context, imageProvider) => Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Image(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
                           width: double.infinity,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.vertical(
-                                top: const Radius.circular(8.0)),
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryVariant
-                                .withOpacity(0.8),
-                          ),
-                          child: Text(
-                            file.name,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 5,
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle2
-                                ?.copyWith(color: Colors.white),
-                          ))
-                    ],
-                  ),
-                  placeholder: (context, url) => Icon(Icons.insert_drive_file),
-                  errorWidget: (context, url, error) => Column(
-                    children: [
+                        ),
+                        Container(
+                            width: double.infinity,
+                            padding:
+                                EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.vertical(
+                                  top: const Radius.circular(8.0)),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryVariant
+                                  .withOpacity(0.8),
+                            ),
+                            child: Text(
+                              file.name,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 5,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  ?.copyWith(color: Colors.white),
+                            ))
+                      ],
+                    ),
+                    placeholder: (context, url) => Icon(Icons.insert_drive_file),
+                    errorWidget: (context, url, error) => Column(
+                      children: [
 
-                      Expanded(child: Icon(Icons.file_present)),
-                      Container(
-                          width: double.infinity,
-                          padding:
-                              EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.vertical(
-                                top: const Radius.circular(8.0)),
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryVariant
-                                .withOpacity(0.8),
-                          ),
-                          child: Text(
-                            file.name,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 5,
-                            style: Theme.of(context)
-                                .textTheme
-                                .subtitle2
-                                ?.copyWith(color: Colors.white),
-                          ))
-                    ],
+                        Expanded(child: Icon(Icons.file_present)),
+                        Container(
+                            width: double.infinity,
+                            padding:
+                                EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.vertical(
+                                  top: const Radius.circular(8.0)),
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .primaryVariant
+                                  .withOpacity(0.8),
+                            ),
+                            child: Text(
+                              file.name,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 5,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .subtitle2
+                                  ?.copyWith(color: Colors.white),
+                            ))
+                      ],
+                    ),
                   ),
                 ),
               ),

@@ -117,4 +117,49 @@ class GCodeFile {
   String toString() {
     return 'GCodeFile{name: $name, modified: $modified, size: $size, printStartTime: $printStartTime, jobID: $jobID, slicer: $slicer, slicerVersion: $slicerVersion, layerHeight: $layerHeight, firstLayerHeight: $firstLayerHeight, objectHeight: $objectHeight, filamentTotal: $filamentTotal, estimatedTime: $estimatedTime, firstLayerTempBed: $firstLayerTempBed, firstLayerTempExtruder: $firstLayerTempExtruder, gcodeStartByte: $gcodeStartByte, gcodeEndByte: $gcodeEndByte, thumbnails: $thumbnails}';
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GCodeFile &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          modified == other.modified &&
+          size == other.size &&
+          printStartTime == other.printStartTime &&
+          jobID == other.jobID &&
+          slicer == other.slicer &&
+          slicerVersion == other.slicerVersion &&
+          layerHeight == other.layerHeight &&
+          firstLayerHeight == other.firstLayerHeight &&
+          objectHeight == other.objectHeight &&
+          filamentTotal == other.filamentTotal &&
+          estimatedTime == other.estimatedTime &&
+          firstLayerTempBed == other.firstLayerTempBed &&
+          firstLayerTempExtruder == other.firstLayerTempExtruder &&
+          gcodeStartByte == other.gcodeStartByte &&
+          gcodeEndByte == other.gcodeEndByte &&
+          thumbnails == other.thumbnails &&
+          parentPath == other.parentPath;
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      modified.hashCode ^
+      size.hashCode ^
+      printStartTime.hashCode ^
+      jobID.hashCode ^
+      slicer.hashCode ^
+      slicerVersion.hashCode ^
+      layerHeight.hashCode ^
+      firstLayerHeight.hashCode ^
+      objectHeight.hashCode ^
+      filamentTotal.hashCode ^
+      estimatedTime.hashCode ^
+      firstLayerTempBed.hashCode ^
+      firstLayerTempExtruder.hashCode ^
+      gcodeStartByte.hashCode ^
+      gcodeEndByte.hashCode ^
+      thumbnails.hashCode ^
+      parentPath.hashCode;
 }
