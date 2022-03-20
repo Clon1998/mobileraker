@@ -132,8 +132,8 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   Container buildBusyListView(BuildContext context, FilesViewModel model) {
     ThemeData theme = Theme.of(context);
     Color highlightColor = theme.brightness == Brightness.dark
-        ? theme.colorScheme.secondary
-        : theme.primaryColor;
+        ? theme.colorScheme.background
+        : theme.colorScheme.background;
     return Container(
       margin: const EdgeInsets.all(4.0),
       color: theme.colorScheme.background,
@@ -189,49 +189,52 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         children: [
           buildBreadCrumb(context, model.folderContent.reqPath.split('/')),
           Expanded(
-            child: SmartRefresher(
-              controller: model.refreshController,
-              onRefresh: model.onRefresh,
-              child: (lenTotal == 0)
-                  ? ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: SizedBox(
-                          width: 64, height: 64, child: Icon(Icons.search_off)),
-                      title: Text('pages.files.no_files_found').tr(),
-                    )
-                  : ListView.builder(
-                      itemCount: lenTotal,
-                      itemBuilder: (context, index) {
-                        if (model.isSubFolder) {
-                          if (index == 0)
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: SizedBox(
-                                  width: 64,
-                                  height: 64,
-                                  child: Icon(Icons.folder)),
-                              title: Text('...'),
-                              onTap: () => model.onPopFolder(),
-                            );
-                          else
-                            index--;
-                        }
+            child: EaseIn(
+              duration:  Duration(milliseconds: 100),
+              child: SmartRefresher(
+                controller: model.refreshController,
+                onRefresh: model.onRefresh,
+                child: (lenTotal == 0)
+                    ? ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: SizedBox(
+                            width: 64, height: 64, child: Icon(Icons.search_off)),
+                        title: Text('pages.files.no_files_found').tr(),
+                      )
+                    : ListView.builder(
+                        itemCount: lenTotal,
+                        itemBuilder: (context, index) {
+                          if (model.isSubFolder) {
+                            if (index == 0)
+                              return ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: SizedBox(
+                                    width: 64,
+                                    height: 64,
+                                    child: Icon(Icons.folder)),
+                                title: Text('...'),
+                                onTap: () => model.onPopFolder(),
+                              );
+                            else
+                              index--;
+                          }
 
-                        if (index < lenFolders) {
-                          Folder folder = folderContent.folders[index];
-                          return FolderItem(
-                            folder: folder,
-                            key: ValueKey(folder),
-                          );
-                        } else {
-                          GCodeFile file =
-                              folderContent.gCodes[index - lenFolders];
-                          return FileItem(
-                            gCode: file,
-                            key: ValueKey(file),
-                          );
-                        }
-                      }),
+                          if (index < lenFolders) {
+                            Folder folder = folderContent.folders[index];
+                            return FolderItem(
+                              folder: folder,
+                              key: ValueKey(folder),
+                            );
+                          } else {
+                            GCodeFile file =
+                                folderContent.gCodes[index - lenFolders];
+                            return FileItem(
+                              gCode: file,
+                              key: ValueKey(file),
+                            );
+                          }
+                        }),
+              ),
             ),
           ),
         ],

@@ -39,7 +39,15 @@ class ConsoleViewModel extends MultipleStreamViewModel {
 
   bool get isConsoleHistoryAvailable => dataReady(_ConsoleHistory);
 
-  List<ConsoleEntry> get consoleEntries => dataMap![_ConsoleHistory];
+  List<ConsoleEntry> get _consoleEntries => dataMap![_ConsoleHistory];
+
+  List<ConsoleEntry> get filteredConsoleEntries {
+    var tempPattern = RegExp('^(?:ok\s+)?(B|C|T\d*):', caseSensitive: false);
+
+    return _consoleEntries
+        .where((element) => !tempPattern.hasMatch(element.message))
+        .toList();
+  }
 
   bool get isServerAvailable => dataReady(_ServerStreamKey);
 
@@ -52,6 +60,9 @@ class ConsoleViewModel extends MultipleStreamViewModel {
       isServerAvailable &&
       server.klippyState == KlipperState.ready &&
       server.klippyConnected;
+
+  String get printerName => _printerSetting?.name ?? '';
+
 
   @override
   Map<String, StreamData> get streamsMap => {
@@ -93,9 +104,8 @@ class ConsoleViewModel extends MultipleStreamViewModel {
 
   onCommandSubmit() {
     String? command = textEditingController.text;
-    if (textEditingController.text.isEmpty)
-      return;
-    consoleEntries.add(ConsoleEntry(command, ConsoleEntryType.COMMAND,
+    if (textEditingController.text.isEmpty) return;
+    _consoleEntries.add(ConsoleEntry(command, ConsoleEntryType.COMMAND,
         DateTime.now().millisecondsSinceEpoch / 1000));
     textEditingController.text = '';
     _printerService?.gCode(command);
@@ -112,7 +122,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
         notifySourceChanged(clearOldData: true);
         break;
       case _gCodeNotifyResp:
-        consoleEntries.add(data);
+        _consoleEntries.add(data);
         break;
       case _ConsoleHistory:
         _logger.w("Received ConsoleHist");

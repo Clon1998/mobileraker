@@ -562,7 +562,7 @@ class PrinterService {
   Future<List<ConsoleEntry>> gcodeStore() async {
     _logger.i('Fetching cached GCode commands');
     BlockingResponse blockingResponse = await _webSocket
-        .sendAndReceiveJRpcMethod('server.gcode_store', params: {'count': 100});
+        .sendAndReceiveJRpcMethod('server.gcode_store');
     if (blockingResponse.hasError) {
       _logger.e(
           'Error while fetching cached GCode commands: ${blockingResponse.err}');

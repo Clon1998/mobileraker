@@ -54,6 +54,7 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   KlippyService? get _klippyService => _printerSetting?.klippyService;
 
+
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
 
@@ -202,7 +203,8 @@ class FilesViewModel extends MultipleStreamViewModel {
 
     if (queryTerm.isNotEmpty && isSearching) {
       List<String> terms = queryTerm.split(RegExp('\\W+'));
-      RegExp regExp = RegExp(terms.where((element) => element.isNotEmpty).join("|"));
+      RegExp regExp =
+          RegExp(terms.where((element) => element.isNotEmpty).join("|"));
       folders = folders
           .where((element) => element.name.toLowerCase().contains(regExp))
           .toList(growable: false);
