@@ -129,46 +129,44 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
     );
   }
 
-  Container buildBusyListView(BuildContext context, FilesViewModel model) {
+  Widget buildBusyListView(BuildContext context, FilesViewModel model) {
     ThemeData theme = Theme.of(context);
     Color highlightColor = theme.brightness == Brightness.dark
         ? theme.colorScheme.background
         : theme.colorScheme.background;
-    return Container(
-      margin: const EdgeInsets.all(4.0),
-      color: theme.colorScheme.background,
-      child: Column(
-        children: [
-          buildBreadCrumb(context, model.requestedPath),
-          Expanded(
-            child: Shimmer.fromColors(
-              child: ListView.builder(
-                  itemCount: 15,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 4),
-                      leading: Container(
-                        width: 64,
-                        height: 64,
-                        color: Colors.white,
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 2, horizontal: 2),
-                      ),
-                      title: Container(
-                        width: double.infinity,
-                        height: 16.0,
-                        margin: EdgeInsets.only(right: 10),
-                        color: Colors.white,
-                      ),
-                    );
-                  }),
-              baseColor: Colors.grey,
-              highlightColor: highlightColor,
+    return _buildListViewContainer(
+        context,
+        Column(
+          children: [
+            buildBreadCrumb(context, model.requestedPath),
+            Expanded(
+              child: Shimmer.fromColors(
+                child: ListView.builder(
+                    itemCount: 15,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 4),
+                        leading: Container(
+                          width: 64,
+                          height: 64,
+                          color: Colors.white,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 2, horizontal: 2),
+                        ),
+                        title: Container(
+                          width: double.infinity,
+                          height: 16.0,
+                          margin: EdgeInsets.only(right: 10),
+                          color: Colors.white,
+                        ),
+                      );
+                    }),
+                baseColor: Colors.grey,
+                highlightColor: highlightColor,
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 
   Widget buildListView(BuildContext context, FilesViewModel model) {
@@ -180,65 +178,83 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
     // Add one of the .. folder to back
     if (model.isSubFolder) lenTotal++;
 
-    ThemeData theme = Theme.of(context);
+    return _buildListViewContainer(
+        context,
+        Column(
+          children: [
+            buildBreadCrumb(context, model.folderContent.reqPath.split('/')),
+            Expanded(
+              child: EaseIn(
+                duration: Duration(milliseconds: 100),
+                child: SmartRefresher(
+                  controller: model.refreshController,
+                  onRefresh: model.onRefresh,
+                  child: (lenTotal == 0)
+                      ? ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: SizedBox(
+                              width: 64,
+                              height: 64,
+                              child: Icon(Icons.search_off)),
+                          title: Text('pages.files.no_files_found').tr(),
+                        )
+                      : ListView.builder(
+                          itemCount: lenTotal,
+                          itemBuilder: (context, index) {
+                            if (model.isSubFolder) {
+                              if (index == 0)
+                                return ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: SizedBox(
+                                      width: 64,
+                                      height: 64,
+                                      child: Icon(Icons.folder)),
+                                  title: Text('...'),
+                                  onTap: () => model.onPopFolder(),
+                                );
+                              else
+                                index--;
+                            }
 
-    return Container(
-      margin: const EdgeInsets.all(4.0),
-      color: theme.colorScheme.background,
-      child: Column(
-        children: [
-          buildBreadCrumb(context, model.folderContent.reqPath.split('/')),
-          Expanded(
-            child: EaseIn(
-              duration:  Duration(milliseconds: 100),
-              child: SmartRefresher(
-                controller: model.refreshController,
-                onRefresh: model.onRefresh,
-                child: (lenTotal == 0)
-                    ? ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: SizedBox(
-                            width: 64, height: 64, child: Icon(Icons.search_off)),
-                        title: Text('pages.files.no_files_found').tr(),
-                      )
-                    : ListView.builder(
-                        itemCount: lenTotal,
-                        itemBuilder: (context, index) {
-                          if (model.isSubFolder) {
-                            if (index == 0)
-                              return ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: SizedBox(
-                                    width: 64,
-                                    height: 64,
-                                    child: Icon(Icons.folder)),
-                                title: Text('...'),
-                                onTap: () => model.onPopFolder(),
+                            if (index < lenFolders) {
+                              Folder folder = folderContent.folders[index];
+                              return FolderItem(
+                                folder: folder,
+                                key: ValueKey(folder),
                               );
-                            else
-                              index--;
-                          }
-
-                          if (index < lenFolders) {
-                            Folder folder = folderContent.folders[index];
-                            return FolderItem(
-                              folder: folder,
-                              key: ValueKey(folder),
-                            );
-                          } else {
-                            GCodeFile file =
-                                folderContent.gCodes[index - lenFolders];
-                            return FileItem(
-                              gCode: file,
-                              key: ValueKey(file),
-                            );
-                          }
-                        }),
+                            } else {
+                              GCodeFile file =
+                                  folderContent.gCodes[index - lenFolders];
+                              return FileItem(
+                                gCode: file,
+                                key: ValueKey(file),
+                              );
+                            }
+                          }),
+                ),
               ),
             ),
-          ),
+          ],
+        ));
+  }
+
+  Widget _buildListViewContainer(BuildContext context, Widget? child) {
+    var theme = Theme.of(context);
+    return Container(
+      margin: const EdgeInsets.all(4.0),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+        boxShadow: [
+          if (theme.brightness == Brightness.light)
+            BoxShadow(
+              color: Colors.grey,
+              offset: Offset(0.0, 4.0), //(x,y)
+              blurRadius: 1.0,
+            ),
         ],
       ),
+      child: child,
     );
   }
 

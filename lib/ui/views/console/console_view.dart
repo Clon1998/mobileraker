@@ -56,11 +56,22 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
     Color highlightColor = theme.brightness == Brightness.dark
         ? theme.colorScheme.secondary
         : theme.colorScheme.primary;
+
     return Container(
       margin: const EdgeInsets.all(4.0),
       decoration: BoxDecoration(
-          color: theme.colorScheme.background,
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10))),
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+        boxShadow: [
+          if (theme.brightness == Brightness.light)
+          BoxShadow(
+            color: Colors.grey,
+            offset: Offset(0.0, 4.0), //(x,y)
+            blurRadius: 1.0,
+          ),
+        ],
+
+      ),
       child: Column(
         children: [
           Container(
@@ -181,13 +192,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
         break;
     }
 
-    return textStyle.copyWith(color: _commandTextColor(theme));
-  }
-
-  Color _commandTextColor(ThemeData theme) {
-    return theme.brightness == Brightness.light
-        ? theme.colorScheme.onBackground
-        : theme.colorScheme.primary;
+    return textStyle.copyWith(color: theme.colorScheme.primary);
   }
 
   @override

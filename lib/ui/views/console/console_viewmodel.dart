@@ -109,6 +109,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
         DateTime.now().millisecondsSinceEpoch / 1000));
     textEditingController.text = '';
     _printerService?.gCode(command);
+    notifyListeners();
   }
 
   @override
