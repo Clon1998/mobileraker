@@ -54,7 +54,6 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   KlippyService? get _klippyService => _printerSetting?.klippyService;
 
-
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
 
