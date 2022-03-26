@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
-import 'package:mobileraker/ui/drawer/nav_drawer_viewmodel.dart';
+import 'package:mobileraker/ui/components/drawer/nav_drawer_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 import 'package:url_launcher/url_launcher.dart';

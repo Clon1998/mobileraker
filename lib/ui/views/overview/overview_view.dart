@@ -9,7 +9,7 @@ import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
-import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/overview/tabs/control_tab.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab.dart';
 import 'package:progress_indicators/progress_indicators.dart';

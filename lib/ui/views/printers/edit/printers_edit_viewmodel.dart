@@ -13,7 +13,7 @@ import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/enums/snackbar_type.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/ui/dialog/importSettings/import_settings_view.dart';
+import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 

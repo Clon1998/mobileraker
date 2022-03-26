@@ -8,9 +8,9 @@ import 'package:mobileraker/app/app_setup.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/firebase_options.dart';
 import 'package:mobileraker/service/notification_service.dart';
-import 'package:mobileraker/ui/bottomsheet/setup_bottom_sheet_ui.dart';
-import 'package:mobileraker/ui/dialog/setup_dialog_ui.dart';
-import 'package:mobileraker/ui/snackbar/setup_snackbar.dart';
+import 'package:mobileraker/ui/components/bottomsheet/setup_bottom_sheet_ui.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
+import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:stacked_services/stacked_services.dart';
 
