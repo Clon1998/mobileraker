@@ -8,6 +8,7 @@
     "add": "Add",
     "remove": "Remove",
     "set": "Set",
+    "use": "Use",
     "restart": "Restart",
     "shutdown": "Shutdown",
     "close": "Close",
@@ -179,6 +180,7 @@
         "steps_extrude": "Extrude steps"
       },
       "cams": {
+        "new_cam": "New Webcam",
         "no_webcams": "No Webcams added!",
         "webcam_addr": "Webcam - Address",
         "default_addr": "Default Address",

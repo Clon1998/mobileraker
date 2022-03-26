@@ -366,7 +366,7 @@ class _SectionHeaderWithAction extends StatelessWidget {
   }
 }
 
-class _WebCamItem extends StatelessWidget {
+class _WebCamItem extends StatefulWidget {
   final WebcamSetting cam;
   final PrintersEditViewModel model;
   final int idx;
@@ -379,15 +379,22 @@ class _WebCamItem extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_WebCamItem> createState() => _WebCamItemState();
+}
+
+class _WebCamItemState extends State<_WebCamItem> {
+  late String _cardName = widget.cam.name;
+
+  @override
   Widget build(BuildContext context) {
     return Card(
         child: ExpansionTile(
             maintainState: true,
             tilePadding: const EdgeInsets.symmetric(horizontal: 10),
             childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
-            title: Text('CAM#$idx'),
+            title: Text(_cardName),
             leading: ReorderableDragStartListener(
-              index: idx,
+              index: widget.idx,
               child: Icon(Icons.drag_handle),
             ),
             children: [
@@ -395,8 +402,9 @@ class _WebCamItem extends StatelessWidget {
             decoration: InputDecoration(
               labelText: 'pages.printer_edit.general.displayname'.tr(),
             ),
-            name: '${cam.uuid}-camName',
-            initialValue: cam.name,
+            name: '${widget.cam.uuid}-camName',
+            initialValue: widget.cam.name,
+            onChanged: onNameChanged,
             validator: FormBuilderValidators.compose(
                 [FormBuilderValidators.required(context)]),
           ),
@@ -405,8 +413,8 @@ class _WebCamItem extends StatelessWidget {
                 labelText: 'pages.printer_edit.cams.webcam_addr'.tr(),
                 helperText:
                     '${tr('pages.printer_edit.cams.default_addr')}: http://<URL>/webcam/?action=stream'),
-            name: '${cam.uuid}-camUrl',
-            initialValue: cam.url,
+            name: '${widget.cam.uuid}-camUrl',
+            initialValue: widget.cam.url,
             validator: FormBuilderValidators.compose([
               FormBuilderValidators.required(context),
               FormBuilderValidators.url(context,
@@ -417,26 +425,32 @@ class _WebCamItem extends StatelessWidget {
             title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
             decoration: InputDecoration(border: InputBorder.none),
             secondary: const Icon(FlutterIcons.swap_vertical_mco),
-            initialValue: cam.flipVertical,
-            name: '${cam.uuid}-camFV',
+            initialValue: widget.cam.flipVertical,
+            name: '${widget.cam.uuid}-camFV',
             activeColor: Theme.of(context).colorScheme.primary,
           ),
           FormBuilderSwitch(
             title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
             decoration: InputDecoration(border: InputBorder.none),
             secondary: const Icon(FlutterIcons.swap_horizontal_mco),
-            initialValue: cam.flipHorizontal,
-            name: '${cam.uuid}-camFH',
+            initialValue: widget.cam.flipHorizontal,
+            name: '${widget.cam.uuid}-camFH',
             activeColor: Theme.of(context).colorScheme.primary,
           ),
           Align(
             alignment: Alignment.centerLeft,
             child: ElevatedButton(
-              onPressed: () => model.onWebCamRemove(cam),
+              onPressed: () => widget.model.onWebCamRemove(widget.cam),
               child: const Text('general.remove').tr(),
             ),
           )
         ]));
+  }
+
+  void onNameChanged(String? name) {
+    setState(() {
+      _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.cams.new_cam'.tr() : name!;
+    });
   }
 }
 

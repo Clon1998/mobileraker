@@ -277,21 +277,24 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
                     child: Transform(
                         alignment: Alignment.center,
                         transform: model.transformMatrix,
-                        child: Mjpeg(
-                          isLive: true,
-                          stream: model.webCamUrl,
-                          error: (context, error, stack) {
-                            return Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  '${error}',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: Colors.lightBlue),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.all(Radius.circular(5)),
+                          child: Mjpeg(
+                            isLive: true,
+                            stream: model.webCamUrl,
+                            error: (context, error, stack) {
+                              return Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    '${error}',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.lightBlue),
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         )),
                   ),
                   Positioned.fill(
