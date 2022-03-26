@@ -7,7 +7,7 @@ class DatabaseService {
   final PrinterSetting _owner;
   final _logger = getLogger('DatabaseService');
 
-  DatabaseService(this._owner) {}
+  DatabaseService(this._owner);
 
   WebSocketWrapper get _webSocket => _owner.websocket;
 

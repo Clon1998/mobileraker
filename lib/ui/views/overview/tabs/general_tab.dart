@@ -287,9 +287,9 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Text(
-                                    '${error}',
+                                    'error',
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.lightBlue),
+                                    style: TextStyle(color: Theme.of(context).errorColor),
                                   ),
                                 ),
                               );
@@ -626,9 +626,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
     var marginForBtns = const EdgeInsets.all(10);
-    var txtBtnCOl = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : Colors.black;
+
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,

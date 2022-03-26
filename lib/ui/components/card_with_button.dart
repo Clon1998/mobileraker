@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 class CardWithButton extends StatelessWidget {
   static const double radius = 20;
