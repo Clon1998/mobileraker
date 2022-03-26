@@ -146,8 +146,6 @@ class _FanTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var col = Theme.of(context).primaryColorLight;
-
     double icoSize = 30;
     var w = speed > 0
         ? SpinningFan(size: icoSize)
@@ -158,7 +156,6 @@ class _FanTile extends StatelessWidget {
 
     return CardWithButton(
         width: width,
-        backgroundColor: col,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -241,38 +238,24 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                   children: [
                     Container(
                       margin: const EdgeInsets.all(5),
-                      child: TextButton.icon(
+                      child: ElevatedButton.icon(
                         onPressed:
                             model.canUsePrinter ? model.onDeRetractBtn : null,
                         icon: Icon(FlutterIcons.plus_ant),
                         label:
                             Text('pages.overview.control.extrude_card.extrude')
                                 .tr(),
-                        style: TextButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5.0))),
-                            primary: textBtnColor),
                       ),
                     ),
                     Container(
                       margin: const EdgeInsets.all(5),
-                      child: TextButton.icon(
+                      child: ElevatedButton.icon(
                         onPressed:
                             model.canUsePrinter ? model.onRetractBtn : null,
                         icon: Icon(FlutterIcons.minus_ant),
                         label:
                             Text('pages.overview.control.extrude_card.retract')
                                 .tr(),
-                        style: TextButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary,
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(5.0))),
-                            primary: textBtnColor),
                       ),
                     ),
                   ],
@@ -330,9 +313,12 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: Wrap(
-              spacing: 5.0,
-              children: _generateGCodeChips(context, model),
+            child: ChipTheme(
+              data: ChipThemeData(labelStyle: TextStyle(color: Colors.white),deleteIconColor: Colors.white),
+              child: Wrap(
+                spacing: 5.0,
+                children: _generateGCodeChips(context, model),
+              ),
             ),
           ),
         ],
@@ -453,11 +439,8 @@ class _PinTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var col = Theme.of(context).primaryColorLight;
-
     return CardWithButton(
         width: width,
-        backgroundColor: col,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -496,27 +479,17 @@ class MultipliersCard extends ViewModelWidget<ControlTabViewModel> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                TextButton(
+                ElevatedButton(
                   onPressed:
                       model.canUsePrinter ? model.onEditSpeedMultiplier : null,
                   child: Text(
                       '${tr('pages.overview.general.print_card.speed')}: ${model.speedMultiplier}%'),
-                  style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                      primary: textBtnColor),
                 ),
-                TextButton(
+                ElevatedButton(
                   onPressed:
                       model.canUsePrinter ? model.onEditFlowMultiplier : null,
                   child: Text(
                       '${tr('pages.overview.control.multipl_card.flow')}: ${model.flowMultiplier}%'),
-                  style: TextButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                      primary: textBtnColor),
                 ),
               ],
             ),

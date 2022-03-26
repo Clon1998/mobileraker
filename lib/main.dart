@@ -45,8 +45,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         title: 'Mobileraker',
-        theme: getLightTheme(),
-        darkTheme: getDarkTheme(),
+        theme: getLightTheme(context),
+        darkTheme: getDarkTheme(context),
         navigatorKey: StackedService.navigatorKey,
         onGenerateRoute: StackedRouter().onGenerateRoute,
         localizationsDelegates: [

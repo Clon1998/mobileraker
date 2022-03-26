@@ -280,6 +280,18 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
                         child: Mjpeg(
                           isLive: true,
                           stream: model.webCamUrl,
+                          error: (context, error, stack) {
+                            return Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  '${error}',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.lightBlue),
+                                ),
+                              ),
+                            );
+                          },
                         )),
                   ),
                   Positioned.fill(
@@ -317,23 +329,15 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
           padding: const EdgeInsets.only(bottom: 8.0),
           child: Column(
             children: [
-              ListTile(
-                leading: Icon(
-                  FlutterIcons.fire_alt_faw5s,
-                  color: ((model.printer.extruder.target +
-                              model.printer.heaterBed.target) >
-                          0)
-                      ? Colors.deepOrange
-                      : Theme.of(context).iconTheme.color,
-                ),
-                title: Text('pages.overview.general.temp_card.title').tr(),
-                trailing: TextButton(
-                  onPressed: model.flipTemperatureCard,
-                  // onPressed: () => showWIPSnackbar(),
-                  child:
-                      Text('pages.overview.general.temp_card.presets_btn').tr(),
-                ),
-              ),
+              _buildListTile(
+                  model,
+                  Text('pages.overview.general.temp_card.title').tr(),
+                  TextButton(
+                    onPressed: model.flipTemperatureCard,
+                    // onPressed: () => showWIPSnackbar(),
+                    child: Text('pages.overview.general.temp_card.presets_btn')
+                        .tr(),
+                  )),
               Padding(
                 padding: const EdgeInsets.only(left: 8, right: 8),
                 child: LayoutBuilder(
@@ -385,22 +389,14 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
           padding: const EdgeInsets.only(bottom: 8.0),
           child: Column(
             children: [
-              ListTile(
-                leading: Icon(
-                  FlutterIcons.fire_alt_faw5s,
-                  color: ((model.printer.extruder.target +
-                              model.printer.heaterBed.target) >
-                          0)
-                      ? Colors.deepOrange
-                      : Theme.of(context).iconTheme.color,
-                ),
-                title:
-                    Text('pages.overview.general.temp_card.temp_presets').tr(),
-                trailing: TextButton(
-                  onPressed: model.flipTemperatureCard,
-                  child: Text('pages.overview.general.temp_card.sensors').tr(),
-                ),
-              ),
+              _buildListTile(
+                  model,
+                  Text('pages.overview.general.temp_card.temp_presets').tr(),
+                  TextButton(
+                    onPressed: model.flipTemperatureCard,
+                    child:
+                        Text('pages.overview.general.temp_card.sensors').tr(),
+                  )),
               Padding(
                   padding: const EdgeInsets.only(left: 8, right: 8),
                   child: LayoutBuilder(
@@ -425,6 +421,22 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
           ),
         ),
       ),
+    );
+  }
+
+  ListTile _buildListTile(
+      GeneralTabViewModel model, Widget title, Widget trailing) {
+    return ListTile(
+      leading: Icon(
+        FlutterIcons.fire_alt_faw5s,
+        color:
+            ((model.printer.extruder.target + model.printer.heaterBed.target) >
+                    0)
+                ? Colors.deepOrange
+                : null,
+      ),
+      title: title,
+      trailing: trailing,
     );
   }
 
@@ -588,7 +600,6 @@ class _SensorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardWithButton(
         width: width,
-        backgroundColor: Theme.of(context).primaryColorLight,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -637,14 +648,13 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           children: [
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
-                              child: IconButton(
+                              child: ElevatedButton(
                                   onPressed: !model.canUsePrinter
                                       ? null
                                       : () => model.onMoveBtn(PrinterAxis.Y),
-                                  icon: Icon(FlutterIcons.upsquare_ant)),
+                                  child: Icon(FlutterIcons.upsquare_ant)),
                             ),
                           ],
                         ),
@@ -652,43 +662,40 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           children: [
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
-                              child: IconButton(
+                              child: ElevatedButton(
                                   onPressed: !model.canUsePrinter
                                       ? null
                                       : () =>
                                           model.onMoveBtn(PrinterAxis.X, false),
-                                  icon: Icon(FlutterIcons.leftsquare_ant)),
+                                  child: Icon(FlutterIcons.leftsquare_ant)),
                             ),
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
                               child: Tooltip(
                                 message:
                                     'pages.overview.general.move_card.home_xy_tooltip'
                                         .tr(),
-                                child: IconButton(
+                                child: ElevatedButton(
                                     onPressed: model.canUsePrinter
                                         ? () => model.onHomeAxisBtn(
                                             {PrinterAxis.X, PrinterAxis.Y})
                                         : null,
-                                    icon: Icon(Icons.home)),
+                                    child: Icon(Icons.home)),
                               ),
                             ),
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
-                              child: IconButton(
+                              child: ElevatedButton(
                                   onPressed: !model.canUsePrinter
                                       ? null
                                       : () => model.onMoveBtn(PrinterAxis.X),
-                                  icon: Icon(FlutterIcons.rightsquare_ant)),
+                                  child: Icon(FlutterIcons.rightsquare_ant)),
                             ),
                           ],
                         ),
@@ -696,15 +703,14 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           children: [
                             Container(
                               margin: marginForBtns,
-                              color: Theme.of(context).colorScheme.secondary,
                               height: 40,
                               width: 40,
-                              child: IconButton(
+                              child: ElevatedButton(
                                 onPressed: !model.canUsePrinter
                                     ? null
                                     : () =>
                                         model.onMoveBtn(PrinterAxis.Y, false),
-                                icon: Icon(FlutterIcons.downsquare_ant),
+                                child: Icon(FlutterIcons.downsquare_ant),
                               ),
                             ),
                           ],
@@ -715,41 +721,38 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                       children: [
                         Container(
                           margin: marginForBtns,
-                          color: Theme.of(context).colorScheme.secondary,
                           height: 40,
                           width: 40,
-                          child: IconButton(
+                          child: ElevatedButton(
                               onPressed: !model.canUsePrinter
                                   ? null
                                   : () => model.onMoveBtn(PrinterAxis.Z),
-                              icon: Icon(FlutterIcons.upsquare_ant)),
+                              child: Icon(FlutterIcons.upsquare_ant)),
                         ),
                         Container(
                           margin: marginForBtns,
-                          color: Theme.of(context).colorScheme.secondary,
                           height: 40,
                           width: 40,
                           child: Tooltip(
                             message:
                                 'pages.overview.general.move_card.home_z_tooltip'
                                     .tr(),
-                            child: IconButton(
+                            child: ElevatedButton(
                                 onPressed: model.canUsePrinter
                                     ? () => model.onHomeAxisBtn({PrinterAxis.Z})
                                     : null,
-                                icon: Icon(Icons.home)),
+                                child: Icon(Icons.home)),
                           ),
                         ),
                         Container(
                           margin: marginForBtns,
-                          color: Theme.of(context).colorScheme.secondary,
                           height: 40,
                           width: 40,
-                          child: IconButton(
+                          child: ElevatedButton(
                               onPressed: !model.canUsePrinter
                                   ? null
                                   : () => model.onMoveBtn(PrinterAxis.Z, false),
-                              icon: Icon(FlutterIcons.downsquare_ant)),
+                              child: Icon(FlutterIcons.downsquare_ant)),
                         ),
                       ],
                     ),
@@ -764,7 +767,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                         message:
                             'pages.overview.general.move_card.home_all_tooltip'
                                 .tr(),
-                        child: TextButton.icon(
+                        child: ElevatedButton.icon(
                           onPressed: model.canUsePrinter
                               ? () => model.onHomeAxisBtn(
                                   {PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z})
@@ -774,13 +777,6 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               'pages.overview.general.move_card.home_all_btn'
                                   .tr()
                                   .toUpperCase()),
-                          style: TextButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5.0))),
-                              primary: txtBtnCOl),
                         ),
                       ),
                       if (model.printer.configFile.hasQuadGantry)
@@ -788,7 +784,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           message:
                               'pages.overview.general.move_card.qgl_tooltip'
                                   .tr(),
-                          child: TextButton.icon(
+                          child: ElevatedButton.icon(
                             onPressed: !model.canUsePrinter
                                 ? null
                                 : model.onQuadGantry,
@@ -797,13 +793,6 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                 'pages.overview.general.move_card.qgl_btn'
                                     .tr()
                                     .toUpperCase()),
-                            style: TextButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.secondary,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5.0))),
-                                primary: txtBtnCOl),
                           ),
                         ),
                       if (model.printer.configFile.hasBedMesh)
@@ -811,7 +800,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           message:
                               'pages.overview.general.move_card.mesh_tooltip'
                                   .tr(),
-                          child: TextButton.icon(
+                          child: ElevatedButton.icon(
                             onPressed:
                                 !model.canUsePrinter ? null : model.onBedMesh,
                             icon: Icon(FlutterIcons.map_marker_path_mco),
@@ -819,33 +808,19 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                 'pages.overview.general.move_card.mesh_btn'
                                     .tr()
                                     .toUpperCase()),
-                            style: TextButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.secondary,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(5.0))),
-                                primary: txtBtnCOl),
                             // color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       Tooltip(
                         message:
                             'pages.overview.general.move_card.m84_tooltip'.tr(),
-                        child: TextButton.icon(
+                        child: ElevatedButton.icon(
                           onPressed:
                               !model.canUsePrinter ? null : model.onMotorOff,
                           icon: Icon(Icons.near_me_disabled),
                           label:
                               Text('pages.overview.general.move_card.m84_btn')
                                   .tr(),
-                          style: TextButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(5.0))),
-                              primary: txtBtnCOl),
                         ),
                       ),
                     ],
@@ -884,7 +859,7 @@ class _HomedAxisChip extends ViewModelWidget<GeneralTabViewModel> {
     return Chip(
       avatar: Icon(
         FlutterIcons.shield_home_mco,
-        color: Theme.of(context).iconTheme.color,
+        color: Theme.of(context).chipTheme.deleteIconColor,
         size: 20,
       ),
       label: Text(_homedChipTitle(model.printer.toolhead.homedAxes)),
