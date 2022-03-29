@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -72,6 +73,13 @@ class NavigationDrawerWidget
                     icon: Icons.engineering_outlined,
                     path: Routes.settingView,
                   ),
+                  if (kDebugMode)
+                    buildMenuItem(
+                      model,
+                      text: 'Support the Dev!',
+                      icon: Icons.perm_identity,
+                      path: Routes.paywallView,
+                    ),
                   // Divider(color: Colors.white70),
                   // const SizedBox(height: 16),
                   // buildMenuItem(
@@ -86,32 +94,28 @@ class NavigationDrawerWidget
                 alignment: Alignment.center,
                 padding: EdgeInsets.only(bottom: 20, top: 10),
                 child: RichText(
-                  text: TextSpan(
-                      text:
-                          'nav_drawer.footer'.tr(),
+                  text: TextSpan(text: 'nav_drawer.footer'.tr(), children: [
+                    new TextSpan(
+                      text: ' GitHub ',
+                      style: new TextStyle(color: Colors.blue),
                       children: [
-                        new TextSpan(
-                          text: ' GitHub ',
-                          style: new TextStyle(color: Colors.blue),
-                          children: [
-                            WidgetSpan(
-                              child:
-                                  Icon(FlutterIcons.github_alt_faw, size: 18),
-                            ),
-                          ],
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              const String url =
-                                  'https://github.com/Clon1998/mobileraker';
-                              if (await canLaunch(url)) {
-                                //TODO Fix this... neds Android Package Visibility
-                                await launch(url);
-                              } else {
-                                throw 'Could not launch $url';
-                              }
-                            },
+                        WidgetSpan(
+                          child: Icon(FlutterIcons.github_alt_faw, size: 18),
                         ),
-                      ]),
+                      ],
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          const String url =
+                              'https://github.com/Clon1998/mobileraker';
+                          if (await canLaunch(url)) {
+                            //TODO Fix this... neds Android Package Visibility
+                            await launch(url);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
+                    ),
+                  ]),
                   textAlign: TextAlign.center,
                 )),
           ],
@@ -155,7 +159,9 @@ class NavigationDrawerWidget
       ];
     }
     widgetsToReturn.add(ListTile(
-      title: Text('pages.printer_add.title', style: TextStyle(color: Colors.white)).tr(),
+      title:
+          Text('pages.printer_add.title', style: TextStyle(color: Colors.white))
+              .tr(),
       contentPadding: const EdgeInsets.only(left: 32, right: 16),
       trailing: Icon(Icons.add, color: highlightColor),
       onTap: () => model.navigateTo(Routes.printersAdd),
