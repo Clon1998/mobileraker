@@ -38,7 +38,7 @@ class OverViewView extends ViewModelBuilderWidget<OverViewViewModel> {
       );
 
   Widget _buildBody(BuildContext context, OverViewViewModel model) {
-    if (!model.areMachinesAvailable) {
+    if (!model.dataReady) {
       return Center(
           child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -56,7 +56,7 @@ class OverViewView extends ViewModelBuilderWidget<OverViewViewModel> {
       ));
     }
 
-    List<PrinterSetting> machines = model.machines;
+    List<PrinterSetting> machines = model.data!;
 
     return SingleChildScrollView(
       child: Column(
