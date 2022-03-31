@@ -55,6 +55,15 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                         border: InputBorder.none, isCollapsed: true),
                     activeColor: Theme.of(context).colorScheme.primary,
                   ),
+                  FormBuilderSwitch(
+                    name: 'startWithOverview',
+                    title: Text('pages.setting.general.start_with_overview').tr(),
+                    onChanged: model.onStartWithOverviewChanged,
+                    initialValue: model.startWithOverview,
+                    decoration: InputDecoration(
+                        border: InputBorder.none, isCollapsed: true),
+                    activeColor: Theme.of(context).colorScheme.primary,
+                  ),
                   Divider(),
                   RichText(
                     text: TextSpan(

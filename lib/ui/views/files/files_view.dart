@@ -114,7 +114,6 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   Center buildFetchingView(BuildContext context) {
     return Center(
       child: Column(
-        key: UniqueKey(),
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SpinKitRipple(

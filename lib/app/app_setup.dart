@@ -19,8 +19,9 @@ import 'package:mobileraker/ui/views/files/details/file_details_view.dart';
 import 'package:mobileraker/ui/views/files/files_view.dart';
 import 'package:mobileraker/ui/views/fullcam/full_cam_view.dart';
 import 'package:mobileraker/ui/views/overview/overview_view.dart';
-import 'package:mobileraker/ui/views/overview/tabs/control_tab_viewmodel.dart';
-import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
+import 'package:mobileraker/ui/views/dashboard/dashboard_view.dart';
+import 'package:mobileraker/ui/views/dashboard/tabs/control_tab_viewmodel.dart';
+import 'package:mobileraker/ui/views/dashboard/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/ui/views/paywall/paywall_view.dart';
 import 'package:mobileraker/ui/views/printers/add/printers_add_view.dart';
 import 'package:mobileraker/ui/views/printers/edit/printers_edit_view.dart';
@@ -32,7 +33,7 @@ import 'package:stacked_services/stacked_services.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 @StackedApp(routes: [
-  MaterialRoute(page: OverView, initial: true),
+  MaterialRoute(page: DashboardView, initial: true),
   MaterialRoute(page: FullCamView),
   MaterialRoute(page: PrintersAdd),
   MaterialRoute(page: PrintersEdit),
@@ -43,6 +44,7 @@ import 'package:purchases_flutter/purchases_flutter.dart';
   MaterialRoute(page: QrScannerView),
   MaterialRoute(page: ConsoleView),
   MaterialRoute(page: PaywallView),
+  MaterialRoute(page: OverViewView),
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),

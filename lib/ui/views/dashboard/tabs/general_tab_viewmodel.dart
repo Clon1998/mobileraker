@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -87,7 +85,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
         }
       };
 
-
   @override
   onData(String key, data) {
     super.onData(key, data);
@@ -165,31 +162,9 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   bool get webCamAvailable => webcams.isNotEmpty && selectedCam != null;
 
-  String get webCamUrl {
-    return selectedCam!.url;
-  }
+  String get webCamUrl => selectedCam!.url;
 
-  double get yTransformation {
-    var vertical = selectedCam?.flipVertical ?? false;
-
-    if (vertical)
-      return pi;
-    else
-      return 0;
-  }
-
-  double get xTransformation {
-    var horizontal = selectedCam?.flipVertical ?? false;
-
-    if (horizontal)
-      return pi;
-    else
-      return 0;
-  }
-
-  Matrix4 get transformMatrix => Matrix4.identity()
-    ..rotateX(xTransformation)
-    ..rotateY(yTransformation);
+  Matrix4 get transformMatrix => selectedCam!.transformMatrix;
 
   setTemperaturePreset(int extruderTemp, int bedTemp) {
     _printerService?.setTemperature('extruder', extruderTemp);
@@ -299,7 +274,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   onFullScreenTap() {
     _navigationService.navigateTo(Routes.fullCamView,
-        arguments: FullCamViewArguments(webcamSetting: selectedCam!));
+        arguments: FullCamViewArguments(
+            webcamSetting: selectedCam!, owner: _printerSetting!));
   }
 
   onResetPrintTap() {

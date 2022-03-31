@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
@@ -7,13 +8,14 @@ import 'package:mobileraker/ui/views/fullcam/full_cam_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 
 class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
+  final PrinterSetting owner;
   final WebcamSetting webcamSetting;
 
-  FullCamView(this.webcamSetting);
+  FullCamView(this.owner, this.webcamSetting);
 
   @override
   FullCamViewModel viewModelBuilder(BuildContext context) =>
-      FullCamViewModel(this.webcamSetting);
+      FullCamViewModel(this.owner, this.webcamSetting);
 
   @override
   Widget builder(BuildContext context, FullCamViewModel model, Widget? child) {
@@ -28,7 +30,7 @@ class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
                 key: ValueKey(model.selectedCam.url),
                 feedUri: model.selectedCam.url,
                 showFps: true,
-                transform: model.transformMatrix,
+                transform: model.selectedCam.transformMatrix,
                 stackChildren: [
                   if (model.dataReady)
                     Positioned.fill(

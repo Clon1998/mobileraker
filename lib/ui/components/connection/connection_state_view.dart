@@ -158,13 +158,13 @@ class ConnectionStateView
                       children: [
                         ElevatedButton(
                           onPressed: model.onRestartKlipperPressed,
-                          child: Text('pages.overview.general.restart_klipper')
+                          child: Text('pages.dashboard.general.restart_klipper')
                               .tr(),
                         ),
                         ElevatedButton(
                           onPressed: model.onRestartMCUPressed,
                           child:
-                              Text('pages.overview.general.restart_mcu').tr(),
+                              Text('pages.dashboard.general.restart_mcu').tr(),
                         )
                       ],
                     )

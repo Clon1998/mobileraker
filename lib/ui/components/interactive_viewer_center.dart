@@ -40,7 +40,7 @@ typedef CenterInteractiveViewerWidgetBuilder = Widget Function(BuildContext cont
 /// The [child] must not be null.
 ///
 /// See also:
-///   * The [Flutter Gallery's transformations demo](https://github.com/flutter/gallery/blob/master/lib/demos/reference/transformations_demo.dart),
+///   * The [Flutter Gallery's transformations demo](https://github.com/flutter/gallery/blob/overview/lib/demos/reference/transformations_demo.dart),
 ///     which includes the use of InteractiveViewer.
 ///
 /// {@tool dartpad --template=stateless_widget_scaffold}

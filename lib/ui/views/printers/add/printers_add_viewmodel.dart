@@ -95,7 +95,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
           httpUrl: httpUrl,
           apiKey: printerAPIKey);
       _printerSettingService.addMachine(printerSetting).then(
-          (value) => _navigationService.clearStackAndShow(Routes.overView));
+          (value) => _navigationService.clearStackAndShow(Routes.dashboardView));
     }
   }
 

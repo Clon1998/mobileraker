@@ -222,7 +222,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'pages.overview.control.macro_card.title'.tr(),
+                    title: 'pages.dashboard.control.macro_card.title'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onMacroGroupAdd,
                       label: Text('general.add').tr(),
@@ -231,7 +231,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 _buildMacroGroups(context, model),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'pages.overview.general.cam_card.webcam'.tr(),
+                    title: 'pages.dashboard.general.cam_card.webcam'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onWebCamAdd,
                       label: Text('general.add').tr(),
@@ -240,7 +240,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 _buildWebCams(model),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'pages.overview.general.temp_card.temp_presets'.tr(),
+                    title: 'pages.dashboard.general.temp_card.temp_presets'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onTempPresetAdd,
                       label: Text('general.add').tr(),

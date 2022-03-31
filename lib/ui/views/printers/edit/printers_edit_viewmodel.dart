@@ -376,7 +376,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
       } else {
-        _navigationService.clearStackAndShow(Routes.overView);
+        _navigationService.clearStackAndShow(Routes.dashboardView);
       }
     }
   }
@@ -398,7 +398,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false)
         _machineService.removeMachine(printerSetting).then(
-            (value) => _navigationService.clearStackAndShow(Routes.overView));
+            (value) => _navigationService.clearStackAndShow(Routes.dashboardView));
     });
   }
 

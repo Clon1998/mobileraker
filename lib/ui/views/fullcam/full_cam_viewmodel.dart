@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
@@ -12,39 +10,18 @@ import 'package:mobileraker/service/printer_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-
 class FullCamViewModel extends StreamViewModel<Printer> {
   final _navigationService = locator<NavigationService>();
-  final _machineService = locator<MachineService>();
+  final PrinterSetting owner;
   WebcamSetting selectedCam;
 
-  FullCamViewModel(this.selectedCam);
+  FullCamViewModel(this.owner, this.selectedCam);
 
-  PrinterSetting? get _printerSetting =>
-      _machineService.selectedMachine.valueOrNull;
 
-  PrinterService? get _printerService => _printerSetting?.printerService;
+  PrinterService? get _printerService => owner.printerService;
 
   @override
   Stream<Printer> get stream => _printerService!.printerStream;
-
-  double get yTransformation {
-    if (selectedCam.flipHorizontal)
-      return pi;
-    else
-      return 0;
-  }
-
-  double get xTransformation {
-    if (selectedCam.flipVertical)
-      return pi;
-    else
-      return 0;
-  }
-
-  Matrix4 get transformMatrix => Matrix4.identity()
-    ..rotateX(xTransformation)
-    ..rotateY(yTransformation);
 
   double get _nozzleCurrent => this.data?.extruder.temperature ?? 0;
 
@@ -62,13 +39,13 @@ class FullCamViewModel extends StreamViewModel<Printer> {
   String get nozzleString {
     String cur = _nozzleCurrent.toStringAsFixed(1);
     if (_nozzleTarget > 0) cur += '/${_nozzleTarget.toStringAsFixed(0)}';
-    return tr('pages.overview.general.temp_preset_card.h_temp', args: [cur]);
+    return tr('pages.dashboard.general.temp_preset_card.h_temp', args: [cur]);
   }
 
   String get bedString {
     String cur = _bedCurrent.toStringAsFixed(1);
     if (_bedTarget > 0) cur += '/${_bedTarget.toStringAsFixed(0)}';
-    return tr('pages.overview.general.temp_preset_card.b_temp', args: [cur]);
+    return tr('pages.dashboard.general.temp_preset_card.b_temp', args: [cur]);
   }
 
   onWebcamSettingSelected(WebcamSetting? webcamSetting) {
@@ -78,8 +55,8 @@ class FullCamViewModel extends StreamViewModel<Printer> {
   }
 
   List<WebcamSetting> get webcams {
-    if (_printerSetting != null && _printerSetting!.cams.isNotEmpty) {
-      return _printerSetting!.cams;
+    if (owner != null && owner.cams.isNotEmpty) {
+      return owner.cams;
     }
     return List.empty();
   }

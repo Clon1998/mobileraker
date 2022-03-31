@@ -37,57 +37,66 @@ class NavigationDrawerWidget
               onClicked: () => model.onEditTap(null),
             ),
             Expanded(
-              child: Column(
-                children: [
-                  ExpansionTile(
-                    title: const Text(
-                      'components.nav_drawer.manage_printers',
-                      style: TextStyle(color: Colors.white),
-                    ).tr(),
-                    children: [
-                      ..._buildPrinterSelection(context, model),
-                    ],
-                  ),
-                  buildMenuItem(
-                    model,
-                    text: 'pages.overview.title'.tr(),
-                    icon: Icons.home,
-                    path: Routes.overView,
-                  ),
-                  buildMenuItem(
-                    model,
-                    text: 'pages.console.title'.tr(),
-                    icon: Icons.terminal,
-                    path: Routes.consoleView,
-                  ),
-                  buildMenuItem(
-                    model,
-                    text: 'pages.files.title'.tr(),
-                    icon: Icons.file_present,
-                    path: Routes.filesView,
-                  ),
-                  Divider(),
-                  buildMenuItem(
-                    model,
-                    text: 'pages.setting.title'.tr(),
-                    icon: Icons.engineering_outlined,
-                    path: Routes.settingView,
-                  ),
-                  if (kDebugMode)
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ExpansionTile(
+                      title: const Text(
+                        'components.nav_drawer.manage_printers',
+                        style: TextStyle(color: Colors.white),
+                      ).tr(),
+                      children: [
+                        ..._buildPrinterSelection(context, model),
+                      ],
+                    ),
                     buildMenuItem(
                       model,
-                      text: 'Support the Dev!',
-                      icon: Icons.perm_identity,
-                      path: Routes.paywallView,
+                      text: 'pages.overview.title'.tr(),
+                      icon: FlutterIcons.view_dashboard_mco,
+                      path: Routes.overViewView,
                     ),
-                  // Divider(color: Colors.white70),
-                  // const SizedBox(height: 16),
-                  // buildMenuItem(
-                  //   text: 'Notifications',
-                  //   icon: Icons.notifications_outlined,
-                  //   onClicked: () => selectedItem(context, 5),
-                  // ),
-                ],
+                    Divider(),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.dashboard.title'.tr(),
+                      icon: FlutterIcons.printer_3d_nozzle_mco,
+                      path: Routes.dashboardView,
+                    ),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.console.title'.tr(),
+                      icon: Icons.terminal,
+                      path: Routes.consoleView,
+                    ),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.files.title'.tr(),
+                      icon: Icons.file_present,
+                      path: Routes.filesView,
+                    ),
+                    Divider(),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.setting.title'.tr(),
+                      icon: Icons.engineering_outlined,
+                      path: Routes.settingView,
+                    ),
+                    if (kDebugMode)
+                      buildMenuItem(
+                        model,
+                        text: 'Support the Dev!',
+                        icon: Icons.perm_identity,
+                        path: Routes.paywallView,
+                      ),
+                    // Divider(color: Colors.white70),
+                    // const SizedBox(height: 16),
+                    // buildMenuItem(
+                    //   text: 'Notifications',
+                    //   icon: Icons.notifications_outlined,
+                    //   onClicked: () => selectedItem(context, 5),
+                    // ),
+                  ],
+                ),
               ),
             ),
             Container(

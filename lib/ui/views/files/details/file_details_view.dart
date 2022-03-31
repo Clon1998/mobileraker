@@ -154,7 +154,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                     PropertyTile(
                       title: 'pages.files.details.meta_card.est_print_time'.tr(),
                       subtitle:
-                          '${secondsToDurationText(file.estimatedTime ?? 0)}, ${tr('pages.overview.general.print_card.eta')}: ${model.potentialEta}',
+                          '${secondsToDurationText(file.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.potentialEta}',
                     ),
                     PropertyTile(
                       title: 'pages.files.details.meta_card.slicer'.tr(),

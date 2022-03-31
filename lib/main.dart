@@ -15,6 +15,8 @@ import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import 'app/app_setup.router.dart';
+import 'service/setting_service.dart';
+import 'ui/views/setting/setting_viewmodel.dart';
 
 Future<void> main() async {
   Logger.level = Level.info;
@@ -41,21 +43,26 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
+  final _settingService = locator<SettingService>();
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Mobileraker',
-        theme: getLightTheme(context),
-        darkTheme: getDarkTheme(context),
-        navigatorKey: StackedService.navigatorKey,
-        onGenerateRoute: StackedRouter().onGenerateRoute,
-        localizationsDelegates: [
-          FormBuilderLocalizations.delegate,
-          ...context.localizationDelegates
-        ],
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
-      );
+      title: 'Mobileraker',
+      theme: getLightTheme(context),
+      darkTheme: getDarkTheme(context),
+      navigatorKey: StackedService.navigatorKey,
+      onGenerateRoute: StackedRouter().onGenerateRoute,
+      initialRoute: _settingService.readBool(startWithOverviewKey)
+          ? Routes.overViewView
+          : null,
+      localizationsDelegates: [
+        FormBuilderLocalizations.delegate,
+        ...context.localizationDelegates
+      ],
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+    );
   }
 }

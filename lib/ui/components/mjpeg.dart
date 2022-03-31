@@ -118,6 +118,7 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
     }
 
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SpinKitDancingSquare(
           color: Theme.of(context).colorScheme.primary,

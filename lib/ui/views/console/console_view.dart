@@ -45,7 +45,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
             Icons.dangerous_outlined,
             size: 30,
           ),
-          tooltip: 'pages.overview.ems_btn'.tr(),
+          tooltip: 'pages.dashboard.ems_btn'.tr(),
           onPressed: (model.canUseEms) ? model.onEmergencyPressed : null,
         )
       ],
@@ -126,7 +126,6 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
     if (!model.isConsoleHistoryAvailable) {
       return Center(
         child: Column(
-          key: UniqueKey(),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SpinKitDoubleBounce(

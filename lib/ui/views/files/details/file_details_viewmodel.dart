@@ -54,7 +54,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
 
   onStartPrintTap() {
     _printerService?.startPrintFile(_file);
-    _navigationService.clearStackAndShow(Routes.overView);
+    _navigationService.clearStackAndShow(Routes.dashboardView);
   }
 
   bool get canStartPrint {
