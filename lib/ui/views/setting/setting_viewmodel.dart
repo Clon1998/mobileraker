@@ -11,6 +11,7 @@ import 'package:stacked_services/stacked_services.dart';
 const String emsKey = 'ems_setting';
 const String showBabyAlwaysKey = 'always_babystepping_setting';
 const String useTextInputForNumKey = 'text_inpt_for_num_fields';
+const String startWithOverviewKey = 'start_with_overview';
 
 class SettingViewModel extends FutureViewModel<PackageInfo> {
   final _logger = getLogger("SettingViewModel");
@@ -34,11 +35,18 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
     await _settingService.writeBool(useTextInputForNumKey, newVal ?? false);
   }
 
+  onStartWithOverviewChanged(bool? newVal) async {
+    await _settingService.writeBool(startWithOverviewKey, newVal ?? false);
+  }
+
+
   bool get emsValue => _settingService.readBool(emsKey);
 
   bool get showBabyAlwaysValue => _settingService.readBool(showBabyAlwaysKey);
 
   bool get useTextInputForNum => _settingService.readBool(useTextInputForNumKey);
+
+  bool get startWithOverview => _settingService.readBool(startWithOverviewKey);
 
   @override
   Future<PackageInfo> futureToRun() => PackageInfo.fromPlatform();

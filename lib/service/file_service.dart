@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/app/exceptions.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/files/folder.dart';
@@ -65,14 +66,12 @@ class FileService {
 
   Future<FolderContentWrapper> fetchDirectoryInfo(String path,
       [bool extended = false]) async {
-    Completer<FolderContentWrapper> reqCompleter = Completer();
     _logger.i('Fetching for `$path` [extended:$extended]');
 
-    _webSocket.sendJsonRpcMethod("server.files.get_directory",
-        onReceive: (response, {err}) {
-      if (err == null) _parseDirectory(response['result'], path, reqCompleter);
-    }, params: {'path': path, 'extended': extended});
-    return reqCompleter.future;
+    BlockingResponse blockingResp = await _webSocket.sendAndReceiveJRpcMethod(
+        'server.files.get_directory',
+        params: {'path': path, 'extended': extended});
+    return _parseDirectory(blockingResp, path);
   }
 
   _fetchAvailableFiles(FileRoot root) {
@@ -83,15 +82,13 @@ class FileService {
   }
 
   Future<GCodeFile> getGCodeMetadata(String filename) async {
-    Completer<GCodeFile> reqCompleter = Completer();
     _logger.i('Getting meta for file: `$filename`');
 
-    _webSocket.sendJsonRpcMethod("server.files.metadata",
-        onReceive: (response, {err}) {
-      if (err == null)
-        _parseFileMeta(response['result'], filename, reqCompleter);
-    }, params: {'filename': filename});
-    return reqCompleter.future;
+    BlockingResponse blockingResp = await _webSocket.sendAndReceiveJRpcMethod(
+        'server.files.metadata',
+        params: {'filename': filename});
+
+    return _parseFileMeta(blockingResp, filename);
   }
 
   _parseResult(response, FileRoot root) {
@@ -112,8 +109,13 @@ class FileService {
     // fileStream.add(listOfGcodes);
   }
 
-  _parseDirectory(
-      response, String forPath, Completer<FolderContentWrapper> completer) {
+  FolderContentWrapper _parseDirectory(
+      BlockingResponse blockingResponse, String forPath) {
+    if (blockingResponse.hasError)
+      throw FileFetchException(blockingResponse.err.toString(),
+          reqPath: forPath);
+
+    Map<String, dynamic> response = blockingResponse.response['result'];
     List<dynamic> filesResponse = response['files']; // Just add an type
     List<dynamic> directoriesResponse = response['dirs']; // Just add an type
 
@@ -142,17 +144,22 @@ class FileService {
       return GCodeFile.fromJson(element, forPath);
     });
 
-    completer
-        .complete(FolderContentWrapper(forPath, listOfFolder, listOfFiles));
+    return FolderContentWrapper(forPath, listOfFolder, listOfFiles);
   }
 
-  _parseFileMeta(response, String forFile, Completer<GCodeFile> completer) {
+  GCodeFile _parseFileMeta(BlockingResponse blockingResponse, String forFile) {
+    if (blockingResponse.hasError)
+      throw FileFetchException(blockingResponse.err.toString(),
+          reqPath: forFile);
+
+    Map<String, dynamic> response = blockingResponse.response['result'];
+
     var split = forFile.split('/');
     split.removeLast();
     split.insert(0,
         'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
 
-    completer.complete(GCodeFile.fromJson(response, split.join('/')));
+    return GCodeFile.fromJson(response, split.join('/'));
   }
 
   dispose() {

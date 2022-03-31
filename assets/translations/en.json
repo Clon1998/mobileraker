@@ -8,6 +8,7 @@
     "add": "Add",
     "remove": "Remove",
     "set": "Set",
+    "use": "Use",
     "restart": "Restart",
     "shutdown": "Shutdown",
     "close": "Close",
@@ -16,7 +17,7 @@
     "unknown": "Unknown"
   },
   "pages": {
-    "overview": {
+    "dashboard": {
       "title": "Dashboard",
       "ems_btn": "Emergency-Stop",
       "server_status": {
@@ -48,8 +49,8 @@
         },
         "temp_preset_card": {
           "cooloff": "Cooloff",
-          "h_temp": "@:pages.overview.general.temp_card.hotend {}°C",
-          "b_temp": "@:pages.overview.general.temp_card.bed {}°C"
+          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
+          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
         },
         "move_card": {
           "title": "Move Axis",
@@ -85,7 +86,7 @@
           "title": "Extruder",
           "extrude": "Extrude",
           "retract": "Retract",
-          "extrude_len": "@:pages.overview.control.extrude_card.extrude length"
+          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude length"
         },
         "macro_card": {
           "title": "Gcode - Macros"
@@ -131,7 +132,7 @@
           "first_layer": "First Layer",
           "others": "Others",
           "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperatures",
-          "first_layer_temps_value": "@:pages.overview.general.temp_card.hotend: {}°C\n@:pages.overview.general.temp_card.bed: {}°C"
+          "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
         },
         "stat_card": {
           "title": "Statistics"
@@ -145,6 +146,7 @@
         "ems_confirm": "Confirm Emergency-Stop",
         "always_baby": "Always show Babystepping Card",
         "num_edit": "Use keyboard for number input",
+        "start_with_overview": "Show @:pages.overview.title by default",
         "language": "Language",
         "companion": "Learn how to setup Mobileraker's Companion on its "
       },
@@ -179,6 +181,7 @@
         "steps_extrude": "Extrude steps"
       },
       "cams": {
+        "new_cam": "New Webcam",
         "no_webcams": "No Webcams added!",
         "webcam_addr": "Webcam - Address",
         "default_addr": "Default Address",
@@ -197,8 +200,8 @@
       },
       "presets": {
         "no_presets": "No Presets added!",
-        "hotend_temp": "@:pages.overview.general.temp_card.hotend Temperature",
-        "bed_temp": "@:pages.overview.general.temp_card.bed Temperature",
+        "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperature",
+        "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperature",
         "new_preset": "New Preset"
       }
     },
@@ -218,13 +221,26 @@
       "command_input" : {
         "hint":"Enter console command"
       }
+    },
+    "overview": {
+      "title": "Overview",
+      "fetching_machines": "@:general.fetching machines...",
+      "no_entries": "No machines found",
+      "add_machine": "Add Machine"
     }
   },
-  "nav_drawer": {
-    "printer_settings": "Printer Settings",
-    "manage_printers": "Manager Printers",
-    "fetching_printers": "@:general.fetching printers...",
-    "footer": "Made with ❤️ by Patrick Schmidt\nCheckout the project's"
+  "components": {
+    "nav_drawer": {
+      "printer_settings": "Printer Settings",
+      "manage_printers": "Manage Printers",
+      "fetching_printers": "@:general.fetching printers...",
+      "footer": "Made with ❤️ by Patrick Schmidt\nCheckout the project's"
+    },
+    "connection_watcher": {
+      "reconnect": "Reconnect",
+      "trying_connect": "Trying to connect ...",
+      "server_starting": "Server is starting..."
+    }
   },
   "klipper_state": {
     "ready": "Ready",

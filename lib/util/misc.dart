@@ -1,7 +1,7 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/dialog/editForm/range_edit_form_view.dart';
+import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked_services/stacked_services.dart';
 

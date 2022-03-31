@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -51,6 +51,15 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                     title: Text('pages.setting.general.num_edit').tr(),
                     onChanged: model.onUseTextInputForNumChanged,
                     initialValue: model.useTextInputForNum,
+                    decoration: InputDecoration(
+                        border: InputBorder.none, isCollapsed: true),
+                    activeColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  FormBuilderSwitch(
+                    name: 'startWithOverview',
+                    title: Text('pages.setting.general.start_with_overview').tr(),
+                    onChanged: model.onStartWithOverviewChanged,
+                    initialValue: model.startWithOverview,
                     decoration: InputDecoration(
                         border: InputBorder.none, isCollapsed: true),
                     activeColor: Theme.of(context).colorScheme.primary,

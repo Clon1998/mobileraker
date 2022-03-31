@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -19,7 +17,7 @@ import 'package:mobileraker/service/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/dialog/editForm/range_edit_form_view.dart';
+import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
@@ -86,7 +84,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
         }
       };
-
 
   @override
   onData(String key, data) {
@@ -165,31 +162,9 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   bool get webCamAvailable => webcams.isNotEmpty && selectedCam != null;
 
-  String get webCamUrl {
-    return selectedCam!.url;
-  }
+  String get webCamUrl => selectedCam!.url;
 
-  double get yTransformation {
-    var vertical = selectedCam?.flipVertical ?? false;
-
-    if (vertical)
-      return pi;
-    else
-      return 0;
-  }
-
-  double get xTransformation {
-    var horizontal = selectedCam?.flipVertical ?? false;
-
-    if (horizontal)
-      return pi;
-    else
-      return 0;
-  }
-
-  Matrix4 get transformMatrix => Matrix4.identity()
-    ..rotateX(xTransformation)
-    ..rotateY(yTransformation);
+  Matrix4 get transformMatrix => selectedCam!.transformMatrix;
 
   setTemperaturePreset(int extruderTemp, int bedTemp) {
     _printerService?.setTemperature('extruder', extruderTemp);
@@ -299,7 +274,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   onFullScreenTap() {
     _navigationService.navigateTo(Routes.fullCamView,
-        arguments: FullCamViewArguments(webcamSetting: selectedCam!));
+        arguments: FullCamViewArguments(
+            webcamSetting: selectedCam!, owner: _printerSetting!));
   }
 
   onResetPrintTap() {

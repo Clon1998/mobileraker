@@ -158,6 +158,7 @@ class WebSocketWrapper {
   bool ensureConnection() {
     if (_state != WebSocketState.connected &&
         _state != WebSocketState.connecting) {
+      _logger.i('WS not connected! connecting...');
       initCommunication();
       return false;
     }

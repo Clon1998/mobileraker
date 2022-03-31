@@ -13,7 +13,7 @@ import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/enums/snackbar_type.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/ui/dialog/importSettings/import_settings_view.dart';
+import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -376,7 +376,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
       } else {
-        _navigationService.clearStackAndShow(Routes.overView);
+        _navigationService.clearStackAndShow(Routes.dashboardView);
       }
     }
   }
@@ -398,7 +398,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false)
         _machineService.removeMachine(printerSetting).then(
-            (value) => _navigationService.clearStackAndShow(Routes.overView));
+            (value) => _navigationService.clearStackAndShow(Routes.dashboardView));
     });
   }
 

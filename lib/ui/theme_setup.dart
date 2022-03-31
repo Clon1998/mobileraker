@@ -14,7 +14,6 @@ var redish = MaterialColor(darkRed, <int, Color>{
   900: Color(darkRed),
 });
 
-
 var brownish = MaterialColor(0xffd2a855, <int, Color>{
   50: Color(0xfff6f0e1),
   100: Color(0xffebd9b3),
@@ -67,12 +66,35 @@ var tealy = MaterialColor(0xff18b2b2, <int, Color>{
   900: Color(0xff004941),
 });
 
-ThemeData getLightTheme() => ThemeData(
-      primarySwatch: Colors.blue,
-    );
+ThemeData getLightTheme(BuildContext context) {
+  var themeData =  ThemeData(
+    primarySwatch: Colors.blue,
+  );
 
-ThemeData getDarkTheme() => ThemeData(
-    colorScheme: ColorScheme.fromSwatch(
-        primarySwatch: brownish,
-        brightness: Brightness.dark,
-        accentColor: Color(darkRed)),);
+  return themeData.copyWith(
+    elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+            padding: EdgeInsets.all(8),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(5.0))))),
+  );
+
+}
+
+ThemeData getDarkTheme(BuildContext context) {
+  var colorScheme = ColorScheme.fromSwatch(
+          primarySwatch: brownish,
+          primaryColorDark: Colors.grey[900]!,
+          brightness: Brightness.dark,
+          accentColor: Color(darkRed));
+  return ThemeData(
+      elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+              primary: colorScheme.secondary,
+              onPrimary: colorScheme.onSecondary,
+              padding: EdgeInsets.all(8),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0))))),
+      colorScheme: colorScheme,
+    );
+}

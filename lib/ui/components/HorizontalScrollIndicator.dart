@@ -37,6 +37,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
 
   @override
   void initState() {
+    super.initState();
     controller.addListener(_listenerForController);
   }
 

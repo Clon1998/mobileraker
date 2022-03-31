@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -16,7 +18,8 @@ const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _ServerStreamKey = 'server';
 const String _PrinterStreamKey = 'printer';
 
-class ConnectionStateViewModel extends MultipleStreamViewModel {
+class ConnectionStateViewModel extends MultipleStreamViewModel
+    with WidgetsBindingObserver {
   final _machineService = locator<MachineService>();
   final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
@@ -102,5 +105,35 @@ class ConnectionStateViewModel extends MultipleStreamViewModel {
 
   onRestartMCUPressed() {
     _klippyService?.restartMCUs();
+  }
+
+  @override
+  void initialise() {
+    super.initialise();
+    if (!initialised) {
+      WidgetsBinding.instance?.addObserver(this);
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    WidgetsBinding.instance?.removeObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _logger.i("App forgrounded");
+        _webSocket?.ensureConnection();
+        break;
+
+      case AppLifecycleState.paused:
+        _logger.i("App backgrounded");
+        break;
+      default:
+        _logger.i("App in $state");
+    }
   }
 }

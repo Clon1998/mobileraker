@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:mobileraker/ui/dialog/editForm/num_edit_form_viewmodel.dart';
+import 'package:mobileraker/ui/components/dialog/editForm/num_edit_form_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 import 'package:intl/intl.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class NumberEditDialogArguments {
   final num min;
-  final num max;
+  final num? max;
   final num current;
   final int fraction;
 
   NumberEditDialogArguments(
-      {this.min = 0, this.max = 100, required this.current, this.fraction = 0});
+      {this.min = 0, this.max, required this.current, this.fraction = 0});
 }
 
 class RangeEditFormDialogView extends StatelessWidget {
@@ -46,7 +46,7 @@ class RangeEditFormDialogView extends StatelessWidget {
                   initialValue:
                       data.current.toDouble().toPrecision(data.fraction),
                   min: data.min.toDouble(),
-                  max: data.max.toDouble(),
+                  max: (data.max?? 100).toDouble(),
                   // divisions: (data.max + data.min.abs()).toInt(),
                   autofocus: true,
                   numberFormat: NumberFormat("####"),

@@ -222,7 +222,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 ),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'pages.overview.control.macro_card.title'.tr(),
+                    title: 'pages.dashboard.control.macro_card.title'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onMacroGroupAdd,
                       label: Text('general.add').tr(),
@@ -231,7 +231,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 _buildMacroGroups(context, model),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'pages.overview.general.cam_card.webcam'.tr(),
+                    title: 'pages.dashboard.general.cam_card.webcam'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onWebCamAdd,
                       label: Text('general.add').tr(),
@@ -240,7 +240,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 _buildWebCams(model),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'pages.overview.general.temp_card.temp_presets'.tr(),
+                    title: 'pages.dashboard.general.temp_card.temp_presets'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onTempPresetAdd,
                       label: Text('general.add').tr(),
@@ -366,7 +366,7 @@ class _SectionHeaderWithAction extends StatelessWidget {
   }
 }
 
-class _WebCamItem extends StatelessWidget {
+class _WebCamItem extends StatefulWidget {
   final WebcamSetting cam;
   final PrintersEditViewModel model;
   final int idx;
@@ -379,24 +379,33 @@ class _WebCamItem extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_WebCamItem> createState() => _WebCamItemState();
+}
+
+class _WebCamItemState extends State<_WebCamItem> {
+  late String _cardName = widget.cam.name;
+
+  @override
   Widget build(BuildContext context) {
     return Card(
         child: ExpansionTile(
             maintainState: true,
             tilePadding: const EdgeInsets.symmetric(horizontal: 10),
             childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
-            title: Text('CAM#$idx'),
+            title: Text(_cardName),
             leading: ReorderableDragStartListener(
-              index: idx,
+              index: widget.idx,
               child: Icon(Icons.drag_handle),
             ),
             children: [
           FormBuilderTextField(
             decoration: InputDecoration(
               labelText: 'pages.printer_edit.general.displayname'.tr(),
+              suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => widget.model.onWebCamRemove(widget.cam),)
             ),
-            name: '${cam.uuid}-camName',
-            initialValue: cam.name,
+            name: '${widget.cam.uuid}-camName',
+            initialValue: widget.cam.name,
+            onChanged: onNameChanged,
             validator: FormBuilderValidators.compose(
                 [FormBuilderValidators.required(context)]),
           ),
@@ -405,8 +414,8 @@ class _WebCamItem extends StatelessWidget {
                 labelText: 'pages.printer_edit.cams.webcam_addr'.tr(),
                 helperText:
                     '${tr('pages.printer_edit.cams.default_addr')}: http://<URL>/webcam/?action=stream'),
-            name: '${cam.uuid}-camUrl',
-            initialValue: cam.url,
+            name: '${widget.cam.uuid}-camUrl',
+            initialValue: widget.cam.url,
             validator: FormBuilderValidators.compose([
               FormBuilderValidators.required(context),
               FormBuilderValidators.url(context,
@@ -417,26 +426,25 @@ class _WebCamItem extends StatelessWidget {
             title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
             decoration: InputDecoration(border: InputBorder.none),
             secondary: const Icon(FlutterIcons.swap_vertical_mco),
-            initialValue: cam.flipVertical,
-            name: '${cam.uuid}-camFV',
+            initialValue: widget.cam.flipVertical,
+            name: '${widget.cam.uuid}-camFV',
             activeColor: Theme.of(context).colorScheme.primary,
           ),
           FormBuilderSwitch(
             title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
             decoration: InputDecoration(border: InputBorder.none),
             secondary: const Icon(FlutterIcons.swap_horizontal_mco),
-            initialValue: cam.flipHorizontal,
-            name: '${cam.uuid}-camFH',
+            initialValue: widget.cam.flipHorizontal,
+            name: '${widget.cam.uuid}-camFH',
             activeColor: Theme.of(context).colorScheme.primary,
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton(
-              onPressed: () => model.onWebCamRemove(cam),
-              child: const Text('general.remove').tr(),
-            ),
           )
         ]));
+  }
+
+  void onNameChanged(String? name) {
+    setState(() {
+      _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.cams.new_cam'.tr() : name!;
+    });
   }
 }
 
@@ -563,6 +571,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
           FormBuilderTextField(
             decoration: InputDecoration(
               labelText: 'pages.printer_edit.general.displayname'.tr(),
+              suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => model.onTempPresetRemove(temperaturePreset),)
             ),
             name: '${temperaturePreset.uuid}-presetName',
             initialValue: temperaturePreset.name,
@@ -603,13 +612,6 @@ class _TempPresetItemState extends State<_TempPresetItem> {
               ],
             ),
             keyboardType: TextInputType.number,
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton(
-              onPressed: () => model.onTempPresetRemove(temperaturePreset),
-              child: Text('general.remove').tr(),
-            ),
           )
         ]));
   }

@@ -78,27 +78,26 @@ class ConnectionStateView
               SizedBox(
                 height: 30,
               ),
-              Text("Disconnected!"),
+              Text('@:klipper_state.disconnected !').tr(),
               TextButton.icon(
                   onPressed: model.onRetryPressed,
-                  icon: Icon(Icons.stream),
-                  label: Text("Reconnect"))
+                  icon: Icon(Icons.restart_alt_outlined),
+                  label: Text('components.connection_watcher.reconnect').tr())
             ],
           ),
         );
       case WebSocketState.connecting:
         return Center(
-          key: UniqueKey(),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SpinKitPouringHourGlassRefined(
-                color: Theme.of(context).colorScheme.secondary,
+              SpinKitPulse(
+                color: Theme.of(context).colorScheme.primary,
               ),
               SizedBox(
                 height: 30,
               ),
-              FadingText("Trying to connect ..."),
+              FadingText(tr('components.connection_watcher.trying_connect')),
             ],
           ),
         );
@@ -120,8 +119,8 @@ class ConnectionStateView
               ),
               TextButton.icon(
                   onPressed: model.onRetryPressed,
-                  icon: Icon(Icons.stream),
-                  label: Text("Reconnect!!"))
+                  icon: Icon(Icons.restart_alt_outlined),
+                  label: Text('components.connection_watcher.reconnect').tr())
             ],
           ),
         );
@@ -159,13 +158,13 @@ class ConnectionStateView
                       children: [
                         ElevatedButton(
                           onPressed: model.onRestartKlipperPressed,
-                          child: Text('pages.overview.general.restart_klipper')
+                          child: Text('pages.dashboard.general.restart_klipper')
                               .tr(),
                         ),
                         ElevatedButton(
                           onPressed: model.onRestartMCUPressed,
                           child:
-                              Text('pages.overview.general.restart_mcu').tr(),
+                              Text('pages.dashboard.general.restart_mcu').tr(),
                         )
                       ],
                     )
@@ -193,7 +192,7 @@ class ConnectionStateView
                       ),
                       title: Text(model.klippyState),
                     ),
-                    Text('Server is starting...')
+                    Text('components.connection_watcher.server_starting').tr()
                   ],
                 ),
               )),

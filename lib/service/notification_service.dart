@@ -20,12 +20,12 @@ import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/firebase_options.dart';
 import 'package:mobileraker/service/printer_service.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
-
-import 'machine_service.dart';
-import 'package:shared_preferences_android/shared_preferences_android.dart';
-import 'package:shared_preferences_ios/shared_preferences_ios.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 import 'package:path_provider_ios/path_provider_ios.dart';
+import 'package:shared_preferences_android/shared_preferences_android.dart';
+import 'package:shared_preferences_ios/shared_preferences_ios.dart';
+
+import 'machine_service.dart';
 
 class NotificationService {
   final _logger = getLogger('NotificationService');
@@ -43,10 +43,12 @@ class NotificationService {
     // ToDo: on Flutter 2.11 swap this temp fix https://github.com/flutter/flutter/issues/98473#issuecomment-1060952450
     if (Platform.isAndroid) {
       PathProviderAndroid.registerWith();
-      SharedPreferencesAndroid.registerWith();}
+      SharedPreferencesAndroid.registerWith();
+    }
     if (Platform.isIOS) {
       PathProviderIOS.registerWith();
-      SharedPreferencesIOS.registerWith();}
+      SharedPreferencesIOS.registerWith();
+    }
     await setupBoxes();
     setupLocator();
     await locator.allReady();
@@ -109,9 +111,9 @@ class NotificationService {
   }
 
   void registerLocalMessageHandling(PrinterSetting setting) {
-    _logger.w('Currently Disabled local notification handling!');
-    return;
-    if (Platform.isIOS) return;
+    // _logger.w('Currently Disabled local notification handling!');
+    // return;
+
     _printerStreamMap[setting.uuid] = setting.printerService.printerStream
         .listen((value) => _processPrinterUpdate(setting, value));
   }
@@ -255,10 +257,10 @@ class NotificationService {
   Future<void> _processPrinterUpdate(
       PrinterSetting printerSetting, Printer printer) async {
     var state = await _updatePrintStatusNotification(
-        printerSetting, printer.print.state, printer.print.filename);
+        printerSetting, printer.print.state, printer.print.filename, false);
 
     if (state == PrintState.printing && !Platform.isIOS)
-      _updatePrintProgressNotification(printerSetting,
+      await _updatePrintProgressNotification(printerSetting,
           printer.virtualSdCard.progress, printer.print.printDuration);
     await printerSetting.save();
   }
@@ -266,7 +268,8 @@ class NotificationService {
   Future<PrintState> _updatePrintStatusNotification(
       PrinterSetting printerSetting,
       PrintState updatedState,
-      String? updatedFile) async {
+      String? updatedFile,
+      [bool createNotification = true]) async {
     PrintState? oldState = printerSetting.lastPrintState;
 
     if (updatedState == oldState) return updatedState;
@@ -305,7 +308,7 @@ class NotificationService {
         await _removePrintProgressNotification(printerSetting);
         break;
     }
-    if (updatedState != PrintState.standby)
+    if (updatedState != PrintState.standby && createNotification)
       await _notifyAPI.createNotification(content: notificationContent);
 
     return updatedState;

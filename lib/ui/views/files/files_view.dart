@@ -9,8 +9,9 @@ import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/service/file_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
-import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/files/files_viewmodel.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:stacked/stacked.dart';
@@ -113,62 +114,59 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   Center buildFetchingView(BuildContext context) {
     return Center(
       child: Column(
-        key: UniqueKey(),
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SpinKitSpinningLines(
-            color: Theme.of(context).colorScheme.primary,
+          SpinKitRipple(
+            color: Theme.of(context).colorScheme.primary,size: 100,
           ),
           SizedBox(
             height: 30,
           ),
-          Text('pages.files.fetching_files').tr(),
+          FadingText(tr('pages.files.fetching_files')),
           // Text('Fetching printer ...')
         ],
       ),
     );
   }
 
-  Container buildBusyListView(BuildContext context, FilesViewModel model) {
+  Widget buildBusyListView(BuildContext context, FilesViewModel model) {
     ThemeData theme = Theme.of(context);
     Color highlightColor = theme.brightness == Brightness.dark
-        ? theme.colorScheme.secondary
-        : theme.primaryColor;
-    return Container(
-      margin: const EdgeInsets.all(4.0),
-      color: theme.colorScheme.background,
-      child: Column(
-        children: [
-          buildBreadCrumb(context, model.requestedPath),
-          Expanded(
-            child: Shimmer.fromColors(
-              child: ListView.builder(
-                  itemCount: 15,
-                  itemBuilder: (context, index) {
-                    return ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 4),
-                      leading: Container(
-                        width: 64,
-                        height: 64,
-                        color: Colors.white,
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 2, horizontal: 2),
-                      ),
-                      title: Container(
-                        width: double.infinity,
-                        height: 16.0,
-                        margin: EdgeInsets.only(right: 10),
-                        color: Colors.white,
-                      ),
-                    );
-                  }),
-              baseColor: Colors.grey,
-              highlightColor: highlightColor,
+        ? theme.colorScheme.background
+        : theme.colorScheme.background;
+    return _buildListViewContainer(
+        context,
+        Column(
+          children: [
+            buildBreadCrumb(context, model.requestedPath),
+            Expanded(
+              child: Shimmer.fromColors(
+                child: ListView.builder(
+                    itemCount: 15,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        contentPadding: EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                        leading: Container(
+                          width: 64,
+                          height: 64,
+                          color: Colors.white,
+                          margin: const EdgeInsets.symmetric(
+                              vertical: 2, horizontal: 2),
+                        ),
+                        title: Container(
+                          width: double.infinity,
+                          height: 16.0,
+                          margin: EdgeInsets.only(right: 5),
+                          color: Colors.white,
+                        ),
+                      );
+                    }),
+                baseColor: Colors.grey,
+                highlightColor: highlightColor,
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 
   Widget buildListView(BuildContext context, FilesViewModel model) {
@@ -180,62 +178,83 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
     // Add one of the .. folder to back
     if (model.isSubFolder) lenTotal++;
 
-    ThemeData theme = Theme.of(context);
+    return _buildListViewContainer(
+        context,
+        Column(
+          children: [
+            buildBreadCrumb(context, model.folderContent.reqPath.split('/')),
+            Expanded(
+              child: EaseIn(
+                duration: Duration(milliseconds: 100),
+                child: SmartRefresher(
+                  controller: model.refreshController,
+                  onRefresh: model.onRefresh,
+                  child: (lenTotal == 0)
+                      ? ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: SizedBox(
+                              width: 64,
+                              height: 64,
+                              child: Icon(Icons.search_off)),
+                          title: Text('pages.files.no_files_found').tr(),
+                        )
+                      : ListView.builder(
+                          itemCount: lenTotal,
+                          itemBuilder: (context, index) {
+                            if (model.isSubFolder) {
+                              if (index == 0)
+                                return ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: SizedBox(
+                                      width: 64,
+                                      height: 64,
+                                      child: Icon(Icons.folder)),
+                                  title: Text('...'),
+                                  onTap: () => model.onPopFolder(),
+                                );
+                              else
+                                index--;
+                            }
 
+                            if (index < lenFolders) {
+                              Folder folder = folderContent.folders[index];
+                              return FolderItem(
+                                folder: folder,
+                                key: ValueKey(folder),
+                              );
+                            } else {
+                              GCodeFile file =
+                                  folderContent.gCodes[index - lenFolders];
+                              return FileItem(
+                                gCode: file,
+                                key: ValueKey(file),
+                              );
+                            }
+                          }),
+                ),
+              ),
+            ),
+          ],
+        ));
+  }
+
+  Widget _buildListViewContainer(BuildContext context, Widget? child) {
+    var theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.all(4.0),
-      color: theme.colorScheme.background,
-      child: Column(
-        children: [
-          buildBreadCrumb(context, model.folderContent.reqPath.split('/')),
-          Expanded(
-            child: SmartRefresher(
-              controller: model.refreshController,
-              onRefresh: model.onRefresh,
-              child: (lenTotal == 0)
-                  ? ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      leading: SizedBox(
-                          width: 64, height: 64, child: Icon(Icons.search_off)),
-                      title: Text('pages.files.no_files_found').tr(),
-                    )
-                  : ListView.builder(
-                      itemCount: lenTotal,
-                      itemBuilder: (context, index) {
-                        if (model.isSubFolder) {
-                          if (index == 0)
-                            return ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              leading: SizedBox(
-                                  width: 64,
-                                  height: 64,
-                                  child: Icon(Icons.folder)),
-                              title: Text('...'),
-                              onTap: () => model.onPopFolder(),
-                            );
-                          else
-                            index--;
-                        }
-
-                        if (index < lenFolders) {
-                          Folder folder = folderContent.folders[index];
-                          return FolderItem(
-                            folder: folder,
-                            key: ValueKey(folder),
-                          );
-                        } else {
-                          GCodeFile file =
-                              folderContent.gCodes[index - lenFolders];
-                          return FileItem(
-                            gCode: file,
-                            key: ValueKey(file),
-                          );
-                        }
-                      }),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+        boxShadow: [
+          if (theme.brightness == Brightness.light)
+            BoxShadow(
+              color: Colors.grey,
+              offset: Offset(0.0, 4.0), //(x,y)
+              blurRadius: 1.0,
             ),
-          ),
         ],
       ),
+      child: child,
     );
   }
 
@@ -302,7 +321,7 @@ class FileItem extends ViewModelWidget<FilesViewModel> {
   @override
   Widget build(BuildContext context, FilesViewModel model) {
     return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 5),
+      contentPadding: EdgeInsets.symmetric(horizontal: 5,vertical: 3),
       leading: SizedBox(
           width: 64,
           height: 64,
@@ -321,29 +340,32 @@ class FileItem extends ViewModelWidget<FilesViewModel> {
     if (printerUrl != null && gCodeFile.smallImagePath != null)
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0),
-        child: CachedNetworkImage(
-          imageBuilder: (context, imageProvider) => Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.horizontal(
-                  left: const Radius.circular(15.0),
-                  right: const Radius.circular(15.0)),
-              image: DecorationImage(
-                image: imageProvider,
-                fit: BoxFit.cover,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
-                  spreadRadius: 1,
-                  blurRadius: 2,
-                  offset: Offset(-1, 1), // changes position of shadow
+        child: Hero(
+          tag: 'gCodeImage-${gCodeFile.hashCode}',
+          child: CachedNetworkImage(
+            imageBuilder: (context, imageProvider) => Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.horizontal(
+                    left: const Radius.circular(15.0),
+                    right: const Radius.circular(15.0)),
+                image: DecorationImage(
+                  image: imageProvider,
+                  fit: BoxFit.cover,
                 ),
-              ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 2,
+                    offset: Offset(-1, 1), // changes position of shadow
+                  ),
+                ],
+              ),
             ),
+            imageUrl: '$printerUrl/${gCode.parentPath}/${gCode.bigImagePath}',
+            placeholder: (context, url) => Icon(Icons.insert_drive_file),
+            errorWidget: (context, url, error) => Icon(Icons.error),
           ),
-          imageUrl: '$printerUrl/${gCode.parentPath}/${gCode.smallImagePath}',
-          placeholder: (context, url) => Icon(Icons.insert_drive_file),
-          errorWidget: (context, url, error) => Icon(Icons.error),
         ),
       );
     else

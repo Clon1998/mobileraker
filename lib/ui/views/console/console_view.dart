@@ -5,8 +5,10 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/console/console_entry.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
-import 'package:mobileraker/ui/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/components/ease_in.dart';
+import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/console/console_viewmodel.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 
@@ -18,7 +20,6 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
 
   @override
   bool get initialiseSpecialViewModelsOnce => true;
-
 
   @override
   Widget builder(BuildContext context, ConsoleViewModel model, Widget? child) {
@@ -44,7 +45,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
             Icons.dangerous_outlined,
             size: 30,
           ),
-          tooltip: 'pages.overview.ems_btn'.tr(),
+          tooltip: 'pages.dashboard.ems_btn'.tr(),
           onPressed: (model.canUseEms) ? model.onEmergencyPressed : null,
         )
       ],
@@ -52,41 +53,50 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
   }
 
   Widget _buildBody(BuildContext context, ConsoleViewModel model) {
-    var themeData = Theme.of(context);
-    if (!model.isConsoleHistoryAvailable) {
-      return Center(
-        child: Column(
-          key: UniqueKey(),
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SpinKitSpinningLines(
-              color: themeData.colorScheme.primary,
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            Text('pages.console.fetching_console').tr()
-          ],
-        ),
-      );
-    }
+    var theme = Theme.of(context);
+    Color highlightColor = theme.brightness == Brightness.dark
+        ? theme.colorScheme.secondary
+        : theme.colorScheme.primary;
 
     return Container(
       margin: const EdgeInsets.all(4.0),
-      color: themeData.colorScheme.background,
+      decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+        boxShadow: [
+          if (theme.brightness == Brightness.light)
+          BoxShadow(
+            color: Colors.grey,
+            offset: Offset(0.0, 4.0), //(x,y)
+            blurRadius: 1.0,
+          ),
+        ],
+
+      ),
       child: Column(
         children: [
-          Expanded(
-              child: SmartRefresher(
-                  controller: model.refreshController,
-                  onRefresh: model.onRefresh,
-                  child: _buildListView(model))),
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: highlightColor,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+              child: Text(
+                'GCode Console - ${model.printerName}',
+                style: theme.textTheme.subtitle1,
+              ),
+            ),
+          ),
+          Expanded(child: _buildConsole(context, model)),
+          Divider(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: TextField(
               enableSuggestions: false,
               // style: themeData.textTheme.subtitle1!.copyWith(color: _commandTextColor(themeData)),
               controller: model.textEditingController,
+              enabled: model.isConsoleHistoryAvailable,
               decoration: InputDecoration(
                   suffixIcon: IconButton(
                     icon: Icon(Icons.send),
@@ -111,20 +121,50 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
     //   return buildFetchingView();
   }
 
-  Widget _buildListView(ConsoleViewModel model) {
-    if (model.consoleEntries.isEmpty)
+  Widget _buildConsole(BuildContext context, ConsoleViewModel model) {
+    var themeData = Theme.of(context);
+    if (!model.isConsoleHistoryAvailable) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitDoubleBounce(
+              color: themeData.colorScheme.primary,
+              size: 100,
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            FadingText(tr('pages.console.fetching_console'))
+          ],
+        ),
+      );
+    }
+    return EaseIn(
+      child: SmartRefresher(
+        controller: model.refreshController,
+        onRefresh: model.onRefresh,
+        child: _buildListView(context, model),
+      ),
+    );
+  }
+
+  Widget _buildListView(BuildContext context, ConsoleViewModel model) {
+    if (model.filteredConsoleEntries.isEmpty)
       return ListTile(
           leading: Icon(Icons.browser_not_supported_sharp),
           title: Text('pages.console.no_entries').tr());
+
     return ListView.builder(
       reverse: true,
       // controller: model.scrollController,
-      itemCount: model.consoleEntries.length,
+      itemCount: model.filteredConsoleEntries.length,
       itemBuilder: (context, index) {
-        int correctedIndex = model.consoleEntries.length - 1 - index;
-        ConsoleEntry entry = model.consoleEntries[correctedIndex];
+        int correctedIndex = model.filteredConsoleEntries.length - 1 - index;
+        ConsoleEntry entry = model.filteredConsoleEntries[correctedIndex];
         if (entry.type == ConsoleEntryType.COMMAND)
           return ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 8),
             title: Text(entry.message,
                 style: _commandTextStyle(
                     Theme.of(context), ListTileTheme.of(context))),
@@ -133,6 +173,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
           );
 
         return ListTile(
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
           title: Text(entry.message),
           subtitle: Text(DateFormat.Hms().format(entry.timestamp)),
         );
@@ -152,13 +193,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
         break;
     }
 
-    return textStyle.copyWith(color: _commandTextColor(theme));
-  }
-
-  Color _commandTextColor(ThemeData theme) {
-    return theme.brightness == Brightness.light
-        ? theme.colorScheme.onBackground
-        : theme.colorScheme.primary;
+    return textStyle.copyWith(color: theme.colorScheme.primary);
   }
 
   @override

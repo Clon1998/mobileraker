@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:intl/intl.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -55,7 +54,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
 
   onStartPrintTap() {
     _printerService?.startPrintFile(_file);
-    _navigationService.clearStackAndShow(Routes.overView);
+    _navigationService.clearStackAndShow(Routes.dashboardView);
   }
 
   bool get canStartPrint {
@@ -73,6 +72,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
     if (_printerSetting != null) {
       return '${_printerSetting!.httpUrl}/server/files';
     }
+    return null;
   }
 
   String get formattedLastPrinted {

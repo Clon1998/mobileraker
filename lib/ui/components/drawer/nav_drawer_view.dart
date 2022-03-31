@@ -1,10 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
-import 'package:mobileraker/ui/drawer/nav_drawer_viewmodel.dart';
+import 'package:mobileraker/ui/components/drawer/nav_drawer_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,82 +37,94 @@ class NavigationDrawerWidget
               onClicked: () => model.onEditTap(null),
             ),
             Expanded(
-              child: Column(
-                children: [
-                  ExpansionTile(
-                    title: const Text(
-                      'nav_drawer.manage_printers',
-                      style: TextStyle(color: Colors.white),
-                    ).tr(),
-                    children: [
-                      ..._buildPrinterSelection(context, model),
-                    ],
-                  ),
-                  buildMenuItem(
-                    model,
-                    text: 'pages.overview.title'.tr(),
-                    icon: Icons.home,
-                    path: Routes.overView,
-                  ),
-                  buildMenuItem(
-                    model,
-                    text: 'pages.console.title'.tr(),
-                    icon: Icons.terminal,
-                    path: Routes.consoleView,
-                  ),
-                  buildMenuItem(
-                    model,
-                    text: 'pages.files.title'.tr(),
-                    icon: Icons.file_present,
-                    path: Routes.filesView,
-                  ),
-                  Divider(),
-                  buildMenuItem(
-                    model,
-                    text: 'pages.setting.title'.tr(),
-                    icon: Icons.engineering_outlined,
-                    path: Routes.settingView,
-                  ),
-                  // Divider(color: Colors.white70),
-                  // const SizedBox(height: 16),
-                  // buildMenuItem(
-                  //   text: 'Notifications',
-                  //   icon: Icons.notifications_outlined,
-                  //   onClicked: () => selectedItem(context, 5),
-                  // ),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    ExpansionTile(
+                      title: const Text(
+                        'components.nav_drawer.manage_printers',
+                        style: TextStyle(color: Colors.white),
+                      ).tr(),
+                      children: [
+                        ..._buildPrinterSelection(context, model),
+                      ],
+                    ),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.overview.title'.tr(),
+                      icon: FlutterIcons.view_dashboard_mco,
+                      path: Routes.overViewView,
+                    ),
+                    Divider(),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.dashboard.title'.tr(),
+                      icon: FlutterIcons.printer_3d_nozzle_mco,
+                      path: Routes.dashboardView,
+                    ),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.console.title'.tr(),
+                      icon: Icons.terminal,
+                      path: Routes.consoleView,
+                    ),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.files.title'.tr(),
+                      icon: Icons.file_present,
+                      path: Routes.filesView,
+                    ),
+                    Divider(),
+                    buildMenuItem(
+                      model,
+                      text: 'pages.setting.title'.tr(),
+                      icon: Icons.engineering_outlined,
+                      path: Routes.settingView,
+                    ),
+                    if (kDebugMode)
+                      buildMenuItem(
+                        model,
+                        text: 'Support the Dev!',
+                        icon: Icons.perm_identity,
+                        path: Routes.paywallView,
+                      ),
+                    // Divider(color: Colors.white70),
+                    // const SizedBox(height: 16),
+                    // buildMenuItem(
+                    //   text: 'Notifications',
+                    //   icon: Icons.notifications_outlined,
+                    //   onClicked: () => selectedItem(context, 5),
+                    // ),
+                  ],
+                ),
               ),
             ),
             Container(
                 alignment: Alignment.center,
                 padding: EdgeInsets.only(bottom: 20, top: 10),
                 child: RichText(
-                  text: TextSpan(
-                      text:
-                          'nav_drawer.footer'.tr(),
+                  text: TextSpan(text: 'components.nav_drawer.footer'.tr(), children: [
+                    new TextSpan(
+                      text: ' GitHub ',
+                      style: new TextStyle(color: Colors.blue),
                       children: [
-                        new TextSpan(
-                          text: ' GitHub ',
-                          style: new TextStyle(color: Colors.blue),
-                          children: [
-                            WidgetSpan(
-                              child:
-                                  Icon(FlutterIcons.github_alt_faw, size: 18),
-                            ),
-                          ],
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              const String url =
-                                  'https://github.com/Clon1998/mobileraker';
-                              if (await canLaunch(url)) {
-                                //TODO Fix this... neds Android Package Visibility
-                                await launch(url);
-                              } else {
-                                throw 'Could not launch $url';
-                              }
-                            },
+                        WidgetSpan(
+                          child: Icon(FlutterIcons.github_alt_faw, size: 18),
                         ),
-                      ]),
+                      ],
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          const String url =
+                              'https://github.com/Clon1998/mobileraker';
+                          if (await canLaunch(url)) {
+                            //TODO Fix this... neds Android Package Visibility
+                            await launch(url);
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
+                    ),
+                  ]),
                   textAlign: TextAlign.center,
                 )),
           ],
@@ -149,13 +162,15 @@ class NavigationDrawerWidget
     } else {
       widgetsToReturn = [
         ListTile(
-          title: FadingText('nav_drawer.fetching_printers'.tr()),
+          title: FadingText('components.nav_drawer.fetching_printers'.tr()),
           contentPadding: const EdgeInsets.only(left: 32, right: 16),
         ),
       ];
     }
     widgetsToReturn.add(ListTile(
-      title: Text('pages.printer_add.title', style: TextStyle(color: Colors.white)).tr(),
+      title:
+          Text('pages.printer_add.title', style: TextStyle(color: Colors.white))
+              .tr(),
       contentPadding: const EdgeInsets.only(left: 32, right: 16),
       trailing: Icon(Icons.add, color: highlightColor),
       onTap: () => model.navigateTo(Routes.printersAdd),
@@ -202,7 +217,7 @@ class NavigationDrawerWidget
             ),
             IconButton(
                 onPressed: onClicked,
-                tooltip: 'nav_drawer.printer_settings'.tr(),
+                tooltip: 'components.nav_drawer.printer_settings'.tr(),
                 icon: Icon(
                   FlutterIcons.settings_fea,
                   color: Colors.white,

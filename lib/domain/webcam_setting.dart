@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -17,6 +20,30 @@ class WebcamSetting {
   bool flipVertical = false;
 
   WebcamSetting(this.name, this.url);
+
+  double get yTransformation {
+    var vertical = flipVertical;
+
+    if (flipVertical)
+      return pi;
+    else
+      return 0;
+  }
+
+  double get xTransformation {
+
+    if (flipHorizontal)
+      return pi;
+    else
+      return 0;
+  }
+
+  Matrix4 get transformMatrix => Matrix4.identity()
+    ..rotateX(xTransformation)
+    ..rotateY(yTransformation);
+
+
+
 
   @override
   String toString() {
