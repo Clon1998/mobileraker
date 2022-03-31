@@ -8,6 +8,7 @@ import 'package:mobileraker/ui/components/connection/connection_state_view.dart'
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/console/console_viewmodel.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 
@@ -128,13 +129,14 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
           key: UniqueKey(),
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SpinKitSpinningLines(
+            SpinKitDoubleBounce(
               color: themeData.colorScheme.primary,
+              size: 100,
             ),
             SizedBox(
               height: 30,
             ),
-            Text('pages.console.fetching_console').tr()
+            FadingText(tr('pages.console.fetching_console'))
           ],
         ),
       );

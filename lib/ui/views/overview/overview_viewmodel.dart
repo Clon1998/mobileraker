@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
@@ -126,6 +127,21 @@ class OverViewModel extends MultipleStreamViewModel {
 
   bool get canUseEms =>
       isServerAvailable && server.klippyState == KlipperState.ready;
+
+  onHorizontalDragEnd(DragEndDetails endDetails) {
+    double primaryVelocity = endDetails.primaryVelocity ?? 0;
+    if (primaryVelocity < 0) {
+      // Page forwards
+      _machineService.selectPreviousMachine();
+    } else if (primaryVelocity > 0) {
+      // Page backwards
+      _machineService.selectNextMachine();
+    }
+  }
+
+  onPanUpdate(DragUpdateDetails updateDetails) {
+    print(updateDetails);
+  }
 
 // onTitleSwipeDetection(SwipeDirection dir) {
 //   switch (dir) {

@@ -5,7 +5,6 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
@@ -13,6 +12,7 @@ import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
+import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
 import 'package:mobileraker/ui/views/overview/tabs/general_tab_viewmodel.dart';
@@ -268,51 +268,42 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
                     }).toList())
                 : null,
           ),
-          Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-              child: Container(
-                constraints: BoxConstraints(minHeight: minWebCamHeight),
-                child: Stack(children: [
-                  Center(
-                    child: Transform(
-                        alignment: Alignment.center,
-                        transform: model.transformMatrix,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.all(Radius.circular(5)),
-                          child: Mjpeg(
-                            isLive: true,
-                            stream: model.webCamUrl,
-                            error: (context, error, stack) {
-                              return Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    'error',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Theme.of(context).errorColor),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        )),
-                  ),
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: IconButton(
-                        icon: Icon(Icons.aspect_ratio_outlined),
-                        tooltip:
-                            'pages.overview.general.cam_card.fullscreen'.tr(),
-                        onPressed: model.onFullScreenTap,
+          Container(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            constraints: BoxConstraints(minHeight: minWebCamHeight),
+            child: Center(
+                child: Mjpeg(
+                  key: ValueKey(model.webCamUrl),
+                  imageBuilder: _imageBuilder,
+                  feedUri: model.webCamUrl,
+                  transform: model.transformMatrix,
+                  showFps: true,
+                  stackChildren: [
+                    Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: IconButton(
+                          color: Colors.white,
+                          icon: Icon(Icons.aspect_ratio),
+                          tooltip:
+                              'pages.overview.general.cam_card.fullscreen'
+                                  .tr(),
+                          onPressed: model.onFullScreenTap,
+                        ),
                       ),
                     ),
-                  ),
-                ]),
-              )),
+                  ],
+                )),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _imageBuilder(BuildContext context, Transform imageTransformed) {
+    return ClipRRect(
+        borderRadius: BorderRadius.all(Radius.circular(5)),
+        child: imageTransformed);
   }
 }
 

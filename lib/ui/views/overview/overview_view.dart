@@ -24,9 +24,12 @@ class OverView extends ViewModelBuilderWidget<OverViewModel> {
   Widget builder(BuildContext context, OverViewModel model, Widget? child) =>
       Scaffold(
         appBar: AppBar(
-          title: Text(
-            model.title,
-            overflow: TextOverflow.fade,
+          title: GestureDetector(
+            child: Text(
+              model.title,
+              overflow: TextOverflow.fade,
+            ),
+            onHorizontalDragEnd: model.onHorizontalDragEnd,
           ),
           actions: <Widget>[
             IconButton(

@@ -11,6 +11,7 @@ import 'package:mobileraker/ui/components/connection/connection_state_view.dart'
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/views/files/files_viewmodel.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:stacked/stacked.dart';
@@ -116,13 +117,13 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         key: UniqueKey(),
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SpinKitSpinningLines(
-            color: Theme.of(context).colorScheme.primary,
+          SpinKitRipple(
+            color: Theme.of(context).colorScheme.primary,size: 100,
           ),
           SizedBox(
             height: 30,
           ),
-          Text('pages.files.fetching_files').tr(),
+          FadingText(tr('pages.files.fetching_files')),
           // Text('Fetching printer ...')
         ],
       ),

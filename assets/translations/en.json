@@ -222,11 +222,18 @@
       }
     }
   },
-  "nav_drawer": {
-    "printer_settings": "Printer Settings",
-    "manage_printers": "Manager Printers",
-    "fetching_printers": "@:general.fetching printers...",
-    "footer": "Made with ❤️ by Patrick Schmidt\nCheckout the project's"
+  "components": {
+    "nav_drawer": {
+      "printer_settings": "Printer Settings",
+      "manage_printers": "Manager Printers",
+      "fetching_printers": "@:general.fetching printers...",
+      "footer": "Made with ❤️ by Patrick Schmidt\nCheckout the project's"
+    },
+    "connection_watcher": {
+      "reconnect": "Reconnect",
+      "trying_connect": "Trying to connect ...",
+      "server_starting": "Server is starting..."
+    }
   },
   "klipper_state": {
     "ready": "Ready",

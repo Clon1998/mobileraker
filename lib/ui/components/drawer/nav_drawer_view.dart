@@ -41,7 +41,7 @@ class NavigationDrawerWidget
                 children: [
                   ExpansionTile(
                     title: const Text(
-                      'nav_drawer.manage_printers',
+                      'components.nav_drawer.manage_printers',
                       style: TextStyle(color: Colors.white),
                     ).tr(),
                     children: [
@@ -94,7 +94,7 @@ class NavigationDrawerWidget
                 alignment: Alignment.center,
                 padding: EdgeInsets.only(bottom: 20, top: 10),
                 child: RichText(
-                  text: TextSpan(text: 'nav_drawer.footer'.tr(), children: [
+                  text: TextSpan(text: 'components.nav_drawer.footer'.tr(), children: [
                     new TextSpan(
                       text: ' GitHub ',
                       style: new TextStyle(color: Colors.blue),
@@ -153,7 +153,7 @@ class NavigationDrawerWidget
     } else {
       widgetsToReturn = [
         ListTile(
-          title: FadingText('nav_drawer.fetching_printers'.tr()),
+          title: FadingText('components.nav_drawer.fetching_printers'.tr()),
           contentPadding: const EdgeInsets.only(left: 32, right: 16),
         ),
       ];
@@ -208,7 +208,7 @@ class NavigationDrawerWidget
             ),
             IconButton(
                 onPressed: onClicked,
-                tooltip: 'nav_drawer.printer_settings'.tr(),
+                tooltip: 'components.nav_drawer.printer_settings'.tr(),
                 icon: Icon(
                   FlutterIcons.settings_fea,
                   color: Colors.white,

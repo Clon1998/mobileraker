@@ -36,7 +36,6 @@ dependencies:
 
   percent_indicator: ^4.0.0
 
-  flutter_mjpeg: ^2.0.1
   logger:
   #  flutter_icons: ^1.1.0
   flutter_icons:

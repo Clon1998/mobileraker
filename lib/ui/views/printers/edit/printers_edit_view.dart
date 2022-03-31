@@ -401,6 +401,7 @@ class _WebCamItemState extends State<_WebCamItem> {
           FormBuilderTextField(
             decoration: InputDecoration(
               labelText: 'pages.printer_edit.general.displayname'.tr(),
+              suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => widget.model.onWebCamRemove(widget.cam),)
             ),
             name: '${widget.cam.uuid}-camName',
             initialValue: widget.cam.name,
@@ -436,13 +437,6 @@ class _WebCamItemState extends State<_WebCamItem> {
             initialValue: widget.cam.flipHorizontal,
             name: '${widget.cam.uuid}-camFH',
             activeColor: Theme.of(context).colorScheme.primary,
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton(
-              onPressed: () => widget.model.onWebCamRemove(widget.cam),
-              child: const Text('general.remove').tr(),
-            ),
           )
         ]));
   }
@@ -577,6 +571,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
           FormBuilderTextField(
             decoration: InputDecoration(
               labelText: 'pages.printer_edit.general.displayname'.tr(),
+              suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => model.onTempPresetRemove(temperaturePreset),)
             ),
             name: '${temperaturePreset.uuid}-presetName',
             initialValue: temperaturePreset.name,
@@ -617,13 +612,6 @@ class _TempPresetItemState extends State<_TempPresetItem> {
               ],
             ),
             keyboardType: TextInputType.number,
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: ElevatedButton(
-              onPressed: () => model.onTempPresetRemove(temperaturePreset),
-              child: Text('general.remove').tr(),
-            ),
           )
         ]));
   }
