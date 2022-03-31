@@ -12,11 +12,14 @@ import 'package:mobileraker/ui/components/bottomsheet/setup_bottom_sheet_ui.dart
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import 'app/app_setup.router.dart';
 import 'service/setting_service.dart';
 import 'ui/views/setting/setting_viewmodel.dart';
+
+String? initialRoute;
 
 Future<void> main() async {
   Logger.level = Level.info;
@@ -33,6 +36,7 @@ Future<void> main() async {
   setupBottomSheetUi();
   await FirebaseAnalytics.instance.logAppOpen();
   await setupCat();
+  initialRoute = await selectInitialRoute();
   runApp(EasyLocalization(
       child: MyApp(),
       supportedLocales: [Locale('en'), Locale('de')],
@@ -43,7 +47,6 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final _settingService = locator<SettingService>();
 
   // This widget is the root of your application.
   @override
@@ -54,9 +57,7 @@ class MyApp extends StatelessWidget {
       darkTheme: getDarkTheme(context),
       navigatorKey: StackedService.navigatorKey,
       onGenerateRoute: StackedRouter().onGenerateRoute,
-      initialRoute: _settingService.readBool(startWithOverviewKey)
-          ? Routes.overViewView
-          : null,
+      initialRoute: initialRoute,
       localizationsDelegates: [
         FormBuilderLocalizations.delegate,
         ...context.localizationDelegates

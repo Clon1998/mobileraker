@@ -10,6 +10,7 @@ abstract class PrinterSettingRepository {
   Future<PrinterSetting> remove(String uuid);
 
   Future<List<PrinterSetting>> fetchAll();
+  Future<int> count();
 
 
 }

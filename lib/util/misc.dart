@@ -1,5 +1,7 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/enums/dialog_type.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
@@ -65,4 +67,16 @@ Future<DialogResponse<dynamic>?> numberOrRangeDialog(
         mainButtonTitle: mainButtonTitle,
         secondaryButtonTitle: secondaryButtonTitle,
         data: data);
+}
+
+Future<String?> selectInitialRoute() async {
+  final _settingService = locator<SettingService>();
+  final _machineService = locator<MachineService>();
+
+  if (!_settingService.readBool(startWithOverviewKey)) return null;
+
+  var c = await _machineService.count();
+  if (c == 1) return null;
+
+  return Routes.overViewView;
 }

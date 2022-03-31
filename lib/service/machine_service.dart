@@ -65,6 +65,10 @@ class MachineService {
     return _printerSettingRepo.fetchAll();
   }
 
+  Future<int> count() {
+    return _printerSettingRepo.count();
+  }
+
   setMachineActive(PrinterSetting? printerSetting) async {
     if (printerSetting == null) {
       // This case sets no printer as active!

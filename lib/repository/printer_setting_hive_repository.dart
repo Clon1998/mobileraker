@@ -36,4 +36,8 @@ class PrinterSettingHiveRepository implements PrinterSettingRepository {
   Future<List<PrinterSetting>> fetchAll() {
     return Future.value(_boxPrinterSettings.values.toList(growable: false));
   }
+
+  Future<int> count() {
+    return Future.value(_boxPrinterSettings.length);
+  }
 }

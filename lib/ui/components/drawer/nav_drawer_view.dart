@@ -49,13 +49,15 @@ class NavigationDrawerWidget
                         ..._buildPrinterSelection(context, model),
                       ],
                     ),
-                    buildMenuItem(
-                      model,
-                      text: 'pages.overview.title'.tr(),
-                      icon: FlutterIcons.view_dashboard_mco,
-                      path: Routes.overViewView,
-                    ),
-                    Divider(),
+                    if ((model.data?.length ?? 0) > 1) ...[
+                      buildMenuItem(
+                        model,
+                        text: 'pages.overview.title'.tr(),
+                        icon: FlutterIcons.view_dashboard_mco,
+                        path: Routes.overViewView,
+                      ),
+                      Divider(),
+                    ],
                     buildMenuItem(
                       model,
                       text: 'pages.dashboard.title'.tr(),
@@ -103,28 +105,31 @@ class NavigationDrawerWidget
                 alignment: Alignment.center,
                 padding: EdgeInsets.only(bottom: 20, top: 10),
                 child: RichText(
-                  text: TextSpan(text: 'components.nav_drawer.footer'.tr(), children: [
-                    new TextSpan(
-                      text: ' GitHub ',
-                      style: new TextStyle(color: Colors.blue),
+                  text: TextSpan(
+                      text: 'components.nav_drawer.footer'.tr(),
                       children: [
-                        WidgetSpan(
-                          child: Icon(FlutterIcons.github_alt_faw, size: 18),
+                        new TextSpan(
+                          text: ' GitHub ',
+                          style: new TextStyle(color: Colors.blue),
+                          children: [
+                            WidgetSpan(
+                              child:
+                                  Icon(FlutterIcons.github_alt_faw, size: 18),
+                            ),
+                          ],
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              const String url =
+                                  'https://github.com/Clon1998/mobileraker';
+                              if (await canLaunch(url)) {
+                                //TODO Fix this... neds Android Package Visibility
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
                         ),
-                      ],
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          const String url =
-                              'https://github.com/Clon1998/mobileraker';
-                          if (await canLaunch(url)) {
-                            //TODO Fix this... neds Android Package Visibility
-                            await launch(url);
-                          } else {
-                            throw 'Could not launch $url';
-                          }
-                        },
-                    ),
-                  ]),
+                      ]),
                   textAlign: TextAlign.center,
                 )),
           ],
