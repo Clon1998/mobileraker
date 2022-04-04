@@ -277,7 +277,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
             return BreadCrumbItem(
                 content: Text(
                   '${p.toUpperCase()}',
-                  style: theme.textTheme.subtitle1,
+                  style: theme.textTheme.subtitle1?.copyWith(color: Colors.white),
                 ),
                 onTap: () => print('TAPED$p'));
           },
@@ -285,7 +285,8 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               '/',
-              style: theme.textTheme.subtitle1,
+              style: theme.textTheme.subtitle1?.copyWith(color: Colors.white),
+
             ),
           ),
         ),

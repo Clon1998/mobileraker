@@ -1,12 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/dto/console/console_entry.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
-import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/views/console/console_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -61,17 +62,16 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
     return Container(
       margin: const EdgeInsets.all(4.0),
       decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+        color: theme.colorScheme.surface,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
         boxShadow: [
           if (theme.brightness == Brightness.light)
-          BoxShadow(
-            color: Colors.grey,
-            offset: Offset(0.0, 4.0), //(x,y)
-            blurRadius: 1.0,
-          ),
+            BoxShadow(
+              color: Colors.grey,
+              offset: Offset(0.0, 4.0), //(x,y)
+              blurRadius: 1.0,
+            ),
         ],
-
       ),
       child: Column(
         children: [
@@ -84,16 +84,44 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
               child: Text(
                 'GCode Console - ${model.printerName}',
-                style: theme.textTheme.subtitle1,
+                style: theme.textTheme.subtitle1?.copyWith(color: Colors.white),
               ),
             ),
           ),
-          Expanded(child: _buildConsole(context, model)),
+          Expanded(flex: 14, child: _buildConsole(context, model)),
           Divider(),
+          if (model.filteredSuggestions.isNotEmpty)
+            SizedBox(
+              height: 33,
+              child: ChipTheme(
+                data: ChipThemeData(
+                    labelStyle: TextStyle(color: Colors.white),
+                    deleteIconColor: Colors.white),
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: model.filteredSuggestions.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    String cmd = model.filteredSuggestions[index];
+
+                    return Container(
+                      margin: EdgeInsets.symmetric(horizontal: 2),
+                      child: ActionChip(
+                        label: Text(cmd),
+                        backgroundColor: highlightColor,
+                        onPressed: () => model.onSuggestionChipTap(cmd),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: TextField(
               enableSuggestions: false,
+              autocorrect: false,
               // style: themeData.textTheme.subtitle1!.copyWith(color: _commandTextColor(themeData)),
               controller: model.textEditingController,
               enabled: model.isConsoleHistoryAvailable,
@@ -169,7 +197,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
                 style: _commandTextStyle(
                     Theme.of(context), ListTileTheme.of(context))),
             subtitle: Text(DateFormat.Hms().format(entry.timestamp)),
-            onTap: () => model.onCommandTap(entry),
+            onTap: () => model.onConsoleCommandTap(entry),
           );
 
         return ListTile(

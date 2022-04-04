@@ -8,6 +8,7 @@ import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/datasource/websocket_wrapper.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
 import 'package:mobileraker/dto/config/config_file.dart';
+import 'package:mobileraker/dto/console/command.dart';
 import 'package:mobileraker/dto/console/console_entry.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/fans/controller_fan.dart';
@@ -561,8 +562,8 @@ class PrinterService {
 
   Future<List<ConsoleEntry>> gcodeStore() async {
     _logger.i('Fetching cached GCode commands');
-    BlockingResponse blockingResponse = await _webSocket
-        .sendAndReceiveJRpcMethod('server.gcode_store');
+    BlockingResponse blockingResponse =
+        await _webSocket.sendAndReceiveJRpcMethod('server.gcode_store');
     if (blockingResponse.hasError) {
       _logger.e(
           'Error while fetching cached GCode commands: ${blockingResponse.err}');
@@ -573,6 +574,20 @@ class PrinterService {
     _logger.i('Received cached GCode commands');
     return List.generate(
         raw.length, (index) => ConsoleEntry.fromJson(raw[index]));
+  }
+
+  Future<List<Command>> gcodeHelp() async {
+    _logger.i('Fetching available GCode commands');
+    BlockingResponse blockingResponse =
+        await _webSocket.sendAndReceiveJRpcMethod('printer.gcode.help');
+    if (blockingResponse.hasError) {
+      _logger.e(
+          'Error while fetching cached GCode commands: ${blockingResponse.err}');
+      return List.empty();
+    }
+    Map<dynamic, dynamic> raw = blockingResponse.response['result'];
+    _logger.i('Received ${raw.length} available GCode commands');
+    return raw.entries.map((e) => Command(e.key, e.value)).toList();
   }
 
   dispose() {

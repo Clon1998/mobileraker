@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/dto/console/command.dart';
 import 'package:mobileraker/dto/console/console_entry.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/klippy_service.dart';
@@ -15,9 +16,20 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
-const String _gCodeNotifyResp = 'notifyGcodeResp';
+const String _GCodeNotifyResp = 'notifyGcodeResp';
 const String _ConsoleHistory = 'consoleHistory';
 const String _ServerStreamKey = 'server';
+const String _MacrosStreamKey = 'availableMacros';
+const int commandCacheSize = 25;
+
+const List<String> additionalCmds = const [
+  'ABORT',
+  'ACCEPT',
+  'ADJUSTED',
+  'GET_POSITION',
+  'SET_RETRACTION',
+  'TESTZ',
+];
 
 class ConsoleViewModel extends MultipleStreamViewModel {
   final _logger = getLogger('ConsoleViewModel');
@@ -49,9 +61,31 @@ class ConsoleViewModel extends MultipleStreamViewModel {
         .toList();
   }
 
+  List<String> get filteredSuggestions {
+    List<String> history = this.history.toList();
+    Iterable<String> filteredAvailable = availableCommands
+        .map((e) => e.cmd)
+        .where((element) =>
+            !element.startsWith('_') && !history.contains(element));
+    history.addAll(additionalCmds);
+    history.addAll(filteredAvailable);
+    String text = textEditingController.text.toLowerCase();
+    if (text.isEmpty) return history;
+
+    List<String> terms = text.split(RegExp('\\W+'));
+    RegExp regExp =
+        RegExp(terms.where((element) => element.isNotEmpty).join("|"));
+
+    return history
+        .where((element) => element.toLowerCase().contains(regExp))
+        .toList(growable: false);
+  }
+
   bool get isServerAvailable => dataReady(_ServerStreamKey);
 
   KlipperInstance get server => dataMap![_ServerStreamKey];
+
+  List<Command> get availableCommands => dataMap?[_MacrosStreamKey] ?? [];
 
   bool get canUseEms =>
       isServerAvailable && server.klippyState == KlipperState.ready;
@@ -63,6 +97,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
 
   String get printerName => _printerSetting?.name ?? '';
 
+  List<String> history = [];
 
   @override
   Map<String, StreamData> get streamsMap => {
@@ -75,9 +110,11 @@ class ConsoleViewModel extends MultipleStreamViewModel {
         if (_printerService != null) ...{
           _ConsoleHistory: StreamData<List<ConsoleEntry>>(
               _printerService!.gcodeStore().asStream()),
-          _gCodeNotifyResp: StreamData<String>(
+          _GCodeNotifyResp: StreamData<String>(
               _printerService!.gCodeResponseStream,
-              transformData: _transformGCodeResponse)
+              transformData: _transformGCodeResponse),
+          _MacrosStreamKey:
+              StreamData<List<Command>>(_printerService!.gcodeHelp().asStream())
         }
       };
 
@@ -91,12 +128,18 @@ class ConsoleViewModel extends MultipleStreamViewModel {
     refreshController.refreshCompleted();
   }
 
-  onCommandTap(ConsoleEntry consoleEntry) {
+  onConsoleCommandTap(ConsoleEntry consoleEntry) {
     if (consoleEntry.type != ConsoleEntryType.COMMAND) {
       _logger.w('Tried executing a non COMMAND command');
       return;
     }
-    textEditingController.text = consoleEntry.message;
+    _setCurrentCommand(consoleEntry.message);
+  }
+
+  onSuggestionChipTap(String cmd) => _setCurrentCommand(cmd);
+
+  _setCurrentCommand(String cmd) {
+    textEditingController.text = cmd;
     textEditingController.selection = TextSelection.fromPosition(
       TextPosition(offset: textEditingController.text.length),
     );
@@ -109,6 +152,9 @@ class ConsoleViewModel extends MultipleStreamViewModel {
         DateTime.now().millisecondsSinceEpoch / 1000));
     textEditingController.text = '';
     _printerService?.gCode(command);
+    history.remove(command);
+    history.insert(0, command);
+    if (history.length > commandCacheSize) history.length = commandCacheSize;
     notifyListeners();
   }
 
@@ -122,11 +168,8 @@ class ConsoleViewModel extends MultipleStreamViewModel {
         _printerSetting = nPrinterSetting;
         notifySourceChanged(clearOldData: true);
         break;
-      case _gCodeNotifyResp:
+      case _GCodeNotifyResp:
         _consoleEntries.add(data);
-        break;
-      case _ConsoleHistory:
-        _logger.w("Received ConsoleHist");
         break;
       default:
         break;
@@ -140,6 +183,14 @@ class ConsoleViewModel extends MultipleStreamViewModel {
       });
     else
       _klippyService?.emergencyStop();
+  }
+
+  @override
+  void initialise() {
+    super.initialise();
+    if (!initialised) {
+      textEditingController.addListener(() => notifyListeners());
+    }
   }
 
   @override

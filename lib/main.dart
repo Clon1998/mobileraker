@@ -64,6 +64,9 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: context.supportedLocales,
       locale: context.locale,
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+      ],
     );
   }
 }
