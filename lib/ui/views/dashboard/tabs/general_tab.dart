@@ -35,6 +35,7 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
       BuildContext context, GeneralTabViewModel model, Widget? child) {
     return PullToRefreshPrinter(
       child: ListView(
+        key: PageStorageKey('gTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
           if (model.isPrinterAvailable &&
@@ -131,7 +132,8 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
   Widget? _subTitle(GeneralTabViewModel model) {
     switch (model.printer.print.state) {
       case PrintState.printing:
-        return Text('pages.dashboard.general.print_card.printing_for').tr(args: [
+        return Text('pages.dashboard.general.print_card.printing_for')
+            .tr(args: [
           model.printer.print.filename,
           secondsToDurationText(model.printer.print.totalDuration)
         ]);
@@ -273,27 +275,26 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
             constraints: BoxConstraints(minHeight: minWebCamHeight),
             child: Center(
                 child: Mjpeg(
-                  key: ValueKey(model.webCamUrl),
-                  imageBuilder: _imageBuilder,
-                  feedUri: model.webCamUrl,
-                  transform: model.transformMatrix,
-                  showFps: true,
-                  stackChildren: [
-                    Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: IconButton(
-                          color: Colors.white,
-                          icon: Icon(Icons.aspect_ratio),
-                          tooltip:
-                              'pages.dashboard.general.cam_card.fullscreen'
-                                  .tr(),
-                          onPressed: model.onFullScreenTap,
-                        ),
-                      ),
+              key: ValueKey(model.webCamUrl),
+              imageBuilder: _imageBuilder,
+              feedUri: model.webCamUrl,
+              transform: model.transformMatrix,
+              showFps: true,
+              stackChildren: [
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: IconButton(
+                      color: Colors.white,
+                      icon: Icon(Icons.aspect_ratio),
+                      tooltip:
+                          'pages.dashboard.general.cam_card.fullscreen'.tr(),
+                      onPressed: model.onFullScreenTap,
                     ),
-                  ],
-                )),
+                  ),
+                ),
+              ],
+            )),
           ),
         ],
       ),
@@ -318,149 +319,84 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
       key: model.tmpCardKey,
       flipOnTouch: false,
       direction: FlipDirection.VERTICAL,
-      front: Card(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Column(
-            children: [
-              _buildListTile(
-                  model,
-                  Text('pages.dashboard.general.temp_card.title').tr(),
-                  TextButton(
-                    onPressed: model.flipTemperatureCard,
-                    // onPressed: () => showWIPSnackbar(),
-                    child: Text('pages.dashboard.general.temp_card.presets_btn')
-                        .tr(),
-                  )),
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    var elementWidth = constraints.maxWidth / 2;
-                    return SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      controller: model.tempsScrollController,
-                      child: Row(
-                        children: [
-                          _HeaterCard(
-                            name:
-                                'pages.dashboard.general.temp_card.hotend'.tr(),
-                            width: elementWidth,
-                            current: model.printer.extruder.temperature,
-                            target: model.printer.extruder.target,
-                            onTap: model.canUsePrinter
-                                ? () => model.editDialog(false)
-                                : null,
-                          ),
-                          _HeaterCard(
-                            name: 'pages.dashboard.general.temp_card.bed'.tr(),
-                            width: elementWidth,
-                            current: model.printer.heaterBed.temperature,
-                            target: model.printer.heaterBed.target,
-                            onTap: model.canUsePrinter
-                                ? () => model.editDialog(true)
-                                : null,
-                          ),
-                          ..._buildTempSensors(elementWidth, model)
-                        ],
-                      ),
-                    );
-                  },
-                ),
+      front: _Heaters(),
+      back: _Presets(),
+    );
+  }
+}
+
+class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
+  @override
+  Widget build(BuildContext context, GeneralTabViewModel model) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Column(
+          children: [
+            ListTile(
+              leading: Icon(
+                FlutterIcons.fire_alt_faw5s,
+                color: ((model.printer.extruder.target +
+                            model.printer.heaterBed.target) >
+                        0)
+                    ? Colors.deepOrange
+                    : null,
               ),
-              if (model.presetSteps > 2 || model.tempsSteps > 2)
-                HorizontalScrollIndicator(
-                  steps: model.tempsSteps,
-                  controller: model.tempsScrollController,
-                  childsPerScreen: 2,
-                )
-            ],
-          ),
-        ),
-      ),
-      back: Card(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Column(
-            children: [
-              _buildListTile(
-                  model,
-                  Text('pages.dashboard.general.temp_card.temp_presets').tr(),
-                  TextButton(
-                    onPressed: model.flipTemperatureCard,
-                    child:
-                        Text('pages.dashboard.general.temp_card.sensors').tr(),
-                  )),
-              Padding(
-                  padding: const EdgeInsets.only(left: 8, right: 8),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        controller: model.presetsScrollController,
-                        child: Row(
-                          children: _buildTemperaturePresetCards(
-                              constraints.maxWidth / 2, model),
+              title: Text('pages.dashboard.general.temp_card.title').tr(),
+              trailing: TextButton(
+                onPressed: model.flipTemperatureCard,
+                // onPressed: () => showWIPSnackbar(),
+                child:
+                    Text('pages.dashboard.general.temp_card.presets_btn').tr(),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  var elementWidth = constraints.maxWidth / 2;
+                  return SingleChildScrollView(
+                    key: PageStorageKey<String>('tempsScroll'),
+                    controller: model.tempsScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _HeaterCard(
+                          name: 'pages.dashboard.general.temp_card.hotend'.tr(),
+                          width: elementWidth,
+                          current: model.printer.extruder.temperature,
+                          target: model.printer.extruder.target,
+                          onTap: model.canUsePrinter
+                              ? () => model.editDialog(false)
+                              : null,
                         ),
-                      );
-                    },
-                  )),
-              if (model.presetSteps > 2 || model.tempsSteps > 2)
-                HorizontalScrollIndicator(
-                  steps: model.presetSteps,
-                  controller: model.presetsScrollController,
-                  childsPerScreen: 2,
-                )
-            ],
-          ),
+                        _HeaterCard(
+                          name: 'pages.dashboard.general.temp_card.bed'.tr(),
+                          width: elementWidth,
+                          current: model.printer.heaterBed.temperature,
+                          target: model.printer.heaterBed.target,
+                          onTap: model.canUsePrinter
+                              ? () => model.editDialog(true)
+                              : null,
+                        ),
+                        ..._buildTempSensors(elementWidth, model)
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (model.presetSteps > 2 || model.tempsSteps > 2)
+              HorizontalScrollIndicator(
+                key: PageStorageKey<String>('tempsIndicatorScroll'),
+                steps: model.tempsSteps,
+                controller: model.tempsScrollController,
+                childsPerScreen: 2,
+              )
+          ],
         ),
       ),
     );
-  }
-
-  ListTile _buildListTile(
-      GeneralTabViewModel model, Widget title, Widget trailing) {
-    return ListTile(
-      leading: Icon(
-        FlutterIcons.fire_alt_faw5s,
-        color:
-            ((model.printer.extruder.target + model.printer.heaterBed.target) >
-                    0)
-                ? Colors.deepOrange
-                : null,
-      ),
-      title: title,
-      trailing: trailing,
-    );
-  }
-
-  List<Widget> _buildTemperaturePresetCards(
-      double width, GeneralTabViewModel model) {
-    var coolOf = _TemperaturePresetCard(
-      width: width,
-      presetName: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
-      extruderTemp: 0,
-      bedTemp: 0,
-      onTap:
-          model.canUsePrinter ? () => model.setTemperaturePreset(0, 0) : null,
-    );
-
-    List<TemperaturePreset> tempPresets = model.temperaturePresets;
-    var presetWidgets = List.generate(tempPresets.length, (index) {
-      TemperaturePreset preset = tempPresets[index];
-      return _TemperaturePresetCard(
-        width: width,
-        presetName: preset.name,
-        extruderTemp: preset.extruderTemp,
-        bedTemp: preset.bedTemp,
-        onTap: model.canUsePrinter
-            ? () =>
-                model.setTemperaturePreset(preset.extruderTemp, preset.bedTemp)
-            : null,
-      );
-    });
-    presetWidgets.insert(0, coolOf);
-    return presetWidgets;
   }
 
   List<Widget> _buildTempSensors(double width, GeneralTabViewModel model) {
@@ -475,46 +411,6 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
       rows.add(tr);
     }
     return rows;
-  }
-}
-
-class _TemperaturePresetCard extends StatelessWidget {
-  final double width;
-  final String presetName;
-  final int extruderTemp;
-  final int bedTemp;
-  final VoidCallback? onTap;
-
-  const _TemperaturePresetCard(
-      {Key? key,
-      required this.width,
-      required this.presetName,
-      required this.extruderTemp,
-      required this.bedTemp,
-      required this.onTap})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return CardWithButton(
-        width: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(presetName,
-                style: Theme.of(context).textTheme.headline6,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-            Text('pages.dashboard.general.temp_preset_card.h_temp',
-                    style: Theme.of(context).textTheme.caption)
-                .tr(args: [extruderTemp.toString()]),
-            Text('pages.dashboard.general.temp_preset_card.b_temp',
-                    style: Theme.of(context).textTheme.caption)
-                .tr(args: [bedTemp.toString()]),
-          ],
-        ),
-        buttonChild: Text('general.set').tr(),
-        onTap: onTap);
   }
 }
 
@@ -572,6 +468,127 @@ class _HeaterCard extends StatelessWidget {
           ],
         ),
         buttonChild: const Text('general.set').tr(),
+        onTap: onTap);
+  }
+}
+
+class _Presets extends ViewModelWidget<GeneralTabViewModel> {
+  @override
+  Widget build(BuildContext context, GeneralTabViewModel model) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 8.0),
+        child: Column(
+          children: [
+            ListTile(
+              leading: Icon(
+                FlutterIcons.fire_alt_faw5s,
+                color: ((model.printer.extruder.target +
+                            model.printer.heaterBed.target) >
+                        0)
+                    ? Colors.deepOrange
+                    : null,
+              ),
+              title:
+                  Text('pages.dashboard.general.temp_card.temp_presets').tr(),
+              trailing: TextButton(
+                onPressed: model.flipTemperatureCard,
+                child: Text('pages.dashboard.general.temp_card.sensors').tr(),
+              ),
+            ),
+            Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      key: PageStorageKey<String>('presetsScroll'),
+                      controller: model.presetsScrollController,
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: _buildTemperaturePresetCards(
+                            constraints.maxWidth / 2, model),
+                      ),
+                    );
+                  },
+                )),
+            if (model.presetSteps > 2 || model.tempsSteps > 2)
+              HorizontalScrollIndicator(
+                steps: model.presetSteps,
+                controller: model.presetsScrollController,
+                childsPerScreen: 2,
+              )
+          ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildTemperaturePresetCards(
+      double width, GeneralTabViewModel model) {
+    var coolOf = _TemperaturePresetCard(
+      width: width,
+      presetName: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
+      extruderTemp: 0,
+      bedTemp: 0,
+      onTap:
+          model.canUsePrinter ? () => model.setTemperaturePreset(0, 0) : null,
+    );
+
+    List<TemperaturePreset> tempPresets = model.temperaturePresets;
+    var presetWidgets = List.generate(tempPresets.length, (index) {
+      TemperaturePreset preset = tempPresets[index];
+      return _TemperaturePresetCard(
+        width: width,
+        presetName: preset.name,
+        extruderTemp: preset.extruderTemp,
+        bedTemp: preset.bedTemp,
+        onTap: model.canUsePrinter
+            ? () =>
+                model.setTemperaturePreset(preset.extruderTemp, preset.bedTemp)
+            : null,
+      );
+    });
+    presetWidgets.insert(0, coolOf);
+    return presetWidgets;
+  }
+}
+
+class _TemperaturePresetCard extends StatelessWidget {
+  final double width;
+  final String presetName;
+  final int extruderTemp;
+  final int bedTemp;
+  final VoidCallback? onTap;
+
+  const _TemperaturePresetCard(
+      {Key? key,
+      required this.width,
+      required this.presetName,
+      required this.extruderTemp,
+      required this.bedTemp,
+      required this.onTap})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CardWithButton(
+        width: width,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(presetName,
+                style: Theme.of(context).textTheme.headline6,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis),
+            Text('pages.dashboard.general.temp_preset_card.h_temp',
+                    style: Theme.of(context).textTheme.caption)
+                .tr(args: [extruderTemp.toString()]),
+            Text('pages.dashboard.general.temp_preset_card.b_temp',
+                    style: Theme.of(context).textTheme.caption)
+                .tr(args: [bedTemp.toString()]),
+          ],
+        ),
+        buttonChild: Text('general.set').tr(),
         onTap: onTap);
   }
 }
@@ -804,8 +821,8 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           ),
                         ),
                       Tooltip(
-                        message:
-                            'pages.dashboard.general.move_card.m84_tooltip'.tr(),
+                        message: 'pages.dashboard.general.move_card.m84_tooltip'
+                            .tr(),
                         child: ElevatedButton.icon(
                           onPressed:
                               !model.canUsePrinter ? null : model.onMotorOff,

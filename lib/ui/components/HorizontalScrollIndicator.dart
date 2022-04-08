@@ -39,9 +39,12 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   void initState() {
     super.initState();
     controller.addListener(_listenerForController);
+    _listenerForController();
   }
 
   void _listenerForController() {
+    if (!controller.hasClients)
+      return;
     double maxScrollExtent = controller.position.maxScrollExtent;
     var offset = controller.offset;
     double newIndex =
@@ -56,7 +59,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   Widget build(BuildContext context) {
     return DotsIndicator(
       dotsCount: steps,
-      position: _curIndex,
+      position: max(_curIndex, 0),
       decorator:
           DotsDecorator(activeColor: Theme.of(context).colorScheme.primary),
     );

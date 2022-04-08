@@ -65,6 +65,7 @@ class MyApp extends StatelessWidget {
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       navigatorObservers: [
+        StackedService.routeObserver,
         FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
       ],
     );

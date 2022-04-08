@@ -27,22 +27,22 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   Widget builder(
       BuildContext context, ControlTabViewModel model, Widget? child) {
     return PullToRefreshPrinter(
-      child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: Column(
-            children: [
-              if (model.isPrinterAvailable &&
-                  model.isServerAvailable &&
-                  model.isMachineAvailable) ...[
-                if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
-                if (model.printer.print.state != PrintState.printing)
-                  ExtruderControlCard(),
-                MultipliersCard(),
-                FansCard(),
-                if (model.printer.outputPins.isNotEmpty) PinsCard(),
-              ]
-            ],
-          )),
+      child: ListView(
+        key: PageStorageKey<String>('cTab'),
+        padding: const EdgeInsets.only(bottom: 20),
+        children: [
+          if (model.isPrinterAvailable &&
+              model.isServerAvailable &&
+              model.isMachineAvailable) ...[
+            if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
+            if (model.printer.print.state != PrintState.printing)
+              ExtruderControlCard(),
+            MultipliersCard(),
+            FansCard(),
+            if (model.printer.outputPins.isNotEmpty) PinsCard(),
+          ]
+        ],
+      ),
     );
   }
 
@@ -77,6 +77,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
                   builder: (context, constraints) {
                     var elementWidth = constraints.maxWidth / 2;
                     return SingleChildScrollView(
+                      key: PageStorageKey<String>('fanscroll'),
                       scrollDirection: Axis.horizontal,
                       controller: model.fansScrollController,
                       child: Row(
@@ -314,7 +315,9 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: ChipTheme(
-              data: ChipThemeData(labelStyle: TextStyle(color: Colors.white),deleteIconColor: Colors.white),
+              data: ChipThemeData(
+                  labelStyle: TextStyle(color: Colors.white),
+                  deleteIconColor: Colors.white),
               child: Wrap(
                 spacing: 5.0,
                 children: _generateGCodeChips(context, model),
@@ -375,6 +378,7 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
                   builder: (context, constraints) {
                     var elementWidth = constraints.maxWidth / 2;
                     return SingleChildScrollView(
+                      key: PageStorageKey<String>('outputScroll'),
                       scrollDirection: Axis.horizontal,
                       controller: model.outputsScrollController,
                       child: Row(

@@ -44,7 +44,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                 Icons.dangerous_outlined,
                 size: 30,
               ),
-              tooltip: 'pages.dashboard.ems_btn'.tr(),
+              tooltip: tr('pages.dashboard.ems_btn'),
               onPressed: (model.canUseEms) ? model.onEmergencyPressed : null,
             ),
           ],
@@ -79,7 +79,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                       SizedBox(
                         height: 30,
                       ),
-                      FadingText('pages.dashboard.fetching_printer'.tr()),
+                      FadingText(tr('pages.dashboard.fetching_printer')),
                       // Text("Fetching printer ...")
                     ],
                   ),

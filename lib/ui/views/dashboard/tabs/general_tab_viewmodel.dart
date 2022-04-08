@@ -47,13 +47,11 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   WebcamSetting? selectedCam;
 
   ScrollController _tempsScrollController = new ScrollController(
-    keepScrollOffset: true,
   );
 
   ScrollController get tempsScrollController => _tempsScrollController;
 
   ScrollController _presetsScrollController = new ScrollController(
-    keepScrollOffset: true,
   );
 
   ScrollController get presetsScrollController => _presetsScrollController;
