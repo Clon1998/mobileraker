@@ -68,6 +68,7 @@ dependencies:
   mobile_scanner: ^1.0.0
   easy_localization: ^3.0.0
   purchases_flutter: ^3.9.5
+  webview_flutter: ^2.8.0
 
 dev_dependencies:
   flutter_test:
