@@ -138,7 +138,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         context,
         Column(
           children: [
-            buildBreadCrumb(context, model.requestedPath),
+            buildBreadCrumb(context, model, model.requestedPath),
             Expanded(
               child: Shimmer.fromColors(
                 child: ListView.builder(
@@ -182,7 +182,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         context,
         Column(
           children: [
-            buildBreadCrumb(context, model.folderContent.reqPath.split('/')),
+            buildBreadCrumb(context, model, model.folderContent.reqPath.split('/')),
             Expanded(
               child: EaseIn(
                 duration: Duration(milliseconds: 100),
@@ -258,7 +258,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
     );
   }
 
-  Widget buildBreadCrumb(BuildContext context, List<String> paths) {
+  Widget buildBreadCrumb(BuildContext context, FilesViewModel model, List<String> paths) {
     ThemeData theme = Theme.of(context);
     Color highlightColor = theme.brightness == Brightness.dark
         ? theme.colorScheme.secondary
@@ -274,12 +274,13 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
           itemCount: paths.length,
           builder: (index) {
             String p = paths[index];
+            List<String> fullPath = paths.sublist(0,index+1);
             return BreadCrumbItem(
                 content: Text(
                   '${p.toUpperCase()}',
                   style: theme.textTheme.subtitle1?.copyWith(color: Colors.white),
                 ),
-                onTap: () => print('TAPED$p'));
+                onTap: () => model.onBreadCrumbItemPressed(fullPath));
           },
           divider: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),

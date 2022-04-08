@@ -138,6 +138,10 @@ class FilesViewModel extends MultipleStreamViewModel {
     _busyFetchDirectoryData(newPath: newPath);
   }
 
+  onBreadCrumbItemPressed(List<String> newPath) {
+      return _busyFetchDirectoryData(newPath: newPath);
+  }
+
   Future<bool> onWillPop() async {
     List<String> newPath = folderContent.reqPath.split('/');
 

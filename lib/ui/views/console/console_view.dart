@@ -110,7 +110,9 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
                       child: ActionChip(
                         label: Text(cmd),
                         backgroundColor: highlightColor,
-                        onPressed: () => model.onSuggestionChipTap(cmd),
+                        onPressed: () => (model.isConsoleHistoryAvailable)
+                            ? model.onSuggestionChipTap(cmd)
+                            : null,
                       ),
                     );
                   },

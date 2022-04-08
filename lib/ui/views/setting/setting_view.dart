@@ -23,89 +23,88 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  _SectionHeader(title: 'pages.setting.general.title'.tr()),
-                  _languageSelector(context),
-                  FormBuilderSwitch(
-                    name: 'emsConfirmation',
-                    title: Text('pages.setting.general.ems_confirm').tr(),
-                    onChanged: model.onEMSChanged,
-                    initialValue: model.emsValue,
-                    decoration: InputDecoration(
-                        border: InputBorder.none, isCollapsed: true),
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  FormBuilderSwitch(
-                    name: 'alwaysShowBaby',
-                    title: Text('pages.setting.general.always_baby').tr(),
-                    onChanged: model.onAlwaysShowBabyChanged,
-                    initialValue: model.showBabyAlwaysValue,
-                    decoration: InputDecoration(
-                        border: InputBorder.none, isCollapsed: true),
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  FormBuilderSwitch(
-                    name: 'useTextInputForNum',
-                    title: Text('pages.setting.general.num_edit').tr(),
-                    onChanged: model.onUseTextInputForNumChanged,
-                    initialValue: model.useTextInputForNum,
-                    decoration: InputDecoration(
-                        border: InputBorder.none, isCollapsed: true),
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  FormBuilderSwitch(
-                    name: 'startWithOverview',
-                    title: Text('pages.setting.general.start_with_overview').tr(),
-                    onChanged: model.onStartWithOverviewChanged,
-                    initialValue: model.startWithOverview,
-                    decoration: InputDecoration(
-                        border: InputBorder.none, isCollapsed: true),
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  Divider(),
-                  RichText(
-                    text: TextSpan(
-                        text:
-                        tr('pages.setting.general.companion'),
-                        children: [
-                          new TextSpan(
-                            text: '\nOfficial GitHub ',
-                            style: new TextStyle(color: Colors.blue),
-                            children: [
-                              WidgetSpan(
-                                child:
-                                Icon(FlutterIcons.github_alt_faw, size: 18),
-                              ),
-                            ],
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () async {
-                                const String url =
-                                    'https://github.com/Clon1998/mobileraker_companion';
-                                if (await canLaunch(url)) {
-                                  //TODO Fix this... neds Android Package Visibility
-                                  await launch(url);
-                                } else {
-                                  throw 'Could not launch $url';
-                                }
-                              },
-                          ),
-                        ]),
-                    textAlign: TextAlign.center,
-                  ),
-                  Divider(),
-                  Text(
-                    model.version,
-                    textAlign: TextAlign.center,
-                  ),
-                  TextButton(
-                    child: Text('pages.setting.imprint').tr(),
-                    onPressed: model.navigateToLegal,
-                  ),
-                  // _SectionHeader(title: 'Notifications'),
-                ],
-              ),
+            child: ListView(
+              children: <Widget>[
+                _SectionHeader(title: 'pages.setting.general.title'.tr()),
+                _languageSelector(context),
+                FormBuilderSwitch(
+                  name: 'emsConfirmation',
+                  title: Text('pages.setting.general.ems_confirm').tr(),
+                  onChanged: model.onEMSChanged,
+                  initialValue: model.emsValue,
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: Theme.of(context).colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'alwaysShowBaby',
+                  title: Text('pages.setting.general.always_baby').tr(),
+                  onChanged: model.onAlwaysShowBabyChanged,
+                  initialValue: model.showBabyAlwaysValue,
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: Theme.of(context).colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'useTextInputForNum',
+                  title: Text('pages.setting.general.num_edit').tr(),
+                  onChanged: model.onUseTextInputForNumChanged,
+                  initialValue: model.useTextInputForNum,
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: Theme.of(context).colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'startWithOverview',
+                  title: Text('pages.setting.general.start_with_overview').tr(),
+                  onChanged: model.onStartWithOverviewChanged,
+                  initialValue: model.startWithOverview,
+                  decoration: InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: Theme.of(context).colorScheme.primary,
+                ),
+                Divider(),
+                RichText(
+                  text: TextSpan(
+                      style: Theme.of(context).textTheme.bodyText2,
+                      text: tr('pages.setting.general.companion'),
+                      children: [
+                        new TextSpan(
+                          text: '\nOfficial GitHub ',
+                          style: new TextStyle(color: Colors.blue),
+                          children: [
+                            WidgetSpan(
+                              child:
+                                  Icon(FlutterIcons.github_alt_faw, size: 18),
+                            ),
+                          ],
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              const String url =
+                                  'https://github.com/Clon1998/mobileraker_companion';
+                              if (await canLaunch(url)) {
+                                //TODO Fix this... neds Android Package Visibility
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                        ),
+                      ]),
+                  textAlign: TextAlign.center,
+                ),
+                Divider(),
+                Text(
+                  model.version,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                TextButton(
+                  child: Text('pages.setting.imprint').tr(),
+                  onPressed: model.navigateToLegal,
+                ),
+                // _SectionHeader(title: 'Notifications'),
+              ],
             ),
           ),
         ),
@@ -144,12 +143,14 @@ Widget _languageSelector(BuildContext context) {
     initialValue: context.locale,
     name: 'lan',
     items: supportedLocals
-        .map((local) =>
-            DropdownMenuItem(value: local, child: Text('languages.${local.languageCode}.nativeName'.tr())))
+        .map((local) => DropdownMenuItem(
+            value: local,
+            child: Text('languages.${local.languageCode}.nativeName'.tr())))
         .toList(),
     decoration: InputDecoration(
       labelText: 'pages.setting.general.language'.tr(),
     ),
-    onChanged: (Locale? local) => context.setLocale(local??context.fallbackLocale!),
+    onChanged: (Locale? local) =>
+        context.setLocale(local ?? context.fallbackLocale!),
   );
 }
