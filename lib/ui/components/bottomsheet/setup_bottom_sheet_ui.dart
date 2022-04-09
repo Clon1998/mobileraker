@@ -2,13 +2,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/enums/bottom_sheet_type.dart';
-import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-void setupBottomSheetUi() {
+enum BottomSheetType {
+  ManagementMenu,
+}
+
+setupBottomSheetUi() {
   final bottomSheetService = locator<BottomSheetService>();
 
   final builders = {

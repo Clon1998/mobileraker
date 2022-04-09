@@ -4,7 +4,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:reorderables/reorderables.dart';
@@ -15,7 +15,7 @@ import 'printers_edit_viewmodel.dart';
 class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
   const PrintersEdit({Key? key, required this.printerSetting})
       : super(key: key);
-  final PrinterSetting printerSetting;
+  final Machine printerSetting;
 
   @override
   Widget builder(
@@ -441,7 +441,7 @@ class _WebCamItemState extends State<_WebCamItem> {
         ]));
   }
 
-  void onNameChanged(String? name) {
+  onNameChanged(String? name) {
     setState(() {
       _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.cams.new_cam'.tr() : name!;
     });
@@ -527,7 +527,7 @@ class _MacroGroupState extends State<_MacroGroup> {
             ]));
   }
 
-  void onNameChanged(String? name) {
+  onNameChanged(String? name) {
     setState(() {
       _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.macros.new_macro_grp'.tr() : name!;
     });
@@ -616,7 +616,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
         ]));
   }
 
-  void onNameChanged(String? name) {
+  onNameChanged(String? name) {
     setState(() {
       _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.presets.new_preset'.tr() : name!;
     });

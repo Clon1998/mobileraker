@@ -3,28 +3,28 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
+class PrintersAddViewModel extends StreamViewModel<ClientState> {
   final _navigationService = locator<NavigationService>();
   final _snackbarService = locator<SnackbarService>();
   final _printerSettingService = locator<MachineService>();
   final _fbKey = GlobalKey<FormBuilderState>();
-  final printers = Hive.box<PrinterSetting>('printers');
+  final printers = Hive.box<Machine>('printers');
   final String defaultPrinterName = 'My Printer';
 
-  Stream<WebSocketState> _wsStream = Stream<WebSocketState>.empty();
+  Stream<ClientState> _wsStream = Stream<ClientState>.empty();
 
   GlobalKey get formKey => _fbKey;
 
   String inputUrl = '';
 
-  WebSocketWrapper? _testWebSocket;
+  JsonRpcClient? _testWebSocket;
 
   String get wsResult {
     if (_testWebSocket?.requiresAPIKey ?? false) {
@@ -33,11 +33,11 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
 
     if (dataReady) {
       switch (data) {
-        case WebSocketState.connecting:
+        case ClientState.connecting:
           return 'connecting';
-        case WebSocketState.connected:
+        case ClientState.connected:
           return 'connected';
-        case WebSocketState.error:
+        case ClientState.error:
           return 'error';
         default:
           return 'Unknown';
@@ -57,12 +57,12 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
   Color get wsStateColor {
     if (!dataReady) return Colors.red;
     switch (data) {
-      case WebSocketState.connected:
+      case ClientState.connected:
         return Colors.green;
-      case WebSocketState.error:
+      case ClientState.error:
         return Colors.red;
-      case WebSocketState.disconnected:
-      case WebSocketState.connecting:
+      case ClientState.disconnected:
+      case ClientState.connecting:
       default:
         return Colors.orange;
     }
@@ -89,7 +89,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
       String wsUrl = urlToWebsocketUrl(printerUrl);
       String httpUrl = urlToHttpUrl(printerUrl);
 
-      var printerSetting = PrinterSetting(
+      var printerSetting = Machine(
           name: printerName,
           wsUrl: wsUrl,
           httpUrl: httpUrl,
@@ -107,7 +107,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
       _testWebSocket?.reset();
       _testWebSocket?.stateStream.close();
 
-      _testWebSocket = WebSocketWrapper(printerUrl, Duration(seconds: 2),
+      _testWebSocket = JsonRpcClient(printerUrl, Duration(seconds: 2),
           apiKey: printerAPIKey);
 
       _wsStream = _testWebSocket!.stateStream;
@@ -118,7 +118,7 @@ class PrintersAddViewModel extends StreamViewModel<WebSocketState> {
   }
 
   @override
-  Stream<WebSocketState> get stream => _wsStream;
+  Stream<ClientState> get stream => _wsStream;
 
   openQrScanner() async {
     var readValue = await _navigationService.navigateTo(Routes.qrScannerView);

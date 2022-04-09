@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
@@ -66,10 +66,10 @@ class ConnectionStateView
   Widget _widgetForWebsocketState(
       BuildContext context, ConnectionStateViewModel model) {
     switch (model.connectionState) {
-      case WebSocketState.connected:
+      case ClientState.connected:
         return _widgetForKlippyServerState(context, model);
 
-      case WebSocketState.disconnected:
+      case ClientState.disconnected:
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -86,7 +86,7 @@ class ConnectionStateView
             ],
           ),
         );
-      case WebSocketState.connecting:
+      case ClientState.connecting:
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -101,7 +101,7 @@ class ConnectionStateView
             ],
           ),
         );
-      case WebSocketState.error:
+      case ClientState.error:
       default:
         return Container(
           alignment: Alignment.center,
@@ -114,7 +114,7 @@ class ConnectionStateView
                 height: 20,
               ),
               Text(
-                model.websocketErrorMessage,
+                model.clientErrorMessage,
                 textAlign: TextAlign.center,
               ),
               TextButton.icon(

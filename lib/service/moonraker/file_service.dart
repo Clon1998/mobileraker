@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/exceptions.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
@@ -27,13 +27,27 @@ enum FileAction {
 typedef FileListChangedListener = Function(
     Map<String, dynamic> item, Map<String, dynamic>? srcItem);
 
+class FolderContentWrapper {
+  FolderContentWrapper(this.reqPath, this.folders, this.gCodes);
+
+  String reqPath;
+  List<Folder> folders;
+  List<GCodeFile> gCodes;
+}
+
 /// The FileService handles all file changes of the different roots of moonraker
 /// For more information check out
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  final PrinterSetting _owner;
+  FileService(this._owner) {
+    _jRpcClient.addMethodListener(
+        _onFileListChanged, "notify_filelist_changed");
+  }
+
   final _logger = getLogger('FileService');
+
+  final Machine _owner;
 
   StreamController<FileListChangedNotification> _fileActionStreamCtrler =
       StreamController.broadcast();
@@ -41,11 +55,27 @@ class FileService {
   Stream<FileListChangedNotification> get fileNotificationStream =>
       _fileActionStreamCtrler.stream;
 
-  FileService(this._owner) {
-    _webSocket.addMethodListener(_onFileListChanged, "notify_filelist_changed");
+  JsonRpcClient get _jRpcClient => _owner.jRpcClient;
+
+  Future<FolderContentWrapper> fetchDirectoryInfo(String path,
+      [bool extended = false]) async {
+    _logger.i('Fetching for `$path` [extended:$extended]');
+
+    RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
+        'server.files.get_directory',
+        params: {'path': path, 'extended': extended});
+    return _parseDirectory(blockingResp, path);
   }
 
-  WebSocketWrapper get _webSocket => _owner.websocket;
+  Future<GCodeFile> getGCodeMetadata(String filename) async {
+    _logger.i('Getting meta for file: `$filename`');
+
+    RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
+        'server.files.metadata',
+        params: {'filename': filename});
+
+    return _parseFileMeta(blockingResp, filename);
+  }
 
   _onFileListChanged(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];
@@ -64,53 +94,8 @@ class FileService {
     }
   }
 
-  Future<FolderContentWrapper> fetchDirectoryInfo(String path,
-      [bool extended = false]) async {
-    _logger.i('Fetching for `$path` [extended:$extended]');
-
-    BlockingResponse blockingResp = await _webSocket.sendAndReceiveJRpcMethod(
-        'server.files.get_directory',
-        params: {'path': path, 'extended': extended});
-    return _parseDirectory(blockingResp, path);
-  }
-
-  _fetchAvailableFiles(FileRoot root) {
-    _webSocket.sendJsonRpcMethod("server.files.list",
-        onReceive: (response, {err}) {
-      if (err == null) _parseResult(response['result'], root);
-    }, params: {'root': EnumToString.convertToString(root)});
-  }
-
-  Future<GCodeFile> getGCodeMetadata(String filename) async {
-    _logger.i('Getting meta for file: `$filename`');
-
-    BlockingResponse blockingResp = await _webSocket.sendAndReceiveJRpcMethod(
-        'server.files.metadata',
-        params: {'filename': filename});
-
-    return _parseFileMeta(blockingResp, filename);
-  }
-
-  _parseResult(response, FileRoot root) {
-    // List<dynamic> fileList = response; // Just add an type
-    //
-    // List<File> files = List.empty(growable: true);
-    // for (var element in fileList) {
-    //   String path = element['path'];
-    //   double lastModified = element['modified'];
-    //   int size = element['size'];
-    //
-    //   List<String> split = path.split('/');
-    //   String fileName = split.removeLast();
-    //
-    //   for (var parents in split) {}
-    // }
-    //
-    // fileStream.add(listOfGcodes);
-  }
-
   FolderContentWrapper _parseDirectory(
-      BlockingResponse blockingResponse, String forPath) {
+      RpcResponse blockingResponse, String forPath) {
     if (blockingResponse.hasError)
       throw FileFetchException(blockingResponse.err.toString(),
           reqPath: forPath);
@@ -147,7 +132,7 @@ class FileService {
     return FolderContentWrapper(forPath, listOfFolder, listOfFiles);
   }
 
-  GCodeFile _parseFileMeta(BlockingResponse blockingResponse, String forFile) {
+  GCodeFile _parseFileMeta(RpcResponse blockingResponse, String forFile) {
     if (blockingResponse.hasError)
       throw FileFetchException(blockingResponse.err.toString(),
           reqPath: forFile);
@@ -165,12 +150,4 @@ class FileService {
   dispose() {
     _fileActionStreamCtrler.close();
   }
-}
-
-class FolderContentWrapper {
-  String reqPath;
-  List<Folder> folders;
-  List<GCodeFile> gCodes;
-
-  FolderContentWrapper(this.reqPath, this.folders, this.gCodes);
 }

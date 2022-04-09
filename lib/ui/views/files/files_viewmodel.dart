@@ -4,15 +4,15 @@ import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_notification.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_source_item.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/file_service.dart';
-import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/util/path_utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -48,7 +48,7 @@ class FilesViewModel extends MultipleStreamViewModel {
         fileB.printStartTime?.compareTo(fileA.printStartTime ?? 0) ?? -1,
   ];
 
-  PrinterSetting? _printerSetting;
+  Machine? _printerSetting;
 
   FileService? get _fileService => _printerSetting?.fileService;
 
@@ -69,7 +69,7 @@ class FilesViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_machineService.selectedMachine),
         if (_fileService != null) ...{
           _FolderContentStreamKey: StreamData<FolderContentWrapper>(
               _folderContentStreamController.stream),
@@ -87,7 +87,7 @@ class FilesViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        PrinterSetting? nPrinterSetting = data;
+        Machine? nPrinterSetting = data;
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
         _fetchDirectoryData();
@@ -102,7 +102,7 @@ class FilesViewModel extends MultipleStreamViewModel {
     }
   }
 
-  void handleFileListChanged(
+  handleFileListChanged(
       FileListChangedNotification fileListChangedNotification) {
     _logger.i('CrntPath: $requestedPathAsString');
     _logger.i('$fileListChangedNotification');
@@ -233,7 +233,7 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
-  PrinterSetting? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
+  Machine? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
 
   bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
 
@@ -245,7 +245,7 @@ class FilesViewModel extends MultipleStreamViewModel {
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     refreshController.dispose();
     searchEditingController.dispose();

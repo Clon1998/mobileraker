@@ -1,20 +1,20 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hive/hive.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:mobileraker/domain/macro_group.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/service/database_service.dart';
-import 'package:mobileraker/service/file_service.dart';
-import 'package:mobileraker/service/klippy_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/moonraker/database_service.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:uuid/uuid.dart';
 
-part 'printer_setting.g.dart';
+part 'machine.g.dart';
 
 @HiveType(typeId: 1)
-class PrinterSetting extends HiveObject {
+class Machine extends HiveObject {
   @HiveField(0)
   String name;
   @HiveField(1)
@@ -25,6 +25,10 @@ class PrinterSetting extends HiveObject {
   List<WebcamSetting> cams;
   @HiveField(4)
   String? apiKey;
+
+
+
+
   @HiveField(5, defaultValue: [])
   List<TemperaturePreset> temperaturePresets;
   @HiveField(6,
@@ -62,14 +66,14 @@ class PrinterSetting extends HiveObject {
   set lastPrintState(PrintState? n) =>
       _lastPrintState = (n == null) ? null : EnumToString.convertToString(n);
 
-  WebSocketWrapper? _webSocket;
+  JsonRpcClient? _jRpcClient;
 
-  WebSocketWrapper get websocket {
-    if (_webSocket == null)
-      _webSocket =
-          WebSocketWrapper(wsUrl, Duration(seconds: 5), apiKey: apiKey);
+  JsonRpcClient get jRpcClient {
+    if (_jRpcClient == null)
+      _jRpcClient =
+          JsonRpcClient(wsUrl, Duration(seconds: 5), apiKey: apiKey);
 
-    return _webSocket!;
+    return _jRpcClient!;
   }
 
   PrinterService? _printerService;
@@ -103,7 +107,7 @@ class PrinterSetting extends HiveObject {
   String get statusUpdatedChannelKey => '$uuid-statusUpdates';
   String get printProgressChannelKey => '$uuid-progressUpdates';
 
-  PrinterSetting({
+  Machine({
     required this.name,
     required this.wsUrl,
     required this.httpUrl,
@@ -133,7 +137,7 @@ class PrinterSetting extends HiveObject {
     lastModified = DateTime.now();
     await super.save();
     // ensure websocket gets updated with the changed URL+API KEY
-    _webSocket?.update(this.wsUrl, this.apiKey);
+    _jRpcClient?.update(this.wsUrl, this.apiKey);
   }
 
   @override
@@ -143,18 +147,18 @@ class PrinterSetting extends HiveObject {
     return;
   }
 
-  void disposeServices() {
+  disposeServices() {
     _printerService?.dispose();
     _klippyService?.dispose();
     _fileService?.dispose();
     _databaseService?.dispose();
-    _webSocket?.dispose();
+    _jRpcClient?.dispose();
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is PrinterSetting &&
+      other is Machine &&
           runtimeType == other.runtimeType &&
           name == other.name &&
           wsUrl == other.wsUrl &&
@@ -175,7 +179,7 @@ class PrinterSetting extends HiveObject {
           macroGroups == other.macroGroups &&
           fcmIdentifier == other.fcmIdentifier &&
           lastModified == other.lastModified &&
-          _webSocket == other._webSocket &&
+          _jRpcClient == other._jRpcClient &&
           _printerService == other._printerService &&
           _klippyService == other._klippyService &&
           _fileService == other._fileService &&
@@ -202,7 +206,7 @@ class PrinterSetting extends HiveObject {
       macroGroups.hashCode ^
       fcmIdentifier.hashCode ^
       lastModified.hashCode ^
-      _webSocket.hashCode ^
+      _jRpcClient.hashCode ^
       _printerService.hashCode ^
       _klippyService.hashCode ^
       _fileService.hashCode ^

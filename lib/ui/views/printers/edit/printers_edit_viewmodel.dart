@@ -6,12 +6,12 @@ import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/domain/gcode_macro.dart';
 import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/enums/dialog_type.dart';
-import 'package:mobileraker/enums/snackbar_type.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
+import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
@@ -28,7 +28,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
   final _fbKey = GlobalKey<FormBuilderState>();
-  final PrinterSetting printerSetting;
+  final Machine printerSetting;
 
   late final _macroGroups = printerSetting.macroGroups.toList();
 
@@ -48,7 +48,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
 
   Printer get fetchedPrinter => dataMap![_printerMapKey];
 
-  List<PrinterSetting> get fetchedMachines => dataMap![_machinesMapKey];
+  List<Machine> get fetchedMachines => dataMap![_machinesMapKey];
 
   bool get fetchingPrinter => busy(_printerMapKey);
 
@@ -64,12 +64,12 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     return printerSetting.printerService.printerStream.first;
   }
 
-  Future<List<PrinterSetting>> machineFuture() {
+  Future<List<Machine>> machineFuture() {
     return _machineService.fetchAll();
   }
 
   @override
-  void onData(String key) {
+  onData(String key) {
     if (key != _printerMapKey) return;
 
     MacroGroup defaultGroup = _defaultGroup;
@@ -381,7 +381,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     }
   }
 
-  void _saveAllGroupStuff() {
+  _saveAllGroupStuff() {
     _saveAllMacroGroups();
     _saveAllCams();
     _saveAllPresets();
@@ -435,7 +435,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     if (response != null && response.confirmed) {
       FormBuilderState currentState = _fbKey.currentState!;
       ImportSettingsDialogViewResults result = response.data;
-      PrinterSetting src = result.source;
+      Machine src = result.source;
       Map<String, dynamic> patchingValues = {};
       for (String field in result.fields) {
         switch (field) {

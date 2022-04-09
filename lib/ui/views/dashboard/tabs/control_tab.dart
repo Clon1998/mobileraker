@@ -206,7 +206,7 @@ class _SpinningFanState extends State<SpinningFan>
   }
 
   @override
-  void dispose() {
+  dispose() {
     _controller.dispose();
     super.dispose();
   }

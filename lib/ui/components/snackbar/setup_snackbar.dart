@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/enums/snackbar_type.dart';
 import 'package:stacked_services/stacked_services.dart';
 
+enum SnackbarType { error, warning}
 
-void setupSnackbarUi() {
+setupSnackbarUi() {
   final service = locator<SnackbarService>();
 
   // Registers a config to be used when calling showSnackbar

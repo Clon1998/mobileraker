@@ -2,17 +2,17 @@ import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/gcode_macro.dart';
 import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/dto/config/config_output.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/output_pin.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/enums/dialog_type.dart';
-import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/util/misc.dart';
@@ -32,7 +32,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   MacroGroup? selectedGrp;
 
-  PrinterSetting? _printerSetting;
+  Machine? _printerSetting;
   PrinterService? _printerService;
   KlippyService? _klippyService;
 
@@ -64,7 +64,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_machineService.selectedMachine),
         if (_printerSetting?.printerService != null) ...{
           _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },
@@ -79,7 +79,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        PrinterSetting? nPrinterSetting = data;
+        Machine? nPrinterSetting = data;
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
 
@@ -251,7 +251,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     _fansScrollController.dispose();
     _outputsScrollController.dispose();

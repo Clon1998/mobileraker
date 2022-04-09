@@ -4,7 +4,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
@@ -144,10 +144,10 @@ class NavigationDrawerWidget
     Color highlightColor = theme.colorScheme.primary;
     List<Widget> widgetsToReturn;
     if (model.dataReady) {
-      List<PrinterSetting> printers = model.printers;
+      List<Machine> printers = model.printers;
       var textStyle = TextStyle(color: Colors.white);
       widgetsToReturn = List.generate(printers.length, (index) {
-        PrinterSetting curPS = printers[index];
+        Machine curPS = printers[index];
         return ListTile(
           title: Text(
             curPS.name,

@@ -50,7 +50,7 @@ class RefreshPrinterViewModel extends BaseViewModel {
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     refreshController.dispose();
   }

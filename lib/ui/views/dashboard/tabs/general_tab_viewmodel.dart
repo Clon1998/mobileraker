@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/domain/temperature_preset.dart';
 import 'package:mobileraker/domain/webcam_setting.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
@@ -12,10 +12,10 @@ import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/file_service.dart';
-import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
@@ -33,7 +33,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
   final _settingService = locator<SettingService>();
 
-  PrinterSetting? _printerSetting;
+  Machine? _printerSetting;
   int _printerSettingHash = -1;
 
   GlobalKey<FlipCardState> tmpCardKey = GlobalKey<FlipCardState>();
@@ -73,7 +73,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_machineService.selectedMachine),
         if (_printerSetting?.printerService != null) ...{
           _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },
@@ -88,7 +88,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        PrinterSetting? nPrinterSetting = data;
+        Machine? nPrinterSetting = data;
         if (nPrinterSetting == _printerSetting &&
             nPrinterSetting.hashCode == _printerSettingHash) break;
         _printerSetting = nPrinterSetting;

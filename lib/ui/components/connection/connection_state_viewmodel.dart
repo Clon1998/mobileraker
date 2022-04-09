@@ -3,17 +3,17 @@ import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-const String _WebSocketStreamKey = 'websocket';
+const String _ClientStateStreamKey = 'client_state';
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _ServerStreamKey = 'server';
 const String _PrinterStreamKey = 'printer';
@@ -25,21 +25,21 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
 
-  PrinterSetting? _printerSetting;
+  Machine? _printerSetting;
 
   KlippyService? get _klippyService => _printerSetting?.klippyService;
 
   PrinterService? get _printerService => _printerSetting?.printerService;
 
-  WebSocketWrapper? get _webSocket => _printerSetting?.websocket;
+  JsonRpcClient? get _jRpcClient => _printerSetting?.jRpcClient;
 
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedMachine),
-        if (_printerSetting?.websocket != null)
-          _WebSocketStreamKey:
-              StreamData<WebSocketState>(_webSocket!.stateStream),
+            StreamData<Machine?>(_machineService.selectedMachine),
+        if (_printerSetting?.jRpcClient != null)
+          _ClientStateStreamKey:
+              StreamData<ClientState>(_jRpcClient!.stateStream),
         if (_printerSetting?.klippyService != null)
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream),
@@ -48,8 +48,8 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
               StreamData<Printer>(_printerService!.printerStream),
       };
 
-  WebSocketState get connectionState =>
-      dataMap?[_WebSocketStreamKey] ?? WebSocketState.disconnected;
+  ClientState get connectionState =>
+      dataMap?[_ClientStateStreamKey] ?? ClientState.disconnected;
 
   bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
 
@@ -68,9 +68,9 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
         'Klipper: ${toName(server.klippyState)}';
   }
 
-  String get websocketErrorMessage {
-    Exception? errorReason = _webSocket?.errorReason;
-    if (_webSocket?.requiresAPIKey ?? false)
+  String get clientErrorMessage {
+    Exception? errorReason = _jRpcClient?.errorReason;
+    if (_jRpcClient?.requiresAPIKey ?? false)
       return 'It seems like you configured trusted clients for moonraker. Please add the API key in the printers settings!';
     else if (errorReason != null)
       return errorReason.toString();
@@ -82,7 +82,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   onData(String key, data) {
     switch (key) {
       case _SelectedPrinterStreamKey:
-        PrinterSetting? nPrinterSetting = data;
+        Machine? nPrinterSetting = data;
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
 
@@ -92,7 +92,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   }
 
   onRetryPressed() {
-    _webSocket?.initCommunication();
+    _jRpcClient?.openChannel();
   }
 
   onAddPrinterTap() {
@@ -108,7 +108,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   }
 
   @override
-  void initialise() {
+  initialise() {
     super.initialise();
     if (!initialised) {
       WidgetsBinding.instance?.addObserver(this);
@@ -116,17 +116,17 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     WidgetsBinding.instance?.removeObserver(this);
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
         _logger.i("App forgrounded");
-        _webSocket?.ensureConnection();
+        _jRpcClient?.ensureConnection();
         break;
 
       case AppLifecycleState.paused:

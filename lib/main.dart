@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_logger/src/enums.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ String? initialRoute;
 
 Future<void> main() async {
   Logger.level = Level.info;
-  // EasyLocalization.logger.enableLevels = [LevelMessages.info];
+  EasyLocalization.logger.enableLevels = [LevelMessages.error];
   WidgetsFlutterBinding.ensureInitialized();
   await setupBoxes();
   setupLocator();

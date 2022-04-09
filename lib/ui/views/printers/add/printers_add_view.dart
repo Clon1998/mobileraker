@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:stacked/stacked.dart';
 
 import 'printers_add_viewmodel.dart';
@@ -93,7 +93,7 @@ class PrintersAdd extends StatelessWidget {
                             Spacer(flex: 30),
                             ElevatedButton(
                                 onPressed:
-                                    (model.data != WebSocketState.connecting)
+                                    (model.data != ClientState.connecting)
                                         ? model.onTestConnectionTap
                                         : null,
                                 child: Text('pages.printer_add.run_test_btn').tr())

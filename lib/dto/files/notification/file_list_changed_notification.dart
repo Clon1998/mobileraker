@@ -1,6 +1,6 @@
 import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_source_item.dart';
-import 'package:mobileraker/service/file_service.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
 
 class FileListChangedNotification {
   FileAction fileAction;

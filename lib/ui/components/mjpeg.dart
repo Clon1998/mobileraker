@@ -184,7 +184,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
         _manager.start();
@@ -199,7 +199,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 
   @override
-  void initialise() {
+  initialise() {
     super.initialise();
     if (!initialised) {
       WidgetsBinding.instance?.addObserver(this);
@@ -209,7 +209,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 
   @override
-  void onData(MemoryImage? data) {
+  onData(MemoryImage? data) {
     setBusy(false);
     if (data != null) {
       _frameCnt++;
@@ -229,13 +229,13 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 
   @override
-  void onError(error) {
+  onError(error) {
     _logger.e('Error: $error');
     setBusy(false);
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     _manager.dispose();
     WidgetsBinding.instance?.removeObserver(this);
@@ -264,12 +264,12 @@ class _StreamManager {
 
   _StreamManager(this.feedUri, this.headers, this._timeout);
 
-  void stop() {
+  stop() {
     _logger.i('STOPPING STREAM!');
     _subscription?.cancel();
   }
 
-  void start() async {
+  start() async {
     _subscription?.cancel(); // Ensure its clear to start a new stream!
     try {
       final request = Request("GET", Uri.parse(feedUri));
@@ -299,7 +299,7 @@ class _StreamManager {
   BytesBuilder _byteBuffer = BytesBuilder();
   int _lastByte = 0x00;
 
-  void _sendImage(Uint8List bytes) async {
+  _sendImage(Uint8List bytes) async {
     if (bytes.isNotEmpty) {
       _mjpegStreamController.add(MemoryImage(bytes));
     }

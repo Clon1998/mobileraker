@@ -12,18 +12,18 @@ class PaywallViewModel extends FutureViewModel<Offerings> {
   final _purchasesService = locator<PurchasesService>();
 
   @override
-  Future<Offerings> futureToRun() => _purchasesService.getOfferings();
+  Future<Offerings> futureToRun() => _purchasesService.fetchOfferings();
 
   bool isEntitlementActive(String entitlement) =>
       _purchasesService.isEntitlementActive(entitlement);
 
   @override
-  void onData(Offerings? data) {
+  onData(Offerings? data) {
     _logger.i('Received offerings');
     log(data.toString());
   }
 
-  void buy() async {
+  buy() async {
     try {
       var purchaserInfo =
           await Purchases.purchasePackage(data!.current!.monthly!);

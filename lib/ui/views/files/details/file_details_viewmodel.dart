@@ -2,14 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -23,7 +23,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
   final _machineService = locator<MachineService>();
 
-  PrinterSetting? get _printerSetting =>
+  Machine? get _printerSetting =>
       _machineService.selectedMachine.valueOrNull;
 
   PrinterService? get _printerService => _printerSetting?.printerService;
@@ -100,7 +100,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
 
   bool get preHeatAvailable => _file.firstLayerTempBed != null;
 
-  void preHeatPrinter() {
+  preHeatPrinter() {
     _dialogService
         .showConfirmationDialog(
       title: "Preheat?",

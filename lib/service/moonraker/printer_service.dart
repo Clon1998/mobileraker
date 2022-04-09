@@ -5,8 +5,8 @@ import 'dart:math';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/dto/config/config_file.dart';
 import 'package:mobileraker/dto/console/command.dart';
 import 'package:mobileraker/dto/console/console_entry.dart';
@@ -22,53 +22,19 @@ import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/enums/snackbar_type.dart';
+import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
-
-import 'machine_service.dart';
 
 final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
 
 class PrinterService {
-  final PrinterSetting _owner;
-  final _logger = getLogger('PrinterService');
-  final _snackBarService = locator<SnackbarService>();
-  final _machineService = locator<MachineService>();
-
-  /// This map defines how different printerObjects will be parsed
-  /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
-  late final Map<String, Function?> subToPrinterObjects = {
-    'toolhead': _updateToolhead,
-    'extruder': _updateExtruder,
-    'gcode_move': _updateGCodeMove,
-    'heater_bed': _updateHeaterBed,
-    'virtual_sdcard': _updateVirtualSd,
-    'configfile': _updateConfigFile,
-    'print_stats': _updatePrintStat,
-    'fan': _updatePartFan,
-    'heater_fan': _updateHeaterFan,
-    'controller_fan': _updateControllerFan,
-    'temperature_fan': _updateTemperatureFan,
-    'fan_generic': _updateGenericFan,
-    'output_pin': _updateOutputPin,
-    'temperature_sensor': _updateTemperatureSensor,
-  };
-
-  final BehaviorSubject<Printer> printerStream = BehaviorSubject<Printer>();
-  late final StreamSubscription<KlipperInstance> klippySubscription;
-  bool _queriedForSession = false;
-  final StreamController<String> _gCodeResponseStreamController =
-      StreamController.broadcast();
-
-  Stream<String> get gCodeResponseStream =>
-      _gCodeResponseStreamController.stream;
-
   PrinterService(this._owner) {
-    _webSocket.addMethodListener(
+    _jRpcClient.addMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
 
-    _webSocket.addMethodListener(
+    _jRpcClient.addMethodListener(
         _onNotifyGcodeResponse, 'notify_gcode_response');
 
     klippySubscription =
@@ -86,16 +52,187 @@ class PrinterService {
     });
   }
 
-  WebSocketWrapper get _webSocket => _owner.websocket;
+  final BehaviorSubject<Printer> printerStream = BehaviorSubject<Printer>();
+  late final StreamSubscription<KlipperInstance> klippySubscription;
+
+  final Machine _owner;
+  final _logger = getLogger('PrinterService');
+  final _snackBarService = locator<SnackbarService>();
+  final _machineService = locator<MachineService>();
+
+  /// This map defines how different printerObjects will be parsed
+  /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
+  late final Map<String, Function?> _subToPrinterObjects = {
+    'toolhead': _updateToolhead,
+    'extruder': _updateExtruder,
+    'gcode_move': _updateGCodeMove,
+    'heater_bed': _updateHeaterBed,
+    'virtual_sdcard': _updateVirtualSd,
+    'configfile': _updateConfigFile,
+    'print_stats': _updatePrintStat,
+    'fan': _updatePartFan,
+    'heater_fan': _updateHeaterFan,
+    'controller_fan': _updateControllerFan,
+    'temperature_fan': _updateTemperatureFan,
+    'fan_generic': _updateGenericFan,
+    'output_pin': _updateOutputPin,
+    'temperature_sensor': _updateTemperatureSensor,
+  };
+
+  final StreamController<String> _gCodeResponseStreamController =
+      StreamController.broadcast();
+
+  bool _queriedForSession = false;
+
+  Stream<String> get gCodeResponseStream =>
+      _gCodeResponseStreamController.stream;
+
+  JsonRpcClient get _jRpcClient => _owner.jRpcClient;
 
   Printer get _latestPrinter {
     return printerStream.hasValue ? printerStream.value : Printer();
   }
 
+  refreshPrinter() {
+    _printerObjectsList();
+  }
+
+  resumePrint() {
+    _jRpcClient.sendJsonRpcWithCallback('printer.print.resume');
+  }
+
+  pausePrint() {
+    _jRpcClient.sendJsonRpcWithCallback('printer.print.pause');
+  }
+
+  cancelPrint() {
+    _jRpcClient.sendJsonRpcWithCallback('printer.print.cancel');
+  }
+
+  setGcodeOffset({double? x, double? y, double? z, int? move}) {
+    List<String> moves = [];
+    if (x != null) moves.add('X_ADJUST=$x');
+    if (y != null) moves.add('Y_ADJUST=$y');
+    if (z != null) moves.add('Z_ADJUST=$z');
+
+    String gcode = 'SET_GCODE_OFFSET ${moves.join(' ')}';
+    if (move != null) gcode += ' MOVE=$move';
+
+    gCode(gcode);
+  }
+
+  movePrintHead({double? x, double? y, double? z, double feedRate = 100}) {
+    List<String> moves = [];
+    if (x != null) moves.add(_gcodeMoveCode('X', x));
+    if (y != null) moves.add(_gcodeMoveCode('Y', y));
+    if (z != null) moves.add(_gcodeMoveCode('Z', z));
+
+    gCode('G91\n' + 'G1 ${moves.join(' ')} F${feedRate * 60}\nG90');
+  }
+
+  moveExtruder(double length, [double feedRate = 5]) {
+    gCode('M83\n' + 'G1 E$length F${feedRate * 60}');
+  }
+
+  homePrintHead(Set<PrinterAxis> axis) {
+    if (axis.contains(PrinterAxis.E)) {
+      throw FormatException('E axis cant be homed');
+    }
+    String gcode = 'G28 ';
+    if (axis.length < 3) {
+      gcode += axis.map(EnumToString.convertToString).join(' ');
+    }
+    gCode(gcode);
+  }
+
+  quadGantryLevel() {
+    gCode('QUAD_GANTRY_LEVEL');
+  }
+
+  m84() {
+    gCode('M84');
+  }
+
+  bedMeshLevel() {
+    gCode('BED_MESH_CALIBRATE');
+  }
+
+  partCoolingFan(double perc) {
+    gCode('M106 S${min(255, 255 * perc).toInt()}');
+  }
+
+  genericFanFan(String fanName, double perc) {
+    gCode('SET_FAN_SPEED  FAN=$fanName SPEED=${perc.toStringAsFixed(2)}');
+  }
+
+  outputPin(String pinName, double value) {
+    gCode('SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}');
+  }
+
+  gCode(String script) {
+    _jRpcClient.sendJsonRpcWithCallback('printer.gcode.script',
+        params: {'script': script});
+  }
+
+  gCodeMacro(String macro) {
+    gCode(macro);
+  }
+
+  speedMultiplier(int speed) {
+    gCode('M220  S$speed');
+  }
+
+  flowMultiplier(int flow) {
+    gCode('M221 S$flow');
+  }
+
+  setTemperature(String heater, int target) {
+    gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
+  }
+
+  startPrintFile(GCodeFile file) {
+    _jRpcClient.sendJsonRpcWithCallback('printer.print.start',
+        params: {'filename': file.pathForPrint});
+  }
+
+  resetPrintStat() {
+    gCode('SDCARD_RESET_FILE');
+  }
+
+  Future<List<ConsoleEntry>> gcodeStore() async {
+    _logger.i('Fetching cached GCode commands');
+    RpcResponse blockingResponse =
+        await _jRpcClient.sendJRpcMethod('server.gcode_store');
+    if (blockingResponse.hasError) {
+      _logger.e(
+          'Error while fetching cached GCode commands: ${blockingResponse.err}');
+      return List.empty();
+    }
+
+    List<dynamic> raw = blockingResponse.response['result']['gcode_store'];
+    _logger.i('Received cached GCode commands');
+    return List.generate(
+        raw.length, (index) => ConsoleEntry.fromJson(raw[index]));
+  }
+
+  Future<List<Command>> gcodeHelp() async {
+    _logger.i('Fetching available GCode commands');
+    RpcResponse blockingResponse =
+        await _jRpcClient.sendJRpcMethod('printer.gcode.help');
+    if (blockingResponse.hasError) {
+      _logger.e(
+          'Error while fetching cached GCode commands: ${blockingResponse.err}');
+      return List.empty();
+    }
+    Map<dynamic, dynamic> raw = blockingResponse.response['result'];
+    _logger.i('Received ${raw.length} available GCode commands');
+    return raw.entries.map((e) => Command(e.key, e.value)).toList();
+  }
+
   _printerObjectsList() {
     // printerStream.value = Printer();
     _logger.i('>>>Querying printers object list');
-    _webSocket.sendJsonRpcMethod('printer.objects.list',
+    _jRpcClient.sendJsonRpcWithCallback('printer.objects.list',
         onReceive: _parsePrinterObjectsList);
   }
 
@@ -115,8 +252,8 @@ class PrinterService {
       // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
       List<String> split = key.split(' ');
       String mainObjectType = split[0];
-      if (subToPrinterObjects.containsKey(mainObjectType)) {
-        var method = subToPrinterObjects[mainObjectType];
+      if (_subToPrinterObjects.containsKey(mainObjectType)) {
+        var method = _subToPrinterObjects[mainObjectType];
         if (method != null) {
           if (split.length > 1)
             method(key, params[key], printer: latestPrinter);
@@ -163,8 +300,8 @@ class PrinterService {
       // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
       List<String> split = key.split(' ');
       String mainObjectType = split[0];
-      if (subToPrinterObjects.containsKey(mainObjectType)) {
-        var method = subToPrinterObjects[mainObjectType];
+      if (_subToPrinterObjects.containsKey(mainObjectType)) {
+        var method = _subToPrinterObjects[mainObjectType];
         if (method != null) {
           if (split.length >
               1) // Multi word objectsType e.g.'temperature_sensor sensor_name'
@@ -180,12 +317,11 @@ class PrinterService {
     _makeSubscribeRequest(printer);
   }
 
-  void _updatePartFan(Map<String, dynamic> fanJson,
-      {required Printer printer}) {
+  _updatePartFan(Map<String, dynamic> fanJson, {required Printer printer}) {
     if (fanJson.containsKey('speed')) printer.printFan.speed = fanJson['speed'];
   }
 
-  void _updateHeaterFan(String heaterFanName, Map<String, dynamic> fanJson,
+  _updateHeaterFan(String heaterFanName, Map<String, dynamic> fanJson,
       {required Printer printer}) {
     List<String> split = heaterFanName.split(' ');
     String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
@@ -199,7 +335,7 @@ class PrinterService {
     if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
   }
 
-  void _updateControllerFan(String fanName, Map<String, dynamic> fanJson,
+  _updateControllerFan(String fanName, Map<String, dynamic> fanJson,
       {required Printer printer}) {
     List<String> split = fanName.split(' ');
     String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
@@ -214,7 +350,7 @@ class PrinterService {
     if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
   }
 
-  void _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson,
+  _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson,
       {required Printer printer}) {
     List<String> split = fanName.split(' ');
     String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
@@ -229,7 +365,7 @@ class PrinterService {
     if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
   }
 
-  void _updateGenericFan(String fanName, Map<String, dynamic> fanJson,
+  _updateGenericFan(String fanName, Map<String, dynamic> fanJson,
       {required Printer printer}) {
     List<String> split = fanName.split(' ');
     String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
@@ -244,7 +380,7 @@ class PrinterService {
     if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
   }
 
-  void _updateTemperatureSensor(String sensor, Map<String, dynamic> sensorJson,
+  _updateTemperatureSensor(String sensor, Map<String, dynamic> sensorJson,
       {required Printer printer}) {
     List<String> split = sensor.split(' ');
     String sName = split.length > 1 ? split.skip(1).join(' ') : split[0];
@@ -264,7 +400,7 @@ class PrinterService {
       tempSensor.measuredMaxTemp = sensorJson['measured_max_temp'];
   }
 
-  void _updateOutputPin(String pin, Map<String, dynamic> pinJson,
+  _updateOutputPin(String pin, Map<String, dynamic> pinJson,
       {required Printer printer}) {
     List<String> split = pin.split(' ');
     String sName = split.length > 1 ? split.skip(1).join(' ') : split[0];
@@ -406,13 +542,13 @@ class PrinterService {
     printer.queryableObjects.forEach((element) {
       List<String> split = element.split(' ');
 
-      if (subToPrinterObjects.keys.contains(split[0]))
+      if (_subToPrinterObjects.keys.contains(split[0]))
         queryObjects[element] = null;
     });
 
     _logger.i('>>>Querying Printer Objects!');
 
-    _webSocket.sendJsonRpcMethod('printer.objects.query',
+    _jRpcClient.sendJsonRpcWithCallback('printer.objects.query',
         onReceive: (response, {err}) {
       if (err == null) _printerObjectsQuery(response['result'], printer);
     }, params: {'objects': queryObjects});
@@ -426,13 +562,13 @@ class PrinterService {
       // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
       List<String> split = object.split(' ');
       String objTypeKey = split[0];
-      if (subToPrinterObjects[objTypeKey] != null) {
+      if (_subToPrinterObjects[objTypeKey] != null) {
         queryObjects[object] =
             null; // This is needed for the subscribe request!
       }
     }
 
-    _webSocket.sendJsonRpcMethod('printer.objects.subscribe',
+    _jRpcClient.sendJsonRpcWithCallback('printer.objects.subscribe',
         params: {'objects': queryObjects});
   }
 
@@ -440,7 +576,7 @@ class PrinterService {
     return '$axis${value <= 0 ? '' : '+'}${value.toStringAsFixed(2)}';
   }
 
-  void _onMessage(String message) {
+  _onMessage(String message) {
     if (message.isEmpty) return;
     _snackBarService.showCustomSnackBar(
         variant: SnackbarType.warning,
@@ -451,143 +587,6 @@ class PrinterService {
 
   double _toPrecision(double d, [int fraction = 2]) {
     return d.toPrecision(fraction);
-  }
-
-  // PRINTER PUBLIC METHODS
-  refreshPrinter() {
-    _printerObjectsList();
-  }
-
-  resumePrint() {
-    _webSocket.sendJsonRpcMethod('printer.print.resume');
-  }
-
-  pausePrint() {
-    _webSocket.sendJsonRpcMethod('printer.print.pause');
-  }
-
-  cancelPrint() {
-    _webSocket.sendJsonRpcMethod('printer.print.cancel');
-  }
-
-  setGcodeOffset({double? x, double? y, double? z, int? move}) {
-    List<String> moves = [];
-    if (x != null) moves.add('X_ADJUST=$x');
-    if (y != null) moves.add('Y_ADJUST=$y');
-    if (z != null) moves.add('Z_ADJUST=$z');
-
-    String gcode = 'SET_GCODE_OFFSET ${moves.join(' ')}';
-    if (move != null) gcode += ' MOVE=$move';
-
-    gCode(gcode);
-  }
-
-  movePrintHead({double? x, double? y, double? z, double feedRate = 100}) {
-    List<String> moves = [];
-    if (x != null) moves.add(_gcodeMoveCode('X', x));
-    if (y != null) moves.add(_gcodeMoveCode('Y', y));
-    if (z != null) moves.add(_gcodeMoveCode('Z', z));
-
-    gCode('G91\n' + 'G1 ${moves.join(' ')} F${feedRate * 60}\nG90');
-  }
-
-  moveExtruder(double length, [double feedRate = 5]) {
-    gCode('M83\n' + 'G1 E$length F${feedRate * 60}');
-  }
-
-  homePrintHead(Set<PrinterAxis> axis) {
-    if (axis.contains(PrinterAxis.E)) {
-      throw FormatException('E axis cant be homed');
-    }
-    String gcode = 'G28 ';
-    if (axis.length < 3) {
-      gcode += axis.map(EnumToString.convertToString).join(' ');
-    }
-    gCode(gcode);
-  }
-
-  quadGantryLevel() {
-    gCode('QUAD_GANTRY_LEVEL');
-  }
-
-  m84() {
-    gCode('M84');
-  }
-
-  bedMeshLevel() {
-    gCode('BED_MESH_CALIBRATE');
-  }
-
-  partCoolingFan(double perc) {
-    gCode('M106 S${min(255, 255 * perc).toInt()}');
-  }
-
-  genericFanFan(String fanName, double perc) {
-    gCode('SET_FAN_SPEED  FAN=$fanName SPEED=${perc.toStringAsFixed(2)}');
-  }
-
-  outputPin(String pinName, double value) {
-    gCode('SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}');
-  }
-
-  gCode(String script) {
-    _webSocket
-        .sendJsonRpcMethod('printer.gcode.script', params: {'script': script});
-  }
-
-  gCodeMacro(String macro) {
-    gCode(macro);
-  }
-
-  speedMultiplier(int speed) {
-    gCode('M220  S$speed');
-  }
-
-  flowMultiplier(int flow) {
-    gCode('M221 S$flow');
-  }
-
-  setTemperature(String heater, int target) {
-    gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
-  }
-
-  startPrintFile(GCodeFile file) {
-    _webSocket.sendJsonRpcMethod('printer.print.start',
-        params: {'filename': file.pathForPrint});
-  }
-
-  resetPrintStat() {
-    gCode('SDCARD_RESET_FILE');
-  }
-
-  Future<List<ConsoleEntry>> gcodeStore() async {
-    _logger.i('Fetching cached GCode commands');
-    BlockingResponse blockingResponse =
-        await _webSocket.sendAndReceiveJRpcMethod('server.gcode_store');
-    if (blockingResponse.hasError) {
-      _logger.e(
-          'Error while fetching cached GCode commands: ${blockingResponse.err}');
-      return List.empty();
-    }
-
-    List<dynamic> raw = blockingResponse.response['result']['gcode_store'];
-    _logger.i('Received cached GCode commands');
-    return List.generate(
-        raw.length, (index) => ConsoleEntry.fromJson(raw[index]));
-  }
-
-  Future<List<Command>> gcodeHelp() async {
-    _logger.i('Fetching available GCode commands');
-    BlockingResponse blockingResponse =
-        await _webSocket.sendAndReceiveJRpcMethod('printer.gcode.help');
-    if (blockingResponse.hasError) {
-      _logger.e(
-          'Error while fetching cached GCode commands: ${blockingResponse.err}');
-      return List.empty();
-    }
-    Map<dynamic, dynamic> raw = blockingResponse.response['result'];
-    _logger.i('Received ${raw.length} available GCode commands');
-    return raw.entries.map((e) => Command(e.key, e.value)).toList();
   }
 
   dispose() {

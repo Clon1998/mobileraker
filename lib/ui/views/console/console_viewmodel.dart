@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/dto/console/command.dart';
 import 'package:mobileraker/dto/console/console_entry.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
@@ -39,7 +39,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
   final _machineService = locator<MachineService>();
   final _settingService = locator<SettingService>();
 
-  PrinterSetting? _printerSetting;
+  Machine? _printerSetting;
 
   KlippyService? get _klippyService => _printerSetting?.klippyService;
 
@@ -102,7 +102,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_machineService.selectedMachine),
         if (_klippyService != null) ...{
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
@@ -163,7 +163,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        PrinterSetting? nPrinterSetting = data;
+        Machine? nPrinterSetting = data;
         if (nPrinterSetting == _printerSetting) break;
         _printerSetting = nPrinterSetting;
         notifySourceChanged(clearOldData: true);
@@ -186,7 +186,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
   }
 
   @override
-  void initialise() {
+  initialise() {
     super.initialise();
     if (!initialised) {
       textEditingController.addListener(() => notifyListeners());
@@ -194,7 +194,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     refreshController.dispose();
   }

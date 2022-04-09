@@ -13,12 +13,12 @@ import 'package:intl/intl.dart';
 import 'package:mobileraker/app/app_setup.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/firebase_options.dart';
-import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 import 'package:path_provider_ios/path_provider_ios.dart';
@@ -76,7 +76,7 @@ class NotificationService {
     if (data.containsKey('filename')) file = data['filename'];
 
     if (state != null && printerIdentifier != null) {
-      PrinterSetting? printerSetting = await notificationService._machineService
+      Machine? printerSetting = await notificationService._machineService
           .machineFromFcmIdentifier(printerIdentifier);
       if (printerSetting != null) {
         var printState = await notificationService
@@ -95,13 +95,13 @@ class NotificationService {
   }
 
   Future<void> initialize() async {
-    List<PrinterSetting> allMachines = await _machineService.fetchAll();
+    List<Machine> allMachines = await _machineService.fetchAll();
 
     allMachines.forEach(_setupFCMOnPrinterOnceConnected);
 
     await setupNotificationChannels(allMachines);
 
-    for (PrinterSetting setting in allMachines) {
+    for (Machine setting in allMachines) {
       registerLocalMessageHandling(setting);
     }
 
@@ -110,7 +110,7 @@ class NotificationService {
     await setupFirebaseMessaging();
   }
 
-  void registerLocalMessageHandling(PrinterSetting setting) {
+  registerLocalMessageHandling(Machine setting) {
     // _logger.w('Currently Disabled local notification handling!');
     // return;
 
@@ -120,7 +120,7 @@ class NotificationService {
 
   StreamSubscription<ReceivedAction> setupNotificationActionListener() {
     return _notifyAPI.actionStream.listen((receivedNotification) =>
-        _machineService.selectedMachine.valueOrNull?.websocket
+        _machineService.selectedMachine.valueOrNull?.jRpcClient
             .ensureConnection());
   }
 
@@ -136,10 +136,10 @@ class NotificationService {
     });
   }
 
-  setupNotificationChannels(List<PrinterSetting> machines) async {
+  setupNotificationChannels(List<Machine> machines) async {
     List<NotificationChannelGroup> groups = [];
     List<NotificationChannel> channels = [];
-    for (PrinterSetting setting in machines) {
+    for (Machine setting in machines) {
       groups.add(_channelGroupOfPrinterSettings(setting));
       channels.addAll(_channelsOfPrinterSettings(setting));
     }
@@ -168,8 +168,8 @@ class NotificationService {
   }
 
   Future<void> updatePrintStateOnce() async {
-    List<PrinterSetting> allMachines = await _machineService.fetchAll();
-    for (PrinterSetting setting in allMachines) {
+    List<Machine> allMachines = await _machineService.fetchAll();
+    for (Machine setting in allMachines) {
       PrinterService printerService = setting.printerService;
       await printerService.printerStream.first.then((printer) async {
         _logger.v('Trying to update once for ${setting.name}');
@@ -190,7 +190,7 @@ class NotificationService {
   //   }
   // }
 
-  onMachineAdded(PrinterSetting setting) {
+  onMachineAdded(Machine setting) {
     List<NotificationChannel> channelsOfPrinterSettings =
         _channelsOfPrinterSettings(setting);
     channelsOfPrinterSettings.forEach((e) => _notifyAPI.setChannel(e));
@@ -209,7 +209,7 @@ class NotificationService {
   }
 
   List<NotificationChannel> _channelsOfPrinterSettings(
-      PrinterSetting printerSetting) {
+      Machine printerSetting) {
     return [
       NotificationChannel(
           channelKey: printerSetting.statusUpdatedChannelKey,
@@ -232,15 +232,15 @@ class NotificationService {
   }
 
   NotificationChannelGroup _channelGroupOfPrinterSettings(
-      PrinterSetting printerSetting) {
+      Machine printerSetting) {
     return NotificationChannelGroup(
         channelGroupkey: printerSetting.uuid,
         channelGroupName: 'Printer ${printerSetting.name}');
   }
 
-  Future<void> _setupFCMOnPrinterOnceConnected(PrinterSetting setting) async {
-    await setting.websocket.stateStream
-        .firstWhere((element) => element == WebSocketState.connected);
+  Future<void> _setupFCMOnPrinterOnceConnected(Machine setting) async {
+    await setting.jRpcClient.stateStream
+        .firstWhere((element) => element == ClientState.connected);
 
     String? fcmToken = await FirebaseMessaging.instance.getToken();
     if (fcmToken == null) {
@@ -255,7 +255,7 @@ class NotificationService {
   }
 
   Future<void> _processPrinterUpdate(
-      PrinterSetting printerSetting, Printer printer) async {
+      Machine printerSetting, Printer printer) async {
     var state = await _updatePrintStatusNotification(
         printerSetting, printer.print.state, printer.print.filename, false);
 
@@ -266,7 +266,7 @@ class NotificationService {
   }
 
   Future<PrintState> _updatePrintStatusNotification(
-      PrinterSetting printerSetting,
+      Machine printerSetting,
       PrintState updatedState,
       String? updatedFile,
       [bool createNotification = true]) async {
@@ -315,11 +315,11 @@ class NotificationService {
   }
 
   Future<void> _removePrintProgressNotification(
-          PrinterSetting printerSetting) =>
+          Machine printerSetting) =>
       _notifyAPI.cancelNotificationsByChannelKey(
           printerSetting.printProgressChannelKey);
 
-  Future<void> _updatePrintProgressNotification(PrinterSetting printerSetting,
+  Future<void> _updatePrintProgressNotification(Machine printerSetting,
       double progress, double printDuration) async {
     if (printerSetting.lastPrintProgress == progress) return;
     printerSetting.lastPrintProgress = progress;

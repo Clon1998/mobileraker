@@ -1,11 +1,11 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/domain/machine.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class NavDrawerViewModel extends FutureViewModel<List<PrinterSetting>> {
+class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
   final _navigationService = locator<NavigationService>();
   final _machineService = locator<MachineService>();
   final String currentPath;
@@ -14,9 +14,9 @@ class NavDrawerViewModel extends FutureViewModel<List<PrinterSetting>> {
 
 
   @override
-  Future<List<PrinterSetting>> futureToRun() => _machineService.fetchAll();
+  Future<List<Machine>> futureToRun() => _machineService.fetchAll();
 
-  List<PrinterSetting> get printers {
+  List<Machine> get printers {
     var list = data!;
     var selectedUUID = _machineService.selectedMachine.valueOrNull?.uuid;
 
@@ -30,7 +30,7 @@ class NavDrawerViewModel extends FutureViewModel<List<PrinterSetting>> {
     return list;
   }
 
-  onEditTap(PrinterSetting? printerSetting) {
+  onEditTap(Machine? printerSetting) {
     printerSetting ??= _machineService.selectedMachine.valueOrNull;
     if (printerSetting == null) {
       navigateTo(Routes.printersAdd);
@@ -40,7 +40,7 @@ class NavDrawerViewModel extends FutureViewModel<List<PrinterSetting>> {
     }
   }
 
-  onSetActiveTap(PrinterSetting printerSetting) {
+  onSetActiveTap(Machine printerSetting) {
     _navigationService.back();
     _machineService.setMachineActive(printerSetting);
   }

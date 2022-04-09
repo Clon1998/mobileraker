@@ -1,20 +1,20 @@
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
+import 'package:mobileraker/domain/machine.dart';
 
 /// The DatabaseService handles interacts with moonrakers database!
 class DatabaseService {
-  final PrinterSetting _owner;
-  final _logger = getLogger('DatabaseService');
-
   DatabaseService(this._owner);
 
-  WebSocketWrapper get _webSocket => _owner.websocket;
+  final Machine _owner;
+  final _logger = getLogger('DatabaseService');
+
+  JsonRpcClient get _jRpcClient => _owner.jRpcClient;
 
   /// see: https://moonraker.readthedocs.io/en/latest/web_api/#list-namespaces
   Future<List<String>> listNamespaces() async {
-    BlockingResponse blockingResponse =
-        await _webSocket.sendAndReceiveJRpcMethod("server.database.list");
+    RpcResponse blockingResponse =
+        await _jRpcClient.sendJRpcMethod("server.database.list");
 
     if (blockingResponse.hasNoError &&
         blockingResponse.response.containsKey('result')) {
@@ -31,8 +31,8 @@ class DatabaseService {
     var params = {"namespace": namespace};
     if (key != null) params["key"] = key;
 
-    BlockingResponse blockingResponse = await _webSocket
-        .sendAndReceiveJRpcMethod("server.database.get_item", params: params);
+    RpcResponse blockingResponse = await _jRpcClient
+        .sendJRpcMethod("server.database.get_item", params: params);
 
     if (blockingResponse.hasNoError &&
         blockingResponse.response.containsKey('result'))
@@ -43,8 +43,8 @@ class DatabaseService {
   /// see: https://moonraker.readthedocs.io/en/latest/web_api/#add-database-item
   Future<dynamic> addDatabaseItem<T>(
       String namespace, String key, T value) async {
-    BlockingResponse blockingResponse = await _webSocket
-        .sendAndReceiveJRpcMethod("server.database.post_item",
+    RpcResponse blockingResponse = await _jRpcClient
+        .sendJRpcMethod("server.database.post_item",
             params: {"namespace": namespace, "key": key, "value": value});
 
     if (blockingResponse.hasNoError &&
@@ -61,8 +61,8 @@ class DatabaseService {
 
   /// see: https://moonraker.readthedocs.io/en/latest/web_api/#delete-database-item
   Future<dynamic> deleteDatabaseItem(String namespace, String key) async {
-    BlockingResponse blockingResponse = await _webSocket
-        .sendAndReceiveJRpcMethod("server.database.delete_item",
+    RpcResponse blockingResponse = await _jRpcClient
+        .sendJRpcMethod("server.database.delete_item",
             params: {"namespace": namespace, "key": key});
 
     if (blockingResponse.hasNoError &&

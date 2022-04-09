@@ -8,20 +8,35 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-const String emsKey = 'ems_setting';
-const String showBabyAlwaysKey = 'always_babystepping_setting';
-const String useTextInputForNumKey = 'text_inpt_for_num_fields';
-const String startWithOverviewKey = 'start_with_overview';
+
 
 class SettingViewModel extends FutureViewModel<PackageInfo> {
   final _logger = getLogger("SettingViewModel");
   final _settingService = locator<SettingService>();
   final _navigationService = locator<NavigationService>();
 
-  // late final WebSocketWrapper _webSocket = _machineService.webSocket;
+  // late final WebSocketWrapper _jRpcClient = _machineService.webSocket;
+  GlobalKey get formKey => _fbKey;
   final _fbKey = GlobalKey<FormBuilderState>();
 
-  GlobalKey get formKey => _fbKey;
+  bool get emsValue => _settingService.readBool(emsKey);
+
+  bool get showBabyAlwaysValue => _settingService.readBool(showBabyAlwaysKey);
+
+  bool get useTextInputForNum => _settingService.readBool(useTextInputForNumKey);
+
+  bool get startWithOverview => _settingService.readBool(startWithOverviewKey);
+  
+  String get version {
+    if (isBusy) return "Version: unavailable";
+    PackageInfo packageInfo = data!;
+    String version = packageInfo.version;
+    String buildNumber = packageInfo.buildNumber;
+    return "Version: $version-$buildNumber";
+  }
+
+  @override
+  Future<PackageInfo> futureToRun() => PackageInfo.fromPlatform();
 
   onEMSChanged(bool? newVal) async {
     await _settingService.writeBool(emsKey, newVal ?? false);
@@ -38,28 +53,8 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
   onStartWithOverviewChanged(bool? newVal) async {
     await _settingService.writeBool(startWithOverviewKey, newVal ?? false);
   }
-
-
-  bool get emsValue => _settingService.readBool(emsKey);
-
-  bool get showBabyAlwaysValue => _settingService.readBool(showBabyAlwaysKey);
-
-  bool get useTextInputForNum => _settingService.readBool(useTextInputForNumKey);
-
-  bool get startWithOverview => _settingService.readBool(startWithOverviewKey);
-
-  @override
-  Future<PackageInfo> futureToRun() => PackageInfo.fromPlatform();
-
-  void navigateToLegal() {
+  
+  navigateToLegal() {
     _navigationService.navigateTo(Routes.imprintView);
-  }
-
-  String get version {
-    if (isBusy) return "Version: unavailable";
-    PackageInfo packageInfo = data!;
-    String version = packageInfo.version;
-    String buildNumber = packageInfo.buildNumber;
-    return "Version: $version-$buildNumber";
   }
 }
