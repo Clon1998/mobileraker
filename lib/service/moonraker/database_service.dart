@@ -1,6 +1,6 @@
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 
 /// The DatabaseService handles interacts with moonrakers database!
 class DatabaseService {

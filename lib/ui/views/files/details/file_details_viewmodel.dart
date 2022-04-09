@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
@@ -23,12 +23,12 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
   final _machineService = locator<MachineService>();
 
-  Machine? get _printerSetting =>
+  Machine? get _machine =>
       _machineService.selectedMachine.valueOrNull;
 
-  PrinterService? get _printerService => _printerSetting?.printerService;
+  PrinterService? get _printerService => _machine?.printerService;
 
-  KlippyService? get _klippyService => _printerSetting?.klippyService;
+  KlippyService? get _klippyService => _machine?.klippyService;
 
   final GCodeFile _file;
 
@@ -69,8 +69,8 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   }
 
   String? get curPathToPrinterUrl {
-    if (_printerSetting != null) {
-      return '${_printerSetting!.httpUrl}/server/files';
+    if (_machine != null) {
+      return '${_machine!.httpUrl}/server/files';
     }
     return null;
   }

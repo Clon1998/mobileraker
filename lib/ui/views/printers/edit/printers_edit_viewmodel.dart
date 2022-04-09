@@ -4,11 +4,11 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
-import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/machine.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/domain/hive/gcode_macro.dart';
+import 'package:mobileraker/domain/hive/macro_group.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/hive/temperature_preset.dart';
+import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
@@ -28,23 +28,23 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
   final _fbKey = GlobalKey<FormBuilderState>();
-  final Machine printerSetting;
+  final Machine machine;
 
-  late final _macroGroups = printerSetting.macroGroups.toList();
+  late final _macroGroups = machine.macroGroups.toList();
 
-  late final webcams = printerSetting.cams.toList();
+  late final webcams = machine.cams.toList();
 
-  late final tempPresets = printerSetting.temperaturePresets.toList();
+  late final tempPresets = machine.temperaturePresets.toList();
 
-  late final printerMoveSteps = printerSetting.moveSteps.toList();
+  late final printerMoveSteps = machine.moveSteps.toList();
 
-  late final printerBabySteps = printerSetting.babySteps.toList();
+  late final printerBabySteps = machine.babySteps.toList();
 
-  late final printerExtruderSteps = printerSetting.extrudeSteps.toList();
+  late final printerExtruderSteps = machine.extrudeSteps.toList();
   MacroGroup? srcGrpDragging;
   bool macroGroupAccepted = false;
 
-  PrintersEditViewModel(this.printerSetting);
+  PrintersEditViewModel(this.machine);
 
   Printer get fetchedPrinter => dataMap![_printerMapKey];
 
@@ -61,7 +61,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
       };
 
   Future<Printer> printerFuture() {
-    return printerSetting.printerService.printerStream.first;
+    return machine.printerService.printerStream.first;
   }
 
   Future<List<Machine>> machineFuture() {
@@ -108,49 +108,49 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
 
   GlobalKey get formKey => _fbKey;
 
-  String get printerDisplayName => printerSetting.name;
+  String get printerDisplayName => machine.name;
 
-  String? get printerApiKey => printerSetting.apiKey;
+  String? get printerApiKey => machine.apiKey;
 
-  String? get printerWsUrl => printerSetting.wsUrl;
+  String? get printerWsUrl => machine.wsUrl;
 
-  String? get printerHttpUrl => printerSetting.httpUrl;
+  String? get printerHttpUrl => machine.httpUrl;
 
   int get extruderMinTemperature =>
-      printerSetting.printerService.printerStream.valueOrNull?.configFile
+      machine.printerService.printerStream.valueOrNull?.configFile
           .primaryExtruder?.minTemp
           .toInt() ??
       0;
 
   int get extruderMaxTemperature =>
-      printerSetting.printerService.printerStream.valueOrNull?.configFile
+      machine.printerService.printerStream.valueOrNull?.configFile
           .primaryExtruder?.maxTemp
           .toInt() ??
       500;
 
   int get bedMinTemperature =>
-      printerSetting.printerService.printerStream.valueOrNull?.configFile
+      machine.printerService.printerStream.valueOrNull?.configFile
           .configHeaterBed?.minTemp
           .toInt() ??
       0;
 
   int get bedMaxTemperature =>
-      printerSetting.printerService.printerStream.valueOrNull?.configFile
+      machine.printerService.printerStream.valueOrNull?.configFile
           .configHeaterBed?.maxTemp
           .toInt() ??
       150;
 
-  bool get printerInvertX => printerSetting.inverts[0];
+  bool get printerInvertX => machine.inverts[0];
 
-  bool get printerInvertY => printerSetting.inverts[1];
+  bool get printerInvertY => machine.inverts[1];
 
-  bool get printerInvertZ => printerSetting.inverts[2];
+  bool get printerInvertZ => machine.inverts[2];
 
-  int get printerSpeedXY => printerSetting.speedXY;
+  int get printerSpeedXY => machine.speedXY;
 
-  int get printerSpeedZ => printerSetting.speedZ;
+  int get printerSpeedZ => machine.speedZ;
 
-  int get printerExtruderFeedrate => printerSetting.extrudeFeedrate;
+  int get printerExtruderFeedrate => machine.extrudeFeedrate;
 
   bool get canShowImportSettings =>
       !fetchingPrinter && fetchedMachines.length > 1;
@@ -275,7 +275,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
 
   onWebCamAdd() {
     WebcamSetting cam = WebcamSetting('New Webcam',
-        'http://${Uri.parse(printerSetting.wsUrl).host}/webcam/?action=stream');
+        'http://${Uri.parse(machine.wsUrl).host}/webcam/?action=stream');
     webcams.add(cam);
     _saveAllGroupStuff();
     notifyListeners();
@@ -299,10 +299,12 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     var url = _fbKey.currentState!.value['${toSave.uuid}-camUrl'];
     var fH = _fbKey.currentState!.value['${toSave.uuid}-camFH'];
     var fV = _fbKey.currentState!.value['${toSave.uuid}-camFV'];
+    var tFps = _fbKey.currentState!.value['${toSave.uuid}-tFps'];
     if (name != null) toSave.name = name;
     if (url != null) toSave.url = url;
     if (fH != null) toSave.flipHorizontal = fH;
     if (fV != null) toSave.flipVertical = fV;
+    if (fV != null) toSave.targetFps = tFps;
   }
 
   onTempPresetAdd() {
@@ -356,7 +358,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
       var speedZ = currentState.value['speedZ'];
       var extrudeSpeed = currentState.value['extrudeSpeed'];
       _saveAllGroupStuff();
-      printerSetting
+      machine
         ..name = printerName
         ..wsUrl = wsUrl
         ..httpUrl = printerUrl
@@ -372,7 +374,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
         ..macroGroups = macroGroups
         ..extrudeSteps = printerExtruderSteps;
 
-      await _machineService.updateMachine(printerSetting);
+      await _machineService.updateMachine(machine);
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
       } else {
@@ -390,14 +392,14 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
   onDeleteTap() async {
     _dialogService
         .showConfirmationDialog(
-      title: "Delete ${printerSetting.name}?",
+      title: "Delete ${machine.name}?",
       description:
-          "Are you sure you want to remove the printer ${printerSetting.name} running under the address '$printerHttpUrl'?",
+          "Are you sure you want to remove the printer ${machine.name} running under the address '$printerHttpUrl'?",
       confirmationTitle: "Delete",
     )
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false)
-        _machineService.removeMachine(printerSetting).then(
+        _machineService.removeMachine(machine).then(
             (value) => _navigationService.clearStackAndShow(Routes.dashboardView));
     });
   }
@@ -427,7 +429,7 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
             title: 'Copy Settings',
             mainButtonTitle: 'Copy',
             secondaryButtonTitle: 'Cancle',
-            data: printerSetting)
+            data: machine)
         .then(onImportSettingsReturns);
   }
 

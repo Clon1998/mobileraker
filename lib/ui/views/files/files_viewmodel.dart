@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
@@ -48,11 +48,11 @@ class FilesViewModel extends MultipleStreamViewModel {
         fileB.printStartTime?.compareTo(fileA.printStartTime ?? 0) ?? -1,
   ];
 
-  Machine? _printerSetting;
+  Machine? _machine;
 
-  FileService? get _fileService => _printerSetting?.fileService;
+  FileService? get _fileService => _machine?.fileService;
 
-  KlippyService? get _klippyService => _printerSetting?.klippyService;
+  KlippyService? get _klippyService => _machine?.klippyService;
 
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
@@ -87,9 +87,9 @@ class FilesViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        Machine? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting) break;
-        _printerSetting = nPrinterSetting;
+        Machine? nmachine = data;
+        if (nmachine == _machine) break;
+        _machine = nmachine;
         _fetchDirectoryData();
         notifySourceChanged(clearOldData: true);
         break;
@@ -238,8 +238,8 @@ class FilesViewModel extends MultipleStreamViewModel {
   bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
 
   String? get curPathToPrinterUrl {
-    if (_printerSetting != null) {
-      return '${_printerSetting!.httpUrl}/server/files';
+    if (_machine != null) {
+      return '${_machine!.httpUrl}/server/files';
     }
     return null;
   }

@@ -4,7 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
@@ -13,7 +13,7 @@ import 'package:stacked_services/stacked_services.dart';
 class PrintersAddViewModel extends StreamViewModel<ClientState> {
   final _navigationService = locator<NavigationService>();
   final _snackbarService = locator<SnackbarService>();
-  final _printerSettingService = locator<MachineService>();
+  final _machineService = locator<MachineService>();
   final _fbKey = GlobalKey<FormBuilderState>();
   final printers = Hive.box<Machine>('printers');
   final String defaultPrinterName = 'My Printer';
@@ -89,12 +89,12 @@ class PrintersAddViewModel extends StreamViewModel<ClientState> {
       String wsUrl = urlToWebsocketUrl(printerUrl);
       String httpUrl = urlToHttpUrl(printerUrl);
 
-      var printerSetting = Machine(
+      var machine = Machine(
           name: printerName,
           wsUrl: wsUrl,
           httpUrl: httpUrl,
           apiKey: printerAPIKey);
-      _printerSettingService.addMachine(printerSetting).then(
+      _machineService.addMachine(machine).then(
           (value) => _navigationService.clearStackAndShow(Routes.dashboardView));
     }
   }

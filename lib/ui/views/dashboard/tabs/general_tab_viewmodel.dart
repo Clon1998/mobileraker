@@ -3,9 +3,9 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/machine.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/hive/temperature_preset.dart';
+import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
@@ -33,8 +33,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
   final _settingService = locator<SettingService>();
 
-  Machine? _printerSetting;
-  int _printerSettingHash = -1;
+  Machine? _machine;
+  int _machineHash = -1;
 
   GlobalKey<FlipCardState> tmpCardKey = GlobalKey<FlipCardState>();
 
@@ -56,11 +56,11 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   ScrollController get presetsScrollController => _presetsScrollController;
 
-  PrinterService? get _printerService => _printerSetting?.printerService;
+  PrinterService? get _printerService => _machine?.printerService;
 
-  KlippyService? get _klippyService => _printerSetting?.klippyService;
+  KlippyService? get _klippyService => _machine?.klippyService;
 
-  FileService? get _fileService => _printerSetting?.fileService;
+  FileService? get _fileService => _machine?.fileService;
 
   int get tempsSteps => 2 + printer.temperatureSensors.length;
 
@@ -74,10 +74,10 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
             StreamData<Machine?>(_machineService.selectedMachine),
-        if (_printerSetting?.printerService != null) ...{
+        if (_machine?.printerService != null) ...{
           _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },
-        if (_printerSetting?.klippyService != null) ...{
+        if (_machine?.klippyService != null) ...{
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
         }
@@ -88,12 +88,12 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        Machine? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting &&
-            nPrinterSetting.hashCode == _printerSettingHash) break;
-        _printerSetting = nPrinterSetting;
-        _printerSettingHash = nPrinterSetting.hashCode;
-        List<WebcamSetting>? tmpCams = _printerSetting?.cams;
+        Machine? nmachine = data;
+        if (nmachine == _machine &&
+            nmachine.hashCode == _machineHash) break;
+        _machine = nmachine;
+        _machineHash = nmachine.hashCode;
+        List<WebcamSetting>? tmpCams = _machine?.cams;
         if (tmpCams?.isNotEmpty ?? false)
           selectedCam = tmpCams!.first;
         else
@@ -139,30 +139,27 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   }
 
   List<int> get axisStepSize {
-    return _printerSetting?.moveSteps.toList() ?? const [100, 25, 10, 1];
+    return _machine?.moveSteps.toList() ?? const [100, 25, 10, 1];
   }
 
   List<double> get babySteppingSizes {
-    return _printerSetting?.babySteps.toList() ??
+    return _machine?.babySteps.toList() ??
         const [0.005, 0.01, 0.05, 0.1];
   }
 
   List<TemperaturePreset> get temperaturePresets {
-    return _printerSetting?.temperaturePresets.toList() ?? List.empty();
+    return _machine?.temperaturePresets.toList() ?? List.empty();
   }
 
   List<WebcamSetting> get webcams {
-    if (_printerSetting != null && _printerSetting!.cams.isNotEmpty) {
-      return _printerSetting!.cams;
+    if (_machine != null && _machine!.cams.isNotEmpty) {
+      return _machine!.cams;
     }
     return List.empty();
   }
 
   bool get webCamAvailable => webcams.isNotEmpty && selectedCam != null;
 
-  String get webCamUrl => selectedCam!.url;
-
-  Matrix4 get transformMatrix => selectedCam!.transformMatrix;
 
   setTemperaturePreset(int extruderTemp, int bedTemp) {
     _printerService?.setTemperature('extruder', extruderTemp);
@@ -219,19 +216,19 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     double dirStep = (positive) ? step : -1 * step;
     switch (axis) {
       case PrinterAxis.X:
-        if (_printerSetting!.inverts[0]) dirStep *= -1;
+        if (_machine!.inverts[0]) dirStep *= -1;
         _printerService?.movePrintHead(
-            x: dirStep, feedRate: _printerSetting!.speedXY.toDouble());
+            x: dirStep, feedRate: _machine!.speedXY.toDouble());
         break;
       case PrinterAxis.Y:
-        if (_printerSetting!.inverts[1]) dirStep *= -1;
+        if (_machine!.inverts[1]) dirStep *= -1;
         _printerService?.movePrintHead(
-            y: dirStep, feedRate: _printerSetting!.speedXY.toDouble());
+            y: dirStep, feedRate: _machine!.speedXY.toDouble());
         break;
       case PrinterAxis.Z:
-        if (_printerSetting!.inverts[2]) dirStep *= -1;
+        if (_machine!.inverts[2]) dirStep *= -1;
         _printerService?.movePrintHead(
-            z: dirStep, feedRate: _printerSetting!.speedZ.toDouble());
+            z: dirStep, feedRate: _machine!.speedZ.toDouble());
         break;
     }
   }
@@ -273,7 +270,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   onFullScreenTap() {
     _navigationService.navigateTo(Routes.fullCamView,
         arguments: FullCamViewArguments(
-            webcamSetting: selectedCam!, owner: _printerSetting!));
+            webcamSetting: selectedCam!, owner: _machine!));
   }
 
   onResetPrintTap() {

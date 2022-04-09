@@ -3,19 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/machine.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/hive/macro_group.dart';
+import 'package:mobileraker/domain/hive/temperature_preset.dart';
+import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:stacked/stacked.dart';
 
 import 'printers_edit_viewmodel.dart';
 
 class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
-  const PrintersEdit({Key? key, required this.printerSetting})
-      : super(key: key);
-  final Machine printerSetting;
+  const PrintersEdit({Key? key, required this.machine}) : super(key: key);
+  final Machine machine;
 
   @override
   Widget builder(
@@ -240,7 +239,8 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
                 _buildWebCams(model),
                 Divider(),
                 _SectionHeaderWithAction(
-                    title: 'pages.dashboard.general.temp_card.temp_presets'.tr(),
+                    title:
+                        'pages.dashboard.general.temp_card.temp_presets'.tr(),
                     action: TextButton.icon(
                       onPressed: model.onTempPresetAdd,
                       label: Text('general.add').tr(),
@@ -265,7 +265,7 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
 
   @override
   PrintersEditViewModel viewModelBuilder(BuildContext context) =>
-      PrintersEditViewModel(printerSetting);
+      PrintersEditViewModel(machine);
 
   Widget _buildWebCams(PrintersEditViewModel model) {
     if (model.webcams.isEmpty) {
@@ -320,8 +320,9 @@ class PrintersEdit extends ViewModelBuilderWidget<PrintersEditViewModel> {
       return Padding(
         padding: const EdgeInsets.all(8.0),
         child: Text(model.fetchingPrinter
-            ? 'pages.printer_edit.macros.no_macros_found'
-            : 'pages.printer_edit.macros.no_macros_available').tr(),
+                ? 'pages.printer_edit.macros.no_macros_found'
+                : 'pages.printer_edit.macros.no_macros_available')
+            .tr(),
       );
     }
 
@@ -400,9 +401,11 @@ class _WebCamItemState extends State<_WebCamItem> {
             children: [
           FormBuilderTextField(
             decoration: InputDecoration(
-              labelText: 'pages.printer_edit.general.displayname'.tr(),
-              suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => widget.model.onWebCamRemove(widget.cam),)
-            ),
+                labelText: 'pages.printer_edit.general.displayname'.tr(),
+                suffix: IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => widget.model.onWebCamRemove(widget.cam),
+                )),
             name: '${widget.cam.uuid}-camName',
             initialValue: widget.cam.name,
             onChanged: onNameChanged,
@@ -422,6 +425,22 @@ class _WebCamItemState extends State<_WebCamItem> {
                   protocols: ['http', 'https'], requireProtocol: true)
             ]),
           ),
+              FormBuilderTextField(
+                decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.cams.target_fps'.tr(),
+                    suffix: Text('FPS')
+                ),
+                name: '${widget.cam.uuid}-tFps',
+                initialValue: widget.cam.targetFps.toString(),
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.min(context, 0),
+                  FormBuilderValidators.numeric(context),
+                  FormBuilderValidators.required(context)
+                ]),
+                valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),
+                keyboardType:
+                TextInputType.numberWithOptions(signed: false, decimal: false),
+              ),
           FormBuilderSwitch(
             title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
             decoration: InputDecoration(border: InputBorder.none),
@@ -437,13 +456,15 @@ class _WebCamItemState extends State<_WebCamItem> {
             initialValue: widget.cam.flipHorizontal,
             name: '${widget.cam.uuid}-camFH',
             activeColor: Theme.of(context).colorScheme.primary,
-          )
+          ),
         ]));
   }
 
   onNameChanged(String? name) {
     setState(() {
-      _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.cams.new_cam'.tr() : name!;
+      _cardName = (name?.isEmpty ?? true)
+          ? 'pages.printer_edit.cams.new_cam'.tr()
+          : name!;
     });
   }
 }
@@ -498,9 +519,12 @@ class _MacroGroupState extends State<_MacroGroup> {
               if (widget.showDisplayNameEdit)
                 FormBuilderTextField(
                   decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.general.displayname'.tr(),
-                    suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => widget.model.onMacroGroupRemove(widget.macroGroup),)
-                  ),
+                      labelText: 'pages.printer_edit.general.displayname'.tr(),
+                      suffix: IconButton(
+                        icon: Icon(Icons.delete),
+                        onPressed: () =>
+                            widget.model.onMacroGroupRemove(widget.macroGroup),
+                      )),
                   name: '${widget.macroGroup.uuid}-macroName',
                   initialValue: widget.macroGroup.name,
                   onChanged: onNameChanged,
@@ -529,7 +553,9 @@ class _MacroGroupState extends State<_MacroGroup> {
 
   onNameChanged(String? name) {
     setState(() {
-      _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.macros.new_macro_grp'.tr() : name!;
+      _cardName = (name?.isEmpty ?? true)
+          ? 'pages.printer_edit.macros.new_macro_grp'.tr()
+          : name!;
     });
   }
 }
@@ -570,9 +596,11 @@ class _TempPresetItemState extends State<_TempPresetItem> {
             children: [
           FormBuilderTextField(
             decoration: InputDecoration(
-              labelText: 'pages.printer_edit.general.displayname'.tr(),
-              suffix: IconButton(icon: Icon(Icons.delete), onPressed: () => model.onTempPresetRemove(temperaturePreset),)
-            ),
+                labelText: 'pages.printer_edit.general.displayname'.tr(),
+                suffix: IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () => model.onTempPresetRemove(temperaturePreset),
+                )),
             name: '${temperaturePreset.uuid}-presetName',
             initialValue: temperaturePreset.name,
             onChanged: onNameChanged,
@@ -581,7 +609,9 @@ class _TempPresetItemState extends State<_TempPresetItem> {
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
-                labelText: '${tr('pages.printer_edit.presets.hotend_temp')} [°C]', helperText: ''),
+                labelText:
+                    '${tr('pages.printer_edit.presets.hotend_temp')} [°C]',
+                helperText: ''),
             name: '${temperaturePreset.uuid}-extruderTemp',
             initialValue: temperaturePreset.extruderTemp.toString(),
             valueTransformer: (String? text) => (text != null)
@@ -599,7 +629,8 @@ class _TempPresetItemState extends State<_TempPresetItem> {
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
-                labelText: '${tr('pages.printer_edit.presets.bed_temp')} [°C]', helperText: ''),
+                labelText: '${tr('pages.printer_edit.presets.bed_temp')} [°C]',
+                helperText: ''),
             name: '${temperaturePreset.uuid}-bedTemp',
             initialValue: temperaturePreset.bedTemp.toString(),
             valueTransformer: (String? text) =>
@@ -618,7 +649,9 @@ class _TempPresetItemState extends State<_TempPresetItem> {
 
   onNameChanged(String? name) {
     setState(() {
-      _cardName = (name?.isEmpty ?? true) ? 'pages.printer_edit.presets.new_preset'.tr() : name!;
+      _cardName = (name?.isEmpty ?? true)
+          ? 'pages.printer_edit.presets.new_preset'.tr()
+          : name!;
     });
   }
 }

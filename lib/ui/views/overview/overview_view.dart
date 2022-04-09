@@ -5,8 +5,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/machine.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
@@ -95,6 +95,7 @@ class SinglePrinter extends ViewModelBuilderWidget<SinglePrinterViewModel> {
                 child: Mjpeg(
               key: ValueKey(model.selectedCam!.uuid),
               feedUri: model.selectedCam!.url,
+              targetFps: model.selectedCam!.targetFps,
               transform: model.selectedCam!.transformMatrix,
               imageBuilder: _imageBuilder,
               stackChildren: [
@@ -209,7 +210,7 @@ class SinglePrinterViewModel extends MultipleStreamViewModel {
   onLongPressTile() {
     _machineService.setMachineActive(_machine);
     _navigationService.navigateTo(Routes.printersEdit,
-        arguments: PrintersEditArguments(printerSetting: _machine));
+        arguments: PrintersEditArguments(machine: _machine));
   }
 
   onFullScreenTap() {

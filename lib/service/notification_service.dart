@@ -14,7 +14,7 @@ import 'package:mobileraker/app/app_setup.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/firebase_options.dart';
@@ -76,17 +76,17 @@ class NotificationService {
     if (data.containsKey('filename')) file = data['filename'];
 
     if (state != null && printerIdentifier != null) {
-      Machine? printerSetting = await notificationService._machineService
+      Machine? machine = await notificationService._machineService
           .machineFromFcmIdentifier(printerIdentifier);
-      if (printerSetting != null) {
+      if (machine != null) {
         var printState = await notificationService
-            ._updatePrintStatusNotification(printerSetting, state, file);
+            ._updatePrintStatusNotification(machine, state, file);
         if (printState == PrintState.printing &&
             progress != null &&
             printingDuration != null)
           await notificationService._updatePrintProgressNotification(
-              printerSetting, progress, printingDuration);
-        await printerSetting.save();
+              machine, progress, printingDuration);
+        await machine.save();
       }
     }
     notificationService.dispose();
@@ -125,9 +125,9 @@ class NotificationService {
   }
 
   StreamSubscription<BoxEvent> setupHiveBoxListener() {
-    return _machineService.printerSettingEventStream.listen((event) {
+    return _machineService.machineEventStream.listen((event) {
       _logger.d(
-          "Received Box-Event<PrinterSetting>: event(${event.key}:${event.value} del=${event.deleted}");
+          "Received Box-Event<machine>: event(${event.key}:${event.value} del=${event.deleted}");
       if (event.deleted)
         onMachineRemoved(event.key);
       else if (!_printerStreamMap.containsKey(event.key)) {
@@ -140,8 +140,8 @@ class NotificationService {
     List<NotificationChannelGroup> groups = [];
     List<NotificationChannel> channels = [];
     for (Machine setting in machines) {
-      groups.add(_channelGroupOfPrinterSettings(setting));
-      channels.addAll(_channelsOfPrinterSettings(setting));
+      groups.add(_channelGroupOfmachines(setting));
+      channels.addAll(_channelsOfmachines(setting));
     }
 
     await AwesomeNotifications().initialize(
@@ -179,9 +179,9 @@ class NotificationService {
   }
 
   // updatePrintStateOnce() {
-  //   Iterable<PrinterSetting> allMachines = _machineService.fetchAll();
+  //   Iterable<machine> allMachines = _machineService.fetchAll();
   //   _logger.i('Updating PrintState once for BG task?');
-  //   for (PrinterSetting setting in allMachines) {
+  //   for (machine setting in allMachines) {
   //     WebSocketWrapper websocket = setting.websocket;
   //     bool connection = websocket.ensureConnection();
   //
@@ -191,9 +191,9 @@ class NotificationService {
   // }
 
   onMachineAdded(Machine setting) {
-    List<NotificationChannel> channelsOfPrinterSettings =
-        _channelsOfPrinterSettings(setting);
-    channelsOfPrinterSettings.forEach((e) => _notifyAPI.setChannel(e));
+    List<NotificationChannel> channelsOfmachines =
+        _channelsOfmachines(setting);
+    channelsOfmachines.forEach((e) => _notifyAPI.setChannel(e));
     _setupFCMOnPrinterOnceConnected(setting);
     registerLocalMessageHandling(setting);
     _logger.i(
@@ -208,21 +208,21 @@ class NotificationService {
         .i("Removed notifications channels and stream-listener for UUID=$uuid");
   }
 
-  List<NotificationChannel> _channelsOfPrinterSettings(
-      Machine printerSetting) {
+  List<NotificationChannel> _channelsOfmachines(
+      Machine machine) {
     return [
       NotificationChannel(
-          channelKey: printerSetting.statusUpdatedChannelKey,
-          channelName: 'Print Status Updates - ${printerSetting.name}',
+          channelKey: machine.statusUpdatedChannelKey,
+          channelName: 'Print Status Updates - ${machine.name}',
           channelDescription: 'Notifications regarding the print status.',
-          channelGroupKey: printerSetting.uuid,
+          channelGroupKey: machine.uuid,
           importance: NotificationImportance.Max,
           defaultColor: brownish.shade500),
       NotificationChannel(
-          channelKey: printerSetting.printProgressChannelKey,
-          channelName: 'Print Progress Updates - ${printerSetting.name}',
+          channelKey: machine.printProgressChannelKey,
+          channelName: 'Print Progress Updates - ${machine.name}',
           channelDescription: 'Notifications regarding the print progress.',
-          channelGroupKey: printerSetting.uuid,
+          channelGroupKey: machine.uuid,
           playSound: false,
           enableVibration: false,
           enableLights: false,
@@ -231,11 +231,11 @@ class NotificationService {
     ];
   }
 
-  NotificationChannelGroup _channelGroupOfPrinterSettings(
-      Machine printerSetting) {
+  NotificationChannelGroup _channelGroupOfmachines(
+      Machine machine) {
     return NotificationChannelGroup(
-        channelGroupkey: printerSetting.uuid,
-        channelGroupName: 'Printer ${printerSetting.name}');
+        channelGroupkey: machine.uuid,
+        channelGroupName: 'Printer ${machine.name}');
   }
 
   Future<void> _setupFCMOnPrinterOnceConnected(Machine setting) async {
@@ -255,57 +255,57 @@ class NotificationService {
   }
 
   Future<void> _processPrinterUpdate(
-      Machine printerSetting, Printer printer) async {
+      Machine machine, Printer printer) async {
     var state = await _updatePrintStatusNotification(
-        printerSetting, printer.print.state, printer.print.filename, false);
+        machine, printer.print.state, printer.print.filename, false);
 
     if (state == PrintState.printing && !Platform.isIOS)
-      await _updatePrintProgressNotification(printerSetting,
+      await _updatePrintProgressNotification(machine,
           printer.virtualSdCard.progress, printer.print.printDuration);
-    await printerSetting.save();
+    await machine.save();
   }
 
   Future<PrintState> _updatePrintStatusNotification(
-      Machine printerSetting,
+      Machine machine,
       PrintState updatedState,
       String? updatedFile,
       [bool createNotification = true]) async {
-    PrintState? oldState = printerSetting.lastPrintState;
+    PrintState? oldState = machine.lastPrintState;
 
     if (updatedState == oldState) return updatedState;
-    printerSetting.lastPrintState = updatedState;
+    machine.lastPrintState = updatedState;
     _logger.i("Transition update $oldState -> $updatedState");
     if (oldState == null && updatedState != PrintState.printing)
       return updatedState;
 
     NotificationContent notificationContent = NotificationContent(
       id: Random().nextInt(20000000),
-      channelKey: printerSetting.statusUpdatedChannelKey,
-      title: 'Print state of ${printerSetting.name} changed!',
+      channelKey: machine.statusUpdatedChannelKey,
+      title: 'Print state of ${machine.name} changed!',
       notificationLayout: NotificationLayout.BigText,
     );
     String file = updatedFile ?? 'Unknown';
     switch (updatedState) {
       case PrintState.standby:
-        await _removePrintProgressNotification(printerSetting);
+        await _removePrintProgressNotification(machine);
         break;
       case PrintState.printing:
         notificationContent.body = 'Started to print file: "$file"';
-        printerSetting.lastPrintProgress = null;
+        machine.lastPrintProgress = null;
         break;
       case PrintState.paused:
         notificationContent.body = 'Paused printing file: "$file"';
         break;
       case PrintState.complete:
         notificationContent.body = 'Finished printing: "$file"';
-        await _removePrintProgressNotification(printerSetting);
+        await _removePrintProgressNotification(machine);
         break;
       case PrintState.error:
         if (oldState == PrintState.printing) {
           notificationContent.body = 'Error while printing file: "$file"';
           notificationContent.color = Colors.red;
         }
-        await _removePrintProgressNotification(printerSetting);
+        await _removePrintProgressNotification(machine);
         break;
     }
     if (updatedState != PrintState.standby && createNotification)
@@ -315,14 +315,14 @@ class NotificationService {
   }
 
   Future<void> _removePrintProgressNotification(
-          Machine printerSetting) =>
+          Machine machine) =>
       _notifyAPI.cancelNotificationsByChannelKey(
-          printerSetting.printProgressChannelKey);
+          machine.printProgressChannelKey);
 
-  Future<void> _updatePrintProgressNotification(Machine printerSetting,
+  Future<void> _updatePrintProgressNotification(Machine machine,
       double progress, double printDuration) async {
-    if (printerSetting.lastPrintProgress == progress) return;
-    printerSetting.lastPrintProgress = progress;
+    if (machine.lastPrintProgress == progress) return;
+    machine.lastPrintProgress = progress;
     var dt;
     if (printDuration > 0 && progress > 0) {
       double est = printDuration / progress - printDuration;
@@ -330,15 +330,15 @@ class NotificationService {
     }
     String eta = (dt != null) ? 'ETA: ${DateFormat.Hm().format(dt)}' : '';
 
-    int index = await _machineService.indexOfMachine(printerSetting);
+    int index = await _machineService.indexOfMachine(machine);
     if (index < 0) return;
 
     var progressPerc = (progress * 100).floor();
     await _notifyAPI.createNotification(
         content: NotificationContent(
             id: index * 3 + 3,
-            channelKey: printerSetting.printProgressChannelKey,
-            title: 'Print progress of ${printerSetting.name}',
+            channelKey: machine.printProgressChannelKey,
+            title: 'Print progress of ${machine.name}',
             body: '$eta $progressPerc%',
             notificationLayout: NotificationLayout.ProgressBar,
             locked: true,

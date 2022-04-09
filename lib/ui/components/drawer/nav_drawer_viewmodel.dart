@@ -1,6 +1,6 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -30,27 +30,27 @@ class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
     return list;
   }
 
-  onEditTap(Machine? printerSetting) {
-    printerSetting ??= _machineService.selectedMachine.valueOrNull;
-    if (printerSetting == null) {
+  onEditTap(Machine? machine) {
+    machine ??= _machineService.selectedMachine.valueOrNull;
+    if (machine == null) {
       navigateTo(Routes.printersAdd);
     } else {
       navigateTo(Routes.printersEdit,
-          arguments: PrintersEditArguments(printerSetting: printerSetting));
+          arguments: PrintersEditArguments(machine: machine));
     }
   }
 
-  onSetActiveTap(Machine printerSetting) {
+  onSetActiveTap(Machine machine) {
     _navigationService.back();
-    _machineService.setMachineActive(printerSetting);
+    _machineService.setMachineActive(machine);
   }
 
   String get printerDisplayName =>
       _machineService.selectedMachine.valueOrNull?.name ?? 'NO PRINTER';
 
   String get printerUrl {
-    var printerSetting = _machineService.selectedMachine.valueOrNull;
-    if (printerSetting != null) return Uri.parse(printerSetting.httpUrl).host;
+    var machine = _machineService.selectedMachine.valueOrNull;
+    if (machine != null) return Uri.parse(machine.httpUrl).host;
 
     return 'Add printer first';
   }

@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
-import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/machine.dart';
-import 'package:mobileraker/repository/printer_setting_hive_repository.dart';
+import 'package:mobileraker/domain/hive/gcode_macro.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/hive/macro_group.dart';
+import 'package:mobileraker/repository/machine_hive_repository.dart';
 import 'package:mobileraker/service/moonraker/database_service.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
@@ -17,43 +17,40 @@ class MachineService {
     selectedMachine = BehaviorSubject<Machine?>();
     String? selectedUUID = _boxUuid.get('selectedPrinter');
     if (selectedUUID != null)
-      _printerSettingRepo.get(uuid: selectedUUID).then((value) {
+      _machineRepo.get(uuid: selectedUUID).then((value) {
         if (value != null) setMachineActive(value);
       });
   }
+
   late final _boxUuid = Hive.box<String>('uuidbox');
   late final BehaviorSubject<Machine?> selectedMachine;
 
   final _logger = getLogger('MachineService');
-  final _printerSettingRepo = locator<PrinterSettingHiveRepository>();
+  final _machineRepo = locator<MachineHiveRepository>();
 
-
-  Stream<BoxEvent> get printerSettingEventStream =>
+  Stream<BoxEvent> get machineEventStream =>
       Hive.box<Machine>('printers').watch();
 
-
-
-  Future<void> updateMachine(Machine printerSetting) async {
-    await printerSetting.save();
-    if (!selectedMachine.isClosed && isSelectedMachine(printerSetting))
-      selectedMachine.add(printerSetting);
+  Future<void> updateMachine(Machine machine) async {
+    await machine.save();
+    if (!selectedMachine.isClosed && isSelectedMachine(machine))
+      selectedMachine.add(machine);
 
     return;
   }
 
-  Future<Machine> addMachine(Machine printerSetting) async {
-    await _printerSettingRepo.insert(printerSetting);
-    await setMachineActive(printerSetting);
-    return printerSetting;
+  Future<Machine> addMachine(Machine machine) async {
+    await _machineRepo.insert(machine);
+    await setMachineActive(machine);
+    return machine;
   }
 
-  Future<void> removeMachine(Machine printerSetting) async {
-    _logger.i("Removing machine ${printerSetting.uuid}");
-    await _printerSettingRepo.remove(printerSetting.uuid);
-    if (selectedMachine.valueOrNull == printerSetting) {
-      _logger.i("Machine ${printerSetting.uuid} is active machine");
-      List<Machine> remainingPrinters =
-          await _printerSettingRepo.fetchAll();
+  Future<void> removeMachine(Machine machine) async {
+    _logger.i("Removing machine ${machine.uuid}");
+    await _machineRepo.remove(machine.uuid);
+    if (selectedMachine.valueOrNull == machine) {
+      _logger.i("Machine ${machine.uuid} is active machine");
+      List<Machine> remainingPrinters = await _machineRepo.fetchAll();
 
       Machine? nextMachine =
           remainingPrinters.length > 0 ? remainingPrinters.first : null;
@@ -63,15 +60,15 @@ class MachineService {
   }
 
   Future<List<Machine>> fetchAll() {
-    return _printerSettingRepo.fetchAll();
+    return _machineRepo.fetchAll();
   }
 
   Future<int> count() {
-    return _printerSettingRepo.count();
+    return _machineRepo.count();
   }
 
-  setMachineActive(Machine? printerSetting) async {
-    if (printerSetting == null) {
+  setMachineActive(Machine? machine) async {
+    if (machine == null) {
       // This case sets no printer as active!
       await _boxUuid.delete('selectedPrinter');
       if (!selectedMachine.isClosed) selectedMachine.add(null);
@@ -81,10 +78,10 @@ class MachineService {
       return;
     }
 
-    if (printerSetting == selectedMachine.valueOrNull) return;
+    if (machine == selectedMachine.valueOrNull) return;
 
-    await _boxUuid.put('selectedPrinter', printerSetting.key);
-    if (!selectedMachine.isClosed) selectedMachine.add(printerSetting);
+    await _boxUuid.put('selectedPrinter', machine.key);
+    if (!selectedMachine.isClosed) selectedMachine.add(machine);
   }
 
   selectNextMachine() async {
@@ -119,9 +116,8 @@ class MachineService {
   /// identify the printer that sends a notification in case
   /// a user configured multiple printers in the app.
   /// Because of that the FCMIdentifier should be set only once!
-  Future<String> fetchOrCreateFcmIdentifier(
-      Machine printerSetting) async {
-    DatabaseService databaseService = printerSetting.databaseService;
+  Future<String> fetchOrCreateFcmIdentifier(Machine machine) async {
+    DatabaseService databaseService = machine.databaseService;
     String? item =
         await databaseService.getDatabaseItem('mobileraker', 'printerId');
     if (item == null) {
@@ -133,26 +129,26 @@ class MachineService {
       _logger.i("Got FCM-PrinterID from MoonrakerDB to set in Settings:$item");
     }
 
-    if (item != printerSetting.fcmIdentifier) {
-      printerSetting.fcmIdentifier = item;
-      await printerSetting.save();
+    if (item != machine.fcmIdentifier) {
+      machine.fcmIdentifier = item;
+      await machine.save();
       _logger.i("Updated FCM-PrinterID in settings $item");
     }
     return item!;
   }
 
   Future<void> registerFCMTokenOnMachineNEW(
-      Machine printerSetting, String fcmToken) async {
-    DatabaseService databaseService = printerSetting.databaseService;
+      Machine machine, String fcmToken) async {
+    DatabaseService databaseService = machine.databaseService;
     Map<String, dynamic>? item =
         await databaseService.getDatabaseItem('mobileraker', 'fcm.$fcmToken');
     if (item == null) {
-      item = {'printerName': printerSetting.name};
+      item = {'printerName': machine.name};
       item = await databaseService.addDatabaseItem(
           'mobileraker', 'fcm.$fcmToken', item);
       _logger.i("Registered FCM Token in MoonrakerDB: $item");
-    } else if (item['printerName'] != printerSetting.name) {
-      item['printerName'] = printerSetting.name;
+    } else if (item['printerName'] != machine.name) {
+      item['printerName'] = machine.name;
       item = await databaseService.addDatabaseItem(
           'mobileraker', 'fcm.$fcmToken', item);
       _logger.i("Updated Printer's name in MoonrakerDB: $item");
@@ -161,8 +157,8 @@ class MachineService {
   }
 
   Future<void> registerFCMTokenOnMachine(
-      Machine printerSetting, String fcmToken) async {
-    DatabaseService databaseService = printerSetting.databaseService;
+      Machine machine, String fcmToken) async {
+    DatabaseService databaseService = machine.databaseService;
 
     var item =
         await databaseService.getDatabaseItem('mobileraker', 'fcmTokens');
@@ -197,11 +193,11 @@ class MachineService {
     return i;
   }
 
-  updateSettingMacros(Machine printerSetting, List<String> macros) {
+  updateSettingMacros(Machine machine, List<String> macros) {
     _logger.i("Updating Default Macros!");
     List<String> filteredMacros =
         macros.where((element) => !element.startsWith('_')).toList();
-    List<MacroGroup> macroGroups = printerSetting.macroGroups;
+    List<MacroGroup> macroGroups = machine.macroGroups;
     for (MacroGroup grp in macroGroups) {
       for (GCodeMacro macro in grp.macros) {
         filteredMacros.remove(macro.name);

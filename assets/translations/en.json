@@ -181,6 +181,7 @@
         "steps_extrude": "Extrude steps"
       },
       "cams": {
+        "target_fps": "Target FPS",
         "new_cam": "New Webcam",
         "no_webcams": "No Webcams added!",
         "webcam_addr": "Webcam - Address",

@@ -6,7 +6,7 @@ import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
+import 'package:mobileraker/domain/hive/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
@@ -275,10 +275,11 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
             constraints: BoxConstraints(minHeight: minWebCamHeight),
             child: Center(
                 child: Mjpeg(
-              key: ValueKey(model.webCamUrl),
+              key: ValueKey(model.selectedCam),
               imageBuilder: _imageBuilder,
-              feedUri: model.webCamUrl,
-              transform: model.transformMatrix,
+              targetFps: model.selectedCam!.targetFps,
+              feedUri: model.selectedCam!.url,
+              transform: model.selectedCam!.transformMatrix,
               showFps: true,
               stackChildren: [
                 Positioned.fill(

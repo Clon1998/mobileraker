@@ -2,7 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
+import 'package:mobileraker/domain/hive/gcode_macro.dart';
 import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';

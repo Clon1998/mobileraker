@@ -4,7 +4,7 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -25,22 +25,22 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
 
-  Machine? _printerSetting;
+  Machine? _machine;
 
-  KlippyService? get _klippyService => _printerSetting?.klippyService;
+  KlippyService? get _klippyService => _machine?.klippyService;
 
-  PrinterService? get _printerService => _printerSetting?.printerService;
+  PrinterService? get _printerService => _machine?.printerService;
 
-  JsonRpcClient? get _jRpcClient => _printerSetting?.jRpcClient;
+  JsonRpcClient? get _jRpcClient => _machine?.jRpcClient;
 
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
             StreamData<Machine?>(_machineService.selectedMachine),
-        if (_printerSetting?.jRpcClient != null)
+        if (_machine?.jRpcClient != null)
           _ClientStateStreamKey:
               StreamData<ClientState>(_jRpcClient!.stateStream),
-        if (_printerSetting?.klippyService != null)
+        if (_machine?.klippyService != null)
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream),
         if (_printerService != null)
@@ -82,9 +82,9 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   onData(String key, data) {
     switch (key) {
       case _SelectedPrinterStreamKey:
-        Machine? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting) break;
-        _printerSetting = nPrinterSetting;
+        Machine? nmachine = data;
+        if (nmachine == _machine) break;
+        _machine = nmachine;
 
         notifySourceChanged(clearOldData: true);
         break;

@@ -1,9 +1,9 @@
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/domain/hive/macro_group.dart';
+import 'package:mobileraker/domain/hive/temperature_preset.dart';
+import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/service/moonraker/database_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';

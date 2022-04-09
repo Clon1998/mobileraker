@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
-import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/machine.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
-import 'package:mobileraker/repository/printer_setting_hive_repository.dart';
+import 'package:mobileraker/domain/hive/gcode_macro.dart';
+import 'package:mobileraker/domain/hive/macro_group.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/hive/temperature_preset.dart';
+import 'package:mobileraker/domain/hive/webcam_setting.dart';
+import 'package:mobileraker/repository/machine_hive_repository.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/purchases_service.dart';
@@ -48,7 +48,7 @@ import 'package:stacked_services/stacked_services.dart';
 ], dependencies: [
   LazySingleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
-  // LazySingleton(classType: PrinterSettingHiveRepository, asType: PrinterSettingRepository,),
+  // LazySingleton(classType: machineHiveRepository, asType: machineRepository,),
   LazySingleton(classType: DialogService),
   LazySingleton(classType: BottomSheetService),
   LazySingleton(classType: GeneralTabViewModel),
@@ -56,7 +56,7 @@ import 'package:stacked_services/stacked_services.dart';
   LazySingleton(classType: ConnectionStateViewModel),
   LazySingleton(classType: ConsoleViewModel),
   LazySingleton(classType: PurchasesService),
-  Singleton(classType: PrinterSettingHiveRepository),
+  Singleton(classType: MachineHiveRepository),
   Singleton(classType: MachineService),
   Singleton(classType: SettingService),
   Singleton(classType: NotificationService),
@@ -65,9 +65,9 @@ class AppSetup {}
 
 setupBoxes() async {
   await Hive.initFlutter();
-  var printerSettingAdapter = PrinterSettingAdapter();
-  if (!Hive.isAdapterRegistered(printerSettingAdapter.typeId))
-    Hive.registerAdapter(printerSettingAdapter);
+  var machineAdapter = MachineAdapter();
+  if (!Hive.isAdapterRegistered(machineAdapter.typeId))
+    Hive.registerAdapter(machineAdapter);
   var webcamSettingAdapter = WebcamSettingAdapter();
   if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId))
     Hive.registerAdapter(webcamSettingAdapter);

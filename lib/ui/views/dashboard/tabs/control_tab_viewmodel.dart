@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
-import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/gcode_macro.dart';
+import 'package:mobileraker/domain/hive/macro_group.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/dto/config/config_output.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/output_pin.dart';
@@ -32,7 +32,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
 
   MacroGroup? selectedGrp;
 
-  Machine? _printerSetting;
+  Machine? _machine;
   PrinterService? _printerService;
   KlippyService? _klippyService;
 
@@ -49,7 +49,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   ScrollController get outputsScrollController => _outputsScrollController;
 
   List<int> get retractLengths {
-    return _printerSetting?.extrudeSteps.toList() ?? const [1, 10, 25, 50];
+    return _machine?.extrudeSteps.toList() ?? const [1, 10, 25, 50];
   }
 
   int get fansSteps => 1 + printer.fans.length;
@@ -57,7 +57,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   int get outputSteps => printer.outputPins.length;
 
   List<MacroGroup> get macroGroups {
-    return _printerSetting?.macroGroups ?? [];
+    return _machine?.macroGroups ?? [];
   }
 
   //ToDO: Maybe to pass these down from the overview viewmodel..
@@ -65,10 +65,10 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
             StreamData<Machine?>(_machineService.selectedMachine),
-        if (_printerSetting?.printerService != null) ...{
+        if (_machine?.printerService != null) ...{
           _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },
-        if (_printerSetting?.klippyService != null) ...{
+        if (_machine?.klippyService != null) ...{
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
         }
@@ -79,19 +79,19 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        Machine? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting) break;
-        _printerSetting = nPrinterSetting;
+        Machine? nmachine = data;
+        if (nmachine == _machine) break;
+        _machine = nmachine;
 
-        if (nPrinterSetting?.printerService != null) {
-          _printerService = nPrinterSetting?.printerService;
+        if (nmachine?.printerService != null) {
+          _printerService = nmachine?.printerService;
         }
 
-        if (nPrinterSetting?.klippyService != null) {
-          _klippyService = nPrinterSetting?.klippyService;
+        if (nmachine?.klippyService != null) {
+          _klippyService = nmachine?.klippyService;
         }
-        if (nPrinterSetting?.macroGroups.isNotEmpty ?? false)
-          selectedGrp = nPrinterSetting!.macroGroups.first;
+        if (nmachine?.macroGroups.isNotEmpty ?? false)
+          selectedGrp = nmachine!.macroGroups.first;
         else
           selectedGrp = null;
         notifySourceChanged(clearOldData: true);
@@ -199,13 +199,13 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     var double = (retractLengths[selectedIndexRetractLength] * -1).toDouble();
 
     _printerService?.moveExtruder(
-        double, _printerSetting!.extrudeFeedrate.toDouble());
+        double, _machine!.extrudeFeedrate.toDouble());
   }
 
   onDeRetractBtn() {
     var double = (retractLengths[selectedIndexRetractLength]).toDouble();
     _printerService?.moveExtruder(
-        double, _printerSetting!.extrudeFeedrate.toDouble());
+        double, _machine!.extrudeFeedrate.toDouble());
   }
 
   onMacroPressed(GCodeMacro macro) {

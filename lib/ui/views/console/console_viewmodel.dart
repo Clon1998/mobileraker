@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/domain/machine.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/dto/console/command.dart';
 import 'package:mobileraker/dto/console/console_entry.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
@@ -39,11 +39,11 @@ class ConsoleViewModel extends MultipleStreamViewModel {
   final _machineService = locator<MachineService>();
   final _settingService = locator<SettingService>();
 
-  Machine? _printerSetting;
+  Machine? _machine;
 
-  KlippyService? get _klippyService => _printerSetting?.klippyService;
+  KlippyService? get _klippyService => _machine?.klippyService;
 
-  PrinterService? get _printerService => _printerSetting?.printerService;
+  PrinterService? get _printerService => _machine?.printerService;
 
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
@@ -95,7 +95,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
       server.klippyState == KlipperState.ready &&
       server.klippyConnected;
 
-  String get printerName => _printerSetting?.name ?? '';
+  String get printerName => _machine?.name ?? '';
 
   List<String> history = [];
 
@@ -163,9 +163,9 @@ class ConsoleViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        Machine? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting) break;
-        _printerSetting = nPrinterSetting;
+        Machine? nmachine = data;
+        if (nmachine == _machine) break;
+        _machine = nmachine;
         notifySourceChanged(clearOldData: true);
         break;
       case _GCodeNotifyResp:

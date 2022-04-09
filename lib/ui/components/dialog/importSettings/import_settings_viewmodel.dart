@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/machine.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
+import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/hive/temperature_preset.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
@@ -34,9 +34,9 @@ class ImportSettingsViewModel extends FutureViewModel<List<Machine>> {
     return _selectedSource?.temperaturePresets ?? List.empty();
   }
 
-  onSourceSelected(Machine? printerSetting) {
-    if (printerSetting != _selectedSource) {
-      _selectedSource = printerSetting;
+  onSourceSelected(Machine? machine) {
+    if (machine != _selectedSource) {
+      _selectedSource = machine;
       notifyListeners();
     }
   }
