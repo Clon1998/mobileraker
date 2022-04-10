@@ -10,6 +10,7 @@ import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -20,7 +21,7 @@ const String _PrinterStreamKey = 'printer';
 
 class ConnectionStateViewModel extends MultipleStreamViewModel
     with WidgetsBindingObserver {
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
@@ -36,7 +37,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_selectedMachineService.selectedMachine),
         if (_machine?.jRpcClient != null)
           _ClientStateStreamKey:
               StreamData<ClientState>(_jRpcClient!.stateStream),

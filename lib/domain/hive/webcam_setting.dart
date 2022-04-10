@@ -18,7 +18,7 @@ class WebcamSetting {
   bool flipHorizontal = false;
   @HiveField(4)
   bool flipVertical = false;
-  @HiveField(5)
+  @HiveField(5, defaultValue: 15)
   int targetFps = 15;
 
 

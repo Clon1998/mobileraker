@@ -2,15 +2,18 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobileraker/datasource/moonraker_database_client.dart';
 import 'package:mobileraker/domain/hive/gcode_macro.dart';
 import 'package:mobileraker/domain/hive/macro_group.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/domain/hive/temperature_preset.dart';
 import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/repository/machine_hive_repository.dart';
+import 'package:mobileraker/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/purchases_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_viewmodel.dart';
 import 'package:mobileraker/ui/views/console/console_view.dart';
@@ -46,7 +49,7 @@ import 'package:stacked_services/stacked_services.dart';
   MaterialRoute(page: PaywallView),
   MaterialRoute(page: OverViewView),
 ], dependencies: [
-  LazySingleton(classType: NavigationService),
+  Singleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
   // LazySingleton(classType: machineHiveRepository, asType: machineRepository,),
   LazySingleton(classType: DialogService),
@@ -57,6 +60,9 @@ import 'package:stacked_services/stacked_services.dart';
   LazySingleton(classType: ConsoleViewModel),
   LazySingleton(classType: PurchasesService),
   Singleton(classType: MachineHiveRepository),
+  Singleton(classType: SelectedMachineService),
+  Singleton(classType: MoonrakerDatabaseClient),
+  Singleton(classType: MachineSettingsMoonrakerRepository),
   Singleton(classType: MachineService),
   Singleton(classType: SettingService),
   Singleton(classType: NotificationService),
@@ -81,6 +87,7 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(macroAdapter.typeId))
     Hive.registerAdapter(macroAdapter);
   // Hive.deleteBoxFromDisk('printers');
+
   try {
     await openBoxes();
   } catch (e) {

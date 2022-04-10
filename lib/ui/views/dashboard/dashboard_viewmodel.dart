@@ -7,6 +7,7 @@ import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/bottomsheet/setup_bottom_sheet_ui.dart';
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
@@ -22,6 +23,7 @@ class DashboardViewModel extends MultipleStreamViewModel {
   final _bottomSheetService = locator<BottomSheetService>();
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _settingService = locator<SettingService>();
 
   Machine? _machine;
@@ -33,7 +35,7 @@ class DashboardViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_selectedMachineService.selectedMachine),
         if (_printerService != null)
           _PrinterStreamKey:
               StreamData<Printer>(_printerService!.printerStream),
@@ -131,10 +133,10 @@ class DashboardViewModel extends MultipleStreamViewModel {
     double primaryVelocity = endDetails.primaryVelocity ?? 0;
     if (primaryVelocity < 0) {
       // Page forwards
-      _machineService.selectPreviousMachine();
+      _selectedMachineService.selectPreviousMachine();
     } else if (primaryVelocity > 0) {
       // Page backwards
-      _machineService.selectNextMachine();
+      _selectedMachineService.selectNextMachine();
     }
   }
 

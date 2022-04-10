@@ -69,6 +69,7 @@ dependencies:
   easy_localization: ^3.0.0
   purchases_flutter: ^3.9.5
   webview_flutter: ^2.8.0
+  json_annotation: ^4.4.0
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +79,7 @@ dev_dependencies:
   hive_generator: ^1.1.1
   stacked_generator: ^0.6.0
   build_runner: ^2.1.5
+  json_serializable: ^6.1.5
 
 
 flutter_icons:

@@ -32,7 +32,7 @@ class NavigationDrawerWidget
         child: Column(
           children: [
             buildHeader(
-              name: model.printerDisplayName,
+              name: model.selectedPrinterDisplayName,
               email: model.printerUrl,
               onClicked: () => model.onEditTap(null),
             ),

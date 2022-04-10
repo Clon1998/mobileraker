@@ -398,13 +398,13 @@ class _AdaptiveStreamManager {
 
   start() {
     active = true;
-    _logger.i('START - targFps: $targetFps');
+    _logger.i('Start MJPEG - targFps: $targetFps');
     if (_timer?.isActive ?? false) return;
     _timer = Timer(Duration(milliseconds: 0), _timerCallback);
   }
 
   stop() {
-    _logger.i('STOPPING STREAM!');
+    _logger.i('Stop MJPEG');
     active = false;
     _timer?.cancel();
   }

@@ -16,6 +16,7 @@ import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
@@ -29,7 +30,7 @@ const String _PrinterStreamKey = 'printer';
 
 class GeneralTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _navigationService = locator<NavigationService>();
   final _settingService = locator<SettingService>();
 
@@ -73,7 +74,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_selectedMachineService.selectedMachine),
         if (_machine?.printerService != null) ...{
           _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
         },

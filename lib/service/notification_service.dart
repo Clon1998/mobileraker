@@ -19,6 +19,7 @@ import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/firebase_options.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 import 'package:path_provider_ios/path_provider_ios.dart';
@@ -30,6 +31,7 @@ import 'machine_service.dart';
 class NotificationService {
   final _logger = getLogger('NotificationService');
   final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _notifyAPI = AwesomeNotifications();
   Map<String, StreamSubscription<Printer>> _printerStreamMap = {};
   StreamSubscription<ReceivedAction>? _actionStreamListener;
@@ -120,7 +122,7 @@ class NotificationService {
 
   StreamSubscription<ReceivedAction> setupNotificationActionListener() {
     return _notifyAPI.actionStream.listen((receivedNotification) =>
-        _machineService.selectedMachine.valueOrNull?.jRpcClient
+        _selectedMachineService.selectedMachine.valueOrNull?.jRpcClient
             .ensureConnection());
   }
 
@@ -238,8 +240,8 @@ class NotificationService {
         channelGroupName: 'Printer ${machine.name}');
   }
 
-  Future<void> _setupFCMOnPrinterOnceConnected(Machine setting) async {
-    await setting.jRpcClient.stateStream
+  Future<void> _setupFCMOnPrinterOnceConnected(Machine machine) async {
+    await machine.jRpcClient.stateStream
         .firstWhere((element) => element == ClientState.connected);
 
     String? fcmToken = await FirebaseMessaging.instance.getToken();
@@ -248,8 +250,8 @@ class NotificationService {
       return Future.error("No token available for device!");
     }
     _logger.i("Devices FCM token: $fcmToken");
-    await _machineService.fetchOrCreateFcmIdentifier(setting);
-    await _machineService.registerFCMTokenOnMachine(setting, fcmToken);
+    await _machineService.fetchOrCreateFcmIdentifier(machine);
+    await _machineService.registerFCMTokenOnMachine(machine, fcmToken);
 
     // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
   }

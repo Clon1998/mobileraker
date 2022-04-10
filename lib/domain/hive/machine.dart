@@ -5,7 +5,6 @@ import 'package:mobileraker/domain/hive/macro_group.dart';
 import 'package:mobileraker/domain/hive/temperature_preset.dart';
 import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/service/moonraker/database_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -25,9 +24,6 @@ class Machine extends HiveObject {
   List<WebcamSetting> cams;
   @HiveField(4)
   String? apiKey;
-
-
-
 
   @HiveField(5, defaultValue: [])
   List<TemperaturePreset> temperaturePresets;
@@ -70,8 +66,7 @@ class Machine extends HiveObject {
 
   JsonRpcClient get jRpcClient {
     if (_jRpcClient == null)
-      _jRpcClient =
-          JsonRpcClient(wsUrl, Duration(seconds: 5), apiKey: apiKey);
+      _jRpcClient = JsonRpcClient(wsUrl, Duration(seconds: 5), apiKey: apiKey);
 
     return _jRpcClient!;
   }
@@ -97,14 +92,8 @@ class Machine extends HiveObject {
     return _fileService!;
   }
 
-  DatabaseService? _databaseService;
-
-  DatabaseService get databaseService {
-    if (_databaseService == null) _databaseService = DatabaseService(this);
-    return _databaseService!;
-  }
-
   String get statusUpdatedChannelKey => '$uuid-statusUpdates';
+
   String get printProgressChannelKey => '$uuid-progressUpdates';
 
   Machine({
@@ -151,7 +140,6 @@ class Machine extends HiveObject {
     _printerService?.dispose();
     _klippyService?.dispose();
     _fileService?.dispose();
-    _databaseService?.dispose();
     _jRpcClient?.dispose();
   }
 
@@ -182,8 +170,7 @@ class Machine extends HiveObject {
           _jRpcClient == other._jRpcClient &&
           _printerService == other._printerService &&
           _klippyService == other._klippyService &&
-          _fileService == other._fileService &&
-          _databaseService == other._databaseService;
+          _fileService == other._fileService;
 
   @override
   int get hashCode =>
@@ -209,6 +196,5 @@ class Machine extends HiveObject {
       _jRpcClient.hashCode ^
       _printerService.hashCode ^
       _klippyService.hashCode ^
-      _fileService.hashCode ^
-      _databaseService.hashCode;
+      _fileService.hashCode;
 }

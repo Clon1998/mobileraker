@@ -2,23 +2,22 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
-  final _navigationService = locator<NavigationService>();
-  final _machineService = locator<MachineService>();
-  final String currentPath;
-
   NavDrawerViewModel(this.currentPath);
 
+  final String currentPath;
 
-  @override
-  Future<List<Machine>> futureToRun() => _machineService.fetchAll();
+  final _navigationService = locator<NavigationService>();
+  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
 
   List<Machine> get printers {
     var list = data!;
-    var selectedUUID = _machineService.selectedMachine.valueOrNull?.uuid;
+    var selectedUUID = _selectedMachine?.uuid;
 
     list.sort((a, b) {
       if (a.uuid == selectedUUID) return -1; //Move selected to first position
@@ -30,8 +29,24 @@ class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
     return list;
   }
 
+  String get selectedPrinterDisplayName =>
+      _selectedMachine?.name ?? 'NO PRINTER';
+
+  String get printerUrl {
+    if (_selectedMachine != null)
+      return Uri.parse(_selectedMachine!.httpUrl).host;
+
+    return 'Add printer first';
+  }
+
+  Machine? get _selectedMachine =>
+      _selectedMachineService.selectedMachine.valueOrNull;
+
+  @override
+  Future<List<Machine>> futureToRun() => _machineService.fetchAll();
+
   onEditTap(Machine? machine) {
-    machine ??= _machineService.selectedMachine.valueOrNull;
+    machine ??= _selectedMachine;
     if (machine == null) {
       navigateTo(Routes.printersAdd);
     } else {
@@ -42,22 +57,11 @@ class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
 
   onSetActiveTap(Machine machine) {
     _navigationService.back();
-    _machineService.setMachineActive(machine);
-  }
-
-  String get printerDisplayName =>
-      _machineService.selectedMachine.valueOrNull?.name ?? 'NO PRINTER';
-
-  String get printerUrl {
-    var machine = _machineService.selectedMachine.valueOrNull;
-    if (machine != null) return Uri.parse(machine.httpUrl).host;
-
-    return 'Add printer first';
+    _selectedMachineService.selectMachine(machine);
   }
 
   navigateTo(String route, {dynamic arguments}) {
     _navigationService.back();
-
 
     if (currentPath != route)
       _navigationService.navigateTo(route, arguments: arguments);
@@ -66,9 +70,9 @@ class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
   navigateMenu(String route, {dynamic arguments}) {
     _navigationService.back();
 
-
     if (currentPath != route)
       _navigationService.clearStackAndShow(route, arguments: arguments);
   }
+
   bool isSelected(String route) => route == currentPath;
 }

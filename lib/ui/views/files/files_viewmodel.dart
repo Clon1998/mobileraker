@@ -14,6 +14,7 @@ import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/path_utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rxdart/rxdart.dart';
@@ -30,7 +31,7 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   final _navigationService = locator<NavigationService>();
   final _bottomSheetService = locator<BottomSheetService>();
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
 
   bool isSearching = false;
 
@@ -69,7 +70,7 @@ class FilesViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_selectedMachineService.selectedMachine),
         if (_fileService != null) ...{
           _FolderContentStreamKey: StreamData<FolderContentWrapper>(
               _folderContentStreamController.stream),

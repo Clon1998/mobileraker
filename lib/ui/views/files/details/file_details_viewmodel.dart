@@ -10,6 +10,7 @@ import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -21,10 +22,10 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
   final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
 
   Machine? get _machine =>
-      _machineService.selectedMachine.valueOrNull;
+      _selectedMachineService.selectedMachine.valueOrNull;
 
   PrinterService? get _printerService => _machine?.printerService;
 

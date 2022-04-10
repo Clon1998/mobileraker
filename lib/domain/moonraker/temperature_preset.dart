@@ -1,5 +1,10 @@
+import 'package:json_annotation/json_annotation.dart';
+
 import 'stamped_entity.dart';
 
+part 'temperature_preset.g.dart';
+
+@JsonSerializable()
 class TemperaturePreset extends StampedEntity {
   TemperaturePreset({
     required DateTime created,
@@ -15,6 +20,10 @@ class TemperaturePreset extends StampedEntity {
   int bedTemp; // Safe values
   int extruderTemp; // Safe values
 
+  factory TemperaturePreset.fromJson(Map<String, dynamic> json) => _$TemperaturePresetFromJson(json);
+
+  Map<String, dynamic> toJson() => _$TemperaturePresetToJson(this);
+  
   @override
   String toString() {
     return 'TemperatureTemplate{name: $name, uuid: $uuid, bedTemp: $bedTemp, extruderTemp: $extruderTemp}';

@@ -4,6 +4,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -147,12 +148,12 @@ class NonPrintingBottomSheetViewModel extends BaseViewModel {
   final Function(SheetResponse) completer;
 
   final _snackBarService = locator<SnackbarService>();
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
 
   NonPrintingBottomSheetViewModel(this.request, this.completer);
 
   KlippyService? get _klippyService {
-    return _machineService.selectedMachine.valueOrNull?.klippyService;
+    return _selectedMachineService.selectedMachine.valueOrNull?.klippyService;
   }
 
   onClosePressed() {

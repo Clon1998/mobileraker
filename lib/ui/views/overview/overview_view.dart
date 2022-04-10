@@ -10,7 +10,7 @@ import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
@@ -18,7 +18,6 @@ import 'package:mobileraker/ui/views/overview/overview_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
-
 
 class OverViewView extends ViewModelBuilderWidget<OverViewViewModel> {
   const OverViewView({Key? key}) : super(key: key);
@@ -166,7 +165,7 @@ class SinglePrinterViewModel extends MultipleStreamViewModel {
   static const String PrinterKey = 'printer';
   static const String ServerKey = 'server';
   static const String ClientStateKey = 'clientState';
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _navigationService = locator<NavigationService>();
   final Machine _machine;
 
@@ -177,7 +176,8 @@ class SinglePrinterViewModel extends MultipleStreamViewModel {
         PrinterKey: StreamData<Printer>(_machine.printerService.printerStream),
         ServerKey:
             StreamData<KlipperInstance>(_machine.klippyService.klipperStream),
-        ClientStateKey: StreamData<ClientState>(_machine.jRpcClient.stateStream),
+        ClientStateKey:
+            StreamData<ClientState>(_machine.jRpcClient.stateStream),
       };
 
   Printer? get printer => dataMap?[PrinterKey];
@@ -203,12 +203,12 @@ class SinglePrinterViewModel extends MultipleStreamViewModel {
       : 'Unknown';
 
   onTapTile() {
-    _machineService.setMachineActive(_machine);
+    _selectedMachineService.selectMachine(_machine);
     _navigationService.navigateTo(Routes.dashboardView);
   }
 
   onLongPressTile() {
-    _machineService.setMachineActive(_machine);
+    _selectedMachineService.selectMachine(_machine);
     _navigationService.navigateTo(Routes.printersEdit,
         arguments: PrintersEditArguments(machine: _machine));
   }

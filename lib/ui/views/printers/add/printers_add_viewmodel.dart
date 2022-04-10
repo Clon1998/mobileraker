@@ -5,6 +5,8 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/moonraker/machine_settings.dart';
+import 'package:mobileraker/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
@@ -81,7 +83,7 @@ class PrintersAddViewModel extends StreamViewModel<ClientState> {
     notifyListeners();
   }
 
-  onFormConfirm() {
+  onFormConfirm() async{
     if (_fbKey.currentState!.saveAndValidate()) {
       var printerName = _fbKey.currentState!.value['printerName'];
       var printerAPIKey = _fbKey.currentState!.value['printerApiKey'];
@@ -94,8 +96,8 @@ class PrintersAddViewModel extends StreamViewModel<ClientState> {
           wsUrl: wsUrl,
           httpUrl: httpUrl,
           apiKey: printerAPIKey);
-      _machineService.addMachine(machine).then(
-          (value) => _navigationService.clearStackAndShow(Routes.dashboardView));
+      await _machineService.addMachine(machine);
+      _navigationService.clearStackAndShow(Routes.dashboardView);
     }
   }
 

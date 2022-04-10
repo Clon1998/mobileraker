@@ -1,19 +1,28 @@
-import 'package:mobileraker/domain/hive/gcode_macro.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mobileraker/domain/moonraker/stamped_entity.dart';
 import 'package:uuid/uuid.dart';
 
+import 'gcode_macro.dart';
+
+part 'macro_group.g.dart';
+
+@JsonSerializable(explicitToJson: true)
 class MacroGroup extends StampedEntity {
   MacroGroup({
     required DateTime created,
     required DateTime lastModified,
     required this.name,
-    List<GCodeMacro>? macros,
-  })  : this.macros = macros ?? [],
-        super(created, lastModified);
+    required this.uuid,
+    this.macros = const [],
+  })  : super(created, lastModified);
 
   String name;
-  String uuid = Uuid().v4();
+  final String uuid;
   List<GCodeMacro> macros;
+
+  factory MacroGroup.fromJson(Map<String, dynamic> json) => _$MacroGroupFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MacroGroupToJson(this);
 
   @override
   String toString() {

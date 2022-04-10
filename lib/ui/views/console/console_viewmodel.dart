@@ -8,6 +8,7 @@ import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
@@ -36,7 +37,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
 
   final _navigationService = locator<NavigationService>();
   final _dialogService = locator<DialogService>();
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _settingService = locator<SettingService>();
 
   Machine? _machine;
@@ -102,7 +103,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_selectedMachineService.selectedMachine),
         if (_klippyService != null) ...{
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
