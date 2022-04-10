@@ -1,4 +1,4 @@
-# mobileraker
+# Mobileraker
 ![GitHub](https://img.shields.io/github/license/Clon1998/mobileraker?style=for-the-badge)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/clon1998/mobileraker?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues/Clon1998/mobileraker?style=for-the-badge)
@@ -7,14 +7,34 @@
 ![GitHub all releases](https://img.shields.io/github/downloads/clon1998/mobileraker/total?style=for-the-badge)
 ![Custom badge](https://img.shields.io/endpoint?color=%235fd102&style=for-the-badge&url=https%3A%2F%2Fplayshields.herokuapp.com%2Fplay%3Fi%3Dcom.mobileraker.android%26l%3DAndroid%26m%3D%24installs)
 
-Mobileraker is a Flutter app to control a single or multiple 3D printers running Klipper+Moonraker.
-
-Checkout the first release to download an Android APK!
-
-
+Get Mobileraker now:  
 [!["PlayStore"](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.mobileraker.android)
 [!["AppStore"](https://img.shields.io/badge/App_Store-0D96F6?style=for-the-badge&logo=app-store&logoColor=white)](https://testflight.apple.com/join/ekk3AM5z)
+---
 
+🏷️ Mobileraker works as a simple UI for Klipper on the phone. Connect it to an existing moonraker installation and control the printer.
+
+🧰  With Mobileraker, the user has access to critical machine commands:
+- Pause, Resume, Stop a print job
+- Monitor the print progress
+- Control all axis of the machine
+- Control the heaters
+- Get the current temperature readings
+- Control fans
+- Control pins like LEDs
+- Send GCode Macros
+- Emergency Stop the machine
+
+🛠️  Additionally, Mobileraker enables the user to monitor the machine via an integrated webcam viewer with support for multiple cams, interact with the machine through the GCode console and browse the available GCode files to start a new print job.
+Mobileraker also offers comfort features like remote push notifications about the progress of a print job, temperature presets.
+
+✨  One more thing ...
+Mobileraker can manage multiple machines!
+
+✍🏻  Some final words from the project owner:
+Hi,
+My name is Patrick Schmidt, and I am the developer of Mobileraker. Mobileraker started as a small side project with the intention to be able to control My 3D printer via My phone. After posting some screenshots of the app to the 3D printing community, the public interest in Mobileraker grew, and I published it to the app stores.
+As I am only able to work on Mobileraker in my free time, I am always thankful for support and feedback. Either via lovely messages of people enjoying Mobileraker, good reviews in the store or through donations. I hope you enjoy Mobileraker and happy printing 🙏!
 
 
 ## Support me
@@ -27,11 +47,15 @@ Want to support me?
 ## Push Notifications / Remote Notification
 In order to use remote notifications be sure to follow the setup guide to install [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion) for Klipper/Moonraker.
 
-Home           |  More images...
-:------------------------------------------------------:|:-------------------------------------------------------:
-![Floating Style](misc/images/Screenshot_1628195007.png)  |  ![Grounded Style](misc/images/Screenshot_1628195012.png)
-![Floating Style](misc/images/Screenshot_20210808-223102.jpg)  |  ![Grounded Style](misc/images/Screenshot_20210808-223110.jpg)
+## App Screenshots
 
+|                    Dashboard - Dash                     |                   Dashboard - Controls                    |
+|:-------------------------------------------------------:|:---------------------------------------------------------:|
+| ![Floating Style](misc/images/dashboard_screenshot.png) | ![Grounded Style](misc/images/dashboard2_screenshot.png)  |
+|              Overview - Multiple Printers               |                      GCode - Console                      |
+| ![Floating Style](misc/images/overview_screenshot.png)  |   ![Grounded Style](misc/images/console_screenshot.png)   |
+|                   GCode File Browser                    |                    GCode File Details                     |
+|   ![Floating Style](misc/images/files_screenshot.png)   | ![Grounded Style](misc/images/file_detail_screenshot.png) |
 
 ## Planed features
 * [x] Support for multiple printers
@@ -44,7 +68,7 @@ Home           |  More images...
 * [x] Overview page
   * [x] Refactor current layout with multiple and clearer menu-tabs
   * [ ] Add temperature graphs
-  * [ ] Add a console
+  * [x] Add a console
   * [ ] Add mesh selection
   * [ ] Add query endstops
 * [ ] Files(STL) page
