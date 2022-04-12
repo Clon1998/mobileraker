@@ -447,6 +447,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
     // printerApiKey = resu;
   }
 
+
   _buildMacroGroups() {
     _macroGroups.addAll(machineSettings.macroGroups);
     MacroGroup defaultGroup = _defaultGroup;
@@ -472,7 +473,10 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   _saveMacroGroup(MacroGroup toSave) {
     _fbKey.currentState?.save();
     var name = _fbKey.currentState!.value['${toSave.uuid}-macroName'];
-    if (name != null) toSave.name = name;
+    if (name != null)
+      toSave
+        ..name = name
+        ..lastModified = DateTime.now();
   }
 
   _saveAllCams() {
@@ -510,6 +514,8 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
     if (name != null) toSave.name = name;
     if (extruderTemp != null) toSave.extruderTemp = extruderTemp;
     if (bedTemp != null) toSave.bedTemp = bedTemp;
+    if ((bedTemp ?? extruderTemp ?? name ?? extruderTemp) != null)
+      toSave.lastModified = DateTime.now();
   }
 
   _saveAllGroupStuff() {

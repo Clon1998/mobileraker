@@ -9,8 +9,8 @@ part 'machine_settings.g.dart';
 @JsonSerializable()
 class MachineSettings extends StampedEntity {
   MachineSettings(
-      {required DateTime created,
-      required DateTime lastModified,
+      {DateTime? created,
+      DateTime? lastModified,
       this.temperaturePresets = const [],
       this.inverts = const [false, false, false],
       this.speedXY = 100,
@@ -20,7 +20,7 @@ class MachineSettings extends StampedEntity {
       this.babySteps = const [0.005, 0.01, 0.05, 0.1],
       this.extrudeSteps = const [1, 10, 25, 50],
       this.macroGroups = const []})
-      : super(created, lastModified);
+      : super(created, lastModified ?? DateTime.now());
 
   MachineSettings.fallback()
       : this(created: DateTime.now(), lastModified: DateTime.now());

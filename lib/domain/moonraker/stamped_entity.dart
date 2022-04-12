@@ -1,5 +1,6 @@
 class StampedEntity {
-  StampedEntity(this.created, this.lastModified);
+  StampedEntity(DateTime? created, this.lastModified)
+      : created = created ?? DateTime.now();
 
   final DateTime created;
   DateTime lastModified;
@@ -14,6 +15,4 @@ class StampedEntity {
 
   @override
   int get hashCode => created.hashCode ^ lastModified.hashCode;
-
-
 }

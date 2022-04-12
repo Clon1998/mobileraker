@@ -286,7 +286,7 @@ class PrinterService {
     });
     printer.queryableObjects = qObjects;
     printer.gcodeMacros = gCodeMacros;
-    _machineService.updateSettingMacros(_owner, gCodeMacros);
+    _machineService.updateMacrosInSettings(_owner, gCodeMacros);
     _queryPrinterObjects(printer);
   }
 

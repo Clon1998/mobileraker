@@ -13,7 +13,7 @@ class GCodeMacro extends StampedEntity {
       this.visible = true,
       this.showWhilePrinting = true})
       : uuid = uuid ?? Uuid().v4(),
-        super(created ?? DateTime.now(), lastModified ?? DateTime.now());
+        super(created, lastModified ?? DateTime.now());
 
   @JsonKey(required: true)
   String name;

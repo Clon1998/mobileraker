@@ -360,10 +360,13 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
         GCodeMacro macro = macros[index];
         bool disabled = (!model.canUsePrinter ||
             (model.isPrinting && !macro.showWhilePrinting));
-        return ActionChip(
-          label: Text(macro.beautifiedName),
-          backgroundColor: disabled ? themeData.disabledColor : bgColActive,
-          onPressed: () => disabled ? null : model.onMacroPressed(macro),
+        return Visibility(
+          visible: model.printer.gcodeMacros.contains(macro.name) && macro.visible,
+          child: ActionChip(
+            label: Text(macro.beautifiedName),
+            backgroundColor: disabled ? themeData.disabledColor : bgColActive,
+            onPressed: () => disabled ? null : model.onMacroPressed(macro),
+          ),
         );
       },
     ).toList();

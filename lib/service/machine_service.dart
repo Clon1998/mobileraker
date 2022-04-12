@@ -4,10 +4,10 @@ import 'package:hive/hive.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/datasource/moonraker_database_client.dart';
-import 'package:mobileraker/domain/hive/gcode_macro.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/domain/hive/macro_group.dart';
+import 'package:mobileraker/domain/moonraker/gcode_macro.dart';
 import 'package:mobileraker/domain/moonraker/machine_settings.dart';
+import 'package:mobileraker/domain/moonraker/macro_group.dart';
 import 'package:mobileraker/repository/machine_hive_repository.dart';
 import 'package:mobileraker/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
@@ -156,11 +156,12 @@ class MachineService {
     return i;
   }
 
-  updateSettingMacros(Machine machine, List<String> macros) {
+  updateMacrosInSettings(Machine machine, List<String> macros) async {
     _logger.i("Updating Default Macros!");
+    MachineSettings machineSettings = await fetchSettings(machine);
     List<String> filteredMacros =
         macros.where((element) => !element.startsWith('_')).toList();
-    List<MacroGroup> macroGroups = machine.macroGroups;
+    List<MacroGroup> macroGroups = machineSettings.macroGroups;
     for (MacroGroup grp in macroGroups) {
       for (GCodeMacro macro in grp.macros) {
         filteredMacros.remove(macro.name);
@@ -174,7 +175,7 @@ class MachineService {
       return group;
     });
 
-    defaultGroup.macros.addAll(filteredMacros.map((e) => GCodeMacro(e)));
+    defaultGroup.macros.addAll(filteredMacros.map((e) => GCodeMacro(name: e)));
   }
 
   dispose() {

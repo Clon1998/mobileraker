@@ -15,7 +15,7 @@ class MacroGroup extends StampedEntity {
     String? uuid,
     this.macros = const [],
   })  : uuid = uuid ?? Uuid().v4(),
-        super(created ?? DateTime.now(), lastModified ?? DateTime.now());
+        super(created, lastModified ?? DateTime.now());
 
   String name;
   final String uuid;

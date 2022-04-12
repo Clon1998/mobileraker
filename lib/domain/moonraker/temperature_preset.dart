@@ -15,7 +15,7 @@ class TemperaturePreset extends StampedEntity {
     this.bedTemp = 60,
     this.extruderTemp = 170,
   })  : uuid = uuid ?? Uuid().v4(),
-        super(created ?? DateTime.now(), lastModified ?? DateTime.now());
+        super(created, lastModified ?? DateTime.now());
 
   String name;
   final String uuid;
