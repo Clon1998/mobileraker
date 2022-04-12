@@ -48,10 +48,10 @@ class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
   onEditTap(Machine? machine) {
     machine ??= _selectedMachine;
     if (machine == null) {
-      navigateTo(Routes.printersAdd);
+      navigateTo(Routes.printerAdd);
     } else {
-      navigateTo(Routes.printersEdit,
-          arguments: PrintersEditArguments(machine: machine));
+      navigateTo(Routes.printerEdit,
+          arguments: PrinterEditArguments(machine: machine));
     }
   }
 

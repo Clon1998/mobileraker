@@ -13,6 +13,6 @@ class OverViewViewModel extends FutureViewModel<List<Machine>> {
   Future<List<Machine>> futureToRun() => _machineService.fetchAll();
 
   onAddPressed() {
-    _navigationService.navigateTo(Routes.printersAdd);
+    _navigationService.navigateTo(Routes.printerAdd);
   }
 }

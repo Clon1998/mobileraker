@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 import 'stamped_entity.dart';
 
@@ -7,23 +8,25 @@ part 'temperature_preset.g.dart';
 @JsonSerializable()
 class TemperaturePreset extends StampedEntity {
   TemperaturePreset({
-    required DateTime created,
-    required DateTime lastModified,
+    DateTime? created,
+    DateTime? lastModified,
     required this.name,
-    required this.uuid,
+    String? uuid,
     this.bedTemp = 60,
     this.extruderTemp = 170,
-  }) : super(created, lastModified);
+  })  : uuid = uuid ?? Uuid().v4(),
+        super(created ?? DateTime.now(), lastModified ?? DateTime.now());
 
   String name;
   final String uuid;
   int bedTemp; // Safe values
   int extruderTemp; // Safe values
 
-  factory TemperaturePreset.fromJson(Map<String, dynamic> json) => _$TemperaturePresetFromJson(json);
+  factory TemperaturePreset.fromJson(Map<String, dynamic> json) =>
+      _$TemperaturePresetFromJson(json);
 
   Map<String, dynamic> toJson() => _$TemperaturePresetToJson(this);
-  
+
   @override
   String toString() {
     return 'TemperatureTemplate{name: $name, uuid: $uuid, bedTemp: $bedTemp, extruderTemp: $extruderTemp}';

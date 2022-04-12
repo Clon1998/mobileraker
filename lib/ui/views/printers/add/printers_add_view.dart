@@ -7,12 +7,12 @@ import 'package:stacked/stacked.dart';
 
 import 'printers_add_viewmodel.dart';
 
-class PrintersAdd extends StatelessWidget {
-  const PrintersAdd({Key? key}) : super(key: key);
+class PrinterAdd extends StatelessWidget {
+  const PrinterAdd({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return ViewModelBuilder<PrintersAddViewModel>.reactive(
+    return ViewModelBuilder<PrinterAddViewModel>.reactive(
         builder: (context, model, child) {
           return Scaffold(
             appBar: AppBar(
@@ -107,7 +107,7 @@ class PrintersAdd extends StatelessWidget {
             ),
           );
         },
-        viewModelBuilder: () => PrintersAddViewModel());
+        viewModelBuilder: () => PrinterAddViewModel());
   }
 }
 

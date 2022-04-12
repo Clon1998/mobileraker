@@ -9,12 +9,13 @@ part 'macro_group.g.dart';
 @JsonSerializable(explicitToJson: true)
 class MacroGroup extends StampedEntity {
   MacroGroup({
-    required DateTime created,
-    required DateTime lastModified,
+    DateTime? created,
+    DateTime? lastModified,
     required this.name,
-    required this.uuid,
+    String? uuid,
     this.macros = const [],
-  })  : super(created, lastModified);
+  })  : uuid = uuid ?? Uuid().v4(),
+        super(created ?? DateTime.now(), lastModified ?? DateTime.now());
 
   String name;
   final String uuid;

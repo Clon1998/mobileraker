@@ -139,7 +139,7 @@ class JsonRpcClient {
     _requests[mId] = _completerCallback;
     var completer = Completer<RpcResponse>();
     _requestsBlocking[mId] = completer;
-    _logger.i('Sending(Blocking) for method "$method" with ID $mId');
+    _logger.d('Sending(Blocking) for method "$method" with ID $mId');
     _send(jsonEncode(jsonRpc));
     return completer.future;
   }
@@ -243,7 +243,7 @@ class JsonRpcClient {
   _completerCallback(Map<String, dynamic> response,
       {Map<String, dynamic>? err}) {
     var mId = response['id'];
-    _logger.i('Received(Blocking) for id: "$mId"');
+    _logger.d('Received(Blocking) for id: "$mId"');
     if (_requestsBlocking.containsKey(mId)) {
       Completer completer = _requestsBlocking.remove(mId)!;
       completer.complete(RpcResponse(response, err));

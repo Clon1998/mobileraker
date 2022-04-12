@@ -457,7 +457,7 @@ class _AdaptiveStreamManager {
   }
 
   _sendImage(Uint8List bytes) async {
-    if (bytes.isNotEmpty && !_mjpegStreamController.isClosed) {
+    if (bytes.isNotEmpty && !_mjpegStreamController.isClosed && active) {
       _mjpegStreamController.add(MemoryImage(bytes));
     }
   }

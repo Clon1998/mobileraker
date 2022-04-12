@@ -193,8 +193,7 @@ class NotificationService {
   // }
 
   onMachineAdded(Machine setting) {
-    List<NotificationChannel> channelsOfmachines =
-        _channelsOfmachines(setting);
+    List<NotificationChannel> channelsOfmachines = _channelsOfmachines(setting);
     channelsOfmachines.forEach((e) => _notifyAPI.setChannel(e));
     _setupFCMOnPrinterOnceConnected(setting);
     registerLocalMessageHandling(setting);
@@ -210,8 +209,7 @@ class NotificationService {
         .i("Removed notifications channels and stream-listener for UUID=$uuid");
   }
 
-  List<NotificationChannel> _channelsOfmachines(
-      Machine machine) {
+  List<NotificationChannel> _channelsOfmachines(Machine machine) {
     return [
       NotificationChannel(
           channelKey: machine.statusUpdatedChannelKey,
@@ -233,44 +231,40 @@ class NotificationService {
     ];
   }
 
-  NotificationChannelGroup _channelGroupOfmachines(
-      Machine machine) {
+  NotificationChannelGroup _channelGroupOfmachines(Machine machine) {
     return NotificationChannelGroup(
         channelGroupkey: machine.uuid,
         channelGroupName: 'Printer ${machine.name}');
   }
 
-  Future<void> _setupFCMOnPrinterOnceConnected(Machine machine) async {
-    await machine.jRpcClient.stateStream
-        .firstWhere((element) => element == ClientState.connected);
-
-    String? fcmToken = await FirebaseMessaging.instance.getToken();
-    if (fcmToken == null) {
-      _logger.w("Could not fetch fcm token");
-      return Future.error("No token available for device!");
-    }
-    _logger.i("Devices FCM token: $fcmToken");
-    await _machineService.fetchOrCreateFcmIdentifier(machine);
-    await _machineService.registerFCMTokenOnMachine(machine, fcmToken);
-
-    // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
+  _setupFCMOnPrinterOnceConnected(Machine machine) {
+    machine.jRpcClient.stateStream
+        .firstWhere((element) => element == ClientState.connected)
+        .then((value) async {
+      String? fcmToken = await FirebaseMessaging.instance.getToken();
+      if (fcmToken == null) {
+        _logger.w("Could not fetch fcm token");
+        return Future.error("No token available for device!");
+      }
+      _logger.i("Devices FCM token: $fcmToken");
+      await _machineService.fetchOrCreateFcmIdentifier(machine);
+      await _machineService.registerFCMTokenOnMachine(machine, fcmToken);
+      // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
+    });
   }
 
-  Future<void> _processPrinterUpdate(
-      Machine machine, Printer printer) async {
+  Future<void> _processPrinterUpdate(Machine machine, Printer printer) async {
     var state = await _updatePrintStatusNotification(
         machine, printer.print.state, printer.print.filename, false);
 
     if (state == PrintState.printing && !Platform.isIOS)
-      await _updatePrintProgressNotification(machine,
-          printer.virtualSdCard.progress, printer.print.printDuration);
+      await _updatePrintProgressNotification(
+          machine, printer.virtualSdCard.progress, printer.print.printDuration);
     await machine.save();
   }
 
   Future<PrintState> _updatePrintStatusNotification(
-      Machine machine,
-      PrintState updatedState,
-      String? updatedFile,
+      Machine machine, PrintState updatedState, String? updatedFile,
       [bool createNotification = true]) async {
     PrintState? oldState = machine.lastPrintState;
 
@@ -316,13 +310,11 @@ class NotificationService {
     return updatedState;
   }
 
-  Future<void> _removePrintProgressNotification(
-          Machine machine) =>
-      _notifyAPI.cancelNotificationsByChannelKey(
-          machine.printProgressChannelKey);
+  Future<void> _removePrintProgressNotification(Machine machine) => _notifyAPI
+      .cancelNotificationsByChannelKey(machine.printProgressChannelKey);
 
-  Future<void> _updatePrintProgressNotification(Machine machine,
-      double progress, double printDuration) async {
+  Future<void> _updatePrintProgressNotification(
+      Machine machine, double progress, double printDuration) async {
     if (machine.lastPrintProgress == progress) return;
     machine.lastPrintProgress = progress;
     var dt;

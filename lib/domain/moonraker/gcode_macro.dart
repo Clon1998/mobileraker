@@ -1,4 +1,3 @@
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobileraker/domain/moonraker/stamped_entity.dart';
 import 'package:uuid/uuid.dart';
@@ -7,14 +6,14 @@ part 'gcode_macro.g.dart';
 
 @JsonSerializable()
 class GCodeMacro extends StampedEntity {
-  GCodeMacro(
-      {required DateTime created,
-      required DateTime lastModified,
+  GCodeMacro({DateTime? created,
+      DateTime? lastModified,
       required this.name,
-      required this.uuid,
+      String? uuid,
       this.visible = true,
       this.showWhilePrinting = true})
-      : super(created, lastModified);
+      : uuid = uuid ?? Uuid().v4(),
+        super(created ?? DateTime.now(), lastModified ?? DateTime.now());
 
   @JsonKey(required: true)
   String name;
@@ -25,10 +24,11 @@ class GCodeMacro extends StampedEntity {
 
   String get beautifiedName => name.replaceAll("_", " ");
 
-  factory GCodeMacro.fromJson(Map<String, dynamic> json) => _$GCodeMacroFromJson(json);
+  factory GCodeMacro.fromJson(Map<String, dynamic> json) =>
+      _$GCodeMacroFromJson(json);
 
   Map<String, dynamic> toJson() => _$GCodeMacroToJson(this);
-  
+
   @override
   String toString() {
     return 'GCodeMacro{name: $name, uuid: $uuid, showWhilePrinting: $showWhilePrinting}';

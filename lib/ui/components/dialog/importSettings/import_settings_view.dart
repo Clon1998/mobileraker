@@ -52,7 +52,7 @@ class ImportSettingsView
                       .map(
                         (e) => DropdownMenuItem(
                           value: e,
-                          child: Text(e.name),
+                          child: Text('${e.name} (${Uri.parse(e.httpUrl).host})'),
                         ),
                       )
                       .toList(growable: false),

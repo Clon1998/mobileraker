@@ -209,8 +209,8 @@ class SinglePrinterViewModel extends MultipleStreamViewModel {
 
   onLongPressTile() {
     _selectedMachineService.selectMachine(_machine);
-    _navigationService.navigateTo(Routes.printersEdit,
-        arguments: PrintersEditArguments(machine: _machine));
+    _navigationService.navigateTo(Routes.printerEdit,
+        arguments: PrinterEditArguments(machine: _machine));
   }
 
   onFullScreenTap() {

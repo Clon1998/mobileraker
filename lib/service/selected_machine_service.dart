@@ -1,22 +1,13 @@
-import 'dart:async';
-
 import 'package:hive/hive.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/datasource/moonraker_database_client.dart';
-import 'package:mobileraker/domain/hive/gcode_macro.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/domain/hive/macro_group.dart';
-import 'package:mobileraker/domain/moonraker/machine_settings.dart';
 import 'package:mobileraker/repository/machine_hive_repository.dart';
-import 'package:mobileraker/repository/machine_settings_moonraker_repository.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:uuid/uuid.dart';
 
 /// Service handling currently selected machine!
 class SelectedMachineService {
-  SelectedMachineService() {
-    selectedMachine = BehaviorSubject<Machine?>();
+  SelectedMachineService() : _boxUuid = Hive.box<String>('uuidbox') {
     String? selectedUUID = _boxUuid.get('selectedPrinter');
     if (selectedUUID != null)
       _machineRepo.get(uuid: selectedUUID).then((value) {
@@ -24,13 +15,14 @@ class SelectedMachineService {
       });
   }
 
-  late final _boxUuid = Hive.box<String>('uuidbox');
-  late final BehaviorSubject<Machine?> selectedMachine;
+  final Box<String> _boxUuid;
+  final BehaviorSubject<Machine?> selectedMachine = BehaviorSubject<Machine?>();
 
   final _logger = getLogger('SelectedMachineService');
   final _machineRepo = locator<MachineHiveRepository>();
 
-  selectMachine(Machine? machine) async {
+  selectMachine(Machine? machine, [bool force = false]) async {
+    _logger.i('Selecting machine $machine');
     if (machine == null) {
       // This case sets no printer as active!
       await _boxUuid.delete('selectedPrinter');
@@ -41,10 +33,12 @@ class SelectedMachineService {
       return;
     }
 
-    if (machine == selectedMachine.valueOrNull) return;
+    if (!force && machine == selectedMachine.valueOrNull) return;
 
     await _boxUuid.put('selectedPrinter', machine.key);
-    if (!selectedMachine.isClosed) selectedMachine.add(machine);
+    if (!selectedMachine.isClosed) {
+      selectedMachine.add(machine);
+    }
   }
 
   selectNextMachine() async {
@@ -68,13 +62,8 @@ class SelectedMachineService {
     selectMachine(list[prev]);
   }
 
-  bool machineSelected() {
-    return selectedMachine.valueOrNull != null;
-  }
-
   bool isSelectedMachine(Machine toCheck) =>
       toCheck == selectedMachine.valueOrNull;
-
 
   dispose() {
     selectedMachine.close();

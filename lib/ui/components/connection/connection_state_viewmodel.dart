@@ -8,7 +8,6 @@ import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
@@ -22,7 +21,6 @@ const String _PrinterStreamKey = 'printer';
 class ConnectionStateViewModel extends MultipleStreamViewModel
     with WidgetsBindingObserver {
   final _selectedMachineService = locator<SelectedMachineService>();
-  final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
 
@@ -97,7 +95,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   }
 
   onAddPrinterTap() {
-    _navigationService.navigateTo(Routes.printersAdd);
+    _navigationService.navigateTo(Routes.printerAdd);
   }
 
   onRestartKlipperPressed() {

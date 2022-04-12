@@ -1,8 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/hive/gcode_macro.dart';
+import 'package:mobileraker/domain/moonraker/gcode_macro.dart';
 import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
@@ -12,6 +13,7 @@ import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/control_tab_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 
 class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
@@ -26,21 +28,36 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   @override
   Widget builder(
       BuildContext context, ControlTabViewModel model, Widget? child) {
+    if (!model.isDataReady) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitRipple(
+              color: Theme.of(context).colorScheme.primary,
+              size: 100,
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            FadingText('Fetching printer data'),
+            // Text('Fetching printer ...')
+          ],
+        ),
+      );
+    }
+
     return PullToRefreshPrinter(
       child: ListView(
         key: PageStorageKey<String>('cTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          if (model.isPrinterAvailable &&
-              model.isServerAvailable &&
-              model.isMachineAvailable) ...[
-            if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
-            if (model.printer.print.state != PrintState.printing)
-              ExtruderControlCard(),
-            MultipliersCard(),
-            FansCard(),
-            if (model.printer.outputPins.isNotEmpty) PinsCard(),
-          ]
+          if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
+          if (model.printer.print.state != PrintState.printing)
+            ExtruderControlCard(),
+          MultipliersCard(),
+          FansCard(),
+          if (model.printer.outputPins.isNotEmpty) PinsCard(),
         ],
       ),
     );

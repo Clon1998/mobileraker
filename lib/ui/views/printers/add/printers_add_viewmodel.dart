@@ -12,7 +12,7 @@ import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class PrintersAddViewModel extends StreamViewModel<ClientState> {
+class PrinterAddViewModel extends StreamViewModel<ClientState> {
   final _navigationService = locator<NavigationService>();
   final _snackbarService = locator<SnackbarService>();
   final _machineService = locator<MachineService>();

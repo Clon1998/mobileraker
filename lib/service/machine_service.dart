@@ -11,39 +11,33 @@ import 'package:mobileraker/domain/moonraker/machine_settings.dart';
 import 'package:mobileraker/repository/machine_hive_repository.dart';
 import 'package:mobileraker/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
-/// Service handling the management of multiple machines/printers/klipper-enabled devices
+/// Service handling the management of a machine
 class MachineService {
   final _logger = getLogger('MachineService');
   final _machineRepo = locator<MachineHiveRepository>();
   final _selectedMachineService = locator<SelectedMachineService>();
   final MachineSettingsMoonrakerRepository _machineSettingsRepository =
-  locator<MachineSettingsMoonrakerRepository>();
+      locator<MachineSettingsMoonrakerRepository>();
 
   final MoonrakerDatabaseClient _moonrakerDatabaseClient =
-  locator<MoonrakerDatabaseClient>();
-
+      locator<MoonrakerDatabaseClient>();
 
   Stream<BoxEvent> get machineEventStream =>
       Hive.box<Machine>('printers').watch();
 
-
-
-  Machine get _selectedMachine =>
-      _selectedMachineService.selectedMachine.valueOrNull!;
-
   Future<void> updateMachine(Machine machine) async {
     await machine.save();
     if (_selectedMachineService.isSelectedMachine(machine))
-      await _selectedMachineService.selectMachine(machine);
+      await _selectedMachineService.selectMachine(machine, true);
 
     return;
   }
 
-  Future<MachineSettings> fetchSettings() async {
-    MachineSettings? machineSettings = await _machineSettingsRepository.get();
+  Future<MachineSettings> fetchSettings(Machine machine) async {
+    MachineSettings? machineSettings =
+        await _machineSettingsRepository.get(machine.jRpcClient);
     if (machineSettings == null) {
       _logger.i('No MachineSettings found... Creating fallback');
       machineSettings = MachineSettings.fallback();
@@ -52,6 +46,10 @@ class MachineService {
 
     return machineSettings;
   }
+
+  Future<void> updateSettings(
+          Machine machine, MachineSettings machineSettings) =>
+      _machineSettingsRepository.update(machineSettings, machine.jRpcClient);
 
   Future<Machine> addMachine(Machine machine) async {
     await _machineRepo.insert(machine);
@@ -86,8 +84,8 @@ class MachineService {
   /// a user configured multiple printers in the app.
   /// Because of that the FCMIdentifier should be set only once!
   Future<String> fetchOrCreateFcmIdentifier(Machine machine) async {
-    String? item = await _moonrakerDatabaseClient.getDatabaseItem(
-        'mobileraker', 'printerId');
+    String? item = await _moonrakerDatabaseClient.getDatabaseItem('mobileraker',
+        key: 'printerId');
     if (item == null) {
       String nId = Uuid().v4();
       item = await _moonrakerDatabaseClient.addDatabaseItem(
@@ -107,8 +105,8 @@ class MachineService {
 
   Future<void> registerFCMTokenOnMachineNEW(
       Machine machine, String fcmToken) async {
-    Map<String, dynamic>? item = await _moonrakerDatabaseClient.getDatabaseItem(
-        'mobileraker', 'fcm.$fcmToken');
+    Map<String, dynamic>? item = await _moonrakerDatabaseClient
+        .getDatabaseItem('mobileraker', key: 'fcm.$fcmToken');
     if (item == null) {
       item = {'printerName': machine.name};
       item = await _moonrakerDatabaseClient.addDatabaseItem(
@@ -125,8 +123,8 @@ class MachineService {
 
   Future<void> registerFCMTokenOnMachine(
       Machine machine, String fcmToken) async {
-    var item = await _moonrakerDatabaseClient.getDatabaseItem(
-        'mobileraker', 'fcmTokens');
+    var item = await _moonrakerDatabaseClient.getDatabaseItem('mobileraker',
+        key: 'fcmTokens');
     if (item == null) {
       _logger.i("Creating fcmTokens in moonraker-Database");
       await _moonrakerDatabaseClient

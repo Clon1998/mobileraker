@@ -178,7 +178,7 @@ class NavigationDrawerWidget
               .tr(),
       contentPadding: const EdgeInsets.only(left: 32, right: 16),
       trailing: Icon(Icons.add, color: highlightColor),
-      onTap: () => model.navigateTo(Routes.printersAdd),
+      onTap: () => model.navigateTo(Routes.printerAdd),
     ));
     return widgetsToReturn;
   }

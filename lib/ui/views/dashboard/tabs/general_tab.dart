@@ -5,8 +5,9 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/hive/temperature_preset.dart';
+import 'package:mobileraker/domain/moonraker/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/toolhead.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
@@ -19,6 +20,7 @@ import 'package:mobileraker/ui/views/dashboard/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 
 class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
@@ -33,22 +35,35 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
   @override
   Widget builder(
       BuildContext context, GeneralTabViewModel model, Widget? child) {
+    if (!model.isDataReady) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitRipple(
+              color: Theme.of(context).colorScheme.primary,size: 100,
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            FadingText('Fetching printer data'),
+            // Text('Fetching printer ...')
+          ],
+        ),
+      );
+    }
+
+
     return PullToRefreshPrinter(
       child: ListView(
         key: PageStorageKey('gTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          if (model.isPrinterAvailable &&
-              model.isServerAvailable &&
-              model.isMachineAvailable &&
-              !model.isBusy &&
-              model.initialised) ...{
             PrintCard(),
             TemperatureCard(),
             if (model.webCamAvailable) CamCard(),
             if (model.isNotPrinting) _ControlXYZCard(),
             if (model.showBabyStepping) _BabySteppingCard(),
-          }
         ],
       ),
     );
@@ -532,7 +547,7 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
       extruderTemp: 0,
       bedTemp: 0,
       onTap:
-          model.canUsePrinter ? () => model.setTemperaturePreset(0, 0) : null,
+          model.canUsePrinter ? () => model.adjustNozzleAndBed(0, 0) : null,
     );
 
     List<TemperaturePreset> tempPresets = model.temperaturePresets;
@@ -545,7 +560,7 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
         bedTemp: preset.bedTemp,
         onTap: model.canUsePrinter
             ? () =>
-                model.setTemperaturePreset(preset.extruderTemp, preset.bedTemp)
+                model.adjustNozzleAndBed(preset.extruderTemp, preset.bedTemp)
             : null,
       );
     });

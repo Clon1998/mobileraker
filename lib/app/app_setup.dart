@@ -38,8 +38,8 @@ import 'package:stacked_services/stacked_services.dart';
 @StackedApp(routes: [
   MaterialRoute(page: DashboardView, initial: true),
   MaterialRoute(page: FullCamView),
-  MaterialRoute(page: PrintersAdd),
-  MaterialRoute(page: PrintersEdit),
+  MaterialRoute(page: PrinterAdd),
+  MaterialRoute(page: PrinterEdit),
   MaterialRoute(page: FilesView),
   MaterialRoute(page: FileDetailView),
   MaterialRoute(page: SettingView),
