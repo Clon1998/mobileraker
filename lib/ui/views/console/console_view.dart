@@ -55,9 +55,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
 
   Widget _buildBody(BuildContext context, ConsoleViewModel model) {
     var theme = Theme.of(context);
-    Color highlightColor = theme.brightness == Brightness.dark
-        ? theme.colorScheme.secondary
-        : theme.colorScheme.primary;
+    Color highlightColor = theme.colorScheme.primary ;
 
     return Container(
       margin: const EdgeInsets.all(4.0),
@@ -67,7 +65,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
         boxShadow: [
           if (theme.brightness == Brightness.light)
             BoxShadow(
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.shadow,
               offset: Offset(0.0, 4.0), //(x,y)
               blurRadius: 1.0,
             ),
@@ -84,7 +82,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
               child: Text(
                 'GCode Console - ${model.printerName}',
-                style: theme.textTheme.subtitle1?.copyWith(color: Colors.white),
+                style: theme.textTheme.subtitle1?.copyWith(color: theme.colorScheme.onPrimary),
               ),
             ),
           ),
@@ -95,8 +93,8 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
               height: 33,
               child: ChipTheme(
                 data: ChipThemeData(
-                    labelStyle: TextStyle(color: Colors.white),
-                    deleteIconColor: Colors.white),
+                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                    deleteIconColor: Theme.of(context).colorScheme.onPrimary),
                 child: ListView.builder(
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: 8),

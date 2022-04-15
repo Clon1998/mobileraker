@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
@@ -53,8 +54,18 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
   onStartWithOverviewChanged(bool? newVal) async {
     await _settingService.writeBool(startWithOverviewKey, newVal ?? false);
   }
-  
-  navigateToLegal() {
-    _navigationService.navigateTo(Routes.imprintView);
+
+  navigateToLicensePage(BuildContext context) {
+    showLicensePage(
+        context: context,
+        applicationVersion: version,
+        applicationLegalese:
+        'MIT License\n\nCopyright (c) 2021 Patrick Schmidt',
+        applicationIcon: Center(
+          child: Image(
+              height: 80,
+              width: 80,
+              image: AssetImage('assets/icon/mr_logo.png')),
+        ));
   }
 }

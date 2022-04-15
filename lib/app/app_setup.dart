@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/datasource/moonraker_database_client.dart';
 import 'package:mobileraker/domain/hive/gcode_macro.dart';
-import 'package:mobileraker/domain/hive/macro_group.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/domain/hive/macro_group.dart';
 import 'package:mobileraker/domain/hive/temperature_preset.dart';
 import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/repository/machine_hive_repository.dart';
@@ -112,4 +113,11 @@ Future<void> setupCat() async {
   if (Platform.isAndroid) {
     return Purchases.setup('goog_uzbmaMIthLRzhDyQpPsmvOXbaCK');
   }
+}
+
+setupLicenseRegistry() {
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('google_fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
 }

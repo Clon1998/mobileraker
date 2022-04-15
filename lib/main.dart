@@ -12,13 +12,12 @@ import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/ui/components/bottomsheet/setup_bottom_sheet_ui.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
+import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import 'app/app_setup.router.dart';
-import 'service/setting_service.dart';
-import 'ui/views/setting/setting_viewmodel.dart';
 
 String? initialRoute;
 
@@ -37,7 +36,9 @@ Future<void> main() async {
   setupBottomSheetUi();
   await FirebaseAnalytics.instance.logAppOpen();
   await setupCat();
+  setupLicenseRegistry();
   initialRoute = await selectInitialRoute();
+
   runApp(EasyLocalization(
       child: MyApp(),
       supportedLocales: [Locale('en'), Locale('de')],
@@ -48,27 +49,32 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Mobileraker',
-      theme: getLightTheme(context),
-      darkTheme: getDarkTheme(context),
-      navigatorKey: StackedService.navigatorKey,
-      onGenerateRoute: StackedRouter().onGenerateRoute,
-      initialRoute: initialRoute,
-      localizationsDelegates: [
-        FormBuilderLocalizations.delegate,
-        ...context.localizationDelegates
-      ],
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      navigatorObservers: [
-        StackedService.routeObserver,
-        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
-      ],
+    return ThemeBuilder(
+      themePacks: getThemePacks(context),
+      builder: (BuildContext context,ThemeData? regularTheme,ThemeData? darkTheme,ThemeMode? themeMode) {
+        return MaterialApp(
+          title: 'Mobileraker',
+          theme: regularTheme,
+          darkTheme: darkTheme,
+          themeMode: themeMode,
+          navigatorKey: StackedService.navigatorKey,
+          onGenerateRoute: StackedRouter().onGenerateRoute,
+          initialRoute: initialRoute,
+          localizationsDelegates: [
+            FormBuilderLocalizations.delegate,
+            ...context.localizationDelegates
+          ],
+          supportedLocales: context.supportedLocales,
+          locale: context.locale,
+          navigatorObservers: [
+            StackedService.routeObserver,
+            FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+          ],
+        );
+      },
     );
   }
 }

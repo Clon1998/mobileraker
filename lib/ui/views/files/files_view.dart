@@ -260,9 +260,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
 
   Widget buildBreadCrumb(BuildContext context, FilesViewModel model, List<String> paths) {
     ThemeData theme = Theme.of(context);
-    Color highlightColor = theme.brightness == Brightness.dark
-        ? theme.colorScheme.secondary
-        : theme.colorScheme.primary;
+    Color highlightColor =  theme.colorScheme.primary;
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -278,7 +276,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
             return BreadCrumbItem(
                 content: Text(
                   '${p.toUpperCase()}',
-                  style: theme.textTheme.subtitle1?.copyWith(color: Colors.white),
+                  style: theme.textTheme.subtitle1?.copyWith(color: theme.colorScheme.onPrimary),
                 ),
                 onTap: () => model.onBreadCrumbItemPressed(fullPath));
           },

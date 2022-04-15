@@ -4,6 +4,7 @@ const String emsKey = 'ems_setting';
 const String showBabyAlwaysKey = 'always_babystepping_setting';
 const String useTextInputForNumKey = 'text_inpt_for_num_fields';
 const String startWithOverviewKey = 'start_with_overview';
+const String selectedThemePackKey = 'selectedThemePack';
 
 /// Settings related to the App!
 class SettingService {
@@ -14,6 +15,14 @@ class SettingService {
   }
 
   bool readBool(String key, [bool fallback = false]) {
+    return _boxSettings.get(key) ?? fallback;
+  }
+
+  Future<void> writeInt(String key, int val) {
+    return _boxSettings.put(key, val);
+  }
+
+  int readInt(String key, [int fallback = 0]) {
     return _boxSettings.get(key) ?? fallback;
   }
 }

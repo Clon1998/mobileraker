@@ -66,7 +66,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                                   top: const Radius.circular(8.0)),
                               color: Theme.of(context)
                                   .colorScheme
-                                  .primaryVariant
+                                  .primaryContainer
                                   .withOpacity(0.8),
                             ),
                             child: Text(
@@ -77,7 +77,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle2
-                                  ?.copyWith(color: Colors.white),
+                                  ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
                             ))
                       ],
                     ),
@@ -95,7 +95,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                                   top: const Radius.circular(8.0)),
                               color: Theme.of(context)
                                   .colorScheme
-                                  .primaryVariant
+                                  .primaryContainer
                                   .withOpacity(0.8),
                             ),
                             child: Text(
@@ -106,7 +106,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle2
-                                  ?.copyWith(color: Colors.white),
+                                  ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
                             ))
                       ],
                     ),

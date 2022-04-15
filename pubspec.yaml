@@ -32,6 +32,10 @@ dependencies:
   stacked: ^2.2.7+1
   stacked_services: ^0.8.16
 
+  #theme
+  flex_color_scheme: ^5.0.0-dev.2
+  google_fonts: ^2.3.1
+
   enum_to_string: ^2.0.1
 
   percent_indicator: ^4.0.0
@@ -214,6 +218,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
+    - google_fonts/
     - assets/images/
     - assets/icon/
     - assets/translations/

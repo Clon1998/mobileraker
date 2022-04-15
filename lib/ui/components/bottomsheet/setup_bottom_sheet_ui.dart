@@ -47,7 +47,7 @@ class _NonPrintingBottomSheet
     return Container(
       padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
       decoration: BoxDecoration(
-        color: isDark ? themeData.primaryColor : Colors.white,
+        color: themeData.bottomSheetTheme.modalBackgroundColor,
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(15), topRight: Radius.circular(15)),
       ),

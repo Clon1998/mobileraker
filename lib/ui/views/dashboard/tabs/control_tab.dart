@@ -174,18 +174,24 @@ class _FanTile extends StatelessWidget {
 
     return CardWithButton(
         width: width,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Builder(
+          builder: (context) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(name, style: Theme.of(context).textTheme.caption),
-                Text(fanSpeed, style: Theme.of(context).textTheme.headline6),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name,
+                        style: Theme.of(context).textTheme.caption),
+                    Text(fanSpeed,
+                        style: Theme.of(context).textTheme.headline6),
+                  ],
+                ),
+                w,
               ],
-            ),
-            w,
-          ],
+            );
+          }
         ),
         buttonChild: onTap == null
             ? const Text('pages.dashboard.control.fan_card.static_fan_btn').tr()
@@ -333,8 +339,9 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: ChipTheme(
               data: ChipThemeData(
-                  labelStyle: TextStyle(color: Colors.white),
-                  deleteIconColor: Colors.white),
+                  labelStyle:
+                      TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                  deleteIconColor: Theme.of(context).colorScheme.onPrimary),
               child: Wrap(
                 spacing: 5.0,
                 children: _generateGCodeChips(context, model),
@@ -349,9 +356,7 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
   List<Widget> _generateGCodeChips(
       BuildContext context, ControlTabViewModel model) {
     var themeData = Theme.of(context);
-    var bgColActive = themeData.brightness == Brightness.dark
-        ? themeData.colorScheme.secondary
-        : themeData.primaryColor;
+    var bgColActive = themeData.colorScheme.primary;
 
     List<GCodeMacro> macros = model.selectedGrp?.macros ?? [];
     return List<Widget>.generate(
@@ -361,7 +366,8 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
         bool disabled = (!model.canUsePrinter ||
             (model.isPrinting && !macro.showWhilePrinting));
         return Visibility(
-          visible: model.printer.gcodeMacros.contains(macro.name) && macro.visible,
+          visible:
+              model.printer.gcodeMacros.contains(macro.name) && macro.visible,
           child: ActionChip(
             label: Text(macro.beautifiedName),
             backgroundColor: disabled ? themeData.disabledColor : bgColActive,
@@ -465,12 +471,18 @@ class _PinTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardWithButton(
         width: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: Theme.of(context).textTheme.caption),
-            Text(pinValue, style: Theme.of(context).textTheme.headline6),
-          ],
+        child: Builder(
+          builder: (context) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name,
+                    style: Theme.of(context).textTheme.caption),
+                Text(pinValue,
+                    style: Theme.of(context).textTheme.headlineSmall),
+              ],
+            );
+          }
         ),
         buttonChild: onTap == null
             ? const Text('pages.dashboard.control.pin_card.pin_btn').tr()

@@ -1,3 +1,4 @@
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
 class CardWithButton extends StatelessWidget {
@@ -14,12 +15,21 @@ class CardWithButton extends StatelessWidget {
 
   final double width;
   final Color? backgroundColor;
-  final Widget child;
+  final Builder child;
   final Widget buttonChild;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    var themeData = Theme.of(context);
+    var _backgroundColor =
+        backgroundColor ?? themeData.colorScheme.surfaceVariant;
+    var _onBackgroundColor = (ThemeData.estimateBrightnessForColor(_backgroundColor) ==
+            Brightness.dark
+        ? Colors.white.blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
+        : Colors.black
+            .blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
+
     return Container(
       width: width,
       padding: CardTheme.of(context).margin ?? const EdgeInsets.all(4),
@@ -29,23 +39,36 @@ class CardWithButton extends StatelessWidget {
           Container(
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-                color: backgroundColor ?? Theme.of(context).primaryColorLight,
+                color: _backgroundColor,
                 borderRadius:
                     BorderRadius.vertical(top: Radius.circular(radius))),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
-              child: child,
+              child: Theme(
+                  data: themeData.copyWith(
+                      textTheme: themeData.textTheme.apply(
+                          bodyColor: _onBackgroundColor, displayColor: _onBackgroundColor),
+                      iconTheme:
+                          themeData.iconTheme.copyWith(color: _onBackgroundColor)),
+                  child: DefaultTextStyle(
+                    style: TextStyle(color: _onBackgroundColor),
+                    child: child,
+                  )),
             ),
           ),
           TextButton(
             style: TextButton.styleFrom(
-                primary: Colors.white,
-                backgroundColor: Theme.of(context).primaryColor,
-                minimumSize: const Size.fromHeight(48),
-                padding: EdgeInsets.zero,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(radius)),
-                )),
+              minimumSize: const Size.fromHeight(48),
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.vertical(bottom: Radius.circular(radius)),
+              ),
+              primary: themeData.colorScheme.onPrimary,
+              backgroundColor: themeData.colorScheme.primary,
+              // onPrimary: Theme.of(context).colorScheme.onSecondary,
+              onSurface: themeData.colorScheme.onPrimary,
+            ),
             child: buttonChild,
             onPressed: onTap,
           )

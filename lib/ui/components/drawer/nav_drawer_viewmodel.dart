@@ -15,6 +15,8 @@ class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
   final _machineService = locator<MachineService>();
   final _selectedMachineService = locator<SelectedMachineService>();
 
+  bool isManagePrintersExpanded = false;
+
   List<Machine> get printers {
     var list = data!;
     var selectedUUID = _selectedMachine?.uuid;
@@ -45,6 +47,11 @@ class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
   @override
   Future<List<Machine>> futureToRun() => _machineService.fetchAll();
 
+  toggleManagePrintersExpanded() {
+    isManagePrintersExpanded = !isManagePrintersExpanded;
+    notifyListeners();
+  }
+
   onEditTap(Machine? machine) {
     machine ??= _selectedMachine;
     if (machine == null) {
@@ -72,6 +79,10 @@ class NavDrawerViewModel extends FutureViewModel<List<Machine>> {
 
     if (currentPath != route)
       _navigationService.clearStackAndShow(route, arguments: arguments);
+  }
+
+  navigateToLegal() {
+    _navigationService.navigateTo(Routes.imprintView);
   }
 
   bool isSelected(String route) => route == currentPath;

@@ -42,7 +42,7 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
         child: Icon(Icons.save_outlined),
       ),
       body: (model.isFetchingSettings || model.isFetchingPrinter)
-          ? CircularProgressIndicator()
+          ? Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: FormBuilder(
                 autoFocusOnValidationFailure: true,
