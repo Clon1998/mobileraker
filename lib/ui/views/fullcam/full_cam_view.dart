@@ -46,9 +46,7 @@ class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSecondary),
+                                      color: Colors.white70),
                             )),
                       ),
                     ),

@@ -22,7 +22,8 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
   const DashboardView({Key? key}) : super(key: key);
 
   @override
-  Widget builder(BuildContext context, DashboardViewModel model, Widget? child) =>
+  Widget builder(
+          BuildContext context, DashboardViewModel model, Widget? child) =>
       Scaffold(
         appBar: AppBar(
           title: GestureDetector(
@@ -51,22 +52,28 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
         ),
         body: ConnectionStateView(
           body: (model.isPrinterAvailable)
-              ? PageTransitionSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  reverse: model.reverse,
-                  transitionBuilder: (
-                    Widget child,
-                    Animation<double> animation,
-                    Animation<double> secondaryAnimation,
-                  ) {
-                    return SharedAxisTransition(
-                      child: child,
-                      animation: animation,
-                      secondaryAnimation: secondaryAnimation,
-                      transitionType: SharedAxisTransitionType.horizontal,
-                    );
-                  },
-                  child: _getViewForIndex(model.currentIndex),
+              ? Theme(
+                  data: Theme.of(context)
+                      .copyWith(canvasColor: Colors.transparent),
+                  child: PageTransitionSwitcher(
+                    duration: kThemeAnimationDuration,
+                    reverse: model.reverse,
+                    transitionBuilder: (
+                      Widget child,
+                      Animation<double> animation,
+                      Animation<double> secondaryAnimation,
+                    ) {
+                      return SharedAxisTransition(
+                        child: child,
+                        animation: animation,
+                        secondaryAnimation: secondaryAnimation,
+                        transitionType: SharedAxisTransitionType.horizontal,
+                      );
+                    },
+                    child: Theme(
+                        data: Theme.of(context),
+                        child: _getViewForIndex(model.currentIndex)),
+                  ),
                 )
               : Center(
                   child: Column(
@@ -97,10 +104,18 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                   // FlutterIcons.camera_control_mco,
                   FlutterIcons.settings_oct,
                 ],
-                activeColor: Theme.of(context).bottomNavigationBarTheme.selectedItemColor ?? Theme.of(context).colorScheme.onPrimary,
-                inactiveColor: Theme.of(context).bottomNavigationBarTheme.unselectedItemColor,
+                activeColor: Theme.of(context)
+                        .bottomNavigationBarTheme
+                        .selectedItemColor ??
+                    Theme.of(context).colorScheme.onPrimary,
+                inactiveColor: Theme.of(context)
+                    .bottomNavigationBarTheme
+                    .unselectedItemColor,
                 gapLocation: GapLocation.end,
-                backgroundColor: Theme.of(context).bottomNavigationBarTheme.backgroundColor ?? Theme.of(context).colorScheme.primary,
+                backgroundColor: Theme.of(context)
+                        .bottomNavigationBarTheme
+                        .backgroundColor ??
+                    Theme.of(context).colorScheme.primary,
                 notchSmoothness: NotchSmoothness.softEdge,
                 activeIndex: model.currentIndex,
                 onTap: model.setIndex,
@@ -110,7 +125,8 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
       );
 
   @override
-  DashboardViewModel viewModelBuilder(BuildContext context) => DashboardViewModel();
+  DashboardViewModel viewModelBuilder(BuildContext context) =>
+      DashboardViewModel();
 
   Color? _getActiveTextColor(context) {
     var themeData = Theme.of(context);

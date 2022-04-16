@@ -145,10 +145,13 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
     var brandingIcon = (themeData.brightness == Brightness.light)
         ? context.themeService.selectedThemePack.brandingIcon
         : context.themeService.selectedThemePack.brandingIconDark;
+    var background = (themeData.brightness == Brightness.light)? themeData.colorScheme.primary: themeData.colorScheme.surfaceVariant;
+    var onBackground = (themeData.brightness == Brightness.light)? themeData.colorScheme.onPrimary: themeData.colorScheme.onSurfaceVariant;
+
     return DrawerHeader(
         margin: EdgeInsets.zero,
         padding: EdgeInsets.only(left: 10, right: 10, top: 30),
-        decoration: BoxDecoration(color: themeData.colorScheme.primary),
+        decoration: BoxDecoration(color: background),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -171,7 +174,7 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: themeData.textTheme.titleLarge?.copyWith(
-                              color: themeData.colorScheme.onPrimary),
+                              color:onBackground),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -179,7 +182,7 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: themeData.textTheme.subtitle2?.copyWith(
-                              color: themeData.colorScheme.onPrimary),
+                              color: onBackground),
                         ),
                       ],
                     ),
@@ -190,7 +193,7 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
                     tooltip: 'components.nav_drawer.printer_settings'.tr(),
                     icon: Icon(
                       FlutterIcons.settings_fea,
-                      color: themeData.colorScheme.onPrimary,
+                      color: onBackground,
                       size: 27,
                     ))
               ],
@@ -198,13 +201,13 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
             ListTile(
               title: Text(
                 'components.nav_drawer.manage_printers',
-                style: TextStyle(color: themeData.colorScheme.onPrimary),
+                style: TextStyle(color: onBackground),
               ).tr(),
               trailing: Icon(
                 model.isManagePrintersExpanded
                     ? Icons.expand_less
                     : Icons.expand_more,
-                color: themeData.colorScheme.onPrimary,
+                color: onBackground,
               ),
               onTap: model.toggleManagePrintersExpanded,
             )
@@ -228,11 +231,11 @@ class _DrawerItem extends ViewModelWidget<NavDrawerViewModel> {
   @override
   Widget build(BuildContext context, NavDrawerViewModel model) {
     var themeData = Theme.of(context);
-    final color = themeData.colorScheme.primary;
+    var selectedTileColor = (themeData.brightness == Brightness.light)? themeData.colorScheme.surfaceVariant:themeData.colorScheme.primaryContainer.withOpacity(.1);
 
     return ListTile(
       selected: model.isSelected(path),
-      selectedTileColor: themeData.colorScheme.surfaceVariant,
+      selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
       textColor: themeData.colorScheme.onBackground,
       leading: Icon(icon),
@@ -247,7 +250,8 @@ class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
   Widget build(BuildContext context, NavDrawerViewModel model) {
     List<Machine> printers = model.dataReady ? model.printers : [];
     var themeData = Theme.of(context);
-    var baseColor = themeData.colorScheme.onBackground;
+    var onBackGroundColor = themeData.colorScheme.onBackground;
+    var selectedTileColor = (themeData.brightness == Brightness.light)? themeData.colorScheme.surfaceVariant:themeData.colorScheme.primaryContainer.withOpacity(.1);
     const double baseIconSize = 20;
     const basePadding = const EdgeInsets.only(left: 16, right: 16);
     return AnimatedContainer(
@@ -283,11 +287,11 @@ class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
                     size: baseIconSize,
                   ),
                   selectedTileColor: model.isManagePrintersExpanded
-                      ? themeData.colorScheme.surfaceVariant
+                      ? selectedTileColor
                       : Colors.transparent,
                   selectedColor: themeData.colorScheme.secondary,
-                  textColor: baseColor,
-                  iconColor: baseColor,
+                  textColor: onBackGroundColor,
+                  iconColor: onBackGroundColor,
                   contentPadding: basePadding,
                   selected: index == 0,
                   onTap: () => model.onSetActiveTap(curPS),
@@ -297,8 +301,8 @@ class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
             ListTile(
               title: Text('pages.printer_add.title').tr(),
               contentPadding: basePadding,
-              textColor: baseColor,
-              iconColor: baseColor,
+              textColor: onBackGroundColor,
+              iconColor: onBackGroundColor,
               trailing: Icon(
                 Icons.add,
                 size: baseIconSize,

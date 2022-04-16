@@ -105,25 +105,20 @@ ThemePack _mobilerakerPack(BuildContext context) {
 
   var dark = FlexThemeData.dark(
     colors: const FlexSchemeColor(
-      primary: Color(0xff023047),
-      primaryContainer: Color(0xffd01e1e),
-      secondary: Color(0xfea28544),
-      secondaryContainer: Color(0xffffdbcf),
-      tertiary: Color(0xff715b2e),
-      tertiaryContainer: Color(0xffffefd2),
-      appBarColor: Color(0xffffdbcf),
-      error: Color(0xffb00020),
+      primary: Color(0xff74a6ce),
+      primaryContainer: Color(0xff2e4252),
+      secondary: Color(0xff00a69d),
+      secondaryContainer: Color(0xff00423e),
+      tertiary: Color(0xff9a9eda),
+      tertiaryContainer: Color(0xff004e59),
+      appBarColor: Color(0xff00423e),
+      error: Color(0xffcf6679),
     ),
-    usedColors: 2,
-    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
-    blendLevel: 20,
+    usedColors: 5,
+    surfaceMode: FlexSurfaceMode.highScaffoldLevelSurface,
+    blendLevel: 15,
+    appBarStyle: FlexAppBarStyle.background,
     appBarOpacity: 0.90,
-    tabBarStyle: FlexTabBarStyle.forBackground,
-    // darkIsTrueBlack: true,
-    keyColors: const FlexKeyColors(
-      keepPrimary: true,
-    ),
-    tones: FlexTones.highContrast(Brightness.dark),
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
     // To use the playground font, add GoogleFonts package and uncomment
@@ -153,22 +148,19 @@ ThemePack _mobilerakerPack(BuildContext context) {
           elevatedButtonTheme: _elevatedButtonThemeData,
           bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
             colorScheme: dark.colorScheme,
-            selectedLabelSchemeColor: SchemeColor.onPrimary,
-            unselectedLabelSchemeColor: SchemeColor.onPrimary,
-            selectedIconSchemeColor: SchemeColor.onPrimary,
-            unselectedIconSchemeColor: SchemeColor.onPrimary,
-            backgroundSchemeColor: SchemeColor.primary,
+            selectedLabelSchemeColor: SchemeColor.onBackground,
+            unselectedLabelSchemeColor: SchemeColor.onBackground,
+            selectedIconSchemeColor: SchemeColor.onBackground,
+            unselectedIconSchemeColor: SchemeColor.onBackground,
+            backgroundSchemeColor: SchemeColor.background,
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          // toggleButtonsTheme: FlexSubThemes.toggleButtonsTheme(colorScheme: dark.colorScheme,baseSchemeColor: SchemeColor.error,  radius: 0),
-          toggleButtonsTheme: dark.toggleButtonsTheme
-              .copyWith(selectedColor: dark.colorScheme.onSecondaryContainer),
-          textButtonTheme: FlexSubThemes.textButtonTheme(
-              colorScheme: dark.colorScheme,
-              baseSchemeColor: SchemeColor.onSecondaryContainer),
+          inputDecorationTheme:
+              dark.inputDecorationTheme.copyWith(filled: false),
           bottomSheetTheme: dark.bottomSheetTheme
-              .copyWith(modalBackgroundColor: dark.colorScheme.background)),
+              .copyWith(modalBackgroundColor: dark.colorScheme.background),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3)),
       brandingIcon: AssetImage('assets/icon/mr_logo.png'));
 }
 
@@ -199,19 +191,19 @@ ThemePack _voronPack(BuildContext context) {
   var dark = FlexThemeData.dark(
     colors: const FlexSchemeColor(
       primary: Color(0xffed3023),
-      primaryContainer: Color(0xffd0e4ff),
-      secondary: Color(0xff5aff00),
-      secondaryContainer: Color(0xffffdbcf),
-      tertiary: Color(0xff006875),
-      tertiaryContainer: Color(0xff95f0ff),
-      appBarColor: Color(0xffffdbcf),
-      error: Color(0xffb00020),
-    ),
-    keyColors: const FlexKeyColors(
-      keepPrimary: true,
+      primaryContainer: Color(0xff5e130e),
+      secondary: Color(0xFFFF5044),
+      secondaryContainer: Color(0xff872100),
+      tertiary: Color(0xff5aff00),
+      tertiaryContainer: Color(0xff004e59),
+      appBarColor: Color(0xff872100),
+      error: Color(0xffcf6679),
     ),
     usedColors: 2,
-    surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
+    surfaceMode: FlexSurfaceMode.highScaffoldLevelSurface,
+    blendLevel: 2,
+    appBarStyle: FlexAppBarStyle.background,
+    appBarOpacity: 0.90,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
     fontFamily: GoogleFonts.notoSans().fontFamily,
@@ -237,13 +229,22 @@ ThemePack _voronPack(BuildContext context) {
       ),
       darkTheme: dark.copyWith(
           elevatedButtonTheme: _elevatedButtonThemeData,
-          bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.black),
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: dark.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onBackground,
+            unselectedLabelSchemeColor: SchemeColor.onBackground,
+            selectedIconSchemeColor: SchemeColor.onBackground,
+            unselectedIconSchemeColor: SchemeColor.onBackground,
+            backgroundSchemeColor: SchemeColor.background,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
           inputDecorationTheme:
               dark.inputDecorationTheme.copyWith(filled: false),
+          bottomSheetTheme: dark.bottomSheetTheme
+              .copyWith(modalBackgroundColor: dark.colorScheme.background),
           cardTheme: dark.cardTheme.copyWith(elevation: 3)),
-      brandingIcon: AssetImage('assets/images/voron_design.png'));
+      brandingIcon: AssetImage('assets/images/voron_design_padded.png'));
 }
 
 ThemePack _ratRigPack(BuildContext context) {
@@ -273,11 +274,21 @@ ThemePack _ratRigPack(BuildContext context) {
   );
 
   var dark = FlexThemeData.dark(
-    colorScheme: ColorScheme.fromSeed(
-        seedColor: ratRigGreen, brightness: Brightness.dark),
-    usedColors: 2,
-    blendLevel: 10,
-    darkIsTrueBlack: true,
+    colors: const FlexSchemeColor(
+      primary: Color(0xff5aff00),
+      primaryContainer: Color(0xff00423e),
+      secondary: Color(0xffa600ff),
+      secondaryContainer: Color(0xff872100),
+      tertiary: Color(0xff5aff00),
+      tertiaryContainer: Color(0xff004e59),
+      appBarColor: Color(0xff872100),
+      error: Color(0xffcf6679),
+    ),
+    usedColors: 1,
+    surfaceMode: FlexSurfaceMode.highScaffoldLevelSurface,
+    blendLevel: 2,
+    appBarStyle: FlexAppBarStyle.background,
+    appBarOpacity: 0.90,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
     fontFamily: GoogleFonts.notoSans().fontFamily,
@@ -304,13 +315,19 @@ ThemePack _ratRigPack(BuildContext context) {
       darkTheme: dark.copyWith(
           elevatedButtonTheme: _elevatedButtonThemeData,
           inputDecorationTheme:
-              light.inputDecorationTheme.copyWith(filled: false),
-          bottomNavigationBarTheme: BottomNavigationBarThemeData(
-              selectedItemColor: Colors.white,
-              unselectedItemColor: Colors.black),
-          cardTheme: light.cardTheme.copyWith(elevation: 3)),
-      brandingIconDark: AssetImage('assets/images/RR-Icon_Black.png'),
-      brandingIcon: AssetImage('assets/images/RR-Icon_Green.png'));
+              dark.inputDecorationTheme.copyWith(filled: false),
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: dark.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onBackground,
+            unselectedLabelSchemeColor: SchemeColor.onBackground,
+            selectedIconSchemeColor: SchemeColor.onBackground,
+            unselectedIconSchemeColor: SchemeColor.onBackground,
+            backgroundSchemeColor: SchemeColor.background,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3)),
+      brandingIcon: AssetImage('assets/images/rr-icon_green.png'));
 }
 
 List<ThemePack> getThemePacks(BuildContext context) {

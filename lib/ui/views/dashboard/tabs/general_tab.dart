@@ -594,7 +594,8 @@ class _TemperaturePresetCard extends StatelessWidget {
               Text('pages.dashboard.general.temp_preset_card.h_temp',
                       style: Theme.of(context).textTheme.caption)
                   .tr(args: [extruderTemp.toString()]),
-              Text('pages.dashboard.general.temp_preset_card.b_temp')
+              Text('pages.dashboard.general.temp_preset_card.b_temp',
+                  style: Theme.of(context).textTheme.caption)
                   .tr(args: [bedTemp.toString()]),
             ],
           );
