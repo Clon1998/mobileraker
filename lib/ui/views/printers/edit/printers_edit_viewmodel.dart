@@ -64,6 +64,12 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
 
   bool get isFetchingMachines => busy(_MachinesMapKey);
 
+  bool get settingsHasError => hasErrorForKey(_MachineSettingsMapKey);
+
+  bool get printerHasError => hasErrorForKey(_PrinterMapKey);
+
+  bool get machinesHasError => hasErrorForKey(_MachinesMapKey);
+
   int get extruderMinTemperature =>
       machine.printerService.printerStream.valueOrNull?.configFile
           .primaryExtruder?.minTemp
@@ -105,6 +111,12 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
 
   Future<MachineSettings> _machineSettingsFuture() =>
       _machineService.fetchSettings(machine);
+
+
+  @override
+  void onFutureError(dynamic error, Object? key) {
+    _logger.e("Error on $key: $error");
+  }
 
   @override
   Map<String, Future Function()> get futuresMap => {
@@ -268,14 +280,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
       var printerUrl = currentState.value['printerUrl'];
       var wsUrl = currentState.value['wsUrl'];
 
-      List<bool> inverts = [
-        currentState.value['invertX'],
-        currentState.value['invertY'],
-        currentState.value['invertZ']
-      ];
-      var speedXY = currentState.value['speedXY'];
-      var speedZ = currentState.value['speedZ'];
-      var extrudeSpeed = currentState.value['extrudeSpeed'];
+
       _saveAllGroupStuff();
 
       machine
@@ -293,21 +298,33 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
       //   ..babySteps = printerBabySteps
       //   ..macroGroups = macroGroups
       //   ..extrudeSteps = printerExtruderSteps;
-      var blub = MachineSettings(
-          created: machineSettings.created,
-          lastModified: DateTime.now(),
-          macroGroups: _macroGroups,
-          temperaturePresets: tempPresets,
-          babySteps: printerBabySteps,
-          extrudeSteps: printerExtruderSteps,
-          moveSteps: printerMoveSteps,
-          extrudeFeedrate: extrudeSpeed,
-          inverts: inverts,
-          speedXY: speedXY,
-          speedZ: speedZ);
+      if (!settingsHasError &&
+          !printerHasError &&
+          !isFetchingPrinter &&
+          !isFetchingSettings) {
+        List<bool> inverts = [
+          currentState.value['invertX'],
+          currentState.value['invertY'],
+          currentState.value['invertZ']
+        ];
+        var speedXY = currentState.value['speedXY'];
+        var speedZ = currentState.value['speedZ'];
+        var extrudeSpeed = currentState.value['extrudeSpeed'];
+        var blub = MachineSettings(
+            created: machineSettings.created,
+            lastModified: DateTime.now(),
+            macroGroups: _macroGroups,
+            temperaturePresets: tempPresets,
+            babySteps: printerBabySteps,
+            extrudeSteps: printerExtruderSteps,
+            moveSteps: printerMoveSteps,
+            extrudeFeedrate: extrudeSpeed,
+            inverts: inverts,
+            speedXY: speedXY,
+            speedZ: speedZ);
 
-      await _machineService.updateSettings(machine, blub);
-
+        await _machineService.updateSettings(machine, blub);
+      }
       await _machineService.updateMachine(machine);
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
@@ -447,7 +464,6 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
     // printerApiKey = resu;
   }
 
-
   _buildMacroGroups() {
     _macroGroups.addAll(machineSettings.macroGroups);
     MacroGroup defaultGroup = _defaultGroup;
@@ -467,6 +483,8 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   }
 
   _saveAllMacroGroups() {
+    if (isFetchingSettings)
+      return;
     macroGroups.forEach((element) => _saveMacroGroup(element));
   }
 
@@ -500,6 +518,8 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   }
 
   _saveAllPresets() {
+    if (isFetchingSettings || settingsHasError)
+      return;
     tempPresets.forEach((element) {
       _savePreset(element);
     });

@@ -158,35 +158,39 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Image(
-                        height: 60,
-                        width: 60,
-                        image: brandingIcon ??
-                            AssetImage('assets/icon/mr_logo.png')),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          model.selectedPrinterDisplayName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: themeData.textTheme.titleLarge?.copyWith(
-                              color:onBackground),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Image(
+                          height: 60,
+                          width: 60,
+                          image: brandingIcon ??
+                              AssetImage('assets/icon/mr_logo.png')),
+                      Flexible(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              model.selectedPrinterDisplayName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: themeData.textTheme.titleLarge?.copyWith(
+                                  color:onBackground),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              model.printerUrl,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: themeData.textTheme.subtitle2?.copyWith(
+                                  color: onBackground),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          model.printerUrl,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: themeData.textTheme.subtitle2?.copyWith(
-                              color: onBackground),
-                        ),
-                      ],
-                    ),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
                 IconButton(
                     onPressed: () => model.onEditTap(null),

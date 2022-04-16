@@ -157,6 +157,9 @@
       "import_settings": "Import Settings",
       "remove_printer": "Remove Printer",
       "no_values_found": "No values Found!",
+      "fetching_additional_settings": "Fetching additional settings from network...",
+      "could_not_fetch_additional": "Could not fetch additional settings!",
+      "fetch_error_hint": "Ensure the machine is reachable, and Mobileraker is connected to it.",
       "general": {
         "displayname": "Displayname",
         "printer_addr": "Printer - Address",

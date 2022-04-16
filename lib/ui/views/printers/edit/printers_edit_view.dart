@@ -7,6 +7,7 @@ import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/domain/hive/webcam_setting.dart';
 import 'package:mobileraker/domain/moonraker/macro_group.dart';
 import 'package:mobileraker/domain/moonraker/temperature_preset.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:stacked/stacked.dart';
 
@@ -41,245 +42,247 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
         onPressed: model.onFormConfirm,
         child: Icon(Icons.save_outlined),
       ),
-      body: (model.isFetchingSettings || model.isFetchingPrinter)
-          ? Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: FormBuilder(
-                autoFocusOnValidationFailure: true,
-                key: model.formKey,
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: Column(
-                    children: <Widget>[
-                      _SectionHeader(title: 'pages.setting.general.title'.tr()),
-                      FormBuilderTextField(
-                        decoration: InputDecoration(
-                          labelText:
-                              'pages.printer_edit.general.displayname'.tr(),
-                        ),
-                        name: 'printerName',
-                        initialValue: model.machine.name,
-                        validator: FormBuilderValidators.compose(
-                            [FormBuilderValidators.required(context)]),
-                      ),
-                      FormBuilderTextField(
-                        decoration: InputDecoration(
-                          labelText:
-                              'pages.printer_edit.general.printer_addr'.tr(),
-                          hintText: 'pages.printer_edit.general.full_url'.tr(),
-                        ),
-                        name: 'printerUrl',
-                        initialValue: model.machine.httpUrl,
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.url(context,
-                              protocols: ['http', 'https'],
-                              requireProtocol: true)
-                        ]),
-                      ),
-                      FormBuilderTextField(
-                        decoration: InputDecoration(
-                          labelText: 'pages.printer_edit.general.ws_addr'.tr(),
-                          hintText: 'pages.printer_edit.general.full_url'.tr(),
-                        ),
-                        name: 'wsUrl',
-                        initialValue: model.machine.wsUrl,
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.url(context,
-                              protocols: ['ws', 'wss'], requireProtocol: true)
-                        ]),
-                      ),
-                      FormBuilderTextField(
-                        decoration: InputDecoration(
-                            labelText:
-                                'pages.printer_edit.general.moonraker_api_key'
-                                    .tr(),
-                            suffix: IconButton(
-                              icon: Icon(Icons.qr_code_sharp),
-                              onPressed: model.openQrScanner,
-                            ),
-                            helperText:
-                                'pages.printer_edit.general.moonraker_api_desc'
-                                    .tr(),
-                            helperMaxLines: 3),
-                        name: 'printerApiKey',
-                        initialValue: model.machine.apiKey,
-                      ),
-                      Divider(),
-                      _SectionHeader(
-                          title: 'pages.printer_edit.motion_system.title'.tr()),
-                      FormBuilderSwitch(
-                        name: 'invertX',
-                        initialValue: model.machineSettings.inverts[0],
-                        title: Text('pages.printer_edit.motion_system.invert_x')
-                            .tr(),
-                        decoration: InputDecoration(
-                            border: InputBorder.none, isCollapsed: true),
-                        activeColor: themeData.colorScheme.primary,
-                      ),
-                      FormBuilderSwitch(
-                        name: 'invertY',
-                        initialValue: model.machineSettings.inverts[1],
-                        title: Text('pages.printer_edit.motion_system.invert_y')
-                            .tr(),
-                        decoration: InputDecoration(
-                            border: InputBorder.none, isCollapsed: true),
-                        activeColor: themeData.colorScheme.primary,
-                      ),
-                      FormBuilderSwitch(
-                        name: 'invertZ',
-                        initialValue: model.machineSettings.inverts[2],
-                        title: Text('pages.printer_edit.motion_system.invert_z')
-                            .tr(),
-                        decoration: InputDecoration(
-                            border: InputBorder.none, isCollapsed: true),
-                        activeColor: themeData.colorScheme.primary,
-                      ),
-                      FormBuilderTextField(
-                        name: 'speedXY',
-                        initialValue: model.machineSettings.speedXY.toString(),
-                        valueTransformer: (text) =>
-                            (text != null) ? int.tryParse(text) : 0,
-                        decoration: InputDecoration(
-                            labelText:
-                                'pages.printer_edit.motion_system.speed_xy'
-                                    .tr(),
-                            suffixText: 'mm/s',
-                            isDense: true),
-                        keyboardType: TextInputType.numberWithOptions(
-                            signed: false, decimal: false),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.min(context, 1)
-                        ]),
-                      ),
-                      FormBuilderTextField(
-                        name: 'speedZ',
-                        initialValue: model.machineSettings.speedZ.toString(),
-                        valueTransformer: (text) =>
-                            (text != null) ? int.tryParse(text) : 0,
-                        decoration: InputDecoration(
-                            labelText:
-                                'pages.printer_edit.motion_system.speed_z'.tr(),
-                            suffixText: 'mm/s',
-                            isDense: true),
-                        keyboardType: TextInputType.numberWithOptions(
-                            signed: false, decimal: false),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.min(context, 1)
-                        ]),
-                      ),
-                      Segments(
-                        decoration: InputDecoration(
-                            labelText:
-                                'pages.printer_edit.motion_system.steps_move'
-                                    .tr(),
-                            suffixText: 'mm'),
-                        options: model.printerMoveSteps
-                            .map((e) => FormBuilderFieldOption(
-                                value: e, child: Text('$e')))
-                            .toList(growable: false),
-                        onSelected: model.removeMoveStep,
-                        onAdd: model.addMoveStep,
-                        inputType: TextInputType.number,
-                      ),
-                      Segments(
-                        decoration: InputDecoration(
-                            labelText:
-                                'pages.printer_edit.motion_system.steps_baby'
-                                    .tr(),
-                            suffixText: 'mm'),
-                        options: model.printerBabySteps
-                            .map((e) => FormBuilderFieldOption(
-                                value: e, child: Text('$e')))
-                            .toList(growable: false),
-                        onSelected: model.removeBabyStep,
-                        onAdd: model.addBabyStep,
-                        inputType:
-                            TextInputType.numberWithOptions(decimal: true),
-                      ),
-                      Divider(),
-                      _SectionHeader(
-                          title: 'pages.printer_edit.extruders.title'.tr()),
-                      FormBuilderTextField(
-                        name: 'extrudeSpeed',
-                        initialValue:
-                            model.machineSettings.extrudeFeedrate.toString(),
-                        valueTransformer: (text) =>
-                            (text != null) ? int.tryParse(text) : 0,
-                        decoration: InputDecoration(
-                            labelText:
-                                'pages.printer_edit.extruders.feedrate'.tr(),
-                            suffixText: 'mm/s',
-                            isDense: true),
-                        keyboardType: TextInputType.numberWithOptions(
-                            signed: false, decimal: false),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.min(context, 1)
-                        ]),
-                      ),
-                      Segments(
-                        decoration: InputDecoration(
-                            labelText:
-                                'pages.printer_edit.extruders.steps_extrude'
-                                    .tr(),
-                            suffixText: 'mm'),
-                        options: model.printerExtruderSteps
-                            .map((e) => FormBuilderFieldOption(
-                                value: e, child: Text('$e')))
-                            .toList(growable: false),
-                        onSelected: model.removeExtruderStep,
-                        onAdd: model.addExtruderStep,
-                        inputType: TextInputType.number,
-                      ),
-                      Divider(),
-                      _SectionHeaderWithAction(
-                          title:
-                              'pages.dashboard.control.macro_card.title'.tr(),
-                          action: TextButton.icon(
-                            onPressed: model.onMacroGroupAdd,
-                            label: Text('general.add').tr(),
-                            icon: Icon(Icons.source_outlined),
-                          )),
-                      _buildMacroGroups(context, model),
-                      Divider(),
-                      _SectionHeaderWithAction(
-                          title: 'pages.dashboard.general.cam_card.webcam'.tr(),
-                          action: TextButton.icon(
-                            onPressed: model.onWebCamAdd,
-                            label: Text('general.add').tr(),
-                            icon: Icon(FlutterIcons.webcam_mco),
-                          )),
-                      _buildWebCams(model),
-                      Divider(),
-                      _SectionHeaderWithAction(
-                          title:
-                              'pages.dashboard.general.temp_card.temp_presets'
-                                  .tr(),
-                          action: TextButton.icon(
-                            onPressed: model.onTempPresetAdd,
-                            label: Text('general.add').tr(),
-                            icon: Icon(FlutterIcons.thermometer_lines_mco),
-                          )),
-                      _buildTempPresets(model),
-                      Divider(),
-                      Align(
-                        alignment: Alignment.bottomCenter,
-                        child: TextButton.icon(
-                            onPressed: model.onMachineDeleteTap,
-                            icon: Icon(Icons.delete_forever_outlined),
-                            label:
-                                Text('pages.printer_edit.remove_printer').tr()),
-                      )
-                    ],
+      body: SingleChildScrollView(
+        child: FormBuilder(
+          autoFocusOnValidationFailure: true,
+          key: model.formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: <Widget>[
+                _SectionHeader(title: 'pages.setting.general.title'.tr()),
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.general.displayname'.tr(),
                   ),
+                  name: 'printerName',
+                  initialValue: model.machine.name,
+                  validator: FormBuilderValidators.compose(
+                      [FormBuilderValidators.required(context)]),
                 ),
-              ),
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.general.printer_addr'.tr(),
+                    hintText: 'pages.printer_edit.general.full_url'.tr(),
+                  ),
+                  name: 'printerUrl',
+                  initialValue: model.machine.httpUrl,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.url(context,
+                        protocols: ['http', 'https'], requireProtocol: true)
+                  ]),
+                ),
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.general.ws_addr'.tr(),
+                    hintText: 'pages.printer_edit.general.full_url'.tr(),
+                  ),
+                  name: 'wsUrl',
+                  initialValue: model.machine.wsUrl,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(context),
+                    FormBuilderValidators.url(context,
+                        protocols: ['ws', 'wss'], requireProtocol: true)
+                  ]),
+                ),
+                FormBuilderTextField(
+                  decoration: InputDecoration(
+                      labelText:
+                          'pages.printer_edit.general.moonraker_api_key'.tr(),
+                      suffix: IconButton(
+                        icon: Icon(Icons.qr_code_sharp),
+                        onPressed: model.openQrScanner,
+                      ),
+                      helperText:
+                          'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                      helperMaxLines: 3),
+                  name: 'printerApiKey',
+                  initialValue: model.machine.apiKey,
+                ),
+                Divider(),
+                _SectionHeaderWithAction(
+                    title: 'pages.dashboard.general.cam_card.webcam'.tr(),
+                    action: TextButton.icon(
+                      onPressed: model.onWebCamAdd,
+                      label: Text('general.add').tr(),
+                      icon: Icon(FlutterIcons.webcam_mco),
+                    )),
+                _buildWebCams(model),
+                Divider(),
+                if (!model.isFetchingSettings && !model.isFetchingPrinter) ...[
+                  _SectionHeader(
+                      title: 'pages.printer_edit.motion_system.title'.tr()),
+                  FormBuilderSwitch(
+                    name: 'invertX',
+                    initialValue: model.machineSettings.inverts[0],
+                    title:
+                        Text('pages.printer_edit.motion_system.invert_x').tr(),
+                    decoration: InputDecoration(
+                        border: InputBorder.none, isCollapsed: true),
+                    activeColor: themeData.colorScheme.primary,
+                  ),
+                  FormBuilderSwitch(
+                    name: 'invertY',
+                    initialValue: model.machineSettings.inverts[1],
+                    title:
+                        Text('pages.printer_edit.motion_system.invert_y').tr(),
+                    decoration: InputDecoration(
+                        border: InputBorder.none, isCollapsed: true),
+                    activeColor: themeData.colorScheme.primary,
+                  ),
+                  FormBuilderSwitch(
+                    name: 'invertZ',
+                    initialValue: model.machineSettings.inverts[2],
+                    title:
+                        Text('pages.printer_edit.motion_system.invert_z').tr(),
+                    decoration: InputDecoration(
+                        border: InputBorder.none, isCollapsed: true),
+                    activeColor: themeData.colorScheme.primary,
+                  ),
+                  FormBuilderTextField(
+                    name: 'speedXY',
+                    initialValue: model.machineSettings.speedXY.toString(),
+                    valueTransformer: (text) =>
+                        (text != null) ? int.tryParse(text) : 0,
+                    decoration: InputDecoration(
+                        labelText:
+                            'pages.printer_edit.motion_system.speed_xy'.tr(),
+                        suffixText: 'mm/s',
+                        isDense: true),
+                    keyboardType: TextInputType.numberWithOptions(
+                        signed: false, decimal: false),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(context),
+                      FormBuilderValidators.min(context, 1)
+                    ]),
+                  ),
+                  FormBuilderTextField(
+                    name: 'speedZ',
+                    initialValue: model.machineSettings.speedZ.toString(),
+                    valueTransformer: (text) =>
+                        (text != null) ? int.tryParse(text) : 0,
+                    decoration: InputDecoration(
+                        labelText:
+                            'pages.printer_edit.motion_system.speed_z'.tr(),
+                        suffixText: 'mm/s',
+                        isDense: true),
+                    keyboardType: TextInputType.numberWithOptions(
+                        signed: false, decimal: false),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(context),
+                      FormBuilderValidators.min(context, 1)
+                    ]),
+                  ),
+                  Segments(
+                    decoration: InputDecoration(
+                        labelText:
+                            'pages.printer_edit.motion_system.steps_move'.tr(),
+                        suffixText: 'mm'),
+                    options: model.printerMoveSteps
+                        .map((e) =>
+                            FormBuilderFieldOption(value: e, child: Text('$e')))
+                        .toList(growable: false),
+                    onSelected: model.removeMoveStep,
+                    onAdd: model.addMoveStep,
+                    inputType: TextInputType.number,
+                  ),
+                  Segments(
+                    decoration: InputDecoration(
+                        labelText:
+                            'pages.printer_edit.motion_system.steps_baby'.tr(),
+                        suffixText: 'mm'),
+                    options: model.printerBabySteps
+                        .map((e) =>
+                            FormBuilderFieldOption(value: e, child: Text('$e')))
+                        .toList(growable: false),
+                    onSelected: model.removeBabyStep,
+                    onAdd: model.addBabyStep,
+                    inputType: TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  Divider(),
+                  _SectionHeader(
+                      title: 'pages.printer_edit.extruders.title'.tr()),
+                  FormBuilderTextField(
+                    name: 'extrudeSpeed',
+                    initialValue:
+                        model.machineSettings.extrudeFeedrate.toString(),
+                    valueTransformer: (text) =>
+                        (text != null) ? int.tryParse(text) : 0,
+                    decoration: InputDecoration(
+                        labelText: 'pages.printer_edit.extruders.feedrate'.tr(),
+                        suffixText: 'mm/s',
+                        isDense: true),
+                    keyboardType: TextInputType.numberWithOptions(
+                        signed: false, decimal: false),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.required(context),
+                      FormBuilderValidators.min(context, 1)
+                    ]),
+                  ),
+                  Segments(
+                    decoration: InputDecoration(
+                        labelText:
+                            'pages.printer_edit.extruders.steps_extrude'.tr(),
+                        suffixText: 'mm'),
+                    options: model.printerExtruderSteps
+                        .map((e) =>
+                            FormBuilderFieldOption(value: e, child: Text('$e')))
+                        .toList(growable: false),
+                    onSelected: model.removeExtruderStep,
+                    onAdd: model.addExtruderStep,
+                    inputType: TextInputType.number,
+                  ),
+                  Divider(),
+                  _SectionHeaderWithAction(
+                      title: 'pages.dashboard.control.macro_card.title'.tr(),
+                      action: TextButton.icon(
+                        onPressed: model.onMacroGroupAdd,
+                        label: Text('general.add').tr(),
+                        icon: Icon(Icons.source_outlined),
+                      )),
+                  _buildMacroGroups(context, model),
+                  Divider(),
+                  _SectionHeaderWithAction(
+                      title:
+                          'pages.dashboard.general.temp_card.temp_presets'.tr(),
+                      action: TextButton.icon(
+                        onPressed: model.onTempPresetAdd,
+                        label: Text('general.add').tr(),
+                        icon: Icon(FlutterIcons.thermometer_lines_mco),
+                      )),
+                  _buildTempPresets(model),
+                  Divider(),
+                ] else if (model.settingsHasError || model.printerHasError) ...[
+                  ListTile(
+                    tileColor: themeData.colorScheme.errorContainer,
+                    textColor: themeData.colorScheme.onErrorContainer,
+                    iconColor: themeData.colorScheme.onErrorContainer,
+                    leading: Icon(Icons.error_outline, size: 40,),
+                    title: Text(
+                      'pages.printer_edit.could_not_fetch_additional',
+                    ).tr(),
+                    subtitle: Text('pages.printer_edit.fetch_error_hint').tr(),
+                  ),
+                  Divider(),
+                ] else ...[
+                  FadingText(
+                      'pages.printer_edit.fetching_additional_settings'.tr()),
+                  Divider(),
+                ],
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: TextButton.icon(
+                      onPressed: model.onMachineDeleteTap,
+                      icon: Icon(Icons.delete_forever_outlined),
+                      label: Text('pages.printer_edit.remove_printer').tr()),
+                )
+              ],
             ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -339,8 +342,7 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
     if (model.macroGroups.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Text('pages.printer_edit.macros.no_macros_found')
-            .tr(),
+        child: Text('pages.printer_edit.macros.no_macros_found').tr(),
       );
     }
 

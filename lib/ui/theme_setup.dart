@@ -327,7 +327,7 @@ ThemePack _ratRigPack(BuildContext context) {
             showUnselectedLabels: false,
           ),
           cardTheme: dark.cardTheme.copyWith(elevation: 3)),
-      brandingIcon: AssetImage('assets/images/rr-icon_green.png'));
+      brandingIcon: AssetImage('assets/images/rr_icon_green.png'));
 }
 
 List<ThemePack> getThemePacks(BuildContext context) {
