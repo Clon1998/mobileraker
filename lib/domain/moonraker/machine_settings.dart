@@ -13,7 +13,7 @@ class MachineSettings extends StampedEntity {
       DateTime? lastModified,
       this.temperaturePresets = const [],
       this.inverts = const [false, false, false],
-      this.speedXY = 100,
+      this.speedXY = 50,
       this.speedZ = 30,
       this.extrudeFeedrate = 5,
       this.moveSteps = const [1, 10, 25, 50],

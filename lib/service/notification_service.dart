@@ -237,20 +237,24 @@ class NotificationService {
         channelGroupName: 'Printer ${machine.name}');
   }
 
-  _setupFCMOnPrinterOnceConnected(Machine machine) {
-    machine.jRpcClient.stateStream
-        .firstWhere((element) => element == ClientState.connected)
-        .then((value) async {
+  _setupFCMOnPrinterOnceConnected(Machine machine) async {
+    try {
+      await machine.jRpcClient.stateStream
+          .firstWhere((element) => element == ClientState.connected);
+
       String? fcmToken = await FirebaseMessaging.instance.getToken();
       if (fcmToken == null) {
         _logger.w("Could not fetch fcm token");
         return Future.error("No token available for device!");
       }
-      _logger.i("Devices FCM token: $fcmToken");
+      _logger.i("Device's FCM token: $fcmToken");
+
       await _machineService.fetchOrCreateFcmIdentifier(machine);
       await _machineService.registerFCMTokenOnMachine(machine, fcmToken);
       // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
-    });
+    } catch (e, s) {
+      _logger.w('Could not setupFCM on ${machine.name}(${machine.wsUrl})',null);
+    }
   }
 
   Future<void> _processPrinterUpdate(Machine machine, Printer printer) async {

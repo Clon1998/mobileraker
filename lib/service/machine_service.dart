@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:mobileraker/datasource/moonraker_database_client.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/domain/moonraker/gcode_macro.dart';
@@ -11,6 +12,7 @@ import 'package:mobileraker/domain/moonraker/macro_group.dart';
 import 'package:mobileraker/repository/machine_hive_repository.dart';
 import 'package:mobileraker/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:stacked_services/stacked_services.dart';
 import 'package:uuid/uuid.dart';
 
 /// Service handling the management of a machine
@@ -58,10 +60,10 @@ class MachineService {
   }
 
   Future<void> removeMachine(Machine machine) async {
-    _logger.i("Removing machine ${machine.uuid}");
+    _logger.i('Removing machine ${machine.uuid}');
     await _machineRepo.remove(machine.uuid);
     if (_selectedMachineService.isSelectedMachine(machine)) {
-      _logger.i("Machine ${machine.uuid} is active machine");
+      _logger.i('Machine ${machine.uuid} is active machine');
       List<Machine> remainingPrinters = await _machineRepo.fetchAll();
 
       Machine? nextMachine =
@@ -85,56 +87,62 @@ class MachineService {
   /// Because of that the FCMIdentifier should be set only once!
   Future<String> fetchOrCreateFcmIdentifier(Machine machine) async {
     String? item = await _moonrakerDatabaseClient.getDatabaseItem('mobileraker',
-        key: 'printerId');
+        key: 'printerId', client: machine.jRpcClient);
     if (item == null) {
       String nId = Uuid().v4();
       item = await _moonrakerDatabaseClient.addDatabaseItem(
           'mobileraker', 'printerId', nId);
-      _logger.i("Registered fcm-PrinterId in MoonrakerDB: $nId");
+      _logger.i('Registered fcm-PrinterId in MoonrakerDB: $nId');
     } else {
-      _logger.i("Got FCM-PrinterID from MoonrakerDB to set in Settings:$item");
+      _logger.i(
+          'Got FCM-PrinterID from MoonrakerDB for "${machine.name}(${machine.wsUrl})" to set in Settings: $item');
     }
 
     if (item != machine.fcmIdentifier) {
       machine.fcmIdentifier = item;
       await machine.save();
-      _logger.i("Updated FCM-PrinterID in settings $item");
+      _logger.i('Updated FCM-PrinterID in settings $item');
     }
     return item!;
   }
 
   Future<void> registerFCMTokenOnMachineNEW(
       Machine machine, String fcmToken) async {
-    Map<String, dynamic>? item = await _moonrakerDatabaseClient
-        .getDatabaseItem('mobileraker', key: 'fcm.$fcmToken');
+    Map<String, dynamic>? item = await _moonrakerDatabaseClient.getDatabaseItem(
+        'mobileraker',
+        key: 'fcm.$fcmToken',
+        client: machine.jRpcClient);
     if (item == null) {
       item = {'printerName': machine.name};
       item = await _moonrakerDatabaseClient.addDatabaseItem(
           'mobileraker', 'fcm.$fcmToken', item);
-      _logger.i("Registered FCM Token in MoonrakerDB: $item");
+      _logger.i('Registered FCM Token in MoonrakerDB: $item');
     } else if (item['printerName'] != machine.name) {
       item['printerName'] = machine.name;
       item = await _moonrakerDatabaseClient.addDatabaseItem(
           'mobileraker', 'fcm.$fcmToken', item);
-      _logger.i("Updated Printer's name in MoonrakerDB: $item");
+      _logger.i('Updated Printer\'s name in MoonrakerDB: $item');
     }
-    _logger.i("Got FCM data from MoonrakerDB: $item");
+    _logger.i('Got FCM data from MoonrakerDB: $item');
   }
 
   Future<void> registerFCMTokenOnMachine(
       Machine machine, String fcmToken) async {
     var item = await _moonrakerDatabaseClient.getDatabaseItem('mobileraker',
-        key: 'fcmTokens');
+        key: 'fcmTokens', client: machine.jRpcClient);
     if (item == null) {
-      _logger.i("Creating fcmTokens in moonraker-Database");
+      _logger.i('Creating fcmTokens in moonraker-Database');
       await _moonrakerDatabaseClient
           .addDatabaseItem('mobileraker', 'fcmTokens', [fcmToken]);
     } else {
       List<String> fcmTokens = List.from(item);
       if (!fcmTokens.contains(fcmToken)) {
-        _logger.i("Adding token to existing fcmTokens in moonraker-Database");
+        _logger.i('Adding token to existing fcmTokens in moonraker-Database');
         await _moonrakerDatabaseClient.addDatabaseItem(
             'mobileraker', 'fcmTokens', fcmTokens..add(fcmToken));
+      } else {
+        _logger
+            .i('FCM token was registed for ${machine.name}(${machine.wsUrl})');
       }
     }
   }
@@ -157,7 +165,8 @@ class MachineService {
   }
 
   updateMacrosInSettings(Machine machine, List<String> macros) async {
-    _logger.i("Updating Default Macros!");
+    _logger
+        .i('Updating Default Macros for "${machine.name}(${machine.wsUrl})"!');
     MachineSettings machineSettings = await fetchSettings(machine);
     List<String> filteredMacros =
         macros.where((element) => !element.startsWith('_')).toList();
