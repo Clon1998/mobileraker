@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:mobileraker/datasource/moonraker_database_client.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
 import 'package:mobileraker/domain/moonraker/gcode_macro.dart';
 import 'package:mobileraker/domain/moonraker/machine_settings.dart';
 import 'package:mobileraker/domain/moonraker/macro_group.dart';
+import 'package:mobileraker/domain/moonraker/temperature_preset.dart';
 import 'package:mobileraker/repository/machine_hive_repository.dart';
 import 'package:mobileraker/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
@@ -43,38 +43,55 @@ class MachineService {
     MachineSettings? machineSettings =
         await _machineSettingsRepository.get(machine.jRpcClient);
     if (machineSettings == null) {
-      _logger.i('No MachineSettings found... Creating fallback');
-      machineSettings = MachineSettings.fallback();
+      machineSettings = _tryMigrateSettings(machine);
       await _machineSettingsRepository.update(machineSettings);
     }
 
     return machineSettings;
   }
 
-  Future<void> migrateAll() async {
-    List<Machine> all = await _machineRepo.fetchAll();
-    all.forEach((machine) {
-      try {
-        machine.jRpcClient.stateStream
-            .firstWhere((element) => element == ClientState.connected)
-            .timeout(Duration(seconds: 30))
-            .then((value) => _tryMigrateSettings(machine));
-      } on TimeoutException catch (e) {
-        _logger.w(
-            'Could not migrate ${machine.name}, no JRPC connection after 30sec');
-      }
-    });
-  }
+  MachineSettings _tryMigrateSettings(Machine machine) {
+    if (machine.speedXY == null) {
+      _logger.i('No MachineSettings found... Creating from fallback');
 
-  Future<void> _tryMigrateSettings(Machine machine) async {
-    _logger.wtf(Get.rootController.key.currentContext);
-    _logger.w('Asking migration permission for ${machine.name}');
-    var dialogResponse = await _dialogService.showDialog(
-        title: 'Migrate Settings for ${machine.name}?',
-        description:
-            'Detected local machine settings.\nMigrate to Moonraker Database or fallback to default settings?',
-        buttonTitle: 'Migrate',
-        cancelTitle: 'Use Defaults');
+      return MachineSettings.fallback();
+    } else {
+      _logger.i('No MachineSettings found... Migrating from known once');
+
+      List<TemperaturePreset> migratedTemps = machine.temperaturePresets
+          .map((element) => TemperaturePreset(
+              name: element.name,
+              uuid: element.uuid,
+              extruderTemp: element.extruderTemp,
+              bedTemp: element.bedTemp))
+          .toList();
+
+      List<MacroGroup> migratedMacroGrps = machine.macroGroups
+          .map((element) => MacroGroup(
+              name: element.name,
+              uuid: element.uuid,
+              macros: element.macros
+                  .map((element) =>
+                      GCodeMacro(name: element.name, uuid: element.uuid))
+                  .toList()))
+          .toList();
+
+      var machineSettings = MachineSettings(
+        temperaturePresets: migratedTemps,
+        inverts: machine.inverts,
+        speedXY: machine.speedXY!,
+        speedZ: machine.speedZ,
+        extrudeFeedrate: machine.extrudeFeedrate,
+        moveSteps: machine.moveSteps,
+        babySteps: machine.babySteps,
+        extrudeSteps: machine.extrudeSteps,
+        macroGroups: migratedMacroGrps,
+      );
+      machine
+        ..speedXY = null
+        ..save();
+      return machineSettings;
+    }
   }
 
   Future<void> updateSettings(
@@ -212,7 +229,8 @@ class MachineService {
       return group;
     });
     List<GCodeMacro> modifiableDefaultGrpMacros = defaultGroup.macros.toList();
-    modifiableDefaultGrpMacros.addAll(filteredMacros.map((e) => GCodeMacro(name: e)));
+    modifiableDefaultGrpMacros
+        .addAll(filteredMacros.map((e) => GCodeMacro(name: e)));
 
     defaultGroup.macros = modifiableDefaultGrpMacros;
     machineSettings.macroGroups = modifiableMacroGrps;
