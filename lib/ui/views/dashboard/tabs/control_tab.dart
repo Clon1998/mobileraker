@@ -52,7 +52,7 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
         key: PageStorageKey<String>('cTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
+          if (model.macroGroups.isNotEmpty) GcodeMacroCard(),
           if (model.printer.print.state != PrintState.printing)
             ExtruderControlCard(),
           MultipliersCard(),
@@ -323,7 +323,7 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
           ListTile(
             leading: Icon(FlutterIcons.code_braces_mco),
             title: Text('pages.dashboard.control.macro_card.title').tr(),
-            trailing: (model.macroGroups.isNotEmpty)
+            trailing: (model.macroGroups.length > 1)
                 ? DropdownButton(
                     value: model.selectedGrp,
                     onChanged: model.onMacroGroupSelected,

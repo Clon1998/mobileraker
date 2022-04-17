@@ -15,6 +15,7 @@ import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:mobileraker/util/misc.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 import 'app/app_setup.router.dart';
@@ -36,9 +37,9 @@ Future<void> main() async {
   setupBottomSheetUi();
   await FirebaseAnalytics.instance.logAppOpen();
   await setupCat();
+
   setupLicenseRegistry();
   initialRoute = await selectInitialRoute();
-
   runApp(EasyLocalization(
       child: MyApp(),
       supportedLocales: [Locale('en'), Locale('de')],
@@ -54,7 +55,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ThemeBuilder(
       themePacks: getThemePacks(context),
-      builder: (BuildContext context,ThemeData? regularTheme,ThemeData? darkTheme,ThemeMode? themeMode) {
+      builder: (BuildContext context, ThemeData? regularTheme,
+          ThemeData? darkTheme, ThemeMode? themeMode) {
         return MaterialApp(
           title: 'Mobileraker',
           theme: regularTheme,
@@ -65,7 +67,8 @@ class MyApp extends StatelessWidget {
           initialRoute: initialRoute,
           localizationsDelegates: [
             FormBuilderLocalizations.delegate,
-            ...context.localizationDelegates
+            ...context.localizationDelegates,
+            RefreshLocalizations.delegate,
           ],
           supportedLocales: context.supportedLocales,
           locale: context.locale,

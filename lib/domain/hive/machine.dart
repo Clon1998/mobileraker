@@ -33,8 +33,8 @@ class Machine extends HiveObject {
   String httpUrl;
   @HiveField(7, defaultValue: [false, false, false])
   List<bool> inverts; // [X,Y,Z]
-  @HiveField(8, defaultValue: 100)
-  int speedXY;
+  @HiveField(8)
+  int? speedXY;
   @HiveField(9, defaultValue: 30)
   int speedZ;
   @HiveField(10, defaultValue: 5)
