@@ -20,6 +20,7 @@ class MachineService {
   final _logger = getLogger('MachineService');
   final _machineRepo = locator<MachineHiveRepository>();
   final _selectedMachineService = locator<SelectedMachineService>();
+  final _dialogService = locator<DialogService>();
   final MachineSettingsMoonrakerRepository _machineSettingsRepository =
       locator<MachineSettingsMoonrakerRepository>();
 
@@ -38,6 +39,7 @@ class MachineService {
   }
 
   Future<MachineSettings> fetchSettings(Machine machine) async {
+    // await _tryMigrateSettings(machine);
     MachineSettings? machineSettings =
         await _machineSettingsRepository.get(machine.jRpcClient);
     if (machineSettings == null) {
@@ -47,6 +49,32 @@ class MachineService {
     }
 
     return machineSettings;
+  }
+
+  Future<void> migrateAll() async {
+    List<Machine> all = await _machineRepo.fetchAll();
+    all.forEach((machine) {
+      try {
+        machine.jRpcClient.stateStream
+            .firstWhere((element) => element == ClientState.connected)
+            .timeout(Duration(seconds: 30))
+            .then((value) => _tryMigrateSettings(machine));
+      } on TimeoutException catch (e) {
+        _logger.w(
+            'Could not migrate ${machine.name}, no JRPC connection after 30sec');
+      }
+    });
+  }
+
+  Future<void> _tryMigrateSettings(Machine machine) async {
+    _logger.wtf(Get.rootController.key.currentContext);
+    _logger.w('Asking migration permission for ${machine.name}');
+    var dialogResponse = await _dialogService.showDialog(
+        title: 'Migrate Settings for ${machine.name}?',
+        description:
+            'Detected local machine settings.\nMigrate to Moonraker Database or fallback to default settings?',
+        buttonTitle: 'Migrate',
+        cancelTitle: 'Use Defaults');
   }
 
   Future<void> updateSettings(
@@ -170,21 +198,25 @@ class MachineService {
     MachineSettings machineSettings = await fetchSettings(machine);
     List<String> filteredMacros =
         macros.where((element) => !element.startsWith('_')).toList();
-    List<MacroGroup> macroGroups = machineSettings.macroGroups;
-    for (MacroGroup grp in macroGroups) {
+    List<MacroGroup> modifiableMacroGrps = machineSettings.macroGroups.toList();
+    for (MacroGroup grp in modifiableMacroGrps) {
       for (GCodeMacro macro in grp.macros) {
         filteredMacros.remove(macro.name);
       }
     }
 
-    MacroGroup defaultGroup = macroGroups
+    MacroGroup defaultGroup = modifiableMacroGrps
         .firstWhere((element) => element.name == 'Default', orElse: () {
       MacroGroup group = MacroGroup(name: 'Default');
-      macroGroups.add(group);
+      modifiableMacroGrps.add(group);
       return group;
     });
+    List<GCodeMacro> modifiableDefaultGrpMacros = defaultGroup.macros.toList();
+    modifiableDefaultGrpMacros.addAll(filteredMacros.map((e) => GCodeMacro(name: e)));
 
-    defaultGroup.macros.addAll(filteredMacros.map((e) => GCodeMacro(name: e)));
+    defaultGroup.macros = modifiableDefaultGrpMacros;
+    machineSettings.macroGroups = modifiableMacroGrps;
+    await _machineSettingsRepository.update(machineSettings);
   }
 
   dispose() {
