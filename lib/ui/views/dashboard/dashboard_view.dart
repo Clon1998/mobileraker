@@ -51,7 +51,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
           ],
         ),
         body: ConnectionStateView(
-          body: (model.isPrinterAvailable)
+          onConnected: (model.isPrinterAvailable)
               ? Theme(
                   data: Theme.of(context)
                       .copyWith(canvasColor: Colors.transparent),

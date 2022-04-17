@@ -310,7 +310,8 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
         var speedXY = currentState.value['speedXY'];
         var speedZ = currentState.value['speedZ'];
         var extrudeSpeed = currentState.value['extrudeSpeed'];
-        var blub = MachineSettings(
+
+        await _machineService.updateSettings(machine, MachineSettings(
             created: machineSettings.created,
             lastModified: DateTime.now(),
             macroGroups: _macroGroups,
@@ -321,9 +322,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
             extrudeFeedrate: extrudeSpeed,
             inverts: inverts,
             speedXY: speedXY,
-            speedZ: speedZ);
-
-        await _machineService.updateSettings(machine, blub);
+            speedZ: speedZ));
       }
       await _machineService.updateMachine(machine);
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {

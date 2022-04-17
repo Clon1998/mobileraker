@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
@@ -71,6 +73,8 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
     Exception? errorReason = _jRpcClient?.errorReason;
     if (_jRpcClient?.requiresAPIKey ?? false)
       return 'It seems like you configured trusted clients for moonraker. Please add the API key in the printers settings!';
+    else if (errorReason is TimeoutException)
+      return 'A timeout occurred while trying to connect to the machine! Ensure the machine can be reached from your current network...';
     else if (errorReason != null)
       return errorReason.toString();
     else

@@ -27,7 +27,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         appBar: buildAppBar(context, model),
         drawer: NavigationDrawerWidget(curPath: Routes.filesView),
         body: ConnectionStateView(
-          body: buildBody(context, model),
+          onConnected: buildBody(context, model),
         ),
       ),
     );

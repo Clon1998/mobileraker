@@ -21,9 +21,9 @@ class ConnectionStateView
   bool get initialiseSpecialViewModelsOnce => true;
 
   // Widget to show when ws is Connected
-  final Widget body;
+  final Widget onConnected;
 
-  ConnectionStateView({Key? key, required this.body})
+  ConnectionStateView({Key? key, required this.onConnected})
       : super(key: key);
 
   @override
@@ -74,7 +74,7 @@ class ConnectionStateView
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.warning_amber_outlined),
+              Icon(Icons.warning_amber_outlined,  size: 50,color: Theme.of(context).colorScheme.error),
               SizedBox(
                 height: 30,
               ),
@@ -109,7 +109,7 @@ class ConnectionStateView
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.warning_amber_outlined),
+              Icon(Icons.warning_amber_outlined, size: 50,color: Theme.of(context).colorScheme.error,),
               SizedBox(
                 height: 20,
               ),
@@ -129,7 +129,7 @@ class ConnectionStateView
 
   Widget _widgetForKlippyServerState(
       BuildContext context, ConnectionStateViewModel model) {
-    if (model.isPrinterAvailable) return body;
+    if (model.isPrinterAvailable) return onConnected;
     switch (model.server.klippyState) {
       case KlipperState.disconnected:
       case KlipperState.shutdown:
@@ -202,7 +202,7 @@ class ConnectionStateView
         );
       case KlipperState.ready:
       default:
-        return body;
+        return onConnected;
     }
   }
 

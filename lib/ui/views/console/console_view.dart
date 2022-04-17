@@ -28,7 +28,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
       appBar: _buildAppBar(context, model),
       drawer: NavigationDrawerWidget(curPath: Routes.consoleView),
       body: ConnectionStateView(
-        body: _buildBody(context, model),
+        onConnected: _buildBody(context, model),
       ),
     );
   }
