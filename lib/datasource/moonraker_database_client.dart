@@ -93,7 +93,7 @@ class MoonrakerDatabaseClient {
     }
     client ??= _selectedMachineService.selectedMachine.value!.jRpcClient;
     if (client.stateStream.valueOrNull != ClientState.connected) {
-      throw WebSocketException('JsonRpcClient is not connected');
+      throw WebSocketException('JsonRpcClient is not connected. Target-URL: ${client.url}');
     }
     return client;
   }

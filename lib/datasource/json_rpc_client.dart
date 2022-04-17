@@ -84,7 +84,7 @@ class JsonRpcClient {
   ClientState get _state => stateStream.value;
 
   set _state(ClientState newState) {
-    _logger.i('$_state ➝ $newState');
+    _logger.i('[$url] $_state ➝ $newState');
     stateStream.add(newState);
   }
 
@@ -114,7 +114,7 @@ class JsonRpcClient {
   bool ensureConnection() {
     if (_state != ClientState.connected &&
         _state != ClientState.connecting) {
-      _logger.i('WS not connected! connecting...');
+      _logger.i('[$url] WS not connected! connecting...');
       openChannel();
       return false;
     }
@@ -127,7 +127,7 @@ class JsonRpcClient {
     var jsonRpc = _constructJsonRPCMessage(method, params: params);
     var mId = jsonRpc['id'];
     if (onReceive != null) _requests[mId] = onReceive;
-    _logger.d('Sending for method "$method" with ID $mId');
+    _logger.d('[$url] Sending for method "$method" with ID $mId');
 
     _send(jsonEncode(jsonRpc));
   }
@@ -139,7 +139,7 @@ class JsonRpcClient {
     _requests[mId] = _completerCallback;
     var completer = Completer<RpcResponse>();
     _requestsBlocking[mId] = completer;
-    _logger.d('Sending(Blocking) for method "$method" with ID $mId');
+    _logger.d('[$url] Sending(Blocking) for method "$method" with ID $mId');
     _send(jsonEncode(jsonRpc));
     return completer.future;
   }
@@ -206,7 +206,7 @@ class JsonRpcClient {
 
   /// Sends a message to the server
   _send(String message) {
-    _logger.d('>>> $message');
+    _logger.d('[$url] >>> $message');
     _channel?.sink.add(message);
   }
 
@@ -214,10 +214,10 @@ class JsonRpcClient {
   _onChannelMessage(message) {
     Map<String, dynamic> result = jsonDecode(message);
     var mId = result['id'];
-    _logger.d('@Rec (messageId: $mId): $message');
+    _logger.d('[$url] @Rec (messageId: $mId): $message');
 
     if (result['error'] != null && result['error']['message'] != null) {
-      _logger.e('Error message received: $message');
+      _logger.e('[$url] Error message received: $message');
       if (mId != null && _requests.containsKey(mId)) {
         Function foundHandler = _requests.remove(mId)!;
         foundHandler(result, err: result['error']);
@@ -243,7 +243,7 @@ class JsonRpcClient {
   _completerCallback(Map<String, dynamic> response,
       {Map<String, dynamic>? err}) {
     var mId = response['id'];
-    _logger.d('Received(Blocking) for id: "$mId"');
+    _logger.d('[$url] Received(Blocking) for id: "$mId"');
     if (_requestsBlocking.containsKey(mId)) {
       Completer completer = _requestsBlocking.remove(mId)!;
       completer.complete(RpcResponse(response, err));
@@ -251,7 +251,7 @@ class JsonRpcClient {
   }
 
   _onChannelError(error) {
-    _logger.e('WS-Stream error: $error');
+    _logger.e('[$url] WS-Stream error: $error');
     errorReason = error;
     _state = ClientState.error;
   }
@@ -263,7 +263,7 @@ class JsonRpcClient {
     }
     if (!stateStream.isClosed) _state = t;
     openChannel();
-    _logger.i('WS-Stream close normal!');
+    _logger.i('[$url] WS-Stream close normal!');
   }
 
   dispose() {
