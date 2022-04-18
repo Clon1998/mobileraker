@@ -34,6 +34,11 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   }
 
   AppBar buildAppBar(BuildContext context, FilesViewModel model) {
+    var themeData = Theme.of(context);
+
+    var onBackground =  themeData.appBarTheme.foregroundColor
+    ?? (themeData.colorScheme.brightness == Brightness.dark ? themeData.colorScheme.onSurface : themeData.colorScheme.onPrimary);
+
     if (model.isSearching) {
       return AppBar(
         leading: IconButton(
@@ -45,16 +50,17 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
             onChanged: (str) => model.notifyListeners(),
             controller: model.searchEditingController,
             autofocus: true,
-            style: Theme.of(context).primaryTextTheme.headline6,
+            style: themeData.textTheme.headline6?.copyWith(color: onBackground),
             decoration: InputDecoration(
               hintText: '${tr('pages.files.search_files')}...',
+              hintStyle: themeData.textTheme.headline6?.copyWith(color: onBackground.withOpacity(0.5)),
               border: InputBorder.none,
               suffixIcon: model.searchEditingController.text.isEmpty
                   ? null
                   : IconButton(
                       tooltip: 'pages.files.clear_search'.tr(),
                       icon: Icon(Icons.close),
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: onBackground,
                       onPressed: model.resetSearchQuery,
                     ),
             ),

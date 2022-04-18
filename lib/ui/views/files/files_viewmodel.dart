@@ -210,11 +210,11 @@ class FilesViewModel extends MultipleStreamViewModel {
       RegExp regExp =
           RegExp(terms.where((element) => element.isNotEmpty).join("|"));
       folders = folders
-          .where((element) => element.name.toLowerCase().contains(regExp))
+          .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
           .toList(growable: false);
 
       files = files
-          .where((element) => element.name.toLowerCase().contains(regExp))
+          .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
           .toList(growable: false);
     }
     var folderComparator = folderComparators[selectedSorting];

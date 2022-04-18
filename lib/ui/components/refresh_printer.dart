@@ -24,7 +24,6 @@ class PullToRefreshPrinter
         idleIcon: Icon(Icons.arrow_downward, color: onBackground),
         releaseIcon: Icon(Icons.refresh, color: onBackground),
       ),
-
       controller: model.refreshController,
       onRefresh: model.onRefresh,
       child: child,
