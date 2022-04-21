@@ -13,6 +13,7 @@ import 'package:mobileraker/domain/moonraker/temperature_preset.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
+import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_viewmodel.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:stacked/stacked.dart';
@@ -298,6 +299,8 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
       //   ..babySteps = printerBabySteps
       //   ..macroGroups = macroGroups
       //   ..extrudeSteps = printerExtruderSteps;
+      await _machineService.updateMachine(machine);
+
       if (!settingsHasError &&
           !printerHasError &&
           !isFetchingPrinter &&
@@ -324,7 +327,6 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
             speedXY: speedXY,
             speedZ: speedZ));
       }
-      await _machineService.updateMachine(machine);
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
       } else {
@@ -366,13 +368,13 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
     notifyListeners();
   }
 
-  onImportSettings() {
+  onImportSettings(MaterialLocalizations materialLocalizations) {
     _dialogService
         .showCustomDialog(
             variant: DialogType.importSettings,
             title: 'Copy Settings',
-            mainButtonTitle: 'Copy',
-            secondaryButtonTitle: 'Cancle',
+            mainButtonTitle: materialLocalizations.copyButtonLabel,
+            secondaryButtonTitle: materialLocalizations.cancelButtonLabel.capitalizeFirst,
             data: machine)
         .then(onImportSettingsReturns);
   }
@@ -381,40 +383,41 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
     if (response != null && response.confirmed) {
       FormBuilderState currentState = _fbKey.currentState!;
       ImportSettingsDialogViewResults result = response.data;
-      Machine src = result.source;
+      ImportMachineSettingsDto importDto = result.source;
+      MachineSettings settings  = importDto.machineSettings;
       Map<String, dynamic> patchingValues = {};
       for (String field in result.fields) {
         switch (field) {
           case 'invertX':
-            patchingValues[field] = src.inverts[0];
+            patchingValues[field] = settings.inverts[0];
             break;
           case 'invertY':
-            patchingValues[field] = src.inverts[1];
+            patchingValues[field] = settings.inverts[1];
             break;
           case 'invertZ':
-            patchingValues[field] = src.inverts[2];
+            patchingValues[field] = settings.inverts[2];
             break;
           case 'speedXY':
-            patchingValues[field] = src.speedXY.toString();
+            patchingValues[field] = settings.speedXY.toString();
             break;
           case 'speedZ':
-            patchingValues[field] = src.speedZ.toString();
+            patchingValues[field] = settings.speedZ.toString();
             break;
           case 'extrudeSpeed':
-            patchingValues[field] = src.extrudeFeedrate.toString();
+            patchingValues[field] = settings.extrudeFeedrate.toString();
             break;
           case 'moveSteps':
             printerMoveSteps.clear();
-            printerMoveSteps.addAll(src.moveSteps);
+            printerMoveSteps.addAll(settings.moveSteps);
 
             break;
           case 'babySteps':
             printerBabySteps.clear();
-            printerBabySteps.addAll(src.babySteps);
+            printerBabySteps.addAll(settings.babySteps);
             break;
           case 'extrudeSteps':
             printerExtruderSteps.clear();
-            printerExtruderSteps.addAll(src.extrudeSteps);
+            printerExtruderSteps.addAll(settings.extrudeSteps);
             break;
         }
       }

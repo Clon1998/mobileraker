@@ -1,21 +1,31 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/domain/hive/temperature_preset.dart';
+import 'package:mobileraker/domain/moonraker/temperature_preset.dart';
+import 'package:mobileraker/domain/moonraker/machine_settings.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class ImportSettingsViewModel extends FutureViewModel<List<Machine>> {
+class ImportMachineSettingsDto {
+  ImportMachineSettingsDto(this.machine, this.machineSettings);
+
+  final Machine machine;
+  final MachineSettings machineSettings;
+}
+
+class ImportSettingsViewModel extends FutureViewModel<List<ImportMachineSettingsDto>> {
   final _machineService = locator<MachineService>();
   final DialogRequest request;
   final Function(DialogResponse) completer;
 
   final _fbKey = GlobalKey<FormBuilderState>();
   late final Machine _target;
-  Machine? _selectedSource;
+  ImportMachineSettingsDto? _selectedSource;
 
   Key get formKey => _fbKey;
 
@@ -25,18 +35,31 @@ class ImportSettingsViewModel extends FutureViewModel<List<Machine>> {
     _target = request.data;
   }
 
-  @override
-  Future<List<Machine>> futureToRun() =>
-      _machineService.fetchAll().then((value) =>
-          value.where((element) => element != _target).toList(growable: false));
 
-  List<TemperaturePreset> get presets {
-    return _selectedSource?.temperaturePresets ?? List.empty();
+  @override
+  Future<List<ImportMachineSettingsDto>> futureToRun() async {
+    Iterable<Machine> machines = (await _machineService.fetchAll()).where((element) => element != _target);
+    Iterable<Future<ImportMachineSettingsDto?>> map = machines.map((e) async {
+      try {
+        MachineSettings machineSettings = await _machineService.fetchSettings(e).timeout(Duration(seconds: 2));
+        return ImportMachineSettingsDto(e, machineSettings);
+      } catch (e) {
+        return null;
+      }
+    });
+    List<ImportMachineSettingsDto?> rawList = await Future.wait(map);
+    return rawList.whereType<ImportMachineSettingsDto>().toList(growable: false);
   }
 
-  onSourceSelected(Machine? machine) {
-    if (machine != _selectedSource) {
-      _selectedSource = machine;
+
+
+  List<TemperaturePreset> get presets {
+    return _selectedSource?.machineSettings.temperaturePresets ?? List.empty();
+  }
+
+  onSourceSelected(ImportMachineSettingsDto? machineAndSettings) {
+    if (machineAndSettings != _selectedSource) {
+      _selectedSource = machineAndSettings;
       notifyListeners();
     }
   }

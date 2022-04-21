@@ -38,7 +38,6 @@ class _NonPrintingBottomSheet
   Widget builder(BuildContext context, NonPrintingBottomSheetViewModel model,
       Widget? child) {
     var themeData = Theme.of(context);
-    var isDark = themeData.brightness == Brightness.dark;
     var buttonStyle = ElevatedButton.styleFrom(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18.0),
@@ -71,7 +70,7 @@ class _NonPrintingBottomSheet
                 margin: const EdgeInsets.symmetric(horizontal: 10),
                 child: Icon(
                   FlutterIcons.raspberry_pi_faw5d,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: themeData.colorScheme.onBackground,
                 ),
               ),
               Flexible(
@@ -102,7 +101,7 @@ class _NonPrintingBottomSheet
               onPressed: model.onRestartMCUPressed,
               buttonStyle: buttonStyle),
           ElevatedButton.icon(
-            label: Text('general.close').tr(),
+            label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
             icon: Icon(Icons.keyboard_arrow_down),
             onPressed: model.onClosePressed,
             style: buttonStyle,

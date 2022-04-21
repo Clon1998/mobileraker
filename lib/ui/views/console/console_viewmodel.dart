@@ -78,7 +78,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
         RegExp(terms.where((element) => element.isNotEmpty).join("|"));
 
     return history
-        .where((element) => element.toLowerCase().contains(regExp))
+        .where((element) => terms.every((t) => element.toLowerCase().contains(t)))
         .toList(growable: false);
   }
 

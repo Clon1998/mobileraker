@@ -15,6 +15,7 @@ import 'package:mobileraker/ui/views/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/general_tab.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 import 'dashboard_viewmodel.dart';
 
@@ -81,7 +82,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SpinKitFadingCube(
-                        color: Colors.orange,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       SizedBox(
                         height: 30,
@@ -191,7 +192,7 @@ class PausedFAB extends ViewModelWidget<DashboardViewModel> {
         SpeedDialChild(
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
-          label: tr('general.cancel'),
+          label: MaterialLocalizations.of(context).cancelButtonLabel.capitalizeFirst,
           onTap: model.onCancelPrintPressed,
         ),
         SpeedDialChild(

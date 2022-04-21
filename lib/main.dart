@@ -17,7 +17,7 @@ import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked_services/stacked_services.dart';
-
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'app/app_setup.router.dart';
 
 String? initialRoute;
@@ -66,6 +66,9 @@ class MyApp extends StatelessWidget {
           onGenerateRoute: StackedRouter().onGenerateRoute,
           initialRoute: initialRoute,
           localizationsDelegates: [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
             FormBuilderLocalizations.delegate,
             ...context.localizationDelegates,
             RefreshLocalizations.delegate,

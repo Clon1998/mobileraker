@@ -290,7 +290,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Text(
               '/',
-              style: theme.textTheme.subtitle1?.copyWith(color: Colors.white),
+              style: theme.textTheme.subtitle1?.copyWith(color: theme.colorScheme.onPrimary),
 
             ),
           ),

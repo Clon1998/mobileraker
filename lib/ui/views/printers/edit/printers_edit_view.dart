@@ -35,7 +35,7 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                   FlutterIcons.import_mco,
                 ),
                 tooltip: 'pages.printer_edit.import_settings'.tr(),
-                onPressed: model.onImportSettings),
+                onPressed: () =>  model.onImportSettings(MaterialLocalizations.of(context))),
         ],
       ),
       floatingActionButton: FloatingActionButton(

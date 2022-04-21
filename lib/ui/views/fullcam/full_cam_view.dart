@@ -77,7 +77,7 @@ class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
             alignment: Alignment.bottomRight,
             child: IconButton(
               icon: Icon(Icons.close_fullscreen_outlined),
-              tooltip: 'general.close'.tr(),
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: model.onCloseTapped,
             ),
           ),
