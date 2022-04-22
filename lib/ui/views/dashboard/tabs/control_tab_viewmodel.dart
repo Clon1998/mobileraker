@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
@@ -121,14 +123,17 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     switch (key) {
       case _SelectedPrinterStreamKey:
         Machine? nmachine = data;
-        if (nmachine == _machine && nmachine.hashCode == _machineHashCode) break;
+        if (nmachine == _machine && nmachine.hashCode == _machineHashCode)
+          break;
         _machine = nmachine;
         _machineHashCode = nmachine.hashCode;
         notifySourceChanged(clearOldData: true);
         break;
       case _MachineSettingsStreamKey:
-        if (machineSettings.macroGroups.isNotEmpty)
-          selectedGrp = machineSettings.macroGroups.first;
+        if (machineSettings.macroGroups.isNotEmpty) {
+          int idx = min(machineSettings.macroGroups.length-1,max(0, _settingService.readInt(selectedGCodeGrpIndex, 0)));
+          selectedGrp = machineSettings.macroGroups[idx];
+        }
         break;
       default:
         // Do nothing
@@ -217,6 +222,9 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   }
 
   onMacroGroupSelected(MacroGroup? macroGroup) {
+    if (macroGroup != null)
+      _settingService.writeInt(
+          selectedGCodeGrpIndex, macroGroups.indexOf(macroGroup));
     selectedGrp = macroGroup;
   }
 

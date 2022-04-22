@@ -5,6 +5,7 @@ const String showBabyAlwaysKey = 'always_babystepping_setting';
 const String useTextInputForNumKey = 'text_inpt_for_num_fields';
 const String startWithOverviewKey = 'start_with_overview';
 const String selectedThemePackKey = 'selectedThemePack';
+const String selectedGCodeGrpIndex = 'selGCodeGrp';
 
 /// Settings related to the App!
 class SettingService {
