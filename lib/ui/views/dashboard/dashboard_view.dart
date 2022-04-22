@@ -56,25 +56,14 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
               ? Theme(
                   data: Theme.of(context)
                       .copyWith(canvasColor: Colors.transparent),
-                  child: PageTransitionSwitcher(
-                    duration: kThemeAnimationDuration,
-                    reverse: model.reverse,
-                    transitionBuilder: (
-                      Widget child,
-                      Animation<double> animation,
-                      Animation<double> secondaryAnimation,
-                    ) {
-                      return SharedAxisTransition(
-                        child: child,
-                        animation: animation,
-                        secondaryAnimation: secondaryAnimation,
-                        transitionType: SharedAxisTransitionType.horizontal,
-                      );
-                    },
-                    child: Theme(
-                        data: Theme.of(context),
-                        child: _getViewForIndex(model.currentIndex)),
-                  ),
+                  child: PageView(
+                    controller: model.pageController,
+                    onPageChanged: model.onPageChanged,
+                    children: [
+                      GeneralTab(),
+                      ControlTab()
+                    ],
+                  )
                 )
               : Center(
                   child: Column(
@@ -119,7 +108,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                     Theme.of(context).colorScheme.primary,
                 notchSmoothness: NotchSmoothness.softEdge,
                 activeIndex: model.currentIndex,
-                onTap: model.setIndex,
+                onTap: model.onBottomNavTapped,
               )
             : null,
         drawer: NavigationDrawerWidget(curPath: Routes.dashboardView),

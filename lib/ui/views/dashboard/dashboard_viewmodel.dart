@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
@@ -25,6 +26,8 @@ class DashboardViewModel extends MultipleStreamViewModel {
   final _machineService = locator<MachineService>();
   final _selectedMachineService = locator<SelectedMachineService>();
   final _settingService = locator<SettingService>();
+
+  final PageController pageController = PageController();
 
   Machine? _machine;
 
@@ -54,13 +57,19 @@ class DashboardViewModel extends MultipleStreamViewModel {
   /// This is very helpful for the page transition directions.
   bool get reverse => _reverse;
 
-  setIndex(int value) {
+  onPageChanged(int index) {
+    _currentIndex = index;
+    notifyListeners();
+  }
+
+  onBottomNavTapped(int value) {
     if (value < _currentIndex) {
       _reverse = true;
     } else {
       _reverse = false;
     }
     _currentIndex = value;
+    pageController.animateToPage(_currentIndex, duration: kThemeChangeDuration, curve: Curves.ease);
     notifyListeners();
   }
 
