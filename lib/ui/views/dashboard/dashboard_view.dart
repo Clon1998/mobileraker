@@ -59,12 +59,8 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                   child: PageView(
                     controller: model.pageController,
                     onPageChanged: model.onPageChanged,
-                    children: [
-                      GeneralTab(),
-                      ControlTab()
-                    ],
-                  )
-                )
+                    children: [GeneralTab(), ControlTab()],
+                  ))
               : Center(
                   child: Column(
                     key: UniqueKey(),
@@ -181,7 +177,9 @@ class PausedFAB extends ViewModelWidget<DashboardViewModel> {
         SpeedDialChild(
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
-          label: MaterialLocalizations.of(context).cancelButtonLabel.capitalizeFirst,
+          label: MaterialLocalizations.of(context)
+              .cancelButtonLabel
+              .capitalizeFirst,
           onTap: model.onCancelPrintPressed,
         ),
         SpeedDialChild(

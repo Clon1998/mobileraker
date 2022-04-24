@@ -109,6 +109,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
           'Extruder: 170°C\n'
           'Bed: ${_file.firstLayerTempBed?.toStringAsFixed(0)}°C',
       confirmationTitle: "Preheat",
+        dialogPlatform: DialogPlatform.Material
     )
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false) {

@@ -74,6 +74,8 @@ dependencies:
   purchases_flutter: ^3.9.5
   webview_flutter: ^2.8.0
   json_annotation: ^4.4.0
+  fl_chart: ^0.50.1
+  flutter_slidable: ^1.2.0
 
 dev_dependencies:
   flutter_test:

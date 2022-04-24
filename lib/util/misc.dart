@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/service/machine_service.dart';
@@ -78,4 +79,23 @@ Future<String?> selectInitialRoute() async {
   if (c == 1) return null;
 
   return Routes.overViewView;
+}
+
+
+FormFieldValidator<T> notContains<T>(
+    BuildContext context,
+    List<T> blockList, {
+      String? errorText,
+    }) {
+  return (T? valueCandidate) {
+    if (valueCandidate != null) {
+      assert(!(valueCandidate is List) && !(valueCandidate is Map) && !(valueCandidate is Set));
+
+      if (blockList.contains(valueCandidate)) {
+        return errorText ??
+            'Value in Blocklist!';
+      }
+    }
+    return null;
+  };
 }

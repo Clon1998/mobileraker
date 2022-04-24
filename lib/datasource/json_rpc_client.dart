@@ -14,6 +14,14 @@ enum ClientState { disconnected, connecting, connected, error }
 typedef RpcCallback = Function(Map<String, dynamic> response,
     {Map<String, dynamic>? err});
 
+class JRpcError implements Exception {
+  JRpcError(this.code, this.message);
+
+  final int code;
+
+  final String message;
+}
+
 class RpcResponse {
   RpcResponse(this.response, this.err);
 
@@ -112,8 +120,7 @@ class JsonRpcClient {
   /// Ensures that the ws is still connected.
   /// returns [bool] regarding if the connection still was valid/open!
   bool ensureConnection() {
-    if (_state != ClientState.connected &&
-        _state != ClientState.connecting) {
+    if (_state != ClientState.connected && _state != ClientState.connecting) {
       _logger.i('[$url] WS not connected! connecting...');
       openChannel();
       return false;
@@ -246,7 +253,10 @@ class JsonRpcClient {
     _logger.d('[$url] Received(Blocking) for id: "$mId"');
     if (_requestsBlocking.containsKey(mId)) {
       Completer completer = _requestsBlocking.remove(mId)!;
-      completer.complete(RpcResponse(response, err));
+      if (err != null)
+        completer.completeError(JRpcError(err['code'], err['message']));
+      else
+        completer.complete(RpcResponse(response, err));
     }
   }
 

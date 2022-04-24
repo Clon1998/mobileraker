@@ -39,7 +39,9 @@ class _NonPrintingBottomSheet
       Widget? child) {
     var themeData = Theme.of(context);
     var buttonStyle = ElevatedButton.styleFrom(
+      padding: EdgeInsets.symmetric(horizontal: 22),
         shape: RoundedRectangleBorder(
+
           borderRadius: BorderRadius.circular(18.0),
         ));
 

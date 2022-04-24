@@ -1,10 +1,14 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/dto/files/file.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
@@ -15,6 +19,9 @@ import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/ui/components/dialog/renameFile/rename_file_dialog_view.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
+import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:mobileraker/util/path_utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rxdart/rxdart.dart';
@@ -29,11 +36,15 @@ const String _ServerStreamKey = 'server';
 class FilesViewModel extends MultipleStreamViewModel {
   final _logger = getLogger('FilesViewModel');
 
+  final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
   final _bottomSheetService = locator<BottomSheetService>();
   final _selectedMachineService = locator<SelectedMachineService>();
+  final _snackBarService = locator<SnackbarService>();
 
   bool isSearching = false;
+
+  int bottomNavIndex = 0;
 
   int selectedSorting = 0;
 
@@ -42,11 +53,11 @@ class FilesViewModel extends MultipleStreamViewModel {
     (folderA, folderB) => folderA.name.compareTo(folderB.name),
     null,
   ];
-  List<Comparator<GCodeFile>?> fileComparators = [
-    (fileA, fileB) => fileB.modified.compareTo(fileA.modified),
-    (fileA, fileB) => fileA.name.compareTo(fileB.name),
-    (fileA, fileB) =>
-        fileB.printStartTime?.compareTo(fileA.printStartTime ?? 0) ?? -1,
+
+  late List<Comparator<File>?> fileComparators = [
+    comperatorModified,
+    comperatorName,
+    comperatorPrintStart
   ];
 
   Machine? _machine;
@@ -66,6 +77,8 @@ class FilesViewModel extends MultipleStreamViewModel {
   List<String> requestedPath = [];
 
   String get requestedPathAsString => requestedPath.join('/');
+
+  Map<int, List<String>> lastPaths = {};
 
   @override
   Map<String, StreamData> get streamsMap => {
@@ -103,20 +116,209 @@ class FilesViewModel extends MultipleStreamViewModel {
     }
   }
 
+  onBottomItemTapped(int index) {
+    if (index == bottomNavIndex) return;
+
+    if (requestedPath.isNotEmpty) lastPaths[bottomNavIndex] = requestedPath;
+    bottomNavIndex = index;
+    List<String>? newPath =
+        (lastPaths.containsKey(index)) ? lastPaths[index] : null;
+    selectedSorting = 0;
+    switch (index) {
+      case 0:
+        newPath ??= const ['gcodes'];
+        break;
+      case 1:
+        newPath ??= const ['config'];
+        break;
+      default:
+      // Do nothing
+    }
+
+    _busyFetchDirectoryData(newPath: newPath!);
+  }
+
+  onCreateDirTapped(BuildContext context) async {
+    DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
+        variant: DialogType.renameFile,
+        title: tr('dialogs.create_folder.title'),
+        description: tr('dialogs.create_folder.label'),
+        mainButtonTitle: tr('general.create'),
+        secondaryButtonTitle: MaterialLocalizations.of(context)
+                .cancelButtonLabel
+                .capitalizeFirst ??
+            'Cancel',
+        data: RenameFileDialogArguments(
+            initialValue: '',
+            matchPattern: '^[A-z0-9._\-]+\$'));
+    if (dialogResponse?.confirmed ?? false) {
+      String folderName = dialogResponse!.data;
+
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.createDir('$requestedPathAsString/$folderName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not create folder!\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onDeleteFileTapped(BuildContext context, String fileName) async {
+    var materialLocalizations = MaterialLocalizations.of(context);
+    DialogResponse? dialogResponse =
+        await _dialogService.showConfirmationDialog(
+            title: tr('dialogs.delete_folder.title'),
+            description: tr('dialogs.delete_file.description',args: [fileName]),
+            dialogPlatform: DialogPlatform.Material,
+            confirmationTitle: materialLocalizations.deleteButtonTooltip,
+            cancelTitle:
+                materialLocalizations.cancelButtonLabel.capitalizeFirst ??
+                    'Cancel');
+
+    if (dialogResponse?.confirmed ?? false) {
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.deleteFile('$requestedPathAsString/$fileName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not perform rename.\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onDeleteDirTapped(BuildContext context, String fileName) async {
+    var materialLocalizations = MaterialLocalizations.of(context);
+    DialogResponse? dialogResponse = await _dialogService.showConfirmationDialog(
+        title: tr('dialogs.delete_folder.title'),
+        description: tr('dialogs.delete_folder.description',args: [fileName]),
+        dialogPlatform: DialogPlatform.Material,
+        confirmationTitle: materialLocalizations.deleteButtonTooltip,
+        cancelTitle: materialLocalizations.cancelButtonLabel.capitalizeFirst ??
+            'Cancel');
+
+    if (dialogResponse?.confirmed ?? false) {
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.deleteDirForced('$requestedPathAsString/$fileName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not perform rename.\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onRenameFileTapped(BuildContext context, String fileName) async {
+    List<String> fileNames = [];
+    fileNames.addAll(_folderContent.folders.map((e) => e.name));
+    fileNames.addAll(_folderContent.files.map((e) => e.name));
+    fileNames.remove(fileName);
+
+    DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
+        variant: DialogType.renameFile,
+        title: tr('dialogs.rename_file.title'),
+        description: tr('dialogs.rename_file.label'),
+        mainButtonTitle: tr('general.rename'),
+        secondaryButtonTitle: MaterialLocalizations.of(context)
+                .cancelButtonLabel
+                .capitalizeFirst ??
+            'Cancel',
+        data: RenameFileDialogArguments(
+            initialValue: fileName,
+            blocklist: fileNames,
+            fileExt: 'gcode',
+            matchPattern: '^[A-z0-9.#+_\-]+\$'));
+    if (dialogResponse != null && dialogResponse.confirmed) {
+      String newName = dialogResponse.data;
+      if (newName == fileName) return;
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.moveFile('$requestedPathAsString/$fileName',
+            '$requestedPathAsString/$newName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not perform rename.\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onRenameDirTapped(BuildContext context, String fileName) async {
+    List<String> fileNames = [];
+    fileNames.addAll(_folderContent.folders.map((e) => e.name));
+    fileNames.addAll(_folderContent.files.map((e) => e.name));
+    fileNames.remove(fileName);
+
+    DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
+        variant: DialogType.renameFile,
+        title: tr('dialogs.rename_folder.title'),
+        description: tr('dialogs.rename_folder.label'),
+        mainButtonTitle: tr('general.rename'),
+        secondaryButtonTitle: MaterialLocalizations.of(context)
+                .cancelButtonLabel
+                .capitalizeFirst ??
+            'Cancel',
+        data: RenameFileDialogArguments(
+            initialValue: fileName,
+            blocklist: fileNames,
+            matchPattern: '^[A-z0-9._\-]+\$'));
+    if (dialogResponse?.confirmed ?? false) {
+      String newName = dialogResponse!.data;
+      if (newName == fileName) return;
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.moveFile('$requestedPathAsString/$fileName',
+            '$requestedPathAsString/$newName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not perform rename.\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
   handleFileListChanged(
       FileListChangedNotification fileListChangedNotification) {
     _logger.i('CrntPath: $requestedPathAsString');
     _logger.i('$fileListChangedNotification');
 
     FileListChangedItem item = fileListChangedNotification.item;
-    bool itemInParent = isWithin(requestedPathAsString, item.fullPath) == 0;
+    var itemWithInLevel = isWithin(requestedPathAsString, item.fullPath);
 
     FileListChangedSourceItem? srcItem = fileListChangedNotification.sourceItem;
-    bool srcInParent = (srcItem != null)
-        ? isWithin(requestedPathAsString, srcItem.fullPath) == 0
-        : false;
+    var srcItemWithInLevel =
+        isWithin(requestedPathAsString, srcItem?.fullPath ?? '');
 
-    if (!itemInParent && !srcInParent) {
+    if ((itemWithInLevel < 0 || itemWithInLevel > 1) &&
+        (srcItemWithInLevel < 0 || srcItemWithInLevel > 1)) {
       return;
     }
 
@@ -140,7 +342,7 @@ class FilesViewModel extends MultipleStreamViewModel {
   }
 
   onBreadCrumbItemPressed(List<String> newPath) {
-      return _busyFetchDirectoryData(newPath: newPath);
+    return _busyFetchDirectoryData(newPath: newPath);
   }
 
   Future<bool> onWillPop() async {
@@ -193,6 +395,16 @@ class FilesViewModel extends MultipleStreamViewModel {
     return runBusyFuture(_fetchDirectoryData(newPath: newPath));
   }
 
+  int comperatorName(File a, File b) => a.name.compareTo(b.name);
+
+  int comperatorModified(File a, File b) => b.modified.compareTo(a.modified);
+
+  int comperatorPrintStart(File fileA, File fileB) {
+    GCodeFile a = fileA as GCodeFile;
+    GCodeFile b = fileB as GCodeFile;
+    return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
+  }
+
   onSortSelected(int index) {
     selectedSorting = index;
     notifyListeners();
@@ -201,7 +413,7 @@ class FilesViewModel extends MultipleStreamViewModel {
   FolderContentWrapper get folderContent {
     FolderContentWrapper fullContent = _folderContent;
     List<Folder> folders = _folderContent.folders.toList(growable: false);
-    List<GCodeFile> files = _folderContent.gCodes.toList(growable: false);
+    List<File> files = _folderContent.files.toList(growable: false);
 
     String queryTerm = searchEditingController.text.toLowerCase();
 
@@ -210,11 +422,13 @@ class FilesViewModel extends MultipleStreamViewModel {
       RegExp regExp =
           RegExp(terms.where((element) => element.isNotEmpty).join("|"));
       folders = folders
-          .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
+          .where((element) =>
+              terms.every((t) => element.name.toLowerCase().contains(t)))
           .toList(growable: false);
 
       files = files
-          .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
+          .where((element) =>
+              terms.every((t) => element.name.toLowerCase().contains(t)))
           .toList(growable: false);
     }
     var folderComparator = folderComparators[selectedSorting];

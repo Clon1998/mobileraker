@@ -1,14 +1,7 @@
-
+import 'package:mobileraker/dto/files/file.dart';
 import 'package:mobileraker/dto/files/gcode_thumbnail.dart';
 
-class GCodeFile {
-  /// MOONRAKER FIELDS:
-  late String name;
-
-  late double modified;
-
-  late int size;
-
+class GCodeFile extends File {
   double? printStartTime;
 
   String? jobID;
@@ -39,20 +32,14 @@ class GCodeFile {
 
   /// CUSTOM FIELDS:
 
-  /// Path to the location/directory where the file is located
-  String parentPath;
-
   GCodeFile(
-      {required this.name,
-      required this.size,
-      required this.modified,
-      required this.parentPath});
+      {required String name,
+      required double modified,
+      required int size,
+      required String parentPath})
+      : super(name, modified, size, parentPath);
 
-  GCodeFile.fromJson(Map<String, dynamic> json, this.parentPath) {
-    this.name = json['filename'];
-    this.size = json['size'];
-    this.modified = json['modified'];
-
+  GCodeFile.fromJson(Map<String, dynamic> json, String parentPath):super.fromJson(json, parentPath) {
     if (json.containsKey('print_start_time'))
       this.printStartTime = json['print_start_time'];
     if (json.containsKey('job_id')) this.jobID = json['job_id'];
@@ -96,10 +83,6 @@ class GCodeFile {
     return null;
   }
 
-  DateTime? get modifiedDate {
-    return DateTime.fromMillisecondsSinceEpoch(modified.toInt() * 1000);
-  }
-
   DateTime? get lastPrintDate {
     return DateTime.fromMillisecondsSinceEpoch(
         (printStartTime?.toInt() ?? 0) * 1000);
@@ -115,17 +98,15 @@ class GCodeFile {
 
   @override
   String toString() {
-    return 'GCodeFile{name: $name, modified: $modified, size: $size, printStartTime: $printStartTime, jobID: $jobID, slicer: $slicer, slicerVersion: $slicerVersion, layerHeight: $layerHeight, firstLayerHeight: $firstLayerHeight, objectHeight: $objectHeight, filamentTotal: $filamentTotal, estimatedTime: $estimatedTime, firstLayerTempBed: $firstLayerTempBed, firstLayerTempExtruder: $firstLayerTempExtruder, gcodeStartByte: $gcodeStartByte, gcodeEndByte: $gcodeEndByte, thumbnails: $thumbnails}';
+    return 'GCodeFile{printStartTime: $printStartTime, jobID: $jobID, slicer: $slicer, slicerVersion: $slicerVersion, layerHeight: $layerHeight, firstLayerHeight: $firstLayerHeight, objectHeight: $objectHeight, filamentTotal: $filamentTotal, estimatedTime: $estimatedTime, firstLayerTempBed: $firstLayerTempBed, firstLayerTempExtruder: $firstLayerTempExtruder, gcodeStartByte: $gcodeStartByte, gcodeEndByte: $gcodeEndByte, thumbnails: $thumbnails}';
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GCodeFile &&
+      super == other &&
+          other is GCodeFile &&
           runtimeType == other.runtimeType &&
-          name == other.name &&
-          modified == other.modified &&
-          size == other.size &&
           printStartTime == other.printStartTime &&
           jobID == other.jobID &&
           slicer == other.slicer &&
@@ -139,14 +120,11 @@ class GCodeFile {
           firstLayerTempExtruder == other.firstLayerTempExtruder &&
           gcodeStartByte == other.gcodeStartByte &&
           gcodeEndByte == other.gcodeEndByte &&
-          thumbnails == other.thumbnails &&
-          parentPath == other.parentPath;
+          thumbnails == other.thumbnails;
 
   @override
   int get hashCode =>
-      name.hashCode ^
-      modified.hashCode ^
-      size.hashCode ^
+      super.hashCode ^
       printStartTime.hashCode ^
       jobID.hashCode ^
       slicer.hashCode ^
@@ -160,6 +138,5 @@ class GCodeFile {
       firstLayerTempExtruder.hashCode ^
       gcodeStartByte.hashCode ^
       gcodeEndByte.hashCode ^
-      thumbnails.hashCode ^
-      parentPath.hashCode;
+      thumbnails.hashCode;
 }
