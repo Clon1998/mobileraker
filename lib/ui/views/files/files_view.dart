@@ -31,7 +31,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         drawer: NavigationDrawerWidget(curPath: Routes.filesView),
         bottomNavigationBar: BottomNavigationBar(
           showSelectedLabels: true,
-          currentIndex: model.bottomNavIndex,
+          currentIndex: model.currentPageIndex,
           onTap: model.onBottomItemTapped,
           items: [
             BottomNavigationBarItem(
@@ -102,18 +102,18 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
               CheckedPopupMenuItem(
                 child: Text('pages.files.last_mod').tr(),
                 value: 0,
-                checked: model.selectedSorting == 0,
+                checked: model.currentComparatorIndex == 0,
               ),
               CheckedPopupMenuItem(
                 child: Text('pages.files.name').tr(),
                 value: 1,
-                checked: model.selectedSorting == 1,
+                checked: model.currentComparatorIndex == 1,
               ),
-              if (model.bottomNavIndex == 0)
+              if (model.currentPageIndex == 0)
                 CheckedPopupMenuItem(
                   child: Text('pages.files.last_printed').tr(),
                   value: 2,
-                  checked: model.selectedSorting == 2,
+                  checked: model.currentComparatorIndex == 2,
                 ),
             ],
           ),

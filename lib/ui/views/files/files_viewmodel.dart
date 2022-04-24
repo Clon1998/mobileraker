@@ -44,21 +44,29 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   bool isSearching = false;
 
-  int bottomNavIndex = 0;
+  int currentPageIndex = 0;
 
-  int selectedSorting = 0;
+  int currentComparatorIndex = 0;
 
-  List<Comparator<Folder>?> folderComparators = [
+  final List<Comparator<Folder>?> folderComparators = [
     (folderA, folderB) => folderB.modified.compareTo(folderA.modified),
     (folderA, folderB) => folderA.name.compareTo(folderB.name),
     null,
   ];
 
-  late List<Comparator<File>?> fileComparators = [
-    comperatorModified,
-    comperatorName,
-    comperatorPrintStart
+  late final List<Comparator<File>?> fileComparators = [
+    _comparatorModified,
+    _comparatorName,
+    _comparatorPrintStart
   ];
+
+  final RefreshController refreshController =
+      RefreshController(initialRefresh: false);
+
+  final TextEditingController searchEditingController = TextEditingController();
+
+  final StreamController<FolderContentWrapper> _folderContentStreamController =
+      BehaviorSubject<FolderContentWrapper>();
 
   Machine? _machine;
 
@@ -66,19 +74,10 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   KlippyService? get _klippyService => _machine?.klippyService;
 
-  RefreshController refreshController =
-      RefreshController(initialRefresh: false);
-
-  TextEditingController searchEditingController = TextEditingController();
-
-  StreamController<FolderContentWrapper> _folderContentStreamController =
-      BehaviorSubject<FolderContentWrapper>();
-
+  String get requestedPathAsString => requestedPath.join('/');
   List<String> requestedPath = [];
 
-  String get requestedPathAsString => requestedPath.join('/');
-
-  Map<int, List<String>> lastPaths = {};
+  Map<int, List<String>> pageStoredPaths = {};
 
   @override
   Map<String, StreamData> get streamsMap => {
@@ -90,11 +89,94 @@ class FilesViewModel extends MultipleStreamViewModel {
           _FileNotification: StreamData<FileListChangedNotification>(
               _fileService!.fileNotificationStream)
         },
-        if (_klippyService != null) ...{
+        if (_klippyService != null)
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
-        }
       };
+
+  bool get isFolderContentAvailable => dataReady(_FolderContentStreamKey);
+
+  FolderContentWrapper get folderContent {
+    FolderContentWrapper fullContent = _folderContent;
+    List<Folder> folders = _folderContent.folders.toList(growable: false);
+    List<File> files = _folderContent.files.toList(growable: false);
+
+    String queryTerm = searchEditingController.text.toLowerCase();
+
+    if (queryTerm.isNotEmpty && isSearching) {
+      List<String> terms = queryTerm.split(RegExp('\\W+'));
+      RegExp regExp =
+          RegExp(terms.where((element) => element.isNotEmpty).join("|"));
+      folders = folders
+          .where((element) =>
+              terms.every((t) => element.name.toLowerCase().contains(t)))
+          .toList(growable: false);
+
+      files = files
+          .where((element) =>
+              terms.every((t) => element.name.toLowerCase().contains(t)))
+          .toList(growable: false);
+    }
+    var folderComparator = folderComparators[currentComparatorIndex];
+    if (folderComparator != null) folders.sort(folderComparator);
+    files.sort(fileComparators[currentComparatorIndex]);
+
+    return FolderContentWrapper(fullContent.reqPath, folders, files);
+  }
+
+  FolderContentWrapper get _folderContent => dataMap![_FolderContentStreamKey];
+
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
+
+  KlipperInstance get server => dataMap![_ServerStreamKey];
+
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
+
+  Machine? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
+
+  bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
+
+  String? get curPathToPrinterUrl {
+    if (_machine != null) {
+      return '${_machine!.httpUrl}/server/files';
+    }
+    return null;
+  }
+
+  startSearching() {
+    isSearching = true;
+    notifyListeners();
+  }
+
+  stopSearching() {
+    isSearching = false;
+    notifyListeners();
+  }
+
+  resetSearchQuery() {
+    searchEditingController.text = '';
+    notifyListeners();
+  }
+
+  handleFileListChanged(
+      FileListChangedNotification fileListChangedNotification) {
+    _logger.i('CrntPath: $requestedPathAsString');
+    _logger.i('$fileListChangedNotification');
+
+    FileListChangedItem item = fileListChangedNotification.item;
+    var itemWithInLevel = isWithin(requestedPathAsString, item.fullPath);
+
+    FileListChangedSourceItem? srcItem = fileListChangedNotification.sourceItem;
+    var srcItemWithInLevel =
+        isWithin(requestedPathAsString, srcItem?.fullPath ?? '');
+
+    if ((itemWithInLevel < 0 || itemWithInLevel > 1) &&
+        (srcItemWithInLevel < 0 || srcItemWithInLevel > 1)) {
+      return;
+    }
+
+    _busyFetchDirectoryData(newPath: requestedPath);
+  }
 
   @override
   onData(String key, data) {
@@ -117,13 +199,14 @@ class FilesViewModel extends MultipleStreamViewModel {
   }
 
   onBottomItemTapped(int index) {
-    if (index == bottomNavIndex) return;
+    if (index == currentPageIndex) return;
 
-    if (requestedPath.isNotEmpty) lastPaths[bottomNavIndex] = requestedPath;
-    bottomNavIndex = index;
+    if (requestedPath.isNotEmpty)
+      pageStoredPaths[currentPageIndex] = requestedPath;
+    currentPageIndex = index;
     List<String>? newPath =
-        (lastPaths.containsKey(index)) ? lastPaths[index] : null;
-    selectedSorting = 0;
+        (pageStoredPaths.containsKey(index)) ? pageStoredPaths[index] : null;
+    currentComparatorIndex = 0;
     switch (index) {
       case 0:
         newPath ??= const ['gcodes'];
@@ -149,8 +232,7 @@ class FilesViewModel extends MultipleStreamViewModel {
                 .capitalizeFirst ??
             'Cancel',
         data: RenameFileDialogArguments(
-            initialValue: '',
-            matchPattern: '^[A-z0-9._\-]+\$'));
+            initialValue: '', matchPattern: '^[A-z0-9._\-]+\$'));
     if (dialogResponse?.confirmed ?? false) {
       String folderName = dialogResponse!.data;
 
@@ -175,7 +257,8 @@ class FilesViewModel extends MultipleStreamViewModel {
     DialogResponse? dialogResponse =
         await _dialogService.showConfirmationDialog(
             title: tr('dialogs.delete_folder.title'),
-            description: tr('dialogs.delete_file.description',args: [fileName]),
+            description:
+                tr('dialogs.delete_file.description', args: [fileName]),
             dialogPlatform: DialogPlatform.Material,
             confirmationTitle: materialLocalizations.deleteButtonTooltip,
             cancelTitle:
@@ -201,13 +284,16 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   onDeleteDirTapped(BuildContext context, String fileName) async {
     var materialLocalizations = MaterialLocalizations.of(context);
-    DialogResponse? dialogResponse = await _dialogService.showConfirmationDialog(
-        title: tr('dialogs.delete_folder.title'),
-        description: tr('dialogs.delete_folder.description',args: [fileName]),
-        dialogPlatform: DialogPlatform.Material,
-        confirmationTitle: materialLocalizations.deleteButtonTooltip,
-        cancelTitle: materialLocalizations.cancelButtonLabel.capitalizeFirst ??
-            'Cancel');
+    DialogResponse? dialogResponse =
+        await _dialogService.showConfirmationDialog(
+            title: tr('dialogs.delete_folder.title'),
+            description:
+                tr('dialogs.delete_folder.description', args: [fileName]),
+            dialogPlatform: DialogPlatform.Material,
+            confirmationTitle: materialLocalizations.deleteButtonTooltip,
+            cancelTitle:
+                materialLocalizations.cancelButtonLabel.capitalizeFirst ??
+                    'Cancel');
 
     if (dialogResponse?.confirmed ?? false) {
       setBusyForObject(this, true);
@@ -244,7 +330,7 @@ class FilesViewModel extends MultipleStreamViewModel {
         data: RenameFileDialogArguments(
             initialValue: fileName,
             blocklist: fileNames,
-            fileExt: 'gcode',
+            fileExt: currentPageIndex == 0 ? 'gcode' : 'cfg',
             matchPattern: '^[A-z0-9.#+_\-]+\$'));
     if (dialogResponse != null && dialogResponse.confirmed) {
       String newName = dialogResponse.data;
@@ -305,26 +391,6 @@ class FilesViewModel extends MultipleStreamViewModel {
     }
   }
 
-  handleFileListChanged(
-      FileListChangedNotification fileListChangedNotification) {
-    _logger.i('CrntPath: $requestedPathAsString');
-    _logger.i('$fileListChangedNotification');
-
-    FileListChangedItem item = fileListChangedNotification.item;
-    var itemWithInLevel = isWithin(requestedPathAsString, item.fullPath);
-
-    FileListChangedSourceItem? srcItem = fileListChangedNotification.sourceItem;
-    var srcItemWithInLevel =
-        isWithin(requestedPathAsString, srcItem?.fullPath ?? '');
-
-    if ((itemWithInLevel < 0 || itemWithInLevel > 1) &&
-        (srcItemWithInLevel < 0 || srcItemWithInLevel > 1)) {
-      return;
-    }
-
-    _busyFetchDirectoryData(newPath: requestedPath);
-  }
-
   onRefresh() {
     _busyFetchDirectoryData(newPath: folderContent.reqPath.split('/'))
         .then((value) => refreshController.refreshCompleted());
@@ -359,7 +425,7 @@ class FilesViewModel extends MultipleStreamViewModel {
     return true;
   }
 
-  onPopFolder() async {
+  onPopFolder() {
     List<String> newPath = folderContent.reqPath.split('/');
     if (newPath.length > 1 && !isBusy) {
       newPath.removeLast();
@@ -369,19 +435,19 @@ class FilesViewModel extends MultipleStreamViewModel {
     return true;
   }
 
-  startSearching() {
-    isSearching = true;
+  onSortSelected(int index) {
+    currentComparatorIndex = index;
     notifyListeners();
   }
 
-  stopSearching() {
-    isSearching = false;
-    notifyListeners();
-  }
+  int _comparatorName(File a, File b) => a.name.compareTo(b.name);
 
-  resetSearchQuery() {
-    searchEditingController.text = '';
-    notifyListeners();
+  int _comparatorModified(File a, File b) => b.modified.compareTo(a.modified);
+
+  int _comparatorPrintStart(File fileA, File fileB) {
+    GCodeFile a = fileA as GCodeFile;
+    GCodeFile b = fileB as GCodeFile;
+    return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
   }
 
   Future _fetchDirectoryData({List<String> newPath = const ['gcodes']}) {
@@ -393,70 +459,6 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   Future _busyFetchDirectoryData({List<String> newPath = const ['gcodes']}) {
     return runBusyFuture(_fetchDirectoryData(newPath: newPath));
-  }
-
-  int comperatorName(File a, File b) => a.name.compareTo(b.name);
-
-  int comperatorModified(File a, File b) => b.modified.compareTo(a.modified);
-
-  int comperatorPrintStart(File fileA, File fileB) {
-    GCodeFile a = fileA as GCodeFile;
-    GCodeFile b = fileB as GCodeFile;
-    return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
-  }
-
-  onSortSelected(int index) {
-    selectedSorting = index;
-    notifyListeners();
-  }
-
-  FolderContentWrapper get folderContent {
-    FolderContentWrapper fullContent = _folderContent;
-    List<Folder> folders = _folderContent.folders.toList(growable: false);
-    List<File> files = _folderContent.files.toList(growable: false);
-
-    String queryTerm = searchEditingController.text.toLowerCase();
-
-    if (queryTerm.isNotEmpty && isSearching) {
-      List<String> terms = queryTerm.split(RegExp('\\W+'));
-      RegExp regExp =
-          RegExp(terms.where((element) => element.isNotEmpty).join("|"));
-      folders = folders
-          .where((element) =>
-              terms.every((t) => element.name.toLowerCase().contains(t)))
-          .toList(growable: false);
-
-      files = files
-          .where((element) =>
-              terms.every((t) => element.name.toLowerCase().contains(t)))
-          .toList(growable: false);
-    }
-    var folderComparator = folderComparators[selectedSorting];
-    if (folderComparator != null) folders.sort(folderComparator);
-    files.sort(fileComparators[selectedSorting]);
-
-    return FolderContentWrapper(fullContent.reqPath, folders, files);
-  }
-
-  bool get isFolderContentAvailable => dataReady(_FolderContentStreamKey);
-
-  FolderContentWrapper get _folderContent => dataMap![_FolderContentStreamKey];
-
-  bool get isServerAvailable => dataReady(_ServerStreamKey);
-
-  KlipperInstance get server => dataMap![_ServerStreamKey];
-
-  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
-
-  Machine? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
-
-  bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
-
-  String? get curPathToPrinterUrl {
-    if (_machine != null) {
-      return '${_machine!.httpUrl}/server/files';
-    }
-    return null;
   }
 
   @override
