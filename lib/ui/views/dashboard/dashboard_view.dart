@@ -53,14 +53,11 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
         ),
         body: ConnectionStateView(
           onConnected: (model.isPrinterAvailable)
-              ? Theme(
-                  data: Theme.of(context)
-                      .copyWith(canvasColor: Colors.transparent),
-                  child: PageView(
-                    controller: model.pageController,
-                    onPageChanged: model.onPageChanged,
-                    children: [GeneralTab(), ControlTab()],
-                  ))
+              ? PageView(
+                controller: model.pageController,
+                onPageChanged: model.onPageChanged,
+                children: [GeneralTab(), ControlTab()],
+              )
               : Center(
                   child: Column(
                     key: UniqueKey(),
