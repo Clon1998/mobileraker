@@ -232,7 +232,11 @@ class FilesViewModel extends MultipleStreamViewModel {
                 .capitalizeFirst ??
             'Cancel',
         data: RenameFileDialogArguments(
-            initialValue: '', matchPattern: '^[A-z0-9._\-]+\$'));
+            blocklist: _folderContent.folders
+                .map((e) => e.name)
+                .toList(growable: false),
+            initialValue: '',
+            matchPattern: '^[A-z0-9._\-]+\$'));
     if (dialogResponse?.confirmed ?? false) {
       String folderName = dialogResponse!.data;
 
