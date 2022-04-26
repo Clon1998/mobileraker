@@ -24,8 +24,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   final _navigationService = locator<NavigationService>();
   final _selectedMachineService = locator<SelectedMachineService>();
 
-  Machine? get _machine =>
-      _selectedMachineService.selectedMachine.valueOrNull;
+  Machine? get _machine => _selectedMachineService.selectedMachine.valueOrNull;
 
   PrinterService? get _printerService => _machine?.printerService;
 
@@ -34,6 +33,8 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
   final GCodeFile _file;
 
   FileDetailsViewModel(this._file);
+
+  bool get preHeatAvailable => _file.firstLayerTempBed != null;
 
   @override
   Map<String, StreamData> get streamsMap => {
@@ -99,18 +100,15 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
     return '${_file.slicer ?? ukwn} (v${_file.slicerVersion})';
   }
 
-  bool get preHeatAvailable => _file.firstLayerTempBed != null;
-
   preHeatPrinter() {
     _dialogService
         .showConfirmationDialog(
-      title: "Preheat?",
-      description: 'Target Temperatures\n'
-          'Extruder: 170°C\n'
-          'Bed: ${_file.firstLayerTempBed?.toStringAsFixed(0)}°C',
-      confirmationTitle: "Preheat",
-        dialogPlatform: DialogPlatform.Material
-    )
+            title: "Preheat?",
+            description: 'Target Temperatures\n'
+                'Extruder: 170°C\n'
+                'Bed: ${_file.firstLayerTempBed?.toStringAsFixed(0)}°C',
+            confirmationTitle: "Preheat",
+            dialogPlatform: DialogPlatform.Material)
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false) {
         _printerService?.setTemperature('extruder', 170);

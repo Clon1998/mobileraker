@@ -30,7 +30,7 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
               actions: [
                 IconButton(
                   onPressed:
-                      model.preHeatAvailable ? model.preHeatPrinter : null,
+                      model.preHeatAvailable && model.canStartPrint ? model.preHeatPrinter : null,
                   icon: Icon(
                     FlutterIcons.fire_alt_faw5s,
                   ),
