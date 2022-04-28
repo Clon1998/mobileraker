@@ -50,7 +50,7 @@ class ImportSettingsView
       return [
         Padding(
           padding: const EdgeInsets.all(15.0),
-          child: SpinKitRipple(color: Theme.of(context).colorScheme.primary),
+          child: SpinKitRipple(color: Theme.of(context).colorScheme.secondary),
         ),
         FadingText(tr('dialogs.import_setting.fetching')),
         _Footer(

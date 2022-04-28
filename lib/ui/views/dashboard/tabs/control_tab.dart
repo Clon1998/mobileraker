@@ -34,7 +34,7 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SpinKitRipple(
-              color: Theme.of(context).colorScheme.primary,
+              color: Theme.of(context).colorScheme.secondary,
               size: 100,
             ),
             SizedBox(

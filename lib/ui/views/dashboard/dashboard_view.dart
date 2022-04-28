@@ -64,7 +64,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SpinKitFadingCube(
-                        color: Theme.of(context).colorScheme.primary,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                       SizedBox(
                         height: 30,

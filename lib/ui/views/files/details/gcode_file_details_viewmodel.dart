@@ -8,7 +8,6 @@ import 'package:mobileraker/dto/machine/print_stats.dart';
 import 'package:mobileraker/dto/machine/printer.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
@@ -17,8 +16,8 @@ import 'package:stacked_services/stacked_services.dart';
 const String _ServerStreamKey = 'server';
 const String _PrinterStreamKey = 'printer';
 
-class FileDetailsViewModel extends MultipleStreamViewModel {
-  final _logger = getLogger('FileDetailsViewModel');
+class GCodeFileDetailsViewModel extends MultipleStreamViewModel {
+  final _logger = getLogger('GCodeFileDetailsViewModel');
   final _dialogService = locator<DialogService>();
   final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
@@ -32,7 +31,7 @@ class FileDetailsViewModel extends MultipleStreamViewModel {
 
   final GCodeFile _file;
 
-  FileDetailsViewModel(this._file);
+  GCodeFileDetailsViewModel(this._file);
 
   bool get preHeatAvailable => _file.firstLayerTempBed != null;
 

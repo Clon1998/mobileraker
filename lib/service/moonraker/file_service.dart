@@ -1,16 +1,19 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:file/memory.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/exceptions.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/dto/files/file.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_notification.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_source_item.dart';
+import 'package:mobileraker/dto/files/moonraker/file_api_response.dart';
+import 'package:mobileraker/dto/files/remote_file.dart';
 
 enum FileRoot { gcodes, config, config_examples, docs }
 
@@ -33,7 +36,7 @@ class FolderContentWrapper {
 
   String reqPath;
   List<Folder> folders;
-  List<File> files;
+  List<RemoteFile> files;
 }
 
 /// The FileService handles all file changes of the different roots of moonraker
@@ -50,10 +53,12 @@ class FileService {
 
   final Machine _owner;
 
-  StreamController<FileListChangedNotification> _fileActionStreamCtrler =
+  final MemoryFileSystem _fileSystem = MemoryFileSystem();
+
+  StreamController<FileApiResponse> _fileActionStreamCtrler =
       StreamController.broadcast();
 
-  Stream<FileListChangedNotification> get fileNotificationStream =>
+  Stream<FileApiResponse> get fileNotificationStream =>
       _fileActionStreamCtrler.stream;
 
   JsonRpcClient get _jRpcClient => _owner.jRpcClient;
@@ -83,32 +88,79 @@ class FileService {
     return _parseFileMeta(blockingResp, filename);
   }
 
-  Future<void> createDir(String filePath) async {
+  Future<FileApiResponse> createDir(String filePath) async {
     _logger.i('Creating Folder "$filePath"');
 
-    await _jRpcClient
-        .sendJRpcMethod('server.files.post_directory', params: {'path': filePath});
+    var rpcResponse = await _jRpcClient.sendJRpcMethod(
+        'server.files.post_directory',
+        params: {'path': filePath});
+    return FileApiResponse.fromJson(rpcResponse.response['result']);
   }
 
-  Future<void> deleteFile(String filePath) async {
+  Future<FileApiResponse> deleteFile(String filePath) async {
     _logger.i('Deleting File "$filePath"');
 
-    await _jRpcClient
+    RpcResponse rpcResponse = await _jRpcClient
         .sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
+    return FileApiResponse.fromJson(rpcResponse.response['result']);
   }
 
-  Future<void> deleteDirForced(String filePath) async {
+  Future<FileApiResponse> deleteDirForced(String filePath) async {
     _logger.i('Deleting Folder-Forced "$filePath"');
 
-    await _jRpcClient.sendJRpcMethod('server.files.delete_directory',
+    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
+        'server.files.delete_directory',
         params: {'path': filePath, 'force': true});
+    return FileApiResponse.fromJson(rpcResponse.response['result']);
   }
 
-  Future<void> moveFile(String origin, String destination) async {
+  Future<FileApiResponse> moveFile(String origin, String destination) async {
     _logger.i('Moving file from $origin to $destination');
 
-    await _jRpcClient.sendJRpcMethod('server.files.move',
+    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
+        'server.files.move',
         params: {'source': origin, 'dest': destination});
+    return FileApiResponse.fromJson(rpcResponse.response['result']);
+  }
+
+  Future<File> downloadFile(String filePath) async {
+    Uri uri = Uri.parse('${_owner.httpUrl}/server/files/$filePath');
+    _logger.i('Trying download of $uri');
+    HttpClientRequest clientRequest = await HttpClient().getUrl(uri);
+    HttpClientResponse clientResponse = await clientRequest.close();
+
+    final File file = _fileSystem.file(filePath)..createSync(recursive: true);
+    IOSink writer = file.openWrite();
+    await clientResponse.pipe(writer);
+    // clientResponse.contentLength;
+    // await clientResponse.map((s) {
+    //   received += s.length;
+    //   print("${(received / length) * 100} %");
+    //   return s;
+    // }).pipe(sink);
+    await writer.close();
+    return file;
+  }
+
+  Future<FileApiResponse> uploadAsFile(String filePath, String content) async {
+    assert(!filePath.startsWith('(gcodes|config)'),
+        'filePath needs to contain root folder config or gcodes!');
+    List<String> fileSplit = filePath.split('/');
+    String root = fileSplit.removeAt(0);
+
+    Uri uri = Uri.parse('${_owner.httpUrl}/server/files/upload');
+    _logger.i('Trying upload of $filePath');
+    http.MultipartRequest multipartRequest = http.MultipartRequest('POST', uri)
+      ..files.add(http.MultipartFile.fromString('file', content,
+          filename: fileSplit.join('/')))
+      ..fields['root'] = root;
+    http.StreamedResponse streamedResponse = await multipartRequest.send();
+    _logger.wtf('Upload Result! ${streamedResponse.statusCode}');
+    http.Response response = await http.Response.fromStream(streamedResponse);
+
+    if (response.statusCode != 201)
+      throw HttpException('Error while uploading file $filePath.', uri: uri);
+    return FileApiResponse.fromJson(jsonDecode(response.body));
   }
 
   _onFileListChanged(Map<String, dynamic> rawMessage) {
@@ -117,14 +169,7 @@ class FileService {
         EnumToString.fromString(FileAction.values, params['action']);
 
     if (fileAction != null) {
-      FileListChangedItem fileListChangedItem =
-          FileListChangedItem.fromJson(params['item']);
-      FileListChangedSourceItem? srcItem = (params['source_item'] != null)
-          ? FileListChangedSourceItem.fromJson(params['source_item'])
-          : null;
-
-      _fileActionStreamCtrler.add(FileListChangedNotification(
-          fileAction, fileListChangedItem, srcItem));
+      _fileActionStreamCtrler.add(FileApiResponse.fromJson(params));
     }
   }
 
@@ -159,14 +204,14 @@ class FileService {
       return !name.toLowerCase().endsWith(fileType);
     });
 
-    List<File> listOfFiles = List.generate(filesResponse.length, (index) {
+    List<RemoteFile> listOfFiles = List.generate(filesResponse.length, (index) {
       var element = filesResponse[index];
       String name = element['filename'];
 
       if (name.endsWith('.gcode'))
         return GCodeFile.fromJson(element, forPath);
       else
-        return File.fromJson(element, forPath);
+        return RemoteFile.fromJson(element, forPath);
     });
 
     return FolderContentWrapper(forPath, listOfFolder, listOfFiles);

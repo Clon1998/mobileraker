@@ -76,6 +76,7 @@ dependencies:
   json_annotation: ^4.4.0
   fl_chart: ^0.50.1
   flutter_slidable: ^1.2.0
+  code_text_field: ^1.0.2
 
 dev_dependencies:
   flutter_test:

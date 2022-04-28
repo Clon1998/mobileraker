@@ -43,7 +43,7 @@ class OverViewView extends ViewModelBuilderWidget<OverViewViewModel> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SpinKitRipple(
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.secondary,
             size: 100,
           ),
           SizedBox(

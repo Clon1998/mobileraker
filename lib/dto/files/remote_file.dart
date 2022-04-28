@@ -1,7 +1,7 @@
-class File {
-  File(this.name, this.modified, this.size, this.parentPath);
+class RemoteFile {
+  RemoteFile(this.name, this.modified, this.size, this.parentPath);
 
-  File.fromJson(Map<String, dynamic> json, this.parentPath)
+  RemoteFile.fromJson(Map<String, dynamic> json, this.parentPath)
       : name = json['filename'],
         size = json['size'],
         modified = json['modified'];
@@ -16,6 +16,8 @@ class File {
   /// Path to the location/directory where the file is located
   String parentPath;
 
+  String get absolutPath => '$parentPath/$name';
+
   DateTime? get modifiedDate {
     return DateTime.fromMillisecondsSinceEpoch(modified.toInt() * 1000);
   }
@@ -23,7 +25,7 @@ class File {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is File &&
+      other is RemoteFile &&
           runtimeType == other.runtimeType &&
           name == other.name &&
           modified == other.modified &&

@@ -1,11 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/files/file.dart';
+import 'package:mobileraker/dto/files/remote_file.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
@@ -142,7 +143,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SpinKitRipple(
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.secondary,
             size: 100,
           ),
           SizedBox(
@@ -252,7 +253,7 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
                                 key: ValueKey(folder),
                               );
                             } else {
-                              File file =
+                              RemoteFile file =
                                   folderContent.files[index - lenFolders];
                               if (file is GCodeFile) {
                                 return GCodeFileItem(
@@ -369,7 +370,7 @@ class FolderItem extends ViewModelWidget<FilesViewModel> {
 }
 
 class FileItem extends ViewModelWidget<FilesViewModel> {
-  final File file;
+  final RemoteFile file;
 
   const FileItem({Key? key, required this.file}) : super(key: key);
 
@@ -382,7 +383,7 @@ class FileItem extends ViewModelWidget<FilesViewModel> {
         leading: SizedBox(
             width: 64, height: 64, child: Icon(Icons.insert_drive_file)),
         title: Text(file.name),
-        // onTap: () => model.onFileTapped(file),
+        onTap: () => model.onFileTapped(file),
       ),
     );
   }
@@ -480,8 +481,8 @@ class _Slideable extends ViewModelWidget<FilesViewModel> {
             onPressed: (c) => (isFolder)
                 ? model.onDeleteDirTapped(c, fileName)
                 : model.onDeleteFileTapped(c, fileName),
-            backgroundColor: themeData.colorScheme.error,
-            foregroundColor: themeData.colorScheme.onError,
+            backgroundColor: themeData.colorScheme.secondaryContainer.darken(5),
+            foregroundColor: themeData.colorScheme.onSecondaryContainer,
             icon: Icons.delete_outline,
             label: 'Delete',
           ),

@@ -157,7 +157,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SpinKitDoubleBounce(
-              color: themeData.colorScheme.primary,
+              color: themeData.colorScheme.secondary,
               size: 100,
             ),
             SizedBox(

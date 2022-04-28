@@ -8,12 +8,12 @@ import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/datasource/json_rpc_client.dart';
 import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/dto/files/file.dart';
+import 'package:mobileraker/dto/files/remote_file.dart';
 import 'package:mobileraker/dto/files/folder.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_notification.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_source_item.dart';
+import 'package:mobileraker/dto/files/moonraker/file_notification_item.dart';
+import 'package:mobileraker/dto/files/moonraker/file_api_response.dart';
+import 'package:mobileraker/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -54,7 +54,7 @@ class FilesViewModel extends MultipleStreamViewModel {
     null,
   ];
 
-  late final List<Comparator<File>?> fileComparators = [
+  late final List<Comparator<RemoteFile>?> fileComparators = [
     _comparatorModified,
     _comparatorName,
     _comparatorPrintStart
@@ -86,8 +86,8 @@ class FilesViewModel extends MultipleStreamViewModel {
         if (_fileService != null) ...{
           _FolderContentStreamKey: StreamData<FolderContentWrapper>(
               _folderContentStreamController.stream),
-          _FileNotification: StreamData<FileListChangedNotification>(
-              _fileService!.fileNotificationStream)
+          _FileNotification:
+              StreamData<FileApiResponse>(_fileService!.fileNotificationStream)
         },
         if (_klippyService != null)
           _ServerStreamKey:
@@ -99,7 +99,7 @@ class FilesViewModel extends MultipleStreamViewModel {
   FolderContentWrapper get folderContent {
     FolderContentWrapper fullContent = _folderContent;
     List<Folder> folders = _folderContent.folders.toList(growable: false);
-    List<File> files = _folderContent.files.toList(growable: false);
+    List<RemoteFile> files = _folderContent.files.toList(growable: false);
 
     String queryTerm = searchEditingController.text.toLowerCase();
 
@@ -158,20 +158,19 @@ class FilesViewModel extends MultipleStreamViewModel {
     notifyListeners();
   }
 
-  handleFileListChanged(
-      FileListChangedNotification fileListChangedNotification) {
+  handleFileListChanged(FileApiResponse fileListChangedNotification) {
     _logger.i('CrntPath: $requestedPathAsString');
     _logger.i('$fileListChangedNotification');
 
-    FileListChangedItem item = fileListChangedNotification.item;
+    FileNotificationItem item = fileListChangedNotification.item;
     var itemWithInLevel = isWithin(requestedPathAsString, item.fullPath);
 
-    FileListChangedSourceItem? srcItem = fileListChangedNotification.sourceItem;
+    FileNotificationSourceItem? srcItem =
+        fileListChangedNotification.sourceItem;
     var srcItemWithInLevel =
         isWithin(requestedPathAsString, srcItem?.fullPath ?? '');
 
-    if ((itemWithInLevel < 0 || itemWithInLevel > 1) &&
-        (srcItemWithInLevel < 0 || srcItemWithInLevel > 1)) {
+    if (itemWithInLevel != 0 && srcItemWithInLevel != 0) {
       return;
     }
 
@@ -236,7 +235,7 @@ class FilesViewModel extends MultipleStreamViewModel {
                 .map((e) => e.name)
                 .toList(growable: false),
             initialValue: '',
-            matchPattern: '^[A-z0-9._\-]+\$'));
+            matchPattern: '^[\\w.\\-]+\$'));
     if (dialogResponse?.confirmed ?? false) {
       String folderName = dialogResponse!.data;
 
@@ -335,7 +334,7 @@ class FilesViewModel extends MultipleStreamViewModel {
             initialValue: fileName,
             blocklist: fileNames,
             fileExt: currentPageIndex == 0 ? 'gcode' : 'cfg',
-            matchPattern: '^[A-z0-9.#+_\-]+\$'));
+            matchPattern: '^[\\w.#+_\\- ]+\$'));
     if (dialogResponse != null && dialogResponse.confirmed) {
       String newName = dialogResponse.data;
       if (newName == fileName) return;
@@ -374,7 +373,7 @@ class FilesViewModel extends MultipleStreamViewModel {
         data: RenameFileDialogArguments(
             initialValue: fileName,
             blocklist: fileNames,
-            matchPattern: '^[A-z0-9._\-]+\$'));
+            matchPattern: '^[\\w.\-]+\$'));
     if (dialogResponse?.confirmed ?? false) {
       String newName = dialogResponse!.data;
       if (newName == fileName) return;
@@ -400,9 +399,13 @@ class FilesViewModel extends MultipleStreamViewModel {
         .then((value) => refreshController.refreshCompleted());
   }
 
-  onFileTapped(GCodeFile file) {
-    _navigationService.navigateTo(Routes.fileDetailView,
-        arguments: FileDetailViewArguments(file: file));
+  onFileTapped(RemoteFile file) {
+    if (file is GCodeFile)
+      _navigationService.navigateTo(Routes.gCodeFileDetailView,
+          arguments: GCodeFileDetailViewArguments(gcodeFile: file));
+    else
+      _navigationService.navigateTo(Routes.configFileDetailView,
+          arguments: ConfigFileDetailViewArguments(file: file));
   }
 
   onFolderPressed(Folder folder) {
@@ -444,11 +447,12 @@ class FilesViewModel extends MultipleStreamViewModel {
     notifyListeners();
   }
 
-  int _comparatorName(File a, File b) => a.name.compareTo(b.name);
+  int _comparatorName(RemoteFile a, RemoteFile b) => a.name.compareTo(b.name);
 
-  int _comparatorModified(File a, File b) => b.modified.compareTo(a.modified);
+  int _comparatorModified(RemoteFile a, RemoteFile b) =>
+      b.modified.compareTo(a.modified);
 
-  int _comparatorPrintStart(File fileA, File fileB) {
+  int _comparatorPrintStart(RemoteFile fileA, RemoteFile fileB) {
     GCodeFile a = fileA as GCodeFile;
     GCodeFile b = fileB as GCodeFile;
     return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;

@@ -3,17 +3,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/ui/views/files/details/file_details_viewmodel.dart';
+import 'package:mobileraker/ui/views/files/details/gcode_file_details_viewmodel.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:stacked/stacked.dart';
 
-class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
-  const FileDetailView({Key? key, required this.file}) : super(key: key);
-  final GCodeFile file;
+class GCodeFileDetailView
+    extends ViewModelBuilderWidget<GCodeFileDetailsViewModel> {
+  const GCodeFileDetailView({Key? key, required this.gcodeFile})
+      : super(key: key);
+  final GCodeFile gcodeFile;
 
   @override
   Widget builder(
-      BuildContext context, FileDetailsViewModel model, Widget? child) {
+      BuildContext context, GCodeFileDetailsViewModel model, Widget? child) {
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(
@@ -29,8 +31,9 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
               floating: true,
               actions: [
                 IconButton(
-                  onPressed:
-                      model.preHeatAvailable && model.canStartPrint ? model.preHeatPrinter : null,
+                  onPressed: model.preHeatAvailable && model.canStartPrint
+                      ? model.preHeatPrinter
+                      : null,
                   icon: Icon(
                     FlutterIcons.fire_alt_faw5s,
                   ),
@@ -45,10 +48,10 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.pin,
                 background: Hero(
-                  tag: 'gCodeImage-${file.hashCode}',
+                  tag: 'gCodeImage-${gcodeFile.hashCode}',
                   child: CachedNetworkImage(
                     imageUrl:
-                        '${model.curPathToPrinterUrl}/${file.parentPath}/${file.bigImagePath}',
+                        '${model.curPathToPrinterUrl}/${gcodeFile.parentPath}/${gcodeFile.bigImagePath}',
                     imageBuilder: (context, imageProvider) => Stack(
                       alignment: Alignment.bottomCenter,
                       children: [
@@ -59,8 +62,8 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                         ),
                         Container(
                             width: double.infinity,
-                            padding:
-                                EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 8),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.vertical(
                                   top: const Radius.circular(8.0)),
@@ -70,26 +73,29 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                                   .withOpacity(0.8),
                             ),
                             child: Text(
-                              file.name,
+                              gcodeFile.name,
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 5,
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle2
-                                  ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
                             ))
                       ],
                     ),
-                    placeholder: (context, url) => Icon(Icons.insert_drive_file),
+                    placeholder: (context, url) =>
+                        Icon(Icons.insert_drive_file),
                     errorWidget: (context, url, error) => Column(
                       children: [
-
                         Expanded(child: Icon(Icons.file_present)),
                         Container(
                             width: double.infinity,
-                            padding:
-                                EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 8),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.vertical(
                                   top: const Radius.circular(8.0)),
@@ -99,14 +105,17 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                                   .withOpacity(0.8),
                             ),
                             child: Text(
-                              file.name,
+                              gcodeFile.name,
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 5,
                               style: Theme.of(context)
                                   .textTheme
                                   .subtitle2
-                                  ?.copyWith(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer),
                             ))
                       ],
                     ),
@@ -128,14 +137,15 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                     Divider(),
                     PropertyTile(
                         title: 'pages.files.details.general_card.path'.tr(),
-                        subtitle: '${file.parentPath}/${file.name}'),
+                        subtitle: gcodeFile.absolutPath),
                     PropertyTile(
                       title: 'pages.files.details.general_card.last_mod'.tr(),
                       subtitle: model.formattedLastModified,
                     ),
                     PropertyTile(
-                      title: 'pages.files.details.general_card.last_printed'.tr(),
-                      subtitle: (file.printStartTime != null)
+                      title:
+                          'pages.files.details.general_card.last_printed'.tr(),
+                      subtitle: (gcodeFile.printStartTime != null)
                           ? model.formattedLastPrinted
                           : 'pages.files.details.general_card.no_data'.tr(),
                     ),
@@ -152,9 +162,10 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                     ),
                     Divider(),
                     PropertyTile(
-                      title: 'pages.files.details.meta_card.est_print_time'.tr(),
+                      title:
+                          'pages.files.details.meta_card.est_print_time'.tr(),
                       subtitle:
-                          '${secondsToDurationText(file.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.potentialEta}',
+                          '${secondsToDurationText(gcodeFile.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.potentialEta}',
                     ),
                     PropertyTile(
                       title: 'pages.files.details.meta_card.slicer'.tr(),
@@ -163,33 +174,39 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
                     PropertyTile(
                       title: 'pages.files.details.meta_card.layer_higher'.tr(),
                       subtitle:
-                          '${tr('pages.files.details.meta_card.first_layer')}: ${file.firstLayerHeight?.toStringAsFixed(2)} mm\n'
-                          '${tr('pages.files.details.meta_card.others')}: ${file.layerHeight?.toStringAsFixed(2)} mm',
+                          '${tr('pages.files.details.meta_card.first_layer')}: ${gcodeFile.firstLayerHeight?.toStringAsFixed(2)} mm\n'
+                          '${tr('pages.files.details.meta_card.others')}: ${gcodeFile.layerHeight?.toStringAsFixed(2)} mm',
                     ),
                     PropertyTile(
-                      title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
+                      title: 'pages.files.details.meta_card.first_layer_temps'
+                          .tr(),
                       subtitle:
-                          'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [file.firstLayerTempExtruder?.toStringAsFixed(0)??'general.unknown'.tr(),file.firstLayerTempBed?.toStringAsFixed(0)??'general.unknown'.tr()]),
+                          'pages.files.details.meta_card.first_layer_temps_value'
+                              .tr(args: [
+                        gcodeFile.firstLayerTempExtruder?.toStringAsFixed(0) ??
+                            'general.unknown'.tr(),
+                        gcodeFile.firstLayerTempBed?.toStringAsFixed(0) ??
+                            'general.unknown'.tr()
+                      ]),
                     ),
                   ],
                 ),
               ),
-              Card(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    ListTile(
-                      leading: Icon(FlutterIcons.chart_bar_mco),
-                      title: Text('pages.files.details.stat_card.title').tr(),
-                    ),
-                    Divider(),
-                    PropertyTile(
-                      title: 'WIP',
-                      subtitle: '',
-                    ),
-                  ],
-                ),
-              ),
+              // Card(
+              //   child: Column(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: <Widget>[
+              //       ListTile(
+              //         leading: Icon(FlutterIcons.chart_bar_mco),
+              //         title: Text('pages.files.details.stat_card.title').tr(),
+              //       ),
+              //       Divider(),
+              //       Placeholder(
+              //
+              //       )
+              //     ],
+              //   ),
+              // ),
               SizedBox(
                 height: 100,
               )
@@ -210,8 +227,8 @@ class FileDetailView extends ViewModelBuilderWidget<FileDetailsViewModel> {
   }
 
   @override
-  FileDetailsViewModel viewModelBuilder(BuildContext context) =>
-      FileDetailsViewModel(file);
+  GCodeFileDetailsViewModel viewModelBuilder(BuildContext context) =>
+      GCodeFileDetailsViewModel(gcodeFile);
 }
 
 class PropertyTile extends StatelessWidget {

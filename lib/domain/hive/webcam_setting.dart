@@ -25,8 +25,6 @@ class WebcamSetting {
   WebcamSetting(this.name, this.url);
 
   double get yTransformation {
-    var vertical = flipVertical;
-
     if (flipVertical)
       return pi;
     else
@@ -34,7 +32,6 @@ class WebcamSetting {
   }
 
   double get xTransformation {
-
     if (flipHorizontal)
       return pi;
     else
