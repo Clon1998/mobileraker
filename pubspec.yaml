@@ -48,7 +48,7 @@ dependencies:
   flutter_spinkit: ^5.1.0
   progress_indicators: ^1.0.0
   flutter_form_builder: ^7.0.0
-  form_builder_validators: ^7.2.0
+  form_builder_validators: ^8.1.1
   awesome_notifications: ^0.6.18+2
   pull_to_refresh: ^2.0.0
   hive: ^2.0.4
@@ -62,7 +62,7 @@ dependencies:
   shimmer: ^2.0.0
   url_launcher: ^6.0.20
   reorderables: ^0.4.2
-  flutter_speed_dial: ^5.0.0+1
+  flutter_speed_dial: ^6.0.0
   firebase_core: ^1.10.6
   firebase_messaging: ^11.2.4
   firebase_analytics: ^9.0.4
@@ -72,7 +72,7 @@ dependencies:
   mobile_scanner: ^1.0.0
   easy_localization: ^3.0.0
   purchases_flutter: ^3.9.5
-  webview_flutter: ^2.8.0
+  webview_flutter: ^3.0.2
   json_annotation: ^4.4.0
   fl_chart: ^0.50.1
   flutter_slidable: ^1.2.0

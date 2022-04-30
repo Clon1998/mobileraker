@@ -85,10 +85,10 @@ class _NumField extends StatelessWidget {
       autofocus: true,
       validator: FormBuilderValidators.compose([
         if (upperBorder != null)
-          FormBuilderValidators.max(context, upperBorder!),
-        FormBuilderValidators.min(context, lowerBorder),
-        FormBuilderValidators.numeric(context),
-        FormBuilderValidators.required(context)
+          FormBuilderValidators.max(upperBorder!),
+        FormBuilderValidators.min(lowerBorder),
+        FormBuilderValidators.numeric(),
+        FormBuilderValidators.required()
       ]),
       valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),
       initialValue: initialValue.toStringAsFixed(frac),

@@ -35,7 +35,8 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                   FlutterIcons.import_mco,
                 ),
                 tooltip: 'pages.printer_edit.import_settings'.tr(),
-                onPressed: () =>  model.onImportSettings(MaterialLocalizations.of(context))),
+                onPressed: () =>
+                    model.onImportSettings(MaterialLocalizations.of(context))),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -59,7 +60,7 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                   name: 'printerName',
                   initialValue: model.machine.name,
                   validator: FormBuilderValidators.compose(
-                      [FormBuilderValidators.required(context)]),
+                      [FormBuilderValidators.required()]),
                 ),
                 FormBuilderTextField(
                   decoration: InputDecoration(
@@ -69,8 +70,8 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                   name: 'printerUrl',
                   initialValue: model.machine.httpUrl,
                   validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(context),
-                    FormBuilderValidators.url(context,
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.url(
                         protocols: ['http', 'https'], requireProtocol: true)
                   ]),
                 ),
@@ -82,8 +83,8 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                   name: 'wsUrl',
                   initialValue: model.machine.wsUrl,
                   validator: FormBuilderValidators.compose([
-                    FormBuilderValidators.required(context),
-                    FormBuilderValidators.url(context,
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.url(
                         protocols: ['ws', 'wss'], requireProtocol: true)
                   ]),
                 ),
@@ -154,8 +155,8 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                     keyboardType: TextInputType.numberWithOptions(
                         signed: false, decimal: false),
                     validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(context),
-                      FormBuilderValidators.min(context, 1)
+                      FormBuilderValidators.required(),
+                      FormBuilderValidators.min(1)
                     ]),
                   ),
                   FormBuilderTextField(
@@ -171,8 +172,8 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                     keyboardType: TextInputType.numberWithOptions(
                         signed: false, decimal: false),
                     validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(context),
-                      FormBuilderValidators.min(context, 1)
+                      FormBuilderValidators.required(),
+                      FormBuilderValidators.min(1)
                     ]),
                   ),
                   Segments(
@@ -217,8 +218,8 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                     keyboardType: TextInputType.numberWithOptions(
                         signed: false, decimal: false),
                     validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(context),
-                      FormBuilderValidators.min(context, 1)
+                      FormBuilderValidators.required(),
+                      FormBuilderValidators.min(1)
                     ]),
                   ),
                   Segments(
@@ -259,7 +260,10 @@ class PrinterEdit extends ViewModelBuilderWidget<PrinterEditViewModel> {
                     tileColor: themeData.colorScheme.errorContainer,
                     textColor: themeData.colorScheme.onErrorContainer,
                     iconColor: themeData.colorScheme.onErrorContainer,
-                    leading: Icon(Icons.error_outline, size: 40,),
+                    leading: Icon(
+                      Icons.error_outline,
+                      size: 40,
+                    ),
                     title: Text(
                       'pages.printer_edit.could_not_fetch_additional',
                     ).tr(),
@@ -431,7 +435,7 @@ class _WebCamItemState extends State<_WebCamItem> {
             initialValue: widget.cam.name,
             onChanged: onNameChanged,
             validator: FormBuilderValidators.compose(
-                [FormBuilderValidators.required(context)]),
+                [FormBuilderValidators.required()]),
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
@@ -441,8 +445,8 @@ class _WebCamItemState extends State<_WebCamItem> {
             name: '${widget.cam.uuid}-camUrl',
             initialValue: widget.cam.url,
             validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(context),
-              FormBuilderValidators.url(context,
+              FormBuilderValidators.required(),
+              FormBuilderValidators.url(
                   protocols: ['http', 'https'], requireProtocol: true)
             ]),
           ),
@@ -453,9 +457,9 @@ class _WebCamItemState extends State<_WebCamItem> {
             name: '${widget.cam.uuid}-tFps',
             initialValue: widget.cam.targetFps.toString(),
             validator: FormBuilderValidators.compose([
-              FormBuilderValidators.min(context, 0),
-              FormBuilderValidators.numeric(context),
-              FormBuilderValidators.required(context)
+              FormBuilderValidators.min(0),
+              FormBuilderValidators.numeric(),
+              FormBuilderValidators.required()
             ]),
             valueTransformer: (String? text) =>
                 text == null ? 0 : num.tryParse(text),
@@ -549,7 +553,7 @@ class _MacroGroupState extends State<_MacroGroup> {
               initialValue: widget.macroGroup.name,
               onChanged: onNameChanged,
               validator: FormBuilderValidators.compose(
-                  [FormBuilderValidators.required(context)]),
+                  [FormBuilderValidators.required()]),
             ),
           ReorderableWrap(
             spacing: 4.0,
@@ -624,7 +628,7 @@ class _TempPresetItemState extends State<_TempPresetItem> {
             initialValue: temperaturePreset.name,
             onChanged: onNameChanged,
             validator: FormBuilderValidators.compose(
-                [FormBuilderValidators.required(context)]),
+                [FormBuilderValidators.required()]),
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
@@ -638,10 +642,9 @@ class _TempPresetItemState extends State<_TempPresetItem> {
                 : model.extruderMinTemperature,
             validator: FormBuilderValidators.compose(
               [
-                FormBuilderValidators.required(context),
-                FormBuilderValidators.min(context, 0),
-                FormBuilderValidators.max(
-                    context, model.extruderMaxTemperature),
+                FormBuilderValidators.required(),
+                FormBuilderValidators.min(0),
+                FormBuilderValidators.max(model.extruderMaxTemperature),
               ],
             ),
             keyboardType: TextInputType.number,
@@ -656,9 +659,9 @@ class _TempPresetItemState extends State<_TempPresetItem> {
                 (text != null) ? int.tryParse(text) : model.bedMinTemperature,
             validator: FormBuilderValidators.compose(
               [
-                FormBuilderValidators.required(context),
-                FormBuilderValidators.min(context, 0),
-                FormBuilderValidators.max(context, model.bedMaxTemperature),
+                FormBuilderValidators.required(),
+                FormBuilderValidators.min(0),
+                FormBuilderValidators.max(model.bedMaxTemperature),
               ],
             ),
             keyboardType: TextInputType.number,

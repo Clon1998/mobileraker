@@ -98,7 +98,7 @@ class ImportSettingsView
               .toList(growable: false),
           onChanged: model.onSourceSelected,
           validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(context),
+            FormBuilderValidators.required(),
           ]),
         ),
         if (model.machineSelected)
@@ -107,36 +107,65 @@ class ImportSettingsView
               children: [
                 FormBuilderCheckboxGroup<String>(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(labelText: tr('pages.printer_edit.motion_system.title')),
+                  decoration: InputDecoration(
+                      labelText: tr('pages.printer_edit.motion_system.title')),
                   name: 'motionsysFields',
                   // initialValue: const ['Dart'],
-                  options:  [
+                  options: [
                     FormBuilderFieldOption(
-                        value: 'invertX', child: Text('pages.printer_edit.motion_system.invert_x_short').tr()),
+                        value: 'invertX',
+                        child: Text(
+                                'pages.printer_edit.motion_system.invert_x_short')
+                            .tr()),
                     FormBuilderFieldOption(
-                        value: 'invertY', child: Text('pages.printer_edit.motion_system.invert_y_short').tr()),
+                        value: 'invertY',
+                        child: Text(
+                                'pages.printer_edit.motion_system.invert_y_short')
+                            .tr()),
                     FormBuilderFieldOption(
-                        value: 'invertZ', child: Text('pages.printer_edit.motion_system.invert_z_short').tr()),
+                        value: 'invertZ',
+                        child: Text(
+                                'pages.printer_edit.motion_system.invert_z_short')
+                            .tr()),
                     FormBuilderFieldOption(
-                        value: 'speedXY', child: Text('pages.printer_edit.motion_system.speed_xy_short').tr()),
+                        value: 'speedXY',
+                        child: Text(
+                                'pages.printer_edit.motion_system.speed_xy_short')
+                            .tr()),
                     FormBuilderFieldOption(
-                        value: 'speedZ', child: Text('pages.printer_edit.motion_system.speed_z_short').tr()),
+                        value: 'speedZ',
+                        child: Text(
+                                'pages.printer_edit.motion_system.speed_z_short')
+                            .tr()),
                     FormBuilderFieldOption(
-                        value: 'moveSteps', child: Text('pages.printer_edit.motion_system.steps_move_short').tr()),
+                        value: 'moveSteps',
+                        child: Text(
+                                'pages.printer_edit.motion_system.steps_move_short')
+                            .tr()),
                     FormBuilderFieldOption(
-                        value: 'babySteps', child: Text('pages.printer_edit.motion_system.steps_baby_short').tr()),
+                        value: 'babySteps',
+                        child: Text(
+                                'pages.printer_edit.motion_system.steps_baby_short')
+                            .tr()),
                   ],
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
                 FormBuilderCheckboxGroup<String>(
                   autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration:  InputDecoration(labelText: tr('pages.printer_edit.extruders.title')),
+                  decoration: InputDecoration(
+                      labelText: tr('pages.printer_edit.extruders.title')),
                   name: 'extrudersFields',
                   options: [
                     FormBuilderFieldOption(
-                        value: 'extrudeSpeed', child: Text('pages.printer_edit.extruders.feedrate_short').tr()),
+                        value: 'extrudeSpeed',
+                        child:
+                            Text('pages.printer_edit.extruders.feedrate_short')
+                                .tr()),
                     FormBuilderFieldOption(
-                        value: 'extrudeSteps', child: Text('pages.printer_edit.extruders.steps_extrude_short').tr()),
+                        value: 'extrudeSteps',
+                        child: Text(
+                                'pages.printer_edit.extruders.steps_extrude_short')
+                            .tr()),
                   ],
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
@@ -144,7 +173,8 @@ class ImportSettingsView
                   FormBuilderCheckboxGroup<TemperaturePreset>(
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     decoration: InputDecoration(
-                        labelText: tr('pages.dashboard.general.temp_card.temp_presets')),
+                        labelText: tr(
+                            'pages.dashboard.general.temp_card.temp_presets')),
                     name: 'temp_presets',
                     // initialValue: const ['Dart'],
                     options: model.presets
@@ -159,7 +189,9 @@ class ImportSettingsView
               ],
             ),
           ),
-        _Footer(request: request,)
+        _Footer(
+          request: request,
+        )
       ];
     }
   }

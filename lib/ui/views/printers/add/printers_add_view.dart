@@ -35,40 +35,47 @@ class PrinterAdd extends StatelessWidget {
                       _SectionHeader(title: 'pages.setting.general.title'.tr()),
                       FormBuilderTextField(
                         decoration: InputDecoration(
-                          labelText: 'pages.printer_edit.general.displayname'.tr(),
+                          labelText:
+                              'pages.printer_edit.general.displayname'.tr(),
                         ),
                         name: 'printerName',
                         initialValue: model.defaultPrinterName,
                         validator: FormBuilderValidators.compose(
-                            [FormBuilderValidators.required(context)]),
+                            [FormBuilderValidators.required()]),
                       ),
                       FormBuilderTextField(
                         decoration: InputDecoration(
-                            labelText: 'pages.printer_edit.general.printer_addr'.tr(),
-                            hintText: 'pages.printer_add.printer_add_helper'.tr(),
+                            labelText:
+                                'pages.printer_edit.general.printer_addr'.tr(),
+                            hintText:
+                                'pages.printer_add.printer_add_helper'.tr(),
                             helperMaxLines: 2,
                             helperText: model.wsUrl?.isNotEmpty ?? false
-                                ? 'pages.printer_add.resulting_ws_url'.tr(args: [model.wsUrl.toString()])
+                                ? 'pages.printer_add.resulting_ws_url'
+                                    .tr(args: [model.wsUrl.toString()])
                                 : '' //TODO
                             ),
                         onChanged: model.onUrlEntered,
                         name: 'printerUrl',
                         // initialValue: model.inputUrl,
                         validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.required(context),
-                          FormBuilderValidators.url(context,
+                          FormBuilderValidators.required(),
+                          FormBuilderValidators.url(
                               protocols: ['ws', 'wss', 'http', 'https'])
                         ]),
                       ),
                       FormBuilderTextField(
                         decoration: InputDecoration(
-                            labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
+                            labelText:
+                                'pages.printer_edit.general.moonraker_api_key'
+                                    .tr(),
                             suffix: IconButton(
                               icon: Icon(Icons.qr_code_sharp),
                               onPressed: model.openQrScanner,
                             ),
                             helperText:
-                                'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                                'pages.printer_edit.general.moonraker_api_desc'
+                                    .tr(),
                             helperMaxLines: 3),
                         name: 'printerApiKey',
                       ),
@@ -89,14 +96,16 @@ class PrinterAdd extends StatelessWidget {
                               color: model.wsStateColor,
                             ),
                             Spacer(flex: 1),
-                            Text('pages.printer_add.result_ws_test').tr(args: [model.wsResult]),
+                            Text('pages.printer_add.result_ws_test')
+                                .tr(args: [model.wsResult]),
                             Spacer(flex: 30),
                             ElevatedButton(
                                 onPressed:
                                     (model.data != ClientState.connecting)
                                         ? model.onTestConnectionTap
                                         : null,
-                                child: Text('pages.printer_add.run_test_btn').tr())
+                                child:
+                                    Text('pages.printer_add.run_test_btn').tr())
                           ],
                         ),
                       ),

@@ -13,7 +13,10 @@ class RenameFileDialogArguments {
   final String? fileExt;
 
   RenameFileDialogArguments(
-      {required this.initialValue, this.blocklist = const [], this.matchPattern, this.fileExt});
+      {required this.initialValue,
+      this.blocklist = const [],
+      this.matchPattern,
+      this.fileExt});
 }
 
 class RenameFileDialogView
@@ -44,8 +47,8 @@ class RenameFileDialogView
               FormBuilderTextField(
                 autofocus: true,
                 validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(context),
-                  FormBuilderValidators.match(context, model.pattern!),
+                  FormBuilderValidators.required(),
+                  FormBuilderValidators.match(model.pattern!),
                   notContains(context, model.blockList,
                       errorText: 'Name already in use!')
                 ]),
@@ -53,11 +56,10 @@ class RenameFileDialogView
                 name: 'newValue',
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                  border: const UnderlineInputBorder(),
-                  contentPadding: const EdgeInsets.all(8.0),
-                  labelText: request.description,
-                  suffix: model.hasFileExt? Text(model.fileExt!):null
-                ),
+                    border: const UnderlineInputBorder(),
+                    contentPadding: const EdgeInsets.all(8.0),
+                    labelText: request.description,
+                    suffix: model.hasFileExt ? Text(model.fileExt!) : null),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
