@@ -1,4 +1,4 @@
-import 'package:mobileraker/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 
 class GenericFan implements NamedFan {
   @override

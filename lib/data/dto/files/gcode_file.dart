@@ -1,5 +1,5 @@
-import 'package:mobileraker/dto/files/remote_file.dart';
-import 'package:mobileraker/dto/files/gcode_thumbnail.dart';
+import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/gcode_thumbnail.dart';
 
 class GCodeFile extends RemoteFile {
   double? printStartTime;

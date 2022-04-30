@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:mobileraker/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/ui/views/files/details/gcode_file_details_viewmodel.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:stacked/stacked.dart';

@@ -1,7 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
 
 class MachineStateIndicator extends StatelessWidget {
   final KlipperInstance? server;

@@ -1,4 +1,4 @@
-import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/model/hive/machine.dart';
 
 abstract class MachineRepository {
   Future<void> insert(Machine machine);

@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/repository/machine_repository.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/repository/machine_repository.dart';
 
 class MachineHiveRepository implements MachineRepository {
   late final _boxmachines = Hive.box<Machine>('printers');

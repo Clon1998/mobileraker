@@ -7,10 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/moonraker/temperature_preset.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/toolhead.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/model/moonraker/temperature_preset.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/machine/toolhead.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
@@ -454,14 +454,10 @@ class _HeaterCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Color col = Theme.of(context).colorScheme.surfaceVariant;
-    var textCol = Theme.of(context).colorScheme.onSurfaceVariant;
     if (target > 0 && onTap != null) {
       col = Color.alphaBlend(
           Color.fromRGBO(178, 24, 24, 1).withOpacity(min(current / target, 1)),
           col);
-      textCol = Color.alphaBlend(
-          Colors.white.withOpacity(min(current / target, 1)),
-          Theme.of(context).colorScheme.onSecondary);
     }
 
     return CardWithButton(
@@ -595,7 +591,7 @@ class _TemperaturePresetCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.caption)
                   .tr(args: [extruderTemp.toString()]),
               Text('pages.dashboard.general.temp_preset_card.b_temp',
-                  style: Theme.of(context).textTheme.caption)
+                      style: Theme.of(context).textTheme.caption)
                   .tr(args: [bedTemp.toString()]),
             ],
           );

@@ -1,12 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
@@ -20,10 +18,8 @@ const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _PrinterStreamKey = 'printer';
 
 class DashboardViewModel extends MultipleStreamViewModel {
-  final _navigationService = locator<NavigationService>();
   final _bottomSheetService = locator<BottomSheetService>();
   final _dialogService = locator<DialogService>();
-  final _machineService = locator<MachineService>();
   final _selectedMachineService = locator<SelectedMachineService>();
   final _settingService = locator<SettingService>();
 

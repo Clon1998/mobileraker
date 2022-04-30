@@ -4,7 +4,7 @@ import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:mobileraker/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/ui/views/files/details/config_file_details_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';

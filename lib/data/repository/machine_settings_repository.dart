@@ -1,5 +1,5 @@
 
-import 'package:mobileraker/domain/moonraker/machine_settings.dart';
+import 'package:mobileraker/model/moonraker/machine_settings.dart';
 
 abstract class MachineSettingsRepository {
   Future<void> update(MachineSettings machineSettings);

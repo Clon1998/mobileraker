@@ -1,17 +1,17 @@
-import 'package:mobileraker/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 
-class ControllerFan implements NamedFan {
+class TemperatureFan implements NamedFan {
   @override
   String name;
   @override
   double speed = 0.0;
 
-  ControllerFan(this.name);
+  TemperatureFan(this.name);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ControllerFan &&
+          other is TemperatureFan &&
               runtimeType == other.runtimeType &&
               name == other.name &&
               speed == other.speed;

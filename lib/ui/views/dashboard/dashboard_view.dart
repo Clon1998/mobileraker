@@ -1,13 +1,12 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
-import 'package:animations/animations.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
@@ -54,10 +53,10 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
         body: ConnectionStateView(
           onConnected: (model.isPrinterAvailable)
               ? PageView(
-                controller: model.pageController,
-                onPageChanged: model.onPageChanged,
-                children: [GeneralTab(), ControlTab()],
-              )
+                  controller: model.pageController,
+                  onPageChanged: model.onPageChanged,
+                  children: [GeneralTab(), ControlTab()],
+                )
               : Center(
                   child: Column(
                     key: UniqueKey(),
@@ -110,24 +109,6 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
   @override
   DashboardViewModel viewModelBuilder(BuildContext context) =>
       DashboardViewModel();
-
-  Color? _getActiveTextColor(context) {
-    var themeData = Theme.of(context);
-    if (themeData.brightness == Brightness.dark)
-      return themeData.colorScheme.secondary;
-    return Colors.white;
-  }
-
-  Widget _getViewForIndex(int index) {
-    switch (index) {
-      case 0:
-        return GeneralTab();
-      case 1:
-        return ControlTab();
-      default:
-        return GeneralTab();
-    }
-  }
 
   Widget? printingStateToFab(DashboardViewModel model) {
     if (!model.isPrinterAvailable || !model.isServerAvailable) return null;

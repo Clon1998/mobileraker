@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -10,7 +9,7 @@ import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/themes/theme_pack.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
   const SettingView({Key? key}) : super(key: key);
@@ -87,9 +86,9 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                             ..onTap = () async {
                               const String url =
                                   'https://github.com/Clon1998/mobileraker_companion';
-                              if (await canLaunch(url)) {
+                              if (await canLaunchUrlString(url)) {
                                 //TODO Fix this... neds Android Package Visibility
-                                await launch(url);
+                                await launchUrlString(url);
                               } else {
                                 throw 'Could not launch $url';
                               }
@@ -108,7 +107,6 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                   style: TextButton.styleFrom(
                       minimumSize: Size.zero, // Set this
                       padding: EdgeInsets.zero,
-
                       textStyle: Theme.of(context)
                           .textTheme
                           .bodySmall

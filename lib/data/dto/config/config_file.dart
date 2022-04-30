@@ -1,9 +1,9 @@
 import 'dart:collection';
 
-import 'package:mobileraker/dto/config/config_extruder.dart';
-import 'package:mobileraker/dto/config/config_heater_bed.dart';
-import 'package:mobileraker/dto/config/config_output.dart';
-import 'package:mobileraker/dto/config/config_printer.dart';
+import 'package:mobileraker/data/dto/config/config_extruder.dart';
+import 'package:mobileraker/data/dto/config/config_heater_bed.dart';
+import 'package:mobileraker/data/dto/config/config_output.dart';
+import 'package:mobileraker/data/dto/config/config_printer.dart';
 
 //TODO Decide regarding null values or not!
 class ConfigFile {

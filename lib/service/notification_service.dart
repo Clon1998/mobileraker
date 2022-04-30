@@ -13,10 +13,10 @@ import 'package:intl/intl.dart';
 import 'package:mobileraker/app/app_setup.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
+import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/firebase_options.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
@@ -253,7 +253,8 @@ class NotificationService {
       await _machineService.registerFCMTokenOnMachine(machine, fcmToken);
       // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
     } catch (e, s) {
-      _logger.w('Could not setupFCM on ${machine.name}(${machine.wsUrl})',null);
+      _logger.w(
+          'Could not setupFCM on ${machine.name}(${machine.wsUrl})', null, s);
     }
   }
 

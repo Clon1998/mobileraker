@@ -5,15 +5,14 @@ import 'dart:io';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:file/memory.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_parser/http_parser.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/exceptions.dart';
-import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/dto/files/folder.dart';
-import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/dto/files/moonraker/file_api_response.dart';
-import 'package:mobileraker/dto/files/remote_file.dart';
+import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/dto/files/folder.dart';
+import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
+import 'package:mobileraker/data/dto/files/remote_file.dart';
 
 enum FileRoot { gcodes, config, config_examples, docs }
 

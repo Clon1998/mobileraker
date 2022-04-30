@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/datasource/json_rpc_client.dart';
+import 'package:mobileraker/data/datasource/json_rpc_client.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 
 /// The DatabaseService handles interacts with moonrakers database!
@@ -91,7 +91,7 @@ class MoonrakerDatabaseClient {
     if (client == null && !_selectedMachineService.selectedMachine.hasValue) {
       throw Exception('No machine/jRpcClient available');
     }
-    client ??= _selectedMachineService.selectedMachine.value!.jRpcClient;
+    client ??= _selectedJRpcClient;
     if (client.stateStream.valueOrNull != ClientState.connected) {
       throw WebSocketException('JsonRpcClient is not connected. Target-URL: ${client.url}');
     }

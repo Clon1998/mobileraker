@@ -1,14 +1,14 @@
-import 'package:mobileraker/dto/config/config_file.dart';
-import 'package:mobileraker/dto/machine/extruder.dart';
-import 'package:mobileraker/dto/machine/fans/named_fan.dart';
-import 'package:mobileraker/dto/machine/fans/print_fan.dart';
-import 'package:mobileraker/dto/machine/gcode_move.dart';
-import 'package:mobileraker/dto/machine/heater_bed.dart';
-import 'package:mobileraker/dto/machine/output_pin.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/temperature_sensor.dart';
-import 'package:mobileraker/dto/machine/toolhead.dart';
-import 'package:mobileraker/dto/machine/virtual_sd_card.dart';
+import 'package:mobileraker/data/dto/config/config_file.dart';
+import 'package:mobileraker/data/dto/machine/extruder.dart';
+import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
+import 'package:mobileraker/data/dto/machine/gcode_move.dart';
+import 'package:mobileraker/data/dto/machine/heater_bed.dart';
+import 'package:mobileraker/data/dto/machine/output_pin.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
+import 'package:mobileraker/data/dto/machine/toolhead.dart';
+import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 
 class Printer {
   Toolhead toolhead = Toolhead();

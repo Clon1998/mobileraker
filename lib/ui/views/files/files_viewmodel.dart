@@ -2,22 +2,20 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/dto/files/remote_file.dart';
-import 'package:mobileraker/dto/files/folder.dart';
-import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/dto/files/moonraker/file_notification_item.dart';
-import 'package:mobileraker/dto/files/moonraker/file_api_response.dart';
-import 'package:mobileraker/dto/files/moonraker/file_notification_source_item.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/files/folder.dart';
+import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
+import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/dialog/renameFile/rename_file_dialog_view.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
@@ -38,7 +36,6 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
-  final _bottomSheetService = locator<BottomSheetService>();
   final _selectedMachineService = locator<SelectedMachineService>();
   final _snackBarService = locator<SnackbarService>();
 
@@ -105,8 +102,8 @@ class FilesViewModel extends MultipleStreamViewModel {
 
     if (queryTerm.isNotEmpty && isSearching) {
       List<String> terms = queryTerm.split(RegExp('\\W+'));
-      RegExp regExp =
-          RegExp(terms.where((element) => element.isNotEmpty).join("|"));
+      // RegExp regExp =
+      //     RegExp(terms.where((element) => element.isNotEmpty).join("|"));
       folders = folders
           .where((element) =>
               terms.every((t) => element.name.toLowerCase().contains(t)))

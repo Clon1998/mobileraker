@@ -1,11 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/domain/hive/webcam_setting.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/webcam_setting.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -16,7 +14,6 @@ class FullCamViewModel extends StreamViewModel<Printer> {
   WebcamSetting selectedCam;
 
   FullCamViewModel(this.owner, this.selectedCam);
-
 
   PrinterService? get _printerService => owner.printerService;
 
@@ -55,7 +52,7 @@ class FullCamViewModel extends StreamViewModel<Printer> {
   }
 
   List<WebcamSetting> get webcams {
-    if (owner != null && owner.cams.isNotEmpty) {
+    if (owner.cams.isNotEmpty) {
       return owner.cams;
     }
     return List.empty();

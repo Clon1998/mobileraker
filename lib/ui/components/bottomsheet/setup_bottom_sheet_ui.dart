@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -39,9 +38,8 @@ class _NonPrintingBottomSheet
       Widget? child) {
     var themeData = Theme.of(context);
     var buttonStyle = ElevatedButton.styleFrom(
-      padding: EdgeInsets.symmetric(horizontal: 22),
+        padding: EdgeInsets.symmetric(horizontal: 22),
         shape: RoundedRectangleBorder(
-
           borderRadius: BorderRadius.circular(18.0),
         ));
 
@@ -99,7 +97,8 @@ class _NonPrintingBottomSheet
               onPressed: model.onRestartMoonrakerPressed,
               buttonStyle: buttonStyle),
           FullWidthButton(
-              child: Text('${tr('general.firmware')} ${tr('general.restart').toLowerCase()}'),
+              child: Text(
+                  '${tr('general.firmware')} ${tr('general.restart').toLowerCase()}'),
               onPressed: model.onRestartMCUPressed,
               buttonStyle: buttonStyle),
           ElevatedButton.icon(
@@ -148,7 +147,6 @@ class NonPrintingBottomSheetViewModel extends BaseViewModel {
   final SheetRequest request;
   final Function(SheetResponse) completer;
 
-  final _snackBarService = locator<SnackbarService>();
   final _selectedMachineService = locator<SelectedMachineService>();
 
   NonPrintingBottomSheetViewModel(this.request, this.completer);

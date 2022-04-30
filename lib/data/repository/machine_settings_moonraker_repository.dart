@@ -1,8 +1,8 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/datasource/json_rpc_client.dart';
-import 'package:mobileraker/datasource/moonraker_database_client.dart';
-import 'package:mobileraker/domain/moonraker/machine_settings.dart';
+import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:mobileraker/data/datasource/moonraker_database_client.dart';
+import 'package:mobileraker/model/moonraker/machine_settings.dart';
 
 import 'machine_settings_repository.dart';
 

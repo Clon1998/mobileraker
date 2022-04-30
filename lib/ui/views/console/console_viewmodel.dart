@@ -1,17 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/dto/console/command.dart';
-import 'package:mobileraker/dto/console/console_entry.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/data/dto/console/command.dart';
+import 'package:mobileraker/data/dto/console/console_entry.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
-import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -35,7 +33,6 @@ const List<String> additionalCmds = const [
 class ConsoleViewModel extends MultipleStreamViewModel {
   final _logger = getLogger('ConsoleViewModel');
 
-  final _navigationService = locator<NavigationService>();
   final _dialogService = locator<DialogService>();
   final _selectedMachineService = locator<SelectedMachineService>();
   final _settingService = locator<SettingService>();
@@ -74,11 +71,12 @@ class ConsoleViewModel extends MultipleStreamViewModel {
     if (text.isEmpty) return history;
 
     List<String> terms = text.split(RegExp('\\W+'));
-    RegExp regExp =
-        RegExp(terms.where((element) => element.isNotEmpty).join("|"));
+    // RegExp regExp =
+    //     RegExp(terms.where((element) => element.isNotEmpty).join("|"));
 
     return history
-        .where((element) => terms.every((t) => element.toLowerCase().contains(t)))
+        .where(
+            (element) => terms.every((t) => element.toLowerCase().contains(t)))
         .toList(growable: false);
   }
 

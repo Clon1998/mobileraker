@@ -1,15 +1,11 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
-
-
 
 class SettingViewModel extends FutureViewModel<PackageInfo> {
   final _logger = getLogger("SettingViewModel");
@@ -24,10 +20,11 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
 
   bool get showBabyAlwaysValue => _settingService.readBool(showBabyAlwaysKey);
 
-  bool get useTextInputForNum => _settingService.readBool(useTextInputForNumKey);
+  bool get useTextInputForNum =>
+      _settingService.readBool(useTextInputForNumKey);
 
   bool get startWithOverview => _settingService.readBool(startWithOverviewKey);
-  
+
   String get version {
     if (isBusy) return "Version: unavailable";
     PackageInfo packageInfo = data!;
@@ -60,7 +57,7 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
         context: context,
         applicationVersion: version,
         applicationLegalese:
-        'MIT License\n\nCopyright (c) 2021 Patrick Schmidt',
+            'MIT License\n\nCopyright (c) 2021 Patrick Schmidt',
         applicationIcon: Center(
           child: Image(
               height: 80,

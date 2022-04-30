@@ -1,4 +1,4 @@
-import 'package:mobileraker/dto/machine/fans/fan.dart';
+import 'package:mobileraker/data/dto/machine/fans/fan.dart';
 
 class PrintFan implements Fan {
   @override

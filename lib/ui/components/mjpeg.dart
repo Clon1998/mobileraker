@@ -254,6 +254,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 }
 
+/// This Manager is for the normal MJPEG!
 class _StreamManager {
   final _logger = getLogger('_StreamManager');
 
@@ -363,6 +364,8 @@ class _StreamManager {
   }
 }
 
+
+/// Manager for an Adaptive MJPEG, using snapshots/images of the MJPEG provider!
 class _AdaptiveStreamManager {
   _AdaptiveStreamManager(String baseUri, this.headers, this.timeout,
       this.targetFps) {

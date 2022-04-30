@@ -1,17 +1,15 @@
-import 'dart:ui';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
+import 'package:mobileraker/model/hive/machine.dart';
 import 'package:mobileraker/service/ui/theme_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class NavigationDrawerWidget
     extends ViewModelBuilderWidget<NavDrawerViewModel> {
@@ -105,9 +103,9 @@ class NavigationDrawerWidget
                           ..onTap = () async {
                             const String url =
                                 'https://github.com/Clon1998/mobileraker';
-                            if (await canLaunch(url)) {
+                            if (await canLaunchUrlString(url)) {
                               //TODO Fix this... neds Android Package Visibility
-                              await launch(url);
+                              await launchUrlString(url);
                             } else {
                               throw 'Could not launch $url';
                             }
@@ -145,8 +143,12 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
     var brandingIcon = (themeData.brightness == Brightness.light)
         ? context.themeService.selectedThemePack.brandingIcon
         : context.themeService.selectedThemePack.brandingIconDark;
-    var background = (themeData.brightness == Brightness.light)? themeData.colorScheme.primary: themeData.colorScheme.surfaceVariant;
-    var onBackground = (themeData.brightness == Brightness.light)? themeData.colorScheme.onPrimary: themeData.colorScheme.onSurfaceVariant;
+    var background = (themeData.brightness == Brightness.light)
+        ? themeData.colorScheme.primary
+        : themeData.colorScheme.surfaceVariant;
+    var onBackground = (themeData.brightness == Brightness.light)
+        ? themeData.colorScheme.onPrimary
+        : themeData.colorScheme.onSurfaceVariant;
 
     return DrawerHeader(
         margin: EdgeInsets.zero,
@@ -175,16 +177,16 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
                               model.selectedPrinterDisplayName,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.titleLarge?.copyWith(
-                                  color:onBackground),
+                              style: themeData.textTheme.titleLarge
+                                  ?.copyWith(color: onBackground),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               model.printerUrl,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.subtitle2?.copyWith(
-                                  color: onBackground),
+                              style: themeData.textTheme.subtitle2
+                                  ?.copyWith(color: onBackground),
                             ),
                           ],
                         ),
@@ -235,7 +237,9 @@ class _DrawerItem extends ViewModelWidget<NavDrawerViewModel> {
   @override
   Widget build(BuildContext context, NavDrawerViewModel model) {
     var themeData = Theme.of(context);
-    var selectedTileColor = (themeData.brightness == Brightness.light)? themeData.colorScheme.surfaceVariant:themeData.colorScheme.primaryContainer.withOpacity(.1);
+    var selectedTileColor = (themeData.brightness == Brightness.light)
+        ? themeData.colorScheme.surfaceVariant
+        : themeData.colorScheme.primaryContainer.withOpacity(.1);
 
     return ListTile(
       selected: model.isSelected(path),
@@ -255,7 +259,9 @@ class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
     List<Machine> printers = model.dataReady ? model.printers : [];
     var themeData = Theme.of(context);
     var onBackGroundColor = themeData.colorScheme.onBackground;
-    var selectedTileColor = (themeData.brightness == Brightness.light)? themeData.colorScheme.surfaceVariant:themeData.colorScheme.primaryContainer.withOpacity(.1);
+    var selectedTileColor = (themeData.brightness == Brightness.light)
+        ? themeData.colorScheme.surfaceVariant
+        : themeData.colorScheme.primaryContainer.withOpacity(.1);
     const double baseIconSize = 20;
     const basePadding = const EdgeInsets.only(left: 16, right: 16);
     return AnimatedContainer(

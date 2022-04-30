@@ -1,6 +1,6 @@
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:mobileraker/dto/files/moonraker/file_notification_item.dart';
-import 'package:mobileraker/dto/files/moonraker/file_notification_source_item.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 
 class FileApiResponse {

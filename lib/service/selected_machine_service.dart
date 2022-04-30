@@ -1,8 +1,8 @@
 import 'package:hive/hive.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/domain/hive/machine.dart';
-import 'package:mobileraker/repository/machine_hive_repository.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:rxdart/rxdart.dart';
 
 /// Service handling currently selected machine!
