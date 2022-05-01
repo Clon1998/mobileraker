@@ -39,7 +39,7 @@ Future<void> main() async {
   initialRoute = await selectInitialRoute();
   runApp(EasyLocalization(
       child: MyApp(),
-      supportedLocales: [Locale('en'), Locale('de')],
+      supportedLocales: [Locale('en'), Locale('de'), Locale('hu')],
       fallbackLocale: Locale('en'),
       saveLocale: true,
       useFallbackTranslations: true,
