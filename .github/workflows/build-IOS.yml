@@ -15,9 +15,9 @@ jobs:
       - run: flutter packages pub run build_runner build
       - uses: mxcl/xcodebuild@v1.10.0
         with:
-          working-directory: ios
           action: build
-          authentication-key-base64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
+          working-directory: ios
           authentication-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           authentication-key-issuer-id: ${{ secrets.APP_STORE_CONNECT_KEY_ISSER_ID }}
+          authentication-key-base64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
           
