@@ -13,6 +13,7 @@ jobs:
       - run: echo ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }} | base64 -d > ./ios/Runner/GoogleService-Info.plist
       - run: flutter pub get
       - run: flutter packages pub run build_runner build
+      - run: find . -name "Podfile" -execdir pod install \;
       - uses: mxcl/xcodebuild@v1.10.0
         with:
           action: build
