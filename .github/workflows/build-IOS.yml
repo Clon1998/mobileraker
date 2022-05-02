@@ -17,6 +17,6 @@ jobs:
         with:
           working-directory: ios
           authentication-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          authentication-key-issuer-id: ${{ secrets.APP_STORE_CONNECT_KEY_ISSER_ID }}
+          authentication-key-issuer-id: ${{ secrets.APP_STORE_CONNECT_KEY_ISSUER_ID }}
           authentication-key-base64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
           
