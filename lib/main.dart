@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:logger/logger.dart';
@@ -30,6 +31,7 @@ Future<void> main() async {
   setupLocator();
   await locator.allReady();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAppCheck.instance.activate();
   await EasyLocalization.ensureInitialized();
   await locator<NotificationService>().initialize();
   setupSnackbarUi();
