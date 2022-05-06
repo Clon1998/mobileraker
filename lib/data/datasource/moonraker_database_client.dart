@@ -36,13 +36,16 @@ class MoonrakerDatabaseClient {
     _logger.i('Getting $key');
     var params = {"namespace": namespace};
     if (key != null) params["key"] = key;
+    try {
+      RpcResponse blockingResponse = await _client
+          .sendJRpcMethod("server.database.get_item", params: params);
 
-    RpcResponse blockingResponse = await _client
-        .sendJRpcMethod("server.database.get_item", params: params);
-
-    if (blockingResponse.hasNoError &&
-        blockingResponse.response.containsKey('result'))
-      return blockingResponse.response['result']['value'];
+      if (blockingResponse.hasNoError &&
+          blockingResponse.response.containsKey('result'))
+        return blockingResponse.response['result']['value'];
+    } on JRpcError catch (e) {
+      _logger.e("Could not fetch settings!");
+    }
     return null;
   }
 
@@ -58,13 +61,11 @@ class MoonrakerDatabaseClient {
     if (blockingResponse.hasNoError &&
         blockingResponse.response.containsKey('result')) {
       dynamic value = blockingResponse.response['result']['value'];
-      if (value is List)
-        return value.cast<T>();
+      if (value is List) return value.cast<T>();
       if (value is T)
         return value;
       else
         return value;
-
     } else {
       _logger.e('Error while adding to Moonraker-DB: ${blockingResponse.err}');
     }
@@ -93,7 +94,8 @@ class MoonrakerDatabaseClient {
     }
     client ??= _selectedJRpcClient;
     if (client.stateStream.valueOrNull != ClientState.connected) {
-      throw WebSocketException('JsonRpcClient is not connected. Target-URL: ${client.url}');
+      throw WebSocketException(
+          'JsonRpcClient is not connected. Target-URL: ${client.url}');
     }
     return client;
   }

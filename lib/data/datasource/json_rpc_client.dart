@@ -253,10 +253,12 @@ class JsonRpcClient {
     _logger.d('[$url] Received(Blocking) for id: "$mId"');
     if (_requestsBlocking.containsKey(mId)) {
       Completer completer = _requestsBlocking.remove(mId)!;
-      if (err != null)
+      if (err != null) {
+        // _logger.e('Completing $mId with error $err,\n${StackTrace.current}',);
         completer.completeError(JRpcError(err['code'], err['message']));
-      else
+      } else {
         completer.complete(RpcResponse(response, err));
+      }
     }
   }
 

@@ -23,9 +23,7 @@ class MachineSettingsMoonrakerRepository implements MachineSettingsRepository {
   Future<MachineSettings?> get([JsonRpcClient? jsonRpcClient]) async {
     var json = await _databaseService.getDatabaseItem('mobileraker',
         key: 'settings', client: jsonRpcClient);
-
     if (json == null) return null;
-
     return MachineSettings.fromJson(json);
   }
 }
