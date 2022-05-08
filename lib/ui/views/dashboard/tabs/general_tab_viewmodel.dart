@@ -1,18 +1,17 @@
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/model/hive/machine.dart';
-import 'package:mobileraker/model/hive/webcam_setting.dart';
-import 'package:mobileraker/model/moonraker/machine_settings.dart';
-import 'package:mobileraker/model/moonraker/temperature_preset.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/webcam_setting.dart';
+import 'package:mobileraker/model/moonraker/machine_settings.dart';
+import 'package:mobileraker/model/moonraker/temperature_preset.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -332,12 +331,4 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     _klippyService?.restartMCUs();
   }
 
-  longPressReminder() {
-    Fluttertoast.showToast(
-        msg: "This is Center Short Toast",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        fontSize: 16.0);
-  }
 }

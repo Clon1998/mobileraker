@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get_utils/get_utils.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/service/machine_service.dart';
