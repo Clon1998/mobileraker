@@ -1,7 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:get_utils/get_utils.dart';
+
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -19,6 +19,7 @@ import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:stringr/stringr.dart';
 
 const _PrinterMapKey = 'printer';
 const _MachinesMapKey = 'machines';
@@ -113,7 +114,6 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
 
   Future<MachineSettings> _machineSettingsFuture() =>
       _machineService.fetchSettings(machine);
-
 
   @override
   void onFutureError(dynamic error, Object? key) {
@@ -282,7 +282,6 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
       var printerUrl = currentState.value['printerUrl'];
       var wsUrl = currentState.value['wsUrl'];
 
-
       _saveAllGroupStuff();
 
       machine
@@ -315,18 +314,20 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
         var speedZ = currentState.value['speedZ'];
         var extrudeSpeed = currentState.value['extrudeSpeed'];
 
-        await _machineService.updateSettings(machine, MachineSettings(
-            created: machineSettings.created,
-            lastModified: DateTime.now(),
-            macroGroups: _macroGroups,
-            temperaturePresets: tempPresets,
-            babySteps: printerBabySteps,
-            extrudeSteps: printerExtruderSteps,
-            moveSteps: printerMoveSteps,
-            extrudeFeedrate: extrudeSpeed,
-            inverts: inverts,
-            speedXY: speedXY,
-            speedZ: speedZ));
+        await _machineService.updateSettings(
+            machine,
+            MachineSettings(
+                created: machineSettings.created,
+                lastModified: DateTime.now(),
+                macroGroups: _macroGroups,
+                temperaturePresets: tempPresets,
+                babySteps: printerBabySteps,
+                extrudeSteps: printerExtruderSteps,
+                moveSteps: printerMoveSteps,
+                extrudeFeedrate: extrudeSpeed,
+                inverts: inverts,
+                speedXY: speedXY,
+                speedZ: speedZ));
       }
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
@@ -375,7 +376,8 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
             variant: DialogType.importSettings,
             title: 'Copy Settings',
             mainButtonTitle: materialLocalizations.copyButtonLabel,
-            secondaryButtonTitle: materialLocalizations.cancelButtonLabel.capitalizeFirst,
+            secondaryButtonTitle:
+                materialLocalizations.cancelButtonLabel.titleCase(),
             data: machine)
         .then(onImportSettingsReturns);
   }
@@ -385,7 +387,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
       FormBuilderState currentState = _fbKey.currentState!;
       ImportSettingsDialogViewResults result = response.data;
       ImportMachineSettingsDto importDto = result.source;
-      MachineSettings settings  = importDto.machineSettings;
+      MachineSettings settings = importDto.machineSettings;
       Map<String, dynamic> patchingValues = {};
       for (String field in result.fields) {
         switch (field) {
@@ -486,8 +488,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   }
 
   _saveAllMacroGroups() {
-    if (isFetchingSettings)
-      return;
+    if (isFetchingSettings) return;
     macroGroups.forEach((element) => _saveMacroGroup(element));
   }
 
@@ -521,8 +522,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   }
 
   _saveAllPresets() {
-    if (isFetchingSettings || settingsHasError)
-      return;
+    if (isFetchingSettings || settingsHasError) return;
     tempPresets.forEach((element) {
       _savePreset(element);
     });

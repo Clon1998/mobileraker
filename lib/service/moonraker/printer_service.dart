@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:get_utils/get_utils.dart';
+
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
@@ -25,6 +25,7 @@ import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
+import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
 

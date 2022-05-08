@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:get_utils/get_utils.dart';
+
 import 'package:mobileraker/ui/components/dialog/editForm/num_edit_form_viewmodel.dart';
+import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:stacked/stacked.dart';
 import 'package:intl/intl.dart';
 import 'package:stacked_services/stacked_services.dart';

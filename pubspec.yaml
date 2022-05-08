@@ -39,7 +39,7 @@ dependencies:
   stacked_services: ^0.8.22
 
   #util
-  get_utils: ^3.13.0
+  stringr: ^1.0.0
   enum_to_string: ^2.0.1
   uuid: ^3.0.5
   url_launcher: ^6.0.20

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:get_utils/get_utils.dart';
+
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -26,6 +26,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:stringr/stringr.dart';
 
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _FolderContentStreamKey = 'folderContent';
@@ -224,10 +225,8 @@ class FilesViewModel extends MultipleStreamViewModel {
         title: tr('dialogs.create_folder.title'),
         description: tr('dialogs.create_folder.label'),
         mainButtonTitle: tr('general.create'),
-        secondaryButtonTitle: MaterialLocalizations.of(context)
-                .cancelButtonLabel
-                .capitalizeFirst ??
-            'Cancel',
+        secondaryButtonTitle:
+            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
         data: RenameFileDialogArguments(
             blocklist: _folderContent.folders
                 .map((e) => e.name)
@@ -262,9 +261,7 @@ class FilesViewModel extends MultipleStreamViewModel {
                 tr('dialogs.delete_file.description', args: [fileName]),
             dialogPlatform: DialogPlatform.Material,
             confirmationTitle: materialLocalizations.deleteButtonTooltip,
-            cancelTitle:
-                materialLocalizations.cancelButtonLabel.capitalizeFirst ??
-                    'Cancel');
+            cancelTitle: materialLocalizations.cancelButtonLabel.titleCase());
 
     if (dialogResponse?.confirmed ?? false) {
       setBusyForObject(this, true);
@@ -292,9 +289,7 @@ class FilesViewModel extends MultipleStreamViewModel {
                 tr('dialogs.delete_folder.description', args: [fileName]),
             dialogPlatform: DialogPlatform.Material,
             confirmationTitle: materialLocalizations.deleteButtonTooltip,
-            cancelTitle:
-                materialLocalizations.cancelButtonLabel.capitalizeFirst ??
-                    'Cancel');
+            cancelTitle: materialLocalizations.cancelButtonLabel.titleCase());
 
     if (dialogResponse?.confirmed ?? false) {
       setBusyForObject(this, true);
@@ -324,10 +319,8 @@ class FilesViewModel extends MultipleStreamViewModel {
         title: tr('dialogs.rename_file.title'),
         description: tr('dialogs.rename_file.label'),
         mainButtonTitle: tr('general.rename'),
-        secondaryButtonTitle: MaterialLocalizations.of(context)
-                .cancelButtonLabel
-                .capitalizeFirst ??
-            'Cancel',
+        secondaryButtonTitle:
+            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
         data: RenameFileDialogArguments(
             initialValue: fileName,
             blocklist: fileNames,
@@ -364,10 +357,8 @@ class FilesViewModel extends MultipleStreamViewModel {
         title: tr('dialogs.rename_folder.title'),
         description: tr('dialogs.rename_folder.label'),
         mainButtonTitle: tr('general.rename'),
-        secondaryButtonTitle: MaterialLocalizations.of(context)
-                .cancelButtonLabel
-                .capitalizeFirst ??
-            'Cancel',
+        secondaryButtonTitle:
+            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
         data: RenameFileDialogArguments(
             initialValue: fileName,
             blocklist: fileNames,
