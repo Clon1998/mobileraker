@@ -1,24 +1,32 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
-import 'package:mobileraker/dto/files/folder.dart';
-import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_item.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_notification.dart';
-import 'package:mobileraker/dto/files/notification/file_list_changed_source_item.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/file_service.dart';
-import 'package:mobileraker/service/klippy_service.dart';
-import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/files/folder.dart';
+import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
+import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/ui/components/dialog/renameFile/rename_file_dialog_view.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
+import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:mobileraker/util/path_utils.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:stringr/stringr.dart';
 
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _FolderContentStreamKey = 'folderContent';
@@ -28,142 +36,110 @@ const String _ServerStreamKey = 'server';
 class FilesViewModel extends MultipleStreamViewModel {
   final _logger = getLogger('FilesViewModel');
 
+  final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
-  final _bottomSheetService = locator<BottomSheetService>();
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
+  final _snackBarService = locator<SnackbarService>();
 
   bool isSearching = false;
 
-  int selectedSorting = 0;
+  int currentPageIndex = 0;
 
-  List<Comparator<Folder>?> folderComparators = [
+  int currentComparatorIndex = 0;
+
+  final List<Comparator<Folder>?> folderComparators = [
     (folderA, folderB) => folderB.modified.compareTo(folderA.modified),
     (folderA, folderB) => folderA.name.compareTo(folderB.name),
     null,
   ];
-  List<Comparator<GCodeFile>?> fileComparators = [
-    (fileA, fileB) => fileB.modified.compareTo(fileA.modified),
-    (fileA, fileB) => fileA.name.compareTo(fileB.name),
-    (fileA, fileB) =>
-        fileB.printStartTime?.compareTo(fileA.printStartTime ?? 0) ?? -1,
+
+  late final List<Comparator<RemoteFile>?> fileComparators = [
+    _comparatorModified,
+    _comparatorName,
+    _comparatorPrintStart
   ];
 
-  PrinterSetting? _printerSetting;
-
-  FileService? get _fileService => _printerSetting?.fileService;
-
-  KlippyService? get _klippyService => _printerSetting?.klippyService;
-
-  RefreshController refreshController =
+  final RefreshController refreshController =
       RefreshController(initialRefresh: false);
 
-  TextEditingController searchEditingController = TextEditingController();
+  final TextEditingController searchEditingController = TextEditingController();
 
-  StreamController<FolderContentWrapper> _folderContentStreamController =
+  final StreamController<FolderContentWrapper> _folderContentStreamController =
       BehaviorSubject<FolderContentWrapper>();
 
-  List<String> requestedPath = [];
+  Machine? _machine;
+
+  FileService? get _fileService => _machine?.fileService;
+
+  KlippyService? get _klippyService => _machine?.klippyService;
 
   String get requestedPathAsString => requestedPath.join('/');
+  List<String> requestedPath = [];
+
+  Map<int, List<String>> pageStoredPaths = {};
 
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedMachine),
+            StreamData<Machine?>(_selectedMachineService.selectedMachine),
         if (_fileService != null) ...{
           _FolderContentStreamKey: StreamData<FolderContentWrapper>(
               _folderContentStreamController.stream),
-          _FileNotification: StreamData<FileListChangedNotification>(
-              _fileService!.fileNotificationStream)
+          _FileNotification:
+              StreamData<FileApiResponse>(_fileService!.fileNotificationStream)
         },
-        if (_klippyService != null) ...{
+        if (_klippyService != null)
           _ServerStreamKey:
               StreamData<KlipperInstance>(_klippyService!.klipperStream)
-        }
       };
 
-  @override
-  onData(String key, data) {
-    super.onData(key, data);
-    switch (key) {
-      case _SelectedPrinterStreamKey:
-        PrinterSetting? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting) break;
-        _printerSetting = nPrinterSetting;
-        _fetchDirectoryData();
-        notifySourceChanged(clearOldData: true);
-        break;
-      case _FileNotification:
-        handleFileListChanged(data);
-        break;
+  bool get isFolderContentAvailable => dataReady(_FolderContentStreamKey);
 
-      default:
-        break;
+  FolderContentWrapper get folderContent {
+    FolderContentWrapper fullContent = _folderContent;
+    List<Folder> folders = _folderContent.folders.toList(growable: false);
+    List<RemoteFile> files = _folderContent.files.toList(growable: false);
+
+    String queryTerm = searchEditingController.text.toLowerCase();
+
+    if (queryTerm.isNotEmpty && isSearching) {
+      List<String> terms = queryTerm.split(RegExp('\\W+'));
+      // RegExp regExp =
+      //     RegExp(terms.where((element) => element.isNotEmpty).join("|"));
+      folders = folders
+          .where((element) =>
+              terms.every((t) => element.name.toLowerCase().contains(t)))
+          .toList(growable: false);
+
+      files = files
+          .where((element) =>
+              terms.every((t) => element.name.toLowerCase().contains(t)))
+          .toList(growable: false);
     }
+    var folderComparator = folderComparators[currentComparatorIndex];
+    if (folderComparator != null) folders.sort(folderComparator);
+    files.sort(fileComparators[currentComparatorIndex]);
+
+    return FolderContentWrapper(fullContent.reqPath, folders, files);
   }
 
-  void handleFileListChanged(
-      FileListChangedNotification fileListChangedNotification) {
-    _logger.i('CrntPath: $requestedPathAsString');
-    _logger.i('$fileListChangedNotification');
+  FolderContentWrapper get _folderContent => dataMap![_FolderContentStreamKey];
 
-    FileListChangedItem item = fileListChangedNotification.item;
-    bool itemInParent = isWithin(requestedPathAsString, item.fullPath) == 0;
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
 
-    FileListChangedSourceItem? srcItem = fileListChangedNotification.sourceItem;
-    bool srcInParent = (srcItem != null)
-        ? isWithin(requestedPathAsString, srcItem.fullPath) == 0
-        : false;
+  KlipperInstance get server => dataMap![_ServerStreamKey];
 
-    if (!itemInParent && !srcInParent) {
-      return;
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
+
+  Machine? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
+
+  bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
+
+  String? get curPathToPrinterUrl {
+    if (_machine != null) {
+      return '${_machine!.httpUrl}/server/files';
     }
-
-    _busyFetchDirectoryData(newPath: requestedPath);
-  }
-
-  onRefresh() {
-    _busyFetchDirectoryData(newPath: folderContent.reqPath.split('/'))
-        .then((value) => refreshController.refreshCompleted());
-  }
-
-  onFileTapped(GCodeFile file) {
-    _navigationService.navigateTo(Routes.fileDetailView,
-        arguments: FileDetailViewArguments(file: file));
-  }
-
-  onFolderPressed(Folder folder) {
-    List<String> newPath = folderContent.reqPath.split('/');
-    newPath.add(folder.name);
-    _busyFetchDirectoryData(newPath: newPath);
-  }
-
-  onBreadCrumbItemPressed(List<String> newPath) {
-      return _busyFetchDirectoryData(newPath: newPath);
-  }
-
-  Future<bool> onWillPop() async {
-    List<String> newPath = folderContent.reqPath.split('/');
-
-    if (isSearching) {
-      stopSearching();
-      return false;
-    } else if (newPath.length > 1 && !isBusy) {
-      newPath.removeLast();
-      _busyFetchDirectoryData(newPath: newPath);
-      return false;
-    }
-    return true;
-  }
-
-  onPopFolder() async {
-    List<String> newPath = folderContent.reqPath.split('/');
-    if (newPath.length > 1 && !isBusy) {
-      newPath.removeLast();
-      _busyFetchDirectoryData(newPath: newPath);
-      return false;
-    }
-    return true;
+    return null;
   }
 
   startSearching() {
@@ -181,6 +157,296 @@ class FilesViewModel extends MultipleStreamViewModel {
     notifyListeners();
   }
 
+  handleFileListChanged(FileApiResponse fileListChangedNotification) {
+    _logger.i('CrntPath: $requestedPathAsString');
+    _logger.i('$fileListChangedNotification');
+
+    FileNotificationItem item = fileListChangedNotification.item;
+    var itemWithInLevel = isWithin(requestedPathAsString, item.fullPath);
+
+    FileNotificationSourceItem? srcItem =
+        fileListChangedNotification.sourceItem;
+    var srcItemWithInLevel =
+        isWithin(requestedPathAsString, srcItem?.fullPath ?? '');
+
+    if (itemWithInLevel != 0 && srcItemWithInLevel != 0) {
+      return;
+    }
+
+    _busyFetchDirectoryData(newPath: requestedPath);
+  }
+
+  @override
+  onData(String key, data) {
+    super.onData(key, data);
+    switch (key) {
+      case _SelectedPrinterStreamKey:
+        Machine? nmachine = data;
+        if (nmachine == _machine) break;
+        _machine = nmachine;
+        _fetchDirectoryData();
+        notifySourceChanged(clearOldData: true);
+        break;
+      case _FileNotification:
+        handleFileListChanged(data);
+        break;
+
+      default:
+        break;
+    }
+  }
+
+  onBottomItemTapped(int index) {
+    if (index == currentPageIndex) return;
+
+    if (requestedPath.isNotEmpty)
+      pageStoredPaths[currentPageIndex] = requestedPath;
+    currentPageIndex = index;
+    List<String>? newPath =
+        (pageStoredPaths.containsKey(index)) ? pageStoredPaths[index] : null;
+    currentComparatorIndex = 0;
+    switch (index) {
+      case 0:
+        newPath ??= const ['gcodes'];
+        break;
+      case 1:
+        newPath ??= const ['config'];
+        break;
+      default:
+      // Do nothing
+    }
+
+    _busyFetchDirectoryData(newPath: newPath!);
+  }
+
+  onCreateDirTapped(BuildContext context) async {
+    DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
+        variant: DialogType.renameFile,
+        title: tr('dialogs.create_folder.title'),
+        description: tr('dialogs.create_folder.label'),
+        mainButtonTitle: tr('general.create'),
+        secondaryButtonTitle:
+            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
+        data: RenameFileDialogArguments(
+            blocklist: _folderContent.folders
+                .map((e) => e.name)
+                .toList(growable: false),
+            initialValue: '',
+            matchPattern: '^[\\w.\\-]+\$'));
+    if (dialogResponse?.confirmed ?? false) {
+      String folderName = dialogResponse!.data;
+
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.createDir('$requestedPathAsString/$folderName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not create folder!\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onDeleteFileTapped(BuildContext context, String fileName) async {
+    var materialLocalizations = MaterialLocalizations.of(context);
+    DialogResponse? dialogResponse =
+        await _dialogService.showConfirmationDialog(
+            title: tr('dialogs.delete_folder.title'),
+            description:
+                tr('dialogs.delete_file.description', args: [fileName]),
+            dialogPlatform: DialogPlatform.Material,
+            confirmationTitle: materialLocalizations.deleteButtonTooltip,
+            cancelTitle: materialLocalizations.cancelButtonLabel.titleCase());
+
+    if (dialogResponse?.confirmed ?? false) {
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.deleteFile('$requestedPathAsString/$fileName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not perform rename.\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onDeleteDirTapped(BuildContext context, String fileName) async {
+    var materialLocalizations = MaterialLocalizations.of(context);
+    DialogResponse? dialogResponse =
+        await _dialogService.showConfirmationDialog(
+            title: tr('dialogs.delete_folder.title'),
+            description:
+                tr('dialogs.delete_folder.description', args: [fileName]),
+            dialogPlatform: DialogPlatform.Material,
+            confirmationTitle: materialLocalizations.deleteButtonTooltip,
+            cancelTitle: materialLocalizations.cancelButtonLabel.titleCase());
+
+    if (dialogResponse?.confirmed ?? false) {
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.deleteDirForced('$requestedPathAsString/$fileName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not perform rename.\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onRenameFileTapped(BuildContext context, String fileName) async {
+    List<String> fileNames = [];
+    fileNames.addAll(_folderContent.folders.map((e) => e.name));
+    fileNames.addAll(_folderContent.files.map((e) => e.name));
+    fileNames.remove(fileName);
+
+    DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
+        variant: DialogType.renameFile,
+        title: tr('dialogs.rename_file.title'),
+        description: tr('dialogs.rename_file.label'),
+        mainButtonTitle: tr('general.rename'),
+        secondaryButtonTitle:
+            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
+        data: RenameFileDialogArguments(
+            initialValue: fileName,
+            blocklist: fileNames,
+            fileExt: currentPageIndex == 0 ? 'gcode' : 'cfg',
+            matchPattern: '^[\\w.#+_\\- ]+\$'));
+    if (dialogResponse != null && dialogResponse.confirmed) {
+      String newName = dialogResponse.data;
+      if (newName == fileName) return;
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.moveFile('$requestedPathAsString/$fileName',
+            '$requestedPathAsString/$newName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not perform rename.\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onRenameDirTapped(BuildContext context, String fileName) async {
+    List<String> fileNames = [];
+    fileNames.addAll(_folderContent.folders.map((e) => e.name));
+    fileNames.addAll(_folderContent.files.map((e) => e.name));
+    fileNames.remove(fileName);
+
+    DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
+        variant: DialogType.renameFile,
+        title: tr('dialogs.rename_folder.title'),
+        description: tr('dialogs.rename_folder.label'),
+        mainButtonTitle: tr('general.rename'),
+        secondaryButtonTitle:
+            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
+        data: RenameFileDialogArguments(
+            initialValue: fileName,
+            blocklist: fileNames,
+            matchPattern: '^[\\w.\-]+\$'));
+    if (dialogResponse?.confirmed ?? false) {
+      String newName = dialogResponse!.data;
+      if (newName == fileName) return;
+      setBusyForObject(this, true);
+      notifyListeners();
+      try {
+        await _fileService!.moveFile('$requestedPathAsString/$fileName',
+            '$requestedPathAsString/$newName');
+      } on JRpcError catch (e) {
+        _snackBarService.showCustomSnackBar(
+            variant: SnackbarType.error,
+            duration: const Duration(seconds: 5),
+            title: 'Error',
+            message: 'Could not perform rename.\n${e.message}');
+        setBusyForObject(this, false);
+        notifyListeners();
+      }
+    }
+  }
+
+  onRefresh() {
+    _busyFetchDirectoryData(newPath: folderContent.reqPath.split('/'))
+        .then((value) => refreshController.refreshCompleted());
+  }
+
+  onFileTapped(RemoteFile file) {
+    if (file is GCodeFile)
+      _navigationService.navigateTo(Routes.gCodeFileDetailView,
+          arguments: GCodeFileDetailViewArguments(gcodeFile: file));
+    else
+      _navigationService.navigateTo(Routes.configFileDetailView,
+          arguments: ConfigFileDetailViewArguments(file: file));
+  }
+
+  onFolderPressed(Folder folder) {
+    List<String> newPath = folderContent.reqPath.split('/');
+    newPath.add(folder.name);
+    _busyFetchDirectoryData(newPath: newPath);
+  }
+
+  onBreadCrumbItemPressed(List<String> newPath) {
+    return _busyFetchDirectoryData(newPath: newPath);
+  }
+
+  Future<bool> onWillPop() async {
+    List<String> newPath = folderContent.reqPath.split('/');
+
+    if (isSearching) {
+      stopSearching();
+      return false;
+    } else if (newPath.length > 1 && !isBusy) {
+      newPath.removeLast();
+      _busyFetchDirectoryData(newPath: newPath);
+      return false;
+    }
+    return true;
+  }
+
+  onPopFolder() {
+    List<String> newPath = folderContent.reqPath.split('/');
+    if (newPath.length > 1 && !isBusy) {
+      newPath.removeLast();
+      _busyFetchDirectoryData(newPath: newPath);
+      return false;
+    }
+    return true;
+  }
+
+  onSortSelected(int index) {
+    currentComparatorIndex = index;
+    notifyListeners();
+  }
+
+  int _comparatorName(RemoteFile a, RemoteFile b) => a.name.compareTo(b.name);
+
+  int _comparatorModified(RemoteFile a, RemoteFile b) =>
+      b.modified.compareTo(a.modified);
+
+  int _comparatorPrintStart(RemoteFile fileA, RemoteFile fileB) {
+    GCodeFile a = fileA as GCodeFile;
+    GCodeFile b = fileB as GCodeFile;
+    return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
+  }
+
   Future _fetchDirectoryData({List<String> newPath = const ['gcodes']}) {
     requestedPath = newPath;
     return _folderContentStreamController.addStream(_fileService!
@@ -192,60 +458,8 @@ class FilesViewModel extends MultipleStreamViewModel {
     return runBusyFuture(_fetchDirectoryData(newPath: newPath));
   }
 
-  onSortSelected(int index) {
-    selectedSorting = index;
-    notifyListeners();
-  }
-
-  FolderContentWrapper get folderContent {
-    FolderContentWrapper fullContent = _folderContent;
-    List<Folder> folders = _folderContent.folders.toList(growable: false);
-    List<GCodeFile> files = _folderContent.gCodes.toList(growable: false);
-
-    String queryTerm = searchEditingController.text.toLowerCase();
-
-    if (queryTerm.isNotEmpty && isSearching) {
-      List<String> terms = queryTerm.split(RegExp('\\W+'));
-      RegExp regExp =
-          RegExp(terms.where((element) => element.isNotEmpty).join("|"));
-      folders = folders
-          .where((element) => element.name.toLowerCase().contains(regExp))
-          .toList(growable: false);
-
-      files = files
-          .where((element) => element.name.toLowerCase().contains(regExp))
-          .toList(growable: false);
-    }
-    var folderComparator = folderComparators[selectedSorting];
-    if (folderComparator != null) folders.sort(folderComparator);
-    files.sort(fileComparators[selectedSorting]);
-
-    return FolderContentWrapper(fullContent.reqPath, folders, files);
-  }
-
-  bool get isFolderContentAvailable => dataReady(_FolderContentStreamKey);
-
-  FolderContentWrapper get _folderContent => dataMap![_FolderContentStreamKey];
-
-  bool get isServerAvailable => dataReady(_ServerStreamKey);
-
-  KlipperInstance get server => dataMap![_ServerStreamKey];
-
-  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
-
-  PrinterSetting? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
-
-  bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
-
-  String? get curPathToPrinterUrl {
-    if (_printerSetting != null) {
-      return '${_printerSetting!.httpUrl}/server/files';
-    }
-    return null;
-  }
-
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     refreshController.dispose();
     searchEditingController.dispose();

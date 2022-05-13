@@ -1,14 +1,13 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/webcam_setting.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/views/fullcam/full_cam_viewmodel.dart';
 import 'package:stacked/stacked.dart';
 
 class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
-  final PrinterSetting owner;
+  final Machine owner;
   final WebcamSetting webcamSetting;
 
   FullCamView(this.owner, this.webcamSetting);
@@ -29,6 +28,7 @@ class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
               child: Mjpeg(
                 key: ValueKey(model.selectedCam.url),
                 feedUri: model.selectedCam.url,
+                targetFps: model.selectedCam.targetFps,
                 showFps: true,
                 transform: model.selectedCam.transformMatrix,
                 stackChildren: [
@@ -45,9 +45,7 @@ class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
                                   .textTheme
                                   .bodySmall
                                   ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSecondary),
+                                      color: Colors.white70),
                             )),
                       ),
                     ),
@@ -78,7 +76,7 @@ class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
             alignment: Alignment.bottomRight,
             child: IconButton(
               icon: Icon(Icons.close_fullscreen_outlined),
-              tooltip: 'general.close'.tr(),
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               onPressed: model.onCloseTapped,
             ),
           ),

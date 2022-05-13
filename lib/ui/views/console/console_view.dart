@@ -1,10 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/console/console_entry.dart';
+import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
@@ -28,7 +27,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
       appBar: _buildAppBar(context, model),
       drawer: NavigationDrawerWidget(curPath: Routes.consoleView),
       body: ConnectionStateView(
-        body: _buildBody(context, model),
+        onConnected: _buildBody(context, model),
       ),
     );
   }
@@ -55,9 +54,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
 
   Widget _buildBody(BuildContext context, ConsoleViewModel model) {
     var theme = Theme.of(context);
-    Color highlightColor = theme.brightness == Brightness.dark
-        ? theme.colorScheme.secondary
-        : theme.colorScheme.primary;
+    Color highlightColor = theme.colorScheme.primary ;
 
     return Container(
       margin: const EdgeInsets.all(4.0),
@@ -67,7 +64,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
         boxShadow: [
           if (theme.brightness == Brightness.light)
             BoxShadow(
-              color: Colors.grey,
+              color: Theme.of(context).colorScheme.shadow,
               offset: Offset(0.0, 4.0), //(x,y)
               blurRadius: 1.0,
             ),
@@ -84,7 +81,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
               child: Text(
                 'GCode Console - ${model.printerName}',
-                style: theme.textTheme.subtitle1?.copyWith(color: Colors.white),
+                style: theme.textTheme.subtitle1?.copyWith(color: theme.colorScheme.onPrimary),
               ),
             ),
           ),
@@ -95,8 +92,8 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
               height: 33,
               child: ChipTheme(
                 data: ChipThemeData(
-                    labelStyle: TextStyle(color: Colors.white),
-                    deleteIconColor: Colors.white),
+                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                    deleteIconColor: Theme.of(context).colorScheme.onPrimary),
                 child: ListView.builder(
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -159,7 +156,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SpinKitDoubleBounce(
-              color: themeData.colorScheme.primary,
+              color: themeData.colorScheme.secondary,
               size: 100,
             ),
             SizedBox(

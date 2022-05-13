@@ -5,11 +5,12 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/toolhead.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/model/moonraker/temperature_preset.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/machine/toolhead.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
@@ -19,6 +20,7 @@ import 'package:mobileraker/ui/views/dashboard/tabs/general_tab_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 
 class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
@@ -33,22 +35,35 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
   @override
   Widget builder(
       BuildContext context, GeneralTabViewModel model, Widget? child) {
+    if (!model.isDataReady) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitRipple(
+              color: Theme.of(context).colorScheme.secondary,
+              size: 100,
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            FadingText('Fetching printer data'),
+            // Text('Fetching printer ...')
+          ],
+        ),
+      );
+    }
+
     return PullToRefreshPrinter(
       child: ListView(
         key: PageStorageKey('gTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          if (model.isPrinterAvailable &&
-              model.isServerAvailable &&
-              model.isMachineAvailable &&
-              !model.isBusy &&
-              model.initialised) ...{
-            PrintCard(),
-            TemperatureCard(),
-            if (model.webCamAvailable) CamCard(),
-            if (model.isNotPrinting) _ControlXYZCard(),
-            if (model.showBabyStepping) _BabySteppingCard(),
-          }
+          PrintCard(),
+          TemperatureCard(),
+          if (model.webCamAvailable) CamCard(),
+          if (model.isNotPrinting) _ControlXYZCard(),
+          if (model.showBabyStepping) _BabySteppingCard(),
         ],
       ),
     );
@@ -275,10 +290,11 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
             constraints: BoxConstraints(minHeight: minWebCamHeight),
             child: Center(
                 child: Mjpeg(
-              key: ValueKey(model.webCamUrl),
+              key: ValueKey(model.selectedCam),
               imageBuilder: _imageBuilder,
-              feedUri: model.webCamUrl,
-              transform: model.transformMatrix,
+              targetFps: model.selectedCam!.targetFps,
+              feedUri: model.selectedCam!.url,
+              transform: model.selectedCam!.transformMatrix,
               showFps: true,
               stackChildren: [
                 Positioned.fill(
@@ -437,36 +453,27 @@ class _HeaterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var col = Theme.of(context).primaryColorLight;
-    var textCol = Theme.of(context).colorScheme.onSurface;
+    Color col = Theme.of(context).colorScheme.surfaceVariant;
     if (target > 0 && onTap != null) {
       col = Color.alphaBlend(
           Color.fromRGBO(178, 24, 24, 1).withOpacity(min(current / target, 1)),
           col);
-      textCol = Color.alphaBlend(
-          Colors.white.withOpacity(min(current / target, 1)),
-          Theme.of(context).colorScheme.onSecondary);
     }
 
     return CardWithButton(
         width: width,
         backgroundColor: col,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name,
-                style: Theme.of(context)
-                    .textTheme
-                    .caption
-                    ?.copyWith(color: textCol)),
-            Text('${current.toStringAsFixed(1)} °C',
-                style: Theme.of(context)
-                    .textTheme
-                    .headline6
-                    ?.copyWith(color: textCol)),
-            Text(targetTemp, style: TextStyle(color: textCol)),
-          ],
-        ),
+        child: Builder(builder: (context) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: Theme.of(context).textTheme.caption),
+              Text('${current.toStringAsFixed(1)} °C',
+                  style: Theme.of(context).textTheme.headline6),
+              Text(targetTemp),
+            ],
+          );
+        }),
         buttonChild: const Text('general.set').tr(),
         onTap: onTap);
   }
@@ -530,8 +537,7 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
       presetName: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
       extruderTemp: 0,
       bedTemp: 0,
-      onTap:
-          model.canUsePrinter ? () => model.setTemperaturePreset(0, 0) : null,
+      onTap: model.canUsePrinter ? () => model.adjustNozzleAndBed(0, 0) : null,
     );
 
     List<TemperaturePreset> tempPresets = model.temperaturePresets;
@@ -544,7 +550,7 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
         bedTemp: preset.bedTemp,
         onTap: model.canUsePrinter
             ? () =>
-                model.setTemperaturePreset(preset.extruderTemp, preset.bedTemp)
+                model.adjustNozzleAndBed(preset.extruderTemp, preset.bedTemp)
             : null,
       );
     });
@@ -573,21 +579,23 @@ class _TemperaturePresetCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardWithButton(
         width: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(presetName,
-                style: Theme.of(context).textTheme.headline6,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis),
-            Text('pages.dashboard.general.temp_preset_card.h_temp',
-                    style: Theme.of(context).textTheme.caption)
-                .tr(args: [extruderTemp.toString()]),
-            Text('pages.dashboard.general.temp_preset_card.b_temp',
-                    style: Theme.of(context).textTheme.caption)
-                .tr(args: [bedTemp.toString()]),
-          ],
-        ),
+        child: Builder(builder: (context) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(presetName,
+                  style: Theme.of(context).textTheme.headline6,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis),
+              Text('pages.dashboard.general.temp_preset_card.h_temp',
+                      style: Theme.of(context).textTheme.caption)
+                  .tr(args: [extruderTemp.toString()]),
+              Text('pages.dashboard.general.temp_preset_card.b_temp',
+                      style: Theme.of(context).textTheme.caption)
+                  .tr(args: [bedTemp.toString()]),
+            ],
+          );
+        }),
         buttonChild: Text('general.set').tr(),
         onTap: onTap);
   }
@@ -611,15 +619,19 @@ class _SensorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardWithButton(
         width: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: Theme.of(context).textTheme.caption),
-            Text('${current.toStringAsFixed(1)} °C',
-                style: Theme.of(context).textTheme.headline6),
-            Text('${max.toStringAsFixed(1)} °C max'),
-          ],
-        ),
+        child: Builder(builder: (context) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: Theme.of(context).textTheme.caption),
+              Text('${current.toStringAsFixed(1)} °C',
+                  style: Theme.of(context).textTheme.headline6),
+              Text(
+                '${max.toStringAsFixed(1)} °C max',
+              ),
+            ],
+          );
+        }),
         buttonChild:
             const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
         onTap: null);
@@ -922,23 +934,21 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
                   children: [
                     Container(
                       margin: const EdgeInsets.all(5),
-                      child: IconButton(
+                      child: ElevatedButton(
                           onPressed: model.canUsePrinter
                               ? () => model.onBabyStepping()
                               : null,
-                          icon: Icon(FlutterIcons.upsquare_ant)),
-                      color: Theme.of(context).colorScheme.secondary,
+                          child: Icon(FlutterIcons.upsquare_ant)),
                       height: 40,
                       width: 40,
                     ),
                     Container(
                       margin: const EdgeInsets.all(5),
-                      child: IconButton(
+                      child: ElevatedButton(
                           onPressed: model.canUsePrinter
                               ? () => model.onBabyStepping(false)
                               : null,
-                          icon: Icon(FlutterIcons.downsquare_ant)),
-                      color: Theme.of(context).colorScheme.secondary,
+                          child: Icon(FlutterIcons.downsquare_ant)),
                       height: 40,
                       width: 40,
                     ),

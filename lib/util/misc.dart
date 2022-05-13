@@ -1,13 +1,15 @@
+import 'package:flutter/material.dart';
+
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/enums/dialog_type.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
-import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:stringr/stringr.dart';
 
-void showWIPSnackbar() {
+showWIPSnackbar() {
   locator<SnackbarService>().showSnackbar(
       title: 'Dev-Message', message: "WIP!... Not implemented yet.");
 }
@@ -43,7 +45,7 @@ String urlToHttpUrl(String enteredURL) {
 }
 
 String beautifyName(String name) {
-  return name.replaceAll("_", " ").capitalize!;
+  return name.replaceAll("_", " ").titleCase();
 }
 
 Future<DialogResponse<dynamic>?> numberOrRangeDialog(
@@ -79,4 +81,23 @@ Future<String?> selectInitialRoute() async {
   if (c == 1) return null;
 
   return Routes.overViewView;
+}
+
+
+FormFieldValidator<T> notContains<T>(
+    BuildContext context,
+    List<T> blockList, {
+      String? errorText,
+    }) {
+  return (T? valueCandidate) {
+    if (valueCandidate != null) {
+      assert(!(valueCandidate is List) && !(valueCandidate is Map) && !(valueCandidate is Set));
+
+      if (blockList.contains(valueCandidate)) {
+        return errorText ??
+            'Value in Blocklist!';
+      }
+    }
+    return null;
+  };
 }

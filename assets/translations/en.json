@@ -1,17 +1,17 @@
 {
   "general": {
-    "cancel": "Cancel",
     "resume": "Resume",
     "connected": "Connected",
     "off": "Off",
     "none": "None",
     "add": "Add",
+    "create": "Create",
+    "rename": "Rename",
     "remove": "Remove",
     "set": "Set",
     "use": "Use",
     "restart": "Restart",
     "shutdown": "Shutdown",
-    "close": "Close",
     "firmware": "Firmware",
     "fetching": "Fetching",
     "unknown": "Unknown"
@@ -157,6 +157,9 @@
       "import_settings": "Import Settings",
       "remove_printer": "Remove Printer",
       "no_values_found": "No values Found!",
+      "fetching_additional_settings": "@:general.fetching additional settings from network...",
+      "could_not_fetch_additional": "Could not fetch additional settings!",
+      "fetch_error_hint": "Ensure the machine is reachable, and Mobileraker is connected to it.",
       "general": {
         "displayname": "Displayname",
         "printer_addr": "Printer - Address",
@@ -168,19 +171,29 @@
       "motion_system": {
         "title": "Motion System",
         "invert_x": "Invert X - Axis",
+        "invert_x_short": "Invert X",
         "invert_y": "Invert Y - Axis",
+        "invert_y_short": "Invert Y",
         "invert_z": "Invert Z - Axis",
+        "invert_z_short": "Invert Z",
         "speed_xy": "Speed X/Y - Axis",
+        "speed_xy_short": "Speed X/Y",
         "speed_z": "Speed Z - Axis",
+        "speed_z_short": "Speed Z",
         "steps_move": "Move steps",
-        "steps_baby": "Babystepping Z-steps"
+        "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+        "steps_baby": "Babystepping Z-steps",
+        "steps_baby_short": "Baby Steps"
       },
       "extruders": {
         "title": "Extruder(s)",
         "feedrate": "Extruder feed rate",
-        "steps_extrude": "Extrude steps"
+        "feedrate_short": "Feed rate",
+        "steps_extrude": "Extrude steps",
+        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
       },
       "cams": {
+        "target_fps": "Target FPS",
         "new_cam": "New Webcam",
         "no_webcams": "No Webcams added!",
         "webcam_addr": "Webcam - Address",
@@ -217,7 +230,7 @@
     "console": {
       "title": "Console",
       "no_entries": "No cached commands found",
-      "fetching_console": "Fetching console entries...",
+      "fetching_console": "@:general.fetching console entries...",
       "command_input" : {
         "hint":"Enter console command"
       }
@@ -240,6 +253,33 @@
       "reconnect": "Reconnect",
       "trying_connect": "Trying to connect ...",
       "server_starting": "Server is starting..."
+    }
+  },
+  "dialogs": {
+    "import_setting": {
+      "fetching": "Fetching sources...",
+      "fetching_error_title": "Unable to fetch settings!",
+      "fetching_error_sub": "Ensure other machines are connected.",
+      "select_source": "Select Source"
+    },
+    "create_folder": {
+      "title": "Create Folder",
+      "label": "Folder Name"
+    },
+    "delete_folder": {
+      "title": "Are you sure?",
+      "description": "All files contained in folder will be removed as well!\n\nConfirm deletion of folder '/{}'."
+    },
+    "rename_folder": {
+      "title": "Rename Folder",
+      "label": "Folder Name"
+    },
+    "delete_file": {
+      "description": "Confirm deletion of file '{}'."
+    },
+    "rename_file": {
+      "title": "Rename File",
+      "label": "File Name"
     }
   },
   "klipper_state": {

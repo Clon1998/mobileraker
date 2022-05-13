@@ -1,7 +1,7 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 
@@ -14,7 +14,15 @@ class PullToRefreshPrinter
   @override
   Widget builder(BuildContext context, RefreshPrinterViewModel model,
       Widget? staticChild) {
+    var onBackground = Theme.of(context).colorScheme.onBackground;
     return SmartRefresher(
+      header: ClassicHeader(
+        textStyle: TextStyle(color: onBackground),
+        failedIcon: Icon(Icons.error, color: onBackground),
+        completeIcon: Icon(Icons.done, color: onBackground),
+        idleIcon: Icon(Icons.arrow_downward, color: onBackground),
+        releaseIcon: Icon(Icons.refresh, color: onBackground),
+      ),
       controller: model.refreshController,
       onRefresh: model.onRefresh,
       child: child,
@@ -29,14 +37,15 @@ class PullToRefreshPrinter
 class RefreshPrinterViewModel extends BaseViewModel {
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _logger = getLogger('RefreshPrinterViewModel');
 
   onRefresh() {
     var _printerService =
-        _machineService.selectedMachine.valueOrNull?.printerService;
+        _selectedMachineService.selectedMachine.valueOrNull?.printerService;
     // We need to work with hashes since the PrinterObject never gets destroyed <.< (TODO: USE FREEZE FOR IMMUTABLE OBJECTS!!!!)
-    var oldPrinterHash = _printerService?.printerStream.valueOrNull?.hashCode??0;
+    var oldPrinterHash =
+        _printerService?.printerStream.valueOrNull?.hashCode ?? 0;
     var subscription;
     subscription = _printerService?.printerStream.stream.listen((event) {
       if (event.hashCode != oldPrinterHash) {
@@ -50,7 +59,7 @@ class RefreshPrinterViewModel extends BaseViewModel {
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     refreshController.dispose();
   }

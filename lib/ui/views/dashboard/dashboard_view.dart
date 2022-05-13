@@ -1,13 +1,13 @@
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
-import 'package:animations/animations.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
@@ -15,6 +15,8 @@ import 'package:mobileraker/ui/views/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/general_tab.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
+import 'package:stringr/stringr.dart';
 
 import 'dashboard_viewmodel.dart';
 
@@ -22,7 +24,8 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
   const DashboardView({Key? key}) : super(key: key);
 
   @override
-  Widget builder(BuildContext context, DashboardViewModel model, Widget? child) =>
+  Widget builder(
+          BuildContext context, DashboardViewModel model, Widget? child) =>
       Scaffold(
         appBar: AppBar(
           title: GestureDetector(
@@ -50,23 +53,11 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
           ],
         ),
         body: ConnectionStateView(
-          body: (model.isPrinterAvailable)
-              ? PageTransitionSwitcher(
-                  duration: const Duration(milliseconds: 300),
-                  reverse: model.reverse,
-                  transitionBuilder: (
-                    Widget child,
-                    Animation<double> animation,
-                    Animation<double> secondaryAnimation,
-                  ) {
-                    return SharedAxisTransition(
-                      child: child,
-                      animation: animation,
-                      secondaryAnimation: secondaryAnimation,
-                      transitionType: SharedAxisTransitionType.horizontal,
-                    );
-                  },
-                  child: _getViewForIndex(model.currentIndex),
+          onConnected: (model.isPrinterAvailable)
+              ? PageView(
+                  controller: model.pageController,
+                  onPageChanged: model.onPageChanged,
+                  children: [GeneralTab(), ControlTab()],
                 )
               : Center(
                   child: Column(
@@ -74,7 +65,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SpinKitFadingCube(
-                        color: Colors.orange,
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                       SizedBox(
                         height: 30,
@@ -97,37 +88,29 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                   // FlutterIcons.camera_control_mco,
                   FlutterIcons.settings_oct,
                 ],
-                activeColor: _getActiveTextColor(context),
+                activeColor: Theme.of(context)
+                        .bottomNavigationBarTheme
+                        .selectedItemColor ??
+                    Theme.of(context).colorScheme.onPrimary,
+                inactiveColor: Theme.of(context)
+                    .bottomNavigationBarTheme
+                    .unselectedItemColor,
                 gapLocation: GapLocation.end,
-                backgroundColor: Theme.of(context).primaryColor,
+                backgroundColor: Theme.of(context)
+                        .bottomNavigationBarTheme
+                        .backgroundColor ??
+                    Theme.of(context).colorScheme.primary,
                 notchSmoothness: NotchSmoothness.softEdge,
                 activeIndex: model.currentIndex,
-                onTap: model.setIndex,
+                onTap: model.onBottomNavTapped,
               )
             : null,
         drawer: NavigationDrawerWidget(curPath: Routes.dashboardView),
       );
 
   @override
-  DashboardViewModel viewModelBuilder(BuildContext context) => DashboardViewModel();
-
-  Color? _getActiveTextColor(context) {
-    var themeData = Theme.of(context);
-    if (themeData.brightness == Brightness.dark)
-      return themeData.colorScheme.secondary;
-    return Colors.white;
-  }
-
-  Widget _getViewForIndex(int index) {
-    switch (index) {
-      case 0:
-        return GeneralTab();
-      case 1:
-        return ControlTab();
-      default:
-        return GeneralTab();
-    }
-  }
+  DashboardViewModel viewModelBuilder(BuildContext context) =>
+      DashboardViewModel();
 
   Widget? printingStateToFab(DashboardViewModel model) {
     if (!model.isPrinterAvailable || !model.isServerAvailable) return null;
@@ -174,7 +157,9 @@ class PausedFAB extends ViewModelWidget<DashboardViewModel> {
         SpeedDialChild(
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
-          label: tr('general.cancel'),
+          label: MaterialLocalizations.of(context)
+              .cancelButtonLabel
+              .titleCase(),
           onTap: model.onCancelPrintPressed,
         ),
         SpeedDialChild(

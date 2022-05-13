@@ -2,13 +2,16 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/enums/bottom_sheet_type.dart';
-import 'package:mobileraker/service/klippy_service.dart';
-import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-void setupBottomSheetUi() {
+enum BottomSheetType {
+  ManagementMenu,
+}
+
+setupBottomSheetUi() {
   final bottomSheetService = locator<BottomSheetService>();
 
   final builders = {
@@ -34,8 +37,8 @@ class _NonPrintingBottomSheet
   Widget builder(BuildContext context, NonPrintingBottomSheetViewModel model,
       Widget? child) {
     var themeData = Theme.of(context);
-    var isDark = themeData.brightness == Brightness.dark;
     var buttonStyle = ElevatedButton.styleFrom(
+        padding: EdgeInsets.symmetric(horizontal: 22),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(18.0),
         ));
@@ -43,7 +46,7 @@ class _NonPrintingBottomSheet
     return Container(
       padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
       decoration: BoxDecoration(
-        color: isDark ? themeData.primaryColor : Colors.white,
+        color: themeData.bottomSheetTheme.modalBackgroundColor,
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(15), topRight: Radius.circular(15)),
       ),
@@ -67,7 +70,7 @@ class _NonPrintingBottomSheet
                 margin: const EdgeInsets.symmetric(horizontal: 10),
                 child: Icon(
                   FlutterIcons.raspberry_pi_faw5d,
-                  color: isDark ? Colors.white : Colors.black,
+                  color: themeData.colorScheme.onBackground,
                 ),
               ),
               Flexible(
@@ -94,11 +97,12 @@ class _NonPrintingBottomSheet
               onPressed: model.onRestartMoonrakerPressed,
               buttonStyle: buttonStyle),
           FullWidthButton(
-              child: Text('${tr('general.firmware')} ${tr('general.restart').toLowerCase()}'),
+              child: Text(
+                  '${tr('general.firmware')} ${tr('general.restart').toLowerCase()}'),
               onPressed: model.onRestartMCUPressed,
               buttonStyle: buttonStyle),
           ElevatedButton.icon(
-            label: Text('general.close').tr(),
+            label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
             icon: Icon(Icons.keyboard_arrow_down),
             onPressed: model.onClosePressed,
             style: buttonStyle,
@@ -143,13 +147,12 @@ class NonPrintingBottomSheetViewModel extends BaseViewModel {
   final SheetRequest request;
   final Function(SheetResponse) completer;
 
-  final _snackBarService = locator<SnackbarService>();
-  final _machineService = locator<MachineService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
 
   NonPrintingBottomSheetViewModel(this.request, this.completer);
 
   KlippyService? get _klippyService {
-    return _machineService.selectedMachine.valueOrNull?.klippyService;
+    return _selectedMachineService.selectedMachine.valueOrNull?.klippyService;
   }
 
   onClosePressed() {

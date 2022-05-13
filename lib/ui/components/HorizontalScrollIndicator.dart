@@ -36,13 +36,13 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   }
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     controller.addListener(_listenerForController);
     _listenerForController();
   }
 
-  void _listenerForController() {
+  _listenerForController() {
     if (!controller.hasClients)
       return;
     double maxScrollExtent = controller.position.maxScrollExtent;
@@ -66,7 +66,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     widget.controller.removeListener(_listenerForController);
   }

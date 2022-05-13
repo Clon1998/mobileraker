@@ -3,6 +3,11 @@ import 'package:purchases_flutter/purchases_flutter.dart';
 
 // Wrapper for the RevenueCat Purchases API.
 class PurchasesService {
+  PurchasesService() {
+    Purchases.addPurchaserInfoUpdateListener(purchaserInfoUpdateListener);
+    Purchases.getPurchaserInfo().then(purchaserInfoUpdateListener);
+  }
+
   final _logger = getLogger('PurchasesService');
 
   PurchaserInfo? _purchaserInfo;
@@ -11,19 +16,15 @@ class PurchasesService {
 
   bool get available => _purchaserInfo != null;
 
-  PurchasesService() {
-    Purchases.addPurchaserInfoUpdateListener(purchaserInfoUpdateListener);
-    Purchases.getPurchaserInfo().then(purchaserInfoUpdateListener);
-  }
-
-  void purchaserInfoUpdateListener(PurchaserInfo purchaserInfo) {
+  purchaserInfoUpdateListener(PurchaserInfo purchaserInfo) {
     _logger.i('Updated purchaserInfo');
     _purchaserInfo = purchaserInfo;
   }
 
   bool isEntitlementActive(String entitlement) =>
       _purchaserInfo?.entitlements.all[entitlement]?.isActive ?? false;
-  Future<Offerings> getOfferings() {
+
+  Future<Offerings> fetchOfferings() {
     return Purchases.getOfferings();
   }
 }

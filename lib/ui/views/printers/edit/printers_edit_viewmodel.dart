@@ -1,103 +1,104 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
-import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/enums/dialog_type.dart';
-import 'package:mobileraker/enums/snackbar_type.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/webcam_setting.dart';
+import 'package:mobileraker/model/moonraker/gcode_macro.dart';
+import 'package:mobileraker/model/moonraker/machine_settings.dart';
+import 'package:mobileraker/model/moonraker/macro_group.dart';
+import 'package:mobileraker/model/moonraker/temperature_preset.dart';
+import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
+import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_viewmodel.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
+import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:stringr/stringr.dart';
 
-class PrintersEditViewModel extends MultipleFutureViewModel {
+const _PrinterMapKey = 'printer';
+const _MachinesMapKey = 'machines';
+const _MachineSettingsMapKey = 'machineSettings';
+
+class PrinterEditViewModel extends MultipleFutureViewModel {
+  PrinterEditViewModel(this.machine) : webcams = machine.cams.toList();
+
+  final Machine machine;
+
+  final List<WebcamSetting> webcams;
+
+  List<TemperaturePreset> get tempPresets => machineSettings.temperaturePresets;
+
+  List<int> get printerMoveSteps => machineSettings.moveSteps;
+
+  List<double> get printerBabySteps => machineSettings.babySteps;
+
+  List<int> get printerExtruderSteps => machineSettings.extrudeSteps;
+
+  List<MacroGroup> get macroGroups => _macroGroups;
+  final List<MacroGroup> _macroGroups = [];
+
   final _logger = getLogger('PrintersEditViewModel');
-
-  final _printerMapKey = 'printer';
-  final _machinesMapKey = 'machines';
-
   final _navigationService = locator<NavigationService>();
   final _snackbarService = locator<SnackbarService>();
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
+
+  GlobalKey get formKey => _fbKey;
   final _fbKey = GlobalKey<FormBuilderState>();
-  final PrinterSetting printerSetting;
 
-  late final _macroGroups = printerSetting.macroGroups.toList();
-
-  late final webcams = printerSetting.cams.toList();
-
-  late final tempPresets = printerSetting.temperaturePresets.toList();
-
-  late final printerMoveSteps = printerSetting.moveSteps.toList();
-
-  late final printerBabySteps = printerSetting.babySteps.toList();
-
-  late final printerExtruderSteps = printerSetting.extrudeSteps.toList();
   MacroGroup? srcGrpDragging;
   bool macroGroupAccepted = false;
 
-  PrintersEditViewModel(this.printerSetting);
+  MachineSettings get machineSettings => dataMap![_MachineSettingsMapKey];
 
-  Printer get fetchedPrinter => dataMap![_printerMapKey];
+  Printer get fetchedPrinter => dataMap![_PrinterMapKey];
 
-  List<PrinterSetting> get fetchedMachines => dataMap![_machinesMapKey];
+  List<Machine> get fetchedMachines => dataMap![_MachinesMapKey];
 
-  bool get fetchingPrinter => busy(_printerMapKey);
+  bool get isFetchingSettings => busy(_MachineSettingsMapKey);
 
-  bool get fetchingMachines => busy(_machinesMapKey);
+  bool get isFetchingPrinter => busy(_PrinterMapKey);
 
-  @override
-  Map<String, Future Function()> get futuresMap => {
-        _printerMapKey: printerFuture,
-        _machinesMapKey: machineFuture,
-      };
+  bool get isFetchingMachines => busy(_MachinesMapKey);
 
-  Future<Printer> printerFuture() {
-    return printerSetting.printerService.printerStream.first;
-  }
+  bool get settingsHasError => hasErrorForKey(_MachineSettingsMapKey);
 
-  Future<List<PrinterSetting>> machineFuture() {
-    return _machineService.fetchAll();
-  }
+  bool get printerHasError => hasErrorForKey(_PrinterMapKey);
 
-  @override
-  void onData(String key) {
-    if (key != _printerMapKey) return;
+  bool get machinesHasError => hasErrorForKey(_MachinesMapKey);
 
-    MacroGroup defaultGroup = _defaultGroup;
+  int get extruderMinTemperature =>
+      machine.printerService.printerStream.valueOrNull?.configFile
+          .primaryExtruder?.minTemp
+          .toInt() ??
+      0;
 
-    List<String> filteredMacros = fetchedPrinter.gcodeMacros
-        .where((element) => !element.startsWith('_'))
-        .toList();
-    for (MacroGroup grp in _macroGroups) {
-      for (GCodeMacro macro in grp.macros.toList(growable: false)) {
-        bool wasInList = filteredMacros.remove(macro.name);
-        if (!wasInList) grp.macros.remove(macro);
-      }
-    }
-    List<GCodeMacro> modifiableList = defaultGroup.macros.toList();
-    modifiableList.addAll(filteredMacros.map((e) => GCodeMacro(e)));
-    defaultGroup.macros = modifiableList;
-  }
+  int get extruderMaxTemperature =>
+      machine.printerService.printerStream.valueOrNull?.configFile
+          .primaryExtruder?.maxTemp
+          .toInt() ??
+      500;
 
-  List<String> get printersMacros {
-    if (!fetchingPrinter) {
-      return fetchedPrinter.gcodeMacros;
-    }
-    return [];
-  }
+  int get bedMinTemperature =>
+      machine.printerService.printerStream.valueOrNull?.configFile
+          .configHeaterBed?.minTemp
+          .toInt() ??
+      0;
 
-  List<MacroGroup> get macroGroups {
-    return _macroGroups;
-  }
+  int get bedMaxTemperature =>
+      machine.printerService.printerStream.valueOrNull?.configFile
+          .configHeaterBed?.maxTemp
+          .toInt() ??
+      150;
+
+  bool get canShowImportSettings =>
+      !isFetchingPrinter && fetchedMachines.length > 1;
 
   MacroGroup get _defaultGroup => _macroGroups
           .firstWhere((element) => element.name == 'Default', orElse: () {
@@ -106,62 +107,34 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
         return group;
       });
 
-  GlobalKey get formKey => _fbKey;
+  Future<Printer> _printerFuture() =>
+      machine.printerService.printerStream.first;
 
-  String get printerDisplayName => printerSetting.name;
+  Future<List<Machine>> _machineListFuture() => _machineService.fetchAll();
 
-  String? get printerApiKey => printerSetting.apiKey;
+  Future<MachineSettings> _machineSettingsFuture() =>
+      _machineService.fetchSettings(machine);
 
-  String? get printerWsUrl => printerSetting.wsUrl;
+  @override
+  void onFutureError(dynamic error, Object? key) {
+    _logger.e("Error on $key: $error");
+  }
 
-  String? get printerHttpUrl => printerSetting.httpUrl;
+  @override
+  Map<String, Future Function()> get futuresMap => {
+        _PrinterMapKey: _printerFuture,
+        _MachinesMapKey: _machineListFuture,
+        _MachineSettingsMapKey: _machineSettingsFuture
+      };
 
-  int get extruderMinTemperature =>
-      printerSetting.printerService.printerStream.valueOrNull?.configFile
-          .primaryExtruder?.minTemp
-          .toInt() ??
-      0;
-
-  int get extruderMaxTemperature =>
-      printerSetting.printerService.printerStream.valueOrNull?.configFile
-          .primaryExtruder?.maxTemp
-          .toInt() ??
-      500;
-
-  int get bedMinTemperature =>
-      printerSetting.printerService.printerStream.valueOrNull?.configFile
-          .configHeaterBed?.minTemp
-          .toInt() ??
-      0;
-
-  int get bedMaxTemperature =>
-      printerSetting.printerService.printerStream.valueOrNull?.configFile
-          .configHeaterBed?.maxTemp
-          .toInt() ??
-      150;
-
-  bool get printerInvertX => printerSetting.inverts[0];
-
-  bool get printerInvertY => printerSetting.inverts[1];
-
-  bool get printerInvertZ => printerSetting.inverts[2];
-
-  int get printerSpeedXY => printerSetting.speedXY;
-
-  int get printerSpeedZ => printerSetting.speedZ;
-
-  int get printerExtruderFeedrate => printerSetting.extrudeFeedrate;
-
-  bool get canShowImportSettings =>
-      !fetchingPrinter && fetchedMachines.length > 1;
+  @override
+  onData(String key) {
+    super.onData(key);
+    if (!isFetchingPrinter && !isFetchingSettings) _buildMacroGroups();
+  }
 
   bool isDefaultMacroGrp(MacroGroup macroGroup) {
     return macroGroup == _defaultGroup;
-  }
-
-  removeExtruderStep(int step) {
-    printerExtruderSteps.remove(step);
-    notifyListeners();
   }
 
   addExtruderStep(String rawValue) {
@@ -188,8 +161,8 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     }
   }
 
-  removeBabyStep(double step) {
-    printerBabySteps.remove(step);
+  removeExtruderStep(int step) {
+    printerExtruderSteps.remove(step);
     notifyListeners();
   }
 
@@ -217,8 +190,8 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     }
   }
 
-  removeMoveStep(int step) {
-    printerMoveSteps.remove(step);
+  removeBabyStep(double step) {
+    printerBabySteps.remove(step);
     notifyListeners();
   }
 
@@ -246,6 +219,11 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     }
   }
 
+  removeMoveStep(int step) {
+    printerMoveSteps.remove(step);
+    notifyListeners();
+  }
+
   onMacroGroupAdd() {
     MacroGroup group = MacroGroup(name: 'New Group', macros: []);
     _macroGroups.add(group);
@@ -256,57 +234,17 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
   onMacroGroupRemove(MacroGroup group) {
     _macroGroups.remove(group);
     if (group.macros.isNotEmpty) {
-      _snackbarService.showSnackbar(message: plural('pages.printer_edit.macros.macros_to_default',group.macros.length));
+      _snackbarService.showSnackbar(
+          message: plural('pages.printer_edit.macros.macros_to_default',
+              group.macros.length));
       _defaultGroup.macros.addAll(group.macros);
     }
     _saveAllGroupStuff();
     notifyListeners();
   }
 
-  _saveAllMacroGroups() {
-    macroGroups.forEach((element) => _saveMacroGroup(element));
-  }
-
-  _saveMacroGroup(MacroGroup toSave) {
-    _fbKey.currentState?.save();
-    var name = _fbKey.currentState!.value['${toSave.uuid}-macroName'];
-    if (name != null) toSave.name = name;
-  }
-
-  onWebCamAdd() {
-    WebcamSetting cam = WebcamSetting('New Webcam',
-        'http://${Uri.parse(printerSetting.wsUrl).host}/webcam/?action=stream');
-    webcams.add(cam);
-    _saveAllGroupStuff();
-    notifyListeners();
-  }
-
-  onWebCamRemove(WebcamSetting toRemoved) {
-    webcams.remove(toRemoved);
-    _saveAllGroupStuff();
-    notifyListeners();
-  }
-
-  _saveAllCams() {
-    webcams.forEach((element) {
-      _saveCam(element);
-    });
-  }
-
-  _saveCam(WebcamSetting toSave) {
-    _fbKey.currentState?.save();
-    var name = _fbKey.currentState!.value['${toSave.uuid}-camName'];
-    var url = _fbKey.currentState!.value['${toSave.uuid}-camUrl'];
-    var fH = _fbKey.currentState!.value['${toSave.uuid}-camFH'];
-    var fV = _fbKey.currentState!.value['${toSave.uuid}-camFV'];
-    if (name != null) toSave.name = name;
-    if (url != null) toSave.url = url;
-    if (fH != null) toSave.flipHorizontal = fH;
-    if (fV != null) toSave.flipVertical = fV;
-  }
-
   onTempPresetAdd() {
-    TemperaturePreset preset = TemperaturePreset("New Preset");
+    TemperaturePreset preset = TemperaturePreset(name: "New Preset");
     tempPresets.add(preset);
     _saveAllMacroGroups();
     _saveAllPresets();
@@ -322,21 +260,18 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     notifyListeners();
   }
 
-  _saveAllPresets() {
-    tempPresets.forEach((element) {
-      _savePreset(element);
-    });
+  onWebCamAdd() {
+    WebcamSetting cam = WebcamSetting('New Webcam',
+        'http://${Uri.parse(machine.wsUrl).host}/webcam/?action=stream');
+    webcams.add(cam);
+    _saveAllGroupStuff();
+    notifyListeners();
   }
 
-  _savePreset(TemperaturePreset toSave) {
-    _fbKey.currentState?.save();
-    var name = _fbKey.currentState!.value['${toSave.uuid}-presetName'];
-    int? extruderTemp =
-        _fbKey.currentState!.value['${toSave.uuid}-extruderTemp'];
-    int? bedTemp = _fbKey.currentState!.value['${toSave.uuid}-bedTemp'];
-    if (name != null) toSave.name = name;
-    if (extruderTemp != null) toSave.extruderTemp = extruderTemp;
-    if (bedTemp != null) toSave.bedTemp = bedTemp;
+  onWebCamRemove(WebcamSetting toRemoved) {
+    webcams.remove(toRemoved);
+    _saveAllGroupStuff();
+    notifyListeners();
   }
 
   onFormConfirm() async {
@@ -347,32 +282,53 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
       var printerUrl = currentState.value['printerUrl'];
       var wsUrl = currentState.value['wsUrl'];
 
-      List<bool> inverts = [
-        currentState.value['invertX'],
-        currentState.value['invertY'],
-        currentState.value['invertZ']
-      ];
-      var speedXY = currentState.value['speedXY'];
-      var speedZ = currentState.value['speedZ'];
-      var extrudeSpeed = currentState.value['extrudeSpeed'];
       _saveAllGroupStuff();
-      printerSetting
+
+      machine
         ..name = printerName
         ..wsUrl = wsUrl
         ..httpUrl = printerUrl
         ..apiKey = printerAPIKey
-        ..cams = webcams
-        ..temperaturePresets = tempPresets
-        ..inverts = inverts
-        ..speedXY = speedXY
-        ..speedZ = speedZ
-        ..extrudeFeedrate = extrudeSpeed
-        ..moveSteps = printerMoveSteps
-        ..babySteps = printerBabySteps
-        ..macroGroups = macroGroups
-        ..extrudeSteps = printerExtruderSteps;
+        ..cams = webcams;
+      //   ..temperaturePresets = tempPresets
+      //   ..inverts = inverts
+      //   ..speedXY = speedXY
+      //   ..speedZ = speedZ
+      //   ..extrudeFeedrate = extrudeSpeed
+      //   ..moveSteps = printerMoveSteps
+      //   ..babySteps = printerBabySteps
+      //   ..macroGroups = macroGroups
+      //   ..extrudeSteps = printerExtruderSteps;
+      await _machineService.updateMachine(machine);
 
-      await _machineService.updateMachine(printerSetting);
+      if (!settingsHasError &&
+          !printerHasError &&
+          !isFetchingPrinter &&
+          !isFetchingSettings) {
+        List<bool> inverts = [
+          currentState.value['invertX'],
+          currentState.value['invertY'],
+          currentState.value['invertZ']
+        ];
+        var speedXY = currentState.value['speedXY'];
+        var speedZ = currentState.value['speedZ'];
+        var extrudeSpeed = currentState.value['extrudeSpeed'];
+
+        await _machineService.updateSettings(
+            machine,
+            MachineSettings(
+                created: machineSettings.created,
+                lastModified: DateTime.now(),
+                macroGroups: _macroGroups,
+                temperaturePresets: tempPresets,
+                babySteps: printerBabySteps,
+                extrudeSteps: printerExtruderSteps,
+                moveSteps: printerMoveSteps,
+                extrudeFeedrate: extrudeSpeed,
+                inverts: inverts,
+                speedXY: speedXY,
+                speedZ: speedZ));
+      }
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
       } else {
@@ -381,24 +337,18 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     }
   }
 
-  void _saveAllGroupStuff() {
-    _saveAllMacroGroups();
-    _saveAllCams();
-    _saveAllPresets();
-  }
-
-  onDeleteTap() async {
+  onMachineDeleteTap() async {
     _dialogService
         .showConfirmationDialog(
-      title: "Delete ${printerSetting.name}?",
+      title: "Delete ${machine.name}?",
       description:
-          "Are you sure you want to remove the printer ${printerSetting.name} running under the address '$printerHttpUrl'?",
+          "Are you sure you want to remove the printer ${machine.name} running under the address '${machine.httpUrl}'?",
       confirmationTitle: "Delete",
     )
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false)
-        _machineService.removeMachine(printerSetting).then(
-            (value) => _navigationService.clearStackAndShow(Routes.dashboardView));
+        _machineService.removeMachine(machine).then((value) =>
+            _navigationService.clearStackAndShow(Routes.dashboardView));
     });
   }
 
@@ -420,14 +370,15 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     notifyListeners();
   }
 
-  onImportSettings() {
+  onImportSettings(MaterialLocalizations materialLocalizations) {
     _dialogService
         .showCustomDialog(
             variant: DialogType.importSettings,
             title: 'Copy Settings',
-            mainButtonTitle: 'Copy',
-            secondaryButtonTitle: 'Cancle',
-            data: printerSetting)
+            mainButtonTitle: materialLocalizations.copyButtonLabel,
+            secondaryButtonTitle:
+                materialLocalizations.cancelButtonLabel.titleCase(),
+            data: machine)
         .then(onImportSettingsReturns);
   }
 
@@ -435,45 +386,46 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
     if (response != null && response.confirmed) {
       FormBuilderState currentState = _fbKey.currentState!;
       ImportSettingsDialogViewResults result = response.data;
-      PrinterSetting src = result.source;
+      ImportMachineSettingsDto importDto = result.source;
+      MachineSettings settings = importDto.machineSettings;
       Map<String, dynamic> patchingValues = {};
       for (String field in result.fields) {
         switch (field) {
           case 'invertX':
-            patchingValues[field] = src.inverts[0];
+            patchingValues[field] = settings.inverts[0];
             break;
           case 'invertY':
-            patchingValues[field] = src.inverts[1];
+            patchingValues[field] = settings.inverts[1];
             break;
           case 'invertZ':
-            patchingValues[field] = src.inverts[2];
+            patchingValues[field] = settings.inverts[2];
             break;
           case 'speedXY':
-            patchingValues[field] = src.speedXY.toString();
+            patchingValues[field] = settings.speedXY.toString();
             break;
           case 'speedZ':
-            patchingValues[field] = src.speedZ.toString();
+            patchingValues[field] = settings.speedZ.toString();
             break;
           case 'extrudeSpeed':
-            patchingValues[field] = src.extrudeFeedrate.toString();
+            patchingValues[field] = settings.extrudeFeedrate.toString();
             break;
           case 'moveSteps':
             printerMoveSteps.clear();
-            printerMoveSteps.addAll(src.moveSteps);
+            printerMoveSteps.addAll(settings.moveSteps);
 
             break;
           case 'babySteps':
             printerBabySteps.clear();
-            printerBabySteps.addAll(src.babySteps);
+            printerBabySteps.addAll(settings.babySteps);
             break;
           case 'extrudeSteps':
             printerExtruderSteps.clear();
-            printerExtruderSteps.addAll(src.extrudeSteps);
+            printerExtruderSteps.addAll(settings.extrudeSteps);
             break;
         }
       }
       currentState.patchValue(patchingValues);
-      tempPresets.addAll(result.presets);
+      // tempPresets.addAll(result.presets);
       notifyListeners();
     }
   }
@@ -515,5 +467,83 @@ class PrintersEditViewModel extends MultipleFutureViewModel {
       _fbKey.currentState?.fields['printerApiKey']?.didChange(readValue);
     }
     // printerApiKey = resu;
+  }
+
+  _buildMacroGroups() {
+    _macroGroups.addAll(machineSettings.macroGroups);
+    MacroGroup defaultGroup = _defaultGroup;
+
+    List<String> filteredMacros = fetchedPrinter.gcodeMacros
+        .where((element) => !element.startsWith('_'))
+        .toList();
+    for (MacroGroup grp in _macroGroups) {
+      for (GCodeMacro macro in grp.macros.toList(growable: false)) {
+        bool wasInList = filteredMacros.remove(macro.name);
+        if (!wasInList) grp.macros.remove(macro);
+      }
+    }
+    List<GCodeMacro> modifiableList = defaultGroup.macros.toList();
+    modifiableList.addAll(filteredMacros.map((e) => GCodeMacro(name: e)));
+    defaultGroup.macros = modifiableList;
+  }
+
+  _saveAllMacroGroups() {
+    if (isFetchingSettings) return;
+    macroGroups.forEach((element) => _saveMacroGroup(element));
+  }
+
+  _saveMacroGroup(MacroGroup toSave) {
+    _fbKey.currentState?.save();
+    var name = _fbKey.currentState!.value['${toSave.uuid}-macroName'];
+    if (name != null)
+      toSave
+        ..name = name
+        ..lastModified = DateTime.now();
+  }
+
+  _saveAllCams() {
+    webcams.forEach((element) {
+      _saveCam(element);
+    });
+  }
+
+  _saveCam(WebcamSetting toSave) {
+    _fbKey.currentState?.save();
+    var name = _fbKey.currentState!.value['${toSave.uuid}-camName'];
+    var url = _fbKey.currentState!.value['${toSave.uuid}-camUrl'];
+    var fH = _fbKey.currentState!.value['${toSave.uuid}-camFH'];
+    var fV = _fbKey.currentState!.value['${toSave.uuid}-camFV'];
+    var tFps = _fbKey.currentState!.value['${toSave.uuid}-tFps'];
+    if (name != null) toSave.name = name;
+    if (url != null) toSave.url = url;
+    if (fH != null) toSave.flipHorizontal = fH;
+    if (fV != null) toSave.flipVertical = fV;
+    if (fV != null) toSave.targetFps = tFps;
+  }
+
+  _saveAllPresets() {
+    if (isFetchingSettings || settingsHasError) return;
+    tempPresets.forEach((element) {
+      _savePreset(element);
+    });
+  }
+
+  _savePreset(TemperaturePreset toSave) {
+    _fbKey.currentState?.save();
+    var name = _fbKey.currentState!.value['${toSave.uuid}-presetName'];
+    int? extruderTemp =
+        _fbKey.currentState!.value['${toSave.uuid}-extruderTemp'];
+    int? bedTemp = _fbKey.currentState!.value['${toSave.uuid}-bedTemp'];
+    if (name != null) toSave.name = name;
+    if (extruderTemp != null) toSave.extruderTemp = extruderTemp;
+    if (bedTemp != null) toSave.bedTemp = bedTemp;
+    if ((bedTemp ?? extruderTemp ?? name ?? extruderTemp) != null)
+      toSave.lastModified = DateTime.now();
+  }
+
+  _saveAllGroupStuff() {
+    _saveAllMacroGroups();
+    _saveAllCams();
+    _saveAllPresets();
   }
 }

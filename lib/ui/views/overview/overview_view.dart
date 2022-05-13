@@ -4,12 +4,13 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/webcam_setting.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
@@ -17,8 +18,6 @@ import 'package:mobileraker/ui/views/overview/overview_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
-
-import '../../../domain/webcam_setting.dart';
 
 class OverViewView extends ViewModelBuilderWidget<OverViewViewModel> {
   const OverViewView({Key? key}) : super(key: key);
@@ -44,7 +43,7 @@ class OverViewView extends ViewModelBuilderWidget<OverViewViewModel> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SpinKitRipple(
-            color: Theme.of(context).colorScheme.primary,
+            color: Theme.of(context).colorScheme.secondary,
             size: 100,
           ),
           SizedBox(
@@ -56,7 +55,7 @@ class OverViewView extends ViewModelBuilderWidget<OverViewViewModel> {
       ));
     }
 
-    List<PrinterSetting> machines = model.data!;
+    List<Machine> machines = model.data!;
 
     return SingleChildScrollView(
       child: Column(
@@ -80,7 +79,7 @@ class OverViewView extends ViewModelBuilderWidget<OverViewViewModel> {
 }
 
 class SinglePrinter extends ViewModelBuilderWidget<SinglePrinterViewModel> {
-  final PrinterSetting _machine;
+  final Machine _machine;
 
   SinglePrinter(this._machine);
 
@@ -95,6 +94,7 @@ class SinglePrinter extends ViewModelBuilderWidget<SinglePrinterViewModel> {
                 child: Mjpeg(
               key: ValueKey(model.selectedCam!.uuid),
               feedUri: model.selectedCam!.url,
+              targetFps: model.selectedCam!.targetFps,
               transform: model.selectedCam!.transformMatrix,
               imageBuilder: _imageBuilder,
               stackChildren: [
@@ -135,7 +135,7 @@ class SinglePrinter extends ViewModelBuilderWidget<SinglePrinterViewModel> {
   Widget? _buildTrailing(BuildContext context, SinglePrinterViewModel model) {
     if (!model.isWebsocketStateAvailable) return FadingText('...');
 
-    if (model.websocketState != WebSocketState.connected)
+    if (model.clientState != ClientState.connected)
       return Tooltip(
         child: Icon(
           FlutterIcons.disconnect_ant,
@@ -164,10 +164,10 @@ class SinglePrinter extends ViewModelBuilderWidget<SinglePrinterViewModel> {
 class SinglePrinterViewModel extends MultipleStreamViewModel {
   static const String PrinterKey = 'printer';
   static const String ServerKey = 'server';
-  static const String WsKey = 'websocketState';
-  final _machineService = locator<MachineService>();
+  static const String ClientStateKey = 'clientState';
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _navigationService = locator<NavigationService>();
-  final PrinterSetting _machine;
+  final Machine _machine;
 
   SinglePrinterViewModel(this._machine);
 
@@ -176,7 +176,8 @@ class SinglePrinterViewModel extends MultipleStreamViewModel {
         PrinterKey: StreamData<Printer>(_machine.printerService.printerStream),
         ServerKey:
             StreamData<KlipperInstance>(_machine.klippyService.klipperStream),
-        WsKey: StreamData<WebSocketState>(_machine.websocket.stateStream),
+        ClientStateKey:
+            StreamData<ClientState>(_machine.jRpcClient.stateStream),
       };
 
   Printer? get printer => dataMap?[PrinterKey];
@@ -187,9 +188,9 @@ class SinglePrinterViewModel extends MultipleStreamViewModel {
 
   bool get isServerAvailable => dataReady(ServerKey);
 
-  WebSocketState? get websocketState => dataMap![WsKey];
+  ClientState? get clientState => dataMap![ClientStateKey];
 
-  bool get isWebsocketStateAvailable => dataReady(WsKey);
+  bool get isWebsocketStateAvailable => dataReady(ClientStateKey);
 
   WebcamSetting? selectedCam;
 
@@ -197,33 +198,33 @@ class SinglePrinterViewModel extends MultipleStreamViewModel {
 
   double get printProgress => printer?.virtualSdCard.progress ?? 0;
 
-  String get wsError => _machine.websocket.hasError
-      ? _machine.websocket.errorReason.toString()
+  String get wsError => _machine.jRpcClient.hasError
+      ? _machine.jRpcClient.errorReason.toString()
       : 'Unknown';
 
-  void onTapTile() {
-    _machineService.setMachineActive(_machine);
+  onTapTile() {
+    _selectedMachineService.selectMachine(_machine);
     _navigationService.navigateTo(Routes.dashboardView);
   }
 
-  void onLongPressTile() {
-    _machineService.setMachineActive(_machine);
-    _navigationService.navigateTo(Routes.printersEdit,
-        arguments: PrintersEditArguments(printerSetting: _machine));
+  onLongPressTile() {
+    _selectedMachineService.selectMachine(_machine);
+    _navigationService.navigateTo(Routes.printerEdit,
+        arguments: PrinterEditArguments(machine: _machine));
   }
 
-  void onFullScreenTap() {
+  onFullScreenTap() {
     _navigationService.navigateTo(Routes.fullCamView,
         arguments:
             FullCamViewArguments(webcamSetting: selectedCam!, owner: _machine));
   }
 
   @override
-  void initialise() {
+  initialise() {
     super.initialise();
 
     List<WebcamSetting> tmpCams = _machine.cams;
     if (tmpCams.isNotEmpty) selectedCam = tmpCams.first;
-    _machine.websocket.ensureConnection();
+    _machine.jRpcClient.ensureConnection();
   }
 }

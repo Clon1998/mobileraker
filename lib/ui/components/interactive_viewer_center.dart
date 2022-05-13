@@ -213,7 +213,7 @@ class CenterInteractiveViewer extends StatefulWidget {
   /// import 'package:flutter/material.dart';
   /// import 'package:flutter/widgets.dart';
   ///
-  /// void main() => runApp(const IVBuilderExampleApp());
+  /// main() => runApp(const IVBuilderExampleApp());
   ///
   /// class IVBuilderExampleApp extends StatelessWidget {
   ///   const IVBuilderExampleApp({Key? key}) : super(key: key);
@@ -286,18 +286,18 @@ class CenterInteractiveViewer extends StatefulWidget {
   ///     return Rect.fromLTRB(xMin!, yMin!, xMax!, yMax!);
   ///   }
   ///
-  ///   void _onChangeTransformation() {
+  ///   _onChangeTransformation() {
   ///     setState(() {});
   ///   }
   ///
   ///   @override
-  ///   void initState() {
+  ///   initState() {
   ///     super.initState();
   ///     _transformationController.addListener(_onChangeTransformation);
   ///   }
   ///
   ///   @override
-  ///   void dispose() {
+  ///   dispose() {
   ///     _transformationController.removeListener(_onChangeTransformation);
   ///     super.dispose();
   ///   }
@@ -576,7 +576,7 @@ class CenterInteractiveViewer extends StatefulWidget {
   /// Animation<Matrix4>? _animationReset;
   /// late final AnimationController _controllerReset;
   ///
-  /// void _onAnimateReset() {
+  /// _onAnimateReset() {
   ///   _transformationController.value = _animationReset!.value;
   ///   if (!_controllerReset.isAnimating) {
   ///     _animationReset!.removeListener(_onAnimateReset);
@@ -585,7 +585,7 @@ class CenterInteractiveViewer extends StatefulWidget {
   ///   }
   /// }
   ///
-  /// void _animateResetInitialize() {
+  /// _animateResetInitialize() {
   ///   _controllerReset.reset();
   ///   _animationReset = Matrix4Tween(
   ///     begin: _transformationController.value,
@@ -596,14 +596,14 @@ class CenterInteractiveViewer extends StatefulWidget {
   /// }
   ///
   /// // Stop a running reset to home transform animation.
-  /// void _animateResetStop() {
+  /// _animateResetStop() {
   ///   _controllerReset.stop();
   ///   _animationReset?.removeListener(_onAnimateReset);
   ///   _animationReset = null;
   ///   _controllerReset.reset();
   /// }
   ///
-  /// void _onInteractionStart(ScaleStartDetails details) {
+  /// _onInteractionStart(ScaleStartDetails details) {
   ///   // If the user tries to cause a transformation while the reset animation is
   ///   // running, cancel the reset animation.
   ///   if (_controllerReset.status == AnimationStatus.forward) {
@@ -612,7 +612,7 @@ class CenterInteractiveViewer extends StatefulWidget {
   /// }
   ///
   /// @override
-  /// void initState() {
+  /// initState() {
   ///   super.initState();
   ///   _controllerReset = AnimationController(
   ///     vsync: this,
@@ -621,7 +621,7 @@ class CenterInteractiveViewer extends StatefulWidget {
   /// }
   ///
   /// @override
-  /// void dispose() {
+  /// dispose() {
   ///   _controllerReset.dispose();
   ///   super.dispose();
   /// }
@@ -1013,7 +1013,7 @@ class _CenterInteractiveViewerState extends State<CenterInteractiveViewer> with 
 
   // Handle the start of a gesture. All of pan, scale, and rotate are handled
   // with GestureDetector's scale gesture.
-  void _onScaleStart(ScaleStartDetails details) {
+  _onScaleStart(ScaleStartDetails details) {
     widget.onInteractionStart?.call(details);
 
     if (_controller.isAnimating) {
@@ -1034,7 +1034,7 @@ class _CenterInteractiveViewerState extends State<CenterInteractiveViewer> with 
 
   // Handle an update to an ongoing gesture. All of pan, scale, and rotate are
   // handled with GestureDetector's scale gesture.
-  void _onScaleUpdate(ScaleUpdateDetails details) {
+  _onScaleUpdate(ScaleUpdateDetails details) {
     final double scale = _transformationController!.value.getMaxScaleOnAxis();
     final Offset focalPointScene = _transformationController!.toScene(
       details.localFocalPoint,
@@ -1133,7 +1133,7 @@ class _CenterInteractiveViewerState extends State<CenterInteractiveViewer> with 
 
   // Handle the end of a gesture of _GestureType. All of pan, scale, and rotate
   // are handled with GestureDetector's scale gesture.
-  void _onScaleEnd(ScaleEndDetails details) {
+  _onScaleEnd(ScaleEndDetails details) {
     widget.onInteractionEnd?.call(details);
     _scaleStart = null;
     _rotationStart = null;
@@ -1182,7 +1182,7 @@ class _CenterInteractiveViewerState extends State<CenterInteractiveViewer> with 
   }
 
   // Handle mousewheel scroll events.
-  void _receivedPointerSignal(PointerSignalEvent event) {
+  _receivedPointerSignal(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
       // Ignore left and right scroll.
       if (event.scrollDelta.dy == 0.0) {
@@ -1246,7 +1246,7 @@ class _CenterInteractiveViewerState extends State<CenterInteractiveViewer> with 
   }
 
   // Handle inertia drag animation.
-  void _onAnimate() {
+  _onAnimate() {
     if (!_controller.isAnimating) {
       _panAxis = null;
       _animation?.removeListener(_onAnimate);
@@ -1270,14 +1270,14 @@ class _CenterInteractiveViewerState extends State<CenterInteractiveViewer> with 
     );
   }
 
-  void _onTransformationControllerChange() {
+  _onTransformationControllerChange() {
     // A change to the TransformationController's value is a change to the
     // state.
     setState(() {});
   }
 
   @override
-  void initState() {
+  initState() {
     super.initState();
 
     _transformationController = widget.transformationController
@@ -1289,7 +1289,7 @@ class _CenterInteractiveViewerState extends State<CenterInteractiveViewer> with 
   }
 
   @override
-  void didUpdateWidget(CenterInteractiveViewer oldWidget) {
+  didUpdateWidget(CenterInteractiveViewer oldWidget) {
     super.didUpdateWidget(oldWidget);
     // Handle all cases of needing to dispose and initialize
     // transformationControllers.
@@ -1314,7 +1314,7 @@ class _CenterInteractiveViewerState extends State<CenterInteractiveViewer> with 
   }
 
   @override
-  void dispose() {
+  dispose() {
     _controller.dispose();
     _transformationController!.removeListener(_onTransformationControllerChange);
     if (widget.transformationController == null) {
@@ -1454,7 +1454,7 @@ class TransformationController extends ValueNotifier<Matrix4> {
   ///
   /// ```dart
   /// @override
-  /// void build(BuildContext context) {
+  /// build(BuildContext context) {
   ///   return GestureDetector(
   ///     onTapUp: (TapUpDetails details) {
   ///       _childWasTappedAt = _transformationController.toScene(

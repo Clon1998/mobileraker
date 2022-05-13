@@ -1,17 +1,19 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
-import 'package:mobileraker/dto/machine/fans/generic_fan.dart';
-import 'package:mobileraker/dto/machine/fans/named_fan.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
+import 'package:mobileraker/model/moonraker/gcode_macro.dart';
+import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
+import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/control_tab_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 
 class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
@@ -26,21 +28,36 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   @override
   Widget builder(
       BuildContext context, ControlTabViewModel model, Widget? child) {
+    if (!model.isDataReady) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitRipple(
+              color: Theme.of(context).colorScheme.secondary,
+              size: 100,
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            FadingText('Fetching printer data'),
+            // Text('Fetching printer ...')
+          ],
+        ),
+      );
+    }
+
     return PullToRefreshPrinter(
       child: ListView(
         key: PageStorageKey<String>('cTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          if (model.isPrinterAvailable &&
-              model.isServerAvailable &&
-              model.isMachineAvailable) ...[
-            if (model.printer.gcodeMacros.isNotEmpty) GcodeMacroCard(),
-            if (model.printer.print.state != PrintState.printing)
-              ExtruderControlCard(),
-            MultipliersCard(),
-            FansCard(),
-            if (model.printer.outputPins.isNotEmpty) PinsCard(),
-          ]
+          if (model.macroGroups.isNotEmpty) GcodeMacroCard(),
+          if (model.printer.print.state != PrintState.printing)
+            ExtruderControlCard(),
+          MultipliersCard(),
+          FansCard(),
+          if (model.printer.outputPins.isNotEmpty) PinsCard(),
         ],
       ),
     );
@@ -157,18 +174,24 @@ class _FanTile extends StatelessWidget {
 
     return CardWithButton(
         width: width,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        child: Builder(
+          builder: (context) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(name, style: Theme.of(context).textTheme.caption),
-                Text(fanSpeed, style: Theme.of(context).textTheme.headline6),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name,
+                        style: Theme.of(context).textTheme.caption),
+                    Text(fanSpeed,
+                        style: Theme.of(context).textTheme.headline6),
+                  ],
+                ),
+                w,
               ],
-            ),
-            w,
-          ],
+            );
+          }
         ),
         buttonChild: onTap == null
             ? const Text('pages.dashboard.control.fan_card.static_fan_btn').tr()
@@ -206,7 +229,7 @@ class _SpinningFanState extends State<SpinningFan>
   }
 
   @override
-  void dispose() {
+  dispose() {
     _controller.dispose();
     super.dispose();
   }
@@ -219,10 +242,6 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
 
   @override
   Widget build(BuildContext context, ControlTabViewModel model) {
-    Color textBtnColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : Colors.black;
-
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -300,7 +319,7 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
           ListTile(
             leading: Icon(FlutterIcons.code_braces_mco),
             title: Text('pages.dashboard.control.macro_card.title').tr(),
-            trailing: (model.macroGroups.isNotEmpty)
+            trailing: (model.macroGroups.length > 1)
                 ? DropdownButton(
                     value: model.selectedGrp,
                     onChanged: model.onMacroGroupSelected,
@@ -316,8 +335,9 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: ChipTheme(
               data: ChipThemeData(
-                  labelStyle: TextStyle(color: Colors.white),
-                  deleteIconColor: Colors.white),
+                  labelStyle:
+                      TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                  deleteIconColor: Theme.of(context).colorScheme.onPrimary),
               child: Wrap(
                 spacing: 5.0,
                 children: _generateGCodeChips(context, model),
@@ -332,9 +352,7 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
   List<Widget> _generateGCodeChips(
       BuildContext context, ControlTabViewModel model) {
     var themeData = Theme.of(context);
-    var bgColActive = themeData.brightness == Brightness.dark
-        ? themeData.colorScheme.secondary
-        : themeData.primaryColor;
+    var bgColActive = themeData.colorScheme.primary;
 
     List<GCodeMacro> macros = model.selectedGrp?.macros ?? [];
     return List<Widget>.generate(
@@ -343,10 +361,14 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
         GCodeMacro macro = macros[index];
         bool disabled = (!model.canUsePrinter ||
             (model.isPrinting && !macro.showWhilePrinting));
-        return ActionChip(
-          label: Text(macro.beautifiedName),
-          backgroundColor: disabled ? themeData.disabledColor : bgColActive,
-          onPressed: () => disabled ? null : model.onMacroPressed(macro),
+        return Visibility(
+          visible:
+              model.printer.gcodeMacros.contains(macro.name) && macro.visible,
+          child: ActionChip(
+            label: Text(macro.beautifiedName),
+            backgroundColor: disabled ? themeData.disabledColor : bgColActive,
+            onPressed: () => disabled ? null : model.onMacroPressed(macro),
+          ),
         );
       },
     ).toList();
@@ -445,12 +467,18 @@ class _PinTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return CardWithButton(
         width: width,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: Theme.of(context).textTheme.caption),
-            Text(pinValue, style: Theme.of(context).textTheme.headline6),
-          ],
+        child: Builder(
+          builder: (context) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name,
+                    style: Theme.of(context).textTheme.caption),
+                Text(pinValue,
+                    style: Theme.of(context).textTheme.headlineSmall),
+              ],
+            );
+          }
         ),
         buttonChild: onTap == null
             ? const Text('pages.dashboard.control.pin_card.pin_btn').tr()
@@ -466,9 +494,6 @@ class MultipliersCard extends ViewModelWidget<ControlTabViewModel> {
 
   @override
   Widget build(BuildContext context, ControlTabViewModel model) {
-    Color textBtnColor = Theme.of(context).brightness == Brightness.dark
-        ? Colors.white
-        : Colors.black;
 
     return Card(
       child: Column(

@@ -18,13 +18,13 @@ class _EaseInState extends State<EaseIn> {
   late double opacity;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
     opacity = 0;
   }
 
   @override
-  void didChangeDependencies() {
+  didChangeDependencies() {
     super.didChangeDependencies();
     Future.delayed(widget.duration).then((_) {
       setState(() {

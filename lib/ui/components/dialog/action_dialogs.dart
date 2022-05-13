@@ -5,5 +5,6 @@ Future<DialogResponse?> emergencyStopConfirmDialog(DialogService dialogService) 
     title: "Emergency Stop - Confirmation",
     description: "Are you sure?",
     confirmationTitle: "STOP!",
+      dialogPlatform: DialogPlatform.Material
   );
 }

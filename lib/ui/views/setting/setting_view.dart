@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/service/ui/theme_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/themes/theme_pack.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
   const SettingView({Key? key}) : super(key: key);
@@ -27,6 +29,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
               children: <Widget>[
                 _SectionHeader(title: 'pages.setting.general.title'.tr()),
                 _languageSelector(context),
+                _themeSelector(context),
                 FormBuilderSwitch(
                   name: 'emsConfirmation',
                   title: Text('pages.setting.general.ems_confirm').tr(),
@@ -66,12 +69,13 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                 Divider(),
                 RichText(
                   text: TextSpan(
-                      style: Theme.of(context).textTheme.bodyText2,
+                      style: Theme.of(context).textTheme.bodySmall,
                       text: tr('pages.setting.general.companion'),
                       children: [
-                        new TextSpan(
+                        TextSpan(
                           text: '\nOfficial GitHub ',
-                          style: new TextStyle(color: Colors.blue),
+                          style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary),
                           children: [
                             WidgetSpan(
                               child:
@@ -82,9 +86,9 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                             ..onTap = () async {
                               const String url =
                                   'https://github.com/Clon1998/mobileraker_companion';
-                              if (await canLaunch(url)) {
+                              if (await canLaunchUrlString(url)) {
                                 //TODO Fix this... neds Android Package Visibility
-                                await launch(url);
+                                await launchUrlString(url);
                               } else {
                                 throw 'Could not launch $url';
                               }
@@ -100,8 +104,17 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 TextButton(
-                  child: Text('pages.setting.imprint').tr(),
-                  onPressed: model.navigateToLegal,
+                  style: TextButton.styleFrom(
+                      minimumSize: Size.zero, // Set this
+                      padding: EdgeInsets.zero,
+                      textStyle: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary)),
+                  child: Text(MaterialLocalizations.of(context)
+                      .viewLicensesButtonLabel),
+                  onPressed: () => model.navigateToLicensePage(context),
                 ),
                 // _SectionHeader(title: 'Notifications'),
               ],
@@ -152,5 +165,23 @@ Widget _languageSelector(BuildContext context) {
     ),
     onChanged: (Locale? local) =>
         context.setLocale(local ?? context.fallbackLocale!),
+  );
+}
+
+Widget _themeSelector(BuildContext context) {
+  ThemeService themeService = context.themeService;
+  List<ThemePack> themeList = themeService.themePacks;
+  return FormBuilderDropdown(
+    initialValue: themeService.selectedThemePack,
+    name: 'theme',
+    items: themeList
+        .map((theme) =>
+            DropdownMenuItem(value: theme, child: Text('${theme.name}')))
+        .toList(),
+    decoration: InputDecoration(
+      labelText: 'Theme',
+    ),
+    onChanged: (ThemePack? themeData) =>
+        themeService.selectThemePack(themeData!),
   );
 }

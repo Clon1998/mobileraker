@@ -1,44 +1,50 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobileraker/domain/gcode_macro.dart';
-import 'package:mobileraker/domain/macro_group.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
-import 'package:mobileraker/repository/printer_setting_hive_repository.dart';
+import 'package:mobileraker/data/datasource/moonraker_database_client.dart';
+import 'package:mobileraker/data/repository/machine_hive_repository.dart';
+import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
+import 'package:mobileraker/model/hive/gcode_macro.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/macro_group.dart';
+import 'package:mobileraker/model/hive/temperature_preset.dart';
+import 'package:mobileraker/model/hive/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/purchases_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_viewmodel.dart';
 import 'package:mobileraker/ui/views/console/console_view.dart';
 import 'package:mobileraker/ui/views/console/console_viewmodel.dart';
-import 'package:mobileraker/ui/views/files/details/file_details_view.dart';
-import 'package:mobileraker/ui/views/files/files_view.dart';
-import 'package:mobileraker/ui/views/fullcam/full_cam_view.dart';
-import 'package:mobileraker/ui/views/overview/overview_view.dart';
 import 'package:mobileraker/ui/views/dashboard/dashboard_view.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/control_tab_viewmodel.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/general_tab_viewmodel.dart';
+import 'package:mobileraker/ui/views/files/details/config_file_details_view.dart';
+import 'package:mobileraker/ui/views/files/details/gcode_file_details_view.dart';
+import 'package:mobileraker/ui/views/files/files_view.dart';
+import 'package:mobileraker/ui/views/fullcam/full_cam_view.dart';
+import 'package:mobileraker/ui/views/overview/overview_view.dart';
 import 'package:mobileraker/ui/views/paywall/paywall_view.dart';
 import 'package:mobileraker/ui/views/printers/add/printers_add_view.dart';
 import 'package:mobileraker/ui/views/printers/edit/printers_edit_view.dart';
 import 'package:mobileraker/ui/views/printers/qr_scanner/qr_scanner_view.dart';
 import 'package:mobileraker/ui/views/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_view.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 
 @StackedApp(routes: [
   MaterialRoute(page: DashboardView, initial: true),
   MaterialRoute(page: FullCamView),
-  MaterialRoute(page: PrintersAdd),
-  MaterialRoute(page: PrintersEdit),
+  MaterialRoute(page: PrinterAdd),
+  MaterialRoute(page: PrinterEdit),
   MaterialRoute(page: FilesView),
-  MaterialRoute(page: FileDetailView),
+  MaterialRoute(page: GCodeFileDetailView),
+  MaterialRoute(page: ConfigFileDetailView),
   MaterialRoute(page: SettingView),
   MaterialRoute(page: ImprintView),
   MaterialRoute(page: QrScannerView),
@@ -46,9 +52,9 @@ import 'package:purchases_flutter/purchases_flutter.dart';
   MaterialRoute(page: PaywallView),
   MaterialRoute(page: OverViewView),
 ], dependencies: [
-  LazySingleton(classType: NavigationService),
+  Singleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),
-  // LazySingleton(classType: PrinterSettingHiveRepository,asType: PrinterSettingRepository,),
+  // LazySingleton(classType: machineHiveRepository, asType: machineRepository,),
   LazySingleton(classType: DialogService),
   LazySingleton(classType: BottomSheetService),
   LazySingleton(classType: GeneralTabViewModel),
@@ -56,7 +62,10 @@ import 'package:purchases_flutter/purchases_flutter.dart';
   LazySingleton(classType: ConnectionStateViewModel),
   LazySingleton(classType: ConsoleViewModel),
   LazySingleton(classType: PurchasesService),
-  Singleton(classType: PrinterSettingHiveRepository),
+  Singleton(classType: MachineHiveRepository),
+  Singleton(classType: SelectedMachineService),
+  Singleton(classType: MoonrakerDatabaseClient),
+  Singleton(classType: MachineSettingsMoonrakerRepository),
   Singleton(classType: MachineService),
   Singleton(classType: SettingService),
   Singleton(classType: NotificationService),
@@ -65,9 +74,9 @@ class AppSetup {}
 
 setupBoxes() async {
   await Hive.initFlutter();
-  var printerSettingAdapter = PrinterSettingAdapter();
-  if (!Hive.isAdapterRegistered(printerSettingAdapter.typeId))
-    Hive.registerAdapter(printerSettingAdapter);
+  var machineAdapter = MachineAdapter();
+  if (!Hive.isAdapterRegistered(machineAdapter.typeId))
+    Hive.registerAdapter(machineAdapter);
   var webcamSettingAdapter = WebcamSettingAdapter();
   if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId))
     Hive.registerAdapter(webcamSettingAdapter);
@@ -81,6 +90,7 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(macroAdapter.typeId))
     Hive.registerAdapter(macroAdapter);
   // Hive.deleteBoxFromDisk('printers');
+
   try {
     await openBoxes();
   } catch (e) {
@@ -93,18 +103,23 @@ setupBoxes() async {
 
 Future<List<Box>> openBoxes() {
   return Future.wait([
-    Hive.openBox<PrinterSetting>('printers'),
+    Hive.openBox<Machine>('printers'),
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
   ]);
 }
 
 Future<void> setupCat() async {
-  if (kReleaseMode)
-    return;
-  if (kDebugMode)
-    await Purchases.setDebugLogsEnabled(true);
-  if (Platform.isAndroid){
+  if (kReleaseMode) return;
+  if (kDebugMode) await Purchases.setDebugLogsEnabled(true);
+  if (Platform.isAndroid) {
     return Purchases.setup('goog_uzbmaMIthLRzhDyQpPsmvOXbaCK');
   }
+}
+
+setupLicenseRegistry() {
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('google_fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
 }

@@ -1,24 +1,24 @@
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/domain/printer_setting.dart';
-import 'package:mobileraker/domain/temperature_preset.dart';
-import 'package:mobileraker/domain/webcam_setting.dart';
-import 'package:mobileraker/dto/files/gcode_file.dart';
-import 'package:mobileraker/dto/machine/print_stats.dart';
-import 'package:mobileraker/dto/machine/printer.dart';
-import 'package:mobileraker/dto/machine/temperature_sensor.dart';
-import 'package:mobileraker/dto/machine/toolhead.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
-import 'package:mobileraker/service/file_service.dart';
-import 'package:mobileraker/service/klippy_service.dart';
+import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
+import 'package:mobileraker/data/dto/machine/toolhead.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/webcam_setting.dart';
+import 'package:mobileraker/model/moonraker/machine_settings.dart';
+import 'package:mobileraker/model/moonraker/temperature_preset.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/printer_service.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
-import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -26,15 +26,17 @@ import 'package:stacked_services/stacked_services.dart';
 const String _ServerStreamKey = 'server';
 const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _PrinterStreamKey = 'printer';
+const String _MachineSettingsStreamKey = 'machineSettings';
 
 class GeneralTabViewModel extends MultipleStreamViewModel {
   final _dialogService = locator<DialogService>();
+  final _selectedMachineService = locator<SelectedMachineService>();
   final _machineService = locator<MachineService>();
   final _navigationService = locator<NavigationService>();
   final _settingService = locator<SettingService>();
 
-  PrinterSetting? _printerSetting;
-  int _printerSettingHash = -1;
+  Machine? _machine;
+  int _machineHash = -1;
 
   GlobalKey<FlipCardState> tmpCardKey = GlobalKey<FlipCardState>();
 
@@ -46,21 +48,25 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   WebcamSetting? selectedCam;
 
-  ScrollController _tempsScrollController = new ScrollController(
-  );
+  ScrollController _tempsScrollController = new ScrollController();
 
   ScrollController get tempsScrollController => _tempsScrollController;
 
-  ScrollController _presetsScrollController = new ScrollController(
-  );
+  ScrollController _presetsScrollController = new ScrollController();
 
   ScrollController get presetsScrollController => _presetsScrollController;
 
-  PrinterService? get _printerService => _printerSetting?.printerService;
+  PrinterService? get _printerService => _machine?.printerService;
 
-  KlippyService? get _klippyService => _printerSetting?.klippyService;
+  KlippyService? get _klippyService => _machine?.klippyService;
 
-  FileService? get _fileService => _printerSetting?.fileService;
+  FileService? get _fileService => _machine?.fileService;
+
+  bool get isDataReady =>
+      isPrinterAvailable &&
+      isServerAvailable &&
+      isMachineAvailable &&
+      isMachineSettingsAvailable;
 
   int get tempsSteps => 2 + printer.temperatureSensors.length;
 
@@ -73,14 +79,16 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap => {
         _SelectedPrinterStreamKey:
-            StreamData<PrinterSetting?>(_machineService.selectedMachine),
-        if (_printerSetting?.printerService != null) ...{
-          _PrinterStreamKey: StreamData<Printer>(_printerService!.printerStream)
-        },
-        if (_printerSetting?.klippyService != null) ...{
+            StreamData<Machine?>(_selectedMachineService.selectedMachine),
+        if (_machine != null)
+          _MachineSettingsStreamKey: StreamData<MachineSettings>(
+              _machineService.fetchSettings(_machine!).asStream()),
+        if (_machine?.printerService != null)
+          _PrinterStreamKey:
+              StreamData<Printer>(_printerService!.printerStream),
+        if (_machine?.klippyService != null)
           _ServerStreamKey:
-              StreamData<KlipperInstance>(_klippyService!.klipperStream)
-        }
+              StreamData<KlipperInstance>(_klippyService!.klipperStream),
       };
 
   @override
@@ -88,17 +96,16 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case _SelectedPrinterStreamKey:
-        PrinterSetting? nPrinterSetting = data;
-        if (nPrinterSetting == _printerSetting &&
-            nPrinterSetting.hashCode == _printerSettingHash) break;
-        _printerSetting = nPrinterSetting;
-        _printerSettingHash = nPrinterSetting.hashCode;
-        List<WebcamSetting>? tmpCams = _printerSetting?.cams;
+        Machine? nmachine = data;
+        if (nmachine == _machine && nmachine.hashCode == _machineHash) break;
+        _machine = nmachine;
+        _machineHash = nmachine.hashCode;
+        List<WebcamSetting>? tmpCams = _machine?.cams;
         if (tmpCams?.isNotEmpty ?? false)
           selectedCam = tmpCams!.first;
         else
           selectedCam = null;
-        notifySourceChanged();
+        notifySourceChanged(clearOldData: true);
         break;
 
       case _PrinterStreamKey:
@@ -130,6 +137,10 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
 
+  MachineSettings get machineSettings => dataMap![_MachineSettingsStreamKey];
+
+  bool get isMachineSettingsAvailable => dataReady(_MachineSettingsStreamKey);
+
   String get status {
     if (server.klippyState == KlipperState.ready) {
       return printer.print.stateName;
@@ -138,33 +149,23 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
           'Klipper: ${toName(server.klippyState)}';
   }
 
-  List<int> get axisStepSize {
-    return _printerSetting?.moveSteps.toList() ?? const [100, 25, 10, 1];
-  }
+  List<int> get axisStepSize => machineSettings.moveSteps;
 
-  List<double> get babySteppingSizes {
-    return _printerSetting?.babySteps.toList() ??
-        const [0.005, 0.01, 0.05, 0.1];
-  }
+  List<double> get babySteppingSizes => machineSettings.babySteps;
 
-  List<TemperaturePreset> get temperaturePresets {
-    return _printerSetting?.temperaturePresets.toList() ?? List.empty();
-  }
+  List<TemperaturePreset> get temperaturePresets =>
+      machineSettings.temperaturePresets;
 
   List<WebcamSetting> get webcams {
-    if (_printerSetting != null && _printerSetting!.cams.isNotEmpty) {
-      return _printerSetting!.cams;
+    if (_machine != null && _machine!.cams.isNotEmpty) {
+      return _machine!.cams;
     }
     return List.empty();
   }
 
   bool get webCamAvailable => webcams.isNotEmpty && selectedCam != null;
 
-  String get webCamUrl => selectedCam!.url;
-
-  Matrix4 get transformMatrix => selectedCam!.transformMatrix;
-
-  setTemperaturePreset(int extruderTemp, int bedTemp) {
+  adjustNozzleAndBed(int extruderTemp, int bedTemp) {
     _printerService?.setTemperature('extruder', extruderTemp);
     _printerService?.setTemperature('heater_bed', bedTemp);
     flipTemperatureCard();
@@ -219,19 +220,19 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     double dirStep = (positive) ? step : -1 * step;
     switch (axis) {
       case PrinterAxis.X:
-        if (_printerSetting!.inverts[0]) dirStep *= -1;
+        if (machineSettings.inverts[0]) dirStep *= -1;
         _printerService?.movePrintHead(
-            x: dirStep, feedRate: _printerSetting!.speedXY.toDouble());
+            x: dirStep, feedRate: machineSettings.speedXY.toDouble());
         break;
       case PrinterAxis.Y:
-        if (_printerSetting!.inverts[1]) dirStep *= -1;
+        if (machineSettings.inverts[1]) dirStep *= -1;
         _printerService?.movePrintHead(
-            y: dirStep, feedRate: _printerSetting!.speedXY.toDouble());
+            y: dirStep, feedRate: machineSettings.speedXY.toDouble());
         break;
       case PrinterAxis.Z:
-        if (_printerSetting!.inverts[2]) dirStep *= -1;
+        if (machineSettings.inverts[2]) dirStep *= -1;
         _printerService?.movePrintHead(
-            z: dirStep, feedRate: _printerSetting!.speedZ.toDouble());
+            z: dirStep, feedRate: machineSettings.speedZ.toDouble());
         break;
     }
   }
@@ -273,7 +274,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   onFullScreenTap() {
     _navigationService.navigateTo(Routes.fullCamView,
         arguments: FullCamViewArguments(
-            webcamSetting: selectedCam!, owner: _printerSetting!));
+            webcamSetting: selectedCam!, owner: _machine!));
   }
 
   onResetPrintTap() {
@@ -330,12 +331,4 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
     _klippyService?.restartMCUs();
   }
 
-  longPressReminder() {
-    Fluttertoast.showToast(
-        msg: "This is Center Short Toast",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        fontSize: 16.0);
-  }
 }

@@ -8,8 +8,8 @@
 int isWithin(String parent, String child) {
   List<String> parentPath = parent.split('/');
   List<String> childPath = child.split('/');
-  int childPathLen =
-      isFilePath(child) ? childPath.length - 1 : childPath.length;
+  if (childPath.isEmpty) return -1;
+  int childPathLen = childPath.length - 1;
 
   if (parentPath.length > childPathLen) return -1;
 
@@ -19,10 +19,6 @@ int isWithin(String parent, String child) {
     return -1;
 }
 
-bool isFilePath(String path) {
-  return path.split('.').length > 1;
-}
+bool isFilePath(String path) => baseName(path).split('.').length > 1;
 
-String baseName(String path) {
-  return path.split('/').last;
-}
+String baseName(String path) => path.split('/').last;

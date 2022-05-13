@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/datasource/websocket_wrapper.dart';
-import 'package:mobileraker/dto/server/klipper.dart';
+import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 
@@ -21,9 +21,9 @@ class ConnectionStateView
   bool get initialiseSpecialViewModelsOnce => true;
 
   // Widget to show when ws is Connected
-  final Widget body;
+  final Widget onConnected;
 
-  ConnectionStateView({Key? key, required this.body})
+  ConnectionStateView({Key? key, required this.onConnected})
       : super(key: key);
 
   @override
@@ -66,15 +66,15 @@ class ConnectionStateView
   Widget _widgetForWebsocketState(
       BuildContext context, ConnectionStateViewModel model) {
     switch (model.connectionState) {
-      case WebSocketState.connected:
+      case ClientState.connected:
         return _widgetForKlippyServerState(context, model);
 
-      case WebSocketState.disconnected:
+      case ClientState.disconnected:
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.warning_amber_outlined),
+              Icon(Icons.warning_amber_outlined,  size: 50,color: Theme.of(context).colorScheme.error),
               SizedBox(
                 height: 30,
               ),
@@ -86,13 +86,13 @@ class ConnectionStateView
             ],
           ),
         );
-      case WebSocketState.connecting:
+      case ClientState.connecting:
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SpinKitPulse(
-                color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.secondary,
               ),
               SizedBox(
                 height: 30,
@@ -101,7 +101,7 @@ class ConnectionStateView
             ],
           ),
         );
-      case WebSocketState.error:
+      case ClientState.error:
       default:
         return Container(
           alignment: Alignment.center,
@@ -109,12 +109,12 @@ class ConnectionStateView
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.warning_amber_outlined),
+              Icon(Icons.warning_amber_outlined, size: 50,color: Theme.of(context).colorScheme.error,),
               SizedBox(
                 height: 20,
               ),
               Text(
-                model.websocketErrorMessage,
+                model.clientErrorMessage,
                 textAlign: TextAlign.center,
               ),
               TextButton.icon(
@@ -129,7 +129,7 @@ class ConnectionStateView
 
   Widget _widgetForKlippyServerState(
       BuildContext context, ConnectionStateViewModel model) {
-    if (model.isPrinterAvailable) return body;
+    if (model.isPrinterAvailable) return onConnected;
     switch (model.server.klippyState) {
       case KlipperState.disconnected:
       case KlipperState.shutdown:
@@ -202,7 +202,7 @@ class ConnectionStateView
         );
       case KlipperState.ready:
       default:
-        return body;
+        return onConnected;
     }
   }
 

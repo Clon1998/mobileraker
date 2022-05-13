@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -15,17 +16,6 @@ typedef StreamConnectedBuilder = Widget Function(
     BuildContext context, Transform imageTransformed);
 
 class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
-  final String feedUri;
-  final List<Widget> stackChildren;
-  final Matrix4? transform;
-  final BoxFit? fit;
-  final double? width;
-  final double? height;
-  final Duration timeout;
-  final Map<String, String> headers;
-  final bool showFps;
-  final StreamConnectedBuilder? imageBuilder;
-
   const Mjpeg({
     Key? key,
     required this.feedUri,
@@ -38,11 +28,27 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
     this.headers = const {},
     this.showFps = false,
     this.imageBuilder,
+    this.targetFps = 10
   }) : super(key: key);
+
+
+  final String feedUri;
+  final List<Widget> stackChildren;
+  final Matrix4? transform;
+  final BoxFit? fit;
+  final double? width;
+  final double? height;
+  final Duration timeout;
+  final Map<String, String> headers;
+  final bool showFps;
+  final StreamConnectedBuilder? imageBuilder;
+  final int targetFps;
+
+
 
   @override
   MjpegViewModel viewModelBuilder(BuildContext context) =>
-      MjpegViewModel(feedUri, timeout, headers);
+      MjpegViewModel(feedUri, timeout, headers, targetFps);
 
   @override
   Widget builder(BuildContext context, MjpegViewModel model, Widget? child) {
@@ -96,7 +102,8 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
                           margin: EdgeInsets.all(5),
                           decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.secondary,
-                              borderRadius: BorderRadius.all(Radius.circular(5))),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(5))),
                           child: Text(
                             'FPS: ${model.fps.toStringAsFixed(1)}',
                             style: Theme.of(context)
@@ -121,7 +128,7 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         SpinKitDancingSquare(
-          color: Theme.of(context).colorScheme.primary,
+          color: Theme.of(context).colorScheme.secondary,
         ),
         SizedBox(
           height: 15,
@@ -161,22 +168,27 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
 
 class MjpegViewModel extends StreamViewModel<MemoryImage?>
     with WidgetsBindingObserver {
-  final _logger = getLogger('MjpegViewModel');
+  MjpegViewModel(this.feedUri, this.timeout, this.headers, this.targetFps);
+
   final String feedUri;
+
   final Duration timeout;
   final Map<String, String> headers;
 
-  late _StreamManager _manager = _StreamManager(feedUri, headers, timeout);
-  int _frameCnt = 0;
-  double _lastFps = 0;
+  final int targetFps;
 
-  double get fps => _lastFps;
+  final _logger = getLogger('MjpegViewModel');
+
+  double fps = 0;
+
+  // late _StreamManager _manager = _StreamManager(feedUri, headers, timeout);
+  late _AdaptiveStreamManager _manager =
+      _AdaptiveStreamManager(feedUri, headers, timeout, targetFps);
+  int _frameCnt = 0;
   DateTime? _start;
 
-  MjpegViewModel(this.feedUri, this.timeout, this.headers);
-
   @override
-  Stream<MemoryImage> get stream => _manager.mjpegStream;
+  Stream<MemoryImage> get stream => _manager.jpegStream;
 
   onRetryPressed() {
     setBusy(true);
@@ -184,7 +196,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
         _manager.start();
@@ -199,7 +211,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 
   @override
-  void initialise() {
+  initialise() {
     super.initialise();
     if (!initialised) {
       WidgetsBinding.instance?.addObserver(this);
@@ -209,7 +221,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 
   @override
-  void onData(MemoryImage? data) {
+  onData(MemoryImage? data) {
     setBusy(false);
     if (data != null) {
       _frameCnt++;
@@ -221,7 +233,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
       }
       var passed = now.difference(_start!).inSeconds;
       if (passed >= 1) {
-        _lastFps = _frameCnt / passed;
+        fps = _frameCnt / passed;
         _frameCnt = 0;
         _start = now;
       }
@@ -229,19 +241,20 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 
   @override
-  void onError(error) {
+  onError(error) {
     _logger.e('Error: $error');
     setBusy(false);
   }
 
   @override
-  void dispose() {
+  dispose() {
     super.dispose();
     _manager.dispose();
     WidgetsBinding.instance?.removeObserver(this);
   }
 }
 
+/// This Manager is for the normal MJPEG!
 class _StreamManager {
   final _logger = getLogger('_StreamManager');
 
@@ -258,18 +271,18 @@ class _StreamManager {
   final StreamController<MemoryImage> _mjpegStreamController =
       StreamController.broadcast();
 
-  Stream<MemoryImage> get mjpegStream => _mjpegStreamController.stream;
+  Stream<MemoryImage> get jpegStream => _mjpegStreamController.stream;
 
   StreamSubscription? _subscription;
 
   _StreamManager(this.feedUri, this.headers, this._timeout);
 
-  void stop() {
+  stop() {
     _logger.i('STOPPING STREAM!');
     _subscription?.cancel();
   }
 
-  void start() async {
+  start() async {
     _subscription?.cancel(); // Ensure its clear to start a new stream!
     try {
       final request = Request("GET", Uri.parse(feedUri));
@@ -299,7 +312,7 @@ class _StreamManager {
   BytesBuilder _byteBuffer = BytesBuilder();
   int _lastByte = 0x00;
 
-  void _sendImage(Uint8List bytes) async {
+  _sendImage(Uint8List bytes) async {
     if (bytes.isNotEmpty) {
       _mjpegStreamController.add(MemoryImage(bytes));
     }
@@ -346,6 +359,115 @@ class _StreamManager {
     _subscription = null;
     _mjpegStreamController.close();
 
+    _httpClient.close();
+    _logger.i('DISPOSED');
+  }
+}
+
+
+/// Manager for an Adaptive MJPEG, using snapshots/images of the MJPEG provider!
+class _AdaptiveStreamManager {
+  _AdaptiveStreamManager(String baseUri, this.headers, this.timeout,
+      this.targetFps) {
+    url = Uri.parse(baseUri).replace(queryParameters: {
+      'action': 'snapshot',
+      'cacheBust': lastRefresh.millisecondsSinceEpoch.toString()
+    });
+  }
+
+  final _logger = getLogger('_AdaptiveStreamManager');
+
+  late final Uri url;
+  final Map<String, String> headers;
+
+  final HttpClient _httpClient = HttpClient();
+  final Duration timeout;
+  final int targetFps;
+
+  final StreamController<MemoryImage> _mjpegStreamController =
+      StreamController.broadcast();
+
+  bool active = false;
+
+  DateTime lastRefresh = DateTime.now();
+
+  Timer? _timer;
+
+  Stream<MemoryImage> get jpegStream => _mjpegStreamController.stream;
+
+  int get frameTimeInMillis {
+    return 1000 ~/ targetFps;
+  }
+
+  start() {
+    active = true;
+    _logger.i('Start MJPEG - targFps: $targetFps');
+    if (_timer?.isActive ?? false) return;
+    _timer = Timer(Duration(milliseconds: 0), _timerCallback);
+  }
+
+  stop() {
+    _logger.i('Stop MJPEG');
+    active = false;
+    _timer?.cancel();
+  }
+
+  _timerCallback() async {
+    // _logger.i('TimerTask ${DateTime.now()}');
+    try {
+      HttpClientRequest request = await _httpClient
+          .getUrl(url.replace(queryParameters: {
+            'action': 'snapshot',
+            'cacheBust': lastRefresh.millisecondsSinceEpoch.toString()
+          }))
+          .timeout(timeout);
+
+      headers.forEach((key, value) => request.headers.set(key, value));
+
+      HttpClientResponse response = await request.close().timeout(timeout);
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        ByteStream byteStream = ByteStream(response);
+
+        Uint8List bytes = await byteStream.toBytes();
+        _sendImage(bytes);
+        _restartTimer();
+      } else {
+        _mjpegStreamController.addError(
+            HttpException('Request returned ${response.statusCode} status'),
+            StackTrace.current);
+      }
+    } catch (error, stack) {
+      // we ignore those errors in case play/pause is triggers
+      if (error is TimeoutException) {
+        if (!_mjpegStreamController.isClosed)
+          _mjpegStreamController.addError(error, stack);
+      } else {
+        _restartTimer();
+      }
+    }
+  }
+
+  _restartTimer([DateTime? stamp]) {
+    if (stamp == null) stamp = DateTime.now();
+    if (!active) return;
+    int diff = stamp.difference(lastRefresh).inMilliseconds;
+    int calcTimeoutMillis = frameTimeInMillis - diff;
+    // _logger.i('Diff: $diff\n     CalcTi: $calcTimeoutMillis');
+    _timer = Timer(
+        Duration(milliseconds: max(0, calcTimeoutMillis)), _timerCallback);
+    lastRefresh = stamp;
+  }
+
+  _sendImage(Uint8List bytes) async {
+    if (bytes.isNotEmpty && !_mjpegStreamController.isClosed && active) {
+      _mjpegStreamController.add(MemoryImage(bytes));
+    }
+  }
+
+  Future<void> dispose() async {
+    stop();
+    _mjpegStreamController.close();
     _httpClient.close();
     _logger.i('DISPOSED');
   }
