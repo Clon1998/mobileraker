@@ -10,7 +10,11 @@ import 'package:rxdart/subjects.dart';
 class ThemeService {
   ThemeService({required this.themePacks}) {
     assert(themePacks.isNotEmpty, 'No ThemePacks provided!');
-    int themeIndex = min(_settingService.readInt(selectedThemePackKey), themePacks.length-1);
+    int themeIndex = min(
+        _settingService.readInt(selectedThemePackKey), themePacks.length - 1);
+    List<ThemeMode> modes = ThemeMode.values;
+    selectedMode = modes[min(
+        _settingService.readInt(selectedThemeModeKey), themePacks.length - 1)];
     _initialTheme = ThemeModel(themePacks[themeIndex], selectedMode);
     _themesController = BehaviorSubject.seeded(_initialTheme);
   }
@@ -29,21 +33,23 @@ class ThemeService {
 
   ThemePack get selectedThemePack => _themesController.value.themePack;
 
-  ThemeData get selectedTheme => selectedThemePack.lightTheme;
-
-  bool get isDarkMode => selectedMode == ThemeMode.dark;
-
-  bool get isLightMode => selectedMode == ThemeMode.light;
-
   selectThemePack(ThemePack themePack) {
     _themesController.add(ThemeModel(themePack, selectedMode));
-    _settingService.writeInt(selectedThemePackKey, themePacks.indexOf(themePack));
+    _settingService.writeInt(
+        selectedThemePackKey, themePacks.indexOf(themePack));
+  }
+
+  selectThemeMode(ThemeMode mode) {
+    selectedMode = mode;
+    _themesController.add(ThemeModel(selectedThemePack, mode));
+    _settingService.writeInt(
+        selectedThemeModeKey, ThemeMode.values.indexOf(mode));
   }
 }
 
-
 extension ThemeServiceContext on BuildContext {
- ThemeService get themeService => Provider.of<ThemeService>(this, listen: false);
+  ThemeService get themeService =>
+      Provider.of<ThemeService>(this, listen: false);
 }
 
 @immutable
