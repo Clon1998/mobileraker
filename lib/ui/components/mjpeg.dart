@@ -214,7 +214,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   initialise() {
     super.initialise();
     if (!initialised) {
-      WidgetsBinding.instance?.addObserver(this);
+      WidgetsBinding.instance.addObserver(this);
       setBusy(true);
       _manager.start();
     }
@@ -250,7 +250,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   dispose() {
     super.dispose();
     _manager.dispose();
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
   }
 }
 

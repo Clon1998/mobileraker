@@ -98,7 +98,7 @@ ThemePack _mobilerakerPack(BuildContext context) {
     ),
     tones: FlexTones.highContrast(Brightness.light),
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    useMaterial3: true,
+    useMaterial3: false,
     // To use the playground font, add GoogleFonts package and uncomment
     fontFamily: GoogleFonts.notoSans().fontFamily,
   );
@@ -120,7 +120,7 @@ ThemePack _mobilerakerPack(BuildContext context) {
     appBarStyle: FlexAppBarStyle.background,
     appBarOpacity: 0.90,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    useMaterial3: true,
+    useMaterial3: false,
     // To use the playground font, add GoogleFonts package and uncomment
     fontFamily: GoogleFonts.notoSans().fontFamily,
   );
@@ -143,7 +143,8 @@ ThemePack _mobilerakerPack(BuildContext context) {
               light.inputDecorationTheme.copyWith(filled: false),
           cardTheme: light.cardTheme.copyWith(elevation: 3),
           bottomSheetTheme: light.bottomSheetTheme
-              .copyWith(modalBackgroundColor: light.colorScheme.background)),
+              .copyWith(modalBackgroundColor: light.colorScheme.background),
+          extensions: [CustomColors.light]),
       darkTheme: dark.copyWith(
           elevatedButtonTheme: _elevatedButtonThemeData,
           bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
@@ -160,7 +161,10 @@ ThemePack _mobilerakerPack(BuildContext context) {
               dark.inputDecorationTheme.copyWith(filled: false),
           bottomSheetTheme: dark.bottomSheetTheme
               .copyWith(modalBackgroundColor: dark.colorScheme.background),
-          cardTheme: dark.cardTheme.copyWith(elevation: 3)),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3),
+        extensions: [CustomColors.dark]
+
+      ),
       brandingIcon: AssetImage('assets/icon/mr_logo.png'));
 }
 
@@ -184,7 +188,7 @@ ThemePack _voronPack(BuildContext context) {
     blendLevel: 2,
     surfaceMode: FlexSurfaceMode.levelSurfacesLowScaffold,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    useMaterial3: true,
+    useMaterial3: false,
     fontFamily: GoogleFonts.notoSans().fontFamily,
   );
 
@@ -205,7 +209,7 @@ ThemePack _voronPack(BuildContext context) {
     appBarStyle: FlexAppBarStyle.background,
     appBarOpacity: 0.90,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    useMaterial3: true,
+    useMaterial3: false,
     fontFamily: GoogleFonts.notoSans().fontFamily,
   );
 
@@ -226,6 +230,8 @@ ThemePack _voronPack(BuildContext context) {
         inputDecorationTheme:
             light.inputDecorationTheme.copyWith(filled: false),
         cardTheme: light.cardTheme.copyWith(elevation: 3),
+          extensions: [CustomColors.light.copyWith(danger: const Color(
+              0xfffab487))]
       ),
       darkTheme: dark.copyWith(
           elevatedButtonTheme: _elevatedButtonThemeData,
@@ -243,7 +249,9 @@ ThemePack _voronPack(BuildContext context) {
               dark.inputDecorationTheme.copyWith(filled: false),
           bottomSheetTheme: dark.bottomSheetTheme
               .copyWith(modalBackgroundColor: dark.colorScheme.background),
-          cardTheme: dark.cardTheme.copyWith(elevation: 3)),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3),
+          extensions: [CustomColors.dark]
+      ),
       brandingIcon: AssetImage('assets/images/voron_design_padded.png'));
 }
 
@@ -268,7 +276,7 @@ ThemePack _ratRigPack(BuildContext context) {
     blendLevel: 15,
     lightIsWhite: true,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    useMaterial3: true,
+    useMaterial3: false,
     // To use the playground font, add GoogleFonts package and uncomment
     fontFamily: GoogleFonts.notoSans().fontFamily,
   );
@@ -290,7 +298,7 @@ ThemePack _ratRigPack(BuildContext context) {
     appBarStyle: FlexAppBarStyle.background,
     appBarOpacity: 0.90,
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
-    useMaterial3: true,
+    useMaterial3: false,
     fontFamily: GoogleFonts.notoSans().fontFamily,
   );
   return ThemePack(
@@ -311,7 +319,8 @@ ThemePack _ratRigPack(BuildContext context) {
               light.inputDecorationTheme.copyWith(filled: false),
           cardTheme: light.cardTheme.copyWith(elevation: 3),
           bottomSheetTheme: light.bottomSheetTheme
-              .copyWith(modalBackgroundColor: light.colorScheme.background)),
+              .copyWith(modalBackgroundColor: light.colorScheme.background),
+          extensions: [CustomColors.light]),
       darkTheme: dark.copyWith(
           elevatedButtonTheme: _elevatedButtonThemeData,
           inputDecorationTheme:
@@ -326,7 +335,9 @@ ThemePack _ratRigPack(BuildContext context) {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          cardTheme: dark.cardTheme.copyWith(elevation: 3)),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3),
+          extensions: [CustomColors.dark]
+      ),
       brandingIcon: AssetImage('assets/images/rr_icon_green.png'));
 }
 
