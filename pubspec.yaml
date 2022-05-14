@@ -43,7 +43,7 @@ dependencies:
   enum_to_string: ^2.0.1
   uuid: ^3.0.5
   url_launcher: ^6.0.20
-  json_annotation: ^4.4.0
+  json_annotation: ^4.5.0
   logger: ^1.1.0
   package_info_plus: ^1.4.2
 
@@ -53,7 +53,7 @@ dependencies:
   hive_flutter: ^1.1.0
 
   #theme
-  flex_color_scheme: ^5.0.0-dev.2
+  flex_color_scheme: ^5.0.1
   google_fonts: ^2.3.1
 
   #notification

@@ -114,14 +114,14 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   initialise() {
     super.initialise();
     if (!initialised) {
-      WidgetsBinding.instance?.addObserver(this);
+      WidgetsBinding.instance.addObserver(this);
     }
   }
 
   @override
   dispose() {
     super.dispose();
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   @override

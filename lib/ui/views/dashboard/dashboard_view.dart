@@ -11,6 +11,7 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
+import 'package:mobileraker/ui/themes/theme_pack.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/general_tab.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -42,10 +43,11 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
                   model.isServerAvailable ? model.server : null),
             ),
             IconButton(
-              color: Colors.red,
+              color: Theme.of(context).extension<CustomColors>()?.danger ??
+                  Colors.red,
               icon: Icon(
-                Icons.dangerous_outlined,
-                size: 30,
+                FlutterIcons.skull_outline_mco,
+                size: 26,
               ),
               tooltip: tr('pages.dashboard.ems_btn'),
               onPressed: (model.canUseEms) ? model.onEmergencyPressed : null,
@@ -157,9 +159,8 @@ class PausedFAB extends ViewModelWidget<DashboardViewModel> {
         SpeedDialChild(
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
-          label: MaterialLocalizations.of(context)
-              .cancelButtonLabel
-              .titleCase(),
+          label:
+              MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
           onTap: model.onCancelPrintPressed,
         ),
         SpeedDialChild(

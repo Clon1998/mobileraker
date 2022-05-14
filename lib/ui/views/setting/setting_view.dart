@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -29,6 +30,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
               children: <Widget>[
                 _SectionHeader(title: 'pages.setting.general.title'.tr()),
                 _languageSelector(context),
+                _themeModeSelector(context),
                 _themeSelector(context),
                 FormBuilderSwitch(
                   name: 'emsConfirmation',
@@ -183,5 +185,23 @@ Widget _themeSelector(BuildContext context) {
     ),
     onChanged: (ThemePack? themeData) =>
         themeService.selectThemePack(themeData!),
+  );
+}
+
+Widget _themeModeSelector(BuildContext context) {
+  ThemeService themeService = context.themeService;
+  List<ThemeMode> themeModes = ThemeMode.values;
+  return FormBuilderDropdown(
+    initialValue: themeService.selectedMode,
+    name: 'themeMode',
+    items: themeModes
+        .map((themeMode) => DropdownMenuItem(
+            value: themeMode, child: Text('${themeMode.name.capitalize}')))
+        .toList(),
+    decoration: InputDecoration(
+      labelText: 'Theme Mode',
+    ),
+    onChanged: (ThemeMode? themeMode) =>
+        themeService.selectThemeMode(themeMode ?? ThemeMode.system),
   );
 }

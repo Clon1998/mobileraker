@@ -33,6 +33,8 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
     return "Version: $version-$buildNumber";
   }
 
+  List<ThemeMode> get themeModes => ThemeMode.values;
+
   @override
   Future<PackageInfo> futureToRun() => PackageInfo.fromPlatform();
 
