@@ -144,9 +144,9 @@
         "general": {
           "title": "Általános",
           "ems_confirm": "Vészleállás megerősítése",
-          "always_baby": "Mindig mutassa a mikrolépés kártyát",
+          "always_baby": "Mindig mutassa a mikroléptető kártyát",
           "num_edit": "Számbevitelhez billentyűzet használata",
-          "start_with_overview": "Show @:pages.overview.title alapesetben",
+          "start_with_overview": "@:pages.overview.title mutatása alapesetben",
           "language": "Nyelv",
           "companion": "Ismerje meg, hogyan kell a Mobileraker's Companiont beállítani a "
         },
@@ -161,11 +161,11 @@
         "could_not_fetch_additional": "Nem tudta lekérni a további beállításokat!",
         "fetch_error_hint": "Győződjön meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.",
         "general": {
-          "displayname": "Megjelenítőnév",
-          "printer_addr": "Nyomtató - Cím",
-          "ws_addr": "Websocket - Cím",
+          "displayname": "Megjelenítendő név",
+          "printer_addr": "Nyomtató - Címe",
+          "ws_addr": "Websocket - Címe",
           "moonraker_api_key": "Moonraker - API kulcs",
-          "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfeleket használ. A FluiddPI ezt kikényszeríti!",
+          "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfelei vannak. A FluiddPI ezt kikényszeríti!",
           "full_url": "Teljes URL"
         },
         "motion_system": {
