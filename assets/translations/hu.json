@@ -1,312 +1,312 @@
 {
-    "general": {
-      "resume": "Folytatás",
-      "connected": "Csatlakozva",
-      "off": "Ki",
-      "none": "Nincs",
-      "add": "Hozzáadás",
-      "create": "Létrehozás",
-      "rename": "Átnevezés",
-      "remove": "Törlés",
-      "set": "Set",
-      "use": "Használ",
-      "restart": "Újraindítás",
-      "shutdown": "Leállítás",
-      "firmware": "Firmware",
-      "fetching": "Vonza",
-      "unknown": "Ismeretlen"
-    },
-    "pages": {
-      "dashboard": {
-        "title": "Irányítópult",
-        "ems_btn": "Vész-STOP",
-        "server_status": {
-          "unavailable": "Nincs elérhető szerver",
-          "available": "A szerver állapota {} és Klippy {}"
+  "general": {
+    "resume": "Folytatás",
+    "connected": "Csatlakozva",
+    "off": "Ki",
+    "none": "Nincs",
+    "add": "Hozzáadás",
+    "create": "Létrehozás",
+    "rename": "Átnevezés",
+    "remove": "Törlés",
+    "set": "Set",
+    "use": "Használ",
+    "restart": "Újraindítás",
+    "shutdown": "Leállítás",
+    "firmware": "Firmware",
+    "fetching": "Vonza",
+    "unknown": "Ismeretlen"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Irányítópult",
+      "ems_btn": "Vész-STOP",
+      "server_status": {
+        "unavailable": "Nincs elérhető szerver",
+        "available": "A szerver állapota {} és Klippy {}"
+      },
+      "fetching_printer": "@:general.fetching printer...",
+      "general": {
+        "print_card": {
+          "reset": "Visszaállítás",
+          "printing_for": "Nyomtatás: {\nFor: {}",
+          "speed": "Sebesség",
+          "layer": "Réteg",
+          "eta": "ETA"
         },
-        "fetching_printer": "@:general.fetching printer...",
-        "general": {
-          "print_card": {
-            "reset": "Visszaállítás",
-            "printing_for": "Nyomtatás: {\nFor: {}",
-            "speed": "Sebesség",
-            "layer": "Réteg",
-            "eta": "ETA"
-          },
-          "cam_card": {
-            "webcam": "Webkamera",
-            "fullscreen": "Teljes képernyő"
-          },
-          "temp_card": {
-            "title": "Hőmérsékletszabályzók",
-            "presets_btn": "Előbeállítások",
-            "hotend": "Nyomtatófej",
-            "bed": "Ágy",
-            "temp_presets": "Hőmérséklet előbeállítások",
-            "sensors": "Érzékelők",
-            "heater_on": "{} °C cél",
-            "btn_thermistor": "Szenzor"
-          },
-          "temp_preset_card": {
-            "cooloff": "Hűtés Ki",
-            "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
-            "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
-          },
-          "move_card": {
-            "title": "Tengely mozgatása",
-            "home_xy_tooltip": "Kezdőpont X és Y tengely",
-            "home_z_tooltip": "Kezdőpont Z tengely",
-            "home_all_tooltip": "Kezdőpont minden tengely",
-            "home_all_btn": "Minden",
-            "qgl_tooltip": "Quad-Gantry szintezés futtatása",
-            "qgl_btn": "QGL",
-            "mesh_tooltip": "Futtasson ágyrács kalibrálást",
-            "mesh_btn": "Háló",
-            "m84_tooltip": "Motorok kikapcsolása",
-            "m84_btn": "M84",
-            "step_size": "Lépés mérete"
-          },
-          "baby_step_card": {
-            "title": "Mikrolépés Z tengely"
-          },
-          "restart_klipper": "Klipper újraindítása",
-          "restart_mcu": "MCU újraindítása"
+        "cam_card": {
+          "webcam": "Webkamera",
+          "fullscreen": "Teljes képernyő"
         },
-        "control": {
-          "fan_card": {
-            "title": {
-              "zero": "Ventilátor",
-              "one": "Ventilátor",
-              "other": "Ventilátorok"
-            },
-            "part_fan": "Tárgyhűtő",
-            "static_fan_btn": "Ventilátor"
+        "temp_card": {
+          "title": "Hőmérsékletszabályzók",
+          "presets_btn": "Előbeállítások",
+          "hotend": "Nyomtatófej",
+          "bed": "Ágy",
+          "temp_presets": "Hőmérséklet előbeállítások",
+          "sensors": "Érzékelők",
+          "heater_on": "{} °C cél",
+          "btn_thermistor": "Szenzor"
+        },
+        "temp_preset_card": {
+          "cooloff": "Hűtés Ki",
+          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
+          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+        },
+        "move_card": {
+          "title": "Tengelyek mozgatása",
+          "home_xy_tooltip": "Kezdőpont X és Y tengely",
+          "home_z_tooltip": "Kezdőpont Z tengely",
+          "home_all_tooltip": "Kezdőpont minden tengely",
+          "home_all_btn": "Minden",
+          "qgl_tooltip": "Quad-Gantry szintezés futtatása",
+          "qgl_btn": "QGL",
+          "mesh_tooltip": "Futtasson ágyrács kalibrálást",
+          "mesh_btn": "Háló",
+          "m84_tooltip": "Motorok kikapcsolása",
+          "m84_btn": "M84",
+          "step_size": "Lépés mérete"
+        },
+        "baby_step_card": {
+          "title": "Mikrolépés Z tengely"
+        },
+        "restart_klipper": "Klipper újraindítása",
+        "restart_mcu": "MCU újraindítása"
+      },
+      "control": {
+        "fan_card": {
+          "title": {
+            "zero": "Ventilátor",
+            "one": "Ventilátor",
+            "other": "Ventilátorok"
           },
-          "extrude_card": {
-            "title": "Adagoló",
-            "extrude": "Extrudálás",
-            "retract": "Visszahúzás",
-            "extrude_len": "@:pages.dashboard.control.extrude_card.extrude hossz"
+          "part_fan": "Tárgyhűtő",
+          "static_fan_btn": "Ventilátor"
+        },
+        "extrude_card": {
+          "title": "Adagoló",
+          "extrude": "Extrudálás",
+          "retract": "Visszahúzás",
+          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude hossza"
+        },
+        "macro_card": {
+          "title": "Gcode - Makrók"
+        },
+        "pin_card": {
+          "title": {
+            "zero": "Kimeneti tű",
+            "one": "Kimeneti tű",
+            "two": "Kimeneti tűk",
+            "other": "Kimeneti tűk"
           },
-          "macro_card": {
-            "title": "Gcode - Makrók"
-          },
-          "pin_card": {
-            "title": {
-              "zero": "Kimeneti tű",
-              "one": "Kimeneti tű",
-              "two": "Kimeneti tűk",
-              "other": "Kimeneti tűk"
-            },
-            "pin_btn": "Tű"
-          },
-          "multipl_card": {
-            "title": "Szorzók",
-            "flow": "Folyam"
-          }
+          "pin_btn": "Tű"
+        },
+        "multipl_card": {
+          "title": "Szorzók",
+          "flow": "Folyam"
         }
-      },
-      "files": {
-        "title": "Fájlok",
-        "search_files": "Fájlok keresése",
-        "clear_search": "Tiszta keresés",
-        "name": "Név",
-        "last_mod": "Utolsó módosítás",
-        "last_printed": "Utoljára nyomtatott",
-        "fetching_files": "@:general.fetching Fájlok...",
-        "no_files_found": "Nem található fájl!",
-        "details": {
-          "preheat": "Előmelegítés",
-          "print": "Nyomtatás",
-          "general_card": {
-            "path": "Útvonal",
-            "last_mod": "Utoljára módosítva",
-            "last_printed": "Utoljára nyomtatott",
-            "no_data": "Nincs adat"
-          },
-          "meta_card": {
-            "title": "Gcode Meta adatok",
-            "est_print_time": "Becsült nyomtatási idő",
-            "slicer": "Használt szeletelő",
-            "layer_higher": "Rétegmagasság",
-            "first_layer": "Első réteg",
-            "others": "Egyebek",
-            "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Hőmérsékletek",
-            "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
-          },
-          "stat_card": {
-            "title": "Statisztikák"
-          }
-        }
-      },
-      "setting": {
-        "title": "Alkalmazás - Beállítások",
-        "general": {
-          "title": "Általános",
-          "ems_confirm": "Vészleállás megerősítése",
-          "always_baby": "Mindig mutassa a mikroléptető kártyát",
-          "num_edit": "Számbevitelhez billentyűzet használata",
-          "start_with_overview": "@:pages.overview.title mutatása alapesetben",
-          "language": "Nyelv",
-          "companion": "Ismerje meg, hogyan kell a Mobileraker's Companiont beállítani a "
-        },
-        "imprint": "Adatvédelem/Impresszum"
-      },
-      "printer_edit": {
-        "title": "Szerkesztés {}",
-        "import_settings": "Beállítások importálása",
-        "remove_printer": "Nyomtató eltávolítása",
-        "no_values_found": "Nincsenek értékek!",
-        "fetching_additional_settings": "@:general.fetching további beállítások a hálózatról...",
-        "could_not_fetch_additional": "Nem tudta lekérni a további beállításokat!",
-        "fetch_error_hint": "Győződjön meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.",
-        "general": {
-          "displayname": "Megjelenítendő név",
-          "printer_addr": "Nyomtató - Címe",
-          "ws_addr": "Websocket - Címe",
-          "moonraker_api_key": "Moonraker - API kulcs",
-          "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfelei vannak. A FluiddPI ezt kikényszeríti!",
-          "full_url": "Teljes URL"
-        },
-        "motion_system": {
-          "title": "Mozgásrendszer",
-          "invert_x": "Fordított X - tengely",
-          "invert_x_short": "Fordított X",
-          "invert_y": "Fordított Y - tengely",
-          "invert_y_short": "Fordított Y",
-          "invert_z": "Fordított Z - tengely",
-          "invert_z_short": "Fordított Z",
-          "speed_xy": "Sebesség X/Y - tengely",
-          "speed_xy_short": "Sebesség X/Y",
-          "speed_z": "Sebesség Z - tengely",
-          "speed_z_short": "Sebesség Z",
-          "steps_move": "Mozgási lépések",
-          "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-          "steps_baby": "Mikroléptetés Z - tengely",
-          "steps_baby_short": "Mikro Lépések"
-        },
-        "extruders": {
-          "title": "Adagolók",
-          "feedrate": "Adagoló előtolási sebesség",
-          "feedrate_short": "Adagolási sebesség",
-          "steps_extrude": "Adagolási lépések",
-          "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
-        },
-        "cams": {
-          "target_fps": "Cél FPS",
-          "new_cam": "Új webkamera",
-          "no_webcams": "Nincs webkamera hozzáadva!",
-          "webcam_addr": "Webkamera - Cím",
-          "default_addr": "Alapértelmezett cím",
-          "flip_vertical": "Függőleges fordítás",
-          "flip_horizontal": "Vízszintes fordítás"
-        },
-        "macros": {
-          "new_macro_grp": "Új makró - Csoport",
-          "no_macros_available": "Nincsenek elérhető makrók!",
-          "no_macros_found": "Nem találtam makrókat!",
-          "macros_to_default": {
-            "one": "Áthelyeztem egy makrót az alapértelmezett csoportba!",
-            "two": "Két makró áthelyezve az alapértelmezett csoportba!",
-            "other": "{} makrók áthelyezve az alapértelmezett csoportba!"
-          }
-        },
-        "presets": {
-          "no_presets": "Nincs előbeállítások!",
-          "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Hőmérséklet",
-          "bed_temp": "@:pages.dashboard.general.temp_card.bed Hőmérséklet",
-          "new_preset": "Új beállítás"
-        }
-      },
-      "printer_add": {
-        "title": "Új nyomtató felvétele",
-        "printer_add_helper": "Host, IP vagy teljes URL",
-        "resulting_ws_url": "Hasznos WebSocket-URL: {}",
-        "misc": "Egyéb",
-        "test_ws": "Websocket kapcsolat tesztelése",
-        "result_ws_test": "Eredmény: {}",
-        "run_test_btn": "Teszt"
-      },
-      "console": {
-        "title": "Konzol",
-        "no_entries": "Nem találtunk gyorsítótárazott parancsokat",
-        "fetching_console": "@:general.fetching konzol bejegyzések...",
-        "command_input" : {
-          "hint":"Konzolparancs megadása"
-        }
-      },
-      "overview": {
-        "title": "Áttekintés",
-        "fetching_machines": "@:general.fetching gépek...",
-        "no_entries": "Nem találtam gépeket",
-        "add_machine": "Gép hozzáadása"
       }
     },
-    "components": {
-      "nav_drawer": {
-        "printer_settings": "Nyomtató beállítások",
-        "manage_printers": "Nyomtatók kezelése",
-        "fetching_printers": "@:general.fetching nyomtatók...",
-        "footer": "Készítette ❤️ Patrick Schmidt\nNézze meg a projektet"
-      },
-      "connection_watcher": {
-        "reconnect": "Újracsatlakoztatás",
-        "trying_connect": "Próbálok csatlakozni...",
-        "server_starting": "Szerver elindul..."
-      }
-    },
-    "dialogs": {
-      "import_setting": {
-        "fetching": "Források keresése...",
-        "fetching_error_title": "Nem sikerült lekérni a beállításokat!",
-        "fetching_error_sub": "Győződjön meg arról, hogy a többi gép csatlakoztatva van.",
-        "select_source": "Válasszon forrást"
-      },
-      "create_folder": {
-        "title": "Mappa létrehozása",
-        "label": "Mappa neve"
-      },
-      "delete_folder": {
-        "title": "Biztos vagy benne?",
-        "description": "A mappában található összes fájl is eltávolításra kerül!\n\nA '/{}' mappa törlésének megerősítése."
-      },
-      "rename_folder": {
-        "title": "Mappa átnevezése",
-        "label": "Mappa neve"
-      },
-      "delete_file": {
-        "description": "A fájl törlésének megerősítése '{}'."
-      },
-      "rename_file": {
-        "title": "Fájl átnevezése",
-        "label": "Fájlnév"
-      }
-    },
-    "klipper_state": {
-      "ready": "Kész",
-      "shutdown": "Leállítás",
-      "starting": "Indítás",
-      "disconnected": "Szétkapcsolt",
-      "error": "Hiba"
-    },
-    "notifications": {
-      "channel_printer_grp": "Nyomtató {}",
-      "channels": {
-        "status": {
-          "name": "Nyomtatási állapotfrissítések - {}",
-          "desc": "Értesítések a nyomtatás állapotáról.",
-          "title": "A(z) {} nyomtatási állapota megváltozott!",
-          "body_printing": "Elkezdődött a fájl nyomtatása: \"{}\"",
-          "body_paused": "Szünetel a fájl nyomtatása: \"{}\"",
-          "body_complete": "Kész a nyomtatás: \"{}\"",
-          "body_error": "Hiba a fájl nyomtatásakor: \"{}\""
+    "files": {
+      "title": "Fájlok",
+      "search_files": "Fájlok keresése",
+      "clear_search": "Tiszta keresés",
+      "name": "Név",
+      "last_mod": "Utolsó módosítás",
+      "last_printed": "Utoljára nyomtatott",
+      "fetching_files": "@:general.fetching Fájlok...",
+      "no_files_found": "Nem található fájl!",
+      "details": {
+        "preheat": "Előmelegítés",
+        "print": "Nyomtatás",
+        "general_card": {
+          "path": "Útvonal",
+          "last_mod": "Utoljára módosítva",
+          "last_printed": "Utoljára nyomtatott",
+          "no_data": "Nincs adat"
         },
-        "progress": {
-          "name": "Nyomtatási folyamatfrissítések - {}",
-          "desc": "Értesítések a nyomtatás előrehaladásáról.",
-          "title": "Nyomtatás folyamata {}"
-  
+        "meta_card": {
+          "title": "Gcode Meta adatok",
+          "est_print_time": "Becsült nyomtatási idő",
+          "slicer": "Használt szeletelő",
+          "layer_higher": "Rétegmagasság",
+          "first_layer": "Első réteg",
+          "others": "Egyebek",
+          "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Hőmérsékletek",
+          "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
+        },
+        "stat_card": {
+          "title": "Statisztikák"
         }
+      }
+    },
+    "setting": {
+      "title": "Alkalmazás - Beállítások",
+      "general": {
+        "title": "Általános",
+        "ems_confirm": "Vészleállítás megerősítése",
+        "always_baby": "Mindig mutassa a mikroléptető kártyát",
+        "num_edit": "Számbevitelhez billentyűzet használata",
+        "start_with_overview": "@:pages.overview.title mutatása alapesetben",
+        "language": "Nyelv",
+        "companion": "Ismerje meg, hogyan kell a Mobileraker's Companion-t beállítani "
+      },
+      "imprint": "Adatvédelem/Impresszum"
+    },
+    "printer_edit": {
+      "title": "Szerkesztés {}",
+      "import_settings": "Beállítások importálása",
+      "remove_printer": "Nyomtató eltávolítása",
+      "no_values_found": "Nincsenek értékek!",
+      "fetching_additional_settings": "@:general.fetching további beállítások a hálózatról...",
+      "could_not_fetch_additional": "Nem tudta lekérni a további beállításokat!",
+      "fetch_error_hint": "Győződjön meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.",
+      "general": {
+        "displayname": "Megjelenítendő név",
+        "printer_addr": "Nyomtató - Címe",
+        "ws_addr": "Webhely - Cím",
+        "moonraker_api_key": "Moonraker - API kulcs",
+        "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfelei vannak. A FluiddPI ezt kikényszeríti!",
+        "full_url": "Teljes URL"
+      },
+      "motion_system": {
+        "title": "Mozgásrendszer",
+        "invert_x": "Fordított X - tengely",
+        "invert_x_short": "Fordított X",
+        "invert_y": "Fordított Y - tengely",
+        "invert_y_short": "Fordított Y",
+        "invert_z": "Fordított Z - tengely",
+        "invert_z_short": "Fordított Z",
+        "speed_xy": "Sebesség X/Y - tengely",
+        "speed_xy_short": "Sebesség X/Y",
+        "speed_z": "Sebesség Z - tengely",
+        "speed_z_short": "Sebesség Z",
+        "steps_move": "Mozgási lépések",
+        "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+        "steps_baby": "Mikroléptetés Z - tengely",
+        "steps_baby_short": "Mikro Lépések"
+      },
+      "extruders": {
+        "title": "Adagolók",
+        "feedrate": "Adagoló előtolási sebesség",
+        "feedrate_short": "Adagolási sebesség",
+        "steps_extrude": "Adagolási hossz",
+        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+      },
+      "cams": {
+        "target_fps": "Cél FPS",
+        "new_cam": "Új webkamera",
+        "no_webcams": "Nincs webkamera hozzáadva!",
+        "webcam_addr": "Webkamera - Cím",
+        "default_addr": "Alapértelmezett cím",
+        "flip_vertical": "Függőleges fordítás",
+        "flip_horizontal": "Vízszintes fordítás"
+      },
+      "macros": {
+        "new_macro_grp": "Új makró - Csoport",
+        "no_macros_available": "Nincsenek elérhető makrók!",
+        "no_macros_found": "Nem találtam makrókat!",
+        "macros_to_default": {
+          "one": "Áthelyeztem egy makrót az alapértelmezett csoportba!",
+          "two": "Két makró áthelyezve az alapértelmezett csoportba!",
+          "other": "{} makrók áthelyezve az alapértelmezett csoportba!"
+        }
+      },
+      "presets": {
+        "no_presets": "Nincsenek előbeállítások!",
+        "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Hőmérséklet",
+        "bed_temp": "@:pages.dashboard.general.temp_card.bed Hőmérséklet",
+        "new_preset": "Új beállítás"
+      }
+    },
+    "printer_add": {
+      "title": "Új nyomtató felvétele",
+      "printer_add_helper": "Host, IP vagy teljes URL",
+      "resulting_ws_url": "Hasznos WebSocket-URL: {}",
+      "misc": "Egyéb",
+      "test_ws": "Websocket kapcsolat tesztelése",
+      "result_ws_test": "Eredmény: {}",
+      "run_test_btn": "Teszt"
+    },
+    "console": {
+      "title": "Konzol",
+      "no_entries": "Nem találtunk gyorsítótárazott parancsokat",
+      "fetching_console": "@:general.fetching konzol bejegyzések...",
+      "command_input" : {
+        "hint":"Konzolparancs megadása"
+      }
+    },
+    "overview": {
+      "title": "Áttekintés",
+      "fetching_machines": "@:general.fetching gépek...",
+      "no_entries": "Nem találtam gépeket",
+      "add_machine": "Gép hozzáadása"
+    }
+  },
+  "components": {
+    "nav_drawer": {
+      "printer_settings": "Nyomtató beállítások",
+      "manage_printers": "Nyomtatók kezelése",
+      "fetching_printers": "@:general.fetching nyomtatók...",
+      "footer": "Készítette ❤️ Patrick Schmidt\nNézze meg a projektet"
+    },
+    "connection_watcher": {
+      "reconnect": "Újracsatlakoztatás",
+      "trying_connect": "Próbálok csatlakozni...",
+      "server_starting": "Szerver elindul..."
+    }
+  },
+  "dialogs": {
+    "import_setting": {
+      "fetching": "Források keresése...",
+      "fetching_error_title": "Nem sikerült lekérni a beállításokat!",
+      "fetching_error_sub": "Győződjön meg arról, hogy a többi gép csatlakoztatva van.",
+      "select_source": "Válasszon forrást"
+    },
+    "create_folder": {
+      "title": "Mappa létrehozása",
+      "label": "Mappa neve"
+    },
+    "delete_folder": {
+      "title": "Biztos vagy benne?",
+      "description": "A mappában található összes fájl is eltávolításra kerül!\n\nA '/{}' mappa törlésének megerősítése."
+    },
+    "rename_folder": {
+      "title": "Mappa átnevezése",
+      "label": "Mappa neve"
+    },
+    "delete_file": {
+      "description": "A fájl törlésének megerősítése '{}'."
+    },
+    "rename_file": {
+      "title": "Fájl átnevezése",
+      "label": "Fájlnév"
+    }
+  },
+  "klipper_state": {
+    "ready": "Kész",
+    "shutdown": "Leállítás",
+    "starting": "Indítás",
+    "disconnected": "Szétkapcsolt",
+    "error": "Hiba"
+  },
+  "notifications": {
+    "channel_printer_grp": "Nyomtató {}",
+    "channels": {
+      "status": {
+        "name": "Nyomtatási állapotfrissítések - {}",
+        "desc": "Értesítések a nyomtatás állapotáról.",
+        "title": "A(z) {} nyomtatási állapota megváltozott!",
+        "body_printing": "Elkezdődött a fájl nyomtatása: \"{}\"",
+        "body_paused": "Szünetel a fájl nyomtatása: \"{}\"",
+        "body_complete": "Kész a nyomtatás: \"{}\"",
+        "body_error": "Hiba a fájl nyomtatásakor: \"{}\""
+      },
+      "progress": {
+        "name": "Nyomtatási folyamatfrissítések - {}",
+        "desc": "Értesítések a nyomtatás előrehaladásáról.",
+        "title": "Nyomtatás folyamata {}"
+
       }
     }
   }
+}
