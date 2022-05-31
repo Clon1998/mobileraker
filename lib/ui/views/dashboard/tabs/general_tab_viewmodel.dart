@@ -287,8 +287,10 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   bool get isPrinting => printer.print.state == PrintState.printing;
 
+  bool get isPaused => printer.print.state == PrintState.paused;
+
   bool get showBabyStepping =>
-      isPrinting || _settingService.readBool(showBabyAlwaysKey);
+      isPrinting || isPaused || _settingService.readBool(showBabyAlwaysKey);
 
   bool get isNotPrinting => !isPrinting;
 
@@ -330,5 +332,4 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
   onRestartMCUPressed() {
     _klippyService?.restartMCUs();
   }
-
 }
