@@ -54,7 +54,7 @@ dependencies:
 
   #theme
   flex_color_scheme: ^5.0.1
-  google_fonts: ^2.3.1
+  google_fonts: ^3.0.1
 
   #notification
   awesome_notifications: ^0.6.18+2
@@ -83,17 +83,17 @@ dependencies:
   flutter_breadcrumb: ^1.0.1
   cached_network_image: ^3.2.0
   shimmer: ^2.0.0
-  reorderables: ^0.4.2
+  reorderables: ^0.5.0
   flutter_speed_dial: ^6.0.0
   dots_indicator: ^2.0.0
   webview_flutter: ^3.0.2
-  fl_chart: ^0.50.1
+  fl_chart: ^0.51.0
   flutter_slidable: ^1.2.0
   code_text_field: ^1.0.2
 
 
 
-  mobile_scanner: ^1.0.0
+  mobile_scanner: ^2.0.0
 
 
 dev_dependencies:
