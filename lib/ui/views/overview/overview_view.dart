@@ -96,6 +96,7 @@ class SinglePrinter extends ViewModelBuilderWidget<SinglePrinterViewModel> {
               feedUri: model.selectedCam!.url,
               targetFps: model.selectedCam!.targetFps,
               transform: model.selectedCam!.transformMatrix,
+              camMode: model.selectedCam!.mode,
               imageBuilder: _imageBuilder,
               stackChildren: [
                 Positioned.fill(

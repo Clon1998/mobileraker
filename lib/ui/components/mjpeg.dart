@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/model/hive/webcam_mode.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
@@ -16,21 +17,21 @@ typedef StreamConnectedBuilder = Widget Function(
     BuildContext context, Transform imageTransformed);
 
 class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
-  const Mjpeg({
-    Key? key,
-    required this.feedUri,
-    this.stackChildren = const [],
-    this.transform,
-    this.fit,
-    this.width,
-    this.height,
-    this.timeout = const Duration(seconds: 5),
-    this.headers = const {},
-    this.showFps = false,
-    this.imageBuilder,
-    this.targetFps = 10
-  }) : super(key: key);
-
+  const Mjpeg(
+      {Key? key,
+      required this.feedUri,
+      this.stackChildren = const [],
+      this.transform,
+      this.fit,
+      this.width,
+      this.height,
+      this.timeout = const Duration(seconds: 5),
+      this.headers = const {},
+      required this.camMode,
+      this.showFps = false,
+      this.imageBuilder,
+      this.targetFps = 10})
+      : super(key: key);
 
   final String feedUri;
   final List<Widget> stackChildren;
@@ -43,12 +44,11 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
   final bool showFps;
   final StreamConnectedBuilder? imageBuilder;
   final int targetFps;
-
-
+  final WebCamMode camMode;
 
   @override
   MjpegViewModel viewModelBuilder(BuildContext context) =>
-      MjpegViewModel(feedUri, timeout, headers, targetFps);
+      MjpegViewModel(feedUri, timeout, headers, targetFps, camMode);
 
   @override
   Widget builder(BuildContext context, MjpegViewModel model, Widget? child) {
@@ -168,7 +168,14 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
 
 class MjpegViewModel extends StreamViewModel<MemoryImage?>
     with WidgetsBindingObserver {
-  MjpegViewModel(this.feedUri, this.timeout, this.headers, this.targetFps);
+  MjpegViewModel(this.feedUri, this.timeout, this.headers, this.targetFps,
+      WebCamMode camMode) {
+    if (camMode == WebCamMode.STREAM) {
+      _manager = _DefaultStreamManager(feedUri, headers, timeout);
+    } else {
+      _manager = _AdaptiveStreamManager(feedUri, headers, timeout, targetFps);
+    }
+  }
 
   final String feedUri;
 
@@ -181,9 +188,7 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
 
   double fps = 0;
 
-  // late _StreamManager _manager = _StreamManager(feedUri, headers, timeout);
-  late _AdaptiveStreamManager _manager =
-      _AdaptiveStreamManager(feedUri, headers, timeout, targetFps);
+  late _StreamManager _manager;
   int _frameCnt = 0;
   DateTime? _start;
 
@@ -254,8 +259,18 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
   }
 }
 
+abstract class _StreamManager {
+  start();
+
+  stop();
+
+  dispose();
+
+  Stream<MemoryImage> get jpegStream;
+}
+
 /// This Manager is for the normal MJPEG!
-class _StreamManager {
+class _DefaultStreamManager implements _StreamManager {
   final _logger = getLogger('_StreamManager');
 
   // Jpeg Magic Nubmers: https://www.file-recovery.com/jpg-signature-format.htm
@@ -275,7 +290,7 @@ class _StreamManager {
 
   StreamSubscription? _subscription;
 
-  _StreamManager(this.feedUri, this.headers, this._timeout);
+  _DefaultStreamManager(this.feedUri, this.headers, this._timeout);
 
   stop() {
     _logger.i('STOPPING STREAM!');
@@ -364,11 +379,10 @@ class _StreamManager {
   }
 }
 
-
 /// Manager for an Adaptive MJPEG, using snapshots/images of the MJPEG provider!
-class _AdaptiveStreamManager {
-  _AdaptiveStreamManager(String baseUri, this.headers, this.timeout,
-      this.targetFps) {
+class _AdaptiveStreamManager implements _StreamManager {
+  _AdaptiveStreamManager(
+      String baseUri, this.headers, this.timeout, this.targetFps) {
     url = Uri.parse(baseUri).replace(queryParameters: {
       'action': 'snapshot',
       'cacheBust': lastRefresh.millisecondsSinceEpoch.toString()

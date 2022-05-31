@@ -4,12 +4,14 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/webcam_mode.dart';
 import 'package:mobileraker/model/hive/webcam_setting.dart';
 import 'package:mobileraker/model/moonraker/macro_group.dart';
 import 'package:mobileraker/model/moonraker/temperature_preset.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stringr/stringr.dart';
 
 import 'printers_edit_viewmodel.dart';
 
@@ -413,6 +415,9 @@ class _WebCamItemState extends State<_WebCamItem> {
 
   @override
   Widget build(BuildContext context) {
+    var canSetTargetFPS = widget.model.formKey.currentState!
+            .fields['${widget.cam.uuid}-mode']?.value ==
+        WebCamMode.ADAPTIVE_STREAM;
     return Card(
         child: ExpansionTile(
             maintainState: true,
@@ -450,22 +455,40 @@ class _WebCamItemState extends State<_WebCamItem> {
                   protocols: ['http', 'https'], requireProtocol: true)
             ]),
           ),
-          FormBuilderTextField(
+          FormBuilderDropdown(
+            name: '${widget.cam.uuid}-mode',
+            initialValue: widget.cam.mode,
+            items: WebCamMode.values
+                .map((mode) => DropdownMenuItem(
+                    value: mode,
+                    child: Text(mode.name
+                        .toLowerCase()
+                        .replaceAll("_", " ")
+                        .titleCase())))
+                .toList(),
             decoration: InputDecoration(
-                labelText: 'pages.printer_edit.cams.target_fps'.tr(),
-                suffix: Text('FPS')),
-            name: '${widget.cam.uuid}-tFps',
-            initialValue: widget.cam.targetFps.toString(),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.min(0),
-              FormBuilderValidators.numeric(),
-              FormBuilderValidators.required()
-            ]),
-            valueTransformer: (String? text) =>
-                text == null ? 0 : num.tryParse(text),
-            keyboardType:
-                TextInputType.numberWithOptions(signed: false, decimal: false),
+              labelText: 'pages.printer_edit.cams.cam_mode'.tr(),
+            ),
+            onChanged: (v) => setState(() {}),
           ),
+          if (canSetTargetFPS)
+            FormBuilderTextField(
+              decoration: InputDecoration(
+                labelText: 'pages.printer_edit.cams.target_fps'.tr(),
+                suffix: Text('FPS'),
+              ),
+              name: '${widget.cam.uuid}-tFps',
+              initialValue: widget.cam.targetFps.toString(),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.min(0),
+                FormBuilderValidators.numeric(),
+                FormBuilderValidators.required()
+              ]),
+              valueTransformer: (String? text) =>
+                  text == null ? 0 : num.tryParse(text),
+              keyboardType: TextInputType.numberWithOptions(
+                  signed: false, decimal: false),
+            ),
           FormBuilderSwitch(
             title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
             decoration: InputDecoration(border: InputBorder.none),

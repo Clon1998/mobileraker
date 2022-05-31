@@ -6,6 +6,7 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/model/hive/webcam_mode.dart';
 import 'package:mobileraker/model/hive/webcam_setting.dart';
 import 'package:mobileraker/model/moonraker/gcode_macro.dart';
 import 'package:mobileraker/model/moonraker/machine_settings.dart';
@@ -49,7 +50,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
 
-  GlobalKey get formKey => _fbKey;
+  GlobalKey<FormBuilderState> get formKey => _fbKey;
   final _fbKey = GlobalKey<FormBuilderState>();
 
   MacroGroup? srcGrpDragging;
@@ -514,11 +515,13 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
     var fH = _fbKey.currentState!.value['${toSave.uuid}-camFH'];
     var fV = _fbKey.currentState!.value['${toSave.uuid}-camFV'];
     var tFps = _fbKey.currentState!.value['${toSave.uuid}-tFps'];
+    var mode = _fbKey.currentState!.value['${toSave.uuid}-mode'];
     if (name != null) toSave.name = name;
     if (url != null) toSave.url = url;
     if (fH != null) toSave.flipHorizontal = fH;
     if (fV != null) toSave.flipVertical = fV;
-    if (fV != null) toSave.targetFps = tFps;
+    if (fV != null && mode == WebCamMode.ADAPTIVE_STREAM) toSave.targetFps = tFps;
+    if (mode != null) toSave.mode = mode;
   }
 
   _saveAllPresets() {

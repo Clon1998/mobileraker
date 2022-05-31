@@ -295,6 +295,7 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
               targetFps: model.selectedCam!.targetFps,
               feedUri: model.selectedCam!.url,
               transform: model.selectedCam!.transformMatrix,
+              camMode: model.selectedCam!.mode,
               showFps: true,
               stackChildren: [
                 Positioned.fill(

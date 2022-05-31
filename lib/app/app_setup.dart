@@ -10,6 +10,7 @@ import 'package:mobileraker/model/hive/gcode_macro.dart';
 import 'package:mobileraker/model/hive/machine.dart';
 import 'package:mobileraker/model/hive/macro_group.dart';
 import 'package:mobileraker/model/hive/temperature_preset.dart';
+import 'package:mobileraker/model/hive/webcam_mode.dart';
 import 'package:mobileraker/model/hive/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
@@ -89,6 +90,9 @@ setupBoxes() async {
   var macroAdapter = GCodeMacroAdapter();
   if (!Hive.isAdapterRegistered(macroAdapter.typeId))
     Hive.registerAdapter(macroAdapter);
+  var webCamModeAdapter = WebCamModeAdapter();
+  if (!Hive.isAdapterRegistered(webCamModeAdapter.typeId))
+    Hive.registerAdapter(webCamModeAdapter);
   // Hive.deleteBoxFromDisk('printers');
 
   try {

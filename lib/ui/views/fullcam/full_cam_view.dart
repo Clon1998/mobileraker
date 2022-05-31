@@ -31,6 +31,7 @@ class FullCamView extends ViewModelBuilderWidget<FullCamViewModel> {
                 targetFps: model.selectedCam.targetFps,
                 showFps: true,
                 transform: model.selectedCam.transformMatrix,
+                camMode: model.selectedCam.mode,
                 stackChildren: [
                   if (model.dataReady)
                     Positioned.fill(

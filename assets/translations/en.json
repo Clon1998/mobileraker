@@ -199,7 +199,8 @@
         "webcam_addr": "Webcam - Address",
         "default_addr": "Default Address",
         "flip_vertical": "Flip vertical",
-        "flip_horizontal": "Flip horizontal"
+        "flip_horizontal": "Flip horizontal",
+        "cam_mode": "Cam Mode"
       },
       "macros": {
         "new_macro_grp": "New Macro - Group",
