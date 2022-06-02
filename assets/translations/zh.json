@@ -1,0 +1,1041 @@
+{
+	"components": {
+		"connection_watcher": {
+			"reconnect": "重新連接",
+			"server_starting": "服務器正在啟動...",
+			"trying_connect": "正在嘗試連接..."
+		},
+		"nav_drawer": {
+			"fetching_printers": "@:general.fetching printers...",
+			"footer": "帕特里克·施密特用❤️製作\n查看項目",
+			"manage_printers": "管理打印機",
+			"printer_settings": "打印機設置"
+		}
+	},
+	"dialogs": {
+		"create_folder": {
+			"label": "文件夾名稱",
+			"title": "創建文件夾"
+		},
+		"delete_file": {
+			"description": "確認刪除文件“{}”。"
+		},
+		"delete_folder": {
+			"description": "文件夾中包含的所有文件也將被刪除！\n\n確認刪除文件夾“/{}”。",
+			"title": "你確定嗎？"
+		},
+		"import_setting": {
+			"fetching": "正在獲取來源...",
+			"fetching_error_sub": "確保其他機器已連接。",
+			"fetching_error_title": "無法獲取設置！",
+			"select_source": "選擇來源"
+		},
+		"rename_file": {
+			"label": "文檔名稱",
+			"title": "重新命名文件"
+		},
+		"rename_folder": {
+			"label": "文件夾名稱",
+			"title": "重命名文件夾"
+		}
+	},
+	"general": {
+		"add": "新增",
+		"connected": "已連接",
+		"create": "創建",
+		"fetching": "抓取",
+		"firmware": "固件",
+		"none": "沒有",
+		"off": "關閉",
+		"remove": "去掉",
+		"rename": "改名",
+		"restart": "重新開始",
+		"resume": "恢復",
+		"set": "組",
+		"shutdown": "關掉",
+		"unknown": "未知",
+		"use": "採用"
+	},
+	"klipper_state": {
+		"disconnected": "未連接",
+		"error": "錯誤",
+		"ready": "準備",
+		"shutdown": "關掉",
+		"starting": "開始"
+	},
+	"languages": {
+		"aa": {
+			"name": "遠方",
+			"nativeName": "阿法拉夫"
+		},
+		"ab": {
+			"name": "阿布哈茲",
+			"nativeName": "有的"
+		},
+		"ae": {
+			"name": "阿維斯坦",
+			"nativeName": "阿維斯塔"
+		},
+		"af": {
+			"name": "南非語",
+			"nativeName": "南非語"
+		},
+		"ak": {
+			"name": "阿寒",
+			"nativeName": "阿寒"
+		},
+		"am": {
+			"name": "阿姆哈拉語",
+			"nativeName": "አማርኛ"
+		},
+		"an": {
+			"name": "阿拉貢語",
+			"nativeName": "阿拉貢內斯"
+		},
+		"ar": {
+			"name": "阿拉伯",
+			"nativeName": "回复"
+		},
+		"as": {
+			"name": "阿薩姆語",
+			"nativeName": "অসমীয়া"
+		},
+		"av": {
+			"name": "阿瓦里克",
+			"nativeName": "авар мацӀ, магӀарул мацӀ"
+		},
+		"ay": {
+			"name": "艾馬拉",
+			"nativeName": "艾馬爾阿魯"
+		},
+		"az": {
+			"name": "阿塞拜疆",
+			"nativeName": "azərbaycan 帝力"
+		},
+		"ba": {
+			"name": "巴什基爾",
+			"nativeName": "башҡорт теле"
+		},
+		"be": {
+			"name": "白俄羅斯",
+			"nativeName": "Беларуская"
+		},
+		"bg": {
+			"name": "保加利亞語",
+			"nativeName": "български език"
+		},
+		"bh": {
+			"name": "比哈里語",
+			"nativeName": "भोजपुरी"
+		},
+		"bi": {
+			"name": "比斯拉馬",
+			"nativeName": "比斯拉馬"
+		},
+		"bm": {
+			"name": "班巴拉",
+			"nativeName": "巴馬南坎"
+		},
+		"bn": {
+			"name": "孟加拉",
+			"nativeName": "বাংলা"
+		},
+		"bo": {
+			"name": "藏標、藏文、中部",
+			"nativeName": "བོད་ཡིག"
+		},
+		"br": {
+			"name": "布列塔尼",
+			"nativeName": "布雷佐內格"
+		},
+		"bs": {
+			"name": "波斯尼亞人",
+			"nativeName": "波斯尼亞傑濟克"
+		},
+		"ca": {
+			"name": "加泰羅尼亞語；巴倫西亞語",
+			"nativeName": "加泰羅尼亞"
+		},
+		"ce": {
+			"name": "車臣",
+			"nativeName": "нохчийн мотт"
+		},
+		"ch": {
+			"name": "查莫羅",
+			"nativeName": "查莫魯"
+		},
+		"co": {
+			"name": "科西嘉島",
+			"nativeName": "corsu, lingua corsa"
+		},
+		"cr": {
+			"name": "克里",
+			"nativeName": "ᓀᐦᐃᔭᐍᐏᐣ"
+		},
+		"cs": {
+			"name": "捷克",
+			"nativeName": "採斯基, 採什蒂娜"
+		},
+		"cu": {
+			"name": "古教會斯拉夫語、教會斯拉夫語、教會斯拉夫語、古保加利亞語、古斯拉夫語",
+			"nativeName": "ѩзыкъ словѣньскъ"
+		},
+		"cv": {
+			"name": "楚瓦什語",
+			"nativeName": "чӑваш чӗлхи"
+		},
+		"cy": {
+			"name": "威爾士語",
+			"nativeName": "西姆雷格"
+		},
+		"da": {
+			"name": "丹麥文",
+			"nativeName": "丹斯克"
+		},
+		"de": {
+			"name": "德語",
+			"nativeName": "德語"
+		},
+		"dv": {
+			"name": "迪維希;迪維希語;瑪律地夫語;",
+			"nativeName": "ދިވެހި"
+		},
+		"ee": {
+			"name": "母羊",
+			"nativeName": "埃格貝"
+		},
+		"el": {
+			"name": "希臘語， 現代",
+			"nativeName": "Ελληνικά"
+		},
+		"en": {
+			"name": "英語",
+			"nativeName": "英語"
+		},
+		"eo": {
+			"name": "世界語",
+			"nativeName": "世界語"
+		},
+		"es": {
+			"name": "西班牙文;卡斯蒂利亞文",
+			"nativeName": "西班牙， 卡斯特拉諾"
+		},
+		"et": {
+			"name": "愛沙尼亞語",
+			"nativeName": "eesti， eesti keel"
+		},
+		"eu": {
+			"name": "巴士克語",
+			"nativeName": "尤斯卡拉， 尤斯凱拉"
+		},
+		"fa": {
+			"name": "波斯語",
+			"nativeName": "فارسی"
+		},
+		"ff": {
+			"name": "富拉;富拉;普拉爾;普拉拉",
+			"nativeName": "富爾富爾德，普拉爾，普拉爾"
+		},
+		"fi": {
+			"name": "芬蘭文",
+			"nativeName": "suomi， suomen kieli"
+		},
+		"fj": {
+			"name": "斐濟語",
+			"nativeName": "vosa Vakaviti"
+		},
+		"fo": {
+			"name": "法羅群島",
+			"nativeName": "福羅伊斯克"
+		},
+		"fr": {
+			"name": "法國",
+			"nativeName": "法語，法語"
+		},
+		"fy": {
+			"name": "西弗里西亞語",
+			"nativeName": "弗里斯克"
+		},
+		"ga": {
+			"name": "愛爾蘭的",
+			"nativeName": "蓋爾格"
+		},
+		"gd": {
+			"name": "蘇格蘭蓋爾語；蓋爾語",
+			"nativeName": "蓋德利格"
+		},
+		"gl": {
+			"name": "加利西亞人",
+			"nativeName": "加萊戈"
+		},
+		"gn": {
+			"name": "瓜拉尼",
+			"nativeName": "阿瓦涅"
+		},
+		"gu": {
+			"name": "古吉拉特語",
+			"nativeName": "ગુજરાતી"
+		},
+		"gv": {
+			"name": "曼克斯",
+			"nativeName": "蓋爾格，蓋爾克"
+		},
+		"ha": {
+			"name": "豪薩",
+			"nativeName": "豪薩語，هَوُسَ"
+		},
+		"he": {
+			"name": "希伯來語（現代）",
+			"nativeName": "上一頁"
+		},
+		"hi": {
+			"name": "印地語",
+			"nativeName": "हिन्दी, हिंदी"
+		},
+		"ho": {
+			"name": "希里·莫圖",
+			"nativeName": "希里·莫圖"
+		},
+		"hr": {
+			"name": "克羅地亞",
+			"nativeName": "赫爾瓦茨基"
+		},
+		"ht": {
+			"name": "海地;海地克里奧爾語",
+			"nativeName": "克雷奧·阿伊森"
+		},
+		"hu": {
+			"name": "匈牙利",
+			"nativeName": "馬扎爾"
+		},
+		"hy": {
+			"name": "亞美尼亞",
+			"nativeName": "英語"
+		},
+		"hz": {
+			"name": "赫雷羅",
+			"nativeName": "奧吉赫羅"
+		},
+		"ia": {
+			"name": "國際語",
+			"nativeName": "國際語"
+		},
+		"id": {
+			"name": "印度尼西亞",
+			"nativeName": "印尼語"
+		},
+		"ie": {
+			"name": "中間語",
+			"nativeName": "最初稱為西方；然後是二戰後的中間語"
+		},
+		"ig": {
+			"name": "伊博",
+			"nativeName": "Asụsụ 伊博語"
+		},
+		"ii": {
+			"name": "諾蘇",
+			"nativeName": "ꆈꌠ꒿ Nuosuhxop"
+		},
+		"ik": {
+			"name": "因努皮亞克",
+			"nativeName": "伊努皮亞克, 伊努皮亞通"
+		},
+		"io": {
+			"name": "我願意",
+			"nativeName": "我願意"
+		},
+		"is": {
+			"name": "冰島的",
+			"nativeName": "伊斯倫斯卡"
+		},
+		"it": {
+			"name": "意大利",
+			"nativeName": "意大利語"
+		},
+		"iu": {
+			"name": "因紐特語",
+			"nativeName": "ᐃᓄᒃᑎᑐᑦ"
+		},
+		"ja": {
+			"name": "日本",
+			"nativeName": "日本語（にほんご／にっぽんご）"
+		},
+		"jv": {
+			"name": "爪哇語",
+			"nativeName": "巴薩爪哇"
+		},
+		"ka": {
+			"name": "格魯吉亞",
+			"nativeName": "ქართული"
+		},
+		"kg": {
+			"name": "金剛",
+			"nativeName": "基孔戈"
+		},
+		"ki": {
+			"name": "基庫尤，基庫尤",
+			"nativeName": "Gĩkũyũ"
+		},
+		"kj": {
+			"name": "關山、關山",
+			"nativeName": "寬山"
+		},
+		"kk": {
+			"name": "哈薩克人",
+			"nativeName": "Қазақ тілі"
+		},
+		"kl": {
+			"name": "格陵蘭卡拉阿利蘇特",
+			"nativeName": "kalaallisut, kalaallit oqaasii"
+		},
+		"km": {
+			"name": "高棉語",
+			"nativeName": "ភាសាខ្មែរ"
+		},
+		"kn": {
+			"name": "卡納達語",
+			"nativeName": "ಕನ್ನಡ"
+		},
+		"ko": {
+			"name": "朝鮮的",
+			"nativeName": "한국어 (韓國語), 조선말 (朝鮮語)"
+		},
+		"kr": {
+			"name": "卡努里",
+			"nativeName": "卡努里"
+		},
+		"ks": {
+			"name": "克什米爾語",
+			"nativeName": "कश्मीरी, كشميري‎"
+		},
+		"ku": {
+			"name": "庫爾德",
+			"nativeName": "Kurdî, كوردی‎"
+		},
+		"kv": {
+			"name": "科米",
+			"nativeName": "коми кыв"
+		},
+		"kw": {
+			"name": "康沃爾語",
+			"nativeName": "克紐維克"
+		},
+		"ky": {
+			"name": "吉爾吉斯、吉爾吉斯",
+			"nativeName": "кыргыз тили"
+		},
+		"la": {
+			"name": "拉丁",
+			"nativeName": "拉丁語，拉丁語"
+		},
+		"lb": {
+			"name": "盧森堡語、Letzeburgesch",
+			"nativeName": "萊策布爾格施"
+		},
+		"lg": {
+			"name": "盧干達",
+			"nativeName": "盧干達"
+		},
+		"li": {
+			"name": "林堡語、林堡語、林堡語",
+			"nativeName": "林堡"
+		},
+		"ln": {
+			"name": "林加拉",
+			"nativeName": "林加拉"
+		},
+		"lo": {
+			"name": "老撾",
+			"nativeName": "ພາສາລາວ"
+		},
+		"lt": {
+			"name": "立陶宛",
+			"nativeName": "列圖維茲卡爾巴"
+		},
+		"lu": {
+			"name": "盧巴加丹加",
+			"nativeName": ""
+		},
+		"lv": {
+			"name": "拉脫維亞",
+			"nativeName": "拉維蘇瓦羅達"
+		},
+		"mg": {
+			"name": "馬爾加什",
+			"nativeName": "馬達加斯加 fiteny"
+		},
+		"mh": {
+			"name": "馬紹爾",
+			"nativeName": "Kajin M̧ajeļ"
+		},
+		"mi": {
+			"name": "毛利人",
+			"nativeName": "毛利人"
+		},
+		"mk": {
+			"name": "馬其頓",
+			"nativeName": "македонски јазик"
+		},
+		"ml": {
+			"name": "馬拉雅拉姆語",
+			"nativeName": "മലയാളം"
+		},
+		"mn": {
+			"name": "蒙",
+			"nativeName": "монгол"
+		},
+		"mr": {
+			"name": "馬拉地語 (Marāṭhī)",
+			"nativeName": "मराठी"
+		},
+		"ms": {
+			"name": "馬來語",
+			"nativeName": "馬來語, بهاس ملايو‎"
+		},
+		"mt": {
+			"name": "馬耳他語",
+			"nativeName": "馬爾蒂"
+		},
+		"my": {
+			"name": "緬甸語",
+			"nativeName": "ဗမာစာ"
+		},
+		"na": {
+			"name": "瑙魯",
+			"nativeName": "Ekakairũ Naoero"
+		},
+		"nb": {
+			"name": "挪威博克馬爾",
+			"nativeName": "Norskbokmål"
+		},
+		"nd": {
+			"name": "北恩德貝勒",
+			"nativeName": "伊西恩德貝勒"
+		},
+		"ne": {
+			"name": "尼泊爾文",
+			"nativeName": "नेपाली"
+		},
+		"ng": {
+			"name": "恩東加",
+			"nativeName": "奧萬博"
+		},
+		"nl": {
+			"name": "荷蘭人",
+			"nativeName": "荷蘭，弗拉姆斯"
+		},
+		"nn": {
+			"name": "挪威尼諾斯克",
+			"nativeName": "諾斯克尼諾斯克"
+		},
+		"no": {
+			"name": "挪威",
+			"nativeName": "諾斯克"
+		},
+		"nr": {
+			"name": "南恩德貝萊",
+			"nativeName": "伊西恩德貝勒"
+		},
+		"nv": {
+			"name": "納瓦霍, 納瓦霍",
+			"nativeName": "Diné bizaad, Dinékʼehǰí"
+		},
+		"ny": {
+			"name": "奇切瓦；切瓦；尼亞加",
+			"nativeName": "chiCheŵa, chinyanja"
+		},
+		"oc": {
+			"name": "奧克西坦",
+			"nativeName": "奧克西坦"
+		},
+		"oj": {
+			"name": "奧吉布韋, 奧吉布瓦",
+			"nativeName": "ᐊᓂᔑᓈᐯᒧᐎᓐ"
+		},
+		"om": {
+			"name": "奧羅莫",
+			"nativeName": "阿凡·奧羅莫"
+		},
+		"or": {
+			"name": "奧里亞語",
+			"nativeName": "ଓଡ଼ିଆ"
+		},
+		"os": {
+			"name": "奧塞梯語，奧塞梯語",
+			"nativeName": "ирон æвзаг"
+		},
+		"pa": {
+			"name": "旁遮普語、旁遮普語",
+			"nativeName": "ਪੰਜਾਬੀ, پنجابی‎"
+		},
+		"pi": {
+			"name": "巴利語",
+			"nativeName": "पाऴि"
+		},
+		"pl": {
+			"name": "拋光",
+			"nativeName": "波蘭語"
+		},
+		"ps": {
+			"name": "普什圖語、普什圖語",
+			"nativeName": "پښتو"
+		},
+		"pt": {
+			"name": "葡萄牙語",
+			"nativeName": "葡萄牙語"
+		},
+		"qu": {
+			"name": "蓋丘亞族",
+			"nativeName": "魯娜·西米，Kichwa"
+		},
+		"rm": {
+			"name": "羅曼什",
+			"nativeName": "魯曼奇·格里斯春"
+		},
+		"rn": {
+			"name": "基隆迪",
+			"nativeName": "基隆迪"
+		},
+		"ro": {
+			"name": "羅馬尼亞語、摩爾多瓦語、摩爾多瓦語",
+			"nativeName": "羅馬"
+		},
+		"ru": {
+			"name": "俄語",
+			"nativeName": "русский язык"
+		},
+		"rw": {
+			"name": "Kinyarwanda",
+			"nativeName": "伊基尼亞盧旺達語"
+		},
+		"sa": {
+			"name": "梵文（Saṁskṛta）",
+			"nativeName": "संस्कृतम्"
+		},
+		"sc": {
+			"name": "撒丁島",
+			"nativeName": "薩爾杜"
+		},
+		"sd": {
+			"name": "信地",
+			"nativeName": "सिन्धी, سنڌي، سندھی‎"
+		},
+		"se": {
+			"name": "北薩米",
+			"nativeName": "達維薩梅吉拉"
+		},
+		"sg": {
+			"name": "三鄉",
+			"nativeName": "yângâtîsängö"
+		},
+		"si": {
+			"name": "僧伽羅語、僧伽羅語",
+			"nativeName": "සිංහල"
+		},
+		"sk": {
+			"name": "斯洛伐克",
+			"nativeName": "斯洛文契納"
+		},
+		"sl": {
+			"name": "斯洛文尼亞",
+			"nativeName": "斯洛文尼亞"
+		},
+		"sm": {
+			"name": "薩摩亞",
+			"nativeName": "gagana faa 薩摩亞"
+		},
+		"sn": {
+			"name": "莊名",
+			"nativeName": "知紹納"
+		},
+		"so": {
+			"name": "索馬里",
+			"nativeName": "Soomaaliga, af Soomaali"
+		},
+		"sq": {
+			"name": "阿爾巴尼亞人",
+			"nativeName": "什奇普"
+		},
+		"sr": {
+			"name": "塞爾維亞",
+			"nativeName": "српски језик"
+		},
+		"ss": {
+			"name": "斯瓦蒂",
+			"nativeName": "西斯瓦蒂"
+		},
+		"st": {
+			"name": "南索托",
+			"nativeName": "塞索托"
+		},
+		"su": {
+			"name": "巽他語",
+			"nativeName": "巴薩巽他"
+		},
+		"sv": {
+			"name": "瑞典",
+			"nativeName": "斯文斯卡"
+		},
+		"sw": {
+			"name": "斯瓦希里語",
+			"nativeName": "斯瓦希里語"
+		},
+		"ta": {
+			"name": "泰米爾語",
+			"nativeName": "தமிழ்"
+		},
+		"te": {
+			"name": "泰盧固語",
+			"nativeName": "తెలుగు"
+		},
+		"tg": {
+			"name": "塔吉克",
+			"nativeName": "тоҷикӣ, toğikī, تاجیکی‎"
+		},
+		"th": {
+			"name": "泰國",
+			"nativeName": "ไทย"
+		},
+		"ti": {
+			"name": "提格里尼亞",
+			"nativeName": "ትግርኛ"
+		},
+		"tk": {
+			"name": "土庫曼",
+			"nativeName": "土庫曼，Түркмен"
+		},
+		"tl": {
+			"name": "他加祿語",
+			"nativeName": "維康他加祿語，ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔"
+		},
+		"tn": {
+			"name": "茨瓦納",
+			"nativeName": "塞茨瓦納"
+		},
+		"to": {
+			"name": "湯加（湯加群島）",
+			"nativeName": "法卡湯加"
+		},
+		"tr": {
+			"name": "土耳其",
+			"nativeName": "土耳其人"
+		},
+		"ts": {
+			"name": "特松加",
+			"nativeName": "希松加"
+		},
+		"tt": {
+			"name": "塔塔爾族",
+			"nativeName": "татарча, tatarça, تاتارچا‎"
+		},
+		"tw": {
+			"name": "特威",
+			"nativeName": "特威"
+		},
+		"ty": {
+			"name": "大溪地",
+			"nativeName": "里奧大溪地"
+		},
+		"ug": {
+			"name": "維吾爾語、維吾爾語",
+			"nativeName": "Uyƣurqə, ئۇيغۇرچە‎"
+		},
+		"uk": {
+			"name": "烏克蘭",
+			"nativeName": "українська"
+		},
+		"ur": {
+			"name": "烏爾都語",
+			"nativeName": "回复"
+		},
+		"uz": {
+			"name": "烏茲別克",
+			"nativeName": "zbek, Ўзбек, أۇزبېك‎"
+		},
+		"ve": {
+			"name": "文達",
+			"nativeName": "奇文納"
+		},
+		"vi": {
+			"name": "越南",
+			"nativeName": "丁維特"
+		},
+		"vo": {
+			"name": "沃拉普克",
+			"nativeName": "沃拉普克"
+		},
+		"wa": {
+			"name": "瓦隆",
+			"nativeName": "華隆"
+		},
+		"wo": {
+			"name": "沃洛夫",
+			"nativeName": "沃洛夫"
+		},
+		"xh": {
+			"name": "科薩",
+			"nativeName": "伊西科薩"
+		},
+		"yi": {
+			"name": "意第緒語",
+			"nativeName": "ייִדיש"
+		},
+		"yo": {
+			"name": "約魯巴語",
+			"nativeName": "約魯巴語"
+		},
+		"za": {
+			"name": "莊莊",
+			"nativeName": "Saɯ cueŋƅ, Saw cuengh"
+		},
+		"zh": {
+			"name": "中文",
+			"nativeName": "中文 (Zhōngwén), 漢語, 漢語"
+		}
+	},
+	"notifications": {
+		"channel_printer_grp": "打印機 {}",
+		"channels": {
+			"progress": {
+				"desc": "有關打印進度的通知。",
+				"name": "打印進度更新 - {}",
+				"title": " {}的打印進度"
+			},
+			"status": {
+				"body_complete": "完成打印：“{}”",
+				"body_error": "打印文件時出錯：“{}”",
+				"body_paused": "暫停打印文件：“{}”",
+				"body_printing": "開始打印文件：“{}”",
+				"desc": "有關打印狀態的通知。",
+				"name": "打印狀態更新 - {}",
+				"title": " {} 的打印狀態已更改！"
+			}
+		}
+	},
+	"pages": {
+		"console": {
+			"command_input": {
+				"hint": "輸入控制台命令"
+			},
+			"fetching_console": "@:general.fetching console entries...",
+			"no_entries": "未找到緩存的命令",
+			"title": "主機"
+		},
+		"dashboard": {
+			"control": {
+				"extrude_card": {
+					"extrude": "擠出",
+					"extrude_len": "@:pages.dashboard.control.extrude_card.extrude length",
+					"retract": "收回",
+					"title": "擠出機"
+				},
+				"fan_card": {
+					"part_fan": "部件風扇",
+					"static_fan_btn": "風扇",
+					"title": {
+						"one": "風扇",
+						"other": "風扇",
+						"zero": "風扇"
+					}
+				},
+				"macro_card": {
+					"title": "Gcode - 宏"
+				},
+				"multipl_card": {
+					"flow": "流量",
+					"title": "倍數器"
+				},
+				"pin_card": {
+					"pin_btn": "引腳",
+					"title": {
+						"one": "輸出引腳",
+						"other": "輸出引腳",
+						"two": "輸出引腳",
+						"zero": "輸出引腳"
+					}
+				}
+			},
+			"ems_btn": "緊急停止",
+			"fetching_printer": "@:general.fetching printer...",
+			"general": {
+				"baby_step_card": {
+					"title": "Babystepping Z 軸"
+				},
+				"cam_card": {
+					"fullscreen": "全屏",
+					"webcam": "攝像頭"
+				},
+				"move_card": {
+					"home_all_btn": "所有",
+					"home_all_tooltip": "歸零所有軸",
+					"home_xy_tooltip": "原點 X 和 Y 軸",
+					"home_z_tooltip": "Z軸原點",
+					"m84_btn": "M84",
+					"m84_tooltip": "禁用電機",
+					"mesh_btn": "網絡",
+					"mesh_tooltip": "運行熱床網絡校準",
+					"qgl_btn": "QGL",
+					"qgl_tooltip": "運行四點調平",
+					"step_size": "步長",
+					"title": "移動軸"
+				},
+				"print_card": {
+					"eta": "預計結束時間",
+					"layer": "層",
+					"printing_for": "打印： {}\n對於： {}",
+					"reset": "重啟",
+					"speed": "速度"
+				},
+				"restart_klipper": "重啟 Klipper",
+				"restart_mcu": "重啟MCU",
+				"temp_card": {
+					"bed": "床",
+					"btn_thermistor": "傳感器",
+					"heater_on": "{} °C 目標",
+					"hotend": "加熱端",
+					"presets_btn": "預設",
+					"sensors": "傳感器",
+					"temp_presets": "溫度預設",
+					"title": "溫度控制"
+				},
+				"temp_preset_card": {
+					"b_temp": "@:pages.dashboard.general.temp_card.bed {}°C",
+					"cooloff": "冷卻",
+					"h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C"
+				}
+			},
+			"server_status": {
+				"available": "服務器狀態為 {} ，Klippy 為 {}",
+				"unavailable": "沒有可用的服務器"
+			},
+			"title": "儀表板"
+		},
+		"files": {
+			"clear_search": "清除搜尋",
+			"details": {
+				"general_card": {
+					"last_mod": "最後修改",
+					"last_printed": "最後印刷",
+					"no_data": "沒有數據",
+					"path": "路徑"
+				},
+				"meta_card": {
+					"est_print_time": "預計打印時間",
+					"first_layer": "第一層",
+					"first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperatures",
+					"first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend： {}°C\n@:pages.dashboard.general.temp_card.bed： {}°C",
+					"layer_higher": "層高",
+					"others": "其他",
+					"slicer": "使用的切片軟件",
+					"title": "GCode 元數據"
+				},
+				"preheat": "預熱",
+				"print": "打印",
+				"stat_card": {
+					"title": "統計"
+				}
+			},
+			"fetching_files": "@:general.fetching Files...",
+			"last_mod": "最後修改",
+			"last_printed": "最後打印",
+			"name": "名稱",
+			"no_files_found": "沒有找到文件！",
+			"search_files": "搜索文件",
+			"title": "檔案"
+		},
+		"overview": {
+			"add_machine": "添加機器",
+			"fetching_machines": "@:general.fetching machines...",
+			"no_entries": "沒有找到機器",
+			"title": "概觀"
+		},
+		"printer_add": {
+			"misc": "雜項",
+			"printer_add_helper": "主機、IP 或完整 URL",
+			"result_ws_test": "結果： {}",
+			"resulting_ws_url": "生成的 WebSocket-URL： {}",
+			"run_test_btn": "測試",
+			"test_ws": "測試 websocket 連接",
+			"title": "添加新打印機"
+		},
+		"printer_edit": {
+			"cams": {
+				"default_addr": "默認地址",
+				"flip_horizontal": "水平翻轉",
+				"flip_vertical": "垂直翻轉",
+				"new_cam": "新的網絡攝像頭",
+				"no_webcams": "沒有添加網絡攝像頭！",
+				"target_fps": "目標 FPS",
+				"webcam_addr": "網絡攝像頭 - 地址"
+			},
+			"could_not_fetch_additional": "無法獲取其他設置！",
+			"extruders": {
+				"feedrate": "擠出機進料速度",
+				"feedrate_short": "進給速度",
+				"steps_extrude": "擠出步驟",
+				"steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude",
+				"title": "擠出機"
+			},
+			"fetch_error_hint": "確保機器可訪問，並且 Mobileraker 已連接到它。",
+			"fetching_additional_settings": "@:general.fetching additional settings from network...",
+			"general": {
+				"displayname": "顯示名稱",
+				"full_url": "完整網址",
+				"moonraker_api_desc": "僅當您使用受信任的客戶端時才需要。 FluiddPI 強制執行此操作！",
+				"moonraker_api_key": "Moonraker - API 密鑰",
+				"printer_addr": "打印機 - 地址",
+				"ws_addr": "Websocket - 地址"
+			},
+			"import_settings": "導入設置",
+			"macros": {
+				"macros_to_default": {
+					"one": "將一個宏移至默認組！",
+					"other": "將 {} 個宏移至默認組！",
+					"two": "將兩個宏移至默認組！"
+				},
+				"new_macro_grp": "新宏 - 組",
+				"no_macros_available": "沒有可用的宏！",
+				"no_macros_found": "未找到宏！"
+			},
+			"motion_system": {
+				"invert_x": "反轉 X - 軸",
+				"invert_x_short": "反轉 X",
+				"invert_y": "反轉 Y - 軸",
+				"invert_y_short": "反轉 Y",
+				"invert_z": "反轉 Z - 軸",
+				"invert_z_short": "反轉 Z",
+				"speed_xy": "速度 X/Y - 軸",
+				"speed_xy_short": "速度 X/Y",
+				"speed_z": "速度 Z - 軸",
+				"speed_z_short": "速度 Z",
+				"steps_baby": "Babystepping Z 步",
+				"steps_baby_short": "Baby Steps",
+				"steps_move": "移動步驟",
+				"steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+				"title": "運動系統"
+			},
+			"no_values_found": "未找到任何值！",
+			"presets": {
+				"bed_temp": "@:pages.dashboard.general.temp_card.bed Temperature",
+				"hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperature",
+				"new_preset": "新預設",
+				"no_presets": "沒有添加預設！"
+			},
+			"remove_printer": "移除打印機",
+			"title": "編輯 {}"
+		},
+		"setting": {
+			"general": {
+				"always_baby": "始終顯示 Babystepping Card",
+				"companion": "了解如何在其上設置 Mobileraker 的 Companion",
+				"ems_confirm": "確認緊急停止",
+				"language": "語言",
+				"num_edit": "使用鍵盤輸入數字",
+				"start_with_overview": "Show @:pages.overview.title by default",
+				"title": "一般"
+			},
+			"imprint": "隱私/印象",
+			"title": "應用程序 - 設置"
+		}
+	}
+}
