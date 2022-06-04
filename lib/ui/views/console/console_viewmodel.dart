@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
@@ -142,6 +143,10 @@ class ConsoleViewModel extends MultipleStreamViewModel {
     textEditingController.selection = TextSelection.fromPosition(
       TextPosition(offset: textEditingController.text.length),
     );
+  }
+
+  onKeyBoardInput(event) {
+    if (event.isKeyPressed(LogicalKeyboardKey.enter)) onCommandSubmit();
   }
 
   onCommandSubmit() {

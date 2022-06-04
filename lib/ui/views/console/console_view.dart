@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -54,7 +55,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
 
   Widget _buildBody(BuildContext context, ConsoleViewModel model) {
     var theme = Theme.of(context);
-    Color highlightColor = theme.colorScheme.primary ;
+    Color highlightColor = theme.colorScheme.primary;
 
     return Container(
       margin: const EdgeInsets.all(4.0),
@@ -81,7 +82,8 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
               child: Text(
                 'GCode Console - ${model.printerName}',
-                style: theme.textTheme.subtitle1?.copyWith(color: theme.colorScheme.onPrimary),
+                style: theme.textTheme.subtitle1
+                    ?.copyWith(color: theme.colorScheme.onPrimary),
               ),
             ),
           ),
@@ -92,7 +94,8 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
               height: 33,
               child: ChipTheme(
                 data: ChipThemeData(
-                    labelStyle: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+                    labelStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimary),
                     deleteIconColor: Theme.of(context).colorScheme.onPrimary),
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -118,20 +121,23 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
             ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: TextField(
-              enableSuggestions: false,
-              autocorrect: false,
-              // style: themeData.textTheme.subtitle1!.copyWith(color: _commandTextColor(themeData)),
-              controller: model.textEditingController,
-              enabled: model.isConsoleHistoryAvailable,
-              decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.send),
-                    onPressed: model.onCommandSubmit,
-                  ),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  hintText: tr('pages.console.command_input.hint')),
+            child: RawKeyboardListener(
+              focusNode: FocusNode(),
+              onKey: model.onKeyBoardInput,
+              child: TextField(
+                enableSuggestions: false,
+                autocorrect: false,
+                controller: model.textEditingController,
+                enabled: model.isConsoleHistoryAvailable,
+                decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: model.onCommandSubmit,
+                    ),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10)),
+                    hintText: tr('pages.console.command_input.hint')),
+              ),
             ),
           )
         ],
