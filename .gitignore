@@ -47,6 +47,6 @@ app.*.symbols
 app.*.map.json
 
 /android/app/google-services.json
-/GoogleService-Info.plist
+/ios/Runner/GoogleService-Info.plist
 
 *.patch
