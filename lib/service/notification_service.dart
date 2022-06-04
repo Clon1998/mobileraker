@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:io' show Platform;
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:enum_to_string/enum_to_string.dart';
@@ -41,21 +42,15 @@ class NotificationService {
       RemoteMessage message) async {
     // If you're going to use other Firebase services in the background, such as Firestore,
     // make sure you call `initializeApp` before using other Firebase services.
-
-    // ToDo: on Flutter 2.11 swap this temp fix https://github.com/flutter/flutter/issues/98473#issuecomment-1060952450
+    DartPluginRegistrant.ensureInitialized();
     if (Platform.isAndroid) {
-      PathProviderAndroid.registerWith();
-      SharedPreferencesAndroid.registerWith();
+      // Only for Android a isolate is spawned!
+      await setupBoxes();
+      setupLocator();
+      await locator.allReady();
+      await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform);
     }
-    if (Platform.isIOS) {
-      PathProviderIOS.registerWith();
-      SharedPreferencesIOS.registerWith();
-    }
-    await setupBoxes();
-    setupLocator();
-    await locator.allReady();
-    await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform);
     // await EasyLocalization.ensureInitialized();
     NotificationService notificationService = locator<NotificationService>();
     notificationService._logger.d(
@@ -91,9 +86,11 @@ class NotificationService {
         await machine.save();
       }
     }
-    notificationService.dispose();
-    locator<MachineService>().dispose();
-    locator.reset();
+    if (Platform.isAndroid) {
+      notificationService.dispose();
+      locator<MachineService>().dispose();
+      locator.reset();
+    }
   }
 
   Future<void> initialize() async {
