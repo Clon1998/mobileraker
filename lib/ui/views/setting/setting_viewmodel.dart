@@ -1,3 +1,5 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
@@ -66,5 +68,15 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
               width: 80,
               image: AssetImage('assets/icon/mr_logo.png')),
         ));
+  }
+
+  String constructLanguageText(Locale local) {
+    String out = 'languages.languageCode.${local.languageCode}.nativeName'.tr();
+
+    if (local.countryCode != null) {
+      String country = 'languages.countryCode.${local.countryCode}.nativeName'.tr();
+        out += " ($country)";
+    }
+    return out;
   }
 }

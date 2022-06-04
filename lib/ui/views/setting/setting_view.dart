@@ -29,7 +29,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
             child: ListView(
               children: <Widget>[
                 _SectionHeader(title: 'pages.setting.general.title'.tr()),
-                _languageSelector(context),
+                _languageSelector(context, model),
                 _themeModeSelector(context),
                 _themeSelector(context),
                 FormBuilderSwitch(
@@ -151,7 +151,7 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-Widget _languageSelector(BuildContext context) {
+Widget _languageSelector(BuildContext context, SettingViewModel model) {
   List<Locale> supportedLocals = context.supportedLocales.toList();
   supportedLocals.sort((a, b) => a.languageCode.compareTo(b.languageCode));
   return FormBuilderDropdown(
@@ -160,7 +160,7 @@ Widget _languageSelector(BuildContext context) {
     items: supportedLocals
         .map((local) => DropdownMenuItem(
             value: local,
-            child: Text('languages.${local.languageCode}.nativeName'.tr())))
+            child: Text(model.constructLanguageText(local))))
         .toList(),
     decoration: InputDecoration(
       labelText: 'pages.setting.general.language'.tr(),
