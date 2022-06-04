@@ -14,7 +14,7 @@ import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';

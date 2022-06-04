@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/model/moonraker/gcode_macro.dart';
+import 'package:mobileraker/data/model/moonraker/gcode_macro.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';

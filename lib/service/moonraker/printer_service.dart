@@ -7,7 +7,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
-import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';

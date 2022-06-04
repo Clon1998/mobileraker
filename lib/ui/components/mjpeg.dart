@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/model/hive/webcam_mode.dart';
+import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';

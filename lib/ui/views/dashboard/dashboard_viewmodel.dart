@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';

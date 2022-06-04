@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobileraker/model/hive/machine.dart';
-import 'package:mobileraker/model/hive/webcam_setting.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/views/fullcam/full_cam_viewmodel.dart';

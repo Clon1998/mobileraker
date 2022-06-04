@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/model/hive/machine.dart';
-import 'package:mobileraker/model/moonraker/gcode_macro.dart';
-import 'package:mobileraker/model/moonraker/machine_settings.dart';
-import 'package:mobileraker/model/moonraker/macro_group.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/model/moonraker/gcode_macro.dart';
+import 'package:mobileraker/data/model/moonraker/machine_settings.dart';
+import 'package:mobileraker/data/model/moonraker/macro_group.dart';
 import 'package:mobileraker/data/dto/config/config_output.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';

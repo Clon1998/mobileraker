@@ -14,7 +14,7 @@ import 'package:mobileraker/app/app_setup.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
-import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/firebase_options.dart';

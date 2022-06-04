@@ -6,7 +6,7 @@ import 'package:highlight/languages/properties.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
-import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';

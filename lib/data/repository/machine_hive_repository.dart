@@ -1,5 +1,5 @@
 import 'package:hive/hive.dart';
-import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/repository/machine_repository.dart';
 
 class MachineHiveRepository implements MachineRepository {

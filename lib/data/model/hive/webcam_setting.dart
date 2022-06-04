@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobileraker/model/hive/webcam_mode.dart';
+import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:uuid/uuid.dart';
 
 part 'webcam_setting.g.dart';

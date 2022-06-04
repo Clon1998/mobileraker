@@ -1,5 +1,5 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobileraker/model/hive/gcode_macro.dart';
+import 'package:mobileraker/data/model/hive/gcode_macro.dart';
 import 'package:uuid/uuid.dart';
 
 part 'macro_group.g.dart';

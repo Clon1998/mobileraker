@@ -6,7 +6,7 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
-import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';

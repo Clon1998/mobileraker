@@ -8,7 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/exceptions.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
-import 'package:mobileraker/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
