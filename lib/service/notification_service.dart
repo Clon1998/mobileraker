@@ -18,9 +18,11 @@ import 'package:mobileraker/data/datasource/json_rpc_client.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/firebase_options.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:path_provider_android/path_provider_android.dart';
 import 'package:path_provider_ios/path_provider_ios.dart';
@@ -33,6 +35,7 @@ class NotificationService {
   final _logger = getLogger('NotificationService');
   final _machineService = locator<MachineService>();
   final _selectedMachineService = locator<SelectedMachineService>();
+  final _settingsService = locator<SettingService>();
   final _notifyAPI = AwesomeNotifications();
   Map<String, StreamSubscription<Printer>> _printerStreamMap = {};
   StreamSubscription<ReceivedAction>? _actionStreamListener;
@@ -261,7 +264,7 @@ class NotificationService {
 
     if (state == PrintState.printing && !Platform.isIOS)
       await _updatePrintProgressNotification(
-          machine, printer.virtualSdCard.progress, printer.print.printDuration);
+          machine, printer.virtualSdCard.progress, printer.print.printDuration, false);
     await machine.save();
   }
 
@@ -315,10 +318,42 @@ class NotificationService {
   Future<void> _removePrintProgressNotification(Machine machine) => _notifyAPI
       .cancelNotificationsByChannelKey(machine.printProgressChannelKey);
 
+  double normalizeProgress(ProgressNotificationMode mode, double prog) {
+    double m;
+    switch (mode) {
+      case ProgressNotificationMode.FIVE:
+        m = 0.05;
+        break;
+      case ProgressNotificationMode.TEN:
+        m = 0.10;
+        break;
+      case ProgressNotificationMode.TWENTY:
+        m = 0.20;
+        break;
+      case ProgressNotificationMode.TWENTY_FIVE:
+        m = 0.25;
+        break;
+      case ProgressNotificationMode.FIFTY:
+        m = 0.50;
+        break;
+      default:
+        return prog;
+    }
+    return prog - prog % m;
+  }
+
   Future<void> _updatePrintProgressNotification(
-      Machine machine, double progress, double printDuration) async {
-    if (machine.lastPrintProgress == progress) return;
-    machine.lastPrintProgress = progress;
+      Machine machine, double progress, double printDuration, [bool normalize = true]) async {
+    if (progress >= 100) return;
+
+    ProgressNotificationMode progMode = ProgressNotificationMode
+        .values[_settingsService.readInt(selectedProgressNotifyMode)];
+    if (progMode == ProgressNotificationMode.DISABLED) return;
+
+    double normalizedProgress = normalize? normalizeProgress(progMode, progress): progress;
+
+    if (machine.lastPrintProgress == normalizedProgress) return;
+    machine.lastPrintProgress = normalizedProgress;
     var dt;
     if (printDuration > 0 && progress > 0) {
       double est = printDuration / progress - printDuration;
@@ -329,7 +364,7 @@ class NotificationService {
     int index = await _machineService.indexOfMachine(machine);
     if (index < 0) return;
 
-    var progressPerc = (progress * 100).floor();
+    var progressPerc = (normalizedProgress * 100).floor();
     await _notifyAPI.createNotification(
         content: NotificationContent(
             id: index * 3 + 3,

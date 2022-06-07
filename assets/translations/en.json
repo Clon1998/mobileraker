@@ -14,7 +14,8 @@
     "shutdown": "Shutdown",
     "firmware": "Firmware",
     "fetching": "Fetching",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "disabled": "Disabled"
   },
   "pages": {
     "dashboard": {
@@ -149,6 +150,11 @@
         "start_with_overview": "Show @:pages.overview.title by default",
         "language": "Language",
         "companion": "Learn how to setup Mobileraker's Companion on its "
+      },
+      "notification": {
+        "title": "Notification",
+        "progress_label": "Progress Notification",
+        "progress_helper": "Update interval for print progress notification"
       },
       "imprint": "Privacy/Impressum"
     },

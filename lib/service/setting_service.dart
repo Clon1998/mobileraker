@@ -7,6 +7,7 @@ const String startWithOverviewKey = 'start_with_overview';
 const String selectedThemeModeKey = 'selectedThemeMode';
 const String selectedThemePackKey = 'selectedThemePack';
 const String selectedGCodeGrpIndex = 'selGCodeGrp';
+const String selectedProgressNotifyMode = 'selProgNotMode';
 
 /// Settings related to the App!
 class SettingService {

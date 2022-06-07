@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobileraker/data/datasource/moonraker_database_client.dart';
+import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/data/model/hive/gcode_macro.dart';
@@ -93,6 +94,9 @@ setupBoxes() async {
   var webCamModeAdapter = WebCamModeAdapter();
   if (!Hive.isAdapterRegistered(webCamModeAdapter.typeId))
     Hive.registerAdapter(webCamModeAdapter);
+  var progressNotifModeAdapter = ProgressNotificationModeAdapter();
+  if (!Hive.isAdapterRegistered(progressNotifModeAdapter.typeId))
+    Hive.registerAdapter(progressNotifModeAdapter);
   // Hive.deleteBoxFromDisk('printers');
 
   try {

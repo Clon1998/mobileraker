@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/service/ui/theme_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/themes/theme_pack.dart';
@@ -68,6 +69,8 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                       border: InputBorder.none, isCollapsed: true),
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
+                _SectionHeader(title: 'pages.setting.notification.title'.tr()),
+                _progressNotificationDropdown(context, model),
                 Divider(),
                 RichText(
                   text: TextSpan(
@@ -85,16 +88,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                             ),
                           ],
                           recognizer: TapGestureRecognizer()
-                            ..onTap = () async {
-                              const String url =
-                                  'https://github.com/Clon1998/mobileraker_companion';
-                              if (await canLaunchUrlString(url)) {
-                                //TODO Fix this... neds Android Package Visibility
-                                await launchUrlString(url);
-                              } else {
-                                throw 'Could not launch $url';
-                              }
-                            },
+                            ..onTap = model.onCompanionTapped,
                         ),
                       ]),
                   textAlign: TextAlign.center,
@@ -159,8 +153,7 @@ Widget _languageSelector(BuildContext context, SettingViewModel model) {
     name: 'lan',
     items: supportedLocals
         .map((local) => DropdownMenuItem(
-            value: local,
-            child: Text(model.constructLanguageText(local))))
+            value: local, child: Text(model.constructLanguageText(local))))
         .toList(),
     decoration: InputDecoration(
       labelText: 'pages.setting.general.language'.tr(),
@@ -203,5 +196,23 @@ Widget _themeModeSelector(BuildContext context) {
     ),
     onChanged: (ThemeMode? themeMode) =>
         themeService.selectThemeMode(themeMode ?? ThemeMode.system),
+  );
+}
+
+Widget _progressNotificationDropdown(
+    BuildContext context, SettingViewModel model) {
+  List<ProgressNotificationMode> progressNotifyModes =
+      ProgressNotificationMode.values;
+  return FormBuilderDropdown(
+    initialValue: model.progressNotificationMode,
+    name: 'progressNotifyMode',
+    items: progressNotifyModes
+        .map((mode) => DropdownMenuItem(
+            value: mode, child: Text(progressNotificationModeStr(mode))))
+        .toList(),
+    onChanged: model.onProgressNotifyModeChanged,
+    decoration: InputDecoration(
+        labelText: 'pages.setting.notification.progress_label'.tr(),
+        helperText: 'pages.setting.notification.progress_helper'.tr()),
   );
 }
