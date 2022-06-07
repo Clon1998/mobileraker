@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/data/model/moonraker/temperature_preset.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
+import 'package:mobileraker/data/model/moonraker/temperature_preset.dart';
+import 'package:mobileraker/ui/components/AdaptiveHorizontalScroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
@@ -367,61 +367,38 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
                     Text('pages.dashboard.general.temp_card.presets_btn').tr(),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  var elementWidth = constraints.maxWidth / 2;
-                  return SingleChildScrollView(
-                    key: PageStorageKey<String>('tempsScroll'),
-                    controller: model.tempsScrollController,
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: [
-                        _HeaterCard(
-                          name: 'pages.dashboard.general.temp_card.hotend'.tr(),
-                          width: elementWidth,
-                          current: model.printer.extruder.temperature,
-                          target: model.printer.extruder.target,
-                          onTap: model.canUsePrinter
-                              ? () => model.editDialog(false)
-                              : null,
-                        ),
-                        _HeaterCard(
-                          name: 'pages.dashboard.general.temp_card.bed'.tr(),
-                          width: elementWidth,
-                          current: model.printer.heaterBed.temperature,
-                          target: model.printer.heaterBed.target,
-                          onTap: model.canUsePrinter
-                              ? () => model.editDialog(true)
-                              : null,
-                        ),
-                        ..._buildTempSensors(elementWidth, model)
-                      ],
-                    ),
-                  );
-                },
-              ),
-            ),
-            if (model.presetSteps > 2 || model.tempsSteps > 2)
-              HorizontalScrollIndicator(
-                key: PageStorageKey<String>('tempsIndicatorScroll'),
-                steps: model.tempsSteps,
-                controller: model.tempsScrollController,
-                childsPerScreen: 2,
-              )
+            AdaptiveHorizontalScroll(
+              pageStorageKey: "temps",
+              children: [
+                _HeaterCard(
+                  name: 'pages.dashboard.general.temp_card.hotend'.tr(),
+                  current: model.printer.extruder.temperature,
+                  target: model.printer.extruder.target,
+                  onTap: model.canUsePrinter
+                      ? () => model.editDialog(false)
+                      : null,
+                ),
+                _HeaterCard(
+                  name: 'pages.dashboard.general.temp_card.bed'.tr(),
+                  current: model.printer.heaterBed.temperature,
+                  target: model.printer.heaterBed.target,
+                  onTap:
+                      model.canUsePrinter ? () => model.editDialog(true) : null,
+                ),
+                ..._buildTempSensors(model)
+              ],
+            )
           ],
         ),
       ),
     );
   }
 
-  List<Widget> _buildTempSensors(double width, GeneralTabViewModel model) {
+  List<Widget> _buildTempSensors(GeneralTabViewModel model) {
     List<Widget> rows = [];
     for (var sensor in model.filteredSensors) {
       _SensorCard tr = _SensorCard(
         name: beautifyName(sensor.name),
-        width: width,
         current: sensor.temperature,
         max: sensor.measuredMaxTemp,
       );
@@ -435,7 +412,6 @@ class _HeaterCard extends StatelessWidget {
   final String name;
   final double current;
   final double target;
-  final double width;
   final VoidCallback? onTap;
 
   String get targetTemp => target > 0
@@ -447,7 +423,6 @@ class _HeaterCard extends StatelessWidget {
     Key? key,
     required this.name,
     required this.current,
-    required this.width,
     required this.target,
     this.onTap,
   }) : super(key: key);
@@ -462,7 +437,6 @@ class _HeaterCard extends StatelessWidget {
     }
 
     return CardWithButton(
-        width: width,
         backgroundColor: col,
         child: Builder(builder: (context) {
           return Column(
@@ -504,37 +478,18 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
                 child: Text('pages.dashboard.general.temp_card.sensors').tr(),
               ),
             ),
-            Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      key: PageStorageKey<String>('presetsScroll'),
-                      controller: model.presetsScrollController,
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: _buildTemperaturePresetCards(
-                            constraints.maxWidth / 2, model),
-                      ),
-                    );
-                  },
-                )),
-            if (model.presetSteps > 2 || model.tempsSteps > 2)
-              HorizontalScrollIndicator(
-                steps: model.presetSteps,
-                controller: model.presetsScrollController,
-                childsPerScreen: 2,
-              )
+            AdaptiveHorizontalScroll(
+              pageStorageKey: "presets",
+              children: _buildTemperaturePresetCards(model),
+            )
           ],
         ),
       ),
     );
   }
 
-  List<Widget> _buildTemperaturePresetCards(
-      double width, GeneralTabViewModel model) {
+  List<Widget> _buildTemperaturePresetCards(GeneralTabViewModel model) {
     var coolOf = _TemperaturePresetCard(
-      width: width,
       presetName: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
       extruderTemp: 0,
       bedTemp: 0,
@@ -545,7 +500,6 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
     var presetWidgets = List.generate(tempPresets.length, (index) {
       TemperaturePreset preset = tempPresets[index];
       return _TemperaturePresetCard(
-        width: width,
         presetName: preset.name,
         extruderTemp: preset.extruderTemp,
         bedTemp: preset.bedTemp,
@@ -561,7 +515,6 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
 }
 
 class _TemperaturePresetCard extends StatelessWidget {
-  final double width;
   final String presetName;
   final int extruderTemp;
   final int bedTemp;
@@ -569,7 +522,6 @@ class _TemperaturePresetCard extends StatelessWidget {
 
   const _TemperaturePresetCard(
       {Key? key,
-      required this.width,
       required this.presetName,
       required this.extruderTemp,
       required this.bedTemp,
@@ -579,7 +531,6 @@ class _TemperaturePresetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardWithButton(
-        width: width,
         child: Builder(builder: (context) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -606,20 +557,17 @@ class _SensorCard extends StatelessWidget {
   final String name;
   final double current;
   final double max;
-  final double width;
 
   const _SensorCard({
     Key? key,
     required this.name,
     required this.current,
-    required this.width,
     required this.max,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return CardWithButton(
-        width: width,
         child: Builder(builder: (context) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,

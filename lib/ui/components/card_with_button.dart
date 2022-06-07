@@ -6,14 +6,12 @@ class CardWithButton extends StatelessWidget {
 
   const CardWithButton({
     Key? key,
-    required this.width,
     this.backgroundColor,
     required this.child,
     required this.buttonChild,
     required this.onTap,
   }) : super(key: key);
 
-  final double width;
   final Color? backgroundColor;
   final Builder child;
   final Widget buttonChild;
@@ -24,14 +22,15 @@ class CardWithButton extends StatelessWidget {
     var themeData = Theme.of(context);
     var _backgroundColor =
         backgroundColor ?? themeData.colorScheme.surfaceVariant;
-    var _onBackgroundColor = (ThemeData.estimateBrightnessForColor(_backgroundColor) ==
-            Brightness.dark
-        ? Colors.white.blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
-        : Colors.black
-            .blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
+    var _onBackgroundColor =
+        (ThemeData.estimateBrightnessForColor(_backgroundColor) ==
+                Brightness.dark
+            ? Colors.white
+                .blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
+            : Colors.black
+                .blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
 
     return Container(
-      width: width,
       padding: CardTheme.of(context).margin ?? const EdgeInsets.all(4),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -47,9 +46,10 @@ class CardWithButton extends StatelessWidget {
               child: Theme(
                   data: themeData.copyWith(
                       textTheme: themeData.textTheme.apply(
-                          bodyColor: _onBackgroundColor, displayColor: _onBackgroundColor),
-                      iconTheme:
-                          themeData.iconTheme.copyWith(color: _onBackgroundColor)),
+                          bodyColor: _onBackgroundColor,
+                          displayColor: _onBackgroundColor),
+                      iconTheme: themeData.iconTheme
+                          .copyWith(color: _onBackgroundColor)),
                   child: DefaultTextStyle(
                     style: TextStyle(color: _onBackgroundColor),
                     child: child,

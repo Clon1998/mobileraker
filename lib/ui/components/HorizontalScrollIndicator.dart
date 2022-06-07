@@ -25,15 +25,12 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   double _curIndex = 0;
 
   ScrollController get controller => widget.controller;
-  late int steps;
+  final int steps;
 
-  _HorizontalScrollIndicatorState(int steps, int? childsPerScreen) {
-    if (childsPerScreen == null)
-      this.steps = steps;
-    else {
-      this.steps = (steps / childsPerScreen).ceil();
-    }
-  }
+  _HorizontalScrollIndicatorState(int steps, int? childsPerScreen)
+      : this.steps = (childsPerScreen == null)
+            ? steps
+            : (steps / childsPerScreen).ceil();
 
   @override
   initState() {
@@ -43,10 +40,12 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   }
 
   _listenerForController() {
-    if (!controller.hasClients)
+    if (!controller.hasClients || !controller.position.hasContentDimensions)
       return;
     double maxScrollExtent = controller.position.maxScrollExtent;
-    var offset = controller.offset;
+    if (maxScrollExtent == 0) return;
+
+    double offset = controller.offset;
     double newIndex =
         min(steps - 1, max(0, steps * offset / maxScrollExtent - 1));
     if ((_curIndex - newIndex).abs() < 0.2) return;

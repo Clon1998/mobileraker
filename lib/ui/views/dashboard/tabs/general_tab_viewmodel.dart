@@ -48,14 +48,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   WebcamSetting? selectedCam;
 
-  ScrollController _tempsScrollController = new ScrollController();
-
-  ScrollController get tempsScrollController => _tempsScrollController;
-
-  ScrollController _presetsScrollController = new ScrollController();
-
-  ScrollController get presetsScrollController => _presetsScrollController;
-
   PrinterService? get _printerService => _machine?.printerService;
 
   KlippyService? get _klippyService => _machine?.klippyService;

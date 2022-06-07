@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/data/model/moonraker/gcode_macro.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/ui/components/HorizontalScrollIndicator.dart';
+import 'package:mobileraker/data/model/moonraker/gcode_macro.dart';
+import 'package:mobileraker/ui/components/AdaptiveHorizontalScroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
@@ -88,42 +88,23 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
               title: Text('pages.dashboard.control.fan_card.title')
                   .plural(model.printer.fans.length),
             ),
-            Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    var elementWidth = constraints.maxWidth / 2;
-                    return SingleChildScrollView(
-                      key: PageStorageKey<String>('fanscroll'),
-                      scrollDirection: Axis.horizontal,
-                      controller: model.fansScrollController,
-                      child: Row(
-                        children: buildFans(model, context, elementWidth),
-                      ),
-                    );
-                  },
-                )),
-            if (model.fansSteps > 2)
-              HorizontalScrollIndicator(
-                steps: model.fansSteps,
-                controller: model.fansScrollController,
-                childsPerScreen: 2,
-              )
+            AdaptiveHorizontalScroll(
+              pageStorageKey: 'fans',
+              children: buildFans(model, context),
+            ),
           ],
         ),
       ),
     );
   }
 
-  List<Widget> buildFans(
-      ControlTabViewModel model, BuildContext context, width) {
+  List<Widget> buildFans(ControlTabViewModel model, BuildContext context) {
     List<Widget> rows = [];
 
     var printFan = model.printer.printFan;
     rows.add(_FanTile(
         name: 'pages.dashboard.control.fan_card.part_fan'.tr(),
         speed: printFan.speed,
-        width: width,
         onTap: model.canUsePrinter ? model.onEditPartFan : null));
 
     for (NamedFan fan in model.filteredFans) {
@@ -132,7 +113,6 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
       var row = _FanTile(
         name: beautifyName(fan.name),
         speed: fan.speed,
-        width: width,
         onTap: model.canUsePrinter ? f : null,
       );
       rows.add(row);
@@ -145,14 +125,12 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
 class _FanTile extends StatelessWidget {
   final String name;
   final double speed;
-  final double width;
   final VoidCallback? onTap;
 
   const _FanTile({
     Key? key,
     required this.name,
     required this.speed,
-    required this.width,
     this.onTap,
   }) : super(key: key);
 
@@ -173,26 +151,21 @@ class _FanTile extends StatelessWidget {
           );
 
     return CardWithButton(
-        width: width,
-        child: Builder(
-          builder: (context) {
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(name,
-                        style: Theme.of(context).textTheme.caption),
-                    Text(fanSpeed,
-                        style: Theme.of(context).textTheme.headline6),
-                  ],
-                ),
-                w,
-              ],
-            );
-          }
-        ),
+        child: Builder(builder: (context) {
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: Theme.of(context).textTheme.caption),
+                  Text(fanSpeed, style: Theme.of(context).textTheme.headline6),
+                ],
+              ),
+              w,
+            ],
+          );
+        }),
         buttonChild: onTap == null
             ? const Text('pages.dashboard.control.fan_card.static_fan_btn').tr()
             : const Text('general.set').tr(),
@@ -252,9 +225,11 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: Row(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Column(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Container(
                       margin: const EdgeInsets.all(5),
@@ -280,7 +255,6 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                     ),
                   ],
                 ),
-                Spacer(flex: 1),
                 Column(
                   children: [
                     Padding(
@@ -293,7 +267,7 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                         onSelected: model.onSelectedRetractChanged,
                         values: model.retractLengths
                             .map((e) => e.toString())
-                            .toList())
+                            .toList()),
                   ],
                 ),
               ],
@@ -394,34 +368,20 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
               title: Text(plural('pages.dashboard.control.pin_card.title',
                   model.printer.outputPins.length)),
             ),
-            Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    var elementWidth = constraints.maxWidth / 2;
-                    return SingleChildScrollView(
-                      key: PageStorageKey<String>('outputScroll'),
-                      scrollDirection: Axis.horizontal,
-                      controller: model.outputsScrollController,
-                      child: Row(
-                        children: buildPins(model, context, elementWidth),
-                      ),
-                    );
-                  },
-                )),
-            if (model.outputSteps > 2)
-              HorizontalScrollIndicator(
-                  steps: model.outputSteps,
-                  childsPerScreen: 2,
-                  controller: model.outputsScrollController)
+            AdaptiveHorizontalScroll(
+              pageStorageKey: 'pins',
+              children: buildPins(
+                model,
+                context,
+              ),
+            )
           ],
         ),
       ),
     );
   }
 
-  List<Widget> buildPins(
-      ControlTabViewModel model, BuildContext context, double width) {
+  List<Widget> buildPins(ControlTabViewModel model, BuildContext context) {
     List<Widget> rows = [];
 
     for (var pin in model.filteredPins) {
@@ -429,7 +389,6 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
       var row = _PinTile(
         name: beautifyName(pin.name),
         value: pin.value * (configForOutput?.scale ?? 1),
-        width: width,
         onTap: model.canUsePrinter
             ? () => model.onEditPin(pin, configForOutput)
             : null,
@@ -445,14 +404,12 @@ class _PinTile extends StatelessWidget {
 
   /// Expect a value between 0-Scale!
   final double value;
-  final double width;
   final VoidCallback? onTap;
 
   const _PinTile({
     Key? key,
     required this.name,
     required this.value,
-    required this.width,
     this.onTap,
   }) : super(key: key);
 
@@ -466,20 +423,15 @@ class _PinTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardWithButton(
-        width: width,
-        child: Builder(
-          builder: (context) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name,
-                    style: Theme.of(context).textTheme.caption),
-                Text(pinValue,
-                    style: Theme.of(context).textTheme.headlineSmall),
-              ],
-            );
-          }
-        ),
+        child: Builder(builder: (context) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(name, style: Theme.of(context).textTheme.caption),
+              Text(pinValue, style: Theme.of(context).textTheme.headlineSmall),
+            ],
+          );
+        }),
         buttonChild: onTap == null
             ? const Text('pages.dashboard.control.pin_card.pin_btn').tr()
             : const Text('general.set').tr(),
@@ -494,7 +446,6 @@ class MultipliersCard extends ViewModelWidget<ControlTabViewModel> {
 
   @override
   Widget build(BuildContext context, ControlTabViewModel model) {
-
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
