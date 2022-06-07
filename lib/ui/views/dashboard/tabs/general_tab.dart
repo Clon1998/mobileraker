@@ -730,8 +730,10 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                 ),
                 Container(
                   margin: EdgeInsets.only(top: 15),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  child: Wrap(
+                    runSpacing: 4,
+                    spacing: 8,
+                    alignment: WrapAlignment.center,
                     children: [
                       Tooltip(
                         message:
@@ -878,6 +880,7 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Column(
                   children: [
@@ -903,7 +906,6 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
                     ),
                   ],
                 ),
-                Spacer(flex: 1),
                 Column(
                   children: [
                     Padding(
