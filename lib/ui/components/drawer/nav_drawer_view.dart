@@ -64,12 +64,18 @@ class NavigationDrawerWidget
                     icon: Icons.engineering_outlined,
                     path: Routes.settingView,
                   ),
-                  if (kDebugMode)
+                  if (kDebugMode) ...{
                     _DrawerItem(
                       text: 'Support the Dev!',
                       icon: Icons.perm_identity,
                       path: Routes.paywallView,
                     ),
+                    _DrawerItem(
+                      text: '3DView!',
+                      icon: Icons.perm_identity,
+                      path: Routes.testView,
+                    ),
+                  }
                   // Divider(color: Colors.white70),
                   // const SizedBox(height: 16),
                   // buildMenuItem(

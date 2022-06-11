@@ -35,6 +35,7 @@ import 'package:mobileraker/ui/views/printers/edit/printers_edit_view.dart';
 import 'package:mobileraker/ui/views/printers/qr_scanner/qr_scanner_view.dart';
 import 'package:mobileraker/ui/views/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/views/setting/setting_view.dart';
+import 'package:mobileraker/ui/views/test/test_view.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -53,6 +54,7 @@ import 'package:stacked_services/stacked_services.dart';
   MaterialRoute(page: ConsoleView),
   MaterialRoute(page: PaywallView),
   MaterialRoute(page: OverViewView),
+  MaterialRoute(page: TestView),
 ], dependencies: [
   Singleton(classType: NavigationService),
   LazySingleton(classType: SnackbarService),

@@ -246,6 +246,8 @@ flutter:
     - assets/images/
     - assets/icon/
     - assets/translations/
+    - assets/3dbenchy_11.9124g_0.2mm_PLA-1h5m.gcode
+    - assets/Filament_Blocks_End_115.523g_0.2mm_ABS-11h17m.gcode
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
