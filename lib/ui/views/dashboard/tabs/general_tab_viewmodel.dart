@@ -226,6 +226,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
         _printerService?.movePrintHead(
             z: dirStep, feedRate: machineSettings.speedZ.toDouble());
         break;
+      case PrinterAxis.E:
+        // Do nothing! Since no invocation with E will be done!
     }
   }
 

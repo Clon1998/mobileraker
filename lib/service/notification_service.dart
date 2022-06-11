@@ -15,19 +15,15 @@ import 'package:mobileraker/app/app_setup.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/firebase_options.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
-import 'package:path_provider_android/path_provider_android.dart';
-import 'package:path_provider_ios/path_provider_ios.dart';
-import 'package:shared_preferences_android/shared_preferences_android.dart';
-import 'package:shared_preferences_ios/shared_preferences_ios.dart';
 
 import 'machine_service.dart';
 

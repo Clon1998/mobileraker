@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
@@ -16,7 +15,6 @@ import 'package:mobileraker/ui/views/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/views/dashboard/tabs/general_tab.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
-import 'package:stacked_services/stacked_services.dart';
 import 'package:stringr/stringr.dart';
 
 import 'dashboard_viewmodel.dart';

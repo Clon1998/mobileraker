@@ -11,7 +11,7 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/moonraker/temperature_preset.dart';
-import 'package:mobileraker/ui/components/AdaptiveHorizontalScroll.dart';
+import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';

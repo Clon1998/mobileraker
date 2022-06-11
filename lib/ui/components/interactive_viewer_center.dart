@@ -90,18 +90,11 @@ class CenterInteractiveViewer extends StatefulWidget {
     this.scaleEnabled = true,
     this.transformationController,
     required Widget this.child,
-  }) : assert(alignPanAxis != null),
-        assert(child != null),
-        assert(constrained != null),
-        assert(minScale != null),
-        assert(minScale > 0),
+  }) : assert(minScale > 0),
         assert(minScale.isFinite),
-        assert(maxScale != null),
         assert(maxScale > 0),
         assert(!maxScale.isNaN),
         assert(maxScale >= minScale),
-        assert(panEnabled != null),
-        assert(scaleEnabled != null),
   // boundaryMargin must be either fully infinite or fully finite, but not
   // a mix of both.
         assert(
@@ -136,17 +129,11 @@ class CenterInteractiveViewer extends StatefulWidget {
     this.scaleEnabled = true,
     this.transformationController,
     required CenterInteractiveViewerWidgetBuilder this.builder,
-  }) : assert(alignPanAxis != null),
-        assert(builder != null),
-        assert(minScale != null),
-        assert(minScale > 0),
+  }) : assert(minScale > 0),
         assert(minScale.isFinite),
-        assert(maxScale != null),
         assert(maxScale > 0),
         assert(!maxScale.isNaN),
         assert(maxScale >= minScale),
-        assert(panEnabled != null),
-        assert(scaleEnabled != null),
   // boundaryMargin must be either fully infinite or fully finite, but not
   // a mix of both.
         assert(
