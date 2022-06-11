@@ -1,4 +1,5 @@
 import 'package:mobileraker/data/dto/config/config_file.dart';
+import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
@@ -17,6 +18,8 @@ class Printer {
   PrintFan printFan = PrintFan();
   GCodeMove gCodeMove = GCodeMove();
   PrintStats print = PrintStats();
+
+  ExcludeObject excludeObject = ExcludeObject();
 
   ConfigFile configFile = ConfigFile();
 

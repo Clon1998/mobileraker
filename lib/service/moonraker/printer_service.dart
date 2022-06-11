@@ -7,6 +7,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
@@ -79,6 +80,7 @@ class PrinterService {
     'fan_generic': _updateGenericFan,
     'output_pin': _updateOutputPin,
     'temperature_sensor': _updateTemperatureSensor,
+    'exclude_object': _updateExcludeObject,
   };
 
   final StreamController<String> _gCodeResponseStreamController =
@@ -537,6 +539,38 @@ class PrinterService {
     if (toolHeadJson.containsKey('estimated_print_time'))
       printer.toolhead.estimatedPrintTime =
           toolHeadJson['estimated_print_time'];
+  }
+
+  _updateExcludeObject(Map<String, dynamic> json, {required Printer printer}) {
+    if (json.containsKey('current_object'))
+      printer.excludeObject.currentObject = json['current_object'];
+
+    if (json.containsKey('excluded_objects')) {
+      List<dynamic> _excludedObjects = json['excluded_objects'];
+
+      printer.excludeObject.excludedObjects =
+          _excludedObjects.map((e) => e as String).toList();
+    }
+    if (json.containsKey('objects')) {
+      List<dynamic> _objects = json['objects'];
+      List<ParsedObject> objects = [];
+      for (dynamic e in _objects) {
+        String name = e['name'];
+        List<dynamic> _center = e['center'];
+        List<double> center = _center.cast<double>();
+        List<dynamic> _polygons = e['polygon'];
+        List<List<double>> polygons = _polygons.map((e) {
+          List<dynamic> list = e as List<dynamic>;
+          return list.cast<double>();
+        }).toList();
+
+        objects.add(ParsedObject.fromList(
+            name: name, center: center, polygons: polygons));
+      }
+
+      printer.excludeObject.objects = objects;
+    }
+    _logger.v('New exclude_printer: ${printer.excludeObject}');
   }
 
   _queryPrinterObjects(Printer printer) {
