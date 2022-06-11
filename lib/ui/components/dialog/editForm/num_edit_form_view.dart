@@ -20,44 +20,37 @@ class NumEditFormDialogView extends StatelessWidget {
     NumberEditDialogArguments data = request.data;
 
     return ViewModelBuilder<NumEditFormViewModel>.reactive(
-      builder: (context, model, child) => Dialog(
-        child: FormBuilder(
-          autovalidateMode: AutovalidateMode.always,
-          key: model.formKey,
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // To make the card compact
-              children: <Widget>[
-                Text(
-                  request.title!,
-                  style: Theme.of(context).textTheme.headline5,
-                ),
-                _NumField(
-                  description: request.description,
-                  initialValue: data.current,
-                  upperBorder: data.max,
-                  lowerBorder: data.min,
-                  frac: data.fraction,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    TextButton(
-                      onPressed: model.onFormDecline,
-                      child: Text(request.secondaryButtonTitle!),
-                    ),
-                    TextButton(
-                      onPressed: model.onFormConfirm,
-                      child: Text(request.mainButtonTitle!),
-                    )
-                  ],
-                )
-              ],
+      builder: (context, model, child) {
+        var themeData = Theme.of(context);
+        return Dialog(
+          child: FormBuilder(
+            autovalidateMode: AutovalidateMode.always,
+            key: model.formKey,
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min, // To make the card compact
+                children: <Widget>[
+                  Text(
+                    request.title!,
+                    style: themeData.textTheme.titleLarge,
+                  ),
+                  _NumField(
+                    description: request.description,
+                    initialValue: data.current,
+                    upperBorder: data.max,
+                    lowerBorder: data.min,
+                    frac: data.fraction,
+                  ),
+                  NumberDialogFooter(
+                    canSwitch: data.canSwitch,
+                  )
+                ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
       viewModelBuilder: () => NumEditFormViewModel(request, completer),
     );
   }
@@ -84,10 +77,10 @@ class _NumField extends StatelessWidget {
     return FormBuilderTextField(
       autofocus: true,
       validator: FormBuilderValidators.compose([
-        if (upperBorder != null)
-          FormBuilderValidators.max(upperBorder!),
+        if (upperBorder != null) FormBuilderValidators.max(upperBorder!),
         FormBuilderValidators.min(lowerBorder),
         FormBuilderValidators.numeric(),
+        if (frac == 0) FormBuilderValidators.integer(),
         FormBuilderValidators.required()
       ]),
       valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),

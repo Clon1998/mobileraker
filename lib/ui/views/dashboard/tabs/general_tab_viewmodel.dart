@@ -18,6 +18,7 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/components/dialog/editForm/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
@@ -227,7 +228,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
             z: dirStep, feedRate: machineSettings.speedZ.toDouble());
         break;
       case PrinterAxis.E:
-        // Do nothing! Since no invocation with E will be done!
+      // Do nothing! Since no invocation with E will be done!
     }
   }
 
