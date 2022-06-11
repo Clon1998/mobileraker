@@ -81,8 +81,10 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
+    var themeData = Theme.of(context);
     return Card(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
             contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
@@ -94,7 +96,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 style: TextStyle(
                     color: (model.server.klippyState != KlipperState.ready ||
                             !model.server.klippyConnected)
-                        ? Theme.of(context).colorScheme.error
+                        ? themeData.colorScheme.error
                         : null)),
             subtitle: _subTitle(model),
             trailing: _trailing(model),
@@ -114,6 +116,36 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 )
               ],
             ),
+          if (model.printer.excludeObject.available)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text('Current Object:'),
+                        Text(
+                          model.printer.excludeObject.currentObject ??
+                              'Unknown',
+                          style: themeData.textTheme.bodyText2?.copyWith(
+                              color: themeData.textTheme.caption?.color),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Divider(
+            thickness: 1,
+            height: 0,
+          ),
           _buildTableView(context, model),
         ],
       ),
@@ -161,7 +193,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
 
   Padding _buildTableView(BuildContext context, GeneralTabViewModel model) {
     return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 15),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
         child: Table(
           border: TableBorder(
               horizontalInside: BorderSide(
