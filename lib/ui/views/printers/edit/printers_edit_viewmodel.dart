@@ -520,7 +520,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
     if (url != null) toSave.url = url;
     if (fH != null) toSave.flipHorizontal = fH;
     if (fV != null) toSave.flipVertical = fV;
-    if (fV != null && mode == WebCamMode.ADAPTIVE_STREAM) toSave.targetFps = tFps;
+    if (fV != null && mode == WebCamMode.ADAPTIVE_STREAM&& tFps != null) toSave.targetFps = tFps;
     if (mode != null) toSave.mode = mode;
   }
 

@@ -415,8 +415,8 @@ class _WebCamItemState extends State<_WebCamItem> {
 
   @override
   Widget build(BuildContext context) {
-    var canSetTargetFPS = widget.model.formKey.currentState!
-            .fields['${widget.cam.uuid}-mode']?.value ==
+    var canSetTargetFPS = (widget.model.formKey.currentState!
+            .fields['${widget.cam.uuid}-mode']?.value ?? widget.cam.mode) ==
         WebCamMode.ADAPTIVE_STREAM;
     return Card(
         child: ExpansionTile(
