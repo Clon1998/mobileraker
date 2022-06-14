@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
@@ -65,6 +66,87 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   int get presetSteps => 1 + temperaturePresets.length;
 
+  bool get canUsePrinter =>
+      server.klippyState == KlipperState.ready && server.klippyConnected;
+
+  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
+
+  KlipperInstance get server => dataMap![_ServerStreamKey];
+
+  bool get isServerAvailable => dataReady(_ServerStreamKey);
+
+  Printer get printer => dataMap![_PrinterStreamKey];
+
+  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
+
+  MachineSettings get machineSettings => dataMap![_MachineSettingsStreamKey];
+
+  bool get isMachineSettingsAvailable => dataReady(_MachineSettingsStreamKey);
+
+  String get status {
+    if (server.klippyState == KlipperState.ready) {
+      return printer.print.stateName;
+    } else
+      return server.klippyStateMessage ??
+          'Klipper: ${toName(server.klippyState)}';
+  }
+
+  List<int> get axisStepSize => machineSettings.moveSteps;
+
+  List<double> get babySteppingSizes => machineSettings.babySteps;
+
+  List<TemperaturePreset> get temperaturePresets =>
+      machineSettings.temperaturePresets;
+
+  List<WebcamSetting> get webcams {
+    if (_machine != null && _machine!.cams.isNotEmpty) {
+      return _machine!.cams;
+    }
+    return List.empty();
+  }
+
+  bool get webCamAvailable => webcams.isNotEmpty && selectedCam != null;
+
+  bool get isPrinting => printer.print.state == PrintState.printing;
+
+  bool get isPaused => printer.print.state == PrintState.paused;
+
+  bool get showBabyStepping =>
+      isPrinting || isPaused || _settingService.readBool(showBabyAlwaysKey);
+
+  bool get isNotPrinting => !isPrinting;
+
+  int get maxLayers {
+    if (!_canCalcMaxLayer) return 0;
+    GCodeFile crntFile = currentFile!;
+    int max = ((crntFile.objectHeight! - crntFile.firstLayerHeight!) /
+                crntFile.layerHeight! +
+            1)
+        .ceil();
+    return max > 0 ? max : 0;
+  }
+
+  bool get _canCalcMaxLayer =>
+      isPrinterAvailable &&
+      currentFile != null &&
+      currentFile!.firstLayerHeight != null &&
+      currentFile!.layerHeight != null &&
+      currentFile!.objectHeight != null;
+
+  int get layer {
+    if (!isPrinterAvailable ||
+        currentFile?.firstLayerHeight == null ||
+        currentFile?.layerHeight == null) return 0;
+    GCodeFile crntFile = currentFile!;
+    int currentLayer =
+        ((printer.toolhead.position[2] - crntFile.firstLayerHeight!) /
+                    crntFile.layerHeight! +
+                1)
+            .ceil();
+    currentLayer = (currentLayer <= maxLayers) ? currentLayer : maxLayers;
+    return currentLayer > 0 ? currentLayer : 0;
+  }
+
   Set<TemperatureSensor> get filteredSensors => printer.temperatureSensors
       .where((TemperatureSensor element) => !element.name.startsWith("_"))
       .toSet();
@@ -116,47 +198,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
         break;
     }
   }
-
-  bool get canUsePrinter =>
-      server.klippyState == KlipperState.ready && server.klippyConnected;
-
-  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
-
-  KlipperInstance get server => dataMap![_ServerStreamKey];
-
-  bool get isServerAvailable => dataReady(_ServerStreamKey);
-
-  Printer get printer => dataMap![_PrinterStreamKey];
-
-  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
-
-  MachineSettings get machineSettings => dataMap![_MachineSettingsStreamKey];
-
-  bool get isMachineSettingsAvailable => dataReady(_MachineSettingsStreamKey);
-
-  String get status {
-    if (server.klippyState == KlipperState.ready) {
-      return printer.print.stateName;
-    } else
-      return server.klippyStateMessage ??
-          'Klipper: ${toName(server.klippyState)}';
-  }
-
-  List<int> get axisStepSize => machineSettings.moveSteps;
-
-  List<double> get babySteppingSizes => machineSettings.babySteps;
-
-  List<TemperaturePreset> get temperaturePresets =>
-      machineSettings.temperaturePresets;
-
-  List<WebcamSetting> get webcams {
-    if (_machine != null && _machine!.cams.isNotEmpty) {
-      return _machine!.cams;
-    }
-    return List.empty();
-  }
-
-  bool get webCamAvailable => webcams.isNotEmpty && selectedCam != null;
 
   adjustNozzleAndBed(int extruderTemp, int bedTemp) {
     _printerService?.setTemperature('extruder', extruderTemp);
@@ -278,46 +319,6 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   onWebcamSettingSelected(WebcamSetting? webcamSetting) {
     selectedCam = webcamSetting;
-  }
-
-  bool get isPrinting => printer.print.state == PrintState.printing;
-
-  bool get isPaused => printer.print.state == PrintState.paused;
-
-  bool get showBabyStepping =>
-      isPrinting || isPaused || _settingService.readBool(showBabyAlwaysKey);
-
-  bool get isNotPrinting => !isPrinting;
-
-  int get maxLayers {
-    if (!_canCalcMaxLayer) return 0;
-    GCodeFile crntFile = currentFile!;
-    int max = ((crntFile.objectHeight! - crntFile.firstLayerHeight!) /
-                crntFile.layerHeight! +
-            1)
-        .ceil();
-    return max > 0 ? max : 0;
-  }
-
-  bool get _canCalcMaxLayer =>
-      isPrinterAvailable &&
-      currentFile != null &&
-      currentFile!.firstLayerHeight != null &&
-      currentFile!.layerHeight != null &&
-      currentFile!.objectHeight != null;
-
-  int get layer {
-    if (!isPrinterAvailable ||
-        currentFile?.firstLayerHeight == null ||
-        currentFile?.layerHeight == null) return 0;
-    GCodeFile crntFile = currentFile!;
-    int currentLayer =
-        ((printer.toolhead.position[2] - crntFile.firstLayerHeight!) /
-                    crntFile.layerHeight! +
-                1)
-            .ceil();
-    currentLayer = (currentLayer <= maxLayers) ? currentLayer : maxLayers;
-    return currentLayer > 0 ? currentLayer : 0;
   }
 
   onRestartKlipperPressed() {

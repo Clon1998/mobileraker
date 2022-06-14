@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
@@ -13,6 +14,7 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/moonraker/temperature_preset.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
@@ -22,6 +24,7 @@ import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
   const GeneralTab({Key? key}) : super(key: key);
@@ -123,7 +126,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 children: [
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
-                    child: Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
+                    child: IconButton(icon:Icon(FlutterIcons.printer_3d_nozzle_outline_mco), onPressed: () { locator<DialogService>().showCustomDialog(variant: DialogType.excludeObject); },)
                   ),
                   Expanded(
                     child: Column(
@@ -131,8 +134,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                       children: [
                         Text('Current Object:'),
                         Text(
-                          model.printer.excludeObject.currentObject ??
-                              'Unknown',
+                          model.printer.excludeObject.currentObject ?? 'None',
                           style: themeData.textTheme.bodyText2?.copyWith(
                               color: themeData.textTheme.caption?.color),
                         ),

@@ -97,6 +97,7 @@ dependencies:
   flutter_hooks: ^0.18.4
   ditredi: ^1.0.3
   stacked_hooks: ^0.2.2
+  touchable: ^1.0.2
 
 
 dev_dependencies:

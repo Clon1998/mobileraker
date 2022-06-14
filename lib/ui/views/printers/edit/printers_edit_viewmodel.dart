@@ -50,8 +50,8 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
 
-  GlobalKey<FormBuilderState> get formKey => _fbKey;
   final _fbKey = GlobalKey<FormBuilderState>();
+  GlobalKey<FormBuilderState> get formKey => _fbKey;
 
   MacroGroup? srcGrpDragging;
   bool macroGroupAccepted = false;
