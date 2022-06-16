@@ -158,7 +158,7 @@ class PausedFAB extends ViewModelWidget<DashboardViewModel> {
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
           label:
-              MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
+              MaterialLocalizations.of(context).cancelButtonLabel.titleCase().titleCase(),
           onTap: model.onCancelPrintPressed,
         ),
         SpeedDialChild(

@@ -21,6 +21,7 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -327,5 +328,9 @@ class GeneralTabViewModel extends MultipleStreamViewModel {
 
   onRestartMCUPressed() {
     _klippyService?.restartMCUs();
+  }
+
+  onExcludeObjectPressed() {
+    _dialogService.showCustomDialog(variant: DialogType.excludeObject);
   }
 }

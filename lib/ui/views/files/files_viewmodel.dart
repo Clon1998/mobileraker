@@ -226,7 +226,7 @@ class FilesViewModel extends MultipleStreamViewModel {
         description: tr('dialogs.create_folder.label'),
         mainButtonTitle: tr('general.create'),
         secondaryButtonTitle:
-            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
+            MaterialLocalizations.of(context).cancelButtonLabel.toLowerCase().titleCase(),
         data: RenameFileDialogArguments(
             blocklist: _folderContent.folders
                 .map((e) => e.name)
@@ -261,7 +261,7 @@ class FilesViewModel extends MultipleStreamViewModel {
                 tr('dialogs.delete_file.description', args: [fileName]),
             dialogPlatform: DialogPlatform.Material,
             confirmationTitle: materialLocalizations.deleteButtonTooltip,
-            cancelTitle: materialLocalizations.cancelButtonLabel.titleCase());
+            cancelTitle: materialLocalizations.cancelButtonLabel.toLowerCase().titleCase());
 
     if (dialogResponse?.confirmed ?? false) {
       setBusyForObject(this, true);
@@ -289,7 +289,7 @@ class FilesViewModel extends MultipleStreamViewModel {
                 tr('dialogs.delete_folder.description', args: [fileName]),
             dialogPlatform: DialogPlatform.Material,
             confirmationTitle: materialLocalizations.deleteButtonTooltip,
-            cancelTitle: materialLocalizations.cancelButtonLabel.titleCase());
+            cancelTitle: materialLocalizations.cancelButtonLabel.toLowerCase().titleCase());
 
     if (dialogResponse?.confirmed ?? false) {
       setBusyForObject(this, true);
@@ -320,7 +320,7 @@ class FilesViewModel extends MultipleStreamViewModel {
         description: tr('dialogs.rename_file.label'),
         mainButtonTitle: tr('general.rename'),
         secondaryButtonTitle:
-            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
+            MaterialLocalizations.of(context).cancelButtonLabel.toLowerCase().titleCase(),
         data: RenameFileDialogArguments(
             initialValue: fileName,
             blocklist: fileNames,
@@ -358,7 +358,7 @@ class FilesViewModel extends MultipleStreamViewModel {
         description: tr('dialogs.rename_folder.label'),
         mainButtonTitle: tr('general.rename'),
         secondaryButtonTitle:
-            MaterialLocalizations.of(context).cancelButtonLabel.titleCase(),
+            MaterialLocalizations.of(context).cancelButtonLabel.toLowerCase().titleCase(),
         data: RenameFileDialogArguments(
             initialValue: fileName,
             blocklist: fileNames,

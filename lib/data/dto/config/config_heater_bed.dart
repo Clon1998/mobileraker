@@ -16,4 +16,32 @@ class ConfigHeaterBed {
     maxTemp = json['max_temp'];
     maxPower = json['max_power'];
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ConfigHeaterBed &&
+          runtimeType == other.runtimeType &&
+          heaterPin == other.heaterPin &&
+          sensorType == other.sensorType &&
+          sensorPin == other.sensorPin &&
+          control == other.control &&
+          minTemp == other.minTemp &&
+          maxTemp == other.maxTemp &&
+          maxPower == other.maxPower;
+
+  @override
+  int get hashCode =>
+      heaterPin.hashCode ^
+      sensorType.hashCode ^
+      sensorPin.hashCode ^
+      control.hashCode ^
+      minTemp.hashCode ^
+      maxTemp.hashCode ^
+      maxPower.hashCode;
+
+  @override
+  String toString() {
+    return 'ConfigHeaterBed{heaterPin: $heaterPin, sensorType: $sensorType, sensorPin: $sensorPin, control: $control, minTemp: $minTemp, maxTemp: $maxTemp, maxPower: $maxPower}';
+  }
 }

@@ -26,6 +26,7 @@ class NumEditFormDialogView extends StatelessWidget {
           child: FormBuilder(
             autovalidateMode: AutovalidateMode.always,
             key: model.formKey,
+            onChanged: model.onFormFieldChanged,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(

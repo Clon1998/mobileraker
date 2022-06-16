@@ -233,6 +233,10 @@ class PrinterService {
     return raw.entries.map((e) => Command(e.key, e.value)).toList();
   }
 
+  excludeObject(ParsedObject objToExc) {
+    gCode('EXCLUDE_OBJECT NAME=${objToExc.name}');
+  }
+
   _printerObjectsList() {
     // printerStream.value = Printer();
     _logger.i('>>>Querying printers object list');

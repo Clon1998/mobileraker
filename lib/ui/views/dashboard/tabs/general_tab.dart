@@ -119,22 +119,26 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 )
               ],
             ),
-          if (model.printer.excludeObject.available)
+          if ((model.isPrinting || model.isPaused) &&
+                  model.printer.excludeObject.available)
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.only(right: 8.0, bottom: 4.0),
               child: Row(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: IconButton(icon:Icon(FlutterIcons.printer_3d_nozzle_outline_mco), onPressed: () { locator<DialogService>().showCustomDialog(variant: DialogType.excludeObject); },)
+                  IconButton(
+                    color: themeData.colorScheme.primary,
+                    icon: Icon(Icons.token),
+                    onPressed: model.onExcludeObjectPressed,
                   ),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('Current Object:'),
+                        Text('pages.dashboard.general.print_card.current_object'
+                            .tr()),
                         Text(
-                          model.printer.excludeObject.currentObject ?? 'None',
+                          model.printer.excludeObject.currentObject ??
+                              'general.none'.tr(),
                           style: themeData.textTheme.bodyText2?.copyWith(
                               color: themeData.textTheme.caption?.color),
                         ),
@@ -193,101 +197,99 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
     }
   }
 
-  Padding _buildTableView(BuildContext context, GeneralTabViewModel model) {
-    return Padding(
-        padding: const EdgeInsets.fromLTRB(0, 0, 0, 8),
-        child: Table(
-          border: TableBorder(
-              horizontalInside: BorderSide(
-                  width: 1,
-                  color: Theme.of(context).dividerColor,
-                  style: BorderStyle.solid)),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: {
-            0: FractionColumnWidth(.1),
-          },
-          children: [
-            TableRow(children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Icon(FlutterIcons.axis_arrow_mco),
-              ),
-              Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text('X'),
-                      Text(
-                          '${model.printer.toolhead.position[0].toStringAsFixed(2)}'),
-                    ],
-                  )),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text('Y'),
-                    Text(
-                        '${model.printer.toolhead.position[1].toStringAsFixed(2)}'),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text('Z'),
-                    Text(
-                        '${model.printer.toolhead.position[2].toStringAsFixed(2)}'),
-                  ],
-                ),
-              ),
-            ]),
-            if (model.isPrinting)
-              TableRow(
+  Widget _buildTableView(BuildContext context, GeneralTabViewModel model) {
+    return Table(
+      border: TableBorder(
+          horizontalInside: BorderSide(
+              width: 1,
+              color: Theme.of(context).dividerColor,
+              style: BorderStyle.solid)),
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      columnWidths: {
+        0: FractionColumnWidth(.1),
+      },
+      children: [
+        TableRow(children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(FlutterIcons.axis_arrow_mco),
+          ),
+          Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(FlutterIcons.printer_3d_mco),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('pages.dashboard.general.print_card.speed').tr(),
-                        Text('${model.printer.gCodeMove.mmSpeed} mm/s'),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('pages.dashboard.general.print_card.layer').tr(),
-                        Text('${model.layer}/${model.maxLayers}'),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Text('pages.dashboard.general.print_card.eta').tr(),
-                        Text((model.printer.eta != null)
-                            ? DateFormat.Hm().format(model.printer.eta!)
-                            : '--:--'),
-                      ],
-                    ),
-                  ),
+                  Text('X'),
+                  Text(
+                      '${model.printer.toolhead.position[0].toStringAsFixed(2)}'),
                 ],
-              )
-          ],
-        ));
+              )),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('Y'),
+                Text(
+                    '${model.printer.toolhead.position[1].toStringAsFixed(2)}'),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('Z'),
+                Text(
+                    '${model.printer.toolhead.position[2].toStringAsFixed(2)}'),
+              ],
+            ),
+          ),
+        ]),
+        if (model.isPrinting || model.isPaused)
+          TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Icon(FlutterIcons.printer_3d_mco),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('pages.dashboard.general.print_card.speed').tr(),
+                    Text('${model.printer.gCodeMove.mmSpeed} mm/s'),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('pages.dashboard.general.print_card.layer').tr(),
+                    Text('${model.layer}/${model.maxLayers}'),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('pages.dashboard.general.print_card.eta').tr(),
+                    Text((model.printer.eta != null)
+                        ? DateFormat.Hm().format(model.printer.eta!)
+                        : '--:--'),
+                  ],
+                ),
+              ),
+            ],
+          )
+      ],
+    );
   }
 }
 

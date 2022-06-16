@@ -26,6 +26,7 @@ class RangeEditFormDialogView extends StatelessWidget {
           child: FormBuilder(
             autovalidateMode: AutovalidateMode.always,
             key: model.formKey,
+            onChanged: model.onFormFieldChanged,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: Column(
@@ -98,7 +99,7 @@ class NumberDialogFooter extends ViewModelWidget<NumEditFormViewModel> {
                 style: captionStyle,
               )),
         TextButton(
-          onPressed: model.onFormConfirm,
+          onPressed: model.formValid ? model.onFormConfirm : null,
           child: Text(model.request.mainButtonTitle!),
         )
       ],

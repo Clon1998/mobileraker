@@ -378,7 +378,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
             title: 'Copy Settings',
             mainButtonTitle: materialLocalizations.copyButtonLabel,
             secondaryButtonTitle:
-                materialLocalizations.cancelButtonLabel.titleCase(),
+                materialLocalizations.cancelButtonLabel.toLowerCase().titleCase(),
             data: machine)
         .then(onImportSettingsReturns);
   }

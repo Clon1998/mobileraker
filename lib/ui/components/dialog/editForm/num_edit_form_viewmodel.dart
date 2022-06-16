@@ -48,6 +48,18 @@ class NumEditFormViewModel extends BaseViewModel {
 
   Key get formKey => _editFormKey;
 
+  bool get formValid => _editFormKey.currentState?.isValid == true;
+
+  bool? _lastFormValidation;
+
+  onFormFieldChanged() {
+    bool? isValid2 = _editFormKey.currentState?.validate();
+    if (isValid2 != _lastFormValidation) {
+      _lastFormValidation = isValid2;
+      notifyListeners();
+    }
+  }
+
   onFormConfirm() {
     if (_editFormKey.currentState!.saveAndValidate()) {
       _logger.i('Form Completed');

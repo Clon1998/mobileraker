@@ -7,6 +7,10 @@ class ExcludeObject {
 
   bool get available => objects.isNotEmpty;
 
+  List<ParsedObject> get canBeExcluded => objects
+      .where((element) => !excludedObjects.contains(element.name))
+      .toList();
+
   ExcludeObject(
       {this.currentObject,
       this.excludedObjects = const [],

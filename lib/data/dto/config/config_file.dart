@@ -1,18 +1,23 @@
 import 'dart:collection';
+import 'dart:developer';
 
 import 'package:mobileraker/data/dto/config/config_extruder.dart';
 import 'package:mobileraker/data/dto/config/config_heater_bed.dart';
 import 'package:mobileraker/data/dto/config/config_output.dart';
 import 'package:mobileraker/data/dto/config/config_printer.dart';
+import 'package:mobileraker/data/dto/config/config_stepper.dart';
 
 //TODO Decide regarding null values or not!
 class ConfigFile {
   ConfigPrinter? configPrinter;
   ConfigHeaterBed? configHeaterBed;
-  Map<String, ConfigExtruder> extruders = HashMap();
-  Map<String, ConfigOutput> outputs = HashMap();
-
+  Map<String, ConfigExtruder> extruders = {};
+  Map<String, ConfigOutput> outputs = {};
+  Map<String, ConfigStepper> steppers = {};
   ConfigFile();
+
+  ConfigStepper? get stepperX => steppers['x'];
+  ConfigStepper? get stepperY => steppers['y'];
 
   ConfigFile.parse(this.rawConfig) {
     if (rawConfig.containsKey('printer'))
@@ -39,6 +44,13 @@ class ConfigFile {
         String name = split.length > 1 ? split.skip(1).join(" ") : split[0];
         Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
         outputs[name] = ConfigOutput.parse(name, jsonChild);
+      }
+      
+      if (key.startsWith('stepper')) {
+        List<String> split = key.split("_");
+        String name = split.length > 1 ? split.skip(1).join("_") : split[0];
+        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
+        steppers[name] = ConfigStepper.parse(name, jsonChild);
       }
     });
 
