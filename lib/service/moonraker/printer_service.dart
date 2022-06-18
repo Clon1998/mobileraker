@@ -3,16 +3,15 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
-
+import 'package:get/get.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/machine/exclude_object.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/fans/controller_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/heater_fan.dart';
@@ -24,9 +23,10 @@ import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
-import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -61,6 +61,7 @@ class PrinterService {
   final Machine _owner;
   final _logger = getLogger('PrinterService');
   final _snackBarService = locator<SnackbarService>();
+  final _dialogService = locator<DialogService>();
   final _machineService = locator<MachineService>();
 
   /// This map defines how different printerObjects will be parsed
@@ -258,19 +259,42 @@ class PrinterService {
 
     params.forEach((key, value) {
       // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-      List<String> split = key.split(' ');
-      String mainObjectType = split[0];
+
+      _parseObjectType(key, params, latestPrinter);
+    });
+    printerStream.add(latestPrinter);
+  }
+
+  _parseObjectType(String key, Map<String, dynamic> json, Printer printer) {
+    // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
+    List<String> split = key.split(' ');
+    String mainObjectType = split[0];
+    try {
       if (_subToPrinterObjects.containsKey(mainObjectType)) {
         var method = _subToPrinterObjects[mainObjectType];
         if (method != null) {
           if (split.length > 1)
-            method(key, params[key], printer: latestPrinter);
+            method(key, json[key], printer: printer);
           else
-            method(params[key], printer: latestPrinter);
+            method(json[key], printer: printer);
         }
       }
-    });
-    printerStream.add(latestPrinter);
+    } catch (e, s) {
+      _logger.e('Error while parsing $key object', e, s);
+      _snackBarService.showCustomSnackBar(
+          variant: SnackbarType.error,
+          duration: const Duration(seconds: 20),
+          title: '$key - Parsing error',
+          message: 'Could not parse: $e',
+          mainButtonTitle: "Details",
+          onMainButtonTapped: () {
+            Get.closeCurrentSnackbar();
+            _dialogService.showCustomDialog(
+                variant: DialogType.stackTrace,
+                title: '$key - Parsing error',
+                description: s.toString());
+          });
+    }
   }
 
   _parsePrinterObjectsList(response, {err}) {
@@ -305,19 +329,7 @@ class PrinterService {
     Map<String, dynamic> data = response['status'];
 
     data.forEach((key, value) {
-      // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-      List<String> split = key.split(' ');
-      String mainObjectType = split[0];
-      if (_subToPrinterObjects.containsKey(mainObjectType)) {
-        var method = _subToPrinterObjects[mainObjectType];
-        if (method != null) {
-          if (split.length >
-              1) // Multi word objectsType e.g.'temperature_sensor sensor_name'
-            method(key, data[key], printer: printer);
-          else
-            method(data[key], printer: printer);
-        }
-      }
+      _parseObjectType(key, data, printer);
     });
 
     printerStream.add(printer);
@@ -560,13 +572,24 @@ class PrinterService {
       List<ParsedObject> objects = [];
       for (dynamic e in _objects) {
         String name = e['name'];
-        List<dynamic> _center = e['center'];
-        List<double> center = _center.cast<double>();
-        List<dynamic> _polygons = e['polygon'];
-        List<List<double>> polygons = _polygons.map((e) {
-          List<dynamic> list = e as List<dynamic>;
-          return list.cast<double>();
-        }).toList();
+        List<double> center;
+        List<List<double>> polygons;
+
+        if (e.containsKey('center')) {
+          List<dynamic> _center = e['center'];
+          center = _center.cast<double>();
+        } else {
+          center = [];
+        }
+        if (e.containsKey('polygon')) {
+          List<dynamic> _polygons = e['polygon'];
+          polygons = _polygons.map((e) {
+            List<dynamic> list = e as List<dynamic>;
+            return list.cast<double>();
+          }).toList();
+        } else {
+          polygons = [];
+        }
 
         objects.add(ParsedObject.fromList(
             name: name, center: center, polygons: polygons));
