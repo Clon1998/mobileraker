@@ -235,10 +235,10 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                       margin: const EdgeInsets.all(5),
                       child: ElevatedButton.icon(
                         onPressed:
-                            model.canUsePrinter ? model.onDeRetractBtn : null,
-                        icon: Icon(FlutterIcons.plus_ant),
+                            model.canUsePrinter ? model.onRetractBtn : null,
+                        icon: Icon(FlutterIcons.minus_ant),
                         label:
-                            Text('pages.dashboard.control.extrude_card.extrude')
+                            Text('pages.dashboard.control.extrude_card.retract')
                                 .tr(),
                       ),
                     ),
@@ -246,10 +246,10 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                       margin: const EdgeInsets.all(5),
                       child: ElevatedButton.icon(
                         onPressed:
-                            model.canUsePrinter ? model.onRetractBtn : null,
-                        icon: Icon(FlutterIcons.minus_ant),
+                            model.canUsePrinter ? model.onDeRetractBtn : null,
+                        icon: Icon(FlutterIcons.plus_ant),
                         label:
-                            Text('pages.dashboard.control.extrude_card.retract')
+                            Text('pages.dashboard.control.extrude_card.extrude')
                                 .tr(),
                       ),
                     ),
@@ -296,7 +296,8 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
             trailing: (model.macroGroups.length > 1)
                 ? DropdownButton(
                     value: model.selectedGrp,
-                    onChanged: model.onMacroGroupSelected,
+                    onChanged:
+                        model.canUsePrinter ? model.onMacroGroupSelected : null,
                     items: model.macroGroups.map((e) {
                       return DropdownMenuItem(
                         child: Text(e.name),
