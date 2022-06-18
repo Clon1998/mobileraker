@@ -6,43 +6,60 @@ import 'package:highlight/languages/properties.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/service/moonraker/file_service.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/ui/common/mixins/machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class ConfigFileDetailsViewModel extends FutureViewModel<File> {
-  ConfigFileDetailsViewModel(this._file);
+const String _PrinterKey = 'printerKey';
+const String _FileKey = 'fileKey';
 
+class ConfigFileDetailsViewModel extends MixableMultiStreamViewModel
+    with MachineMultiStreamViewModel, PrinterMultiStreamViewModel {
   final _logger = getLogger('ConfigFileDetailsViewModel');
   final _navigationService = locator<NavigationService>();
   final _snackBarService = locator<SnackbarService>();
-  final _selectedMachineService = locator<SelectedMachineService>();
 
   final RemoteFile _file;
 
   bool isUploading = false;
 
-  Machine? get _machine => _selectedMachineService.selectedMachine.valueOrNull;
+  bool get isFileReady => dataReady(_FileKey);
 
-  FileService? get _fileService => _machine?.fileService;
+  File get file => dataMap![_FileKey];
 
-  KlippyService? get _klippyService => _machine?.klippyService;
+  bool get isPrinting =>
+      isPrinterDataReady && printerData.print.state == PrintState.printing;
 
   CodeController codeController =
       CodeController(language: properties, theme: atomOneDarkTheme);
 
-  @override
-  Future<File> futureToRun() => _fileService!.downloadFile(_file.absolutPath);
+  ConfigFileDetailsViewModel(this._file);
 
   @override
-  void onData(File? data) async {
-    super.onData(data);
+  Map<String, StreamData> get streamsMap {
+    Map<String, StreamData> parentMap = super.streamsMap;
+    _logger.wtf('ParentMap => $parentMap');
+
+    return {
+      ...parentMap,
+      if (isMachineAvailable)
+        _FileKey: StreamData<File>(
+            fileService.downloadFile(_file.absolutPath).asStream()),
+    };
+  }
+
+  @override
+  void onData(String key, dynamic data) async {
+    super.onData(key, data);
+    _logger.wtf('$key => ${data.hashCode}');
     if (data == null) return;
-    codeController.text = await data.readAsString();
+    if (key == _FileKey) {
+      codeController.text = await data.readAsString();
+    }
   }
 
   Future<void> onSaveTapped() async {
@@ -50,7 +67,7 @@ class ConfigFileDetailsViewModel extends FutureViewModel<File> {
     notifyListeners();
     try {
       _navigationService.back();
-      await _fileService!.uploadAsFile(_file.absolutPath, codeController.text);
+      await fileService.uploadAsFile(_file.absolutPath, codeController.text);
     } on HttpException catch (e) {
       isUploading = false;
       notifyListeners();
@@ -67,8 +84,8 @@ class ConfigFileDetailsViewModel extends FutureViewModel<File> {
     notifyListeners();
     try {
       _navigationService.back();
-      await _fileService!.uploadAsFile(_file.absolutPath, codeController.text);
-      _klippyService!.restartMCUs();
+      await fileService.uploadAsFile(_file.absolutPath, codeController.text);
+      klippyService.restartMCUs();
     } on HttpException catch (e) {
       isUploading = false;
       notifyListeners();

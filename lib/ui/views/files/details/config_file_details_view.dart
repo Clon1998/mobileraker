@@ -33,7 +33,7 @@ class ConfigFileDetailView
       body: Column(
         children: [
           Expanded(
-            child: (model.dataReady)
+            child: (model.isFileReady)
                 ? SingleChildScrollView(
                     child: Column(
                       children: [
@@ -68,7 +68,7 @@ class ConfigFileDetailView
           ),
         ],
       ),
-      floatingActionButton: (model.dataReady)
+      floatingActionButton: (model.isFileReady)
           ? SpeedDial(
               backgroundColor:
                   (model.isUploading) ? Theme.of(context).disabledColor : null,
@@ -82,13 +82,16 @@ class ConfigFileDetailView
                   onTap: (model.isUploading) ? null : model.onSaveTapped,
                   visible: !model.isUploading,
                 ),
-                SpeedDialChild(
-                  child: Icon(Icons.restart_alt),
-                  backgroundColor: themeData.colorScheme.primary,
-                  label: 'Save & Restart',
-                  onTap: (model.isUploading) ? null : model.onSaveAndRestartTapped,
-                  visible: !model.isUploading,
-                ),
+                if (!model.isPrinting)
+                  SpeedDialChild(
+                    child: Icon(Icons.restart_alt),
+                    backgroundColor: themeData.colorScheme.primary,
+                    label: 'Save & Restart',
+                    onTap: (model.isUploading)
+                        ? null
+                        : model.onSaveAndRestartTapped,
+                    visible: !model.isUploading,
+                  ),
               ],
               spacing: 5,
               overlayOpacity: 0.5,

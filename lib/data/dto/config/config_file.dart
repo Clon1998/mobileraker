@@ -14,9 +14,11 @@ class ConfigFile {
   Map<String, ConfigExtruder> extruders = {};
   Map<String, ConfigOutput> outputs = {};
   Map<String, ConfigStepper> steppers = {};
+
   ConfigFile();
 
   ConfigStepper? get stepperX => steppers['x'];
+
   ConfigStepper? get stepperY => steppers['y'];
 
   ConfigFile.parse(this.rawConfig) {
@@ -45,7 +47,7 @@ class ConfigFile {
         Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
         outputs[name] = ConfigOutput.parse(name, jsonChild);
       }
-      
+
       if (key.startsWith('stepper')) {
         List<String> split = key.split("_");
         String name = split.length > 1 ? split.skip(1).join("_") : split[0];
