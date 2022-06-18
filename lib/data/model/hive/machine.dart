@@ -197,4 +197,9 @@ class Machine extends HiveObject {
       _printerService.hashCode ^
       _klippyService.hashCode ^
       _fileService.hashCode;
+
+  @override
+  String toString() {
+    return 'Machine{name: $name, wsUrl: $wsUrl, uuid: $uuid, cams: $cams, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUrl: $httpUrl, inverts: $inverts, speedXY: $speedXY, speedZ: $speedZ, extrudeFeedrate: $extrudeFeedrate, moveSteps: $moveSteps, babySteps: $babySteps, extrudeSteps: $extrudeSteps, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, macroGroups: $macroGroups, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
+  }
 }

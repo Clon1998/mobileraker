@@ -1,0 +1,52 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:stacked_services/stacked_services.dart';
+
+class StackTraceDialog extends StatelessWidget {
+  final DialogRequest request;
+  final Function(DialogResponse) completer;
+
+  const StackTraceDialog(
+      {Key? key, required this.request, required this.completer})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // To make the card compact
+          children: <Widget>[
+            Text(
+              request.title!,
+              style: Theme.of(context).textTheme.headline5,
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Text(request.description!),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () => this.completer(DialogResponse()),
+                  child:
+                      Text(MaterialLocalizations.of(context).closeButtonLabel),
+                ),
+                IconButton(
+                  color: Theme.of(context).colorScheme.primary,
+                  onPressed: () => Clipboard.setData(
+                      ClipboardData(text: request.description)),
+                  icon: Icon(Icons.copy_all),
+                  tooltip: MaterialLocalizations.of(context).copyButtonLabel,
+                )
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}

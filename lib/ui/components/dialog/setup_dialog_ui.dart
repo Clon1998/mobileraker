@@ -4,6 +4,7 @@ import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.d
 import 'package:mobileraker/ui/components/dialog/excludeObject/exclude_object_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
 import 'package:mobileraker/ui/components/dialog/renameFile/rename_file_dialog_view.dart';
+import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 enum DialogType {
@@ -11,7 +12,8 @@ enum DialogType {
   rangeEditForm,
   renameFile,
   importSettings,
-  excludeObject
+  excludeObject,
+  stackTrace
 }
 
 setupDialogUi() {
@@ -27,7 +29,9 @@ setupDialogUi() {
     DialogType.renameFile: (context, sheetRequest, completer) =>
         RenameFileDialogView(request: sheetRequest, completer: completer),
     DialogType.excludeObject: (context, sheetRequest, completer) =>
-        ExcludeObjectDialog(request: sheetRequest, completer: completer)
+        ExcludeObjectDialog(request: sheetRequest, completer: completer),
+    DialogType.stackTrace: (context, sheetRequest, completer) =>
+        StackTraceDialog(request: sheetRequest, completer: completer)
   };
   dialogService.registerCustomDialogBuilders(builders);
 }
