@@ -53,11 +53,11 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
         padding: const EdgeInsets.only(bottom: 20),
         children: [
           if (model.macroGroups.isNotEmpty) GcodeMacroCard(),
-          if (model.printer.print.state != PrintState.printing)
+          if (model.printerData.print.state != PrintState.printing)
             ExtruderControlCard(),
           MultipliersCard(),
           FansCard(),
-          if (model.printer.outputPins.isNotEmpty) PinsCard(),
+          if (model.printerData.outputPins.isNotEmpty) PinsCard(),
         ],
       ),
     );
@@ -86,7 +86,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
                 color: Theme.of(context).iconTheme.color,
               ),
               title: Text('pages.dashboard.control.fan_card.title')
-                  .plural(model.printer.fans.length),
+                  .plural(model.printerData.fans.length),
             ),
             AdaptiveHorizontalScroll(
               pageStorageKey: 'fans',
@@ -101,11 +101,11 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
   List<Widget> buildFans(ControlTabViewModel model, BuildContext context) {
     List<Widget> rows = [];
 
-    var printFan = model.printer.printFan;
+    var printFan = model.printerData.printFan;
     rows.add(_FanTile(
         name: 'pages.dashboard.control.fan_card.part_fan'.tr(),
         speed: printFan.speed,
-        onTap: model.canUsePrinter ? model.onEditPartFan : null));
+        onTap: model.klippyCanReceiveCommands ? model.onEditPartFan : null));
 
     for (NamedFan fan in model.filteredFans) {
       VoidCallback? f;
@@ -113,7 +113,7 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
       var row = _FanTile(
         name: beautifyName(fan.name),
         speed: fan.speed,
-        onTap: model.canUsePrinter ? f : null,
+        onTap: model.klippyCanReceiveCommands ? f : null,
       );
       rows.add(row);
     }
@@ -234,8 +234,9 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                     Container(
                       margin: const EdgeInsets.all(5),
                       child: ElevatedButton.icon(
-                        onPressed:
-                            model.canUsePrinter ? model.onRetractBtn : null,
+                        onPressed: model.klippyCanReceiveCommands
+                            ? model.onRetractBtn
+                            : null,
                         icon: Icon(FlutterIcons.minus_ant),
                         label:
                             Text('pages.dashboard.control.extrude_card.retract')
@@ -245,8 +246,9 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                     Container(
                       margin: const EdgeInsets.all(5),
                       child: ElevatedButton.icon(
-                        onPressed:
-                            model.canUsePrinter ? model.onDeRetractBtn : null,
+                        onPressed: model.klippyCanReceiveCommands
+                            ? model.onDeRetractBtn
+                            : null,
                         icon: Icon(FlutterIcons.plus_ant),
                         label:
                             Text('pages.dashboard.control.extrude_card.extrude')
@@ -296,8 +298,9 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
             trailing: (model.macroGroups.length > 1)
                 ? DropdownButton(
                     value: model.selectedGrp,
-                    onChanged:
-                        model.canUsePrinter ? model.onMacroGroupSelected : null,
+                    onChanged: model.klippyCanReceiveCommands
+                        ? model.onMacroGroupSelected
+                        : null,
                     items: model.macroGroups.map((e) {
                       return DropdownMenuItem(
                         child: Text(e.name),
@@ -334,11 +337,11 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
       macros.length,
       (int index) {
         GCodeMacro macro = macros[index];
-        bool disabled = (!model.canUsePrinter ||
+        bool disabled = (!model.klippyCanReceiveCommands ||
             (model.isPrinting && !macro.showWhilePrinting));
         return Visibility(
-          visible:
-              model.printer.gcodeMacros.contains(macro.name) && macro.visible,
+          visible: model.printerData.gcodeMacros.contains(macro.name) &&
+              macro.visible,
           child: ActionChip(
             label: Text(macro.beautifiedName),
             backgroundColor: disabled ? themeData.disabledColor : bgColActive,
@@ -367,7 +370,7 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
                 FlutterIcons.led_outline_mco,
               ),
               title: Text(plural('pages.dashboard.control.pin_card.title',
-                  model.printer.outputPins.length)),
+                  model.printerData.outputPins.length)),
             ),
             AdaptiveHorizontalScroll(
               pageStorageKey: 'pins',
@@ -390,7 +393,7 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
       var row = _PinTile(
         name: beautifyName(pin.name),
         value: pin.value * (configForOutput?.scale ?? 1),
-        onTap: model.canUsePrinter
+        onTap: model.klippyCanReceiveCommands
             ? () => model.onEditPin(pin, configForOutput)
             : null,
       );
@@ -461,14 +464,16 @@ class MultipliersCard extends ViewModelWidget<ControlTabViewModel> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 ElevatedButton(
-                  onPressed:
-                      model.canUsePrinter ? model.onEditSpeedMultiplier : null,
+                  onPressed: model.klippyCanReceiveCommands
+                      ? model.onEditSpeedMultiplier
+                      : null,
                   child: Text(
                       '${tr('pages.dashboard.general.print_card.speed')}: ${model.speedMultiplier}%'),
                 ),
                 ElevatedButton(
-                  onPressed:
-                      model.canUsePrinter ? model.onEditFlowMultiplier : null,
+                  onPressed: model.klippyCanReceiveCommands
+                      ? model.onEditFlowMultiplier
+                      : null,
                   child: Text(
                       '${tr('pages.dashboard.control.multipl_card.flow')}: ${model.flowMultiplier}%'),
                 ),

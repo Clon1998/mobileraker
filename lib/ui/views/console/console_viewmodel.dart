@@ -5,17 +5,15 @@ import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _GCodeNotifyResp = 'notifyGcodeResp';
 const String _ConsoleHistory = 'consoleHistory';
 const String _ServerStreamKey = 'server';
@@ -31,18 +29,12 @@ const List<String> additionalCmds = const [
   'TESTZ',
 ];
 
-class ConsoleViewModel extends MultipleStreamViewModel {
+class ConsoleViewModel extends MixableMultiStreamViewModel
+    with SelectedMachineMultiStreamViewModel, KlippyMultiStreamViewModel {
   final _logger = getLogger('ConsoleViewModel');
 
   final _dialogService = locator<DialogService>();
-  final _selectedMachineService = locator<SelectedMachineService>();
   final _settingService = locator<SettingService>();
-
-  Machine? _machine;
-
-  KlippyService? get _klippyService => _machine?.klippyService;
-
-  PrinterService? get _printerService => _machine?.printerService;
 
   RefreshController refreshController =
       RefreshController(initialRefresh: false);
@@ -95,26 +87,21 @@ class ConsoleViewModel extends MultipleStreamViewModel {
       server.klippyState == KlipperState.ready &&
       server.klippyConnected;
 
-  String get printerName => _machine?.name ?? '';
+  String get printerName => selectedMachine?.name ?? '';
 
   List<String> history = [];
 
   @override
   Map<String, StreamData> get streamsMap => {
-        _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_selectedMachineService.selectedMachine),
-        if (_klippyService != null) ...{
-          _ServerStreamKey:
-              StreamData<KlipperInstance>(_klippyService!.klipperStream)
-        },
-        if (_printerService != null) ...{
+        ...super.streamsMap,
+        if (isSelectedMachineReady) ...{
           _ConsoleHistory: StreamData<List<ConsoleEntry>>(
-              _printerService!.gcodeStore().asStream()),
+              printerService.gcodeStore().asStream()),
           _GCodeNotifyResp: StreamData<String>(
-              _printerService!.gCodeResponseStream,
+              printerService.gCodeResponseStream,
               transformData: _transformGCodeResponse),
           _MacrosStreamKey:
-              StreamData<List<Command>>(_printerService!.gcodeHelp().asStream())
+              StreamData<List<Command>>(printerService.gcodeHelp().asStream())
         }
       };
 
@@ -155,7 +142,7 @@ class ConsoleViewModel extends MultipleStreamViewModel {
     _consoleEntries.add(ConsoleEntry(command, ConsoleEntryType.COMMAND,
         DateTime.now().millisecondsSinceEpoch / 1000));
     textEditingController.text = '';
-    _printerService?.gCode(command);
+    printerService.gCode(command);
     history.remove(command);
     history.insert(0, command);
     if (history.length > commandCacheSize) history.length = commandCacheSize;
@@ -166,12 +153,6 @@ class ConsoleViewModel extends MultipleStreamViewModel {
   onData(String key, data) {
     super.onData(key, data);
     switch (key) {
-      case _SelectedPrinterStreamKey:
-        Machine? nmachine = data;
-        if (nmachine == _machine) break;
-        _machine = nmachine;
-        notifySourceChanged(clearOldData: true);
-        break;
       case _GCodeNotifyResp:
         _consoleEntries.add(data);
         break;
@@ -183,10 +164,10 @@ class ConsoleViewModel extends MultipleStreamViewModel {
   onEmergencyPressed() {
     if (_settingService.readBool(emsKey))
       emergencyStopConfirmDialog(_dialogService).then((dialogResponse) {
-        if (dialogResponse?.confirmed ?? false) _klippyService?.emergencyStop();
+        if (dialogResponse?.confirmed ?? false) klippyService.emergencyStop();
       });
     else
-      _klippyService?.emergencyStop();
+      klippyService.emergencyStop();
   }
 
   @override

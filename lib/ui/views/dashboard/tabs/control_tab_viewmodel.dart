@@ -6,37 +6,43 @@ import 'package:mobileraker/data/dto/config/config_output.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/dto/machine/printer.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker/gcode_macro.dart';
-import 'package:mobileraker/data/model/moonraker/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker/macro_group.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/machine_settings_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/components/dialog/editForm/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/util/misc.dart';
-import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-const String _ServerStreamKey = 'server';
-const String _SelectedPrinterStreamKey = 'selectedPrinter';
-const String _PrinterStreamKey = 'printer';
-const String _MachineSettingsStreamKey = 'machineSettings';
-
-class ControlTabViewModel extends MultipleStreamViewModel {
+class ControlTabViewModel extends MixableMultiStreamViewModel
+    with
+        SelectedMachineMultiStreamViewModel,
+        PrinterMultiStreamViewModel,
+        KlippyMultiStreamViewModel,
+        MachineSettingsMultiStreamViewModel {
   final _dialogService = locator<DialogService>();
   final _settingService = locator<SettingService>();
-  final _selectedMachineService = locator<SelectedMachineService>();
-  final _machineService = locator<MachineService>();
 
   int selectedIndexRetractLength = 0;
 
-  MacroGroup? selectedGrp;
+  MacroGroup? _selectedGrp;
+
+  MacroGroup? get selectedGrp {
+    if (machineSettings.macroGroups.isNotEmpty) {
+      int idx = min(machineSettings.macroGroups.length - 1,
+          max(0, _settingService.readInt(selectedGCodeGrpIndex, 0)));
+      _selectedGrp = machineSettings.macroGroups[idx];
+      return _selectedGrp;
+    }
+    return null;
+  }
+
+  set selectedGrp(MacroGroup? grp) => _selectedGrp = grp;
 
   ScrollController get fansScrollController => _fansScrollController;
   ScrollController _fansScrollController = new ScrollController(
@@ -48,101 +54,40 @@ class ControlTabViewModel extends MultipleStreamViewModel {
     keepScrollOffset: true,
   );
 
-  Machine? _machine;
-  int _machineHashCode = -1;
-
   List<int> get retractLengths => machineSettings.extrudeSteps;
 
-  int get fansSteps => 1 + printer.fans.length;
+  int get fansSteps => 1 + printerData.fans.length;
 
-  int get outputSteps => printer.outputPins.length;
+  int get outputSteps => printerData.outputPins.length;
 
   List<MacroGroup> get macroGroups => machineSettings.macroGroups;
 
-  PrinterService? get _printerService => _machine?.printerService;
-
-  KlippyService? get _klippyService => _machine?.klippyService;
-
-  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
-
-  KlipperInstance get server => dataMap![_ServerStreamKey];
-
-  bool get isServerAvailable => dataReady(_ServerStreamKey);
-
-  Printer get printer => dataMap![_PrinterStreamKey];
-
-  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
-
-  MachineSettings get machineSettings => dataMap![_MachineSettingsStreamKey];
-
-  bool get isMachineSettingsAvailable => dataReady(_MachineSettingsStreamKey);
-
-  bool get isPrinting => printer.print.state == PrintState.printing;
-
-  bool get canUsePrinter => server.klippyState == KlipperState.ready;
+  bool get isPrinting => printerData.print.state == PrintState.printing;
 
   int get flowMultiplier {
-    return (printer.gCodeMove.extrudeFactor * 100).toInt();
+    return (printerData.gCodeMove.extrudeFactor * 100).toInt();
   }
 
   int get speedMultiplier {
-    return (printer.gCodeMove.speedFactor * 100).toInt();
+    return (printerData.gCodeMove.speedFactor * 100).toInt();
   }
 
-  Set<NamedFan> get filteredFans => printer.fans
+  Set<NamedFan> get filteredFans => printerData.fans
       .where((NamedFan element) => !element.name.startsWith('_'))
       .toSet();
 
-  Set<OutputPin> get filteredPins => printer.outputPins
+  Set<OutputPin> get filteredPins => printerData.outputPins
       .where((OutputPin element) => !element.name.startsWith('_'))
       .toSet();
 
   bool get isDataReady =>
-      isPrinterAvailable &&
-      isServerAvailable &&
-      isMachineAvailable &&
-      isMachineSettingsAvailable;
-
-  @override
-  Map<String, StreamData> get streamsMap => {
-        _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_selectedMachineService.selectedMachine),
-        if (_machine != null) ...{
-          _MachineSettingsStreamKey: StreamData<MachineSettings>(
-              _machineService.fetchSettings(_machine!).asStream()),
-          _PrinterStreamKey:
-              StreamData<Printer>(_printerService!.printerStream),
-          _ServerStreamKey:
-              StreamData<KlipperInstance>(_klippyService!.klipperStream)
-        }
-      };
-
-  @override
-  onData(String key, data) {
-    super.onData(key, data);
-    switch (key) {
-      case _SelectedPrinterStreamKey:
-        Machine? nmachine = data;
-        if (nmachine == _machine && nmachine.hashCode == _machineHashCode)
-          break;
-        _machine = nmachine;
-        _machineHashCode = nmachine.hashCode;
-        notifySourceChanged(clearOldData: true);
-        break;
-      case _MachineSettingsStreamKey:
-        if (machineSettings.macroGroups.isNotEmpty) {
-          int idx = min(machineSettings.macroGroups.length-1,max(0, _settingService.readInt(selectedGCodeGrpIndex, 0)));
-          selectedGrp = machineSettings.macroGroups[idx];
-        }
-        break;
-      default:
-        // Do nothing
-        break;
-    }
-  }
+      isSelectedMachineReady &&
+      isPrinterDataReady &&
+      isKlippyInstanceReady &&
+      isMachineSettingsReady;
 
   ConfigOutput? configForOutput(String name) {
-    return printer.configFile.outputs[name];
+    return printerData.configFile.outputs[name];
   }
 
   onEditPin(OutputPin pin, ConfigOutput? configOutput) {
@@ -161,7 +106,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
-        _printerService?.outputPin(pin.name, v.toDouble());
+        printerService.outputPin(pin.name, v.toDouble());
       }
     });
   }
@@ -174,11 +119,11 @@ class ControlTabViewModel extends MultipleStreamViewModel {
             mainButtonTitle: 'Confirm',
             secondaryButtonTitle: 'Cancel',
             data: NumberEditDialogArguments(
-                max: 100, current: printer.printFan.speed * 100.round()))
+                max: 100, current: printerData.printFan.speed * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
-        _printerService?.partCoolingFan(v.toDouble() / 100);
+        printerService.partCoolingFan(v.toDouble() / 100);
       }
     });
   }
@@ -195,7 +140,7 @@ class ControlTabViewModel extends MultipleStreamViewModel {
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
-        _printerService?.genericFanFan(namedFan.name, v.toDouble() / 100);
+        printerService.genericFanFan(namedFan.name, v.toDouble() / 100);
       }
     });
   }
@@ -207,18 +152,18 @@ class ControlTabViewModel extends MultipleStreamViewModel {
   onRetractBtn() {
     var double = (retractLengths[selectedIndexRetractLength] * -1).toDouble();
 
-    _printerService?.moveExtruder(
+    printerService.moveExtruder(
         double, machineSettings.extrudeFeedrate.toDouble());
   }
 
   onDeRetractBtn() {
     var double = (retractLengths[selectedIndexRetractLength]).toDouble();
-    _printerService?.moveExtruder(
+    printerService.moveExtruder(
         double, machineSettings.extrudeFeedrate.toDouble());
   }
 
   onMacroPressed(GCodeMacro macro) {
-    _printerService?.gCode(macro.name);
+    printerService.gCode(macro.name);
   }
 
   onMacroGroupSelected(MacroGroup? macroGroup) {
@@ -236,11 +181,11 @@ class ControlTabViewModel extends MultipleStreamViewModel {
             mainButtonTitle: 'Confirm',
             secondaryButtonTitle: 'Cancel',
             data: NumberEditDialogArguments(
-                current: printer.gCodeMove.speedFactor * 100.round()))
+                current: printerData.gCodeMove.speedFactor * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
-        _printerService?.speedMultiplier(v.toInt());
+        printerService.speedMultiplier(v.toInt());
       }
     });
   }
@@ -253,11 +198,11 @@ class ControlTabViewModel extends MultipleStreamViewModel {
             mainButtonTitle: 'Confirm',
             secondaryButtonTitle: 'Cancel',
             data: NumberEditDialogArguments(
-                current: printer.gCodeMove.extrudeFactor * 100.round()))
+                current: printerData.gCodeMove.extrudeFactor * 100.round()))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
-        _printerService?.flowMultiplier(v.toInt());
+        printerService.flowMultiplier(v.toInt());
       }
     });
   }

@@ -8,25 +8,25 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
 import 'package:stacked/stacked.dart';
 
-mixin MachineMultiStreamViewModel on MixableMultiStreamViewModel {
+mixin SelectedMachineMultiStreamViewModel on MixableMultiStreamViewModel {
   @protected
   static const SelectedMachineStreamKey = 'selMachine';
   final _selectedMachineService = locator<SelectedMachineService>();
 
   Machine? _last;
 
-  bool get isMachineAvailable => _last != null;
+  bool get isSelectedMachineReady => _last != null;
 
-  Machine? get machine => _last;
-
-  @protected
-  PrinterService get printerService => machine!.printerService;
+  Machine? get selectedMachine => _last;
 
   @protected
-  KlippyService get klippyService => machine!.klippyService;
+  PrinterService get printerService => selectedMachine!.printerService;
 
   @protected
-  FileService get fileService => machine!.fileService;
+  KlippyService get klippyService => selectedMachine!.klippyService;
+
+  @protected
+  FileService get fileService => selectedMachine!.fileService;
 
   @override
   Map<String, StreamData> get streamsMap {
@@ -34,6 +34,16 @@ mixin MachineMultiStreamViewModel on MixableMultiStreamViewModel {
       SelectedMachineStreamKey:
           StreamData<Machine?>(_selectedMachineService.selectedMachine),
     };
+  }
+
+  @override
+  initialise() {
+    /// Id prefer to do it completely via the stream...
+    /// However since the lib fucks up the data its better to have a value
+    /// already available. Prevents views to render a bit to late.
+    /// E.g. FileView to GcodeDetailView's transition
+    _last = _selectedMachineService.selectedMachine.valueOrNull;
+    super.initialise();
   }
 
   @override

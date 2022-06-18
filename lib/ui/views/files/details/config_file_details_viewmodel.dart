@@ -7,7 +7,7 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/ui/common/mixins/machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
@@ -18,7 +18,7 @@ const String _PrinterKey = 'printerKey';
 const String _FileKey = 'fileKey';
 
 class ConfigFileDetailsViewModel extends MixableMultiStreamViewModel
-    with MachineMultiStreamViewModel, PrinterMultiStreamViewModel {
+    with SelectedMachineMultiStreamViewModel, PrinterMultiStreamViewModel {
   final _logger = getLogger('ConfigFileDetailsViewModel');
   final _navigationService = locator<NavigationService>();
   final _snackBarService = locator<SnackbarService>();
@@ -46,7 +46,7 @@ class ConfigFileDetailsViewModel extends MixableMultiStreamViewModel
 
     return {
       ...parentMap,
-      if (isMachineAvailable)
+      if (isSelectedMachineReady)
         _FileKey: StreamData<File>(
             fileService.downloadFile(_file.absolutPath).asStream()),
     };

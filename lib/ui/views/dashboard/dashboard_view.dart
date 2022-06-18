@@ -38,7 +38,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
             Container(
               margin: EdgeInsets.symmetric(horizontal: 16),
               child: MachineStateIndicator(
-                  model.isServerAvailable ? model.server : null),
+                  model.isKlippyInstanceReady ? model.klippyInstance : null),
             ),
             IconButton(
               color: Theme.of(context).extension<CustomColors>()?.danger ??
@@ -53,7 +53,7 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
           ],
         ),
         body: ConnectionStateView(
-          onConnected: (model.isPrinterAvailable)
+          onConnected: (model.isPrinterDataReady)
               ? PageView(
                   controller: model.pageController,
                   onPageChanged: model.onPageChanged,
@@ -78,9 +78,9 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
         ),
         floatingActionButton: printingStateToFab(model),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-        bottomNavigationBar: (model.isMachineAvailable &&
-                model.isPrinterAvailable &&
-                model.isServerAvailable)
+        bottomNavigationBar: (model.isSelectedMachineReady &&
+                model.isPrinterDataReady &&
+                model.isKlippyInstanceReady)
             ? AnimatedBottomNavigationBar(
                 // ToDo swap with Text
                 icons: [
@@ -113,11 +113,12 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
       DashboardViewModel();
 
   Widget? printingStateToFab(DashboardViewModel model) {
-    if (!model.isPrinterAvailable || !model.isServerAvailable) return null;
+    if (!model.isPrinterDataReady || !model.isKlippyInstanceReady) return null;
 
-    if (model.server.klippyState == KlipperState.error) return IdleFAB();
+    if (model.klippyInstance.klippyState == KlipperState.error)
+      return IdleFAB();
 
-    switch (model.printer.print.state) {
+    switch (model.printerData.print.state) {
       case PrintState.printing:
         return FloatingActionButton(
           onPressed: model.onPausePrintPressed,
@@ -157,8 +158,10 @@ class PausedFAB extends ViewModelWidget<DashboardViewModel> {
         SpeedDialChild(
           child: Icon(Icons.cleaning_services),
           backgroundColor: Colors.red,
-          label:
-              MaterialLocalizations.of(context).cancelButtonLabel.titleCase().titleCase(),
+          label: MaterialLocalizations.of(context)
+              .cancelButtonLabel
+              .titleCase()
+              .titleCase(),
           onTap: model.onCancelPrintPressed,
         ),
         SpeedDialChild(

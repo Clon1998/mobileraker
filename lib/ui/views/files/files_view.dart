@@ -129,9 +129,10 @@ class FilesView extends ViewModelBuilderWidget<FilesViewModel> {
   Widget buildBody(BuildContext context, FilesViewModel model) {
     if (model.isBusy)
       return buildBusyListView(context, model);
-    else if (model.isFolderContentAvailable &&
-        model.isServerAvailable &&
-        model.isMachineAvailable)
+    else if (
+    model.isSelectedMachineReady &&
+    model.isFolderContentReady &&
+        model.isKlippyInstanceReady)
       return buildListView(context, model);
     else
       return buildFetchingView(context);

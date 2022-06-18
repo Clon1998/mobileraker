@@ -2,32 +2,25 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-const String _ServerStreamKey = 'server';
-const String _PrinterStreamKey = 'printer';
-
-class GCodeFileDetailsViewModel extends MultipleStreamViewModel {
+class GCodeFileDetailsViewModel extends MixableMultiStreamViewModel
+    with
+        SelectedMachineMultiStreamViewModel,
+        PrinterMultiStreamViewModel,
+        KlippyMultiStreamViewModel {
   final _logger = getLogger('GCodeFileDetailsViewModel');
   final _dialogService = locator<DialogService>();
   final _snackBarService = locator<SnackbarService>();
   final _navigationService = locator<NavigationService>();
-  final _selectedMachineService = locator<SelectedMachineService>();
-
-  Machine? get _machine => _selectedMachineService.selectedMachine.valueOrNull;
-
-  PrinterService? get _printerService => _machine?.printerService;
-
-  KlippyService? get _klippyService => _machine?.klippyService;
 
   final GCodeFile _file;
 
@@ -36,42 +29,27 @@ class GCodeFileDetailsViewModel extends MultipleStreamViewModel {
   bool get preHeatAvailable => _file.firstLayerTempBed != null;
 
   @override
-  Map<String, StreamData> get streamsMap => {
-        if (_printerService != null)
-          _PrinterStreamKey:
-              StreamData<Printer>(_printerService!.printerStream),
-        if (_klippyService != null)
-          _ServerStreamKey:
-              StreamData<KlipperInstance>(_klippyService!.klipperStream),
-      };
-
-  bool get isServerAvailable => dataReady(_ServerStreamKey);
-
-  KlipperInstance get server => dataMap![_ServerStreamKey];
-
-  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
-
-  Printer get printer => dataMap![_PrinterStreamKey];
+  Map<String, StreamData> get streamsMap => super.streamsMap;
 
   onStartPrintTap() {
-    _printerService?.startPrintFile(_file);
+    printerService.startPrintFile(_file);
     _navigationService.clearStackAndShow(Routes.dashboardView);
   }
 
   bool get canStartPrint {
-    if (!isServerAvailable ||
-        !isPrinterAvailable ||
-        server.klippyState != KlipperState.ready)
+    if (!isKlippyInstanceReady ||
+        !isPrinterDataReady ||
+        klippyInstance.klippyState != KlipperState.ready)
       return false;
     else
-      return (printer.print.state == PrintState.complete ||
-          printer.print.state == PrintState.standby ||
-          printer.print.state == PrintState.error);
+      return (printerData.print.state == PrintState.complete ||
+          printerData.print.state == PrintState.standby ||
+          printerData.print.state == PrintState.error);
   }
 
   String? get curPathToPrinterUrl {
-    if (_machine != null) {
-      return '${_machine!.httpUrl}/server/files';
+    if (isSelectedMachineReady) {
+      return '${selectedMachine!.httpUrl}/server/files';
     }
     return null;
   }
@@ -110,8 +88,8 @@ class GCodeFileDetailsViewModel extends MultipleStreamViewModel {
             dialogPlatform: DialogPlatform.Material)
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false) {
-        _printerService?.setTemperature('extruder', 170);
-        _printerService?.setTemperature(
+        printerService.setTemperature('extruder', 170);
+        printerService.setTemperature(
             'heater_bed', (_file.firstLayerTempBed ?? 60.0).toInt());
         _snackBarService.showSnackbar(
             title: 'Confirmed',

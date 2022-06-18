@@ -18,6 +18,9 @@ import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/components/dialog/renameFile/rename_file_dialog_view.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
@@ -28,17 +31,15 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:stringr/stringr.dart';
 
-const String _SelectedPrinterStreamKey = 'selectedPrinter';
 const String _FolderContentStreamKey = 'folderContent';
 const String _FileNotification = 'fileNotification';
-const String _ServerStreamKey = 'server';
 
-class FilesViewModel extends MultipleStreamViewModel {
+class FilesViewModel extends MixableMultiStreamViewModel
+    with SelectedMachineMultiStreamViewModel, KlippyMultiStreamViewModel {
   final _logger = getLogger('FilesViewModel');
 
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
-  final _selectedMachineService = locator<SelectedMachineService>();
   final _snackBarService = locator<SnackbarService>();
 
   bool isSearching = false;
@@ -67,12 +68,6 @@ class FilesViewModel extends MultipleStreamViewModel {
   final StreamController<FolderContentWrapper> _folderContentStreamController =
       BehaviorSubject<FolderContentWrapper>();
 
-  Machine? _machine;
-
-  FileService? get _fileService => _machine?.fileService;
-
-  KlippyService? get _klippyService => _machine?.klippyService;
-
   String get requestedPathAsString => requestedPath.join('/');
   List<String> requestedPath = [];
 
@@ -80,20 +75,18 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   @override
   Map<String, StreamData> get streamsMap => {
-        _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_selectedMachineService.selectedMachine),
-        if (_fileService != null) ...{
-          _FolderContentStreamKey: StreamData<FolderContentWrapper>(
-              _folderContentStreamController.stream),
+        ...super.streamsMap,
+        _FolderContentStreamKey: StreamData<FolderContentWrapper>(
+            _folderContentStreamController.stream),
+        if (isSelectedMachineReady) ...{
           _FileNotification:
-              StreamData<FileApiResponse>(_fileService!.fileNotificationStream)
-        },
-        if (_klippyService != null)
-          _ServerStreamKey:
-              StreamData<KlipperInstance>(_klippyService!.klipperStream)
+              StreamData<FileApiResponse>(fileService.fileNotificationStream)
+        }
       };
 
-  bool get isFolderContentAvailable => dataReady(_FolderContentStreamKey);
+  bool get isFolderContentReady => dataReady(_FolderContentStreamKey);
+
+  FolderContentWrapper get _folderContent => dataMap![_FolderContentStreamKey];
 
   FolderContentWrapper get folderContent {
     FolderContentWrapper fullContent = _folderContent;
@@ -123,21 +116,11 @@ class FilesViewModel extends MultipleStreamViewModel {
     return FolderContentWrapper(fullContent.reqPath, folders, files);
   }
 
-  FolderContentWrapper get _folderContent => dataMap![_FolderContentStreamKey];
-
-  bool get isServerAvailable => dataReady(_ServerStreamKey);
-
-  KlipperInstance get server => dataMap![_ServerStreamKey];
-
-  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
-
-  Machine? get selectedPrinter => dataMap?[_SelectedPrinterStreamKey];
-
   bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
 
   String? get curPathToPrinterUrl {
-    if (_machine != null) {
-      return '${_machine!.httpUrl}/server/files';
+    if (isSelectedMachineReady) {
+      return '${selectedMachine!.httpUrl}/server/files';
     }
     return null;
   }
@@ -176,21 +159,18 @@ class FilesViewModel extends MultipleStreamViewModel {
     _busyFetchDirectoryData(newPath: requestedPath);
   }
 
+  initialise() {
+    super.initialise();
+    if (isSelectedMachineReady) _fetchDirectoryData();
+  }
+
   @override
   onData(String key, data) {
     super.onData(key, data);
     switch (key) {
-      case _SelectedPrinterStreamKey:
-        Machine? nmachine = data;
-        if (nmachine == _machine) break;
-        _machine = nmachine;
-        _fetchDirectoryData();
-        notifySourceChanged(clearOldData: true);
-        break;
       case _FileNotification:
         handleFileListChanged(data);
         break;
-
       default:
         break;
     }
@@ -225,8 +205,10 @@ class FilesViewModel extends MultipleStreamViewModel {
         title: tr('dialogs.create_folder.title'),
         description: tr('dialogs.create_folder.label'),
         mainButtonTitle: tr('general.create'),
-        secondaryButtonTitle:
-            MaterialLocalizations.of(context).cancelButtonLabel.toLowerCase().titleCase(),
+        secondaryButtonTitle: MaterialLocalizations.of(context)
+            .cancelButtonLabel
+            .toLowerCase()
+            .titleCase(),
         data: RenameFileDialogArguments(
             blocklist: _folderContent.folders
                 .map((e) => e.name)
@@ -239,7 +221,7 @@ class FilesViewModel extends MultipleStreamViewModel {
       setBusyForObject(this, true);
       notifyListeners();
       try {
-        await _fileService!.createDir('$requestedPathAsString/$folderName');
+        await fileService.createDir('$requestedPathAsString/$folderName');
       } on JRpcError catch (e) {
         _snackBarService.showCustomSnackBar(
             variant: SnackbarType.error,
@@ -261,13 +243,15 @@ class FilesViewModel extends MultipleStreamViewModel {
                 tr('dialogs.delete_file.description', args: [fileName]),
             dialogPlatform: DialogPlatform.Material,
             confirmationTitle: materialLocalizations.deleteButtonTooltip,
-            cancelTitle: materialLocalizations.cancelButtonLabel.toLowerCase().titleCase());
+            cancelTitle: materialLocalizations.cancelButtonLabel
+                .toLowerCase()
+                .titleCase());
 
     if (dialogResponse?.confirmed ?? false) {
       setBusyForObject(this, true);
       notifyListeners();
       try {
-        await _fileService!.deleteFile('$requestedPathAsString/$fileName');
+        await fileService.deleteFile('$requestedPathAsString/$fileName');
       } on JRpcError catch (e) {
         _snackBarService.showCustomSnackBar(
             variant: SnackbarType.error,
@@ -289,13 +273,15 @@ class FilesViewModel extends MultipleStreamViewModel {
                 tr('dialogs.delete_folder.description', args: [fileName]),
             dialogPlatform: DialogPlatform.Material,
             confirmationTitle: materialLocalizations.deleteButtonTooltip,
-            cancelTitle: materialLocalizations.cancelButtonLabel.toLowerCase().titleCase());
+            cancelTitle: materialLocalizations.cancelButtonLabel
+                .toLowerCase()
+                .titleCase());
 
     if (dialogResponse?.confirmed ?? false) {
       setBusyForObject(this, true);
       notifyListeners();
       try {
-        await _fileService!.deleteDirForced('$requestedPathAsString/$fileName');
+        await fileService.deleteDirForced('$requestedPathAsString/$fileName');
       } on JRpcError catch (e) {
         _snackBarService.showCustomSnackBar(
             variant: SnackbarType.error,
@@ -319,8 +305,10 @@ class FilesViewModel extends MultipleStreamViewModel {
         title: tr('dialogs.rename_file.title'),
         description: tr('dialogs.rename_file.label'),
         mainButtonTitle: tr('general.rename'),
-        secondaryButtonTitle:
-            MaterialLocalizations.of(context).cancelButtonLabel.toLowerCase().titleCase(),
+        secondaryButtonTitle: MaterialLocalizations.of(context)
+            .cancelButtonLabel
+            .toLowerCase()
+            .titleCase(),
         data: RenameFileDialogArguments(
             initialValue: fileName,
             blocklist: fileNames,
@@ -332,7 +320,7 @@ class FilesViewModel extends MultipleStreamViewModel {
       setBusyForObject(this, true);
       notifyListeners();
       try {
-        await _fileService!.moveFile('$requestedPathAsString/$fileName',
+        await fileService.moveFile('$requestedPathAsString/$fileName',
             '$requestedPathAsString/$newName');
       } on JRpcError catch (e) {
         _snackBarService.showCustomSnackBar(
@@ -357,8 +345,10 @@ class FilesViewModel extends MultipleStreamViewModel {
         title: tr('dialogs.rename_folder.title'),
         description: tr('dialogs.rename_folder.label'),
         mainButtonTitle: tr('general.rename'),
-        secondaryButtonTitle:
-            MaterialLocalizations.of(context).cancelButtonLabel.toLowerCase().titleCase(),
+        secondaryButtonTitle: MaterialLocalizations.of(context)
+            .cancelButtonLabel
+            .toLowerCase()
+            .titleCase(),
         data: RenameFileDialogArguments(
             initialValue: fileName,
             blocklist: fileNames,
@@ -369,7 +359,7 @@ class FilesViewModel extends MultipleStreamViewModel {
       setBusyForObject(this, true);
       notifyListeners();
       try {
-        await _fileService!.moveFile('$requestedPathAsString/$fileName',
+        await fileService.moveFile('$requestedPathAsString/$fileName',
             '$requestedPathAsString/$newName');
       } on JRpcError catch (e) {
         _snackBarService.showCustomSnackBar(
@@ -449,9 +439,8 @@ class FilesViewModel extends MultipleStreamViewModel {
 
   Future _fetchDirectoryData({List<String> newPath = const ['gcodes']}) {
     requestedPath = newPath;
-    return _folderContentStreamController.addStream(_fileService!
-        .fetchDirectoryInfo(requestedPathAsString, true)
-        .asStream());
+    return _folderContentStreamController.addStream(
+        fileService.fetchDirectoryInfo(requestedPathAsString, true).asStream());
   }
 
   Future _busyFetchDirectoryData({List<String> newPath = const ['gcodes']}) {

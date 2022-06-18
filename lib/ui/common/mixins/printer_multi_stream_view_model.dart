@@ -1,9 +1,9 @@
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
-import 'package:mobileraker/ui/common/mixins/machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
 import 'package:stacked/stacked.dart';
 
-mixin PrinterMultiStreamViewModel on MachineMultiStreamViewModel {
+mixin PrinterMultiStreamViewModel on SelectedMachineMultiStreamViewModel {
   @protected
   static const PrinterDataStreamKey = 'cPrinter';
 
@@ -16,7 +16,7 @@ mixin PrinterMultiStreamViewModel on MachineMultiStreamViewModel {
     Map<String, StreamData> parentMap = super.streamsMap;
     return {
       ...parentMap,
-      if (this.isMachineAvailable)
+      if (this.isSelectedMachineReady)
         PrinterDataStreamKey: StreamData<Printer>(printerService.printerStream),
     };
   }
