@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:intl/intl.dart';
-import 'package:mobileraker/ui/components/dialog/editForm/num_edit_form_viewmodel.dart';
+import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:stacked/stacked.dart';

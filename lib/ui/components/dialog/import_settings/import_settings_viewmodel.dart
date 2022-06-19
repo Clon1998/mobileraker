@@ -7,7 +7,7 @@ import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker/temperature_preset.dart';
 import 'package:mobileraker/data/model/moonraker/machine_settings.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
+import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_view.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
