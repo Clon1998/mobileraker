@@ -160,7 +160,7 @@ class PausedFAB extends ViewModelWidget<DashboardViewModel> {
           backgroundColor: Colors.red,
           label: MaterialLocalizations.of(context)
               .cancelButtonLabel
-              .titleCase()
+              .toLowerCase()
               .titleCase(),
           onTap: model.onCancelPrintPressed,
         ),

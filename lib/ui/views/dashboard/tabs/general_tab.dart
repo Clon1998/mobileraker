@@ -128,6 +128,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                   IconButton(
                     color: themeData.colorScheme.primary,
                     icon: Icon(Icons.token),
+                    tooltip: 'dialogs.exclude_object.title'.tr(),
                     onPressed: model.onExcludeObjectPressed,
                   ),
                   Expanded(
