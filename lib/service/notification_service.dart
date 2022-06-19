@@ -259,8 +259,8 @@ class NotificationService {
         machine, printer.print.state, printer.print.filename, false);
 
     if (state == PrintState.printing && !Platform.isIOS)
-      await _updatePrintProgressNotification(
-          machine, printer.virtualSdCard.progress, printer.print.printDuration, false);
+      await _updatePrintProgressNotification(machine,
+          printer.virtualSdCard.progress, printer.print.printDuration, false);
     await machine.save();
   }
 
@@ -339,14 +339,16 @@ class NotificationService {
   }
 
   Future<void> _updatePrintProgressNotification(
-      Machine machine, double progress, double printDuration, [bool normalize = true]) async {
+      Machine machine, double progress, double printDuration,
+      [bool normalize = true]) async {
     if (progress >= 100) return;
 
     ProgressNotificationMode progMode = ProgressNotificationMode
         .values[_settingsService.readInt(selectedProgressNotifyMode)];
     if (progMode == ProgressNotificationMode.DISABLED) return;
 
-    double normalizedProgress = normalize? normalizeProgress(progMode, progress): progress;
+    double normalizedProgress =
+        normalize ? normalizeProgress(progMode, progress) : progress;
 
     if (machine.lastPrintProgress == normalizedProgress) return;
     machine.lastPrintProgress = normalizedProgress;
