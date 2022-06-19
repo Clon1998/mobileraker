@@ -281,6 +281,8 @@ class PrinterService {
       }
     } catch (e, s) {
       _logger.e('Error while parsing $key object', e, s);
+      _logger.e(e);
+      _logger.e(s);
       _snackBarService.showCustomSnackBar(
           variant: SnackbarType.error,
           duration: const Duration(seconds: 20),
@@ -570,11 +572,10 @@ class PrinterService {
     if (json.containsKey('objects')) {
       List<dynamic> _objects = json['objects'];
       List<ParsedObject> objects = [];
-      for (dynamic e in _objects) {
+      for (Map<String, dynamic> e in _objects) {
         String name = e['name'];
         List<double> center;
         List<List<double>> polygons;
-
         if (e.containsKey('center')) {
           List<dynamic> _center = e['center'];
           center = _center.cast<double>();

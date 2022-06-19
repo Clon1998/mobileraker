@@ -5,8 +5,6 @@ import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/moonraker/machine_settings.dart';
-import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:stacked/stacked.dart';
@@ -51,7 +49,8 @@ class ExcludeObjectViewModel extends StreamViewModel<Printer> {
 
   double get sizeY => maxY + minY.abs();
 
-  bool get canExclude => excludeObject.objects.length - excludeObject.excludedObjects.length > 1;
+  bool get canExclude =>
+      excludeObject.objects.length - excludeObject.excludedObjects.length > 1;
 
   ExcludeObjectViewModel(this.request, this.completer);
 

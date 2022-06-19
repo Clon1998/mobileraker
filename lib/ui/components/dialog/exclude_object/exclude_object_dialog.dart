@@ -1,10 +1,10 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
-import 'package:mobileraker/ui/components/dialog/excludeObject/exclude_objects_viewmodel.dart';
+import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_objects_viewmodel.dart';
 import 'package:mobileraker/ui/themes/theme_pack.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -204,15 +204,13 @@ class ExcludeObjectPainter extends CustomPainter {
     double maxY = size.height;
 
     drawXLines(maxX, myCanvas, maxY, paintBg);
-    for (int i = 1; i < _maxYBed ~/ bgLineDis; i++) {
-      var y = (bgLineDis * i) / _maxYBed * maxY;
-      myCanvas.drawLine(Offset(0, y), Offset(maxX, y), paintBg);
-    }
+    drawYLines(maxY, myCanvas, maxX, paintBg);
 
+    bool tmp = false;
     for (ParsedObject obj in model.excludeObject.objects) {
       List<vec.Vector2> polygons = obj.polygons;
       if (polygons.isEmpty) continue;
-
+      tmp = true;
       Path path = constructPath(polygons, maxX, maxY);
 
       if (model.excludeObject.excludedObjects.contains(obj.name)) {
@@ -222,6 +220,31 @@ class ExcludeObjectPainter extends CustomPainter {
             onTapDown: (x) => model.onPathTapped(obj));
         if (model.selectedObject == obj) myCanvas.drawPath(path, paintSelected);
       }
+    }
+    if (!tmp) drawNoDataText(canvas, maxX, maxY);
+  }
+
+  void drawNoDataText(Canvas canvas, double maxX, double maxY) {
+    TextSpan span = new TextSpan(
+      text: 'dialogs.exclude_object.no_visualization'.tr(),
+      style: Theme.of(context).textTheme.headline4,
+    );
+    TextPainter tp = new TextPainter(
+        text: span,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr);
+    tp.layout(
+      minWidth: 0,
+      maxWidth: maxX,
+    );
+    tp.paint(canvas, Offset((maxX - tp.width) / 2, (maxY - tp.height) / 2));
+  }
+
+  void drawYLines(
+      double maxY, TouchyCanvas myCanvas, double maxX, Paint paintBg) {
+    for (int i = 1; i < _maxYBed ~/ bgLineDis; i++) {
+      var y = (bgLineDis * i) / _maxYBed * maxY;
+      myCanvas.drawLine(Offset(0, y), Offset(maxX, y), paintBg);
     }
   }
 

@@ -47,7 +47,7 @@ class ParsedObject {
       {required this.name,
       required List<double> center,
       List<List<double>> polygons = const []})
-      : this.center = Vector2.array(center),
+      : this.center = center.isEmpty ? Vector2.zero() : Vector2.array(center),
         this.polygons = polygons.isEmpty
             ? []
             : polygons.map((e) => Vector2.array(e)).toList();
