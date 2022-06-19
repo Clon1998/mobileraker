@@ -16,7 +16,7 @@ import 'package:mobileraker/ui/common/mixins/machine_settings_multi_stream_view_
 import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
 import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/components/dialog/editForm/num_edit_form_viewmodel.dart';
+import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';

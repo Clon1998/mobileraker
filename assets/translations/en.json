@@ -295,7 +295,8 @@
       "label": "Object to exclude",
       "confirm_tile_title": "Are you sure?",
       "confirm_tile_subtitle": "This operation cannot be undone!",
-      "exclude": "Exclude"
+      "exclude": "Exclude",
+      "no_visualization": "No visualization data available!"
     }
   },
   "klipper_state": {

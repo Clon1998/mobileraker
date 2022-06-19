@@ -1,8 +1,8 @@
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/ui/components/dialog/editForm/num_edit_form_view.dart';
-import 'package:mobileraker/ui/components/dialog/editForm/range_edit_form_view.dart';
-import 'package:mobileraker/ui/components/dialog/excludeObject/exclude_object_dialog.dart';
-import 'package:mobileraker/ui/components/dialog/importSettings/import_settings_view.dart';
+import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_view.dart';
+import 'package:mobileraker/ui/components/dialog/edit_form/range_edit_form_view.dart';
+import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_view.dart';
 import 'package:mobileraker/ui/components/dialog/renameFile/rename_file_dialog_view.dart';
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 import 'package:stacked_services/stacked_services.dart';
