@@ -285,23 +285,6 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
 
       _saveAllGroupStuff();
 
-      machine
-        ..name = printerName
-        ..wsUrl = wsUrl
-        ..httpUrl = printerUrl
-        ..apiKey = printerAPIKey
-        ..cams = webcams;
-      //   ..temperaturePresets = tempPresets
-      //   ..inverts = inverts
-      //   ..speedXY = speedXY
-      //   ..speedZ = speedZ
-      //   ..extrudeFeedrate = extrudeSpeed
-      //   ..moveSteps = printerMoveSteps
-      //   ..babySteps = printerBabySteps
-      //   ..macroGroups = macroGroups
-      //   ..extrudeSteps = printerExtruderSteps;
-      await _machineService.updateMachine(machine);
-
       if (!settingsHasError &&
           !printerHasError &&
           !isFetchingPrinter &&
@@ -330,6 +313,22 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
                 speedXY: speedXY,
                 speedZ: speedZ));
       }
+      machine
+        ..name = printerName
+        ..wsUrl = wsUrl
+        ..httpUrl = printerUrl
+        ..apiKey = printerAPIKey
+        ..cams = webcams;
+      //   ..temperaturePresets = tempPresets
+      //   ..inverts = inverts
+      //   ..speedXY = speedXY
+      //   ..speedZ = speedZ
+      //   ..extrudeFeedrate = extrudeSpeed
+      //   ..moveSteps = printerMoveSteps
+      //   ..babySteps = printerBabySteps
+      //   ..macroGroups = macroGroups
+      //   ..extrudeSteps = printerExtruderSteps;
+      await _machineService.updateMachine(machine);
       if (StackedService.navigatorKey?.currentState?.canPop() ?? false) {
         _navigationService.back();
       } else {

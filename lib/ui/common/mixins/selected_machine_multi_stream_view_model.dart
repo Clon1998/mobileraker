@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -9,11 +10,13 @@ import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dar
 import 'package:stacked/stacked.dart';
 
 mixin SelectedMachineMultiStreamViewModel on MixableMultiStreamViewModel {
+  final _logger = getLogger('SelectedMachineMultiStreamViewModel');
   @protected
   static const SelectedMachineStreamKey = 'selMachine';
   final _selectedMachineService = locator<SelectedMachineService>();
 
   Machine? _last;
+  int? _lastHash; // Since i am not using immutables _last is kinda meh,,,
 
   bool get isSelectedMachineReady => _last != null;
 
@@ -43,6 +46,7 @@ mixin SelectedMachineMultiStreamViewModel on MixableMultiStreamViewModel {
     /// already available. Prevents views to render a bit to late.
     /// E.g. FileView to GcodeDetailView's transition
     _last = _selectedMachineService.selectedMachine.valueOrNull;
+    _lastHash = _last.hashCode;
     super.initialise();
   }
 
@@ -51,8 +55,10 @@ mixin SelectedMachineMultiStreamViewModel on MixableMultiStreamViewModel {
     super.onData(key, data);
     switch (key) {
       case SelectedMachineStreamKey:
-        if (_last != data) {
+        if (_lastHash != data.hashCode) {
+          _logger.wtf(('message'));
           _last = data;
+          _lastHash = data.hashCode;
           notifySourceChanged(clearOldData: false);
         }
         break;
