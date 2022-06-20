@@ -129,8 +129,12 @@
         },
         "meta_card": {
           "title": "GCode Meta Data",
+          "filament": "Filament",
+          "filament_type": "Filament Type",
+          "filament_name": "Filament Name",
           "est_print_time": "Estimated Print Time",
           "slicer": "Used Slicer",
+          "nozzle_diameter": "Nozzle Diameter",
           "layer_higher": "Layer Height",
           "first_layer": "First Layer",
           "others": "Others",

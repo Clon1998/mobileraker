@@ -162,6 +162,12 @@ class GCodeFileDetailView
                     ),
                     Divider(),
                     PropertyTile(
+                      title: 'pages.files.details.meta_card.filament'.tr(),
+                      subtitle:
+                          '${tr('pages.files.details.meta_card.filament_type')}: ${gcodeFile.filamentType ?? tr('general.unknown')}\n'
+                          '${tr('pages.files.details.meta_card.filament_name')}: ${gcodeFile.filamentName ?? tr('general.unknown')}',
+                    ),
+                    PropertyTile(
                       title:
                           'pages.files.details.meta_card.est_print_time'.tr(),
                       subtitle:
@@ -170,6 +176,11 @@ class GCodeFileDetailView
                     PropertyTile(
                       title: 'pages.files.details.meta_card.slicer'.tr(),
                       subtitle: model.usedSlicerAndVersion,
+                    ),
+                    PropertyTile(
+                      title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
+                      subtitle:
+                          '${gcodeFile.nozzleDiameter} mm',
                     ),
                     PropertyTile(
                       title: 'pages.files.details.meta_card.layer_higher'.tr(),

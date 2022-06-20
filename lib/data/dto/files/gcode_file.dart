@@ -30,6 +30,11 @@ class GCodeFile extends RemoteFile {
 
   List<GCodeThumbnail> thumbnails = List.empty();
 
+  String? filamentType;
+
+  String? filamentName;
+
+  double? nozzleDiameter;
   /// CUSTOM FIELDS:
 
   GCodeFile(
@@ -39,7 +44,8 @@ class GCodeFile extends RemoteFile {
       required String parentPath})
       : super(name, modified, size, parentPath);
 
-  GCodeFile.fromJson(Map<String, dynamic> json, String parentPath):super.fromJson(json, parentPath) {
+  GCodeFile.fromJson(Map<String, dynamic> json, String parentPath)
+      : super.fromJson(json, parentPath) {
     if (json.containsKey('print_start_time'))
       this.printStartTime = json['print_start_time'];
     if (json.containsKey('job_id')) this.jobID = json['job_id'];
@@ -64,6 +70,12 @@ class GCodeFile extends RemoteFile {
       this.gcodeEndByte = json['gcode_start_byte'];
     if (json.containsKey('gcode_end_byte'))
       this.gcodeEndByte = json['gcode_end_byte'];
+    if (json.containsKey('filament_type'))
+      this.filamentType = json['filament_type'];
+    if (json.containsKey('filament_name'))
+      this.filamentName = json['filament_name'];
+    if (json.containsKey('nozzle_diameter'))
+      this.nozzleDiameter = json['nozzle_diameter'];
 
     if (json.containsKey('thumbnails')) {
       List<dynamic> thumbs = json['thumbnails'];

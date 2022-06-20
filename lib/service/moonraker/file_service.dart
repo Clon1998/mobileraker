@@ -206,7 +206,6 @@ class FileService {
     List<RemoteFile> listOfFiles = List.generate(filesResponse.length, (index) {
       var element = filesResponse[index];
       String name = element['filename'];
-
       if (name.endsWith('.gcode'))
         return GCodeFile.fromJson(element, forPath);
       else
