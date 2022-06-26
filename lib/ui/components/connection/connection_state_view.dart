@@ -13,7 +13,6 @@ import 'connection_state_viewmodel.dart';
 
 class ConnectionStateView
     extends ViewModelBuilderWidget<ConnectionStateViewModel> {
-
   @override
   bool get disposeViewModel => false;
 
@@ -23,13 +22,12 @@ class ConnectionStateView
   // Widget to show when ws is Connected
   final Widget onConnected;
 
-  ConnectionStateView({Key? key, required this.onConnected})
-      : super(key: key);
+  ConnectionStateView({Key? key, required this.onConnected}) : super(key: key);
 
   @override
   Widget builder(
       BuildContext context, ConnectionStateViewModel model, Widget? child) {
-    return model.isMachineAvailable
+    return model.isSelectedMachineReady
         ? _widgetForWebsocketState(context, model)
         : Center(
             child: Column(
@@ -74,7 +72,8 @@ class ConnectionStateView
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.warning_amber_outlined,  size: 50,color: Theme.of(context).colorScheme.error),
+              Icon(Icons.warning_amber_outlined,
+                  size: 50, color: Theme.of(context).colorScheme.error),
               SizedBox(
                 height: 30,
               ),
@@ -109,7 +108,11 @@ class ConnectionStateView
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.warning_amber_outlined, size: 50,color: Theme.of(context).colorScheme.error,),
+              Icon(
+                Icons.warning_amber_outlined,
+                size: 50,
+                color: Theme.of(context).colorScheme.error,
+              ),
               SizedBox(
                 height: 20,
               ),
@@ -129,8 +132,8 @@ class ConnectionStateView
 
   Widget _widgetForKlippyServerState(
       BuildContext context, ConnectionStateViewModel model) {
-    if (model.isPrinterAvailable) return onConnected;
-    switch (model.server.klippyState) {
+    if (model.isPrinterDataReady) return onConnected;
+    switch (model.klippyInstance.klippyState) {
       case KlipperState.disconnected:
       case KlipperState.shutdown:
       case KlipperState.error:

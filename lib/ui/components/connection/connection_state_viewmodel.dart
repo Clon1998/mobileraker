@@ -12,61 +12,43 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/printer_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 const String _ClientStateStreamKey = 'client_state';
-const String _SelectedPrinterStreamKey = 'selectedPrinter';
-const String _ServerStreamKey = 'server';
-const String _PrinterStreamKey = 'printer';
 
 class ConnectionStateViewModel extends MultipleStreamViewModel
-    with WidgetsBindingObserver {
-  final _selectedMachineService = locator<SelectedMachineService>();
+    with
+        WidgetsBindingObserver,
+        SelectedMachineMixin,
+        PrinterMixin,
+        KlippyMixin {
   final _navigationService = locator<NavigationService>();
   final _logger = getLogger('ConnectionStateViewModel');
 
-  Machine? _machine;
-
-  KlippyService? get _klippyService => _machine?.klippyService;
-
-  PrinterService? get _printerService => _machine?.printerService;
-
-  JsonRpcClient? get _jRpcClient => _machine?.jRpcClient;
+  JsonRpcClient? get _jRpcClient => selectedMachine?.jRpcClient;
 
   @override
-  Map<String, StreamData> get streamsMap => {
-        _SelectedPrinterStreamKey:
-            StreamData<Machine?>(_selectedMachineService.selectedMachine),
-        if (_machine?.jRpcClient != null)
-          _ClientStateStreamKey:
-              StreamData<ClientState>(_jRpcClient!.stateStream),
-        if (_machine?.klippyService != null)
-          _ServerStreamKey:
-              StreamData<KlipperInstance>(_klippyService!.klipperStream),
-        if (_printerService != null)
-          _PrinterStreamKey:
-              StreamData<Printer>(_printerService!.printerStream),
-      };
+  Map<String, StreamData> get streamsMap {
+    return {
+      ...super.streamsMap,
+      if (isSelectedMachineReady)
+        _ClientStateStreamKey:
+            StreamData<ClientState>(_jRpcClient!.stateStream),
+    };
+  }
 
   ClientState get connectionState =>
       dataMap?[_ClientStateStreamKey] ?? ClientState.disconnected;
 
-  bool get isMachineAvailable => dataReady(_SelectedPrinterStreamKey);
-
-  bool get isServerAvailable => dataReady(_ServerStreamKey);
-
-  KlipperInstance get server => dataMap![_ServerStreamKey];
-
-  bool get isPrinterAvailable => dataReady(_PrinterStreamKey);
-
-  Printer get printer => dataMap![_PrinterStreamKey];
-
-  String get klippyState => 'Klippy: ${toName(server.klippyState)}';
+  String get klippyState => 'Klippy: ${toName(klippyInstance.klippyState)}';
 
   String get errorMessage {
-    return server.klippyStateMessage ??
-        'Klipper: ${toName(server.klippyState)}';
+    return klippyInstance.klippyStateMessage ??
+        'Klipper: ${toName(klippyInstance.klippyState)}';
   }
 
   String get clientErrorMessage {
@@ -81,19 +63,6 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
       return 'Error while trying to connect. Please retry later.';
   }
 
-  @override
-  onData(String key, data) {
-    switch (key) {
-      case _SelectedPrinterStreamKey:
-        Machine? nmachine = data;
-        if (nmachine == _machine) break;
-        _machine = nmachine;
-
-        notifySourceChanged(clearOldData: true);
-        break;
-    }
-  }
-
   onRetryPressed() {
     _jRpcClient?.openChannel();
   }
@@ -102,13 +71,9 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
     _navigationService.navigateTo(Routes.printerAdd);
   }
 
-  onRestartKlipperPressed() {
-    _klippyService?.restartKlipper();
-  }
+  onRestartKlipperPressed() => klippyService.restartKlipper();
 
-  onRestartMCUPressed() {
-    _klippyService?.restartMCUs();
-  }
+  onRestartMCUPressed() => klippyService.restartMCUs();
 
   @override
   initialise() {
@@ -126,6 +91,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
 
   @override
   didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
     switch (state) {
       case AppLifecycleState.resumed:
         _logger.i("App forgrounded");

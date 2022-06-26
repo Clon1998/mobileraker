@@ -45,6 +45,8 @@ mixin SelectedMachineMixin on MultipleStreamViewModel {
     /// However since the lib fucks up the data its better to have a value
     /// already available. Prevents views to render a bit to late.
     /// E.g. FileView to GcodeDetailView's transition
+
+    // _logger.wtf("INit $_lastHash");
     _last = _selectedMachineService.selectedMachine.valueOrNull;
     _lastHash = _last.hashCode;
     super.initialise();
@@ -56,7 +58,7 @@ mixin SelectedMachineMixin on MultipleStreamViewModel {
     switch (key) {
       case SelectedMachineStreamKey:
         if (_lastHash != data.hashCode) {
-          _logger.wtf(('message'));
+          // _logger.wtf('last: $_lastHash data: ${data?.hashCode}, last: ${_last?.name}, data:${data?.name}');
           _last = data;
           _lastHash = data.hashCode;
           notifySourceChanged(clearOldData: false);

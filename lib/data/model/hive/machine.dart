@@ -167,6 +167,7 @@ class Machine extends HiveObject {
           macroGroups == other.macroGroups &&
           fcmIdentifier == other.fcmIdentifier &&
           lastModified == other.lastModified;
+
   @override
   int get hashCode =>
       name.hashCode ^
@@ -187,11 +188,7 @@ class Machine extends HiveObject {
       _lastPrintState.hashCode ^
       macroGroups.hashCode ^
       fcmIdentifier.hashCode ^
-      lastModified.hashCode ^
-      _jRpcClient.hashCode ^
-      _printerService.hashCode ^
-      _klippyService.hashCode ^
-      _fileService.hashCode;
+      lastModified.hashCode;
 
   @override
   String toString() {
