@@ -783,20 +783,20 @@ class _SegmentsState<T> extends State<Segments<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
-        transitionBuilder: (Widget child, Animation<double> animation) =>
-            SizeTransition(
-              sizeFactor: animation,
-              child: child,
-            ),
-        child: editing ? buildEditing(context) : buildNonEditing(context));
+    return AnimatedCrossFade(
+      duration: kThemeAnimationDuration,
+      crossFadeState:
+          editing ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+      firstChild: buildEditing(context),
+      secondChild: buildNonEditing(context),
+    );
   }
 
   WillPopScope buildEditing(BuildContext context) {
     return WillPopScope(
       onWillPop: () => cancel(),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
               child: TextField(
