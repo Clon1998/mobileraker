@@ -51,6 +51,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   final _machineService = locator<MachineService>();
 
   final _fbKey = GlobalKey<FormBuilderState>();
+
   GlobalKey<FormBuilderState> get formKey => _fbKey;
 
   MacroGroup? srcGrpDragging;
@@ -168,7 +169,7 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
   }
 
   addBabyStep(String rawValue) {
-    double? nStep = double.tryParse(rawValue);
+    double? nStep = double.tryParse(rawValue.replaceAll(',', '.'));
 
     if (nStep == null) {
       _snackbarService.showCustomSnackBar(
@@ -376,8 +377,9 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
             variant: DialogType.importSettings,
             title: 'Copy Settings',
             mainButtonTitle: materialLocalizations.copyButtonLabel,
-            secondaryButtonTitle:
-                materialLocalizations.cancelButtonLabel.toLowerCase().titleCase(),
+            secondaryButtonTitle: materialLocalizations.cancelButtonLabel
+                .toLowerCase()
+                .titleCase(),
             data: machine)
         .then(onImportSettingsReturns);
   }
@@ -519,7 +521,8 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
     if (url != null) toSave.url = url;
     if (fH != null) toSave.flipHorizontal = fH;
     if (fV != null) toSave.flipVertical = fV;
-    if (fV != null && mode == WebCamMode.ADAPTIVE_STREAM&& tFps != null) toSave.targetFps = tFps;
+    if (fV != null && mode == WebCamMode.ADAPTIVE_STREAM && tFps != null)
+      toSave.targetFps = tFps;
     if (mode != null) toSave.mode = mode;
   }
 
