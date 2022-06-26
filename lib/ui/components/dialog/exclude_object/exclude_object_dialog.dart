@@ -98,7 +98,6 @@ class DefaultBtnRow extends ViewModelWidget<ExcludeObjectViewModel> {
 
   @override
   Widget build(BuildContext context, ExcludeObjectViewModel model) {
-    ThemeData themeData = Theme.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

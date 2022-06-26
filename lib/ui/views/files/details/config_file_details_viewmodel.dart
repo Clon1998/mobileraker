@@ -7,18 +7,17 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
+
+import 'package:mobileraker/ui/common/mixins/printer_mixin.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-const String _PrinterKey = 'printerKey';
 const String _FileKey = 'fileKey';
 
-class ConfigFileDetailsViewModel extends MixableMultiStreamViewModel
-    with SelectedMachineMultiStreamViewModel, PrinterMultiStreamViewModel {
+class ConfigFileDetailsViewModel extends MultipleStreamViewModel
+    with SelectedMachineMixin, PrinterMixin {
   final _logger = getLogger('ConfigFileDetailsViewModel');
   final _navigationService = locator<NavigationService>();
   final _snackBarService = locator<SnackbarService>();
@@ -42,7 +41,6 @@ class ConfigFileDetailsViewModel extends MixableMultiStreamViewModel
   @override
   Map<String, StreamData> get streamsMap {
     Map<String, StreamData> parentMap = super.streamsMap;
-    _logger.wtf('ParentMap => $parentMap');
 
     return {
       ...parentMap,
@@ -55,7 +53,6 @@ class ConfigFileDetailsViewModel extends MixableMultiStreamViewModel
   @override
   void onData(String key, dynamic data) async {
     super.onData(key, data);
-    _logger.wtf('$key => ${data.hashCode}');
     if (data == null) return;
     if (key == _FileKey) {
       codeController.text = await data.readAsString();

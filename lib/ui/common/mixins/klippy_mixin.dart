@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:stacked/stacked.dart';
 
-mixin KlippyMultiStreamViewModel on SelectedMachineMultiStreamViewModel {
+mixin KlippyMixin on SelectedMachineMixin {
   @protected
   static const KlippyDataStreamKey = 'cKlippy';
 

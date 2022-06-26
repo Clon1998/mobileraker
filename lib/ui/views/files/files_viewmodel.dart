@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -13,14 +12,9 @@ import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:mobileraker/ui/components/dialog/renameFile/rename_file_dialog_view.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
@@ -34,8 +28,8 @@ import 'package:stringr/stringr.dart';
 const String _FolderContentStreamKey = 'folderContent';
 const String _FileNotification = 'fileNotification';
 
-class FilesViewModel extends MixableMultiStreamViewModel
-    with SelectedMachineMultiStreamViewModel, KlippyMultiStreamViewModel {
+class FilesViewModel extends MultipleStreamViewModel
+    with SelectedMachineMixin, KlippyMixin {
   final _logger = getLogger('FilesViewModel');
 
   final _dialogService = locator<DialogService>();

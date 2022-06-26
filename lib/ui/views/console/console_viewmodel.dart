@@ -6,9 +6,9 @@ import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
+
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:stacked/stacked.dart';
@@ -29,8 +29,8 @@ const List<String> additionalCmds = const [
   'TESTZ',
 ];
 
-class ConsoleViewModel extends MixableMultiStreamViewModel
-    with SelectedMachineMultiStreamViewModel, KlippyMultiStreamViewModel {
+class ConsoleViewModel extends MultipleStreamViewModel
+    with SelectedMachineMixin, KlippyMixin {
   final _logger = getLogger('ConsoleViewModel');
 
   final _dialogService = locator<DialogService>();

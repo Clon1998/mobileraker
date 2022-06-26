@@ -4,20 +4,17 @@ import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
+
+import 'package:mobileraker/ui/common/mixins/printer_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:mobileraker/ui/components/bottomsheet/setup_bottom_sheet_ui.dart';
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class DashboardViewModel extends MixableMultiStreamViewModel
-    with
-        SelectedMachineMultiStreamViewModel,
-        PrinterMultiStreamViewModel,
-        KlippyMultiStreamViewModel {
+class DashboardViewModel extends MultipleStreamViewModel
+    with SelectedMachineMixin, PrinterMixin, KlippyMixin {
   final _bottomSheetService = locator<BottomSheetService>();
   final _dialogService = locator<DialogService>();
   final _selectedMachineService = locator<SelectedMachineService>();

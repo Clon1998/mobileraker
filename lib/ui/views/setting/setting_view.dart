@@ -11,7 +11,6 @@ import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/themes/theme_pack.dart';
 import 'package:mobileraker/ui/views/setting/setting_viewmodel.dart';
 import 'package:stacked/stacked.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
   const SettingView({Key? key}) : super(key: key);

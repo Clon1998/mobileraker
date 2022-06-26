@@ -20,7 +20,6 @@ class MachineService {
   final _logger = getLogger('MachineService');
   final _machineRepo = locator<MachineHiveRepository>();
   final _selectedMachineService = locator<SelectedMachineService>();
-  final _dialogService = locator<DialogService>();
   final MachineSettingsMoonrakerRepository _machineSettingsRepository =
       locator<MachineSettingsMoonrakerRepository>();
 

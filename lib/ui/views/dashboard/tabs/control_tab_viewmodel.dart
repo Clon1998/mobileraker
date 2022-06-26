@@ -9,22 +9,18 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/moonraker/gcode_macro.dart';
 import 'package:mobileraker/data/model/moonraker/macro_group.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/machine_settings_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/machine_settings_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/printer_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:mobileraker/util/misc.dart';
+import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class ControlTabViewModel extends MixableMultiStreamViewModel
-    with
-        SelectedMachineMultiStreamViewModel,
-        PrinterMultiStreamViewModel,
-        KlippyMultiStreamViewModel,
-        MachineSettingsMultiStreamViewModel {
+class ControlTabViewModel extends MultipleStreamViewModel
+    with SelectedMachineMixin, PrinterMixin, KlippyMixin, MachineSettingsMixin {
   final _dialogService = locator<DialogService>();
   final _settingService = locator<SettingService>();
 

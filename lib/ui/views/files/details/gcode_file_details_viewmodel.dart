@@ -5,18 +5,18 @@ import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/ui/common/mixins/klippy_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/printer_multi_stream_view_model.dart';
-import 'package:mobileraker/ui/common/mixins/selected_machine_multi_stream_view_model.dart';
+import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
+
+import 'package:mobileraker/ui/common/mixins/printer_mixin.dart';
+import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-class GCodeFileDetailsViewModel extends MixableMultiStreamViewModel
+class GCodeFileDetailsViewModel extends MultipleStreamViewModel
     with
-        SelectedMachineMultiStreamViewModel,
-        PrinterMultiStreamViewModel,
-        KlippyMultiStreamViewModel {
+        SelectedMachineMixin,
+        PrinterMixin,
+        KlippyMixin {
   final _logger = getLogger('GCodeFileDetailsViewModel');
   final _dialogService = locator<DialogService>();
   final _snackBarService = locator<SnackbarService>();

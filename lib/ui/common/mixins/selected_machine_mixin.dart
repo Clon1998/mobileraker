@@ -6,10 +6,10 @@ import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/ui/common/mixins/mixable_multi_stream_view_model.dart';
+
 import 'package:stacked/stacked.dart';
 
-mixin SelectedMachineMultiStreamViewModel on MixableMultiStreamViewModel {
+mixin SelectedMachineMixin on MultipleStreamViewModel {
   final _logger = getLogger('SelectedMachineMultiStreamViewModel');
   @protected
   static const SelectedMachineStreamKey = 'selMachine';
