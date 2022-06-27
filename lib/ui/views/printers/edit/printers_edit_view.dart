@@ -764,6 +764,8 @@ class _SegmentsState<T> extends State<Segments<T>> {
   }
 
   Future<bool> cancel() {
+    if (editing == false) return Future.value(true);
+
     setState(() {
       editing = false;
     });
