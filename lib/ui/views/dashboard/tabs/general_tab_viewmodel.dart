@@ -9,7 +9,7 @@ import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
-import 'package:mobileraker/data/model/moonraker/temperature_preset.dart';
+import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
 import 'package:mobileraker/ui/common/mixins/machine_settings_mixin.dart';

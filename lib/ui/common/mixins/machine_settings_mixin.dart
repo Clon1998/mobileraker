@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/data/model/moonraker/machine_settings.dart';
+import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:stacked/stacked.dart';
