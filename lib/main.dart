@@ -16,7 +16,7 @@ import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:mobileraker/util/misc.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'app/app_setup.router.dart';

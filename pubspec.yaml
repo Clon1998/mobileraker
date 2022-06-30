@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.6.2+16
+version: 1.7.0+20
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -36,7 +36,7 @@ dependencies:
 
   #stacked
   stacked: ^2.3.6
-  stacked_services: ^0.8.22
+  stacked_services: ^0.9.1
 
   #util
   stringr: ^1.0.0
@@ -76,8 +76,9 @@ dependencies:
     git: https://github.com/jibiel/flutter-icons.git
   flutter_spinkit: ^5.1.0
   progress_indicators: ^1.0.0
-  pull_to_refresh: ^2.0.0
-  animated_bottom_navigation_bar: ^0.3.2
+#  pull_to_refresh: ^2.0.0
+  pull_to_refresh_flutter3: ^2.0.1
+  animated_bottom_navigation_bar: ^1.0.0
   animations: ^2.0.2
   flip_card: ^0.6.0
   flutter_breadcrumb: ^1.0.1
@@ -87,7 +88,7 @@ dependencies:
   flutter_speed_dial: ^6.0.0
   dots_indicator: ^2.0.0
   webview_flutter: ^3.0.2
-  fl_chart: ^0.51.0
+  fl_chart: ^0.55.0
   flutter_slidable: ^1.2.0
   code_text_field: ^1.0.2
 

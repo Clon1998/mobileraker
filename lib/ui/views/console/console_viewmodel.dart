@@ -10,7 +10,7 @@ import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
 import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
