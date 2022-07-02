@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
@@ -23,11 +24,7 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class GeneralTabViewModel extends MultipleStreamViewModel
-    with
-        SelectedMachineMixin,
-        PrinterMixin,
-        KlippyMixin,
-        MachineSettingsMixin {
+    with SelectedMachineMixin, PrinterMixin, KlippyMixin, MachineSettingsMixin {
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
   final _settingService = locator<SettingService>();

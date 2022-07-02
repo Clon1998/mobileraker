@@ -12,11 +12,13 @@ import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
+import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/controller_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/heater_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
+import 'package:mobileraker/data/dto/machine/heater_bed.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
@@ -204,6 +206,26 @@ class PrinterService {
     gCode('SDCARD_RESET_FILE');
   }
 
+  Future<void> _temperatureStore(Printer printer) async {
+    _logger.i('Fetching cached temperature store data');
+    RpcResponse blockingResponse =
+        await _jRpcClient.sendJRpcMethod('server.temperature_store');
+    if (blockingResponse.hasError) {
+      _logger.e(
+          'Error while fetching cached temperature store: ${blockingResponse.err}');
+      return;
+    }
+
+    Map<String, dynamic> raw = blockingResponse.response['result'];
+    List<String> sensors = raw.keys
+        .toList(); // temperature_sensor <NAME>, extruder, heater_bed, temperature_fan
+    _logger.i('Received cached temperature store for $sensors');
+
+    raw.forEach((key, value) {
+      _parseObjectType(key, raw, printer);
+    });
+  }
+
   Future<List<ConsoleEntry>> gcodeStore() async {
     _logger.i('Fetching cached GCode commands');
     RpcResponse blockingResponse =
@@ -324,7 +346,7 @@ class PrinterService {
     _queryPrinterObjects(printer);
   }
 
-  _printerObjectsQuery(dynamic response, Printer printer) {
+  _printerObjectsQuery(dynamic response, Printer printer) async {
     _logger.i('<<<Received queried printer objects');
     _logger.v(
         'PrinterObjectsQuery: ${JsonEncoder.withIndent('  ').convert(response)}');
@@ -335,6 +357,7 @@ class PrinterService {
     });
 
     printerStream.add(printer);
+    await _temperatureStore(printer);
     // After initally getting all information we can get the data!
     _makeSubscribeRequest(printer);
   }
@@ -420,6 +443,19 @@ class PrinterService {
       tempSensor.measuredMinTemp = sensorJson['measured_min_temp'];
     if (sensorJson.containsKey('measured_max_temp'))
       tempSensor.measuredMaxTemp = sensorJson['measured_max_temp'];
+
+    // Update temp cache for graphs!
+    DateTime now = DateTime.now();
+    if (now.difference(tempSensor.lastHistory).inSeconds >= 1) {
+      tempSensor.temperatureHistory?.removeAt(0);
+      tempSensor.temperatureHistory?.add(tempSensor.temperature);
+      tempSensor.lastHistory = now;
+    }
+
+    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
+    if (sensorJson.containsKey('temperatures'))
+      tempSensor.temperatureHistory =
+          (sensorJson['temperatures'] as List<dynamic>).cast<double>();
   }
 
   _updateOutputPin(String pin, Map<String, dynamic> pinJson,
@@ -505,26 +541,74 @@ class PrinterService {
 
   _updateHeaterBed(Map<String, dynamic> heatedBedJson,
       {required Printer printer}) {
+    HeaterBed heaterBed = printer.heaterBed;
     if (heatedBedJson.containsKey('temperature'))
-      printer.heaterBed.temperature = heatedBedJson['temperature'];
+      heaterBed.temperature = heatedBedJson['temperature'];
     if (heatedBedJson.containsKey('target'))
-      printer.heaterBed.target = heatedBedJson['target'];
+      heaterBed.target = heatedBedJson['target'];
     if (heatedBedJson.containsKey('power'))
-      printer.heaterBed.power = heatedBedJson['power'];
+      heaterBed.power = heatedBedJson['power'];
+
+    // Update temp cache for graphs!
+    DateTime now = DateTime.now();
+    if (now.difference(heaterBed.lastHistory).inSeconds >= 1) {
+      heaterBed.temperatureHistory?.removeAt(0);
+      heaterBed.temperatureHistory?.add(heaterBed.temperature);
+      heaterBed.powerHistory?.removeAt(0);
+      heaterBed.powerHistory?.add(heaterBed.power);
+      heaterBed.targetHistory?.removeAt(0);
+      heaterBed.targetHistory?.add(heaterBed.target);
+      heaterBed.lastHistory = now;
+    }
+
+    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
+    if (heatedBedJson.containsKey('temperatures'))
+      heaterBed.temperatureHistory =
+          (heatedBedJson['temperatures'] as List<dynamic>).cast<double>();
+    if (heatedBedJson.containsKey('targets'))
+      heaterBed.targetHistory =
+          (heatedBedJson['targets'] as List<dynamic>).cast<double>();
+    if (heatedBedJson.containsKey('powers'))
+      heaterBed.powerHistory =
+          (heatedBedJson['powers'] as List<dynamic>).cast<double>();
   }
 
   _updateExtruder(Map<String, dynamic> extruderJson,
       {required Printer printer}) {
+    Extruder extruder = printer.extruder;
     if (extruderJson.containsKey('temperature'))
-      printer.extruder.temperature = extruderJson['temperature'];
+      extruder.temperature = extruderJson['temperature'];
     if (extruderJson.containsKey('target'))
-      printer.extruder.target = extruderJson['target'];
+      extruder.target = extruderJson['target'];
     if (extruderJson.containsKey('pressure_advance'))
-      printer.extruder.pressureAdvance = extruderJson['pressure_advance'];
+      extruder.pressureAdvance = extruderJson['pressure_advance'];
     if (extruderJson.containsKey('smooth_time'))
-      printer.extruder.smoothTime = extruderJson['smooth_time'];
+      extruder.smoothTime = extruderJson['smooth_time'];
     if (extruderJson.containsKey('power'))
-      printer.extruder.power = extruderJson['power'];
+      extruder.power = extruderJson['power'];
+
+    // Update temp cache for graphs!
+    DateTime now = DateTime.now();
+    if (now.difference(extruder.lastHistory).inSeconds >= 1) {
+      extruder.temperatureHistory?.removeAt(0);
+      extruder.temperatureHistory?.add(extruder.temperature);
+      extruder.powerHistory?.removeAt(0);
+      extruder.powerHistory?.add(extruder.power);
+      extruder.targetHistory?.removeAt(0);
+      extruder.targetHistory?.add(extruder.target);
+      extruder.lastHistory = now;
+    }
+
+    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
+    if (extruderJson.containsKey('temperatures'))
+      extruder.temperatureHistory =
+          (extruderJson['temperatures'] as List<dynamic>).cast<double>();
+    if (extruderJson.containsKey('targets'))
+      extruder.targetHistory =
+          (extruderJson['targets'] as List<dynamic>).cast<double>();
+    if (extruderJson.containsKey('powers'))
+      extruder.powerHistory =
+          (extruderJson['powers'] as List<dynamic>).cast<double>();
   }
 
   _updateToolhead(Map<String, dynamic> toolHeadJson,

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -13,6 +14,7 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
+import 'package:mobileraker/ui/components/graph_card_with_button.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/refresh_printer.dart';
@@ -317,6 +319,8 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
                   name: 'pages.dashboard.general.temp_card.hotend'.tr(),
                   current: model.printerData.extruder.temperature,
                   target: model.printerData.extruder.target,
+                  spots: convertToPlotSpots(
+                      model.printerData.extruder.temperatureHistory),
                   onTap: model.klippyCanReceiveCommands
                       ? () => model.editDialog(false)
                       : null,
@@ -325,6 +329,8 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
                   name: 'pages.dashboard.general.temp_card.bed'.tr(),
                   current: model.printerData.heaterBed.temperature,
                   target: model.printerData.heaterBed.target,
+                  spots: convertToPlotSpots(
+                      model.printerData.heaterBed.temperatureHistory),
                   onTap: model.klippyCanReceiveCommands
                       ? () => model.editDialog(true)
                       : null,
@@ -345,17 +351,32 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
         name: beautifyName(sensor.name),
         current: sensor.temperature,
         max: sensor.measuredMaxTemp,
+        spots: convertToPlotSpots(sensor.temperatureHistory),
       );
       rows.add(tr);
     }
     return rows;
   }
+
+  List<FlSpot> convertToPlotSpots(List<double>? doubles) {
+    if (doubles == null) return const [];
+
+    return doubles
+        .sublist(900)
+        .asMap()
+        .entries
+        .map((e) => FlSpot(e.key.toDouble(), e.value))
+        .toList();
+  }
 }
 
 class _HeaterCard extends StatelessWidget {
+  final int _stillHotTemp = 50;
+
   final String name;
   final double current;
   final double target;
+  final List<FlSpot> spots;
   final VoidCallback? onTap;
 
   String get targetTemp => target > 0
@@ -368,28 +389,47 @@ class _HeaterCard extends StatelessWidget {
     required this.name,
     required this.current,
     required this.target,
+    required this.spots,
     this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    Color col = Theme.of(context).colorScheme.surfaceVariant;
+    ThemeData themeData = Theme.of(context);
+    Color colorBg = themeData.colorScheme.surfaceVariant;
     if (target > 0 && onTap != null) {
-      col = Color.alphaBlend(
+      colorBg = Color.alphaBlend(
           Color.fromRGBO(178, 24, 24, 1).withOpacity(min(current / target, 1)),
-          col);
+          colorBg);
+    } else if (current > _stillHotTemp) {
+      colorBg = Color.alphaBlend(
+          Color.fromRGBO(243, 106, 65, 1.0)
+              .withOpacity(min(current / _stillHotTemp - 1, 1)),
+          colorBg);
     }
 
-    return CardWithButton(
-        backgroundColor: col,
+    return GraphCardWithButton(
+        backgroundColor: colorBg,
+        plotSpots: spots,
         child: Builder(builder: (context) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          ThemeData themeData = Theme.of(context);
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(name, style: Theme.of(context).textTheme.caption),
-              Text('${current.toStringAsFixed(1)} °C',
-                  style: Theme.of(context).textTheme.headline6),
-              Text(targetTemp),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: themeData.textTheme.caption),
+                  Text('${current.toStringAsFixed(1)} °C',
+                      style: themeData.textTheme.headline6),
+                  Text(targetTemp),
+                ],
+              ),
+              if (current > _stillHotTemp)
+                Tooltip(
+                  message: '$name is still hot!',
+                  child: Icon(Icons.do_not_touch_outlined),
+                )
             ],
           );
         }),
@@ -503,33 +543,37 @@ class _SensorCard extends StatelessWidget {
   final String name;
   final double current;
   final double max;
+  final List<FlSpot> spots;
 
-  const _SensorCard({
-    Key? key,
-    required this.name,
-    required this.current,
-    required this.max,
-  }) : super(key: key);
+  const _SensorCard(
+      {Key? key,
+      required this.name,
+      required this.current,
+      required this.max,
+      required this.spots})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return CardWithButton(
-        child: Builder(builder: (context) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: Theme.of(context).textTheme.caption),
-              Text('${current.toStringAsFixed(1)} °C',
-                  style: Theme.of(context).textTheme.headline6),
-              Text(
-                '${max.toStringAsFixed(1)} °C max',
-              ),
-            ],
-          );
-        }),
-        buttonChild:
-            const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
-        onTap: null);
+    return GraphCardWithButton(
+      plotSpots: spots,
+      child: Builder(builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(name, style: Theme.of(context).textTheme.caption),
+            Text('${current.toStringAsFixed(1)} °C',
+                style: Theme.of(context).textTheme.headline6),
+            Text(
+              '${max.toStringAsFixed(1)} °C max',
+            ),
+          ],
+        );
+      }),
+      buttonChild:
+          const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
+      onTap: null,
+    );
   }
 }
 

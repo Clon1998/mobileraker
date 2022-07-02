@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/components/graph_card_with_button.dart';
 import 'package:mobileraker/ui/views/paywall/paywall_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
@@ -11,21 +12,53 @@ import 'package:stacked/stacked.dart';
 class PaywallView extends ViewModelBuilderWidget<PaywallViewModel> {
   @override
   Widget builder(BuildContext context, PaywallViewModel model, Widget? child) {
+    List<double> temperatureHistory = (model.isPrinterDataReady)
+        ? model.printerData.extruder.temperatureHistory!
+        : [];
+
+    List<FlSpot>? dataExtruder = temperatureHistory
+        .asMap()
+        .entries
+        .map((e) => FlSpot(e.key.toDouble(), e.value))
+        .toList();
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Support the Dev!'),
         ),
         drawer: NavigationDrawerWidget(curPath: Routes.paywallView),
         body: Center(
-            child: LineChart(
-          mainData(),
-          swapAnimationDuration: Duration(milliseconds: 150), // Optional
-          swapAnimationCurve: Curves.linear, // Optional
+            child: Column(
+          children: [
+            GraphCardWithButton(
+                plotSpots: dataExtruder.sublist(900),
+                child: Builder(builder: (context) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('name', style: Theme.of(context).textTheme.caption),
+                      Text('11 °C',
+                          style: Theme.of(context).textTheme.headline6),
+                      Text('targetTemp'),
+                    ],
+                  );
+                }),
+                buttonChild: const Text('general.set'),
+                onTap: null),
+            Expanded(
+              child: LineChart(
+                mainData(model),
+                swapAnimationDuration: Duration(milliseconds: 150),
+                // Optional
+                swapAnimationCurve: Curves.linear, // Optional
+              ),
+            ),
+          ],
         )));
   }
 
   Widget? ff(PaywallViewModel model) {
-    if (!model.dataReady) return FadingText('Fetching offers');
+    if (!model.dataReady(off)) return FadingText('Fetching offers');
 
     if (model.isEntitlementActive('Supporter'))
       return Text('Yay! Thanks for supporting the App!');
@@ -33,37 +66,31 @@ class PaywallView extends ViewModelBuilderWidget<PaywallViewModel> {
     return TextButton(onPressed: model.buy, child: Text('Test-Buy'));
   }
 
-  LineChartData mainData() {
+  LineChartData mainData(PaywallViewModel model) {
+    List<double> temperatureHistory = (model.isPrinterDataReady)
+        ? model.printerData.extruder.temperatureHistory!
+        : [];
+
+    var dataExtruder = temperatureHistory
+        .asMap()
+        .entries
+        .map((e) => FlSpot(e.key.toDouble(), e.value))
+        .toList();
+
     return LineChartData(
       gridData: FlGridData(
-        show: true,
-        drawVerticalLine: true,
-        horizontalInterval: 1,
-        verticalInterval: 1,
-        getDrawingHorizontalLine: (value) {
-          return FlLine(
-            color: const Color(0xff065393),
-            strokeWidth: 1,
-          );
-        },
-        getDrawingVerticalLine: (value) {
-          return FlLine(
-            color: const Color(0xffe30461),
-            strokeWidth: 1,
-          );
-        },
+        show: false,
       ),
       titlesData: FlTitlesData(show: false),
-      borderData: FlBorderData(
-          show: true,
-          border: Border.all(color: const Color(0xff78ff31), width: 1)),
+      borderData: FlBorderData(show: false),
       minX: 0,
-      maxX: 1200,
       minY: 0,
-      maxY: 70,
+      // maxY: temperatureHistory.reduce(max)+10,
+      lineTouchData: LineTouchData(enabled: false),
       lineBarsData: [
         LineChartBarData(
-          spots: dummyData(),
+          spots: dataExtruder,
+          // spots: dummyData(),
           isCurved: true,
           barWidth: 5,
           isStrokeCapRound: true,
@@ -82,8 +109,7 @@ class PaywallView extends ViewModelBuilderWidget<PaywallViewModel> {
     List<FlSpot> bl = <FlSpot>[];
     Random random = Random();
     for (int i = 0; i < 1200; i++) {
-
-      bl.add(FlSpot(i.toDouble(), 40+20*sin(pi*i/100)));
+      bl.add(FlSpot(i.toDouble(), 40 + 20 * sin(pi * i / 100)));
     }
     return bl;
   }
@@ -120,10 +146,10 @@ class PaywallView extends ViewModelBuilderWidget<PaywallViewModel> {
       fontSize: 15,
     );
 
-    if (value % 10 != 0)
-      return Container();
+    if (value % 10 != 0) return Container();
 
-    return Text('${value.toStringAsFixed(0)}°C', style: style, textAlign: TextAlign.left);
+    return Text('${value.toStringAsFixed(0)}°C',
+        style: style, textAlign: TextAlign.left);
   }
 
   @override
