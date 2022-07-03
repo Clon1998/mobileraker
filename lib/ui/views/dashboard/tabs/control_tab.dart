@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
@@ -46,14 +47,13 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
         ),
       );
     }
-
     return PullToRefreshPrinter(
       child: ListView(
         key: PageStorageKey<String>('cTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
           if (model.macroGroups.isNotEmpty) GcodeMacroCard(),
-          if (model.printerData.print.state != PrintState.printing)
+          if (model.isNotPrinting)
             ExtruderControlCard(),
           MultipliersCard(),
           FansCard(),
@@ -173,38 +173,19 @@ class _FanTile extends StatelessWidget {
   }
 }
 
-class SpinningFan extends StatefulWidget {
+class SpinningFan extends HookWidget {
   final double? size;
 
   SpinningFan({this.size});
 
   @override
-  _SpinningFanState createState() => _SpinningFanState();
-}
-
-class _SpinningFanState extends State<SpinningFan>
-    with TickerProviderStateMixin {
-  late AnimationController _controller = AnimationController(
-    duration: const Duration(seconds: 2),
-    vsync: this,
-  )..repeat();
-  late Animation<double> _animation = CurvedAnimation(
-    parent: _controller,
-    curve: Curves.linear,
-  );
-
-  @override
   Widget build(BuildContext context) {
+    AnimationController animationController =
+        useAnimationController(duration: const Duration(seconds: 3))..repeat();
     return RotationTransition(
-      turns: _animation,
-      child: Icon(FlutterIcons.fan_mco, size: widget.size),
+      turns: animationController,
+      child: Icon(FlutterIcons.fan_mco, size: size),
     );
-  }
-
-  @override
-  dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
 

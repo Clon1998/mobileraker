@@ -82,7 +82,7 @@ class ConfigFileDetailView
                   onTap: (model.isUploading) ? null : model.onSaveTapped,
                   visible: !model.isUploading,
                 ),
-                if (!model.isPrinting)
+                if (model.isNotPrintingOrPaused)
                   SpeedDialChild(
                     child: Icon(Icons.restart_alt),
                     backgroundColor: themeData.colorScheme.primary,

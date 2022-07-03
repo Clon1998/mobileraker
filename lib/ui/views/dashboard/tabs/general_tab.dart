@@ -121,7 +121,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 )
               ],
             ),
-          if ((model.isPrinting || model.isPaused) &&
+          if (model.isPrintingOrPaused &&
               model.printerData.excludeObject.available)
             Padding(
               padding: const EdgeInsets.only(right: 8.0, bottom: 4.0),
@@ -151,7 +151,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 ],
               ),
             ),
-          if (model.isPrinting || model.isPaused) ...[
+          if (model.isPrintingOrPaused) ...[
             Divider(
               thickness: 1,
               height: 0,
@@ -1009,8 +1009,7 @@ class MoveTable extends ViewModelWidget<GeneralTabViewModel> {
               ),
             ),
           ]),
-        if (rowsToShow.contains(MOV_ROW) &&
-            (model.isPrinting || model.isPaused))
+        if (rowsToShow.contains(MOV_ROW) && model.isPrintingOrPaused)
           TableRow(
             children: [
               Padding(

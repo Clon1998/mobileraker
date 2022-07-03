@@ -88,14 +88,8 @@ class GeneralTabViewModel extends MultipleStreamViewModel
   List<TemperaturePreset> get temperaturePresets =>
       machineSettings.temperaturePresets;
 
-  bool get isPrinting => printerData.print.state == PrintState.printing;
-
-  bool get isPaused => printerData.print.state == PrintState.paused;
-
   bool get showBabyStepping =>
-      isPrinting || isPaused || _settingService.readBool(showBabyAlwaysKey);
-
-  bool get isNotPrinting => !isPrinting;
+      isPrintingOrPaused || _settingService.readBool(showBabyAlwaysKey);
 
   int get maxLayers {
     if (!_canCalcMaxLayer) return 0;

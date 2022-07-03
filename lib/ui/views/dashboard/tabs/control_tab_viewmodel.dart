@@ -64,8 +64,6 @@ class ControlTabViewModel extends MultipleStreamViewModel
 
   List<MacroGroup> get macroGroups => machineSettings.macroGroups;
 
-  bool get isPrinting => printerData.print.state == PrintState.printing;
-
   int get flowMultiplier {
     return (printerData.gCodeMove.extrudeFactor * 100).toInt();
   }

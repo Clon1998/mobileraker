@@ -30,9 +30,6 @@ class ConfigFileDetailsViewModel extends MultipleStreamViewModel
 
   File get file => dataMap![_FileKey];
 
-  bool get isPrinting =>
-      isPrinterDataReady && printerData.print.state == PrintState.printing;
-
   CodeController codeController =
       CodeController(language: properties, theme: atomOneDarkTheme);
 
