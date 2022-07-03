@@ -369,9 +369,17 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
 
   List<FlSpot> convertToPlotSpots(List<double>? doubles) {
     if (doubles == null) return const [];
+    List<double> sublist;
+    if (doubles.length < 1200) {
+      if (doubles.length < 300)
+        sublist = doubles;
+      else
+        sublist = doubles.sublist(doubles.length - 300);
+    } else {
+      sublist = doubles.sublist(900);
+    }
 
-    return doubles
-        .sublist(900)
+    return sublist
         .asMap()
         .entries
         .map((e) => FlSpot(e.key.toDouble(), e.value))
@@ -435,7 +443,7 @@ class _HeaterCard extends StatelessWidget {
                 ],
               ),
               AnimatedOpacity(
-                opacity: (current > _stillHotTemp) ? 1:0,
+                opacity: (current > _stillHotTemp) ? 1 : 0,
                 duration: kThemeAnimationDuration,
                 child: Tooltip(
                   message: '$name is still hot!',

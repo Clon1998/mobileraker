@@ -457,7 +457,8 @@ class PrinterService {
     // Update temp cache for graphs!
     DateTime now = DateTime.now();
     if (now.difference(tempSensor.lastHistory).inSeconds >= 1) {
-      tempSensor.temperatureHistory?.removeAt(0);
+      if ((tempSensor.temperatureHistory?.length ?? 0) >= 1200)
+        tempSensor.temperatureHistory?.removeAt(0);
       tempSensor.temperatureHistory?.add(tempSensor.temperature);
       tempSensor.lastHistory = now;
     }
@@ -562,7 +563,9 @@ class PrinterService {
     // Update temp cache for graphs!
     DateTime now = DateTime.now();
     if (now.difference(heaterBed.lastHistory).inSeconds >= 1) {
-      heaterBed.temperatureHistory?.removeAt(0);
+      if ((heaterBed.temperatureHistory?.length ?? 0) >= 1200)
+
+        heaterBed.temperatureHistory?.removeAt(0);
       heaterBed.temperatureHistory?.add(heaterBed.temperature);
       heaterBed.powerHistory?.removeAt(0);
       heaterBed.powerHistory?.add(heaterBed.power);
@@ -600,7 +603,9 @@ class PrinterService {
     // Update temp cache for graphs!
     DateTime now = DateTime.now();
     if (now.difference(extruder.lastHistory).inSeconds >= 1) {
-      extruder.temperatureHistory?.removeAt(0);
+      if ((extruder.temperatureHistory?.length ?? 0) >= 1200)
+
+        extruder.temperatureHistory?.removeAt(0);
       extruder.temperatureHistory?.add(extruder.temperature);
       extruder.powerHistory?.removeAt(0);
       extruder.powerHistory?.add(extruder.power);
