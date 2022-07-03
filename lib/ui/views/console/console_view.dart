@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
@@ -7,6 +8,7 @@ import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
+import 'package:mobileraker/ui/themes/theme_pack.dart';
 import 'package:mobileraker/ui/views/console/console_viewmodel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -40,10 +42,11 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
       ).tr(),
       actions: <Widget>[
         IconButton(
-          color: Colors.red,
+          color: Theme.of(context).extension<CustomColors>()?.danger ??
+              Colors.red,
           icon: Icon(
-            Icons.dangerous_outlined,
-            size: 30,
+            FlutterIcons.skull_outline_mco,
+            size: 26,
           ),
           tooltip: 'pages.dashboard.ems_btn'.tr(),
           onPressed: (model.canUseEms) ? model.onEmergencyPressed : null,
@@ -127,7 +130,7 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
                 enableSuggestions: false,
                 autocorrect: false,
                 controller: model.textEditingController,
-                enabled: model.isConsoleHistoryAvailable,
+                enabled: model.canSendCommand,
                 decoration: InputDecoration(
                     suffixIcon: IconButton(
                       icon: Icon(Icons.send),
@@ -142,15 +145,6 @@ class ConsoleView extends ViewModelBuilderWidget<ConsoleViewModel> {
         ],
       ),
     );
-
-    // if (model.isBusy)
-    //   return buildBusyListView(context, model);
-    // else if (model.isFolderContentAvailable &&
-    //     model.isServerAvailable &&
-    //     model.isMachineAvailable)
-    //   return buildListView(context, model);
-    // else
-    //   return buildFetchingView();
   }
 
   Widget _buildConsole(BuildContext context, ConsoleViewModel model) {

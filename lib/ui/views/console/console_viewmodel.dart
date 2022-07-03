@@ -16,7 +16,6 @@ import 'package:stacked_services/stacked_services.dart';
 
 const String _GCodeNotifyResp = 'notifyGcodeResp';
 const String _ConsoleHistory = 'consoleHistory';
-const String _ServerStreamKey = 'server';
 const String _MacrosStreamKey = 'availableMacros';
 const int commandCacheSize = 25;
 
@@ -73,19 +72,17 @@ class ConsoleViewModel extends MultipleStreamViewModel
         .toList(growable: false);
   }
 
-  bool get isServerAvailable => dataReady(_ServerStreamKey);
-
-  KlipperInstance get server => dataMap![_ServerStreamKey];
 
   List<Command> get availableCommands => dataMap?[_MacrosStreamKey] ?? [];
 
   bool get canUseEms =>
-      isServerAvailable && server.klippyState == KlipperState.ready;
+      isKlippyInstanceReady && klippyInstance.klippyState == KlipperState.ready;
 
   bool get canSendCommand =>
-      isServerAvailable &&
-      server.klippyState == KlipperState.ready &&
-      server.klippyConnected;
+      isConsoleHistoryAvailable &&
+      isKlippyInstanceReady &&
+      klippyInstance.klippyState == KlipperState.ready &&
+          klippyInstance.klippyConnected;
 
   String get printerName => selectedMachine?.name ?? '';
 
