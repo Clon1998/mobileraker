@@ -13,7 +13,7 @@ import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 
 class Printer {
   Toolhead toolhead = Toolhead();
-  Extruder extruder = Extruder();
+  List<Extruder?> extruders = [Extruder()];// 1 exgruder always present!
   HeaterBed heaterBed = HeaterBed();
   PrintFan printFan = PrintFan();
   GCodeMove gCodeMove = GCodeMove();
@@ -33,6 +33,11 @@ class Printer {
   List<String> queryableObjects = [];
   List<String> gcodeMacros = [];
 
+  Extruder get extruder =>
+      extruders[0]!; // Fast way for first extruder -> always present!
+
+  int get extruderCount => extruders.length;
+
   double get zOffset => gCodeMove.homingOrigin[2];
 
   DateTime? get eta {
@@ -42,6 +47,29 @@ class Printer {
       return DateTime.now().add(Duration(seconds: est.round()));
     }
     return null;
+  }
+
+  /// Expects that the extruder is available prev.
+  Extruder extruderFromIndex(int num) {
+    return extruders[num]!;
+  }
+
+  /// Creates a new Extruder if missing else returns current one!
+  Extruder extruderIfAbsence(int num) {
+    if (num >= extruders.length) {
+      extruders.length = num + 1;
+      Extruder element = Extruder();
+      extruders[num] = element;
+      return element;
+    }
+
+    Extruder? extruder = extruders[num];
+    if (extruder != null) return extruder;
+
+    Extruder element = Extruder();
+    extruders[num] = element;
+
+    return element;
   }
 
   @override

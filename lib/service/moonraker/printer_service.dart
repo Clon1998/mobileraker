@@ -137,6 +137,11 @@ class PrinterService {
     gCode('G91\n' + 'G1 ${moves.join(' ')} F${feedRate * 60}\nG90');
   }
 
+  activateExtruder([int extruderIndex = 0]) {
+    gCode(
+        'ACTIVATE_EXTRUDER EXTRUDER=extruder${extruderIndex > 0 ? extruderIndex : ''}');
+  }
+
   moveExtruder(double length, [double feedRate = 5]) {
     gCode('M83\n' + 'G1 E$length F${feedRate * 60}');
   }
@@ -300,6 +305,11 @@ class PrinterService {
           else
             method(json[key], printer: printer);
         }
+      } else if (mainObjectType.startsWith('extruder')) {
+        // Note that extruder will be handled above!
+        _updateExtruder(json[key],
+            printer: printer,
+            num: int.tryParse(mainObjectType.substring(8)) ?? 0);
       }
     } catch (e, s) {
       _logger.e('Error while parsing $key object', e, s);
@@ -574,8 +584,8 @@ class PrinterService {
   }
 
   _updateExtruder(Map<String, dynamic> extruderJson,
-      {required Printer printer}) {
-    Extruder extruder = printer.extruder;
+      {required Printer printer, int num = 0}) {
+    Extruder extruder = printer.extruderIfAbsence(num);
     if (extruderJson.containsKey('temperature'))
       extruder.temperature = extruderJson['temperature'];
     if (extruderJson.containsKey('target'))
@@ -685,14 +695,24 @@ class PrinterService {
     _logger.v('New exclude_printer: ${printer.excludeObject}');
   }
 
-  _queryPrinterObjects(Printer printer) {
+  Map<String, List<String>?> _queryPrinterObjectJson(Printer printer) {
     Map<String, List<String>?> queryObjects = Map();
-    printer.queryableObjects.forEach((element) {
-      List<String> split = element.split(' ');
+    printer.queryableObjects.forEach((ele) {
+      // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
+      List<String> split = ele.split(' ');
+      String objTypeKey = split[0];
 
-      if (_subToPrinterObjects.keys.contains(split[0]))
-        queryObjects[element] = null;
+      if (_subToPrinterObjects.keys.contains(objTypeKey))
+        queryObjects[ele] = null;
+      else if (ele.startsWith('extruder')) // used for multiple extruders!
+        queryObjects[ele] = null;
     });
+    return queryObjects;
+  }
+
+  /// Query the state of queryable printer objects once!
+  _queryPrinterObjects(Printer printer) {
+    Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer);
 
     _logger.i('>>>Querying Printer Objects!');
 
@@ -705,16 +725,7 @@ class PrinterService {
   /// This method registeres every printer object for websocket updates!
   _makeSubscribeRequest(Printer printer) {
     _logger.i('Subscribing printer objects for ws-updates!');
-    Map<String, List<String>?> queryObjects = Map();
-    for (var object in printer.queryableObjects) {
-      // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-      List<String> split = object.split(' ');
-      String objTypeKey = split[0];
-      if (_subToPrinterObjects[objTypeKey] != null) {
-        queryObjects[object] =
-            null; // This is needed for the subscribe request!
-      }
-    }
+    Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer);
 
     _jRpcClient.sendJsonRpcWithCallback('printer.objects.subscribe',
         params: {'objects': queryObjects});

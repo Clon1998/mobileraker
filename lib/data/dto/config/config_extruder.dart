@@ -3,12 +3,14 @@ class ConfigExtruder {
   late final double nozzleDiameter;
   late final double maxExtrudeOnlyDistance;
   late final double minTemp;
+  late final double minExtrudeTemp;
   late final double maxTemp;
   late final double maxPower;
 
   ConfigExtruder.parse(this.name, Map<String, dynamic> json) {
     nozzleDiameter = json['nozzle_diameter'];
     maxExtrudeOnlyDistance = json['max_extrude_only_distance'];
+    minExtrudeTemp = json['min_extrude_temp'];
     minTemp = json['min_temp'];
     maxTemp = json['max_temp'];
     maxPower = json['max_power'];
@@ -24,7 +26,8 @@ class ConfigExtruder {
           maxExtrudeOnlyDistance == other.maxExtrudeOnlyDistance &&
           minTemp == other.minTemp &&
           maxTemp == other.maxTemp &&
-          maxPower == other.maxPower;
+          maxPower == other.maxPower &&
+          minExtrudeTemp == other.minExtrudeTemp;
 
   @override
   int get hashCode =>
@@ -33,7 +36,8 @@ class ConfigExtruder {
       maxExtrudeOnlyDistance.hashCode ^
       minTemp.hashCode ^
       maxTemp.hashCode ^
-      maxPower.hashCode;
+      maxPower.hashCode ^
+      minExtrudeTemp.hashCode;
 
   @override
   String toString() {

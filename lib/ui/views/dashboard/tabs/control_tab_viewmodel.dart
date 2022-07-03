@@ -26,6 +26,12 @@ class ControlTabViewModel extends MultipleStreamViewModel
 
   int selectedIndexRetractLength = 0;
 
+  int get activeExtruder {
+    String? activeIdx = printerData.toolhead.activeExtruder?.substring(8);
+    if (activeIdx != null) return int.tryParse(activeIdx) ?? 0;
+    return 0;
+  }
+
   MacroGroup? _selectedGrp;
 
   MacroGroup? get selectedGrp {
@@ -67,6 +73,10 @@ class ControlTabViewModel extends MultipleStreamViewModel
   int get speedMultiplier {
     return (printerData.gCodeMove.speedFactor * 100).toInt();
   }
+
+  bool get extruderCanExtrude =>
+      printerData.extruderFromIndex(activeExtruder).temperature >=
+      (printerData.configFile.extruderForIndex(activeExtruder)?.minExtrudeTemp ?? 170);
 
   Set<NamedFan> get filteredFans => printerData.fans
       .where((NamedFan element) => !element.name.startsWith('_'))
@@ -167,6 +177,10 @@ class ControlTabViewModel extends MultipleStreamViewModel
       _settingService.writeInt(
           selectedGCodeGrpIndex, macroGroups.indexOf(macroGroup));
     selectedGrp = macroGroup;
+  }
+
+  onExtruderSelected(int? idx) {
+    if (idx != null) printerService.activateExtruder(idx);
   }
 
   onEditSpeedMultiplier() {

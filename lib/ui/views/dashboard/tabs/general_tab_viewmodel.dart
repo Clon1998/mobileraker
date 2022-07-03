@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
@@ -159,46 +160,50 @@ class GeneralTabViewModel extends MultipleStreamViewModel
     flipTemperatureCard();
   }
 
-  editDialog([bool isHeatedBed = false]) {
-    if (isHeatedBed) {
-      numberOrRangeDialog(
-              dialogService: _dialogService,
-              settingService: _settingService,
-              title: "Edit Heated Bed Temperature",
-              mainButtonTitle: "Confirm",
-              secondaryButtonTitle: "Cancel",
-              data: NumberEditDialogArguments(
-                  current: printerData.heaterBed.target.round(),
-                  min: 0,
-                  max:
-                      printerData.configFile.configHeaterBed?.maxTemp.toInt() ??
-                          150))
-          .then((value) {
-        if (value != null && value.confirmed && value.data != null) {
-          num v = value.data;
-          printerService.setTemperature('heater_bed', v.toInt());
-        }
-      });
-    } else {
-      numberOrRangeDialog(
-              dialogService: _dialogService,
-              settingService: _settingService,
-              title: "Edit Extruder Temperature",
-              mainButtonTitle: "Confirm",
-              secondaryButtonTitle: "Cancel",
-              data: NumberEditDialogArguments(
-                  current: printerData.extruder.target.round(),
-                  min: 0,
-                  max:
-                      printerData.configFile.primaryExtruder?.maxTemp.toInt() ??
-                          500))
-          .then((value) {
-        if (value != null && value.confirmed && value.data != null) {
-          num v = value.data;
-          printerService.setTemperature('extruder', v.toInt());
-        }
-      });
-    }
+  editExtruderHeater([int extruderIndex = 0]) {
+    Extruder extruder = printerData.extruderFromIndex(extruderIndex);
+    numberOrRangeDialog(
+            dialogService: _dialogService,
+            settingService: _settingService,
+            title:
+                'Edit Extruder ${extruderIndex > 0 ? '$extruderIndex' : ''} Temperature',
+            mainButtonTitle: "Confirm",
+            secondaryButtonTitle: "Cancel",
+            data: NumberEditDialogArguments(
+                current: extruder.target.round(),
+                min: 0,
+                max: printerData.configFile
+                        .extruderForIndex(extruderIndex)
+                        ?.maxTemp
+                        .toInt() ??
+                    300))
+        .then((value) {
+      if (value != null && value.confirmed && value.data != null) {
+        num v = value.data;
+        printerService.setTemperature(
+            'extruder${extruderIndex > 0 ? extruderIndex : ''}', v.toInt());
+      }
+    });
+  }
+
+  editHeatedBed() {
+    numberOrRangeDialog(
+            dialogService: _dialogService,
+            settingService: _settingService,
+            title: "Edit Heated Bed Temperature",
+            mainButtonTitle: "Confirm",
+            secondaryButtonTitle: "Cancel",
+            data: NumberEditDialogArguments(
+                current: printerData.heaterBed.target.round(),
+                min: 0,
+                max: printerData.configFile.configHeaterBed?.maxTemp.toInt() ??
+                    150))
+        .then((value) {
+      if (value != null && value.confirmed && value.data != null) {
+        num v = value.data;
+        printerService.setTemperature('heater_bed', v.toInt());
+      }
+    });
   }
 
   onSelectedAxisStepSizeChanged(int index) {

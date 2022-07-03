@@ -221,7 +221,42 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
         children: <Widget>[
           ListTile(
             leading: Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
-            title: Text('pages.dashboard.control.extrude_card.title').tr(),
+            title: Row(
+              children: [
+                Text('pages.dashboard.control.extrude_card.title').tr(),
+                AnimatedOpacity(
+                  opacity: model.extruderCanExtrude ? 0 : 1,
+                  duration: kThemeAnimationDuration,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 5),
+                    child: Tooltip(
+                      child: Icon(
+                        Icons.severe_cold,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      message: 'Extruder is to cold!',
+                    ),
+                  ),
+                )
+              ],
+            ),
+            trailing: (model.printerData.extruderCount > 1)
+                ? DropdownButton(
+                    value: model.activeExtruder,
+                    onChanged: model.klippyCanReceiveCommands
+                        ? model.onExtruderSelected
+                        : null,
+                    items:
+                        List.generate(model.printerData.extruderCount, (index) {
+                      String name =
+                          tr('pages.dashboard.control.extrude_card.title');
+                      if (index > 0) name += ' $index';
+                      return DropdownMenuItem(
+                        child: Text(name),
+                        value: index,
+                      );
+                    }))
+                : null,
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
@@ -234,7 +269,8 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                     Container(
                       margin: const EdgeInsets.all(5),
                       child: ElevatedButton.icon(
-                        onPressed: model.klippyCanReceiveCommands
+                        onPressed: model.klippyCanReceiveCommands &&
+                                model.extruderCanExtrude
                             ? model.onRetractBtn
                             : null,
                         icon: Icon(FlutterIcons.minus_ant),
@@ -246,7 +282,8 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                     Container(
                       margin: const EdgeInsets.all(5),
                       child: ElevatedButton.icon(
-                        onPressed: model.klippyCanReceiveCommands
+                        onPressed: model.klippyCanReceiveCommands &&
+                                model.extruderCanExtrude
                             ? model.onDeRetractBtn
                             : null,
                         icon: Icon(FlutterIcons.plus_ant),

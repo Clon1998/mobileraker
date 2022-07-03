@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
@@ -315,16 +316,7 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
             AdaptiveHorizontalScroll(
               pageStorageKey: "temps",
               children: [
-                _HeaterCard(
-                  name: 'pages.dashboard.general.temp_card.hotend'.tr(),
-                  current: model.printerData.extruder.temperature,
-                  target: model.printerData.extruder.target,
-                  spots: convertToPlotSpots(
-                      model.printerData.extruder.temperatureHistory),
-                  onTap: model.klippyCanReceiveCommands
-                      ? () => model.editDialog(false)
-                      : null,
-                ),
+                ..._buildExtruderHeaters(model),
                 _HeaterCard(
                   name: 'pages.dashboard.general.temp_card.bed'.tr(),
                   current: model.printerData.heaterBed.temperature,
@@ -332,7 +324,7 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
                   spots: convertToPlotSpots(
                       model.printerData.heaterBed.temperatureHistory),
                   onTap: model.klippyCanReceiveCommands
-                      ? () => model.editDialog(true)
+                      ? model.editHeatedBed
                       : null,
                 ),
                 ..._buildTempSensors(model)
@@ -342,6 +334,23 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildExtruderHeaters(GeneralTabViewModel model) {
+    return List.generate(model.printerData.extruderCount, (index) {
+      Extruder extruder = model.printerData.extruderFromIndex(index);
+      String name = tr('pages.dashboard.control.extrude_card.title');
+      if (index > 0) name += ' $index';
+      return _HeaterCard(
+        name: name,
+        current: extruder.temperature,
+        target: extruder.target,
+        spots: convertToPlotSpots(extruder.temperatureHistory),
+        onTap: model.klippyCanReceiveCommands
+            ? () => model.editExtruderHeater(index)
+            : null,
+      );
+    });
   }
 
   List<Widget> _buildTempSensors(GeneralTabViewModel model) {
@@ -425,11 +434,14 @@ class _HeaterCard extends StatelessWidget {
                   Text(targetTemp),
                 ],
               ),
-              if (current > _stillHotTemp)
-                Tooltip(
+              AnimatedOpacity(
+                opacity: (current > _stillHotTemp) ? 1:0,
+                duration: kThemeAnimationDuration,
+                child: Tooltip(
                   message: '$name is still hot!',
                   child: Icon(Icons.do_not_touch_outlined),
-                )
+                ),
+              )
             ],
           );
         }),

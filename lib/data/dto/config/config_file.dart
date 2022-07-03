@@ -65,4 +65,35 @@ class ConfigFile {
   bool get hasBedMesh => rawConfig.containsKey('bed_mesh');
 
   ConfigExtruder? get primaryExtruder => extruders['extruder'];
+
+  ConfigExtruder? extruderForIndex(int idx) =>
+      extruders['extruder${idx > 0 ? idx : ''}'];
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ConfigFile &&
+          runtimeType == other.runtimeType &&
+          configPrinter == other.configPrinter &&
+          configHeaterBed == other.configHeaterBed &&
+          extruders == other.extruders &&
+          outputs == other.outputs &&
+          steppers == other.steppers &&
+          rawConfig == other.rawConfig &&
+          saveConfigPending == other.saveConfigPending;
+
+  @override
+  int get hashCode =>
+      configPrinter.hashCode ^
+      configHeaterBed.hashCode ^
+      extruders.hashCode ^
+      outputs.hashCode ^
+      steppers.hashCode ^
+      rawConfig.hashCode ^
+      saveConfigPending.hashCode;
+
+  @override
+  String toString() {
+    return 'ConfigFile{configPrinter: $configPrinter, configHeaterBed: $configHeaterBed, extruders: $extruders, outputs: $outputs, steppers: $steppers, rawConfig: $rawConfig, saveConfigPending: $saveConfigPending}';
+  }
 }

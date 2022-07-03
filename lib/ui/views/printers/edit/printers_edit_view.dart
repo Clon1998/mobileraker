@@ -663,12 +663,12 @@ class _TempPresetItemState extends State<_TempPresetItem> {
             initialValue: temperaturePreset.extruderTemp.toString(),
             valueTransformer: (String? text) => (text != null)
                 ? int.tryParse(text)
-                : model.extruderMinTemperature,
+                : model.primaryExtruderMinTemperature,
             validator: FormBuilderValidators.compose(
               [
                 FormBuilderValidators.required(),
                 FormBuilderValidators.min(0),
-                FormBuilderValidators.max(model.extruderMaxTemperature),
+                FormBuilderValidators.max(model.primaryExtruderMaxTemperature),
               ],
             ),
             keyboardType: TextInputType.number,

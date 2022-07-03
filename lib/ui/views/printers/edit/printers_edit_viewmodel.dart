@@ -75,13 +75,13 @@ class PrinterEditViewModel extends MultipleFutureViewModel {
 
   bool get machinesHasError => hasErrorForKey(_MachinesMapKey);
 
-  int get extruderMinTemperature =>
+  int get primaryExtruderMinTemperature =>
       machine.printerService.printerStream.valueOrNull?.configFile
           .primaryExtruder?.minTemp
           .toInt() ??
       0;
 
-  int get extruderMaxTemperature =>
+  int get primaryExtruderMaxTemperature =>
       machine.printerService.printerStream.valueOrNull?.configFile
           .primaryExtruder?.maxTemp
           .toInt() ??
