@@ -32,8 +32,11 @@ class PaywallViewModel extends MultipleStreamViewModel
   @override
   onData(String key, dynamic data) {
     if (key == off) {
-      _logger.i('Received offerings');
-      log(data.toString());
+      var offerings = data as Offerings;
+      _logger.wtf('Received offerings:');
+      log(offerings.toString());
+      _logger.wtf('Offerings.cur: ${offerings.current}');
+
     }
   }
 

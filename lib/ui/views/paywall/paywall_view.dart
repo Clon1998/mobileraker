@@ -45,6 +45,7 @@ class PaywallView extends ViewModelBuilderWidget<PaywallViewModel> {
                 }),
                 buttonChild: const Text('general.set'),
                 onTap: null),
+            Center(child: ff(model)),
             Expanded(
               child: LineChart(
                 mainData(model),
