@@ -343,8 +343,12 @@ class NotificationService {
       [bool normalize = true]) async {
     if (progress >= 100) return;
 
-    ProgressNotificationMode progMode = ProgressNotificationMode
-        .values[_settingsService.readInt(selectedProgressNotifyMode)];
+    int readInt = _settingsService.readInt(selectedProgressNotifyMode, -1);
+
+    ProgressNotificationMode progMode = readInt >= 0
+        ? ProgressNotificationMode.values[readInt]
+        : ProgressNotificationMode.TWENTY_FIVE;
+
     if (progMode == ProgressNotificationMode.DISABLED) return;
 
     double normalizedProgress =
