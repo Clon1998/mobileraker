@@ -89,7 +89,8 @@
           "title": "Extruder",
           "extrude": "Extrude",
           "retract": "Retract",
-          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude length"
+          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude length",
+          "cold_extrude_error": "Extruder did not reach min_extrude_temp of {}°C yet!"
         },
         "macro_card": {
           "title": "Gcode - Macros"

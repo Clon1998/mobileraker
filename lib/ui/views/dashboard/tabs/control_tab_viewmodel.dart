@@ -72,9 +72,11 @@ class ControlTabViewModel extends MultipleStreamViewModel
     return (printerData.gCodeMove.speedFactor * 100).toInt();
   }
 
+  double get extruderMinTemp => (printerData.configFile.extruderForIndex(activeExtruder)?.minExtrudeTemp ?? 170);
+
   bool get extruderCanExtrude =>
       printerData.extruderFromIndex(activeExtruder).temperature >=
-      (printerData.configFile.extruderForIndex(activeExtruder)?.minExtrudeTemp ?? 170);
+      extruderMinTemp;
 
   Set<NamedFan> get filteredFans => printerData.fans
       .where((NamedFan element) => !element.name.startsWith('_'))

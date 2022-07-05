@@ -6,7 +6,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
@@ -215,7 +214,7 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                         Icons.severe_cold,
                         color: Theme.of(context).colorScheme.error,
                       ),
-                      message: 'Extruder is to cold!',
+                      message: tr('pages.dashboard.control.extrude_card.cold_extrude_error', args: [model.extruderMinTemp.toStringAsFixed(0)]),
                     ),
                   ),
                 )
