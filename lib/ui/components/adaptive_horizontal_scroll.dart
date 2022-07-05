@@ -9,7 +9,7 @@ class AdaptiveHorizontalScroll extends HookWidget {
       {Key? key,
       required this.pageStorageKey,
       this.children = const [],
-      this.minWidth = 175,
+      this.minWidth = 150,
       this.maxWidth = 200});
 
   final List<Widget> children;
