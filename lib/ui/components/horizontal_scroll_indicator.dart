@@ -36,7 +36,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   initState() {
     super.initState();
     controller.addListener(_listenerForController);
-    _listenerForController();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _listenerForController());
   }
 
   _listenerForController() {
