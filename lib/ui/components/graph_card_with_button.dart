@@ -57,7 +57,7 @@ class GraphCardWithButton extends StatelessWidget {
                 Container(
                   width: double.infinity,
                 ),
-                Positioned.fill(top: 15, child: chart(_graphColor)),
+                Positioned.fill(top: radius, child: chart(_graphColor)),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
                   child: Theme(
