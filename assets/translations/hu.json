@@ -199,7 +199,8 @@
         "webcam_addr": "Webkamera - Cím",
         "default_addr": "Alapértelmezett cím",
         "flip_vertical": "Függőleges fordítás",
-        "flip_horizontal": "Vízszintes fordítás"
+        "flip_horizontal": "Vízszintes fordítás",
+        "cam_mode": "Kamera mód"
       },
       "macros": {
         "new_macro_grp": "Új makró - Csoport",
