@@ -113,10 +113,12 @@ class ControlTabViewModel extends MultipleStreamViewModel
 
   onToggleMultipliersLock() {
     multipliersLocked = !multipliersLocked;
+    notifyListeners();
   }
 
   onToggleLimitLock() {
     limitsLocked = !limitsLocked;
+    notifyListeners();
   }
 
   onEditPin(OutputPin pin, ConfigOutput? configOutput) {
