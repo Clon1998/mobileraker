@@ -106,7 +106,16 @@
         },
         "multipl_card": {
           "title": "Multipliers",
-          "flow": "Flow"
+          "flow": "Flow",
+          "press_adv": "Pressure Advance",
+          "smooth_time": "Smooth Time"
+        },
+        "limit_card": {
+          "title": "Limits",
+          "velocity": "Velocity",
+          "accel": "Acceleration",
+          "sq_corn_vel": "Square Corner Velocity",
+          "accel_to_decel": "Accel to Decel"
         }
       }
     },

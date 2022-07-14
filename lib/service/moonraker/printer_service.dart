@@ -198,6 +198,30 @@ class PrinterService {
     gCode('M221 S$flow');
   }
 
+  pressureAdvance(double pa) {
+    gCode('SET_PRESSURE_ADVANCE ADVANCE=${pa.toStringAsFixed(5)}');
+  }
+
+  smoothTime(double st) {
+    gCode('SET_PRESSURE_ADVANCE SMOOTH_TIME=${st.toStringAsFixed(3)}');
+  }
+
+  setVelocityLimit(int vel) {
+    gCode('SET_VELOCITY_LIMIT VELOCITY=$vel');
+  }
+
+  setAccelerationLimit(int accel) {
+    gCode('SET_VELOCITY_LIMIT ACCEL=$accel');
+  }
+
+  setSquareCornerVelocityLimit(double sqVel) {
+    gCode('SET_VELOCITY_LIMIT SQUARE_CORNER_VELOCITY=$sqVel');
+  }
+
+  setAccelToDecel(int accelDecel) {
+    gCode('SET_VELOCITY_LIMIT ACCEL_TO_DECEL=$accelDecel');
+  }
+
   setTemperature(String heater, int target) {
     gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
   }
@@ -564,7 +588,6 @@ class PrinterService {
     DateTime now = DateTime.now();
     if (now.difference(heaterBed.lastHistory).inSeconds >= 1) {
       if ((heaterBed.temperatureHistory?.length ?? 0) >= 1200)
-
         heaterBed.temperatureHistory?.removeAt(0);
       heaterBed.temperatureHistory?.add(heaterBed.temperature);
       heaterBed.powerHistory?.removeAt(0);
@@ -604,7 +627,6 @@ class PrinterService {
     DateTime now = DateTime.now();
     if (now.difference(extruder.lastHistory).inSeconds >= 1) {
       if ((extruder.temperatureHistory?.length ?? 0) >= 1200)
-
         extruder.temperatureHistory?.removeAt(0);
       extruder.temperatureHistory?.add(extruder.temperature);
       extruder.powerHistory?.removeAt(0);

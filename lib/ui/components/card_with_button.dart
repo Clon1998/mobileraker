@@ -2,7 +2,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
 class CardWithButton extends StatelessWidget {
-  static const double radius = 20;
+  static const double radius = 15;
 
   const CardWithButton({
     Key? key,

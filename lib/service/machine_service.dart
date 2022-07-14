@@ -12,7 +12,6 @@ import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:stacked_services/stacked_services.dart';
 import 'package:uuid/uuid.dart';
 
 /// Service handling the management of a machine

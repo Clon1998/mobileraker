@@ -1,8 +1,13 @@
+import 'dart:io';
+import 'dart:math';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:form_builder_validators/localization/l10n.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
@@ -15,6 +20,7 @@ import 'package:mobileraker/ui/views/dashboard/tabs/control_tab_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_hooks/stacked_hooks.dart';
 
 class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   const ControlTab({Key? key}) : super(key: key);
@@ -52,11 +58,11 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
         padding: const EdgeInsets.only(bottom: 20),
         children: [
           if (model.macroGroups.isNotEmpty) GcodeMacroCard(),
-          if (model.isNotPrinting)
-            ExtruderControlCard(),
-          MultipliersCard(),
+          if (model.isNotPrinting) ExtruderControlCard(),
           FansCard(),
           if (model.printerData.outputPins.isNotEmpty) PinsCard(),
+          MultipliersCard(),
+          LimitsCard(),
         ],
       ),
     );
@@ -214,7 +220,9 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                         Icons.severe_cold,
                         color: Theme.of(context).colorScheme.error,
                       ),
-                      message: tr('pages.dashboard.control.extrude_card.cold_extrude_error', args: [model.extruderMinTemp.toStringAsFixed(0)]),
+                      message: tr(
+                          'pages.dashboard.control.extrude_card.cold_extrude_error',
+                          args: [model.extruderMinTemp.toStringAsFixed(0)]),
                     ),
                   ),
                 )
@@ -474,31 +482,291 @@ class MultipliersCard extends ViewModelWidget<ControlTabViewModel> {
           ListTile(
             leading: Icon(FlutterIcons.speedometer_slow_mco),
             title: Text('pages.dashboard.control.multipl_card.title').tr(),
+            trailing: IconButton(
+                onPressed: model.onToggleMultipliersLock,
+                icon: AnimatedSwitcher(
+                  duration: kThemeAnimationDuration,
+                  transitionBuilder: (child, anim) => RotationTransition(
+                    turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                    child: ScaleTransition(scale: anim, child: child),
+                  ),
+                  child: model.multipliersLocked
+                      ? Icon(FlutterIcons.lock_faw, key: const ValueKey('lock'))
+                      : Icon(FlutterIcons.unlock_faw,
+                          key: const ValueKey('unlock')),
+                )),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                ElevatedButton(
-                  onPressed: model.klippyCanReceiveCommands
-                      ? model.onEditSpeedMultiplier
-                      : null,
-                  child: Text(
-                      '${tr('pages.dashboard.general.print_card.speed')}: ${model.speedMultiplier}%'),
+            child: Column(
+              children: [
+                _SliderOrTextInput(
+                  initialValue: model.speedMultiplier,
+                  prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
+                  onChange:
+                      model.klippyCanReceiveCommands && !model.multipliersLocked
+                          ? model.onEditedSpeedMultiplier
+                          : null,
                 ),
-                ElevatedButton(
-                  onPressed: model.klippyCanReceiveCommands
-                      ? model.onEditFlowMultiplier
-                      : null,
-                  child: Text(
-                      '${tr('pages.dashboard.control.multipl_card.flow')}: ${model.flowMultiplier}%'),
+                _SliderOrTextInput(
+                    initialValue: model.flowMultiplier,
+                    prefixText:
+                        'pages.dashboard.control.multipl_card.flow'.tr(),
+                    onChange: model.klippyCanReceiveCommands &&
+                            !model.multipliersLocked
+                        ? model.onEditedFlowMultiplier
+                        : null),
+                _SliderOrTextInput(
+                  initialValue: model.pressureAdvanced,
+                  prefixText:
+                      'pages.dashboard.control.multipl_card.press_adv'.tr(),
+                  onChange:
+                      model.klippyCanReceiveCommands && !model.multipliersLocked
+                          ? model.onEditedPressureAdvanced
+                          : null,
+                  numberFormat: NumberFormat('0.##### mm/s'),
+                  unit: 'mm/s',
+                ),
+                _SliderOrTextInput(
+                  initialValue: model.smoothTime,
+                  prefixText:
+                      'pages.dashboard.control.multipl_card.smooth_time'.tr(),
+                  onChange:
+                      model.klippyCanReceiveCommands && !model.multipliersLocked
+                          ? model.onEditedSmoothTime
+                          : null,
+                  numberFormat: NumberFormat('0.### s'),
+                  maxValue: 0.2,
+                  unit: 's',
                 ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class LimitsCard extends ViewModelWidget<ControlTabViewModel> {
+  const LimitsCard({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, ControlTabViewModel model) {
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            leading: Icon(Icons.tune),
+            title: Text('pages.dashboard.control.limit_card.title').tr(),
+            trailing: IconButton(
+                onPressed: model.onToggleLimitLock,
+                icon: AnimatedSwitcher(
+                  duration: kThemeAnimationDuration,
+                  transitionBuilder: (child, anim) => RotationTransition(
+                    turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                    child: ScaleTransition(scale: anim, child: child),
+                  ),
+                  child: model.limitsLocked
+                      ? Icon(FlutterIcons.lock_faw, key: const ValueKey('lock'))
+                      : Icon(FlutterIcons.unlock_faw,
+                          key: const ValueKey('unlock')),
+                )),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+            child: Column(
+              children: [
+                _SliderOrTextInput(
+                  initialValue: model.maxVelocity,
+                  prefixText: tr('pages.dashboard.control.limit_card.velocity'),
+                  onChange:
+                      model.klippyCanReceiveCommands && !model.limitsLocked
+                          ? model.onEditedMaxVelocity
+                          : null,
+                  numberFormat: NumberFormat('0 mm/s'),
+                  unit: 'mm/s',
+                  maxValue: 500,
+                ),
+                _SliderOrTextInput(
+                  initialValue: model.maxAccel,
+                  prefixText: tr('pages.dashboard.control.limit_card.accel'),
+                  onChange:
+                      model.klippyCanReceiveCommands && !model.limitsLocked
+                          ? model.onEditedMaxAccel
+                          : null,
+                  numberFormat: NumberFormat('0 mm/s²'),
+                  unit: 'mm/s²',
+                  maxValue: 5000,
+                ),
+                _SliderOrTextInput(
+                  initialValue: model.squareCornerVelocity,
+                  prefixText:
+                      tr('pages.dashboard.control.limit_card.sq_corn_vel'),
+                  onChange:
+                      model.klippyCanReceiveCommands && !model.limitsLocked
+                          ? model.onEditedMaxSquareCornerVelocity
+                          : null,
+                  numberFormat: NumberFormat('0.# mm/s'),
+                  unit: 'mm/s',
+                  maxValue: 8,
+                ),
+                _SliderOrTextInput(
+                  initialValue: model.maxAccelToDecel,
+                  prefixText:
+                      tr('pages.dashboard.control.limit_card.accel_to_decel'),
+                  onChange:
+                      model.klippyCanReceiveCommands && !model.limitsLocked
+                          ? model.onEditedMaxAccelToDecel
+                          : null,
+                  numberFormat: NumberFormat('0 mm/s²'),
+                  unit: 'mm/s²',
+                  maxValue: 3500,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SliderOrTextInput extends HookWidget {
+  final ValueChanged<double>? onChange;
+  final String prefixText;
+  final double initialValue;
+  final NumberFormat? numberFormat;
+  final double maxValue;
+  final double minValue;
+  final String? unit;
+
+  const _SliderOrTextInput(
+      {Key? key,
+      required this.initialValue,
+      required this.prefixText,
+      required this.onChange,
+      this.numberFormat,
+      this.maxValue = 2,
+      this.minValue = 0,
+      this.unit})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var initial = useState(initialValue);
+    var sliderPos = useState(initial.value);
+    var fadeState = useState(CrossFadeState.showFirst);
+    var textEditingController = useTextEditingController(text: '0');
+    var focusText = useFocusNode();
+    var focusRequested = useState(false);
+    var inputValid = useState(true);
+
+    NumberFormat numFormat = numberFormat ?? NumberFormat('###%');
+
+    if (initial.value != initialValue) {
+      initial.value = initialValue;
+      sliderPos.value = initialValue;
+      textEditingController.text =
+          numFormat.format(initialValue).replaceAll(RegExp(r'[^0-9.,]'), '');
+    }
+
+    if (fadeState.value == CrossFadeState.showSecond &&
+        !focusRequested.value &&
+        !focusText.hasFocus &&
+        focusText.canRequestFocus) {
+      focusRequested.value = true;
+      focusText.requestFocus();
+    }
+
+    Widget suffixText = Padding(
+      padding: EdgeInsets.symmetric(horizontal: 14),
+      child: Text(unit ?? '%'),
+    );
+
+    return Row(
+      children: [
+        Flexible(
+          child: AnimatedCrossFade(
+            firstChild: InputDecorator(
+                decoration: InputDecoration(
+                  label:
+                      Text('$prefixText: ${numFormat.format(sliderPos.value)}'),
+                  isCollapsed: true,
+                  border: InputBorder.none,
+                ),
+                child: Slider(
+                  value: min(maxValue, sliderPos.value),
+                  onChanged: onChange != null
+                      ? (v) {
+                          sliderPos.value = v;
+                        }
+                      : null,
+                  onChangeEnd: onChange,
+                  max: maxValue,
+                  min: minValue,
+                )),
+            secondChild: TextField(
+              enabled: onChange != null,
+              onSubmitted: (String value) {
+                if (!inputValid.value) return;
+                double perc =
+                    numFormat.parse(textEditingController.text).toDouble();
+                onChange!(perc);
+              },
+              focusNode: focusText,
+              controller: textEditingController,
+              onChanged: (s) {
+                if (s.isEmpty || !RegExp(r'^\d+([.,])?\d*?$').hasMatch(s)) {
+                  inputValid.value = false;
+                  return;
+                }
+
+                if (!inputValid.value) inputValid.value = true;
+              },
+              textAlign: TextAlign.end,
+              keyboardType:
+                  TextInputType.numberWithOptions(signed: Platform.isIOS),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))
+              ],
+              decoration: InputDecoration(
+                  prefixText: '$prefixText:',
+                  border: InputBorder.none,
+                  suffix: suffixText,
+                  errorText: !inputValid.value
+                      ? FormBuilderLocalizations.current.numericErrorText
+                      : null),
+            ),
+            duration: kThemeAnimationDuration,
+            crossFadeState: fadeState.value,
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.edit),
+          onPressed: !inputValid.value || onChange == null
+              ? null
+              : () {
+                  if (fadeState.value == CrossFadeState.showFirst) {
+                    textEditingController.text = numFormat
+                        .format(sliderPos.value)
+                        .replaceAll(RegExp(r'[^0-9.,]'), '');
+                    fadeState.value = CrossFadeState.showSecond;
+                    focusRequested.value = false;
+                  } else {
+                    sliderPos.value =
+                        numFormat.parse(textEditingController.text).toDouble();
+                    fadeState.value = CrossFadeState.showFirst;
+                    focusText.unfocus();
+                  }
+                },
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
+        )
+      ],
     );
   }
 }

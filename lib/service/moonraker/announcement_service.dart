@@ -4,7 +4,6 @@ import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/exceptions.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/announcement/announcement_entry.dart';
-import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 
 /// The AnnouncementService handles different notifications/announcements from feed api.
