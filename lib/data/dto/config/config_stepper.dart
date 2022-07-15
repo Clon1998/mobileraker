@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:mobileraker/util/extensions/list_extension.dart';
 
 class ConfigStepper {
@@ -54,7 +56,7 @@ class ConfigStepper {
           rotationDistance == other.rotationDistance &&
           microsteps == other.microsteps &&
           fullStepsPerRotation == other.fullStepsPerRotation &&
-          gearRatio == other.gearRatio &&
+          listEquals(gearRatio, other.gearRatio) &&
           endstopPin == other.endstopPin &&
           positionMin == other.positionMin &&
           positionEndstop == other.positionEndstop &&
@@ -74,7 +76,7 @@ class ConfigStepper {
       rotationDistance.hashCode ^
       microsteps.hashCode ^
       fullStepsPerRotation.hashCode ^
-      gearRatio.hashCode ^
+      gearRatio.hashIterable ^
       endstopPin.hashCode ^
       positionMin.hashCode ^
       positionEndstop.hashCode ^

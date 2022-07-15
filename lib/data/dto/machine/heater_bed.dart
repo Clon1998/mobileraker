@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:mobileraker/util/misc.dart';
+
 class HeaterBed {
   double temperature = 0;
   double target = 0;
@@ -23,9 +26,9 @@ class HeaterBed {
           target == other.target &&
           power == other.power &&
           lastHistory == other.lastHistory &&
-          temperatureHistory == other.temperatureHistory &&
-          targetHistory == other.targetHistory &&
-          powerHistory == other.powerHistory;
+          listEquals(temperatureHistory, other.temperatureHistory) &&
+          listEquals(targetHistory, other.targetHistory) &&
+          listEquals(powerHistory, other.powerHistory);
 
   @override
   int get hashCode =>
@@ -33,7 +36,7 @@ class HeaterBed {
       target.hashCode ^
       power.hashCode ^
       lastHistory.hashCode ^
-      temperatureHistory.hashCode ^
-      targetHistory.hashCode ^
-      powerHistory.hashCode;
+      hashAllNullable(temperatureHistory) ^
+      hashAllNullable(targetHistory) ^
+      hashAllNullable(powerHistory);
 }

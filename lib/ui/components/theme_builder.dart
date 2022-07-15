@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobileraker/service/ui/theme_service.dart';
+import 'package:mobileraker/service/theme_service.dart';
 import 'package:mobileraker/ui/themes/theme_pack.dart';
 import 'package:provider/provider.dart';
 

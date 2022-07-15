@@ -6,11 +6,11 @@ import 'package:stacked/stacked.dart';
 
 mixin PrinterMixin on SelectedMachineMixin {
   @protected
-  static const PrinterDataStreamKey = 'cPrinter';
+  static const StreamKey = 'cPrinter';
 
-  bool get isPrinterDataReady => dataReady(PrinterDataStreamKey);
+  bool get isPrinterDataReady => dataReady(StreamKey);
 
-  Printer get printerData => dataMap![PrinterDataStreamKey];
+  Printer get printerData => dataMap![StreamKey];
 
   bool get isPrinting =>
       isPrinterDataReady && printerData.print.state == PrintState.printing;
@@ -32,7 +32,7 @@ mixin PrinterMixin on SelectedMachineMixin {
     return {
       ...parentMap,
       if (this.isSelectedMachineReady)
-        PrinterDataStreamKey: StreamData<Printer>(printerService.printerStream),
+        StreamKey: StreamData<Printer>(printerService.printerStream),
     };
   }
 }

@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:mobileraker/util/misc.dart';
+
 class TemperatureSensor {
   String name;
 
@@ -20,7 +23,7 @@ class TemperatureSensor {
           measuredMinTemp == other.measuredMinTemp &&
           measuredMaxTemp == other.measuredMaxTemp &&
           lastHistory == other.lastHistory &&
-          temperatureHistory == other.temperatureHistory;
+          listEquals(temperatureHistory, other.temperatureHistory);
 
   @override
   int get hashCode =>
@@ -29,5 +32,5 @@ class TemperatureSensor {
       measuredMinTemp.hashCode ^
       measuredMaxTemp.hashCode ^
       lastHistory.hashCode ^
-      temperatureHistory.hashCode;
+      hashAllNullable(temperatureHistory);
 }

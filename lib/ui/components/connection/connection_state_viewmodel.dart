@@ -37,7 +37,7 @@ class ConnectionStateViewModel extends MultipleStreamViewModel
   }
 
   ClientState get connectionState =>
-      dataMap?[_ClientStateStreamKey] ?? ClientState.disconnected;
+      dataMap?[_ClientStateStreamKey] ?? ClientState.connecting;
 
   String get klippyState => 'Klippy: ${toName(klippyInstance.klippyState)}';
 

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobileraker/data/model/moonraker_db/stamped_entity.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 import 'macro_group.dart';
 import 'temperature_preset.dart';
@@ -46,28 +48,28 @@ class MachineSettings extends StampedEntity {
       super == other &&
           other is MachineSettings &&
           runtimeType == other.runtimeType &&
-          inverts == other.inverts &&
+          listEquals(inverts, other.inverts) &&
           speedXY == other.speedXY &&
           speedZ == other.speedZ &&
           extrudeFeedrate == other.extrudeFeedrate &&
-          moveSteps == other.moveSteps &&
-          babySteps == other.babySteps &&
-          extrudeSteps == other.extrudeSteps &&
-          macroGroups == other.macroGroups &&
-          temperaturePresets == other.temperaturePresets;
+          listEquals(moveSteps, other.moveSteps) &&
+          listEquals(babySteps, other.babySteps) &&
+          listEquals(extrudeSteps, other.extrudeSteps) &&
+          listEquals(macroGroups, other.macroGroups) &&
+          listEquals(temperaturePresets, other.temperaturePresets);
 
   @override
   int get hashCode =>
       super.hashCode ^
-      inverts.hashCode ^
+      inverts.hashIterable ^
       speedXY.hashCode ^
       speedZ.hashCode ^
       extrudeFeedrate.hashCode ^
-      moveSteps.hashCode ^
-      babySteps.hashCode ^
-      extrudeSteps.hashCode ^
-      macroGroups.hashCode ^
-      temperaturePresets.hashCode;
+      moveSteps.hashIterable ^
+      babySteps.hashIterable ^
+      extrudeSteps.hashIterable ^
+      macroGroups.hashIterable ^
+      temperaturePresets.hashIterable;
 
   @override
   String toString() {

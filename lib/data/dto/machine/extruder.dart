@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:mobileraker/util/misc.dart';
+
 class Extruder {
   double temperature = 0;
   double target = 0;
@@ -27,9 +30,9 @@ class Extruder {
           smoothTime == other.smoothTime &&
           power == other.power &&
           lastHistory == other.lastHistory &&
-          temperatureHistory == other.temperatureHistory &&
-          targetHistory == other.targetHistory &&
-          powerHistory == other.powerHistory;
+          listEquals(temperatureHistory, other.temperatureHistory) &&
+          listEquals(targetHistory, other.targetHistory) &&
+          listEquals(powerHistory, other.powerHistory);
 
   @override
   int get hashCode =>
@@ -39,7 +42,7 @@ class Extruder {
       smoothTime.hashCode ^
       power.hashCode ^
       lastHistory.hashCode ^
-      temperatureHistory.hashCode ^
-      targetHistory.hashCode ^
-      powerHistory.hashCode;
+      hashAllNullable(temperatureHistory) ^
+      hashAllNullable(targetHistory) ^
+      hashAllNullable(powerHistory);
 }

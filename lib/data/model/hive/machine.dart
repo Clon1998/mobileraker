@@ -1,4 +1,5 @@
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
 import 'package:mobileraker/data/model/hive/macro_group.dart';
@@ -8,6 +9,7 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:uuid/uuid.dart';
 
 part 'machine.g.dart';
@@ -151,7 +153,7 @@ class Machine extends HiveObject {
           name == other.name &&
           wsUrl == other.wsUrl &&
           uuid == other.uuid &&
-          cams == other.cams &&
+          listEquals(cams, other.cams) &&
           apiKey == other.apiKey &&
           temperaturePresets == other.temperaturePresets &&
           httpUrl == other.httpUrl &&
@@ -173,7 +175,7 @@ class Machine extends HiveObject {
       name.hashCode ^
       wsUrl.hashCode ^
       uuid.hashCode ^
-      cams.hashCode ^
+      cams.hashIterable ^
       apiKey.hashCode ^
       temperaturePresets.hashCode ^
       httpUrl.hashCode ^

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/config/config_extruder.dart';
 import 'package:mobileraker/data/dto/config/config_heater_bed.dart';
 import 'package:mobileraker/data/dto/config/config_output.dart';
@@ -76,9 +77,9 @@ class ConfigFile {
           runtimeType == other.runtimeType &&
           configPrinter == other.configPrinter &&
           configHeaterBed == other.configHeaterBed &&
-          extruders == other.extruders &&
-          outputs == other.outputs &&
-          steppers == other.steppers &&
+          mapEquals(extruders, other.extruders) &&
+          mapEquals(outputs, other.outputs) &&
+          mapEquals(steppers, other.steppers) &&
           rawConfig == other.rawConfig &&
           saveConfigPending == other.saveConfigPending;
 

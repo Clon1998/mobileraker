@@ -5,11 +5,11 @@ import 'package:stacked/stacked.dart';
 
 mixin KlippyMixin on SelectedMachineMixin {
   @protected
-  static const KlippyDataStreamKey = 'cKlippy';
+  static const StreamKey = 'cKlippy';
 
-  bool get isKlippyInstanceReady => dataReady(KlippyDataStreamKey);
+  bool get isKlippyInstanceReady => dataReady(StreamKey);
 
-  KlipperInstance get klippyInstance => dataMap![KlippyDataStreamKey];
+  KlipperInstance get klippyInstance => dataMap![StreamKey];
 
   bool get klippyCanReceiveCommands =>
       isKlippyInstanceReady &&
@@ -23,7 +23,7 @@ mixin KlippyMixin on SelectedMachineMixin {
     return {
       ...parentMap,
       if (this.isSelectedMachineReady)
-        KlippyDataStreamKey:
+        StreamKey:
             StreamData<KlipperInstance>(klippyService.klipperStream),
     };
   }

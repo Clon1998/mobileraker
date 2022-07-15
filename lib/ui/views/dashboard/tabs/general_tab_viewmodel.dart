@@ -9,6 +9,7 @@ import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
+import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
@@ -17,6 +18,7 @@ import 'package:mobileraker/ui/common/mixins/printer_mixin.dart';
 import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
+import 'package:mobileraker/util/extensions/list_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
@@ -35,21 +37,7 @@ class GeneralTabViewModel extends MultipleStreamViewModel
 
   GCodeFile? currentFile;
 
-  WebcamSetting? _selectedCam;
-
-  WebcamSetting? get selectedCam {
-    if (_selectedCam != null) {
-      return _selectedCam;
-    }
-    List<WebcamSetting> list = webcams;
-    if (list.isNotEmpty) {
-      _selectedCam = list.first;
-      return _selectedCam;
-    }
-    return null;
-  }
-
-  set selectedCam(WebcamSetting? cam) => _selectedCam = cam;
+  WebcamSetting? selectedCam;
 
   List<WebcamSetting> get webcams {
     if (isSelectedMachineReady && selectedMachine!.cams.isNotEmpty) {
@@ -126,11 +114,16 @@ class GeneralTabViewModel extends MultipleStreamViewModel
   @override
   Map<String, StreamData> get streamsMap => super.streamsMap;
 
+  List v = <MachineSettings>[];
+
   @override
   onData(String key, data) {
     super.onData(key, data);
     switch (key) {
-      case PrinterMixin.PrinterDataStreamKey:
+      case SelectedMachineMixin.StreamKey:
+        selectedCam = selectedMachine?.cams.firstOrNull;
+        break;
+      case PrinterMixin.StreamKey:
         Printer nPrinter = data;
         String filename = nPrinter.print.filename;
         if (filename.isNotEmpty && currentFile?.pathForPrint != filename)

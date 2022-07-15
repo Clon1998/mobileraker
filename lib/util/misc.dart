@@ -100,3 +100,8 @@ FormFieldValidator<T> notContains<T>(
     return null;
   };
 }
+
+int hashAllNullable(Iterable<dynamic>? list) {
+  if (list == null) return null.hashCode;
+  return Object.hashAll(list);
+}

@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 enum KlipperState { ready, error, shutdown, startup, disconnected }
 
@@ -59,9 +61,9 @@ class KlipperInstance {
           runtimeType == other.runtimeType &&
           klippyConnected == other.klippyConnected &&
           klippyState == other.klippyState &&
-          plugins == other.plugins;
+          listEquals(plugins, other.plugins);
 
   @override
   int get hashCode =>
-      klippyConnected.hashCode ^ klippyState.hashCode ^ plugins.hashCode;
+      klippyConnected.hashCode ^ klippyState.hashCode ^ plugins.hashIterable;
 }

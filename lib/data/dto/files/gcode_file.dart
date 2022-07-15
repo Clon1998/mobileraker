@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/dto/files/gcode_thumbnail.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 class GCodeFile extends RemoteFile {
   double? printStartTime;
@@ -132,7 +134,7 @@ class GCodeFile extends RemoteFile {
           firstLayerTempExtruder == other.firstLayerTempExtruder &&
           gcodeStartByte == other.gcodeStartByte &&
           gcodeEndByte == other.gcodeEndByte &&
-          thumbnails == other.thumbnails;
+          listEquals(thumbnails, other.thumbnails);
 
   @override
   int get hashCode =>
@@ -150,5 +152,5 @@ class GCodeFile extends RemoteFile {
       firstLayerTempExtruder.hashCode ^
       gcodeStartByte.hashCode ^
       gcodeEndByte.hashCode ^
-      thumbnails.hashCode;
+      thumbnails.hashIterable;
 }

@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
+
 class GCodeMove {
   double speedFactor = 0;
   double speed = 0;
@@ -22,9 +25,9 @@ class GCodeMove {
               extrudeFactor == other.extrudeFactor &&
               absoluteCoordinates == other.absoluteCoordinates &&
               absoluteExtrude == other.absoluteExtrude &&
-              homingOrigin == other.homingOrigin &&
-              position == other.position &&
-              gcodePosition == other.gcodePosition;
+              listEquals(homingOrigin, other.homingOrigin) &&
+              listEquals(position, other.position) &&
+              listEquals(gcodePosition, other.gcodePosition);
 
   @override
   int get hashCode =>
@@ -33,7 +36,7 @@ class GCodeMove {
       extrudeFactor.hashCode ^
       absoluteCoordinates.hashCode ^
       absoluteExtrude.hashCode ^
-      homingOrigin.hashCode ^
-      position.hashCode ^
-      gcodePosition.hashCode;
+      homingOrigin.hashIterable ^
+      position.hashIterable ^
+      gcodePosition.hashIterable;
 }

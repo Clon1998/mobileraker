@@ -12,7 +12,7 @@ import 'package:stacked/stacked.dart';
 mixin SelectedMachineMixin on MultipleStreamViewModel {
   final _logger = getLogger('SelectedMachineMultiStreamViewModel');
   @protected
-  static const SelectedMachineStreamKey = 'selMachine';
+  static const StreamKey = 'selMachine';
   final _selectedMachineService = locator<SelectedMachineService>();
 
   Machine? _last;
@@ -34,7 +34,7 @@ mixin SelectedMachineMixin on MultipleStreamViewModel {
   @override
   Map<String, StreamData> get streamsMap {
     return {
-      SelectedMachineStreamKey:
+      StreamKey:
           StreamData<Machine?>(_selectedMachineService.selectedMachine),
     };
   }
@@ -56,7 +56,7 @@ mixin SelectedMachineMixin on MultipleStreamViewModel {
   onData(String key, data) {
     super.onData(key, data);
     switch (key) {
-      case SelectedMachineStreamKey:
+      case StreamKey:
         if (_lastHash != data.hashCode) {
           // _logger.wtf('last: $_lastHash data: ${data?.hashCode}, last: ${_last?.name}, data:${data?.name}');
           _last = data;

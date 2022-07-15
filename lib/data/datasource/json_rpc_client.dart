@@ -31,7 +31,7 @@ class RpcResponse {
 
   bool get hasError => err != null;
 
-  bool get hasNoError => err == null;
+  bool get hasNoError => !hasError;
 }
 
 class JsonRpcClient {

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobileraker/data/model/moonraker_db/stamped_entity.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:uuid/uuid.dart';
 
 import 'gcode_macro.dart';
@@ -37,8 +39,8 @@ class MacroGroup extends StampedEntity {
           runtimeType == other.runtimeType &&
           name == other.name &&
           uuid == other.uuid &&
-          macros == other.macros;
+          listEquals(macros, other.macros);
 
   @override
-  int get hashCode => name.hashCode ^ uuid.hashCode ^ macros.hashCode;
+  int get hashCode => name.hashCode ^ uuid.hashCode ^ macros.hashIterable;
 }

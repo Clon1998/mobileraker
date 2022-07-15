@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:vector_math/vector_math.dart';
 
 class ExcludeObject {
@@ -22,12 +24,14 @@ class ExcludeObject {
       other is ExcludeObject &&
           runtimeType == other.runtimeType &&
           currentObject == other.currentObject &&
-          excludedObjects == other.excludedObjects &&
-          objects == other.objects;
+          listEquals(objects, other.objects) &&
+          listEquals(excludedObjects, other.excludedObjects);
 
   @override
   int get hashCode =>
-      currentObject.hashCode ^ excludedObjects.hashCode ^ objects.hashCode;
+      currentObject.hashCode ^
+      excludedObjects.hashIterable ^
+      objects.hashIterable;
 
   @override
   String toString() {
@@ -64,10 +68,11 @@ class ParsedObject {
           runtimeType == other.runtimeType &&
           name == other.name &&
           center == other.center &&
-          polygons == other.polygons;
+          listEquals(polygons, other.polygons);
 
   @override
-  int get hashCode => name.hashCode ^ center.hashCode ^ polygons.hashCode;
+  int get hashCode =>
+      name.hashCode ^ center.hashCode ^ polygons.hashIterable;
 
   @override
   String toString() {

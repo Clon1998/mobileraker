@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
@@ -10,6 +11,7 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 class Printer {
   Toolhead toolhead = Toolhead();
@@ -83,32 +85,32 @@ class Printer {
       other is Printer &&
           runtimeType == other.runtimeType &&
           toolhead == other.toolhead &&
-          extruder == other.extruder &&
           heaterBed == other.heaterBed &&
           printFan == other.printFan &&
           gCodeMove == other.gCodeMove &&
           print == other.print &&
           configFile == other.configFile &&
-          fans == other.fans &&
-          temperatureSensors == other.temperatureSensors &&
-          outputPins == other.outputPins &&
+          setEquals(fans, other.fans) &&
+          setEquals(temperatureSensors, other.temperatureSensors) &&
+          setEquals(outputPins, other.outputPins) &&
           virtualSdCard == other.virtualSdCard &&
-          queryableObjects == other.queryableObjects &&
-          gcodeMacros == other.gcodeMacros;
+          listEquals(queryableObjects, other.queryableObjects) &&
+          listEquals(gcodeMacros, other.gcodeMacros) &&
+          listEquals(extruders, other.extruders);
 
   @override
   int get hashCode =>
       toolhead.hashCode ^
-      extruder.hashCode ^
       heaterBed.hashCode ^
       printFan.hashCode ^
       gCodeMove.hashCode ^
       print.hashCode ^
       configFile.hashCode ^
-      fans.hashCode ^
-      temperatureSensors.hashCode ^
-      outputPins.hashCode ^
+      fans.hashIterable ^
+      temperatureSensors.hashIterable ^
+      outputPins.hashIterable ^
       virtualSdCard.hashCode ^
       queryableObjects.hashCode ^
-      gcodeMacros.hashCode;
+      gcodeMacros.hashCode^
+      extruders.hashIterable;
 }

@@ -1,4 +1,7 @@
 
+import 'package:flutter/foundation.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
+
 enum PrinterAxis { X, Y, Z, E }
 
 class Toolhead {
@@ -23,8 +26,8 @@ class Toolhead {
       identical(this, other) ||
           other is Toolhead &&
               runtimeType == other.runtimeType &&
-              homedAxes == other.homedAxes &&
-              position == other.position &&
+              setEquals(homedAxes, other.homedAxes) &&
+              listEquals(position, other.position) &&
               activeExtruder == other.activeExtruder &&
               printTime == other.printTime &&
               estimatedPrintTime == other.estimatedPrintTime &&
@@ -35,8 +38,8 @@ class Toolhead {
 
   @override
   int get hashCode =>
-      homedAxes.hashCode ^
-      position.hashCode ^
+      homedAxes.hashIterable ^
+      position.hashIterable ^
       activeExtruder.hashCode ^
       printTime.hashCode ^
       estimatedPrintTime.hashCode ^
