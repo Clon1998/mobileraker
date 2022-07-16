@@ -20,18 +20,17 @@ class JRpcError implements Exception {
   final int code;
 
   final String message;
+
+  @override
+  String toString() {
+    return 'JRpcError{code: $code, message: $message}';
+  }
 }
 
 class RpcResponse {
-  RpcResponse(this.response, this.err);
+  RpcResponse(this.response);
 
   final Map<String, dynamic> response;
-
-  final Map<String, dynamic>? err;
-
-  bool get hasError => err != null;
-
-  bool get hasNoError => !hasError;
 }
 
 class JsonRpcClient {
@@ -255,10 +254,12 @@ class JsonRpcClient {
       Completer completer = _requestsBlocking.remove(mId)!;
       if (err != null) {
         // _logger.e('Completing $mId with error $err,\n${StackTrace.current}',);
-        completer.completeError(JRpcError(err['code'], err['message']));
+        completer.completeError(JRpcError(err['code'], err['message']), StackTrace.current);
       } else {
-        completer.complete(RpcResponse(response, err));
+        completer.complete(RpcResponse(response));
       }
+    } else {
+      _logger.w('Received response for unknown id "$mId"');
     }
   }
 

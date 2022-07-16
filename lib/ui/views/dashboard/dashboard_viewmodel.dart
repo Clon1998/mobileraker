@@ -10,6 +10,7 @@ import 'package:mobileraker/ui/common/mixins/printer_mixin.dart';
 import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:mobileraker/ui/components/bottomsheet/setup_bottom_sheet_ui.dart';
 import 'package:mobileraker/ui/components/dialog/action_dialogs.dart';
+import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -99,4 +100,9 @@ class DashboardViewModel extends MultipleStreamViewModel
       _selectedMachineService.selectNextMachine();
     }
   }
+
+  showPrinterFetchingErrorDialog() => _dialogService.showCustomDialog(
+        variant: DialogType.stackTrace,
+        title: printerDataError.runtimeType.toString(),
+        description: 'Exception:\n ${printerDataError.parentException}\n\n${printerDataError.parentStack}');
 }

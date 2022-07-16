@@ -66,25 +66,35 @@ class FileService {
       [bool extended = false]) async {
     _logger.i('Fetching for `$path` [extended:$extended]');
 
-    RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
-        'server.files.get_directory',
-        params: {'path': path, 'extended': extended});
+    try {
+      RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
+          'server.files.get_directory',
+          params: {'path': path, 'extended': extended});
 
-    String fileType = '.gcode';
+      String fileType = '.gcode';
 
-    if (path.startsWith('config')) fileType = '.cfg';
+      if (path.startsWith('config')) fileType = '.cfg';
 
-    return _parseDirectory(blockingResp, path, fileType);
+      return _parseDirectory(blockingResp, path, fileType);
+    } on JRpcError catch(e) {
+      throw FileFetchException(e.toString(),
+          reqPath: path);
+    }
   }
 
   Future<GCodeFile> getGCodeMetadata(String filename) async {
     _logger.i('Getting meta for file: `$filename`');
 
-    RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
-        'server.files.metadata',
-        params: {'filename': filename});
+    try {
+      RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod(
+          'server.files.metadata',
+          params: {'filename': filename});
 
-    return _parseFileMeta(blockingResp, filename);
+      return _parseFileMeta(blockingResp, filename);
+    } on JRpcError catch(e) {
+        throw FileFetchException(e.toString(),
+            reqPath: filename);
+    }
   }
 
   Future<FileApiResponse> createDir(String filePath) async {
@@ -175,9 +185,6 @@ class FileService {
   FolderContentWrapper _parseDirectory(
       RpcResponse blockingResponse, String forPath,
       [String fileType = '.gcode']) {
-    if (blockingResponse.hasError)
-      throw FileFetchException(blockingResponse.err.toString(),
-          reqPath: forPath);
 
     Map<String, dynamic> response = blockingResponse.response['result'];
     List<dynamic> filesResponse = response['files']; // Just add an type
@@ -216,10 +223,6 @@ class FileService {
   }
 
   GCodeFile _parseFileMeta(RpcResponse blockingResponse, String forFile) {
-    if (blockingResponse.hasError)
-      throw FileFetchException(blockingResponse.err.toString(),
-          reqPath: forFile);
-
     Map<String, dynamic> response = blockingResponse.response['result'];
 
     var split = forFile.split('/');

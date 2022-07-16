@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:mobileraker/app/exceptions.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
@@ -7,6 +8,10 @@ import 'package:stacked/stacked.dart';
 mixin PrinterMixin on SelectedMachineMixin {
   @protected
   static const StreamKey = 'cPrinter';
+
+  bool get hasPrinterDataError => hasErrorForKey(StreamKey);
+
+  MobilerakerException get printerDataError => error(StreamKey);
 
   bool get isPrinterDataReady => dataReady(StreamKey);
 

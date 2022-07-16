@@ -6,6 +6,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:get/get.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
+import 'package:mobileraker/app/exceptions.dart';
 import 'package:mobileraker/data/datasource/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
@@ -48,7 +49,7 @@ class PrinterService {
         case KlipperState.ready:
           if (!_queriedForSession) {
             _queriedForSession = true;
-            _printerObjectsList();
+            refreshPrinter();
           }
           break;
         default:
@@ -100,8 +101,25 @@ class PrinterService {
     return printerStream.hasValue ? printerStream.value : Printer();
   }
 
-  refreshPrinter() {
-    _printerObjectsList();
+  refreshPrinter() async {
+    try {
+      Printer printer = Printer();
+      await _printerObjectsList(printer);
+      await _printerObjectsQuery(printer);
+
+      await _temperatureStore(printer);
+      // After initally getting all information we can get the data!
+      _makeSubscribeRequest(printer);
+      printerStream.add(printer);
+      _machineService.updateMacrosInSettings(_owner, printer.gcodeMacros);
+    } on JRpcError catch (e, s) {
+      _logger.e('Unable to refresh Printer...', e, s);
+      _logger.e(e);
+      _logger.e(s);
+      _showExceptionSnackbar(e, s);
+      printerStream.addError(MobilerakerException('Could not fetch printer...',
+          parentException: e, parentStack: s));
+    }
   }
 
   resumePrint() {
@@ -237,63 +255,63 @@ class PrinterService {
 
   Future<void> _temperatureStore(Printer printer) async {
     _logger.i('Fetching cached temperature store data');
-    RpcResponse blockingResponse =
-        await _jRpcClient.sendJRpcMethod('server.temperature_store');
-    if (blockingResponse.hasError) {
-      _logger.e(
-          'Error while fetching cached temperature store: ${blockingResponse.err}');
-      return;
+
+    try {
+      RpcResponse blockingResponse =
+          await _jRpcClient.sendJRpcMethod('server.temperature_store');
+
+      Map<String, dynamic> raw = blockingResponse.response['result'];
+      List<String> sensors = raw.keys
+          .toList(); // temperature_sensor <NAME>, extruder, heater_bed, temperature_fan
+      _logger.i('Received cached temperature store for $sensors');
+
+      raw.forEach((key, value) {
+        _parseObjectType(key, raw, printer);
+      });
+    } on JRpcError catch (e) {
+      _logger.e('Error while fetching cached temperature store: $e');
     }
-
-    Map<String, dynamic> raw = blockingResponse.response['result'];
-    List<String> sensors = raw.keys
-        .toList(); // temperature_sensor <NAME>, extruder, heater_bed, temperature_fan
-    _logger.i('Received cached temperature store for $sensors');
-
-    raw.forEach((key, value) {
-      _parseObjectType(key, raw, printer);
-    });
   }
 
   Future<List<ConsoleEntry>> gcodeStore() async {
     _logger.i('Fetching cached GCode commands');
-    RpcResponse blockingResponse =
-        await _jRpcClient.sendJRpcMethod('server.gcode_store');
-    if (blockingResponse.hasError) {
-      _logger.e(
-          'Error while fetching cached GCode commands: ${blockingResponse.err}');
-      return List.empty();
-    }
+    try {
+      RpcResponse blockingResponse =
+          await _jRpcClient.sendJRpcMethod('server.gcode_store');
 
-    List<dynamic> raw = blockingResponse.response['result']['gcode_store'];
-    _logger.i('Received cached GCode commands');
-    return List.generate(
-        raw.length, (index) => ConsoleEntry.fromJson(raw[index]));
+      List<dynamic> raw = blockingResponse.response['result']['gcode_store'];
+      _logger.i('Received cached GCode commands');
+      return List.generate(
+          raw.length, (index) => ConsoleEntry.fromJson(raw[index]));
+    } on JRpcError catch (e) {
+      _logger.e('Error while fetching cached GCode commands: $e');
+    }
+    return List.empty();
   }
 
   Future<List<Command>> gcodeHelp() async {
     _logger.i('Fetching available GCode commands');
-    RpcResponse blockingResponse =
-        await _jRpcClient.sendJRpcMethod('printer.gcode.help');
-    if (blockingResponse.hasError) {
-      _logger.e(
-          'Error while fetching cached GCode commands: ${blockingResponse.err}');
-      return List.empty();
+    try {
+      RpcResponse blockingResponse =
+          await _jRpcClient.sendJRpcMethod('printer.gcode.help');
+      Map<dynamic, dynamic> raw = blockingResponse.response['result'];
+      _logger.i('Received ${raw.length} available GCode commands');
+      return raw.entries.map((e) => Command(e.key, e.value)).toList();
+    } on JRpcError catch (e) {
+      _logger.e('Error while fetching cached GCode commands: $e');
     }
-    Map<dynamic, dynamic> raw = blockingResponse.response['result'];
-    _logger.i('Received ${raw.length} available GCode commands');
-    return raw.entries.map((e) => Command(e.key, e.value)).toList();
+    return List.empty();
   }
 
   excludeObject(ParsedObject objToExc) {
     gCode('EXCLUDE_OBJECT NAME=${objToExc.name}');
   }
 
-  _printerObjectsList() {
+  _printerObjectsList(Printer printer) async {
     // printerStream.value = Printer();
     _logger.i('>>>Querying printers object list');
-    _jRpcClient.sendJsonRpcWithCallback('printer.objects.list',
-        onReceive: _parsePrinterObjectsList);
+    RpcResponse resp = await _jRpcClient.sendJRpcMethod('printer.objects.list');
+    _parsePrinterObjectsList(resp.response, printer);
   }
 
   /// Method Handler for registered in the Websocket wrapper.
@@ -339,26 +357,12 @@ class PrinterService {
       _logger.e('Error while parsing $key object', e, s);
       _logger.e(e);
       _logger.e(s);
-      _snackBarService.showCustomSnackBar(
-          variant: SnackbarType.error,
-          duration: const Duration(seconds: 20),
-          title: '$key - Parsing error',
-          message: 'Could not parse: $e',
-          mainButtonTitle: "Details",
-          onMainButtonTapped: () {
-            Get.closeCurrentSnackbar();
-            _dialogService.showCustomDialog(
-                variant: DialogType.stackTrace,
-                title: '$key - Parsing error',
-                description: s.toString());
-          });
+      _showExceptionSnackbar(e, s);
     }
   }
 
-  _parsePrinterObjectsList(response, {err}) {
-    if (err != null) return;
+  _parsePrinterObjectsList(Map<String, dynamic> response, Printer printer) {
     var result = response['result'];
-    Printer printer = _latestPrinter;
     _logger.i('<<<Received printer objects list!');
     _logger
         .v('PrinterObjList: ${JsonEncoder.withIndent('  ').convert(result)}');
@@ -376,11 +380,9 @@ class PrinterService {
     });
     printer.queryableObjects = qObjects;
     printer.gcodeMacros = gCodeMacros;
-    _machineService.updateMacrosInSettings(_owner, gCodeMacros);
-    _queryPrinterObjects(printer);
   }
 
-  _printerObjectsQuery(dynamic response, Printer printer) async {
+  _parseQueriedObjects(dynamic response, Printer printer) async {
     _logger.i('<<<Received queried printer objects');
     _logger.v(
         'PrinterObjectsQuery: ${JsonEncoder.withIndent('  ').convert(response)}');
@@ -389,11 +391,6 @@ class PrinterService {
     data.forEach((key, value) {
       _parseObjectType(key, data, printer);
     });
-
-    printerStream.add(printer);
-    await _temperatureStore(printer);
-    // After initally getting all information we can get the data!
-    _makeSubscribeRequest(printer);
   }
 
   _updatePartFan(Map<String, dynamic> fanJson, {required Printer printer}) {
@@ -738,15 +735,15 @@ class PrinterService {
   }
 
   /// Query the state of queryable printer objects once!
-  _queryPrinterObjects(Printer printer) {
+  _printerObjectsQuery(Printer printer) async {
+    _logger.i('>>>Querying Printer Objects!');
     Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer);
 
-    _logger.i('>>>Querying Printer Objects!');
+    RpcResponse jRpcResponse = await _jRpcClient.sendJRpcMethod(
+        'printer.objects.query',
+        params: {'objects': queryObjects});
 
-    _jRpcClient.sendJsonRpcWithCallback('printer.objects.query',
-        onReceive: (response, {err}) {
-      if (err == null) _printerObjectsQuery(response['result'], printer);
-    }, params: {'objects': queryObjects});
+    _parseQueriedObjects(jRpcResponse.response['result'], printer);
   }
 
   /// This method registeres every printer object for websocket updates!
@@ -773,6 +770,22 @@ class PrinterService {
 
   double _toPrecision(double d, [int fraction = 2]) {
     return d.toPrecision(fraction);
+  }
+
+  void _showExceptionSnackbar(Object e, StackTrace s) {
+    _snackBarService.showCustomSnackBar(
+        variant: SnackbarType.error,
+        duration: const Duration(seconds: 20),
+        title: 'Refresh Printer Error',
+        message: 'Could not parse: $e',
+        mainButtonTitle: "Details",
+        onMainButtonTapped: () {
+          Get.closeCurrentSnackbar();
+          _dialogService.showCustomDialog(
+              variant: DialogType.stackTrace,
+              title: 'Refresh Printer Error',
+              description: 'Exception:\n $e\n\n$s');
+        });
   }
 
   dispose() {

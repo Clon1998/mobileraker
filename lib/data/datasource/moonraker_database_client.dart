@@ -16,14 +16,17 @@ class MoonrakerDatabaseClient {
   /// see: https://moonraker.readthedocs.io/en/latest/web_api/#list-namespaces
   Future<List<String>> listNamespaces([JsonRpcClient? client]) async {
     JsonRpcClient _client = _selectCorrectClient(client);
-    RpcResponse blockingResponse =
-        await _client.sendJRpcMethod("server.database.list");
+    try {
+      RpcResponse blockingResponse =
+      await _client.sendJRpcMethod("server.database.list");
 
-    if (blockingResponse.hasNoError &&
-        blockingResponse.response.containsKey('result')) {
-      List<String> nameSpaces =
-          List.from(blockingResponse.response['result']['namespaces']);
-      return nameSpaces;
+      if (blockingResponse.response.containsKey('result')) {
+        List<String> nameSpaces =
+        List.from(blockingResponse.response['result']['namespaces']);
+        return nameSpaces;
+      }
+    } on JRpcError catch(e) {
+      _logger.e('Error while listing Namespaces $e');
     }
 
     return [];
@@ -40,8 +43,7 @@ class MoonrakerDatabaseClient {
       RpcResponse blockingResponse = await _client
           .sendJRpcMethod("server.database.get_item", params: params);
 
-      if (blockingResponse.hasNoError &&
-          blockingResponse.response.containsKey('result'))
+      if (blockingResponse.response.containsKey('result'))
         return blockingResponse.response['result']['value'];
     } on JRpcError catch (e) {
       _logger.e("Could not fetch settings!", e);
@@ -54,20 +56,22 @@ class MoonrakerDatabaseClient {
       [JsonRpcClient? client]) async {
     JsonRpcClient _client = _selectCorrectClient(client);
     _logger.d('Adding $key => $value');
-    RpcResponse blockingResponse = await _client.sendJRpcMethod(
-        "server.database.post_item",
-        params: {"namespace": namespace, "key": key, "value": value});
+    try {
+      RpcResponse blockingResponse = await _client.sendJRpcMethod(
+          "server.database.post_item",
+          params: {"namespace": namespace, "key": key, "value": value});
 
-    if (blockingResponse.hasNoError &&
-        blockingResponse.response.containsKey('result')) {
-      dynamic value = blockingResponse.response['result']['value'];
-      if (value is List) return value.cast<T>();
-      if (value is T)
-        return value;
-      else
-        return value;
-    } else {
-      _logger.e('Error while adding to Moonraker-DB: ${blockingResponse.err}');
+      if (blockingResponse.response.containsKey('result')) {
+        dynamic value = blockingResponse.response['result']['value'];
+        if (value is List) return value.cast<T>();
+        if (value is T)
+          return value;
+        else
+          return value;
+      } else
+        _logger.w('No result in response');
+    } on JRpcError catch (e) {
+      _logger.e('Error while adding to Moonraker-DB: ${e}');
     }
 
     return null;
@@ -76,14 +80,17 @@ class MoonrakerDatabaseClient {
   /// see: https://moonraker.readthedocs.io/en/latest/web_api/#delete-database-item
   Future<dynamic> deleteDatabaseItem(String namespace, String key,
       [JsonRpcClient? client]) async {
-    JsonRpcClient _client = _selectCorrectClient(client);
-    RpcResponse blockingResponse = await _client.sendJRpcMethod(
-        "server.database.delete_item",
-        params: {"namespace": namespace, "key": key});
+    try {
+      JsonRpcClient _client = _selectCorrectClient(client);
+      RpcResponse blockingResponse = await _client.sendJRpcMethod(
+          "server.database.delete_item",
+          params: {"namespace": namespace, "key": key});
 
-    if (blockingResponse.hasNoError &&
-        blockingResponse.response.containsKey('result'))
-      return blockingResponse.response['result']['value'];
+      if (blockingResponse.response.containsKey('result'))
+        return blockingResponse.response['result']['value'];
+    } on JRpcError catch (e) {
+      _logger.e('Error while deleting item: e');
+    }
 
     return null;
   }

@@ -35,31 +35,34 @@ class AnnouncementService {
       [bool includeDismissed = false]) async {
     _logger.i('List Announcements request...');
 
-    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
-        'server.announcements.list',
-        params: {'include_dismissed': includeDismissed});
+    try {
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
+          'server.announcements.list',
+          params: {'include_dismissed': includeDismissed});
 
-    if (rpcResponse.hasError)
-      throw MobilerakerException('Unable to fetch announcement list');
+      List<Map<String, dynamic>> entries =
+          rpcResponse.response['result']['entries'];
 
-    List<Map<String, dynamic>> entries =
-        rpcResponse.response['result']['entries'];
-
-    return _parseAnnouncementsList(entries);
+      return _parseAnnouncementsList(entries);
+    } on JRpcError catch (e) {
+      throw MobilerakerException('Unable to fetch announcement list: $e');
+    }
   }
 
   Future<String> dismissAnnouncement(String entryId, [int? wakeTime]) async {
     _logger.i('Trying to dismiss announcement `$entryId`');
 
-    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
-        'server.announcements.list',
-        params: {'entry_id': entryId, 'wake_time': wakeTime});
+    try {
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
+          'server.announcements.list',
+          params: {'entry_id': entryId, 'wake_time': wakeTime});
 
-    if (rpcResponse.hasError)
-      throw MobilerakerException('Unable to dismiss announcement $entryId');
-
-    String respEntryId = rpcResponse.response['result']['entry_id'];
-    return respEntryId;
+      String respEntryId = rpcResponse.response['result']['entry_id'];
+      return respEntryId;
+    } on JRpcError catch (e) {
+      throw MobilerakerException(
+          'Unable to dismiss announcement $entryId. Err: $e');
+    }
   }
 
   _onNotifyAnnouncementUpdate(Map<String, dynamic> rawMessage) {

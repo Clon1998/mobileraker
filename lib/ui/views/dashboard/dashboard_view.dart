@@ -53,28 +53,47 @@ class DashboardView extends ViewModelBuilderWidget<DashboardViewModel> {
           ],
         ),
         body: ConnectionStateView(
-          onConnected: (model.isPrinterDataReady)
-              ? PageView(
-                  controller: model.pageController,
-                  onPageChanged: model.onPageChanged,
-                  children: [GeneralTab(), ControlTab()],
-                )
-              : Center(
+          onConnected: model.hasPrinterDataError
+              ? Center(
                   child: Column(
-                    key: UniqueKey(),
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SpinKitFadingCube(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
+                      Icon(FlutterIcons.sad_cry_faw5s, size: 99),
                       SizedBox(
-                        height: 30,
+                        height: 22,
                       ),
-                      FadingText(tr('pages.dashboard.fetching_printer')),
-                      // Text("Fetching printer ...")
+                      Text(
+                        'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
+                        textAlign: TextAlign.center,
+                      ),
+                      TextButton(
+                          onPressed: model.showPrinterFetchingErrorDialog,
+                          child: Text('Show Error'))
                     ],
                   ),
-                ),
+                )
+              : (model.isPrinterDataReady)
+                  ? PageView(
+                      controller: model.pageController,
+                      onPageChanged: model.onPageChanged,
+                      children: [GeneralTab(), ControlTab()],
+                    )
+                  : Center(
+                      child: Column(
+                        key: UniqueKey(),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SpinKitFadingCube(
+                            color: Theme.of(context).colorScheme.secondary,
+                          ),
+                          SizedBox(
+                            height: 30,
+                          ),
+                          FadingText(tr('pages.dashboard.fetching_printer')),
+                          // Text("Fetching printer ...")
+                        ],
+                      ),
+                    ),
         ),
         floatingActionButton: printingStateToFab(model),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
