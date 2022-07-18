@@ -8,6 +8,7 @@ const String selectedThemeModeKey = 'selectedThemeMode';
 const String selectedThemePackKey = 'selectedThemePack';
 const String selectedGCodeGrpIndex = 'selGCodeGrp';
 const String selectedProgressNotifyMode = 'selProgNotMode';
+const String requestedNotifyPermission = 'reqNotifyPerm';
 
 /// Settings related to the App!
 class SettingService {

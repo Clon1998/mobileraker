@@ -69,6 +69,7 @@ class SettingView extends ViewModelBuilderWidget<SettingViewModel> {
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
                 _SectionHeader(title: 'pages.setting.notification.title'.tr()),
+                NotificationPermissionWarning(),
                 _progressNotificationDropdown(context, model),
                 Divider(),
                 RichText(
@@ -214,4 +215,32 @@ Widget _progressNotificationDropdown(
         labelText: 'pages.setting.notification.progress_label'.tr(),
         helperText: 'pages.setting.notification.progress_helper'.tr()),
   );
+}
+
+class NotificationPermissionWarning extends ViewModelWidget<SettingViewModel> {
+  const NotificationPermissionWarning({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, SettingViewModel model) {
+    if (!model.hasNotificationPermissionGrantedReady ||
+        model.notificationPermissionGranted) return Container();
+    var themeData = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: ListTile(
+        tileColor: themeData.colorScheme.errorContainer,
+        textColor: themeData.colorScheme.onErrorContainer,
+        iconColor: themeData.colorScheme.onErrorContainer,
+        onTap: model.onRequestPermission,
+        leading: Icon(
+          Icons.notifications_off_outlined,
+          size: 40,
+        ),
+        title: Text(
+          'pages.setting.notification.no_permission_title',
+        ).tr(),
+        subtitle: Text('pages.setting.notification.no_permission_desc').tr(),
+      ),
+    );
+  }
 }

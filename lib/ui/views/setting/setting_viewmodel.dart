@@ -4,16 +4,30 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
 import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
+import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-class SettingViewModel extends FutureViewModel<PackageInfo> {
+const String packageFuture = 'packageFuture';
+const String notifiFuture = 'notifFuture';
+
+class SettingViewModel extends MultipleFutureViewModel {
   final _logger = getLogger("SettingViewModel");
   final _settingService = locator<SettingService>();
   final _navigationService = locator<NavigationService>();
+  final _notificationService = locator<NotificationService>();
+
+  PackageInfo get packageInfo => dataMap![packageFuture];
+
+  bool get hasPackageInfoReady => !isBusy && dataReady(packageFuture);
+
+  bool get notificationPermissionGranted => dataMap![notifiFuture];
+
+  bool get hasNotificationPermissionGrantedReady =>
+      !isBusy && dataReady(notifiFuture);
 
   // late final WebSocketWrapper _jRpcClient = _machineService.webSocket;
   GlobalKey get formKey => _fbKey;
@@ -36,8 +50,7 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
   }
 
   String get version {
-    if (isBusy) return "Version: unavailable";
-    PackageInfo packageInfo = data!;
+    if (!hasPackageInfoReady) return "Version: unavailable";
     String version = packageInfo.version;
     String buildNumber = packageInfo.buildNumber;
     return "Version: $version-$buildNumber";
@@ -46,7 +59,16 @@ class SettingViewModel extends FutureViewModel<PackageInfo> {
   List<ThemeMode> get themeModes => ThemeMode.values;
 
   @override
-  Future<PackageInfo> futureToRun() => PackageInfo.fromPlatform();
+  Map<String, Future Function()> get futuresMap => {
+        packageFuture: () => PackageInfo.fromPlatform(),
+        notifiFuture: () => _notificationService.hasNotificationPermission(),
+      };
+
+  onRequestPermission() async {
+    var bool = await _notificationService.requestNotificationPermission();
+     dataMap![notifiFuture] = bool;
+     notifyListeners();
+  }
 
   onEMSChanged(bool? newVal) {
     _settingService.writeBool(emsKey, newVal ?? false);

@@ -99,6 +99,8 @@ class NotificationService {
 
     await setupNotificationChannels(allMachines);
 
+    await initialRequestPermission();
+
     for (Machine setting in allMachines) {
       registerLocalMessageHandling(setting);
     }
@@ -106,6 +108,28 @@ class NotificationService {
     _hiveStreamListener = setupHiveBoxListener();
     _actionStreamListener = setupNotificationActionListener();
     await setupFirebaseMessaging();
+  }
+
+  Future<bool> initialRequestPermission() async {
+    bool notificationAllowed = await hasNotificationPermission();
+    _logger.i('Notifications are permitted: $notificationAllowed');
+
+    if (_settingsService.readBool(requestedNotifyPermission, true))
+      return notificationAllowed;
+    if (!notificationAllowed) {
+      return requestNotificationPermission();
+    }
+    return notificationAllowed;
+  }
+
+  Future<bool> requestNotificationPermission() async {
+    await _settingsService.writeBool(requestedNotifyPermission, true);
+    return _notifyAPI.requestPermissionToSendNotifications();
+  }
+
+  Future<bool> hasNotificationPermission() {
+    var notificationAllowed = _notifyAPI.isNotificationAllowed();
+    return notificationAllowed;
   }
 
   registerLocalMessageHandling(Machine setting) {
@@ -142,19 +166,11 @@ class NotificationService {
       channels.addAll(_channelsOfmachines(setting));
     }
 
-    await AwesomeNotifications().initialize(
+    await _notifyAPI.initialize(
         // set the icon to null if you want to use the default app icon
         null,
         channels,
         channelGroups: groups);
-
-    await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
-      if (!isAllowed) {
-        // Insert here your friendly dialog box before call the request method
-        // This is very important to not harm the user experience
-        AwesomeNotifications().requestPermissionToSendNotifications();
-      }
-    });
   }
 
   setupFirebaseMessaging() async {
