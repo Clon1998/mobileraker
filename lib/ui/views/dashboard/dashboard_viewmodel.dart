@@ -5,7 +5,6 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
-
 import 'package:mobileraker/ui/common/mixins/printer_mixin.dart';
 import 'package:mobileraker/ui/common/mixins/selected_machine_mixin.dart';
 import 'package:mobileraker/ui/components/bottomsheet/setup_bottom_sheet_ui.dart';
@@ -102,7 +101,8 @@ class DashboardViewModel extends MultipleStreamViewModel
   }
 
   showPrinterFetchingErrorDialog() => _dialogService.showCustomDialog(
-        variant: DialogType.stackTrace,
-        title: printerDataError.runtimeType.toString(),
-        description: 'Exception:\n ${printerDataError.parentException}\n\n${printerDataError.parentStack}');
+      variant: DialogType.stackTrace,
+      title: printerDataError.runtimeType.toString(),
+      description:
+          'Exception:\n ${printerDataError.parentException}\n\n${printerDataError.parentStack}');
 }

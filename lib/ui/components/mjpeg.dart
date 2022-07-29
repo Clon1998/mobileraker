@@ -57,7 +57,7 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline),
+            const Icon(Icons.error_outline),
             SizedBox(
               height: 30,
             ),
@@ -66,8 +66,9 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
                 style: TextStyle(color: Theme.of(context).errorColor)),
             TextButton.icon(
                 onPressed: model.onRetryPressed,
-                icon: Icon(Icons.restart_alt_outlined),
-                label: Text('components.connection_watcher.reconnect').tr())
+                icon: const Icon(Icons.restart_alt_outlined),
+                label:
+                    const Text('components.connection_watcher.reconnect').tr())
           ],
         );
       } else if (model.dataReady) {
@@ -98,12 +99,12 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
                     child: Align(
                       alignment: Alignment.topRight,
                       child: Container(
-                          padding: EdgeInsets.all(4),
-                          margin: EdgeInsets.all(5),
+                          padding: const EdgeInsets.all(4),
+                          margin: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
                               color: Theme.of(context).colorScheme.secondary,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(5))),
+                                  const BorderRadius.all(Radius.circular(5))),
                           child: Text(
                             'FPS: ${model.fps.toStringAsFixed(1)}',
                             style: Theme.of(context)
@@ -130,7 +131,7 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
         SpinKitDancingSquare(
           color: Theme.of(context).colorScheme.secondary,
         ),
-        SizedBox(
+        const SizedBox(
           height: 15,
         ),
         FadingText(tr('components.connection_watcher.trying_connect'))
@@ -417,7 +418,7 @@ class _AdaptiveStreamManager implements _StreamManager {
     active = true;
     _logger.i('Start MJPEG - targFps: $targetFps');
     if (_timer?.isActive ?? false) return;
-    _timer = Timer(Duration(milliseconds: 0), _timerCallback);
+    _timer = Timer(const Duration(milliseconds: 0), _timerCallback);
   }
 
   stop() {

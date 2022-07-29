@@ -33,8 +33,8 @@ class ConnectionStateView
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.info_outline),
-                SizedBox(
+                const Icon(Icons.info_outline),
+                const SizedBox(
                   height: 30,
                 ),
                 RichText(
@@ -50,7 +50,7 @@ class ConnectionStateView
                               decoration: TextDecoration.underline),
                           recognizer: TapGestureRecognizer()
                             ..onTap = model.onAddPrinterTap),
-                      TextSpan(
+                      const TextSpan(
                         text: ' a printer first!',
                       ),
                     ],
@@ -74,14 +74,15 @@ class ConnectionStateView
             children: [
               Icon(Icons.warning_amber_outlined,
                   size: 50, color: Theme.of(context).colorScheme.error),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
-              Text('@:klipper_state.disconnected !').tr(),
+              const Text('@:klipper_state.disconnected !').tr(),
               TextButton.icon(
                   onPressed: model.onRetryPressed,
-                  icon: Icon(Icons.restart_alt_outlined),
-                  label: Text('components.connection_watcher.reconnect').tr())
+                  icon: const Icon(Icons.restart_alt_outlined),
+                  label: const Text('components.connection_watcher.reconnect')
+                      .tr())
             ],
           ),
         );
@@ -93,7 +94,7 @@ class ConnectionStateView
               SpinKitPulse(
                 color: Theme.of(context).colorScheme.secondary,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 30,
               ),
               FadingText(tr('components.connection_watcher.trying_connect')),
@@ -113,7 +114,7 @@ class ConnectionStateView
                 size: 50,
                 color: Theme.of(context).colorScheme.error,
               ),
-              SizedBox(
+              const SizedBox(
                 height: 20,
               ),
               Text(
@@ -122,8 +123,9 @@ class ConnectionStateView
               ),
               TextButton.icon(
                   onPressed: model.onRetryPressed,
-                  icon: Icon(Icons.restart_alt_outlined),
-                  label: Text('components.connection_watcher.reconnect').tr())
+                  icon: const Icon(Icons.restart_alt_outlined),
+                  label: const Text('components.connection_watcher.reconnect')
+                      .tr())
             ],
           ),
         );
@@ -140,7 +142,7 @@ class ConnectionStateView
         return Center(
           child: Column(
             children: [
-              Spacer(),
+              const Spacer(),
               Card(
                   child: Padding(
                 padding:
@@ -148,7 +150,7 @@ class ConnectionStateView
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(
+                      leading: const Icon(
                         FlutterIcons.disconnect_ant,
                       ),
                       title: Text(model.klippyState),
@@ -161,20 +163,22 @@ class ConnectionStateView
                       children: [
                         ElevatedButton(
                           onPressed: model.onRestartKlipperPressed,
-                          child: Text('pages.dashboard.general.restart_klipper')
+                          child: const Text(
+                                  'pages.dashboard.general.restart_klipper')
                               .tr(),
                         ),
                         ElevatedButton(
                           onPressed: model.onRestartMCUPressed,
                           child:
-                              Text('pages.dashboard.general.restart_mcu').tr(),
+                              const Text('pages.dashboard.general.restart_mcu')
+                                  .tr(),
                         )
                       ],
                     )
                   ],
                 ),
               )),
-              Spacer()
+              const Spacer()
             ],
           ),
         );
@@ -182,7 +186,7 @@ class ConnectionStateView
         return Center(
           child: Column(
             children: [
-              Spacer(),
+              const Spacer(),
               Card(
                   child: Padding(
                 padding:
@@ -190,16 +194,17 @@ class ConnectionStateView
                 child: Column(
                   children: [
                     ListTile(
-                      leading: Icon(
+                      leading: const Icon(
                         FlutterIcons.disconnect_ant,
                       ),
                       title: Text(model.klippyState),
                     ),
-                    Text('components.connection_watcher.server_starting').tr()
+                    const Text('components.connection_watcher.server_starting')
+                        .tr()
                   ],
                 ),
               )),
-              Spacer()
+              const Spacer()
             ],
           ),
         );

@@ -11,7 +11,7 @@ class MachineStateIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Tooltip(
-      padding: EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
       child: Icon(Icons.radio_button_on,
           size: 10, color: _stateToColor(context, server?.klippyState)),
       message: 'pages.dashboard.server_status'.tr(args: [

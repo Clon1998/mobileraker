@@ -5,7 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mobileraker/ui/components/horizontal_scroll_indicator.dart';
 
 class AdaptiveHorizontalScroll extends HookWidget {
-  AdaptiveHorizontalScroll(
+  const AdaptiveHorizontalScroll(
       {Key? key,
       required this.pageStorageKey,
       this.children = const [],

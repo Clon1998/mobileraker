@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:mobileraker/util/misc.dart';
 
 class Extruder {
+  Extruder(this.num);
+
+  final int num;
   double temperature = 0;
   double target = 0;
   double pressureAdvance = 0;

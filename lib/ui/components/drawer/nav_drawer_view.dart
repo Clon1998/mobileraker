@@ -15,7 +15,7 @@ class NavigationDrawerWidget
     extends ViewModelBuilderWidget<NavDrawerViewModel> {
   final String curPath;
 
-  NavigationDrawerWidget({required this.curPath});
+  const NavigationDrawerWidget({required this.curPath});
 
   @override
   NavDrawerViewModel viewModelBuilder(BuildContext context) =>
@@ -41,7 +41,7 @@ class NavigationDrawerWidget
                       icon: FlutterIcons.view_dashboard_mco,
                       path: Routes.overViewView,
                     ),
-                    Divider(),
+                    const Divider(),
                   ],
                   _DrawerItem(
                     text: 'pages.dashboard.title'.tr(),
@@ -58,7 +58,7 @@ class NavigationDrawerWidget
                     icon: Icons.file_present,
                     path: Routes.filesView,
                   ),
-                  Divider(),
+                  const Divider(),
                   _DrawerItem(
                     text: 'pages.setting.title'.tr(),
                     icon: Icons.engineering_outlined,
@@ -92,11 +92,11 @@ class NavigationDrawerWidget
                     children: [
                       TextSpan(
                         text: ' GitHub ',
-                        style: new TextStyle(
+                        style:  TextStyle(
                             color: themeData.colorScheme.secondary),
                         children: [
                           WidgetSpan(
-                            child: Icon(FlutterIcons.github_alt_faw, size: 18),
+                            child: const Icon(FlutterIcons.github_alt_faw, size: 18),
                           ),
                         ],
                         recognizer: TapGestureRecognizer()
@@ -111,10 +111,10 @@ class NavigationDrawerWidget
                             }
                           },
                       ),
-                      TextSpan(text: '\n\n'),
+                      const TextSpan(text: '\n\n'),
                       TextSpan(
                         text: tr('pages.setting.imprint'),
-                        style: new TextStyle(
+                        style:  TextStyle(
                             color: themeData.colorScheme.secondary),
                         recognizer: TapGestureRecognizer()
                           ..onTap = model.navigateToLegal,
@@ -152,7 +152,7 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
 
     return DrawerHeader(
         margin: EdgeInsets.zero,
-        padding: EdgeInsets.only(left: 10, right: 10, top: 30),
+        padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
         decoration: BoxDecoration(color: background),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -167,7 +167,7 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
                           height: 60,
                           width: 60,
                           image: brandingIcon ??
-                              AssetImage('assets/icon/mr_logo.png')),
+                              const AssetImage('assets/icon/mr_logo.png')),
                       Flexible(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -254,6 +254,9 @@ class _DrawerItem extends ViewModelWidget<NavDrawerViewModel> {
 }
 
 class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
+  static const double baseIconSize = 20;
+  static const basePadding = const EdgeInsets.only(left: 16, right: 16);
+
   @override
   Widget build(BuildContext context, NavDrawerViewModel model) {
     List<Machine> printers = model.dataReady ? model.printers : [];
@@ -262,8 +265,7 @@ class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
     var selectedTileColor = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.surfaceVariant
         : themeData.colorScheme.primaryContainer.withOpacity(.1);
-    const double baseIconSize = 20;
-    const basePadding = const EdgeInsets.only(left: 16, right: 16);
+
     return AnimatedContainer(
       height: model.isManagePrintersExpanded
           ? kToolbarHeight * (printers.length + 1)
@@ -313,7 +315,7 @@ class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
               contentPadding: basePadding,
               textColor: onBackGroundColor,
               iconColor: onBackGroundColor,
-              trailing: Icon(
+              trailing: const Icon(
                 Icons.add,
                 size: baseIconSize,
               ),

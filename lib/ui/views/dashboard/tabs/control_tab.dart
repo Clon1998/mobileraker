@@ -20,7 +20,6 @@ import 'package:mobileraker/ui/views/dashboard/tabs/control_tab_viewmodel.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
-import 'package:stacked_hooks/stacked_hooks.dart';
 
 class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
   const ControlTab({Key? key}) : super(key: key);
@@ -43,7 +42,7 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
               color: Theme.of(context).colorScheme.secondary,
               size: 100,
             ),
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             FadingText('Fetching printer data'),
@@ -54,15 +53,15 @@ class ControlTab extends ViewModelBuilderWidget<ControlTabViewModel> {
     }
     return PullToRefreshPrinter(
       child: ListView(
-        key: PageStorageKey<String>('cTab'),
+        key: const PageStorageKey<String>('cTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          if (model.macroGroups.isNotEmpty) GcodeMacroCard(),
-          if (model.isNotPrinting) ExtruderControlCard(),
-          FansCard(),
-          if (model.printerData.outputPins.isNotEmpty) PinsCard(),
-          MultipliersCard(),
-          LimitsCard(),
+          if (model.macroGroups.isNotEmpty) const GcodeMacroCard(),
+          if (model.isNotPrinting) const ExtruderControlCard(),
+          const FansCard(),
+          if (model.printerData.outputPins.isNotEmpty) const PinsCard(),
+          const MultipliersCard(),
+          const LimitsCard(),
         ],
       ),
     );
@@ -128,6 +127,8 @@ class FansCard extends ViewModelWidget<ControlTabViewModel> {
 }
 
 class _FanTile extends StatelessWidget {
+  static const double icoSize = 30;
+
   final String name;
   final double speed;
   final VoidCallback? onTap;
@@ -147,10 +148,9 @@ class _FanTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double icoSize = 30;
     var w = speed > 0
-        ? SpinningFan(size: icoSize)
-        : Icon(
+        ? const SpinningFan(size: icoSize)
+        : const Icon(
             FlutterIcons.fan_off_mco,
             size: icoSize,
           );
@@ -181,7 +181,7 @@ class _FanTile extends StatelessWidget {
 class SpinningFan extends HookWidget {
   final double? size;
 
-  SpinningFan({this.size});
+  const SpinningFan({this.size});
 
   @override
   Widget build(BuildContext context) {
@@ -206,10 +206,10 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
+            leading: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
             title: Row(
               children: [
-                Text('pages.dashboard.control.extrude_card.title').tr(),
+                const Text('pages.dashboard.control.extrude_card.title').tr(),
                 AnimatedOpacity(
                   opacity: model.extruderCanExtrude ? 0 : 1,
                   duration: kThemeAnimationDuration,
@@ -261,10 +261,10 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                                 model.extruderCanExtrude
                             ? model.onRetractBtn
                             : null,
-                        icon: Icon(FlutterIcons.minus_ant),
-                        label:
-                            Text('pages.dashboard.control.extrude_card.retract')
-                                .tr(),
+                        icon: const Icon(FlutterIcons.minus_ant),
+                        label: const Text(
+                                'pages.dashboard.control.extrude_card.retract')
+                            .tr(),
                       ),
                     ),
                     Container(
@@ -274,10 +274,10 @@ class ExtruderControlCard extends ViewModelWidget<ControlTabViewModel> {
                                 model.extruderCanExtrude
                             ? model.onDeRetractBtn
                             : null,
-                        icon: Icon(FlutterIcons.plus_ant),
-                        label:
-                            Text('pages.dashboard.control.extrude_card.extrude')
-                                .tr(),
+                        icon: const Icon(FlutterIcons.plus_ant),
+                        label: const Text(
+                                'pages.dashboard.control.extrude_card.extrude')
+                            .tr(),
                       ),
                     ),
                   ],
@@ -318,8 +318,8 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon(FlutterIcons.code_braces_mco),
-            title: Text('pages.dashboard.control.macro_card.title').tr(),
+            leading: const Icon(FlutterIcons.code_braces_mco),
+            title: const Text('pages.dashboard.control.macro_card.title').tr(),
             trailing: (model.macroGroups.length > 1)
                 ? DropdownButton(
                     value: model.selectedGrp,
@@ -354,8 +354,8 @@ class GcodeMacroCard extends ViewModelWidget<ControlTabViewModel> {
 
   List<Widget> _generateGCodeChips(
       BuildContext context, ControlTabViewModel model) {
-    var themeData = Theme.of(context);
-    var bgColActive = themeData.colorScheme.primary;
+    final ThemeData themeData = Theme.of(context);
+    final Color bgColActive = themeData.colorScheme.primary;
 
     List<GCodeMacro> macros = model.selectedGrp?.macros ?? [];
     return List<Widget>.generate(
@@ -391,7 +391,7 @@ class PinsCard extends ViewModelWidget<ControlTabViewModel> {
         child: Column(
           children: [
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 FlutterIcons.led_outline_mco,
               ),
               title: Text(plural('pages.dashboard.control.pin_card.title',
@@ -480,7 +480,7 @@ class MultipliersCard extends ViewModelWidget<ControlTabViewModel> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon(FlutterIcons.speedometer_slow_mco),
+            leading: const Icon(FlutterIcons.speedometer_slow_mco),
             title: Text('pages.dashboard.control.multipl_card.title').tr(),
             trailing: IconButton(
                 onPressed: model.onToggleMultipliersLock,
@@ -491,8 +491,8 @@ class MultipliersCard extends ViewModelWidget<ControlTabViewModel> {
                     child: ScaleTransition(scale: anim, child: child),
                   ),
                   child: model.multipliersLocked
-                      ? Icon(FlutterIcons.lock_faw, key: const ValueKey('lock'))
-                      : Icon(FlutterIcons.unlock_faw,
+                      ? const Icon(FlutterIcons.lock_faw, key: const ValueKey('lock'))
+                      : const Icon(FlutterIcons.unlock_faw,
                           key: const ValueKey('unlock')),
                 )),
           ),
@@ -560,7 +560,7 @@ class LimitsCard extends ViewModelWidget<ControlTabViewModel> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon(Icons.tune),
+            leading: const Icon(Icons.tune),
             title: Text('pages.dashboard.control.limit_card.title').tr(),
             trailing: IconButton(
                 onPressed: model.onToggleLimitLock,
@@ -571,8 +571,8 @@ class LimitsCard extends ViewModelWidget<ControlTabViewModel> {
                     child: ScaleTransition(scale: anim, child: child),
                   ),
                   child: model.limitsLocked
-                      ? Icon(FlutterIcons.lock_faw, key: const ValueKey('lock'))
-                      : Icon(FlutterIcons.unlock_faw,
+                      ? const Icon(FlutterIcons.lock_faw, key: const ValueKey('lock'))
+                      : const Icon(FlutterIcons.unlock_faw,
                           key: const ValueKey('unlock')),
                 )),
           ),
@@ -746,7 +746,7 @@ class _SliderOrTextInput extends HookWidget {
           ),
         ),
         IconButton(
-          icon: Icon(Icons.edit),
+          icon: const Icon(Icons.edit),
           onPressed: !inputValid.value || onChange == null
               ? null
               : () {

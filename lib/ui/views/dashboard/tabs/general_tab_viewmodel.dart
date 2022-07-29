@@ -1,6 +1,10 @@
+import 'dart:math';
+
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
+import 'package:mobileraker/app/app_setup.logger.dart';
 import 'package:mobileraker/app/app_setup.router.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
@@ -9,7 +13,6 @@ import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
-import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/common/mixins/klippy_mixin.dart';
@@ -22,9 +25,12 @@ import 'package:mobileraker/util/extensions/list_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:stringr/stringr.dart';
 
 class GeneralTabViewModel extends MultipleStreamViewModel
     with SelectedMachineMixin, PrinterMixin, KlippyMixin, MachineSettingsMixin {
+  final _logger = getLogger('GeneralTabViewModel');
+
   final _dialogService = locator<DialogService>();
   final _navigationService = locator<NavigationService>();
   final _settingService = locator<SettingService>();
@@ -114,7 +120,9 @@ class GeneralTabViewModel extends MultipleStreamViewModel
   @override
   Map<String, StreamData> get streamsMap => super.streamsMap;
 
-  List v = <MachineSettings>[];
+  FlSpotKeeper heatedBedKeeper = FlSpotKeeper();
+  Map<int, FlSpotKeeper> extrudersKeepers = {};
+  Map<String, FlSpotKeeper> sensorsKeepers = {};
 
   @override
   onData(String key, data) {
@@ -131,11 +139,31 @@ class GeneralTabViewModel extends MultipleStreamViewModel
               .getGCodeMetadata(filename)
               .then((value) => currentFile = value);
 
+        updatePlotsIfNewAvailable(nPrinter);
+
         break;
       default:
         // Do nothing
         break;
     }
+  }
+
+  void updatePlotsIfNewAvailable(Printer nPrinter) {
+    nPrinter.extruders.forEach((ext) {
+      if (ext == null) return;
+      extrudersKeepers.putIfAbsent(ext.num, () => FlSpotKeeper());
+
+      final FlSpotKeeper spotKeeper = extrudersKeepers[ext.num]!;
+      _convertToPlotSpots(spotKeeper, ext.temperatureHistory);
+    });
+    nPrinter.temperatureSensors.forEach((sensor) {
+      sensorsKeepers.putIfAbsent(sensor.name, () => FlSpotKeeper());
+      final FlSpotKeeper spotKeeper = sensorsKeepers[sensor.name]!;
+      _convertToPlotSpots(spotKeeper, sensor.temperatureHistory);
+    });
+
+    _convertToPlotSpots(
+        heatedBedKeeper, nPrinter.heaterBed.temperatureHistory);
   }
 
   adjustNozzleAndBed(int extruderTemp, int bedTemp) {
@@ -277,4 +305,20 @@ class GeneralTabViewModel extends MultipleStreamViewModel
   onExcludeObjectPressed() {
     _dialogService.showCustomDialog(variant: DialogType.excludeObject);
   }
+
+  _convertToPlotSpots(FlSpotKeeper keeper, List<double>? doubles) {
+    if (doubles == null) return;
+    final nHash = hashAllNullable(doubles);
+    if (nHash == keeper.lastHash) return;
+
+    heatedBedKeeper.lastHash = nHash;
+    List<double> sublist = doubles.sublist(max(0, doubles.length - 300));
+    keeper.spots.clear();
+    keeper.spots.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
+  }
+}
+
+class FlSpotKeeper {
+  final List<FlSpot> spots = [];
+  int lastHash = -1;
 }

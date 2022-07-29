@@ -40,7 +40,7 @@ class CardWithButton extends StatelessWidget {
             decoration: BoxDecoration(
                 color: _backgroundColor,
                 borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(radius))),
+                    const BorderRadius.vertical(top: Radius.circular(radius))),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
               child: Theme(
@@ -60,7 +60,7 @@ class CardWithButton extends StatelessWidget {
             style: TextButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
               padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.vertical(bottom: Radius.circular(radius)),
               ),

@@ -34,21 +34,7 @@ class ConfigFileDetailView
         children: [
           Expanded(
             child: (model.isFileReady)
-                ? SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        CodeField(
-                          controller: model.codeController,
-                          enabled: !model.isUploading,
-                          // expands: true,
-                          // wrap: true,
-                        ),
-                        SizedBox(
-                          height: 30,
-                        )
-                      ],
-                    ),
-                  )
+                ? _FileReadyBody()
                 : Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -101,51 +87,35 @@ class ConfigFileDetailView
     );
   }
 
-  Widget buildBreadCrumb(BuildContext context) {
-    List<String> paths = file.parentPath.split('/');
-    paths.add(file.name);
-    ThemeData theme = Theme.of(context);
-    Color highlightColor = theme.colorScheme.primary;
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: highlightColor,
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: BreadCrumb.builder(
-                itemCount: paths.length,
-                builder: (index) {
-                  String p = paths[index];
-                  return BreadCrumbItem(
-                    content: Text(
-                      '${p.toUpperCase()}',
-                      style: theme.textTheme.subtitle1
-                          ?.copyWith(color: theme.colorScheme.onPrimary),
-                    ),
-                  );
-                },
-                divider: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Text(
-                    '/',
-                    style: theme.textTheme.subtitle1
-                        ?.copyWith(color: theme.colorScheme.onPrimary),
-                  ),
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   ConfigFileDetailsViewModel viewModelBuilder(BuildContext context) =>
       ConfigFileDetailsViewModel(file);
+}
+
+class _FileReadyBody extends ViewModelWidget<ConfigFileDetailsViewModel> {
+  const _FileReadyBody({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  bool get reactive => false;
+
+  @override
+  Widget build(BuildContext context,ConfigFileDetailsViewModel model) {
+    return SingleChildScrollView(
+        child: Column(
+          children: [
+            CodeField(
+              controller: model.codeController,
+              enabled: !model.isUploading,
+              // expands: true,
+              // wrap: true,
+            ),
+            SizedBox(
+              height: 30,
+            )
+          ],
+        ),
+      );
+  }
 }

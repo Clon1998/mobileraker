@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:ditredi/ditredi.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
@@ -25,6 +25,7 @@ import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stringr/stringr.dart';
 
 class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
   const GeneralTab({Key? key}) : super(key: key);
@@ -39,34 +40,19 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
   Widget builder(
       BuildContext context, GeneralTabViewModel model, Widget? child) {
     if (!model.isDataReady) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SpinKitRipple(
-              color: Theme.of(context).colorScheme.secondary,
-              size: 100,
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            FadingText('Fetching printer data'),
-            // Text('Fetching printer ...')
-          ],
-        ),
-      );
+      return const _FetchingData();
     }
 
     return PullToRefreshPrinter(
       child: ListView(
-        key: PageStorageKey('gTab'),
+        key: const PageStorageKey('gTab'),
         padding: const EdgeInsets.only(bottom: 20),
         children: [
-          PrintCard(),
-          TemperatureCard(),
-          if (model.webCamAvailable) CamCard(),
-          if (model.isNotPrinting) _ControlXYZCard(),
-          if (model.showBabyStepping) _BabySteppingCard(),
+          const PrintCard(),
+          const TemperatureCard(),
+          if (model.webCamAvailable) const CamCard(),
+          if (model.isNotPrinting) const _ControlXYZCard(),
+          if (model.showBabyStepping) const _BabySteppingCard(),
         ],
       ),
     );
@@ -75,6 +61,32 @@ class GeneralTab extends ViewModelBuilderWidget<GeneralTabViewModel> {
   @override
   GeneralTabViewModel viewModelBuilder(BuildContext context) =>
       locator<GeneralTabViewModel>();
+}
+
+class _FetchingData extends StatelessWidget {
+  const _FetchingData({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SpinKitRipple(
+            color: Theme.of(context).colorScheme.secondary,
+            size: 100,
+          ),
+          const SizedBox(
+            height: 30,
+          ),
+          FadingText('Fetching printer data'),
+          // Text('Fetching printer ...')
+        ],
+      ),
+    );
+  }
 }
 
 class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
@@ -113,11 +125,12 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
               children: [
                 ElevatedButton(
                   onPressed: model.onRestartKlipperPressed,
-                  child: Text('pages.dashboard.general.restart_klipper').tr(),
+                  child: const Text('pages.dashboard.general.restart_klipper')
+                      .tr(),
                 ),
                 ElevatedButton(
                   onPressed: model.onRestartMCUPressed,
-                  child: Text('pages.dashboard.general.restart_mcu').tr(),
+                  child: const Text('pages.dashboard.general.restart_mcu').tr(),
                 )
               ],
             ),
@@ -129,7 +142,7 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                 children: [
                   IconButton(
                     color: themeData.colorScheme.primary,
-                    icon: Icon(Icons.token),
+                    icon: const Icon(Icons.token),
                     tooltip: 'dialogs.exclude_object.title'.tr(),
                     onPressed: model.onExcludeObjectPressed,
                   ),
@@ -137,8 +150,9 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text('pages.dashboard.general.print_card.current_object'
-                            .tr()),
+                        const Text(
+                                'pages.dashboard.general.print_card.current_object')
+                            .tr(),
                         Text(
                           model.printerData.excludeObject.currentObject ??
                               'general.none'.tr(),
@@ -152,11 +166,11 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
               ),
             ),
           if (model.isPrintingOrPaused) ...[
-            Divider(
+            const Divider(
               thickness: 1,
               height: 0,
             ),
-            MoveTable()
+            const MoveTable()
           ],
         ],
       ),
@@ -180,8 +194,8 @@ class PrintCard extends ViewModelWidget<GeneralTabViewModel> {
       case PrintState.complete:
         return TextButton.icon(
             onPressed: model.onResetPrintTap,
-            icon: Icon(Icons.restart_alt_outlined),
-            label: Text('pages.dashboard.general.print_card.reset').tr());
+            icon: const Icon(Icons.restart_alt_outlined),
+            label: const Text('pages.dashboard.general.print_card.reset').tr());
       default:
         return null;
     }
@@ -215,10 +229,10 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
       child: Column(
         children: [
           ListTile(
-            leading: Icon(
+            leading: const Icon(
               FlutterIcons.webcam_mco,
             ),
-            title: Text('pages.dashboard.general.cam_card.webcam').tr(),
+            title: const Text('pages.dashboard.general.cam_card.webcam').tr(),
             trailing: (model.webcams.length > 1)
                 ? DropdownButton(
                     value: model.selectedCam,
@@ -233,7 +247,7 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
           ),
           Container(
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-            constraints: BoxConstraints(minHeight: minWebCamHeight),
+            constraints: const BoxConstraints(minHeight: minWebCamHeight),
             child: Center(
                 child: Mjpeg(
               key: ValueKey(model.selectedCam),
@@ -249,7 +263,7 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
                     alignment: Alignment.bottomRight,
                     child: IconButton(
                       color: Colors.white,
-                      icon: Icon(Icons.aspect_ratio),
+                      icon: const Icon(Icons.aspect_ratio),
                       tooltip:
                           'pages.dashboard.general.cam_card.fullscreen'.tr(),
                       onPressed: model.onFullScreenTap,
@@ -266,7 +280,7 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
 
   Widget _imageBuilder(BuildContext context, Transform imageTransformed) {
     return ClipRRect(
-        borderRadius: BorderRadius.all(Radius.circular(5)),
+        borderRadius: const BorderRadius.all(Radius.circular(5)),
         child: imageTransformed);
   }
 }
@@ -282,13 +296,17 @@ class TemperatureCard extends ViewModelWidget<GeneralTabViewModel> {
       key: model.tmpCardKey,
       flipOnTouch: false,
       direction: FlipDirection.VERTICAL,
-      front: _Heaters(),
-      back: _Presets(),
+      front: const _Heaters(),
+      back: const _Presets(),
     );
   }
 }
 
 class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
+  const _Heaters({
+    Key? key,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
     return Card(
@@ -313,82 +331,60 @@ class _Heaters extends ViewModelWidget<GeneralTabViewModel> {
                     Text('pages.dashboard.general.temp_card.presets_btn').tr(),
               ),
             ),
-            AdaptiveHorizontalScroll(
-              pageStorageKey: "temps",
-              children: [
-                ..._buildExtruderHeaters(model),
-                _HeaterCard(
-                  name: 'pages.dashboard.general.temp_card.bed'.tr(),
-                  current: model.printerData.heaterBed.temperature,
-                  target: model.printerData.heaterBed.target,
-                  spots: convertToPlotSpots(
-                      model.printerData.heaterBed.temperatureHistory),
-                  onTap: model.klippyCanReceiveCommands
-                      ? model.editHeatedBed
-                      : null,
-                ),
-                ..._buildTempSensors(model)
-              ],
-            )
+            const _HeatersHorizontalScroll(),
           ],
         ),
       ),
     );
   }
+}
 
-  List<Widget> _buildExtruderHeaters(GeneralTabViewModel model) {
-    return List.generate(model.printerData.extruderCount, (index) {
-      Extruder extruder = model.printerData.extruderFromIndex(index);
-      String name = tr('pages.dashboard.control.extrude_card.title');
-      if (index > 0) name += ' $index';
-      return _HeaterCard(
-        name: name,
-        current: extruder.temperature,
-        target: extruder.target,
-        spots: convertToPlotSpots(extruder.temperatureHistory),
-        onTap: model.klippyCanReceiveCommands
-            ? () => model.editExtruderHeater(index)
-            : null,
-      );
-    });
-  }
-
-  List<Widget> _buildTempSensors(GeneralTabViewModel model) {
-    List<Widget> rows = [];
-    for (var sensor in model.filteredSensors) {
-      _SensorCard tr = _SensorCard(
-        name: beautifyName(sensor.name),
-        current: sensor.temperature,
-        max: sensor.measuredMaxTemp,
-        spots: convertToPlotSpots(sensor.temperatureHistory),
-      );
-      rows.add(tr);
-    }
-    return rows;
-  }
+class _HeatersHorizontalScroll extends ViewModelWidget<GeneralTabViewModel> {
+  const _HeatersHorizontalScroll({Key? key}) : super(key: key);
 
   List<FlSpot> convertToPlotSpots(List<double>? doubles) {
     if (doubles == null) return const [];
-    List<double> sublist;
-    if (doubles.length < 1200) {
-      if (doubles.length < 300)
-        sublist = doubles;
-      else
-        sublist = doubles.sublist(doubles.length - 300);
-    } else {
-      sublist = doubles.sublist(900);
-    }
+    List<double> sublist = doubles.sublist(max(0, doubles.length - 300));
+    return sublist.mapIndexed((e, i) => FlSpot(i.toDouble(), e)).toList();
+  }
 
-    return sublist
-        .asMap()
-        .entries
-        .map((e) => FlSpot(e.key.toDouble(), e.value))
-        .toList();
+  @override
+  Widget build(BuildContext context, GeneralTabViewModel model) {
+    final String extruderNameStr =
+        tr('pages.dashboard.control.extrude_card.title');
+    return AdaptiveHorizontalScroll(
+      pageStorageKey: "temps",
+      children: [
+        ...model.printerData.extruders.mapIndex((e, i) => _HeaterCard(
+              name: i > 0 ? '$extruderNameStr $i' : extruderNameStr,
+              current: e!.temperature,
+              target: e.target,
+              spots: model.extrudersKeepers[e.num]?.spots ?? const [],
+              onTap: model.klippyCanReceiveCommands
+                  ? () => model.editExtruderHeater(i)
+                  : null,
+            )),
+        _HeaterCard(
+          name: 'pages.dashboard.general.temp_card.bed'.tr(),
+          current: model.printerData.heaterBed.temperature,
+          target: model.printerData.heaterBed.target,
+          spots: model.heatedBedKeeper.spots,
+          onTap: model.klippyCanReceiveCommands ? model.editHeatedBed : null,
+        ),
+        for (var sensor in model.filteredSensors)
+          _SensorCard(
+            name: beautifyName(sensor.name),
+            current: sensor.temperature,
+            max: sensor.measuredMaxTemp,
+            spots: model.sensorsKeepers[sensor.name]?.spots ?? const [],
+          )
+      ],
+    );
   }
 }
 
 class _HeaterCard extends StatelessWidget {
-  final int _stillHotTemp = 50;
+  static const int _stillHotTemp = 50;
 
   final String name;
   final double current;
@@ -424,41 +420,39 @@ class _HeaterCard extends StatelessWidget {
               .withOpacity(min(current / _stillHotTemp - 1, 1)),
           colorBg);
     }
-
     return GraphCardWithButton(
         backgroundColor: colorBg,
         plotSpots: spots,
-        child: Builder(builder: (context) {
-          ThemeData themeData = Theme.of(context);
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: themeData.textTheme.caption),
-                  Text('${current.toStringAsFixed(1)} °C',
-                      style: themeData.textTheme.headline6),
-                  Text(targetTemp),
-                ],
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: themeData.textTheme.caption),
+                Text('${current.toStringAsFixed(1)} °C',
+                    style: themeData.textTheme.headline6),
+                Text(targetTemp),
+              ],
+            ),
+            AnimatedOpacity(
+              opacity: current > _stillHotTemp ? 1 : 0,
+              duration: kThemeAnimationDuration,
+              child: Tooltip(
+                message: '$name is still hot!',
+                child: const Icon(Icons.do_not_touch_outlined),
               ),
-              AnimatedOpacity(
-                opacity: (current > _stillHotTemp) ? 1 : 0,
-                duration: kThemeAnimationDuration,
-                child: Tooltip(
-                  message: '$name is still hot!',
-                  child: Icon(Icons.do_not_touch_outlined),
-                ),
-              )
-            ],
-          );
-        }),
+            )
+          ],
+        ),
         buttonChild: const Text('general.set').tr(),
         onTap: onTap);
   }
 }
 
 class _Presets extends ViewModelWidget<GeneralTabViewModel> {
+  const _Presets({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
     return Card(
@@ -476,23 +470,28 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
                     : null,
               ),
               title:
-                  Text('pages.dashboard.general.temp_card.temp_presets').tr(),
+                  const Text('pages.dashboard.general.temp_card.temp_presets')
+                      .tr(),
               trailing: TextButton(
                 onPressed: model.flipTemperatureCard,
-                child: Text('pages.dashboard.general.temp_card.sensors').tr(),
+                child: const Text('pages.dashboard.general.temp_card.sensors')
+                    .tr(),
               ),
             ),
-            AdaptiveHorizontalScroll(
-              pageStorageKey: "presets",
-              children: _buildTemperaturePresetCards(model),
-            )
+            _TemperaturePresetsHorizontalScroll()
           ],
         ),
       ),
     );
   }
+}
 
-  List<Widget> _buildTemperaturePresetCards(GeneralTabViewModel model) {
+class _TemperaturePresetsHorizontalScroll
+    extends ViewModelWidget<GeneralTabViewModel> {
+  const _TemperaturePresetsHorizontalScroll({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, GeneralTabViewModel model) {
     var coolOf = _TemperaturePresetCard(
       presetName: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
       extruderTemp: 0,
@@ -516,7 +515,11 @@ class _Presets extends ViewModelWidget<GeneralTabViewModel> {
       );
     });
     presetWidgets.insert(0, coolOf);
-    return presetWidgets;
+
+    return AdaptiveHorizontalScroll(
+      pageStorageKey: "presets",
+      children: presetWidgets,
+    );
   }
 }
 
@@ -554,7 +557,7 @@ class _TemperaturePresetCard extends StatelessWidget {
             ],
           );
         }),
-        buttonChild: Text('general.set').tr(),
+        buttonChild: const Text('general.set').tr(),
         onTap: onTap);
   }
 }
@@ -577,19 +580,17 @@ class _SensorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GraphCardWithButton(
       plotSpots: spots,
-      child: Builder(builder: (context) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(name, style: Theme.of(context).textTheme.caption),
-            Text('${current.toStringAsFixed(1)} °C',
-                style: Theme.of(context).textTheme.headline6),
-            Text(
-              '${max.toStringAsFixed(1)} °C max',
-            ),
-          ],
-        );
-      }),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(name, style: Theme.of(context).textTheme.caption),
+          Text('${current.toStringAsFixed(1)} °C',
+              style: Theme.of(context).textTheme.headline6),
+          Text(
+            '${max.toStringAsFixed(1)} °C max',
+          ),
+        ],
+      ),
       buttonChild:
           const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
@@ -598,22 +599,22 @@ class _SensorCard extends StatelessWidget {
 }
 
 class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
+  static const marginForBtns = const EdgeInsets.all(10);
+
   const _ControlXYZCard({
     Key? key,
   }) : super(key: key, reactive: true);
 
   @override
   Widget build(BuildContext context, GeneralTabViewModel model) {
-    var marginForBtns = const EdgeInsets.all(10);
-
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-            leading: Icon(FlutterIcons.axis_arrow_mco),
-            title: Text('pages.dashboard.general.move_card.title').tr(),
-            trailing: _HomedAxisChip(),
+            leading: const Icon(FlutterIcons.axis_arrow_mco),
+            title: const Text('pages.dashboard.general.move_card.title').tr(),
+            trailing: const _HomedAxisChip(),
           ),
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
@@ -634,7 +635,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                   onPressed: !model.klippyCanReceiveCommands
                                       ? null
                                       : () => model.onMoveBtn(PrinterAxis.Y),
-                                  child: Icon(FlutterIcons.upsquare_ant)),
+                                  child: const Icon(FlutterIcons.upsquare_ant)),
                             ),
                           ],
                         ),
@@ -649,7 +650,8 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                       ? null
                                       : () =>
                                           model.onMoveBtn(PrinterAxis.X, false),
-                                  child: Icon(FlutterIcons.leftsquare_ant)),
+                                  child:
+                                      const Icon(FlutterIcons.leftsquare_ant)),
                             ),
                             Container(
                               margin: marginForBtns,
@@ -664,7 +666,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                         ? () => model.onHomeAxisBtn(
                                             {PrinterAxis.X, PrinterAxis.Y})
                                         : null,
-                                    child: Icon(Icons.home)),
+                                    child: const Icon(Icons.home)),
                               ),
                             ),
                             Container(
@@ -675,7 +677,8 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                   onPressed: !model.klippyCanReceiveCommands
                                       ? null
                                       : () => model.onMoveBtn(PrinterAxis.X),
-                                  child: Icon(FlutterIcons.rightsquare_ant)),
+                                  child:
+                                      const Icon(FlutterIcons.rightsquare_ant)),
                             ),
                           ],
                         ),
@@ -690,7 +693,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                     ? null
                                     : () =>
                                         model.onMoveBtn(PrinterAxis.Y, false),
-                                child: Icon(FlutterIcons.downsquare_ant),
+                                child: const Icon(FlutterIcons.downsquare_ant),
                               ),
                             ),
                           ],
@@ -707,7 +710,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               onPressed: !model.klippyCanReceiveCommands
                                   ? null
                                   : () => model.onMoveBtn(PrinterAxis.Z),
-                              child: Icon(FlutterIcons.upsquare_ant)),
+                              child: const Icon(FlutterIcons.upsquare_ant)),
                         ),
                         Container(
                           margin: marginForBtns,
@@ -721,7 +724,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                                 onPressed: model.klippyCanReceiveCommands
                                     ? () => model.onHomeAxisBtn({PrinterAxis.Z})
                                     : null,
-                                child: Icon(Icons.home)),
+                                child: const Icon(Icons.home)),
                           ),
                         ),
                         Container(
@@ -732,7 +735,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               onPressed: !model.klippyCanReceiveCommands
                                   ? null
                                   : () => model.onMoveBtn(PrinterAxis.Z, false),
-                              child: Icon(FlutterIcons.downsquare_ant)),
+                              child: const Icon(FlutterIcons.downsquare_ant)),
                         ),
                       ],
                     ),
@@ -740,7 +743,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: MoveTable(
+                  child: const MoveTable(
                     rowsToShow: [MoveTable.POS_ROW],
                   ),
                 ),
@@ -759,7 +762,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                               ? () => model.onHomeAxisBtn(
                                   {PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z})
                               : null,
-                          icon: Icon(Icons.home),
+                          icon: const Icon(Icons.home),
                           label: Text(
                               'pages.dashboard.general.move_card.home_all_btn'
                                   .tr()
@@ -775,7 +778,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                             onPressed: !model.klippyCanReceiveCommands
                                 ? null
                                 : model.onQuadGantry,
-                            icon: Icon(FlutterIcons.quadcopter_mco),
+                            icon: const Icon(FlutterIcons.quadcopter_mco),
                             label: Text(
                                 'pages.dashboard.general.move_card.qgl_btn'
                                     .tr()
@@ -791,7 +794,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                             onPressed: !model.klippyCanReceiveCommands
                                 ? null
                                 : model.onBedMesh,
-                            icon: Icon(FlutterIcons.map_marker_path_mco),
+                            icon: const Icon(FlutterIcons.map_marker_path_mco),
                             label: Text(
                                 'pages.dashboard.general.move_card.mesh_btn'
                                     .tr()
@@ -806,7 +809,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                           onPressed: !model.klippyCanReceiveCommands
                               ? null
                               : model.onMotorOff,
-                          icon: Icon(Icons.near_me_disabled),
+                          icon: const Icon(Icons.near_me_disabled),
                           label:
                               Text('pages.dashboard.general.move_card.m84_btn')
                                   .tr(),
@@ -815,7 +818,7 @@ class _ControlXYZCard extends ViewModelWidget<GeneralTabViewModel> {
                     ],
                   ),
                 ),
-                Divider(),
+                const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -881,8 +884,9 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
-              leading: Icon(FlutterIcons.align_vertical_middle_ent),
-              title: Text('pages.dashboard.general.baby_step_card.title').tr(),
+              leading: const Icon(FlutterIcons.align_vertical_middle_ent),
+              title: const Text('pages.dashboard.general.baby_step_card.title')
+                  .tr(),
               trailing: Chip(
                 avatar: Icon(
                   FlutterIcons.progress_wrench_mco,
@@ -908,7 +912,7 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
                           onPressed: model.klippyCanReceiveCommands
                               ? () => model.onBabyStepping()
                               : null,
-                          child: Icon(FlutterIcons.upsquare_ant)),
+                          child: const Icon(FlutterIcons.upsquare_ant)),
                       height: 40,
                       width: 40,
                     ),
@@ -918,7 +922,7 @@ class _BabySteppingCard extends ViewModelWidget<GeneralTabViewModel> {
                           onPressed: model.klippyCanReceiveCommands
                               ? () => model.onBabyStepping(false)
                               : null,
-                          child: Icon(FlutterIcons.downsquare_ant)),
+                          child: const Icon(FlutterIcons.downsquare_ant)),
                       height: 40,
                       width: 40,
                     ),
@@ -972,16 +976,16 @@ class MoveTable extends ViewModelWidget<GeneralTabViewModel> {
       children: [
         if (rowsToShow.contains(POS_ROW))
           TableRow(children: [
-            Padding(
+            const Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Icon(FlutterIcons.axis_arrow_mco),
+              child: const Icon(FlutterIcons.axis_arrow_mco),
             ),
             Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('X'),
+                    const Text('X'),
                     Text(
                         '${model.printerData.toolhead.position[0].toStringAsFixed(2)}'),
                   ],
@@ -991,7 +995,7 @@ class MoveTable extends ViewModelWidget<GeneralTabViewModel> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Y'),
+                  const Text('Y'),
                   Text(
                       '${model.printerData.toolhead.position[1].toStringAsFixed(2)}'),
                 ],
@@ -1002,7 +1006,7 @@ class MoveTable extends ViewModelWidget<GeneralTabViewModel> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('Z'),
+                  const Text('Z'),
                   Text(
                       '${model.printerData.toolhead.position[2].toStringAsFixed(2)}'),
                 ],
@@ -1012,16 +1016,16 @@ class MoveTable extends ViewModelWidget<GeneralTabViewModel> {
         if (rowsToShow.contains(MOV_ROW) && model.isPrintingOrPaused)
           TableRow(
             children: [
-              Padding(
+              const Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Icon(FlutterIcons.printer_3d_mco),
+                child: const Icon(FlutterIcons.printer_3d_mco),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('pages.dashboard.general.print_card.speed').tr(),
+                    const Text('pages.dashboard.general.print_card.speed').tr(),
                     Text('${model.printerData.gCodeMove.mmSpeed} mm/s'),
                   ],
                 ),
@@ -1031,7 +1035,7 @@ class MoveTable extends ViewModelWidget<GeneralTabViewModel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('pages.dashboard.general.print_card.layer').tr(),
+                    const Text('pages.dashboard.general.print_card.layer').tr(),
                     Text('${model.layer}/${model.maxLayers}'),
                   ],
                 ),
@@ -1041,7 +1045,7 @@ class MoveTable extends ViewModelWidget<GeneralTabViewModel> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Text('pages.dashboard.general.print_card.eta').tr(),
+                    const Text('pages.dashboard.general.print_card.eta').tr(),
                     Text((model.printerData.eta != null)
                         ? DateFormat.Hm().format(model.printerData.eta!)
                         : '--:--'),

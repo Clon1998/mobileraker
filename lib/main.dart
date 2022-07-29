@@ -1,9 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/app/app_setup.dart';
@@ -18,7 +19,7 @@ import 'package:mobileraker/ui/theme_setup.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:stacked_services/stacked_services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'app/app_setup.router.dart';
 
 String? initialRoute;
@@ -84,8 +85,8 @@ class MyApp extends StatelessWidget {
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           navigatorObservers: [
-            StackedService.routeObserver,
             FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+            StackedService.routeObserver,
           ],
         );
       },

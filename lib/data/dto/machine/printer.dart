@@ -15,7 +15,7 @@ import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 class Printer {
   Toolhead toolhead = Toolhead();
-  List<Extruder?> extruders = [Extruder()];// 1 exgruder always present!
+  List<Extruder?> extruders = [Extruder(0)];// 1 exgruder always present!
   HeaterBed heaterBed = HeaterBed();
   PrintFan printFan = PrintFan();
   GCodeMove gCodeMove = GCodeMove();
@@ -60,7 +60,7 @@ class Printer {
   Extruder extruderIfAbsence(int num) {
     if (num >= extruders.length) {
       extruders.length = num + 1;
-      Extruder element = Extruder();
+      Extruder element = Extruder(num);
       extruders[num] = element;
       return element;
     }
@@ -68,7 +68,7 @@ class Printer {
     Extruder? extruder = extruders[num];
     if (extruder != null) return extruder;
 
-    Extruder element = Extruder();
+    Extruder element = Extruder(num);
     extruders[num] = element;
 
     return element;
