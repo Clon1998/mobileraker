@@ -14,7 +14,7 @@ import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/jrpc_client_provider.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';

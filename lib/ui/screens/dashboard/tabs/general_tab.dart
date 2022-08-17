@@ -32,7 +32,7 @@ import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/controler_xyz_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_viewmodel.dart';
-import 'package:mobileraker/util/async_ext.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';

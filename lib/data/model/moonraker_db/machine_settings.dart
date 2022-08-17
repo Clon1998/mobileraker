@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobileraker/util/iterable_extension.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 import 'macro_group.dart';
 import 'stamped_entity.dart';

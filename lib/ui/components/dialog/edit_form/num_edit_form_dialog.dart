@@ -5,7 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/util/double_extension.dart';
+import 'package:mobileraker/util/extensions/double_extension.dart';
 
 import 'num_edit_form_viewmodel.dart';
 

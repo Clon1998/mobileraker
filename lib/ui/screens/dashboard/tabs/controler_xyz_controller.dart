@@ -6,7 +6,7 @@ import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_viewmodel.dart';
-import 'package:mobileraker/util/iterable_extension.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 final controlXYZController =
     StateNotifierProvider.autoDispose<ControlXYZController, int>(

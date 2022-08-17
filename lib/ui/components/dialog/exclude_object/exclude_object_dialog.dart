@@ -10,7 +10,7 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_objects_viewmodel.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
-import 'package:mobileraker/util/async_ext.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 import 'package:touchable/touchable.dart';

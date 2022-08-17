@@ -8,7 +8,7 @@ import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_viewmodel.dart';
-import 'package:mobileraker/util/async_ext.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 
 class HomedAxisChip extends ConsumerWidget {
   const HomedAxisChip({

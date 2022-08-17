@@ -12,11 +12,11 @@ import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/jrpc_client_provider.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/util/async_ext.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 

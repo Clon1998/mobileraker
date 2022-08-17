@@ -6,14 +6,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
-import 'package:mobileraker/ui/test.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import 'app_setup.dart';
@@ -26,13 +23,10 @@ Future<void> main() async {
   await setupBoxes();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  // await FirebaseAppCheck.instance.activate();
+  await FirebaseAppCheck.instance.activate();
   await EasyLocalization.ensureInitialized();
   // await locator<NotificationService>().initialize();//TODO
-  // setupSnackbarUi(); // ToDO
-  // setupDialogUi(); // ToDO
-  // setupBottomSheetUi(); // ToDO
-  // await FirebaseAnalytics.instance.logAppOpen();
+  await FirebaseAnalytics.instance.logAppOpen();
   // await setupCat(); // ToDO
 
   setupLicenseRegistry();

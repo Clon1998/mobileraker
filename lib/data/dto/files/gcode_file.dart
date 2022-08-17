@@ -1,6 +1,6 @@
 
 import 'package:flutter/foundation.dart';
-import 'package:mobileraker/util/iterable_extension.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 import 'gcode_thumbnail.dart';
 import 'remote_file.dart';

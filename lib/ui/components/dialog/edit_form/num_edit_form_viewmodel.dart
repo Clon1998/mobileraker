@@ -3,7 +3,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/util/double_extension.dart';
+import 'package:mobileraker/util/extensions/double_extension.dart';
 
 final initialFormType =
     Provider.autoDispose<DialogType>((ref) => throw UnimplementedError());

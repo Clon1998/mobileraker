@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobileraker/util/iterable_extension.dart';
-import 'package:mobileraker/util/list_extension.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
+import 'package:mobileraker/util/extensions/list_extension.dart';
 
 class ConfigStepper {
   String name;

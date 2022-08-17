@@ -4,7 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
-import 'package:mobileraker/util/async_ext.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 
 class MachineStateIndicator extends ConsumerWidget {
   const MachineStateIndicator({Key? key}) : super(key: key);

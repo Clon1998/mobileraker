@@ -5,7 +5,7 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/announcement/announcement_entry.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/jrpc_client_provider.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 
 final announcementServiceProvider =
     Provider.autoDispose.family<AnnouncementService, String>((ref, machineUUID) {

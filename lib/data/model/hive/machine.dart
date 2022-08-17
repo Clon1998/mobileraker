@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:mobileraker/util/iterable_extension.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:uuid/uuid.dart';
 
 import 'macro_group.dart';
