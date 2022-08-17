@@ -1,10 +1,10 @@
 
 class Folder {
-  double modified;
+  final double modified;
 
-  String name;
+  final String name;
 
-  int size;
+  final int size;
 
   Folder({required this.name, required this.modified, required this.size});
 }

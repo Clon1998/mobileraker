@@ -1,50 +1,20 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:flutter/foundation.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
+part 'toolhead.freezed.dart';
 
 enum PrinterAxis { X, Y, Z, E }
 
-class Toolhead {
-  Set<PrinterAxis> homedAxes = {};
-  List<double> position = [0.0, 0.0, 0.0, 0.0];
-
-  String? activeExtruder;
-  double? printTime;
-  double? estimatedPrintTime;
-  double? maxVelocity;
-  double? maxAccel;
-  double? maxAccelToDecel;
-  double? squareCornerVelocity;
-
-  @override
-  String toString() {
-    return 'Toolhead{homedAxes: $homedAxes, position: $position, activeExtruder: $activeExtruder, printTime: $printTime, estimatedPrintTime: $estimatedPrintTime, maxVelocity: $maxVelocity, maxAccel: $maxAccel, maxAccelToDecel: $maxAccelToDecel, squareCornerVelocity: $squareCornerVelocity}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is Toolhead &&
-              runtimeType == other.runtimeType &&
-              setEquals(homedAxes, other.homedAxes) &&
-              listEquals(position, other.position) &&
-              activeExtruder == other.activeExtruder &&
-              printTime == other.printTime &&
-              estimatedPrintTime == other.estimatedPrintTime &&
-              maxVelocity == other.maxVelocity &&
-              maxAccel == other.maxAccel &&
-              maxAccelToDecel == other.maxAccelToDecel &&
-              squareCornerVelocity == other.squareCornerVelocity;
-
-  @override
-  int get hashCode =>
-      homedAxes.hashIterable ^
-      position.hashIterable ^
-      activeExtruder.hashCode ^
-      printTime.hashCode ^
-      estimatedPrintTime.hashCode ^
-      maxVelocity.hashCode ^
-      maxAccel.hashCode ^
-      maxAccelToDecel.hashCode ^
-      squareCornerVelocity.hashCode;
+@freezed
+class Toolhead with _$Toolhead {
+  const factory Toolhead({
+    @Default(<PrinterAxis>{}) Set<PrinterAxis> homedAxes,
+    @Default([0.0, 0.0, 0.0, 0.0]) List<double> position,
+    @Default('extruder') String activeExtruder,
+    double? printTime,
+    double? estimatedPrintTime,
+    @Default(500) double maxVelocity,
+    @Default(3000) double maxAccel,
+    @Default(3000) double maxAccelToDecel,
+    @Default(1500) double squareCornerVelocity,
+  }) = _Toolhead;
 }

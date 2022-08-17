@@ -1,6 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobileraker/data/model/moonraker_db/stamped_entity.dart';
 import 'package:uuid/uuid.dart';
+
+import 'stamped_entity.dart';
 
 part 'gcode_macro.g.dart';
 

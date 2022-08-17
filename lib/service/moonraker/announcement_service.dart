@@ -1,16 +1,31 @@
 import 'dart:async';
 
-import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/app/exceptions.dart';
-import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/announcement/announcement_entry.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/exceptions.dart';
+import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/jrpc_client_provider.dart';
+
+final announcementServiceProvider =
+    Provider.autoDispose.family<AnnouncementService, String>((ref, machineUUID) {
+  return AnnouncementService(ref, machineUUID);
+});
+
+final announcementProvider =
+    StreamProvider.autoDispose.family<List<AnnouncementEntry>, String>((ref, machineUUID) {
+  return ref
+      .watch(announcementServiceProvider(machineUUID))
+      .announcementNotificationStream;
+});
 
 /// The AnnouncementService handles different notifications/announcements from feed api.
 /// For more information check out
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#announcement-apis
 class AnnouncementService {
-  AnnouncementService(this._owner) {
+  AnnouncementService(AutoDisposeRef ref, String machineUUID)
+      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
+    ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onNotifyAnnouncementUpdate, "notify_announcement_update");
     _jRpcClient.addMethodListener(
@@ -19,21 +34,17 @@ class AnnouncementService {
         _onNotifyAnnouncementWake, "notify_announcement_wake");
   }
 
-  final _logger = getLogger('AnnouncementService');
-
-  final Machine _owner;
-
-  StreamController<List<AnnouncementEntry>> _announcementsStreamCtrler =
-      StreamController.broadcast();
+  final StreamController<List<AnnouncementEntry>> _announcementsStreamCtrler =
+      StreamController();
 
   Stream<List<AnnouncementEntry>> get announcementNotificationStream =>
       _announcementsStreamCtrler.stream;
 
-  JsonRpcClient get _jRpcClient => _owner.jRpcClient;
+  final JsonRpcClient _jRpcClient;
 
   Future<List<AnnouncementEntry>> listAnnouncements(
       [bool includeDismissed = false]) async {
-    _logger.i('List Announcements request...');
+    logger.i('List Announcements request...');
 
     try {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
@@ -50,7 +61,7 @@ class AnnouncementService {
   }
 
   Future<String> dismissAnnouncement(String entryId, [int? wakeTime]) async {
-    _logger.i('Trying to dismiss announcement `$entryId`');
+    logger.i('Trying to dismiss announcement `$entryId`');
 
     try {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
@@ -72,12 +83,12 @@ class AnnouncementService {
   }
 
   _onNotifyAnnouncementDismissed(Map<String, dynamic> rawMessage) {
-    _logger.i('Announcement dismissed event!!!');
+    logger.i('Announcement dismissed event!!!');
     listAnnouncements().then(_announcementsStreamCtrler.add);
   }
 
   _onNotifyAnnouncementWake(Map<String, dynamic> rawMessage) {
-    _logger.i('Announcement wake event!!!');
+    logger.i('Announcement wake event!!!');
     listAnnouncements().then(_announcementsStreamCtrler.add);
   }
 

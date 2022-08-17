@@ -17,7 +17,7 @@ class HorizontalScrollIndicator extends StatefulWidget {
         super(key: key);
 
   @override
-  _HorizontalScrollIndicatorState createState() =>
+  State<HorizontalScrollIndicator> createState() =>
       _HorizontalScrollIndicatorState(steps, childsPerScreen);
 }
 

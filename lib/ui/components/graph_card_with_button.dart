@@ -17,7 +17,7 @@ class GraphCardWithButton extends StatelessWidget {
 
   final Color? backgroundColor;
   final Color? graphColor;
-  final Builder child;
+  final Widget child;
   final Widget buttonChild;
   final VoidCallback? onTap;
   final List<FlSpot> plotSpots;
@@ -49,7 +49,7 @@ class GraphCardWithButton extends StatelessWidget {
             decoration: BoxDecoration(
                 color: _backgroundColor,
                 borderRadius:
-                    BorderRadius.vertical(top: Radius.circular(radius))),
+                    const BorderRadius.vertical(top: Radius.circular(radius))),
             child: Stack(
               alignment: Alignment.centerLeft,
               children: [
@@ -57,7 +57,13 @@ class GraphCardWithButton extends StatelessWidget {
                 Container(
                   width: double.infinity,
                 ),
-                Positioned.fill(top: radius, child: chart(_graphColor)),
+                Positioned.fill(
+                  top: radius,
+                  child: _Chart(
+                    graphColor: _graphColor,
+                    plotSpots: plotSpots,
+                  )
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
                   child: Theme(
@@ -79,7 +85,7 @@ class GraphCardWithButton extends StatelessWidget {
             style: TextButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
               padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
+              shape: const RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.vertical(bottom: Radius.circular(radius)),
               ),
@@ -88,19 +94,29 @@ class GraphCardWithButton extends StatelessWidget {
               // onPrimary: Theme.of(context).colorScheme.onSecondary,
               onSurface: themeData.colorScheme.onPrimary,
             ),
-            child: buttonChild,
             onPressed: onTap,
+            child: buttonChild,
           )
         ],
       ),
     );
   }
+}
 
-  Widget chart(Color graphColor) {
-    // double minY = plotSpots.map((e) => e.y).reduce(min);
-    // double maxY = plotSpots.map((e) => e.y).reduce(max);
-    // double valueRange = maxY - minY;
-    // print('min:${minY - 0.1 * valueRange}, max+${0.1 * valueRange}');
+class _Chart extends StatelessWidget {
+  const _Chart({
+    Key? key,
+    required this.graphColor,
+    required this.plotSpots,
+  }) : super(key: key);
+
+  final Color graphColor;
+
+  final List<FlSpot> plotSpots;
+
+  @override
+  Widget build(BuildContext context) {
+
     return LineChart(
       LineChartData(
         gridData: FlGridData(show: false),
@@ -125,9 +141,9 @@ class GraphCardWithButton extends StatelessWidget {
           ),
         ],
       ),
-      swapAnimationDuration: Duration(milliseconds: 10),
+      swapAnimationDuration: const Duration(milliseconds: 10),
       // Optional
-      swapAnimationCurve: Curves.linear, // Optional
+      swapAnimationCurve: Curves.easeInOutCubic, // Optional
     );
   }
 }

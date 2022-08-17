@@ -1,18 +1,12 @@
-class VirtualSdCard {
-  double progress = 0;
-  bool isActive = false;
-  int filePosition = 0;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is VirtualSdCard &&
-              runtimeType == other.runtimeType &&
-              progress == other.progress &&
-              isActive == other.isActive &&
-              filePosition == other.filePosition;
+part 'virtual_sd_card.freezed.dart';
 
-  @override
-  int get hashCode =>
-      progress.hashCode ^ isActive.hashCode ^ filePosition.hashCode;
+@freezed
+class VirtualSdCard with _$VirtualSdCard {
+  const factory VirtualSdCard({
+    @Default(0) double progress,
+    @Default(false) bool isActive,
+    @Default(0) int filePosition,
+  }) = _VirtualSdCard;
 }

@@ -5,13 +5,16 @@ class EaseIn extends StatefulWidget {
     Key? key,
     required this.child,
     this.duration = kThemeAnimationDuration,
+    this.curve = Curves.linear
+
   }) : super(key: key);
 
   final Widget child;
   final Duration duration;
+  final Curve curve;
 
   @override
-  _EaseInState createState() => _EaseInState();
+  State<EaseIn> createState() => _EaseInState();
 }
 
 class _EaseInState extends State<EaseIn> {
@@ -39,6 +42,7 @@ class _EaseInState extends State<EaseIn> {
       opacity: opacity,
       duration: widget.duration,
       child: widget.child,
+      curve: widget.curve,
     );
   }
 }

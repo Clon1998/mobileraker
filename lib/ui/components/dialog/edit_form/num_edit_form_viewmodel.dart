@@ -1,25 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:get/get.dart';
-import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
-import 'package:stacked/stacked.dart';
-import 'package:stacked_services/stacked_services.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/util/double_extension.dart';
+
+final initialFormType =
+    Provider.autoDispose<DialogType>((ref) => throw UnimplementedError());
+
+final numFraction =
+    Provider.autoDispose<int>((ref) => throw UnimplementedError());
+
+final dialogCompleter =
+    Provider.autoDispose<DialogCompleter>(name: 'dialogCompleter', (ref) {
+  throw UnimplementedError();
+});
 
 class NumberEditDialogArguments {
   final num min;
   final num? max;
   final num current;
   final int fraction;
-  final bool canSwitch;
 
   NumberEditDialogArguments(
-      {this.min = 0,
-      this.max,
-      required this.current,
-      this.fraction = 0,
-      this.canSwitch = true});
+      {this.min = 0, this.max, required this.current, this.fraction = 0});
 
   NumberEditDialogArguments copyWith(
       {num? min,
@@ -32,88 +36,58 @@ class NumberEditDialogArguments {
       min: min ?? this.min,
       max: (max?.isNaN ?? false) ? this.max : max,
       fraction: fraction ?? this.fraction,
-      canSwitch: canSwitch ?? this.canSwitch,
     );
   }
 }
 
-class NumEditFormViewModel extends BaseViewModel {
-  NumEditFormViewModel(this.request, this.completer);
+final numEditFormKeyProvider =
+    Provider.autoDispose<GlobalKey<FormBuilderState>>(
+        (ref) => GlobalKey<FormBuilderState>());
 
-  final _logger = getLogger('NumEditFormViewModel');
-  final _dialogService = locator<DialogService>();
-  final DialogRequest request;
-  final Function(DialogResponse) completer;
-  final _editFormKey = GlobalKey<FormBuilderState>();
+final numEditFormDialogController =
+    StateNotifierProvider.autoDispose<NumEditFormDialogController, DialogType>(
+        (ref) => NumEditFormDialogController(ref));
 
-  Key get formKey => _editFormKey;
+class NumEditFormDialogController extends StateNotifier<DialogType> {
+  NumEditFormDialogController(this.ref) : super(ref.read(initialFormType));
 
-  bool get formValid => _editFormKey.currentState?.isValid == true;
+  final AutoDisposeRef ref;
 
-  bool? _lastFormValidation;
-
-  onFormFieldChanged() {
-    bool? isValid2 = _editFormKey.currentState?.validate();
-    if (isValid2 != _lastFormValidation) {
-      _lastFormValidation = isValid2;
-      notifyListeners();
-    }
-  }
+  FormBuilderState get _formBuilderState =>
+      ref.read(numEditFormKeyProvider).currentState!;
 
   onFormConfirm() {
-    if (_editFormKey.currentState!.saveAndValidate()) {
-      _logger.i('Form Completed');
-      completer(DialogResponse(
-          confirmed: true, data: _editFormKey.currentState!.value['newValue']));
+    if (!_formBuilderState.saveAndValidate()) return;
+
+    double val;
+    if (state == DialogType.numEdit) {
+      int cur = _formBuilderState.value['textValue'];
+      val = cur.toDouble();
+    } else {
+      double cur = _formBuilderState.value['rangeValue'];
+      val = cur;
     }
+    ref.read(dialogCompleter)(DialogResponse(confirmed: true, data: val.toPrecision(ref.read(numFraction))));
   }
 
   onFormDecline() {
-    completer(DialogResponse(confirmed: false));
-    _logger.i('Form Declined');
+    ref.read(dialogCompleter)(DialogResponse.aborted());
   }
 
-  switchToOtherVariant() async {
-    dynamic targetVariant = DialogType.numEditForm;
-    if (request.variant == DialogType.numEditForm)
-      targetVariant = DialogType.rangeEditForm;
+  switchToOtherVariant() {
+    DialogType targetVariant;
+    _formBuilderState.save();
+    if (state == DialogType.numEdit) {
+      targetVariant = DialogType.rangeEdit;
 
-    NumberEditDialogArguments dialogArgs = request.data;
-    num? curData = fetchCurrentInput();
-
-    DialogResponse? otherResp = await _dialogService.showCustomDialog(
-        variant: targetVariant,
-        title: request.title,
-        mainButtonTitle: request.mainButtonTitle,
-        secondaryButtonTitle: request.secondaryButtonTitle,
-        data: dialogArgs.copyWith(canSwitch: false, current: curData));
-
-    if (otherResp != null) {
-      if (otherResp.confirmed) completer(otherResp);
-      if (otherResp.data != null) {
-        num changed = otherResp.data;
-
-        if (request.variant == DialogType.numEditForm)
-          _editFormKey.currentState!.fields['newValue']
-              ?.didChange(changed.toStringAsFixed(dialogArgs.fraction));
-        if (request.variant == DialogType.rangeEditForm)
-          _editFormKey.currentState!.fields['newValue']
-              ?.didChange(changed.toDouble().toPrecision(dialogArgs.fraction));
-      } else {
-        onFormDecline();
-      }
+      int cur = _formBuilderState.value['textValue'];
+      _formBuilderState.fields['rangeValue']!.didChange(cur.toDouble());
+    } else {
+      targetVariant = DialogType.numEdit;
+      double cur = _formBuilderState.value['rangeValue'];
+      _formBuilderState.fields['textValue']!
+          .didChange(cur.toStringAsFixed(ref.read(numFraction)));
     }
-  }
-
-  switchBack() {
-    completer(DialogResponse(confirmed: false, data: fetchCurrentInput()));
-  }
-
-  num? fetchCurrentInput() {
-    num? curData;
-    if (_editFormKey.currentState!.saveAndValidate()) {
-      curData = _editFormKey.currentState!.value['newValue'];
-    }
-    return curData;
+    state = targetVariant;
   }
 }

@@ -1,50 +1,38 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mobileraker/logger.dart';
 
-class RangeSelector extends StatefulWidget {
-  final Function onSelected;
+class RangeSelector extends StatelessWidget {
+  final Function(int)? onSelected;
   final List<String> values;
   final int selectedIndex;
 
-  @override
-  _RangeSelectorState createState() => _RangeSelectorState();
-
   const RangeSelector(
-      {required this.onSelected, required this.values, this.selectedIndex = 0});
-}
-
-class _RangeSelectorState extends State<RangeSelector> {
-  late List<bool> selectedMap;
-  late int selectedIndex;
-
-  @override
-  Widget build(BuildContext context) {
-    if (widget.values.isEmpty)
-      return Text('No Steps configured!');
-    else
-      return ToggleButtons(
-          isSelected: selectedMap,
-          onPressed: _onSelectionChanged,
-          children: widget.values.map((e) => Text(e.toString())).toList());
-  }
+      {super.key, this.onSelected,
+      required this.values,
+      this.selectedIndex = 0})
+      : assert(selectedIndex >= 0, 'SelectedIndex must be > 0'),
+        assert(selectedIndex <= (values.length - 1),
+            'selectedIndex is out of bound of provided values');
 
   _onSelectionChanged(int newIndex) {
     if (newIndex == selectedIndex) return;
-    setState(() {
-      widget.onSelected(newIndex);
-      selectedMap[newIndex] = true;
-      selectedMap[selectedIndex] = false;
-      selectedIndex = newIndex;
-    });
+    onSelected!(newIndex);
   }
 
   @override
-  initState() {
-    super.initState();
-    selectedIndex = max(min(widget.selectedIndex, widget.values.length - 1), 0);
-    List<bool> tmp = List.filled(widget.values.length, false);
-    if (tmp.isNotEmpty) tmp[selectedIndex] = true;
-    selectedMap = tmp;
+  Widget build(BuildContext context) {
+    List<bool> selectedMap = List.filled(values.length, false);
+    if (selectedMap.isNotEmpty) selectedMap[selectedIndex] = true;
+
+    if (values.isEmpty) {
+      return const Text('No Steps configured!');
+    } else {
+      return ToggleButtons(
+          isSelected: selectedMap,
+          onPressed: onSelected != null? _onSelectionChanged:null,
+          children: values.map((e) => Text(e.toString())).toList());
+    }
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
-import 'package:mobileraker/util/extensions/list_extension.dart';
+import 'package:mobileraker/util/iterable_extension.dart';
+import 'package:mobileraker/util/list_extension.dart';
 
 class ConfigStepper {
   String name;
@@ -24,25 +24,25 @@ class ConfigStepper {
   bool? homingPositiveDir;
 
   ConfigStepper.parse(this.name, Map<String, dynamic> json)
-      : this.stepPin = json['step_pin'],
-        this.dirPin = json['dir_pin'],
-        this.enablePin = json['enable_pin'],
-        this.rotationDistance = json['rotation_distance'],
-        this.microsteps = json['microsteps'],
-        this.fullStepsPerRotation = json['full_steps_per_rotation'],
-        this.gearRatio = (json['gear_ratio'] as List<dynamic>)
+      : stepPin = json['step_pin'],
+        dirPin = json['dir_pin'],
+        enablePin = json['enable_pin'],
+        rotationDistance = json['rotation_distance'],
+        microsteps = json['microsteps'],
+        fullStepsPerRotation = json['full_steps_per_rotation'],
+        gearRatio = (json['gear_ratio'] as List<dynamic>)
             .unpackAndCast<double>()
             .toList(),
         // this.stepPulseDuration = json['step_pulse_duration'],
-        this.endstopPin = json['endstop_pin'],
-        this.positionMin = json['position_min'] ?? 0,
-        this.positionEndstop = json['position_endstop'],
-        this.positionMax = json['position_max'],
-        this.homingSpeed = json['homing_speed'],
-        this.homingRetractDist = json['homing_retract_dist'],
-        this.homingRetractSpeed = json['homing_retract_speed'],
-        this.secondHomingSpeed = json['second_homing_speed'],
-        this.homingPositiveDir = json['homing_positive_dir'];
+        endstopPin = json['endstop_pin'],
+        positionMin = json['position_min'] ?? 0,
+        positionEndstop = json['position_endstop'],
+        positionMax = json['position_max'],
+        homingSpeed = json['homing_speed'],
+        homingRetractDist = json['homing_retract_dist'],
+        homingRetractSpeed = json['homing_retract_speed'],
+        secondHomingSpeed = json['second_homing_speed'],
+        homingPositiveDir = json['homing_positive_dir'];
 
   @override
   bool operator ==(Object other) =>

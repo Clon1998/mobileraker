@@ -1,13 +1,18 @@
-import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
+import 'named_fan.dart';
 
 class GenericFan implements NamedFan {
-  @override
-  String name;
+  GenericFan({required this.name, this.speed = 0.0});
 
   @override
-  double speed = 0.0;
+  final String name;
 
-  GenericFan(this.name);
+  @override
+  final double speed;
+
+  @override
+  GenericFan copyWith({String? name, double? speed}) {
+    return GenericFan(name: name ?? this.name, speed: speed ?? this.speed);
+  }
 
   @override
   bool operator ==(Object other) =>

@@ -1,7 +1,7 @@
-import 'package:mobileraker/data/dto/machine/fans/fan.dart';
+import 'fan.dart';
 
 abstract class NamedFan implements Fan {
-  String name;
+  abstract final String name;
 
-  NamedFan(this.name);
+  NamedFan copyWith({String? name, double? speed});
 }

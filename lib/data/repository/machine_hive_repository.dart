@@ -1,31 +1,40 @@
 import 'package:hive/hive.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/repository/machine_repository.dart';
+
+import 'machine_repository.dart';
+
+final machineRepositoryProvider = Provider((ref) => MachineHiveRepository());
 
 class MachineHiveRepository implements MachineRepository {
-  late final _boxmachines = Hive.box<Machine>('printers');
+  MachineHiveRepository() : _boxMachines = Hive.box<Machine>('printers');
+  final Box<Machine> _boxMachines;
 
-
+  @override
   Future<void> insert(Machine machine) async {
-    await _boxmachines.put(machine.uuid, machine);
+    await _boxMachines.put(machine.uuid, machine);
     return;
   }
 
-
+  @override
   Future<void> update(Machine machine) async {
     await machine.save();
 
     return;
   }
 
-  Future<Machine?> get({String? uuid, int index=-1}) async {
-    assert(uuid != null || index >= 0, 'Either provide an uuid or an index >= 0');
-    if (uuid != null)
-      return _boxmachines.get(uuid);
-    else
-      return _boxmachines.getAt(index);
+  @override
+  Future<Machine?> get({String? uuid, int index = -1}) async {
+    assert(
+        uuid != null || index >= 0, 'Either provide an uuid or an index >= 0');
+    if (uuid != null) {
+      return _boxMachines.get(uuid);
+    } else {
+      return _boxMachines.getAt(index);
+    }
   }
 
+  @override
   Future<Machine> remove(String uuid) async {
     Machine? machine = await get(uuid: uuid);
 
@@ -33,11 +42,13 @@ class MachineHiveRepository implements MachineRepository {
     return machine!;
   }
 
+  @override
   Future<List<Machine>> fetchAll() {
-    return Future.value(_boxmachines.values.toList(growable: false));
+    return Future.value(_boxMachines.values.toList(growable: false));
   }
 
+  @override
   Future<int> count() {
-    return Future.value(_boxmachines.length);
+    return Future.value(_boxMachines.length);
   }
 }

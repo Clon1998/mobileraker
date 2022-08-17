@@ -2,37 +2,37 @@ enum AnnouncementPriority { normal, high }
 
 class AnnouncementEntry {
   /// A unique ID derived for each entry. Typically this is in the form of {owner}/{repo}/issue/{issue number}.
-  String entryId;
+  final String entryId;
 
   /// The url to the full announcement. This is generally a link to an issue on GitHub.
-  String url;
+  final String url;
 
   /// Announcement title, will match the title of the issue on GitHub.
-  String title;
+  final String title;
 
   /// The first paragraph of the announcement. Anything over 512 characters will be truncated.
-  String description;
+  final String description;
 
   /// Can be normal or high. It is recommended that clients immediately alert the user when one or more high priority announcments are present. Issued tagged with the critical label will be assigned a high priority.
-  AnnouncementPriority priority;
+  final AnnouncementPriority priority;
 
   /// The announcement creation date in unix time.
-  DateTime date;
+  final DateTime date;
 
   /// If set to true this announcement has been previously dismissed
-  bool dismissed;
+  final bool dismissed;
 
   /// The date the announcement was dismissed in unix time. If the announcement has not been dismissed this value is null.
-  DateTime? dateDismissed;
+  final DateTime? dateDismissed;
 
   /// If the announcement was dismissed with a wake_time specified this is the time (in unix time) at which the dismissed state will revert. If the announcement is not dismissed or dismissed indefinitely this value will be null.
-  DateTime? dismissWake;
+  final DateTime? dismissWake;
 
   /// The source from which the announcement was generated. Can be moonlight or internal.
-  String source;
+  final String source;
 
   /// The RSS feed for moonlight announcements. For example, this could be Moonraker or Klipper. If the announcement was generated internally this should match the name of the component that generated the announcement.
-  String feed;
+  final String feed;
 
   AnnouncementEntry.parse(Map<String, dynamic> json)
       : entryId = json['entryId'],

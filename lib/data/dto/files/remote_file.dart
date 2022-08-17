@@ -7,14 +7,14 @@ class RemoteFile {
         modified = json['modified'];
 
   /// MOONRAKER FIELDS:
-  String name;
+  final String name;
 
-  double modified;
+  final double modified;
 
-  int size;
+  final int size;
 
   /// Path to the location/directory where the file is located
-  String parentPath;
+  final String parentPath;
 
   String get absolutPath => '$parentPath/$name';
 

@@ -1,42 +1,24 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class GCodeMove {
-  double speedFactor = 0;
-  double speed = 0;
-  double extrudeFactor = 0;
-  bool absoluteCoordinates = false;
-  bool absoluteExtrude = false;
-  List<double> homingOrigin = [0.0, 0.0, 0.0, 0.0];
-  List<double> position = [0.0, 0.0, 0.0, 0.0];
-  List<double> gcodePosition = [0.0, 0.0, 0.0, 0.0];
+part 'gcode_move.freezed.dart';
+
+@freezed
+class GCodeMove with _$GCodeMove {
+  const GCodeMove._();
+
+  const factory GCodeMove({
+    @Default(0) double speedFactor,
+    @Default(0) double speed,
+    @Default(0) double extrudeFactor,
+    @Default(false) bool absoluteCoordinates,
+    @Default(false) bool absoluteExtrude,
+    @Default([0.0, 0.0, 0.0, 0.0]) List<double> homingOrigin,
+    @Default([0.0, 0.0, 0.0, 0.0]) List<double> position,
+    @Default([0.0, 0.0, 0.0, 0.0]) List<double> gcodePosition,
+  }) = _GCodeMove;
 
   int get mmSpeed {
     return (speed / 60 * speedFactor).round();
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-          other is GCodeMove &&
-              runtimeType == other.runtimeType &&
-              speedFactor == other.speedFactor &&
-              speed == other.speed &&
-              extrudeFactor == other.extrudeFactor &&
-              absoluteCoordinates == other.absoluteCoordinates &&
-              absoluteExtrude == other.absoluteExtrude &&
-              listEquals(homingOrigin, other.homingOrigin) &&
-              listEquals(position, other.position) &&
-              listEquals(gcodePosition, other.gcodePosition);
-
-  @override
-  int get hashCode =>
-      speedFactor.hashCode ^
-      speed.hashCode ^
-      extrudeFactor.hashCode ^
-      absoluteCoordinates.hashCode ^
-      absoluteExtrude.hashCode ^
-      homingOrigin.hashIterable ^
-      position.hashIterable ^
-      gcodePosition.hashIterable;
 }

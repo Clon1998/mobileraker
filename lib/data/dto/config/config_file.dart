@@ -1,11 +1,13 @@
-import 'package:flutter/foundation.dart';
-import 'package:mobileraker/data/dto/config/config_extruder.dart';
-import 'package:mobileraker/data/dto/config/config_heater_bed.dart';
-import 'package:mobileraker/data/dto/config/config_output.dart';
-import 'package:mobileraker/data/dto/config/config_printer.dart';
-import 'package:mobileraker/data/dto/config/config_stepper.dart';
 
 //TODO Decide regarding null values or not!
+import 'package:flutter/foundation.dart';
+
+import 'config_extruder.dart';
+import 'config_heater_bed.dart';
+import 'config_output.dart';
+import 'config_printer.dart';
+import 'config_stepper.dart';
+
 class ConfigFile {
   ConfigPrinter? configPrinter;
   ConfigHeaterBed? configHeaterBed;
@@ -20,12 +22,14 @@ class ConfigFile {
   ConfigStepper? get stepperY => steppers['y'];
 
   ConfigFile.parse(this.rawConfig) {
-    if (rawConfig.containsKey('printer'))
+    if (rawConfig.containsKey('printer')) {
       configPrinter = ConfigPrinter.parse(rawConfig['printer']);
-    if (rawConfig.containsKey('heater_bed'))
+    }
+    if (rawConfig.containsKey('heater_bed')) {
       configHeaterBed = ConfigHeaterBed.parse(rawConfig['heater_bed']);
+    }
 
-    this.rawConfig.keys.forEach((key) {
+    for (var key in rawConfig.keys) {
       if (key.startsWith('extruder')) {
         Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
         if (jsonChild.containsKey('shared_heater')) {
@@ -52,7 +56,7 @@ class ConfigFile {
         Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
         steppers[name] = ConfigStepper.parse(name, jsonChild);
       }
-    });
+    }
 
     //ToDo parse the config for e.g. EXTRUDERS (Temp settings), ...
   }
@@ -69,6 +73,20 @@ class ConfigFile {
 
   ConfigExtruder? extruderForIndex(int idx) =>
       extruders['extruder${idx > 0 ? idx : ''}'];
+
+
+  double get maxX => stepperX?.positionMax ?? 300;
+
+  double get minX => stepperX?.positionMin ?? 0;
+
+  double get maxY => stepperY?.positionMax ?? 300;
+
+  double get minY => stepperY?.positionMin ?? 0;
+
+  double get sizeX => maxX + minX.abs();
+
+  double get sizeY => maxY + minY.abs();
+
 
   @override
   bool operator ==(Object other) =>

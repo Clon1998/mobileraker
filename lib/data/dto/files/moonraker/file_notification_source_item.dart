@@ -3,8 +3,8 @@ class FileNotificationSourceItem {
   final String root;
 
   FileNotificationSourceItem.fromJson(Map<String, dynamic> json)
-      : this.path = json['path'],
-        this.root = json['root'];
+      : path = json['path'],
+        root = json['root'];
 
   String get fullPath => '$root/$path';
 
