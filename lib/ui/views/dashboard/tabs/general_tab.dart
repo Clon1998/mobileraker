@@ -278,7 +278,7 @@ class CamCard extends ViewModelWidget<GeneralTabViewModel> {
     );
   }
 
-  Widget _imageBuilder(BuildContext context, Transform imageTransformed) {
+  Widget _imageBuilder(BuildContext context, Widget imageTransformed) {
     return ClipRRect(
         borderRadius: const BorderRadius.all(Radius.circular(5)),
         child: imageTransformed);

@@ -92,11 +92,12 @@ class NavigationDrawerWidget
                     children: [
                       TextSpan(
                         text: ' GitHub ',
-                        style:  TextStyle(
-                            color: themeData.colorScheme.secondary),
+                        style:
+                            TextStyle(color: themeData.colorScheme.secondary),
                         children: [
                           WidgetSpan(
-                            child: const Icon(FlutterIcons.github_alt_faw, size: 18),
+                            child: const Icon(FlutterIcons.github_alt_faw,
+                                size: 18),
                           ),
                         ],
                         recognizer: TapGestureRecognizer()
@@ -114,8 +115,8 @@ class NavigationDrawerWidget
                       const TextSpan(text: '\n\n'),
                       TextSpan(
                         text: tr('pages.setting.imprint'),
-                        style:  TextStyle(
-                            color: themeData.colorScheme.secondary),
+                        style:
+                            TextStyle(color: themeData.colorScheme.secondary),
                         recognizer: TapGestureRecognizer()
                           ..onTap = model.navigateToLegal,
                       ),
@@ -209,12 +210,14 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
                 'components.nav_drawer.manage_printers',
                 style: TextStyle(color: onBackground),
               ).tr(),
-              trailing: Icon(
-                model.isManagePrintersExpanded
-                    ? Icons.expand_less
-                    : Icons.expand_more,
-                color: onBackground,
-              ),
+              trailing: AnimatedRotation(
+                  duration: kThemeAnimationDuration,
+                  curve: Curves.easeOutCubic,
+                  turns: model.isManagePrintersExpanded ? 0 : 0.5,
+                  child: Icon(
+                    Icons.expand_less,
+                    color: onBackground,
+                  )),
               onTap: model.toggleManagePrintersExpanded,
             )
           ],
@@ -271,9 +274,10 @@ class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
           ? kToolbarHeight * (printers.length + 1)
           : 0,
       duration: kThemeAnimationDuration,
-      curve: Curves.ease,
+      curve: Curves.easeOutCubic,
       child: AnimatedOpacity(
         opacity: model.isManagePrintersExpanded ? 1 : 0,
+        curve: Curves.easeOutCubic,
         duration: kThemeAnimationDuration,
         child: ListView(
           shrinkWrap: true,

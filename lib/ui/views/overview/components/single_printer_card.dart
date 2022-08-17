@@ -82,7 +82,7 @@ class SinglePrinterCard extends ViewModelBuilderWidget<SinglePrinterCardViewMode
     );
   }
 
-  Widget _imageBuilder(BuildContext context, Transform imageTransformed) {
+  Widget _imageBuilder(BuildContext context, Widget imageTransformed) {
     return ClipRRect(
         borderRadius: BorderRadius.vertical(top: Radius.circular(5)),
         child: imageTransformed);

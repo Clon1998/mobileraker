@@ -223,7 +223,7 @@ class NotificationPermissionWarning extends ViewModelWidget<SettingViewModel> {
   @override
   Widget build(BuildContext context, SettingViewModel model) {
     if (!model.hasNotificationPermissionGrantedReady ||
-        model.notificationPermissionGranted) return Container();
+        model.notificationPermissionGranted) return const SizedBox.shrink();
     var themeData = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 16),

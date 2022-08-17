@@ -14,7 +14,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stacked/stacked.dart';
 
 typedef StreamConnectedBuilder = Widget Function(
-    BuildContext context, Transform imageTransformed);
+    BuildContext context, Widget imageTransformed);
 
 class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
   const Mjpeg(
@@ -52,118 +52,79 @@ class Mjpeg extends ViewModelBuilderWidget<MjpegViewModel> {
 
   @override
   Widget builder(BuildContext context, MjpegViewModel model, Widget? child) {
-    if (!model.isBusy) {
-      if (model.hasError) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline),
-            SizedBox(
-              height: 30,
-            ),
-            Text(model.modelError.toString(),
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Theme.of(context).errorColor)),
-            TextButton.icon(
-                onPressed: model.onRetryPressed,
-                icon: const Icon(Icons.restart_alt_outlined),
-                label:
-                    const Text('components.connection_watcher.reconnect').tr())
-          ],
-        );
-      } else if (model.dataReady) {
-        Widget img = Image(
-          image: model.data!,
-          width: width,
-          height: height,
-          gaplessPlayback: true,
-          fit: fit,
-        );
-        if (transform == null) {
-          return img;
-        } else {
-          Transform transformWidget = Transform(
-            alignment: Alignment.center,
-            transform: transform!,
-            child: img,
-          );
+    if (model.isBusy || !model.dataReady)
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SpinKitDancingSquare(
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          FadingText(tr('components.connection_watcher.trying_connect'))
+        ],
+      );
 
-          return EaseIn(
-            child: Stack(
-              children: [
-                (imageBuilder == null)
-                    ? transformWidget
-                    : imageBuilder!(context, transformWidget),
-                if (showFps)
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Container(
-                          padding: const EdgeInsets.all(4),
-                          margin: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.secondary,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: Text(
-                            'FPS: ${model.fps.toStringAsFixed(1)}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondary),
-                          )),
-                    ),
-                  ),
-                ...stackChildren
-              ],
-            ),
-          );
-        }
-      }
+    if (model.hasError) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline),
+          SizedBox(
+            height: 30,
+          ),
+          Text(model.modelError.toString(),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Theme.of(context).errorColor)),
+          TextButton.icon(
+              onPressed: model.onRetryPressed,
+              icon: const Icon(Icons.restart_alt_outlined),
+              label: const Text('components.connection_watcher.reconnect').tr())
+        ],
+      );
     }
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        SpinKitDancingSquare(
-          color: Theme.of(context).colorScheme.secondary,
-        ),
-        const SizedBox(
-          height: 15,
-        ),
-        FadingText(tr('components.connection_watcher.trying_connect'))
-      ],
+    Widget img = Image(
+      image: model.data!,
+      width: width,
+      height: height,
+      gaplessPlayback: true,
+      fit: fit,
     );
-    // if (errorState.value != null) {
-    //   return SizedBox(
-    //     width: width,
-    //     height: height,
-    //     child: error == null
-    //         ? Center(
-    //             child: Padding(
-    //               padding: const EdgeInsets.all(8.0),
-    //               child: Text(
-    //                 '${errorState.value}',
-    //                 textAlign: TextAlign.center,
-    //                 style: TextStyle(color: Colors.red),
-    //               ),
-    //             ),
-    //           )
-    //         : error!(context, errorState.value!.first, errorState.value!.last),
-    //   );
-    // }
+    if (transform != null)
+      img = Transform(
+        alignment: Alignment.center,
+        transform: transform!,
+        child: img,
+      );
 
-    // if (image.value == null) {
-    //   return SizedBox(
-    //       width: width,
-    //       height: height,
-    //       child: loading == null
-    //           ? Center(child: CircularProgressIndicator())
-    //           : loading!(context));
-    // }
+    return EaseIn(
+      child: Stack(
+        children: [
+          (imageBuilder == null) ? img : imageBuilder!(context, img),
+          if (showFps)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                    padding: const EdgeInsets.all(4),
+                    margin: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.secondary,
+                        borderRadius:
+                            const BorderRadius.all(Radius.circular(5))),
+                    child: Text(
+                      'FPS: ${model.fps.toStringAsFixed(1)}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSecondary),
+                    )),
+              ),
+            ),
+          ...stackChildren
+        ],
+      ),
+    );
   }
 }
 
@@ -222,13 +183,14 @@ class MjpegViewModel extends StreamViewModel<MemoryImage?>
     if (!initialised) {
       WidgetsBinding.instance.addObserver(this);
       setBusy(true);
+      // move the manager to an isolate maybe?
       _manager.start();
     }
   }
 
   @override
   onData(MemoryImage? data) {
-    setBusy(false);
+    if (isBusy) setBusy(false);
     if (data != null) {
       _frameCnt++;
       DateTime now = DateTime.now();
@@ -272,6 +234,9 @@ abstract class _StreamManager {
 
 /// This Manager is for the normal MJPEG!
 class _DefaultStreamManager implements _StreamManager {
+  _DefaultStreamManager(String baseUri, this.headers, this._timeout)
+      : this._uri = Uri.parse(baseUri);
+
   final _logger = getLogger('_StreamManager');
 
   // Jpeg Magic Nubmers: https://www.file-recovery.com/jpg-signature-format.htm
@@ -279,19 +244,20 @@ class _DefaultStreamManager implements _StreamManager {
   static const _SOI = 0xD8;
   static const _EOI = 0xD9;
 
-  final String feedUri;
+  final Uri _uri;
+
   final Duration _timeout;
+
   final Map<String, String> headers;
+
   final Client _httpClient = Client();
 
   final StreamController<MemoryImage> _mjpegStreamController =
-      StreamController.broadcast();
+      StreamController();
 
   Stream<MemoryImage> get jpegStream => _mjpegStreamController.stream;
 
   StreamSubscription? _subscription;
-
-  _DefaultStreamManager(this.feedUri, this.headers, this._timeout);
 
   stop() {
     _logger.i('STOPPING STREAM!');
@@ -301,7 +267,7 @@ class _DefaultStreamManager implements _StreamManager {
   start() async {
     _subscription?.cancel(); // Ensure its clear to start a new stream!
     try {
-      final request = Request("GET", Uri.parse(feedUri));
+      final request = Request('GET', _uri);
       request.headers.addAll(headers);
       final StreamedResponse response = await _httpClient.send(request).timeout(
           _timeout); //timeout is to prevent process to hang forever in some case
@@ -310,9 +276,10 @@ class _DefaultStreamManager implements _StreamManager {
         _subscription = response.stream
             .listen(_onData, onError: _onError, cancelOnError: true);
       } else {
-        _mjpegStreamController.addError(
-            HttpException('Stream returned ${response.statusCode} status'),
-            StackTrace.current);
+        if (!_mjpegStreamController.isClosed)
+          _mjpegStreamController.addError(
+              HttpException('Stream returned ${response.statusCode} status'),
+              StackTrace.current);
       }
     } catch (error, stack) {
       // we ignore those errors in case play/pause is triggers
@@ -329,7 +296,7 @@ class _DefaultStreamManager implements _StreamManager {
   int _lastByte = 0x00;
 
   _sendImage(Uint8List bytes) async {
-    if (bytes.isNotEmpty) {
+    if (bytes.isNotEmpty && !_mjpegStreamController.isClosed) {
       _mjpegStreamController.add(MemoryImage(bytes));
     }
   }
@@ -365,7 +332,8 @@ class _DefaultStreamManager implements _StreamManager {
 
   _onError(error, stack) {
     try {
-      _mjpegStreamController.addError(error, stack);
+      if (!_mjpegStreamController.isClosed)
+        _mjpegStreamController.addError(error, stack);
     } catch (ex) {}
     dispose();
   }
@@ -383,24 +351,23 @@ class _DefaultStreamManager implements _StreamManager {
 /// Manager for an Adaptive MJPEG, using snapshots/images of the MJPEG provider!
 class _AdaptiveStreamManager implements _StreamManager {
   _AdaptiveStreamManager(
-      String baseUri, this.headers, this.timeout, this.targetFps) {
-    url = Uri.parse(baseUri).replace(queryParameters: {
-      'action': 'snapshot',
-      'cacheBust': lastRefresh.millisecondsSinceEpoch.toString()
-    });
-  }
+      String baseUri, this.headers, this._timeout, this.targetFps)
+      : _uri = Uri.parse(baseUri);
 
   final _logger = getLogger('_AdaptiveStreamManager');
 
-  late final Uri url;
   final Map<String, String> headers;
 
-  final HttpClient _httpClient = HttpClient();
-  final Duration timeout;
+  final Duration _timeout;
+
   final int targetFps;
 
+  final Uri _uri;
+
+  final Client _httpClient = Client();
+
   final StreamController<MemoryImage> _mjpegStreamController =
-      StreamController.broadcast();
+      StreamController();
 
   bool active = false;
 
@@ -430,27 +397,23 @@ class _AdaptiveStreamManager implements _StreamManager {
   _timerCallback() async {
     // _logger.i('TimerTask ${DateTime.now()}');
     try {
-      HttpClientRequest request = await _httpClient
-          .getUrl(url.replace(queryParameters: {
-            'action': 'snapshot',
-            'cacheBust': lastRefresh.millisecondsSinceEpoch.toString()
-          }))
-          .timeout(timeout);
-
-      headers.forEach((key, value) => request.headers.set(key, value));
-
-      HttpClientResponse response = await request.close().timeout(timeout);
+      Response response = await _httpClient
+          .get(
+              _uri.replace(queryParameters: {
+                'action': 'snapshot',
+                'cacheBust': lastRefresh.millisecondsSinceEpoch.toString()
+              }),
+              headers: headers)
+          .timeout(_timeout);
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        ByteStream byteStream = ByteStream(response);
-
-        Uint8List bytes = await byteStream.toBytes();
-        _sendImage(bytes);
+        _sendImage(response.bodyBytes);
         _restartTimer();
       } else {
-        _mjpegStreamController.addError(
-            HttpException('Request returned ${response.statusCode} status'),
-            StackTrace.current);
+        if (!_mjpegStreamController.isClosed)
+          _mjpegStreamController.addError(
+              HttpException('Request returned ${response.statusCode} status'),
+              StackTrace.current);
       }
     } catch (error, stack) {
       // we ignore those errors in case play/pause is triggers
