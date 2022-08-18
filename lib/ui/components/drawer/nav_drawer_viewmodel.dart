@@ -15,6 +15,12 @@ class NavDrawerController extends StateNotifier<bool> {
   navigateTo(String route, {dynamic arguments}) {
     var goRouter = ref.read(goRouterProvider);
     goRouter.navigator?.pop();
+    goRouter.go(route, extra: arguments);
+  }
+
+  pushingTo(String route, {dynamic arguments}) {
+    var goRouter = ref.read(goRouterProvider);
+    goRouter.navigator?.pop();
     goRouter.push(route, extra: arguments);
   }
 }

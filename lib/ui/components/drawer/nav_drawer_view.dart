@@ -112,7 +112,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => ref
                                 .read(navDrawerControllerProvider.notifier)
-                                .navigateTo('/imprint')),
+                                .pushingTo('/imprint')),
                     ]),
                 textAlign: TextAlign.center,
               )),
@@ -200,7 +200,7 @@ class _NavHeader extends ConsumerWidget {
                       if (neverNullMachineAsyncData.hasValue) {
                         ref
                             .read(navDrawerControllerProvider.notifier)
-                            .navigateTo('/printer/edit',
+                            .pushingTo('/printer/edit',
                                 arguments: neverNullMachineAsyncData.value!);
                       }
                     },
@@ -315,7 +315,7 @@ class _PrinterSelection extends ConsumerWidget {
                   ),
                   onTap: () => ref
                       .read(navDrawerControllerProvider.notifier)
-                      .navigateTo('/printer/add'),
+                      .pushingTo('/printer/add'),
                 )
               ],
             )
@@ -362,7 +362,7 @@ class _MachineTile extends ConsumerWidget {
       },
       onLongPress: () => ref
           .read(navDrawerControllerProvider.notifier)
-          .navigateTo('/printer/edit', arguments: machine),
+          .pushingTo('/printer/edit', arguments: machine),
     );
   }
 }

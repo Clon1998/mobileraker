@@ -23,7 +23,7 @@ class ConnectionStateController extends StateNotifier<ClientState> {
           state = value;
         });
       }
-    });
+    },fireImmediately: true);
   }
 
   final AutoDisposeRef ref;

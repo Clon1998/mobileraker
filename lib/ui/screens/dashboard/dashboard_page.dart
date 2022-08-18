@@ -14,16 +14,16 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
-import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:stringr/stringr.dart';
 
-import 'dashboard_viewmodel.dart';
+import 'dashboard_controller.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({Key? key}) : super(key: key);
@@ -67,7 +67,7 @@ class _DashboardView extends ConsumerWidget {
         ),
         actions: const <Widget>[
           MachineStateIndicator(),
-          _EmergencyStopBtn(),
+          EmergencyStopBtn(),
         ],
       ),
       body: const ConnectionStateView(onConnected: _DashboardBody()),
@@ -75,29 +75,6 @@ class _DashboardView extends ConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: const _BottomNavigationBar(),
       drawer: const NavigationDrawerWidget(),
-    );
-  }
-}
-
-class _EmergencyStopBtn extends ConsumerWidget {
-  const _EmergencyStopBtn({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    KlipperState klippyState = ref.watch(klipperSelectedProvider.select(
-        (value) =>
-            value.valueOrFullNull?.klippyState ?? KlipperState.disconnected));
-
-    return IconButton(
-      color: Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,
-      icon: const Icon(
-        FlutterIcons.skull_outline_mco,
-        size: 26,
-      ),
-      tooltip: tr('pages.dashboard.ems_btn'),
-      onPressed: klippyState == KlipperState.ready
-          ? ref.read(klipperServiceSelectedProvider).emergencyStop
-          : null,
     );
   }
 }
@@ -183,8 +160,7 @@ class _DashboardBody extends ConsumerWidget {
             cacheTime: const Duration(minutes: 10),
             child: PageView(
               key: const PageStorageKey<String>('dashboardPages'),
-              controller: ref
-                  .watch(pageControllerProvider),
+              controller: ref.watch(pageControllerProvider),
               onPageChanged: ref
                   .watch(dashBoardViewControllerProvider.notifier)
                   .onPageChanged,
@@ -194,7 +170,7 @@ class _DashboardBody extends ConsumerWidget {
           ),
           error: (e, s) {
             //TODO Error catching wont work..... does not work .....
-
+            logger.e('Error in Dash', e, s);
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

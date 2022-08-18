@@ -5,19 +5,12 @@ import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_viewmodel.dart';
+import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 final controlXYZController =
     StateNotifierProvider.autoDispose<ControlXYZController, int>(
         (ref) => ControlXYZController(ref));
-
-// final controlXYZDataController = StreamProvider((ref) {
-//   Stream<KlipperInstance> klippy = ref.watch(klipperSelectedProvider.stream);
-//   var machineSettings = ref.watch(selectedMachineSettingsProvider.stream);
-//
-//   return ;
-// });
 
 class ControlXYZController extends StateNotifier<int> {
   ControlXYZController(this.ref) : super(0);

@@ -42,11 +42,13 @@ final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
 final printerServiceProvider =
     Provider.autoDispose.family<PrinterService, String>(name:'printerServiceProvider',(ref, machineUUID) {
       ref.onCancel(() {logger.e('printerServiceProvider - oncCanel');});
+      ref.keepAlive();
   return PrinterService(ref, machineUUID);
 });
 
-final printerProvider = StreamProvider.autoDispose.family<Printer, String>(name:'printerProvider',(ref, machineUUID) {
-  return ref.watch(printerServiceProvider(machineUUID)).printerStream;
+final printerProvider = StreamProvider.autoDispose.family<Printer, String>(name:'printerProvider',(ref, machineUUID)async* {
+  ref.keepAlive();
+  yield* ref.watch(printerServiceProvider(machineUUID)).printerStream;
 });
 
 final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(name:'printerServiceSelectedProvider',(ref) {
@@ -57,13 +59,13 @@ final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(name
 final printerSelectedProvider = StreamProvider.autoDispose<Printer>(name:'printerSelectedProvider',(ref) async* {
   var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
+
   yield* ref.watch(printerProvider(machine.uuid).stream);
 });
 
 class PrinterService {
   PrinterService(AutoDisposeRef ref, String machineUUID)
-      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)),
-        _machineService = ref.watch(machineServiceProvider) {
+      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
@@ -89,7 +91,6 @@ class PrinterService {
   }
 
   final JsonRpcClient _jRpcClient;
-  final MachineService _machineService;
 
   final StreamController<Printer> _printerStreamCtler = StreamController();
 

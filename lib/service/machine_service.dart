@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
@@ -12,11 +11,12 @@ import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/moonraker/announcement_service.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
@@ -96,6 +96,14 @@ class MachineService {
     logger.i('Removing machine ${machine.uuid}');
     await _machineRepo.remove(machine.uuid);
     ref.invalidate(allMachinesProvider);
+    ref.invalidate(printerProvider(machine.uuid));
+    ref.invalidate(printerServiceProvider(machine.uuid));
+    ref.invalidate(klipperProvider(machine.uuid));
+    ref.invalidate(klipperServiceProvider(machine.uuid));
+    ref.invalidate(fileNotificationsProvider(machine.uuid));
+    ref.invalidate(fileServiceProvider(machine.uuid));
+    ref.invalidate(announcementProvider(machine.uuid));
+    ref.invalidate(announcementServiceProvider(machine.uuid));
     if (_selectedMachineService.isSelectedMachine(machine)) {
       logger.i('Machine ${machine.uuid} is active machine');
       List<Machine> remainingPrinters = await _machineRepo.fetchAll();

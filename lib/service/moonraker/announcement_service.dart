@@ -7,13 +7,16 @@ import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 
-final announcementServiceProvider =
-    Provider.autoDispose.family<AnnouncementService, String>((ref, machineUUID) {
+final announcementServiceProvider = Provider.autoDispose
+    .family<AnnouncementService, String>((ref, machineUUID) {
+  ref.keepAlive();
+
   return AnnouncementService(ref, machineUUID);
 });
 
-final announcementProvider =
-    StreamProvider.autoDispose.family<List<AnnouncementEntry>, String>((ref, machineUUID) {
+final announcementProvider = StreamProvider.autoDispose
+    .family<List<AnnouncementEntry>, String>((ref, machineUUID) {
+  ref.keepAlive();
   return ref
       .watch(announcementServiceProvider(machineUUID))
       .announcementNotificationStream;

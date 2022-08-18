@@ -6,11 +6,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';
+import 'package:rxdart/rxdart.dart';
 
 final themeServiceProvider = Provider((ref) => ThemeService(ref));
 
-final activeThemeProvider =
-    StreamProvider((ref) => ref.watch(themeServiceProvider).themesStream);
+final activeThemeProvider = StreamProvider<ThemeModel>(
+    (ref) => ref.watch(themeServiceProvider).themesStream);
 
 class ThemeService {
   ThemeService(Ref ref)
@@ -35,10 +36,11 @@ class ThemeService {
   ThemeModel get activeTheme => _activeTheme;
 
   set activeTheme(ThemeModel pack) {
+    _activeTheme = pack;
     _themesController.add(pack);
   }
 
-  final StreamController<ThemeModel> _themesController = StreamController();
+  final StreamController<ThemeModel> _themesController = BehaviorSubject();
 
   Stream<ThemeModel> get themesStream => _themesController.stream;
 

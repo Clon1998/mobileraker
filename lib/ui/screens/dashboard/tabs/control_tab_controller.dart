@@ -10,7 +10,7 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_viewmodel.dart';
+import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 

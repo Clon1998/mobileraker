@@ -1,11 +1,15 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/ui/screens/dashboard/dashboard_view.dart';
+import 'package:mobileraker/ui/screens/console/console_page.dart';
+import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
-import 'package:mobileraker/ui/screens/printers/edit/printers_edit_view.dart';
+import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
+import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
+import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 
 enum AppRoute {
   dashBoard,
@@ -42,18 +46,39 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const QrScannerPage(),
       ),
       GoRoute(
-        path: '/printer/edit',
-        name: AppRoute.printerEdit.name,
-        builder: (context, state) =>
-            // TestPage(),
-            PrinterEdit(machine: state.extra! as Machine),
+        path: '/printer',
+        builder: (_, __) => const SizedBox(),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            name: AppRoute.printerEdit.name,
+            builder: (context, state) =>
+                // TestPage(),
+                PrinterEdit(machine: state.extra! as Machine),
+          ),
+          GoRoute(
+            path: 'add',
+            name: AppRoute.printerAdd.name,
+            builder: (context, state) =>
+                // TestPage(),
+                const PrinterAddPage(),
+          ),
+        ],
       ),
       GoRoute(
-        path: '/printer/add',
-        name: AppRoute.printerAdd.name,
-        builder: (context, state) =>
-            // TestPage(),
-            const PrinterAddPage(),
+        path: '/setting',
+        name: AppRoute.settings.name,
+        builder: (context, state) => const SettingView(),
+      ),
+      GoRoute(
+        path: '/imprint',
+        name: AppRoute.imprint.name,
+        builder: (context, state) => const ImprintPage(),
+      ),
+      GoRoute(
+        path: '/console',
+        name: AppRoute.console.name,
+        builder: (context, state) => const ConsoleView(),
       ),
       // GoRoute(
       //   path: 'cart',

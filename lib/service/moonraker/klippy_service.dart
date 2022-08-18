@@ -15,13 +15,16 @@ import 'package:rxdart/rxdart.dart';
 final klipperServiceProvider = Provider.autoDispose
     .family<KlippyService, String>(name: 'klipperServiceProvider',
         (ref, machineUUID) {
-  return KlippyService(ref, machineUUID);
+          ref.keepAlive();
+
+          return KlippyService(ref, machineUUID);
 });
 
 final klipperProvider = StreamProvider.autoDispose
     .family<KlipperInstance, String>(name: 'klipperProvider',
         (ref, machineUUID) {
-  return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
+          ref.keepAlive();
+          return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
 });
 
 final klipperServiceSelectedProvider =

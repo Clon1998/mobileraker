@@ -28,7 +28,7 @@ import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 final flipCardControllerProvider =
-    Provider.autoDispose<FlipCardController>((ref) => FlipCardController());
+    Provider<FlipCardController>((ref) => FlipCardController());
 
 final machinePrinterKlippySettingsProvider =
     StreamProvider.autoDispose<PrinterKlippySettingsMachineWrapper>(

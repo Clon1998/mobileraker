@@ -45,12 +45,16 @@ class FolderContentWrapper {
 
 final fileServiceProvider =
     Provider.autoDispose.family<FileService, String>((ref, machineUUID) {
-  return FileService(ref, machineUUID);
+      ref.keepAlive();
+
+      return FileService(ref, machineUUID);
 });
 
 final fileNotificationsProvider = StreamProvider.autoDispose
-    .family<FileApiResponse, String>((ref, machineUUID) =>
-        ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream);
+    .family<FileApiResponse, String>((ref, machineUUID) {
+  ref.keepAlive();
+  return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
+    });
 
 final fileServiceSelectedProvider = Provider.autoDispose((ref) {
   return ref.watch(fileServiceProvider(

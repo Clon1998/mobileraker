@@ -16,7 +16,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:stringr/stringr.dart';
 
-import 'printers_edit_viewmodel.dart';
+import 'printers_edit_controller.dart';
 
 class PrinterEdit extends ConsumerWidget {
   const PrinterEdit({Key? key, required this.machine}) : super(key: key);
