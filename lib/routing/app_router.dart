@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
+import 'package:mobileraker/ui/screens/files/files_page.dart';
+import 'package:mobileraker/ui/screens/fullcam/full_cam_view.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
 import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
@@ -14,6 +16,7 @@ import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 enum AppRoute {
   dashBoard,
   printerEdit,
+  fullCam,
   printerAdd,
   qrScanner,
   console,
@@ -46,6 +49,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const QrScannerPage(),
       ),
       GoRoute(
+        path: '/fullcam',
+        name: AppRoute.fullCam.name,
+        builder: (context, state) {
+          Map<String, dynamic> b = state.extra as Map<String, dynamic>;
+          return FullCamView(b['machine'], b['selectedCam']);
+        },
+      ),
+      GoRoute(
         path: '/printer',
         builder: (_, __) => const SizedBox(),
         routes: [
@@ -64,6 +75,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 const PrinterAddPage(),
           ),
         ],
+      ),
+      GoRoute(
+        path: '/files',
+        name: AppRoute.files.name,
+        builder: (context, state) => const FilesView(),
       ),
       GoRoute(
         path: '/setting',

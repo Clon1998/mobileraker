@@ -329,22 +329,19 @@ class CamCard extends ConsumerWidget {
               transform: selectedCam.transformMatrix,
               camMode: selectedCam.mode,
               showFps: true,
-              stackChildren: [
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.aspect_ratio),
-                      tooltip:
-                          'pages.dashboard.general.cam_card.fullscreen'.tr(),
-                      onPressed: ref
-                          .read(camCardControllerProvider.notifier)
-                          .onFullScreenTap,
-                    ),
+              stackChild: Positioned.fill(
+                child: Align(
+                  alignment: Alignment.bottomRight,
+                  child: IconButton(
+                    color: Colors.white,
+                    icon: const Icon(Icons.aspect_ratio),
+                    tooltip: 'pages.dashboard.general.cam_card.fullscreen'.tr(),
+                    onPressed: ref
+                        .read(camCardControllerProvider.notifier)
+                        .onFullScreenTap,
                   ),
                 ),
-              ],
+              ),
             )),
           ),
         ],

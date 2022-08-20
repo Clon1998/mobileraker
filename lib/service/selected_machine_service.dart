@@ -11,8 +11,6 @@ final selectedMachineServiceProvider = Provider((ref) {
 });
 
 final selectedMachineProvider = StreamProvider<Machine?>(name:'selectedMachineProvider',(ref) {
-  ref.listenSelf((previous, next) {logger.wtf('selectedMachineProvider: $next');});
-
   return ref.watch(selectedMachineServiceProvider).selectedMachine;
 });
 

@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
@@ -6,6 +5,12 @@ import 'gcode_thumbnail.dart';
 import 'remote_file.dart';
 
 class GCodeFile extends RemoteFile {
+  static int lastPrintedComparator(RemoteFile a, RemoteFile b) {
+    if (a is! GCodeFile || b is! GCodeFile) return 0;
+
+    return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
+  }
+
   double? printStartTime;
 
   String? jobID;
@@ -39,6 +44,7 @@ class GCodeFile extends RemoteFile {
   String? filamentName;
 
   double? nozzleDiameter;
+
   /// CUSTOM FIELDS:
 
   GCodeFile(

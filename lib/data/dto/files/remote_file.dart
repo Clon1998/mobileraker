@@ -1,4 +1,8 @@
 class RemoteFile {
+  static int nameComparator(RemoteFile a, RemoteFile b) => a.name.compareTo(b.name);
+  static int modifiedComparator(RemoteFile a, RemoteFile b) => b.modified.compareTo(a.modified);
+
+
   RemoteFile(this.name, this.modified, this.size, this.parentPath);
 
   RemoteFile.fromJson(Map<String, dynamic> json, this.parentPath)

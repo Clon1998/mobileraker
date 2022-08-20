@@ -13,6 +13,7 @@ import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -86,7 +87,9 @@ class GeneralTabViewController
   }
 
   onExcludeObjectPressed() {
-    ref.read(dialogServiceProvider).show(DialogRequest(type: DialogType.excludeObject));
+    ref
+        .read(dialogServiceProvider)
+        .show(DialogRequest(type: DialogType.excludeObject));
   }
 
   onResetPrintTap() {
@@ -280,7 +283,11 @@ class BabyStepCardController extends StateNotifier<int> {
     double step = machineSettings.babySteps[state].toDouble();
     double dirStep = (positive) ? step : -1 * step;
     int? m = (ref
-            .read(machinePrinterKlippySettingsProvider).valueOrFullNull!.printerData.toolhead.homedAxes
+            .read(machinePrinterKlippySettingsProvider)
+            .valueOrFullNull!
+            .printerData
+            .toolhead
+            .homedAxes
             .containsAll({PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z}))
         ? 1
         : null;
@@ -306,5 +313,11 @@ class CamCardController extends StateNotifier<WebcamSetting> {
     state = cam;
   }
 
-  onFullScreenTap() {}
+  onFullScreenTap() {
+    Machine machine = ref.read(selectedMachineProvider).value!;
+    ref.read(goRouterProvider).pushNamed(AppRoute.fullCam.name, extra: {
+      'machine': machine,
+      'selectedCam': machine.cams.indexOf(state)
+    });
+  }
 }

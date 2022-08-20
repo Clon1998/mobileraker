@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:file/memory.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
@@ -16,6 +17,7 @@ import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -36,17 +38,28 @@ typedef FileListChangedListener = Function(
     Map<String, dynamic> item, Map<String, dynamic>? srcItem);
 
 class FolderContentWrapper {
-  FolderContentWrapper(this.reqPath, this.folders, this.files);
+  FolderContentWrapper(this.folderPath, this.folders, this.files);
 
-  final String reqPath;
+  final String folderPath;
   final List<Folder> folders;
   final List<RemoteFile> files;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FolderContentWrapper &&
+          runtimeType == other.runtimeType &&
+          folderPath == other.folderPath &&
+          listEquals(folders, other.folders) &&
+          listEquals(files, other.files);
+
+  @override
+  int get hashCode => folderPath.hashCode ^ folders.hashIterable ^ files.hashIterable;
 }
 
 final fileServiceProvider =
     Provider.autoDispose.family<FileService, String>((ref, machineUUID) {
       ref.keepAlive();
-
       return FileService(ref, machineUUID);
 });
 

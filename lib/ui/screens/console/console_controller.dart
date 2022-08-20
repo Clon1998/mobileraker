@@ -22,33 +22,9 @@ const List<String> additionalCmds = [
   'TESTZ',
 ];
 
-final consoleTextEditProvider = Provider.autoDispose((ref) {
-  var textEditingController = TextEditingController();
-  return textEditingController;
-});
-
-final consoleInputProvider =
-    StateNotifierProvider.autoDispose<ConsoleInputController, String>((ref) =>
-        ConsoleInputController(ref, ref.watch(consoleTextEditProvider)));
-
-class ConsoleInputController extends StateNotifier<String> {
-  ConsoleInputController(this.ref, this.textEditingController) : super('') {
-    _init();
-  }
-
-  final AutoDisposeRef ref;
-  final TextEditingController textEditingController;
-
-  _init() {
-    textEditingController.addListener(_onTextChanged);
-    ref.onDispose(() => textEditingController.removeListener(_onTextChanged));
-  }
-
-  _onTextChanged() {
-    var n = textEditingController.text;
-    if (state != n) state = n;
-  }
-}
+final consoleTextEditProvider =
+    ChangeNotifierProvider.autoDispose<TextEditingController>(
+        (ref) => TextEditingController());
 
 final availableMacrosProvider =
     FutureProvider.autoDispose<List<Command>>((ref) {
@@ -67,7 +43,7 @@ final suggestedMacroProvider = FutureProvider.autoDispose<List<String>>((ref) {
       (element) => !element.startsWith('_') && !potential.contains(element));
   potential.addAll(additionalCmds);
   potential.addAll(filteredAvailable);
-  String text = ref.watch(consoleInputProvider).toLowerCase();
+  String text = ref.watch(consoleTextEditProvider).text.toLowerCase();
   if (text.isEmpty) return potential;
 
   List<String> terms = text.split(RegExp(r'\W+'));
@@ -78,7 +54,6 @@ final suggestedMacroProvider = FutureProvider.autoDispose<List<String>>((ref) {
       .where((element) => terms.every((t) => element.toLowerCase().contains(t)))
       .toList(growable: false);
 
-  logger.wtf('Got $text ${terms.length} with len ${suggestions.length}');
   return suggestions;
 });
 
@@ -133,7 +108,7 @@ class ConsoleListController
   }
 
   onCommandSubmit() {
-    String command = ref.read(consoleInputProvider);
+    String command = ref.read(consoleTextEditProvider).text;
     if (command.isEmpty || state.isLoading) return;
     state = AsyncValue.data([
       ...state.value!,

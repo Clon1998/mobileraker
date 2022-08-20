@@ -284,6 +284,10 @@
     }
   },
   "dialogs": {
+    "rate_my_app": {
+      "title": "Rate Mobileraker?",
+      "message": "If you like Mobileraker and want to support the open source development, please consider rating Mobileraker!"
+    },
     "import_setting": {
       "fetching": "Fetching sources...",
       "fetching_error_title": "Unable to fetch settings!",

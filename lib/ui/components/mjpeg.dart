@@ -4,7 +4,9 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart';
@@ -24,7 +26,7 @@ class Mjpeg extends ConsumerWidget {
     Map<String, String> headers = const {},
     int targetFps = 10,
     required WebCamMode camMode,
-    this.stackChildren = const [],
+    this.stackChild,
     this.transform,
     this.fit,
     this.width,
@@ -34,7 +36,7 @@ class Mjpeg extends ConsumerWidget {
   })  : config = MjpegConfig(feedUri, timeout, headers, targetFps, camMode),
         super(key: key);
 
-  final List<Widget> stackChildren;
+  final Widget? stackChild;
   final Matrix4? transform;
   final BoxFit? fit;
   final double? width;
@@ -89,7 +91,7 @@ class Mjpeg extends ConsumerWidget {
                           )),
                     ),
                   ),
-                ...stackChildren
+                if (stackChild != null) stackChild!
               ],
             ),
           );
@@ -218,6 +220,25 @@ class MjpegConfig {
   final Map<String, String> headers;
   final int targetFps;
   final WebCamMode mode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MjpegConfig &&
+          runtimeType == other.runtimeType &&
+          feedUri == other.feedUri &&
+          timeout == other.timeout &&
+          mapEquals(headers, other.headers) &&
+          targetFps == other.targetFps &&
+          mode == other.mode;
+
+  @override
+  int get hashCode =>
+      feedUri.hashCode ^
+      timeout.hashCode ^
+      headers.hashCode ^
+      targetFps.hashCode ^
+      mode.hashCode;
 }
 
 // feedUri, timeout, headers, targetFps, camMode
