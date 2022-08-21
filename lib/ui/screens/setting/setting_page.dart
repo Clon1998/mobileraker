@@ -229,9 +229,9 @@ class _ThemeSelector extends ConsumerWidget {
 
     List<ThemePack> themeList = themeService.themePacks;
     return FormBuilderDropdown(
-      initialValue: ref.watch(activeThemeProvider.select(
-        (value) => value.valueOrFullNull!.themePack,
-      )),
+      initialValue: ref.watch(activeThemeProvider.selectAs(
+        (value) => value.themePack,
+      )).valueOrFullNull!,
       name: 'theme',
       items: themeList
           .map((theme) =>

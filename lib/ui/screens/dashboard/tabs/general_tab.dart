@@ -423,10 +423,10 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
     var extruderCnt = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.printerData.extruderCount));
 
-    int sensorsCnt = ref.watch(machinePrinterKlippySettingsProvider.select(
-        (value) => value.valueOrFullNull!.printerData.temperatureSensors
+    int sensorsCnt = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
+        (value) => value.printerData.temperatureSensors
             .where((e) => !e.name.startsWith('_'))
-            .length));
+            .length)).valueOrFullNull!;
 
     return AdaptiveHorizontalScroll(
       pageStorageKey: "temps",
@@ -436,9 +436,9 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
         ...List.generate(
             sensorsCnt,
             (index) => _SensorCard(
-                sensorProvider: machinePrinterKlippySettingsProvider.select(
+                sensorProvider: machinePrinterKlippySettingsProvider.selectAs(
                     (value) => value
-                        .valueOrFullNull!.printerData.temperatureSensors
+                        .printerData.temperatureSensors
                         .where((element) => !element.name.startsWith('_'))
                         .elementAt(index))))
       ],
@@ -515,11 +515,11 @@ class _HeatedBedCard extends HookConsumerWidget {
 
 class _SensorCard extends HookConsumerWidget {
   const _SensorCard({Key? key, required this.sensorProvider}) : super(key: key);
-  final ProviderListenable<TemperatureSensor> sensorProvider;
+  final ProviderListenable<AsyncValue<TemperatureSensor>> sensorProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TemperatureSensor temperatureSensor = ref.watch(sensorProvider);
+    TemperatureSensor temperatureSensor = ref.watch(sensorProvider).valueOrFullNull!;
 
     var spots = useState(<FlSpot>[]);
     var temperatureHistory = temperatureSensor.temperatureHistory;

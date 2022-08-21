@@ -142,17 +142,20 @@ final extruderControlCardControllerProvider =
 class ExtruderControlCardController extends StateNotifier<int> {
   ExtruderControlCardController(this.ref)
       : printerService = ref.watch(printerServiceSelectedProvider),
-        steps = ref.watch(machinePrinterKlippySettingsProvider
-            .select((value) => value.valueOrFullNull!.settings.extrudeSteps)),
-        extruderFeedrate = ref.watch(
-            machinePrinterKlippySettingsProvider.select((value) =>
-                value.valueOrFullNull!.settings.extrudeFeedrate.toDouble())),
         super(0);
 
   final AutoDisposeRef ref;
   final PrinterService printerService;
-  final List<int> steps;
-  final double extruderFeedrate;
+
+  List<int> get steps => ref
+      .watch(machinePrinterKlippySettingsProvider
+          .selectAs((value) => value.settings.extrudeSteps))
+      .valueOrFullNull!;
+
+  double get extruderFeedrate => ref
+      .watch(machinePrinterKlippySettingsProvider
+          .selectAs((value) => value.settings.extrudeFeedrate.toDouble()))
+      .valueOrFullNull!;
 
   stepChanged(int idx) => state = idx;
 

@@ -32,6 +32,8 @@ class ControlTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+
     return ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((data) => true))
         .when(
@@ -41,19 +43,19 @@ class ControlTab extends ConsumerWidget {
                   key: const PageStorageKey<String>('cTab'),
                   padding: const EdgeInsets.only(bottom: 20),
                   children: [
-                    if (ref.watch(machinePrinterKlippySettingsProvider.select(
-                        (value) => value
-                            .valueOrFullNull!.settings.macroGroups.isNotEmpty)))
+                    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs(
+                            (value) => value.settings.macroGroups.isNotEmpty
+                    )).valueOrFullNull!)
                       const GcodeMacroCard(),
-                    if (ref.watch(machinePrinterKlippySettingsProvider.select(
+                    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs(
                         (value) =>
-                            value.valueOrFullNull!.printerData.print.state !=
-                            PrintState.printing)))
+                            value.printerData.print.state !=
+                            PrintState.printing)).valueOrFullNull!)
                       const ExtruderControlCard(),
                     const FansCard(),
-                    if (ref.watch(machinePrinterKlippySettingsProvider.select(
-                        (value) => value.valueOrFullNull!.printerData.outputPins
-                            .isNotEmpty)))
+                    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs(
+                        (value) => value.printerData.outputPins
+                            .isNotEmpty)).valueOrFullNull!)
                       const PinsCard(),
                     const MultipliersCard(),
                     const LimitsCard(),
@@ -109,10 +111,10 @@ class FansCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var fanLen = ref.watch(machinePrinterKlippySettingsProvider.select(
-        (value) => value.valueOrFullNull!.printerData.fans
+    var fanLen = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
+        (value) => value.printerData.fans
             .where((element) => !element.name.startsWith('_'))
-            .length));
+            .length)).valueOrFullNull!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
@@ -128,8 +130,8 @@ class FansCard extends ConsumerWidget {
             AdaptiveHorizontalScroll(pageStorageKey: 'fans', children: [
               const _PrintFan(),
               ...List.generate(fanLen, (index) {
-                var fanProvider = machinePrinterKlippySettingsProvider.select(
-                    (value) => value.valueOrFullNull!.printerData.fans
+                var fanProvider = machinePrinterKlippySettingsProvider.selectAs(
+                    (value) => value.printerData.fans
                         .where((element) => !element.name.startsWith('_'))
                         .elementAt(index));
 
@@ -151,10 +153,10 @@ class _PrintFan extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var fan = ref.watch(machinePrinterKlippySettingsProvider
-        .select((value) => value.valueOrFullNull!.printerData.printFan));
+        .selectAs((value) => value.printerData.printFan)).valueOrFullNull!;
     var klippyCanReceiveCommands = ref.watch(
-        machinePrinterKlippySettingsProvider.select((value) =>
-            value.valueOrFullNull!.klippyData.klippyCanReceiveCommands));
+        machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.klippyData.klippyCanReceiveCommands)).valueOrFullNull!;
 
     return _FanCard(
       name: 'pages.dashboard.control.fan_card.part_fan'.tr(),
@@ -170,14 +172,14 @@ class _PrintFan extends ConsumerWidget {
 class _Fan extends ConsumerWidget {
   const _Fan({Key? key, required this.fanProvider}) : super(key: key);
 
-  final ProviderListenable<NamedFan> fanProvider;
+  final ProviderListenable<AsyncValue<NamedFan>> fanProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var fan = ref.watch(fanProvider);
+    var fan = ref.watch(fanProvider).valueOrFullNull!;
     var klippyCanReceiveCommands = ref.watch(
-        machinePrinterKlippySettingsProvider.select((value) =>
-            value.valueOrFullNull!.klippyData.klippyCanReceiveCommands));
+        machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.klippyData.klippyCanReceiveCommands)).valueOrFullNull!;
     return _FanCard(
       name: beautifyName(fan.name),
       speed: fan.speed,
@@ -264,32 +266,32 @@ class ExtruderControlCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var activeExtruderIdx =
-        ref.watch(machinePrinterKlippySettingsProvider.select((value) {
+        ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) {
       String activeIdx = value
-          .valueOrFullNull!.printerData.toolhead.activeExtruder
+          .printerData.toolhead.activeExtruder
           .substring(8);
       return int.tryParse(activeIdx) ?? 0;
-    }));
+    })).valueOrFullNull!;
 
-    var minExtrudeTemp = ref.watch(machinePrinterKlippySettingsProvider.select(
+    var minExtrudeTemp = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
         (value) =>
-            value.valueOrFullNull!.printerData.configFile
+            value.printerData.configFile
                 .extruderForIndex(activeExtruderIdx)
                 ?.minExtrudeTemp ??
-            170));
+            170)).valueOrFullNull!;
 
-    var canExtrude = ref.watch(machinePrinterKlippySettingsProvider.select(
+    var canExtrude = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
         (value) =>
-            value.valueOrFullNull!.printerData.extruders[activeExtruderIdx]
+            value.printerData.extruders[activeExtruderIdx]
                 .temperature >=
-            minExtrudeTemp));
+            minExtrudeTemp)).valueOrFullNull!;
 
     var klippyCanReceiveCommands = ref.watch(
-        machinePrinterKlippySettingsProvider.select((value) =>
-            value.valueOrFullNull!.klippyData.klippyCanReceiveCommands));
+        machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.klippyData.klippyCanReceiveCommands)).valueOrFullNull!;
 
     var extruderSteps = ref.watch(machinePrinterKlippySettingsProvider
-        .select((value) => value.valueOrFullNull!.settings.extrudeSteps));
+        .selectAs((value) => value.settings.extrudeSteps)).valueOrFullNull!;
 
     return Card(
       child: Column(
@@ -318,9 +320,9 @@ class ExtruderControlCard extends HookConsumerWidget {
                 )
               ],
             ),
-            trailing: (ref.watch(machinePrinterKlippySettingsProvider.select(
+            trailing: (ref.watch(machinePrinterKlippySettingsProvider.selectAs(
                     (value) =>
-                        value.valueOrFullNull!.printerData.extruderCount > 1)))
+                        value.printerData.extruderCount > 1)).valueOrFullNull!)
                 ? DropdownButton(
                     value: activeExtruderIdx,
                     onChanged: klippyCanReceiveCommands
@@ -329,9 +331,9 @@ class ExtruderControlCard extends HookConsumerWidget {
                             .onExtruderSelected
                         : null,
                     items: List.generate(
-                        ref.watch(machinePrinterKlippySettingsProvider.select(
-                            (value) => value.valueOrFullNull!.printerData
-                                .extruderCount)), (index) {
+                        ref.watch(machinePrinterKlippySettingsProvider.selectAs(
+                            (value) => value.printerData
+                                .extruderCount)).valueOrFullNull!, (index) {
                       String name =
                           tr('pages.dashboard.control.extrude_card.title');
                       if (index > 0) name += ' $index';
@@ -419,16 +421,16 @@ class GcodeMacroCard extends HookConsumerWidget {
     logger.w('GcodeMacroCard Build');
 
     var klippyCanReceiveCommands = ref.watch(
-        machinePrinterKlippySettingsProvider.select((value) =>
-            value.valueOrFullNull!.klippyData.klippyCanReceiveCommands));
+        machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.klippyData.klippyCanReceiveCommands)).valueOrFullNull!;
 
     var macroGroups = ref.watch(machinePrinterKlippySettingsProvider
-        .select((value) => value.valueOrFullNull!.settings.macroGroups));
+        .selectAs((value) => value.settings.macroGroups)).valueOrFullNull!;
 
-    var isPrinting = ref.watch(machinePrinterKlippySettingsProvider.select(
+    var isPrinting = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
         (value) =>
-            value.valueOrFullNull!.printerData.print.state ==
-            PrintState.printing));
+            value.printerData.print.state ==
+            PrintState.printing)).valueOrFullNull!;
 
     int idx = min(
         macroGroups.length - 1,
@@ -485,9 +487,9 @@ class GcodeMacroCard extends HookConsumerWidget {
                         (isPrinting && !macro.showWhilePrinting));
                     return Visibility(
                       visible: ref.watch(machinePrinterKlippySettingsProvider
-                              .select((value) => value
-                                  .valueOrFullNull!.printerData.gcodeMacros
-                                  .contains(macro.name))) &&
+                              .selectAs((value) => value
+                                  .printerData.gcodeMacros
+                                  .contains(macro.name))).valueOrFullNull! &&
                           macro.visible,
                       child: ActionChip(
                         label: Text(macro.beautifiedName),
@@ -519,10 +521,10 @@ class PinsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var pinLen = ref.watch(machinePrinterKlippySettingsProvider.select(
-        (value) => value.valueOrFullNull!.printerData.outputPins
+    var pinLen = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
+        (value) => value.printerData.outputPins
             .where((element) => !element.name.startsWith('_'))
-            .length));
+            .length)).valueOrFullNull!;
     logger.w('PinsCard');
     return Card(
       child: Padding(
@@ -539,8 +541,8 @@ class PinsCard extends ConsumerWidget {
             AdaptiveHorizontalScroll(
               pageStorageKey: 'pins',
               children: List.generate(pinLen, (index) {
-                var pinProvider = machinePrinterKlippySettingsProvider.select(
-                    (value) => value.valueOrFullNull!.printerData.outputPins
+                var pinProvider = machinePrinterKlippySettingsProvider.selectAs(
+                    (value) => value.printerData.outputPins
                         .where((element) => !element.name.startsWith('_'))
                         .elementAt(index));
 
@@ -556,7 +558,7 @@ class PinsCard extends ConsumerWidget {
 
 class _PinTile extends ConsumerWidget {
   const _PinTile({Key? key, required this.pinProvider}) : super(key: key);
-  final ProviderListenable<OutputPin> pinProvider;
+  final ProviderListenable<AsyncValue<OutputPin>> pinProvider;
 
   String pinValue(double v) {
     if (v > 0) return NumberFormat('0.##').format(v);
@@ -566,13 +568,13 @@ class _PinTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var pin = ref.watch(pinProvider);
+    var pin = ref.watch(pinProvider).valueOrFullNull!;
     var pinConfig = ref.watch(machinePrinterKlippySettingsProvider.select(
         (value) =>
             value.valueOrFullNull?.printerData.configFile.outputs[pin.name]));
     var klippyCanReceiveCommands = ref.watch(
-        machinePrinterKlippySettingsProvider.select((value) =>
-            value.valueOrFullNull!.klippyData.klippyCanReceiveCommands));
+        machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.klippyData.klippyCanReceiveCommands)).valueOrFullNull!;
 
     return CardWithButton(
         buttonChild: const Text('general.set').tr(),
@@ -605,8 +607,8 @@ class MultipliersCard extends HookConsumerWidget {
     var inputLocked = useState(true);
 
     var klippyCanReceiveCommands = ref.watch(
-        machinePrinterKlippySettingsProvider.select((value) =>
-            value.valueOrFullNull!.klippyData.klippyCanReceiveCommands));
+        machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.klippyData.klippyCanReceiveCommands)).valueOrFullNull!;
 
     return Card(
       child: Column(
@@ -707,8 +709,8 @@ class LimitsCard extends HookConsumerWidget {
     var inputLocked = useState(true);
 
     var klippyCanReceiveCommands = ref.watch(
-        machinePrinterKlippySettingsProvider.select((value) =>
-            value.valueOrFullNull!.klippyData.klippyCanReceiveCommands));
+        machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.klippyData.klippyCanReceiveCommands)).valueOrFullNull!;
 
     return Card(
       child: Column(

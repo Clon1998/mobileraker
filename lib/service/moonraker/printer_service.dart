@@ -403,8 +403,6 @@ class PrinterService {
       }
     } catch (e, s) {
       logger.e('Error while parsing $key object', e, s);
-      logger.e(e);
-      logger.e(s);
       _printerStreamCtler.addError(e, s);
       _showExceptionSnackbar(e, s);
     }
@@ -992,7 +990,7 @@ class PrinterService {
   }
 
   void _showExceptionSnackbar(Object e, StackTrace s) {
-    logger.e("Should show Exception Snackbar!", e, s);
+    // logger.e("Should show Exception Snackbar!", e, s);
     // ToDo: add Snackbar again!
     // _snackBarService.showCustomSnackBar(
     //     variant: SnackbarType.error,

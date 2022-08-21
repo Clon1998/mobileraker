@@ -15,9 +15,9 @@ class HomedAxisChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int homedAxisCnt = ref.watch(machinePrinterKlippySettingsProvider.select(
+    int homedAxisCnt = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
         (value) =>
-            value.valueOrFullNull!.printerData.toolhead.homedAxes.length));
+            value.printerData.toolhead.homedAxes.length)).valueOrFullNull!;
 
     return Chip(
       avatar: Icon(
