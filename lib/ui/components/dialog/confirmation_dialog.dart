@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:stringr/stringr.dart';
 
 class ConfirmationDialog extends StatelessWidget {
   const ConfirmationDialog(
@@ -30,12 +31,12 @@ class ConfirmationDialog extends StatelessWidget {
           onPressed: () => completer(DialogResponse()),
           child: Text(
               dialogRequest.cancelBtn ??
-                  MaterialLocalizations.of(context).cancelButtonLabel,
+                  MaterialLocalizations.of(context).cancelButtonLabel.toLowerCase().capitalize(),
               style: TextStyle(color: dialogRequest.cancelBtnColor)),
         ),
         TextButton(
             onPressed: () => completer(DialogResponse.confirmed()),
-            child: Text(dialogRequest.confirmBtn ?? 'CONFIRM',
+            child: Text(dialogRequest.confirmBtn ?? 'Confirm',
                 style: TextStyle(color: dialogRequest.confirmBtnColor))),
       ],
     );

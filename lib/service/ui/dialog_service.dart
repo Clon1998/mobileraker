@@ -7,10 +7,20 @@ import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 
 final dialogServiceProvider = Provider((ref) => DialogService(ref));
 
-enum DialogType { confirm, importSettings, numEdit, rangeEdit, excludeObject }
+enum DialogType {
+  confirm,
+  importSettings,
+  numEdit,
+  rangeEdit,
+  excludeObject,
+  stacktrace,
+  renameFile
+}
 
 typedef DialogCompleter = Function(DialogResponse);
 
@@ -32,7 +42,9 @@ class DialogService {
     DialogType.excludeObject: (r, c) => ExcludeObjectDialog(
           request: r,
           completer: c,
-        )
+        ),
+    DialogType.stacktrace: (r, c) => StackTraceDialog(request: r, completer: c),
+    DialogType.renameFile: (r,c) => RenameFileDialog(request: r, completer: c)
   };
 
   Future<DialogResponse?> showConfirm({

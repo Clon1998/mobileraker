@@ -622,7 +622,7 @@ class MultipliersCard extends HookConsumerWidget {
                 onPressed: klippyCanReceiveCommands
                     ? () => inputLocked.value = !inputLocked.value
                     : null,
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
                 icon: AnimatedSwitcher(
                   duration: kThemeAnimationDuration,
                   transitionBuilder: (child, anim) => RotationTransition(
@@ -720,7 +720,7 @@ class LimitsCard extends HookConsumerWidget {
             leading: const Icon(Icons.tune),
             title: const Text('pages.dashboard.control.limit_card.title').tr(),
             trailing: IconButton(
-                color: Theme.of(context).colorScheme.secondary,
+                color: Theme.of(context).colorScheme.primary,
                 onPressed: (klippyCanReceiveCommands)
                     ? () => inputLocked.value = !inputLocked.value
                     : null,

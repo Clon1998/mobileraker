@@ -32,6 +32,7 @@ import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
@@ -65,7 +66,7 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(name:'printe
 
 class PrinterService {
   PrinterService(AutoDisposeRef ref, String machineUUID)
-      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
+      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)), _snackBarService = ref.watch(snackBarServiceProvider) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
@@ -89,16 +90,13 @@ class PrinterService {
       });
     });
   }
+  final SnackBarService _snackBarService;
 
   final JsonRpcClient _jRpcClient;
 
   final StreamController<Printer> _printerStreamCtler = StreamController();
 
   Stream<Printer> get printerStream => _printerStreamCtler.stream;
-
-  // final _snackBarService = locator<SnackbarService>();
-  // final _dialogService = locator<DialogService>();
-  // final _machineService = locator<MachineService>();
 
   /// This map defines how different printerObjects will be parsed
   /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
@@ -992,6 +990,12 @@ class PrinterService {
   void _showExceptionSnackbar(Object e, StackTrace s) {
     // logger.e("Should show Exception Snackbar!", e, s);
     // ToDo: add Snackbar again!
+    _snackBarService.show(SnackBarConfig(
+      type: SnackbarType.error,
+      title: 'Refresh Printer Error',
+      body: 'Could not parse: $e'
+    ));
+
     // _snackBarService.showCustomSnackBar(
     //     variant: SnackbarType.error,
     //     duration: const Duration(seconds: 20),

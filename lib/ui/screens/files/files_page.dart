@@ -3,25 +3,19 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
-import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -344,8 +338,9 @@ class _BreadCrumb extends ConsumerWidget {
               iconSize: 20,
               color: theme.colorScheme.onPrimary,
               icon: const Icon(Icons.create_new_folder_outlined),
-              onPressed: null,
-              // onPressed: () => model.onCreateDirTapped(context),
+              onPressed: ref
+                  .watch(filesListControllerProvider.notifier)
+                  .onCreateDirTapped,
             )
           ],
         ),
@@ -477,20 +472,26 @@ class _Slideable extends ConsumerWidget {
         children: [
           SlidableAction(
             // An action can be bigger than the others.
-            // onPressed: (c) => (isFolder)
-            //     ? model.onRenameDirTapped(c, fileName)
-            //     : model.onRenameFileTapped(c, fileName),
-            onPressed: null,
+            onPressed: (c) => (isFolder)
+                ? ref
+                    .watch(filesListControllerProvider.notifier)
+                    .onRenameDirTapped(fileName)
+                : ref
+                    .watch(filesListControllerProvider.notifier)
+                    .onRenameFileTapped(fileName),
             backgroundColor: themeData.colorScheme.secondaryContainer,
             foregroundColor: themeData.colorScheme.onSecondaryContainer,
             icon: Icons.drive_file_rename_outline,
             label: 'Rename',
           ),
           SlidableAction(
-            onPressed: null,
-            // onPressed: (c) => (isFolder)
-            //     ? model.onDeleteDirTapped(c, fileName)
-            //     : model.onDeleteFileTapped(c, fileName),
+            onPressed: (c) => (isFolder)
+                ? ref
+                    .read(filesListControllerProvider.notifier)
+                    .onDeleteDirTapped(MaterialLocalizations.of(c), fileName)
+                : ref
+                    .read(filesListControllerProvider.notifier)
+                    .onDeleteFileTapped(MaterialLocalizations.of(c), fileName),
             backgroundColor: themeData.colorScheme.secondaryContainer.darken(5),
             foregroundColor: themeData.colorScheme.onSecondaryContainer,
             icon: Icons.delete_outline,

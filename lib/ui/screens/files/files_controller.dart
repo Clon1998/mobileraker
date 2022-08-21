@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
@@ -9,13 +11,13 @@ import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/util/path_utils.dart';
-import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 final filePageProvider = StateProvider.autoDispose<int>((ref) => 0);
 
 final isSearchingProvider = StateProvider.autoDispose<bool>((ref) => false);
-
 
 final searchTextEditingControllerProvider =
     ChangeNotifierProvider.autoDispose<TextEditingController>(
@@ -145,6 +147,163 @@ class FilesPageController extends StateNotifier<FilePageState> {
     }
     return true;
   }
+
+  onDeleteFileTapped(
+      MaterialLocalizations materialLocalizations, String fileName) async {
+    var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
+          title: tr('dialogs.delete_folder.title'),
+          body: tr('dialogs.delete_file.description', args: [fileName]),
+          confirmBtn: materialLocalizations.deleteButtonTooltip,
+        );
+
+    if (dialogResponse?.confirmed == true) {
+      state = FilePageState.loading(state.path);
+      try {
+        await ref
+            .read(fileServiceSelectedProvider)
+            .deleteFile('$pathAsString/$fileName');
+      } on JRpcError catch (e) {
+        //TODO:
+        // ref.read(snackBarServiceProvider).show(
+        //     variant: SnackbarType.error,
+        //     duration: const Duration(seconds: 5),
+        //     title: 'Error',
+        //     message: 'Could not perform rename.\n${e.message}');
+      } finally {
+        fetchDirectoryData(state.path, true);
+      }
+    }
+  }
+
+  onDeleteDirTapped(
+      MaterialLocalizations materialLocalizations, String folder) async {
+    var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
+          title: tr('dialogs.delete_folder.title'),
+          body: tr('dialogs.delete_folder.description', args: [folder]),
+          confirmBtn: materialLocalizations.deleteButtonTooltip,
+        );
+
+    if (dialogResponse?.confirmed == true) {
+      state = FilePageState.loading(state.path);
+      try {
+        await ref
+            .read(fileServiceSelectedProvider)
+            .deleteDirForced('$pathAsString/$folder');
+      } on JRpcError catch (e) {
+        //TODO:
+        // _snackBarService.showCustomSnackBar(
+        //     variant: SnackbarType.error,
+        //     duration: const Duration(seconds: 5),
+        //     title: 'Error',
+        //     message: 'Could not perform rename.\n${e.message}');
+      } finally {
+        fetchDirectoryData(state.path, true);
+      }
+    }
+  }
+
+  onRenameFileTapped(String fileName) async {
+    var folderContentWrapper = state.apiResult.value!;
+    List<String> fileNames = [];
+    fileNames.addAll(folderContentWrapper.folders.map((e) => e.name));
+    fileNames.addAll(folderContentWrapper.files.map((e) => e.name));
+    fileNames.remove(fileName);
+
+    var dialogResponse = await ref.read(dialogServiceProvider).show(
+          DialogRequest(
+              type: DialogType.renameFile,
+              title: tr('dialogs.rename_file.title'),
+              body: tr('dialogs.rename_file.label'),
+              confirmBtn: tr('general.rename'),
+              data: RenameFileDialogArguments(
+                  initialValue: fileName,
+                  blocklist: fileNames,
+                  matchPattern: '^[\\w.#+_\\- ]+\$')),
+        );
+
+    _handleRenameResult(dialogResponse, fileName);
+  }
+
+  onRenameDirTapped(String fileName) async {
+    var folderContentWrapper = state.apiResult.value!;
+    List<String> fileNames = [];
+    fileNames.addAll(folderContentWrapper.folders.map((e) => e.name));
+    fileNames.addAll(folderContentWrapper.files.map((e) => e.name));
+    fileNames.remove(fileName);
+
+    var dialogResponse = await ref.read(dialogServiceProvider).show(
+          DialogRequest(
+              type: DialogType.renameFile,
+              title: tr('dialogs.rename_folder.title'),
+              body: tr('dialogs.rename_folder.label'),
+              confirmBtn: tr('general.rename'),
+              data: RenameFileDialogArguments(
+                  initialValue: fileName,
+                  blocklist: fileNames,
+                  matchPattern: '^[\\w.-]+\$')),
+        );
+    _handleRenameResult(dialogResponse, fileName);
+  }
+
+  _handleRenameResult(
+      DialogResponse? dialogResponse, String originalName) async {
+    if (dialogResponse?.confirmed == true) {
+      state = FilePageState.loading(state.path);
+      String newName = dialogResponse!.data;
+      if (newName == originalName) return;
+
+      try {
+        await ref
+            .read(fileServiceSelectedProvider)
+            .moveFile('$pathAsString/$originalName', '$pathAsString/$newName');
+      } on JRpcError catch (e) {
+        // _snackBarService.showCustomSnackBar(
+        //     variant: SnackbarType.error,
+        //     duration: const Duration(seconds: 5),
+        //     title: 'Error',
+        //     message: 'Could not perform rename.\n${e.message}');
+      } finally {
+        fetchDirectoryData(state.path, true);
+      }
+    }
+  }
+
+  onCreateDirTapped() async {
+    if (state.apiResult.isLoading) return;
+
+    var dialogResponse = await ref.read(dialogServiceProvider).show(
+          DialogRequest(
+              type: DialogType.renameFile,
+              title: tr('dialogs.create_folder.title'),
+              body: tr('dialogs.create_folder.label'),
+              confirmBtn: tr('general.create'),
+              data: RenameFileDialogArguments(
+                  initialValue: '',
+                  blocklist: state.apiResult.value!.folders
+                      .map((e) => e.name)
+                      .toList(growable: false),
+                  matchPattern: '^[\\w.\\-]+\$')),
+        );
+
+    if (dialogResponse?.confirmed == true) {
+      state = FilePageState.loading(state.path);
+      String newName = dialogResponse!.data;
+
+      try {
+        await ref
+            .read(fileServiceSelectedProvider)
+            .createDir('$pathAsString/$newName');
+      } on JRpcError catch (e) {
+        // _snackBarService.showCustomSnackBar(
+        //     variant: SnackbarType.error,
+        //     duration: const Duration(seconds: 5),
+        //     title: 'Error',
+        //     message: 'Could not create folder!\n${e.message}');
+      } finally {
+        fetchDirectoryData(state.path, true);
+      }
+    }
+  }
 }
 
 class FilePageState {
@@ -187,425 +346,3 @@ enum FileSort {
   final Comparator<RemoteFile>? comparatorFile;
   final Comparator<Folder>? comparatorFolder;
 }
-
-//
-// class FilesViewModel extends MultipleStreamViewModel
-//     with SelectedMachineMixin, KlippyMixin {
-//   final _logger = getLogger('FilesViewModel');
-//
-//   final _dialogService = locator<DialogService>();
-//   final _navigationService = locator<NavigationService>();
-//   final _snackBarService = locator<SnackbarService>();
-//
-//   bool isSearching = false;
-//
-//   int currentPageIndex = 0;
-//
-//   int currentComparatorIndex = 0;
-//
-//   final List<Comparator<Folder>?> folderComparators = [
-//     (folderA, folderB) => folderB.modified.compareTo(folderA.modified),
-//     (folderA, folderB) => folderA.name.compareTo(folderB.name),
-//     null,
-//   ];
-//
-//   late final List<Comparator<RemoteFile>?> fileComparators = [
-//     _comparatorModified,
-//     _comparatorName,
-//     _comparatorPrintStart
-//   ];
-//
-//   final RefreshController refreshController =
-//       RefreshController(initialRefresh: false);
-//
-//   final TextEditingController searchEditingController = TextEditingController();
-//
-//   final StreamController<FolderContentWrapper> _folderContentStreamController =
-//       BehaviorSubject<FolderContentWrapper>();
-//
-//   String get requestedPathAsString => requestedPath.join('/');
-//   List<String> requestedPath = [];
-//
-//   Map<int, List<String>> pageStoredPaths = {};
-//
-//   @override
-//   Map<String, StreamData> get streamsMap => {
-//         ...super.streamsMap,
-//         _FolderContentStreamKey: StreamData<FolderContentWrapper>(
-//             _folderContentStreamController.stream),
-//         if (isSelectedMachineReady) ...{
-//           _FileNotification:
-//               StreamData<FileApiResponse>(fileService.fileNotificationStream)
-//         }
-//       };
-//
-//   bool get isFolderContentReady => dataReady(_FolderContentStreamKey);
-//
-//   FolderContentWrapper get _folderContent => dataMap![_FolderContentStreamKey];
-//
-//   FolderContentWrapper get folderContent {
-//     FolderContentWrapper fullContent = _folderContent;
-//     List<Folder> folders = _folderContent.folders.toList(growable: false);
-//     List<RemoteFile> files = _folderContent.files.toList(growable: false);
-//
-//     String queryTerm = searchEditingController.text.toLowerCase();
-//
-//     if (queryTerm.isNotEmpty && isSearching) {
-//       List<String> terms = queryTerm.split(RegExp('\\W+'));
-//       // RegExp regExp =
-//       //     RegExp(terms.where((element) => element.isNotEmpty).join("|"));
-//       folders = folders
-//           .where((element) =>
-//               terms.every((t) => element.name.toLowerCase().contains(t)))
-//           .toList(growable: false);
-//
-//       files = files
-//           .where((element) =>
-//               terms.every((t) => element.name.toLowerCase().contains(t)))
-//           .toList(growable: false);
-//     }
-//     var folderComparator = folderComparators[currentComparatorIndex];
-//     if (folderComparator != null) folders.sort(folderComparator);
-//     files.sort(fileComparators[currentComparatorIndex]);
-//
-//     return FolderContentWrapper(fullContent.reqPath, folders, files);
-//   }
-//
-//   bool get isSubFolder => folderContent.reqPath.split('/').length > 1;
-//
-//   String? get curPathToPrinterUrl {
-//     if (isSelectedMachineReady) {
-//       return '${selectedMachine!.httpUrl}/server/files';
-//     }
-//     return null;
-//   }
-//
-//   startSearching() {
-//     isSearching = true;
-//     notifyListeners();
-//   }
-//
-//   stopSearching() {
-//     isSearching = false;
-//     notifyListeners();
-//   }
-//
-//   resetSearchQuery() {
-//     searchEditingController.text = '';
-//     notifyListeners();
-//   }
-//
-//   handleFileListChanged(FileApiResponse fileListChangedNotification) {
-//     _logger.i('CrntPath: $requestedPathAsString');
-//     _logger.i('$fileListChangedNotification');
-//
-//     FileNotificationItem item = fileListChangedNotification.item;
-//     var itemWithInLevel = isWithin(requestedPathAsString, item.fullPath);
-//
-//     FileNotificationSourceItem? srcItem =
-//         fileListChangedNotification.sourceItem;
-//     var srcItemWithInLevel =
-//         isWithin(requestedPathAsString, srcItem?.fullPath ?? '');
-//
-//     if (itemWithInLevel != 0 && srcItemWithInLevel != 0) {
-//       return;
-//     }
-//
-//     _busyFetchDirectoryData(newPath: requestedPath);
-//   }
-//
-//   initialise() {
-//     super.initialise();
-//     if (isSelectedMachineReady) _fetchDirectoryData();
-//   }
-//
-//   @override
-//   onData(String key, data) {
-//     super.onData(key, data);
-//     switch (key) {
-//       case _FileNotification:
-//         handleFileListChanged(data);
-//         break;
-//       default:
-//         break;
-//     }
-//   }
-//
-//   onBottomItemTapped(int index) {
-//     if (index == currentPageIndex) return;
-//
-//     if (requestedPath.isNotEmpty)
-//       pageStoredPaths[currentPageIndex] = requestedPath;
-//     currentPageIndex = index;
-//     List<String>? newPath =
-//         (pageStoredPaths.containsKey(index)) ? pageStoredPaths[index] : null;
-//     currentComparatorIndex = 0;
-//     switch (index) {
-//       case 0:
-//         newPath ??= const ['gcodes'];
-//         break;
-//       case 1:
-//         newPath ??= const ['config'];
-//         break;
-//       default:
-//       // Do nothing
-//     }
-//
-//     _busyFetchDirectoryData(newPath: newPath!);
-//   }
-//
-//   onCreateDirTapped(BuildContext context) async {
-//     DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
-//         variant: DialogType.renameFile,
-//         title: tr('dialogs.create_folder.title'),
-//         description: tr('dialogs.create_folder.label'),
-//         mainButtonTitle: tr('general.create'),
-//         secondaryButtonTitle: MaterialLocalizations.of(context)
-//             .cancelButtonLabel
-//             .toLowerCase()
-//             .titleCase(),
-//         data: RenameFileDialogArguments(
-//             blocklist: _folderContent.folders
-//                 .map((e) => e.name)
-//                 .toList(growable: false),
-//             initialValue: '',
-//             matchPattern: '^[\\w.\\-]+\$'));
-//     if (dialogResponse?.confirmed ?? false) {
-//       String folderName = dialogResponse!.data;
-//
-//       setBusyForObject(this, true);
-//       notifyListeners();
-//       try {
-//         await fileService.createDir('$requestedPathAsString/$folderName');
-//       } on JRpcError catch (e) {
-//         _snackBarService.showCustomSnackBar(
-//             variant: SnackbarType.error,
-//             duration: const Duration(seconds: 5),
-//             title: 'Error',
-//             message: 'Could not create folder!\n${e.message}');
-//         setBusyForObject(this, false);
-//         notifyListeners();
-//       }
-//     }
-//   }
-//
-//   onDeleteFileTapped(BuildContext context, String fileName) async {
-//     var materialLocalizations = MaterialLocalizations.of(context);
-//     DialogResponse? dialogResponse =
-//         await _dialogService.showConfirmationDialog(
-//             title: tr('dialogs.delete_folder.title'),
-//             description:
-//                 tr('dialogs.delete_file.description', args: [fileName]),
-//             dialogPlatform: DialogPlatform.Material,
-//             confirmationTitle: materialLocalizations.deleteButtonTooltip,
-//             cancelTitle: materialLocalizations.cancelButtonLabel
-//                 .toLowerCase()
-//                 .titleCase());
-//
-//     if (dialogResponse?.confirmed ?? false) {
-//       setBusyForObject(this, true);
-//       notifyListeners();
-//       try {
-//         await fileService.deleteFile('$requestedPathAsString/$fileName');
-//       } on JRpcError catch (e) {
-//         _snackBarService.showCustomSnackBar(
-//             variant: SnackbarType.error,
-//             duration: const Duration(seconds: 5),
-//             title: 'Error',
-//             message: 'Could not perform rename.\n${e.message}');
-//         setBusyForObject(this, false);
-//         notifyListeners();
-//       }
-//     }
-//   }
-//
-//   onDeleteDirTapped(BuildContext context, String fileName) async {
-//     var materialLocalizations = MaterialLocalizations.of(context);
-//     DialogResponse? dialogResponse =
-//         await _dialogService.showConfirmationDialog(
-//             title: tr('dialogs.delete_folder.title'),
-//             description:
-//                 tr('dialogs.delete_folder.description', args: [fileName]),
-//             dialogPlatform: DialogPlatform.Material,
-//             confirmationTitle: materialLocalizations.deleteButtonTooltip,
-//             cancelTitle: materialLocalizations.cancelButtonLabel
-//                 .toLowerCase()
-//                 .titleCase());
-//
-//     if (dialogResponse?.confirmed ?? false) {
-//       setBusyForObject(this, true);
-//       notifyListeners();
-//       try {
-//         await fileService.deleteDirForced('$requestedPathAsString/$fileName');
-//       } on JRpcError catch (e) {
-//         _snackBarService.showCustomSnackBar(
-//             variant: SnackbarType.error,
-//             duration: const Duration(seconds: 5),
-//             title: 'Error',
-//             message: 'Could not perform rename.\n${e.message}');
-//         setBusyForObject(this, false);
-//         notifyListeners();
-//       }
-//     }
-//   }
-//
-//   onRenameFileTapped(BuildContext context, String fileName) async {
-//     List<String> fileNames = [];
-//     fileNames.addAll(_folderContent.folders.map((e) => e.name));
-//     fileNames.addAll(_folderContent.files.map((e) => e.name));
-//     fileNames.remove(fileName);
-//
-//     DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
-//         variant: DialogType.renameFile,
-//         title: tr('dialogs.rename_file.title'),
-//         description: tr('dialogs.rename_file.label'),
-//         mainButtonTitle: tr('general.rename'),
-//         secondaryButtonTitle: MaterialLocalizations.of(context)
-//             .cancelButtonLabel
-//             .toLowerCase()
-//             .titleCase(),
-//         data: RenameFileDialogArguments(
-//             initialValue: fileName,
-//             blocklist: fileNames,
-//             fileExt: currentPageIndex == 0 ? 'gcode' : 'cfg',
-//             matchPattern: '^[\\w.#+_\\- ]+\$'));
-//     if (dialogResponse != null && dialogResponse.confirmed) {
-//       String newName = dialogResponse.data;
-//       if (newName == fileName) return;
-//       setBusyForObject(this, true);
-//       notifyListeners();
-//       try {
-//         await fileService.moveFile('$requestedPathAsString/$fileName',
-//             '$requestedPathAsString/$newName');
-//       } on JRpcError catch (e) {
-//         _snackBarService.showCustomSnackBar(
-//             variant: SnackbarType.error,
-//             duration: const Duration(seconds: 5),
-//             title: 'Error',
-//             message: 'Could not perform rename.\n${e.message}');
-//         setBusyForObject(this, false);
-//         notifyListeners();
-//       }
-//     }
-//   }
-//
-//   onRenameDirTapped(BuildContext context, String fileName) async {
-//     List<String> fileNames = [];
-//     fileNames.addAll(_folderContent.folders.map((e) => e.name));
-//     fileNames.addAll(_folderContent.files.map((e) => e.name));
-//     fileNames.remove(fileName);
-//
-//     DialogResponse? dialogResponse = await _dialogService.showCustomDialog(
-//         variant: DialogType.renameFile,
-//         title: tr('dialogs.rename_folder.title'),
-//         description: tr('dialogs.rename_folder.label'),
-//         mainButtonTitle: tr('general.rename'),
-//         secondaryButtonTitle: MaterialLocalizations.of(context)
-//             .cancelButtonLabel
-//             .toLowerCase()
-//             .titleCase(),
-//         data: RenameFileDialogArguments(
-//             initialValue: fileName,
-//             blocklist: fileNames,
-//             matchPattern: '^[\\w.\-]+\$'));
-//     if (dialogResponse?.confirmed ?? false) {
-//       String newName = dialogResponse!.data;
-//       if (newName == fileName) return;
-//       setBusyForObject(this, true);
-//       notifyListeners();
-//       try {
-//         await fileService.moveFile('$requestedPathAsString/$fileName',
-//             '$requestedPathAsString/$newName');
-//       } on JRpcError catch (e) {
-//         _snackBarService.showCustomSnackBar(
-//             variant: SnackbarType.error,
-//             duration: const Duration(seconds: 5),
-//             title: 'Error',
-//             message: 'Could not perform rename.\n${e.message}');
-//         setBusyForObject(this, false);
-//         notifyListeners();
-//       }
-//     }
-//   }
-//
-//   onRefresh() {
-//     _busyFetchDirectoryData(newPath: folderContent.reqPath.split('/'))
-//         .then((value) => refreshController.refreshCompleted());
-//   }
-//
-//   onFileTapped(RemoteFile file) {
-//     if (file is GCodeFile)
-//       _navigationService.navigateTo(Routes.gCodeFileDetailView,
-//           arguments: GCodeFileDetailViewArguments(gcodeFile: file));
-//     else
-//       _navigationService.navigateTo(Routes.configFileDetailView,
-//           arguments: ConfigFileDetailViewArguments(file: file));
-//   }
-//
-//   onFolderPressed(Folder folder) {
-//     List<String> newPath = folderContent.reqPath.split('/');
-//     newPath.add(folder.name);
-//     _busyFetchDirectoryData(newPath: newPath);
-//   }
-//
-//   onBreadCrumbItemPressed(List<String> newPath) {
-//     return _busyFetchDirectoryData(newPath: newPath);
-//   }
-//
-//   Future<bool> onWillPop() async {
-//     List<String> newPath = folderContent.reqPath.split('/');
-//
-//     if (isSearching) {
-//       stopSearching();
-//       return false;
-//     } else if (newPath.length > 1 && !isBusy) {
-//       newPath.removeLast();
-//       _busyFetchDirectoryData(newPath: newPath);
-//       return false;
-//     }
-//     return true;
-//   }
-//
-//   onPopFolder() {
-//     List<String> newPath = folderContent.reqPath.split('/');
-//     if (newPath.length > 1 && !isBusy) {
-//       newPath.removeLast();
-//       _busyFetchDirectoryData(newPath: newPath);
-//       return false;
-//     }
-//     return true;
-//   }
-//
-//   onSortSelected(int index) {
-//     currentComparatorIndex = index;
-//     notifyListeners();
-//   }
-//
-//   int _comparatorName(RemoteFile a, RemoteFile b) => a.name.compareTo(b.name);
-//
-//   int _comparatorModified(RemoteFile a, RemoteFile b) =>
-//       b.modified.compareTo(a.modified);
-//
-//   int _comparatorPrintStart(RemoteFile fileA, RemoteFile fileB) {
-//     GCodeFile a = fileA as GCodeFile;
-//     GCodeFile b = fileB as GCodeFile;
-//     return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
-//   }
-//
-//   Future _fetchDirectoryData({List<String> newPath = const ['gcodes']}) {
-//     requestedPath = newPath;
-//     return _folderContentStreamController.addStream(
-//         fileService.fetchDirectoryInfo(requestedPathAsString, true).asStream());
-//   }
-//
-//   Future _busyFetchDirectoryData({List<String> newPath = const ['gcodes']}) {
-//     return runBusyFuture(_fetchDirectoryData(newPath: newPath));
-//   }
-//
-//   @override
-//   dispose() {
-//     super.dispose();
-//     refreshController.dispose();
-//     searchEditingController.dispose();
-//   }
-// }
