@@ -2,9 +2,13 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
+import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
+import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/files_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_view.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
@@ -22,7 +26,9 @@ enum AppRoute {
   console,
   files,
   settings,
-  imprint
+  imprint,
+  gcodeDetail,
+  configDetail
 }
 
 final goRouterProvider = Provider<GoRouter>((ref) {
@@ -80,6 +86,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/files',
         name: AppRoute.files.name,
         builder: (context, state) => const FilesView(),
+        routes: [
+          GoRoute(
+            path: 'gcode-details',
+            name: AppRoute.gcodeDetail.name,
+            builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
+          ),
+          GoRoute(
+            path: 'config-details',
+            name: AppRoute.configDetail.name,
+            builder: (context, state) => ConfigFileDetailPage(file: state.extra! as RemoteFile),
+          ),
+        ]
       ),
       GoRoute(
         path: '/setting',

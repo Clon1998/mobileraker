@@ -22,39 +22,9 @@ const List<String> additionalCmds = [
   'TESTZ',
 ];
 
-final consoleTextEditProvider =
-    ChangeNotifierProvider.autoDispose<TextEditingController>(
-        (ref) => TextEditingController());
-
 final availableMacrosProvider =
     FutureProvider.autoDispose<List<Command>>((ref) {
   return ref.watch(printerServiceSelectedProvider).gcodeHelp();
-});
-
-final suggestedMacroProvider = FutureProvider.autoDispose<List<String>>((ref) {
-  List<String> potential = [];
-
-  potential.addAll(ref.read(_commandHistoryProvider));
-  // List<String> history = this.history.toList();
-
-  var available = ref.watch(availableMacrosProvider).valueOrFullNull ?? [];
-
-  Iterable<String> filteredAvailable = available.map((e) => e.cmd).where(
-      (element) => !element.startsWith('_') && !potential.contains(element));
-  potential.addAll(additionalCmds);
-  potential.addAll(filteredAvailable);
-  String text = ref.watch(consoleTextEditProvider).text.toLowerCase();
-  if (text.isEmpty) return potential;
-
-  List<String> terms = text.split(RegExp(r'\W+'));
-  // RegExp regExp =
-  //     RegExp(terms.where((element) => element.isNotEmpty).join("|"));
-
-  var suggestions = potential
-      .where((element) => terms.every((t) => element.toLowerCase().contains(t)))
-      .toList(growable: false);
-
-  return suggestions;
 });
 
 final consoleRefreshController =
@@ -103,25 +73,19 @@ class ConsoleListController
     }
   }
 
-  onKeyBoardInput(RawKeyEvent event) {
-    if (event.isKeyPressed(LogicalKeyboardKey.enter)) onCommandSubmit();
-  }
-
-  onCommandSubmit() {
-    String command = ref.read(consoleTextEditProvider).text;
+  onCommandSubmit(String command) {
     if (command.isEmpty || state.isLoading) return;
     state = AsyncValue.data([
       ...state.value!,
       ConsoleEntry(command, ConsoleEntryType.COMMAND,
           DateTime.now().millisecondsSinceEpoch / 1000)
     ]);
-    ref.read(consoleTextEditProvider).clear();
     ref.read(printerServiceSelectedProvider).gCode(command);
-    ref.read(_commandHistoryProvider.notifier).add(command);
+    ref.read(commandHistoryProvider.notifier).add(command);
   }
 }
 
-final _commandHistoryProvider =
+final commandHistoryProvider =
     StateNotifierProvider<_CommandHistoryState, List<String>>(
         (ref) => _CommandHistoryState());
 

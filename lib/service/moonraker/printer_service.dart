@@ -8,6 +8,7 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
+import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/controller_fan.dart';
@@ -284,11 +285,10 @@ class PrinterService {
     gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
   }
 
-  // TODO:
-  // startPrintFile(GCodeFile file) {
-  //   _jRpcClient.sendJsonRpcWithCallback('printer.print.start',
-  //       params: {'filename': file.pathForPrint});
-  // }
+  startPrintFile(GCodeFile file) {
+    _jRpcClient.sendJsonRpcWithCallback('printer.print.start',
+        params: {'filename': file.pathForPrint});
+  }
 
   resetPrintStat() {
     gCode('SDCARD_RESET_FILE');

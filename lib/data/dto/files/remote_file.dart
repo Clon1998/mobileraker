@@ -22,7 +22,7 @@ class RemoteFile {
 
   String get absolutPath => '$parentPath/$name';
 
-  DateTime? get modifiedDate {
+  DateTime get modifiedDate {
     return DateTime.fromMillisecondsSinceEpoch(modified.toInt() * 1000);
   }
 

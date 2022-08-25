@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:file/memory.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
@@ -13,13 +14,14 @@ import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
-import 'package:rxdart/rxdart.dart';
 
 enum FileRoot { gcodes, config, config_examples, docs }
 
@@ -54,20 +56,27 @@ class FolderContentWrapper {
           listEquals(files, other.files);
 
   @override
-  int get hashCode => folderPath.hashCode ^ folders.hashIterable ^ files.hashIterable;
+  int get hashCode =>
+      folderPath.hashCode ^ folders.hashIterable ^ files.hashIterable;
 }
 
 final fileServiceProvider =
     Provider.autoDispose.family<FileService, String>((ref, machineUUID) {
-      ref.keepAlive();
-      return FileService(ref, machineUUID);
+  ref.keepAlive();
+  var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
+  var machine = Hive.box<Machine>('printers').get(machineUUID);
+  if (machine == null) {
+    throw MobilerakerException(
+        'Machine with UUID "$machineUUID" was not found!');
+  }
+  return FileService(ref, jsonRpcClient, machine.httpUrl);
 });
 
 final fileNotificationsProvider = StreamProvider.autoDispose
     .family<FileApiResponse, String>((ref, machineUUID) {
   ref.keepAlive();
   return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
-    });
+});
 
 final fileServiceSelectedProvider = Provider.autoDispose((ref) {
   return ref.watch(fileServiceProvider(
@@ -86,9 +95,7 @@ final fileNotificationsSelectedProvider =
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  FileService(AutoDisposeRef ref, String machine)
-      : _jRpcClient = ref.watch(jrpcClientProvider(machine)),
-        httpUrl = 'TODO!!!' {
+  FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUrl) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onFileListChanged, "notify_filelist_changed");

@@ -4,13 +4,22 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/logger.dart';
 
-class QrScannerPage extends HookConsumerWidget {
-  const QrScannerPage({Key? key}) : super(key: key);
+class QrScannerPage extends StatefulHookConsumerWidget {
+  const QrScannerPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var cameraController = useState(MobileScannerController());
+  ConsumerState createState() => _QrScannerPageState();
+}
+
+class _QrScannerPageState extends ConsumerState<QrScannerPage> {
+  final MobileScannerController cameraController = MobileScannerController();
+
+  @override
+  Widget build(BuildContext context) {
     var hasBacorde = useState(false);
+
     return Scaffold(
         appBar: AppBar(
           title: const Text('Mobile Scanner'),
@@ -18,7 +27,7 @@ class QrScannerPage extends HookConsumerWidget {
             IconButton(
               color: Colors.white,
               icon: ValueListenableBuilder(
-                valueListenable: cameraController.value.torchState,
+                valueListenable: cameraController.torchState,
                 builder: (context, state, child) {
                   switch (state as TorchState) {
                     case TorchState.off:
@@ -29,12 +38,12 @@ class QrScannerPage extends HookConsumerWidget {
                 },
               ),
               iconSize: 32.0,
-              onPressed: () => cameraController.value.toggleTorch(),
+              onPressed: () => cameraController.toggleTorch(),
             ),
             IconButton(
               color: Colors.white,
               icon: ValueListenableBuilder(
-                valueListenable: cameraController.value.cameraFacingState,
+                valueListenable: cameraController.cameraFacingState,
                 builder: (context, state, child) {
                   switch (state as CameraFacing) {
                     case CameraFacing.front:
@@ -45,17 +54,23 @@ class QrScannerPage extends HookConsumerWidget {
                 },
               ),
               iconSize: 32.0,
-              onPressed: () => cameraController.value.switchCamera(),
+              onPressed: () => cameraController.switchCamera(),
             ),
           ],
         ),
         body: MobileScanner(
-            controller: cameraController.value,
+            controller: cameraController,
             onDetect: (barcode, args) {
               if (hasBacorde.value) return;
               hasBacorde.value = true;
               logger.wtf(barcode.rawValue);
               Navigator.of(context).pop(barcode.rawValue);
             }));
+  }
+
+  @override
+  void dispose() {
+    cameraController.dispose();
+    super.dispose();
   }
 }

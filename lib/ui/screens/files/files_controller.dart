@@ -10,6 +10,7 @@ import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
@@ -21,7 +22,11 @@ final isSearchingProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 final searchTextEditingControllerProvider =
     ChangeNotifierProvider.autoDispose<TextEditingController>(
-        (ref) => TextEditingController());
+        (ref) {
+          var textEditingController = TextEditingController();
+          ref.onDispose(textEditingController.dispose);
+          return textEditingController;
+        });
 
 final fileSortModeProvider =
     StateProvider.autoDispose<FileSort>((ref) => FileSort.lastModified);
@@ -303,6 +308,15 @@ class FilesPageController extends StateNotifier<FilePageState> {
         fetchDirectoryData(state.path, true);
       }
     }
+  }
+
+  onFileTapped(RemoteFile file) {
+    if (file is GCodeFile) {
+      ref.read(goRouterProvider).goNamed(AppRoute.gcodeDetail.name, extra: file);
+    } else {
+      ref.read(goRouterProvider).goNamed(AppRoute.configDetail.name, extra: file);
+    }
+
   }
 }
 

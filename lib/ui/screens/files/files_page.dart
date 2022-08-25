@@ -87,7 +87,6 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
         title: EaseIn(
           curve: Curves.easeOutCubic,
           child: TextField(
-            // onChanged: (str) => model.notifyListeners(),//Todo
             controller: textCtler,
             autofocus: true,
             cursorColor: onBackground,
@@ -386,8 +385,8 @@ class FileItem extends ConsumerWidget {
         leading: const SizedBox(
             width: 64, height: 64, child: Icon(Icons.insert_drive_file)),
         title: Text(file.name),
-        onTap: null,
-        // onTap: () => model.onFileTapped(file),
+        onTap: () =>
+            ref.watch(filesListControllerProvider.notifier).onFileTapped(file),
       ),
     );
   }
@@ -407,46 +406,46 @@ class GCodeFileItem extends ConsumerWidget {
         leading: SizedBox(
             width: 64,
             height: 64,
-            child: buildLeading(
-                gCode, ref.watch(selectedMachineProvider).valueOrFullNull)),
+            child: Hero(
+              tag: 'gCodeImage-${gCode.hashCode}',
+              child: buildLeading(
+                  gCode, ref.watch(selectedMachineProvider).valueOrFullNull),
+            )),
         title: Text(gCode.name),
-        onTap: null,
-        // onTap: () => model.onFileTapped(gCode),
+        onTap: () =>
+            ref.watch(filesListControllerProvider.notifier).onFileTapped(gCode),
       ),
     );
   }
 
   Widget buildLeading(GCodeFile gCodeFile, Machine? machine) {
     String? printerUrl = machine?.httpUrl;
-    if (printerUrl != null && gCodeFile.smallImagePath != null) {
+    if (printerUrl != null && gCodeFile.bigImagePath != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0),
-        child: Hero(
-          tag: 'gCodeImage-${gCodeFile.hashCode}',
-          child: CachedNetworkImage(
-            imageBuilder: (context, imageProvider) => Container(
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.horizontal(
-                    left: Radius.circular(15.0), right: Radius.circular(15.0)),
-                image: DecorationImage(
-                  image: imageProvider,
-                  fit: BoxFit.cover,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.5),
-                    spreadRadius: 1,
-                    blurRadius: 2,
-                    offset: const Offset(-1, 1), // changes position of shadow
-                  ),
-                ],
+        child: CachedNetworkImage(
+          imageBuilder: (context, imageProvider) => Container(
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(15.0), right: Radius.circular(15.0)),
+              image: DecorationImage(
+                image: imageProvider,
+                fit: BoxFit.cover,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.5),
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: const Offset(-1, 1), // changes position of shadow
+                ),
+              ],
             ),
-            imageUrl:
-                '$printerUrl/server/files/${gCode.parentPath}/${gCode.bigImagePath}',
-            placeholder: (context, url) => const Icon(Icons.insert_drive_file),
-            errorWidget: (context, url, error) => const Icon(Icons.error),
           ),
+          imageUrl:
+              '$printerUrl/server/files/${gCode.parentPath}/${gCode.bigImagePath}',
+          placeholder: (context, url) => const Icon(Icons.insert_drive_file),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       );
     } else {

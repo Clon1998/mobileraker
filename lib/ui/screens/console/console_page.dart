@@ -1,15 +1,15 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
-import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/screens/console/console_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
@@ -37,17 +37,20 @@ class ConsoleView extends ConsumerWidget {
   }
 }
 
-class _ConsoleBody extends ConsumerWidget {
+class _ConsoleBody extends HookConsumerWidget {
   const _ConsoleBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var theme = Theme.of(context);
+    var consoleTextEditor = useTextEditingController();
+    var focusNode = useFocusNode();
 
     var klippyCanReceiveCommands = ref
         .watch(klipperSelectedProvider)
         .valueOrFullNull!
         .klippyCanReceiveCommands;
+
+    var theme = Theme.of(context);
     return Container(
       margin: const EdgeInsets.all(4.0),
       decoration: BoxDecoration(
@@ -78,33 +81,46 @@ class _ConsoleBody extends ConsumerWidget {
               ),
             ),
           ),
-          const Expanded(
+          Expanded(
             flex: 1,
-            child: _Console(),
+            child: _Console(
+              onCommandTap: (s) => consoleTextEditor.text = s,
+            ),
           ),
           const Divider(),
-          const GCodeSuggestionBar(),
+          GCodeSuggestionBar(
+            onMacroTap: (s) => consoleTextEditor.text = s,
+            consoleInputNotifier: consoleTextEditor,
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             child: RawKeyboardListener(
-              focusNode: FocusNode(),
+              focusNode: focusNode,
               onKey: klippyCanReceiveCommands
-                  ? ref
-                      .watch(consoleListControllerProvider.notifier)
-                      .onKeyBoardInput
+                  ? (event) {
+                      if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+                        ref
+                            .watch(consoleListControllerProvider.notifier)
+                            .onCommandSubmit(consoleTextEditor.text);
+                        consoleTextEditor.clear();
+                      }
+                    }
                   : null,
               child: TextField(
                 enableSuggestions: false,
                 autocorrect: false,
-                controller: ref.watch(consoleTextEditProvider),
+                controller: consoleTextEditor,
                 enabled: klippyCanReceiveCommands,
                 decoration: InputDecoration(
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.send),
                       onPressed: klippyCanReceiveCommands
-                          ? ref
-                              .watch(consoleListControllerProvider.notifier)
-                              .onCommandSubmit
+                          ? () {
+                              ref
+                                  .watch(consoleListControllerProvider.notifier)
+                                  .onCommandSubmit(consoleTextEditor.text);
+                              consoleTextEditor.clear();
+                            }
                           : null,
                     ),
                     border: OutlineInputBorder(
@@ -119,17 +135,55 @@ class _ConsoleBody extends ConsumerWidget {
   }
 }
 
-class GCodeSuggestionBar extends ConsumerWidget {
-  const GCodeSuggestionBar({
-    Key? key,
-  }) : super(key: key);
+class GCodeSuggestionBar extends StatefulHookConsumerWidget {
+  const GCodeSuggestionBar(
+      {Key? key, required this.onMacroTap, required this.consoleInputNotifier})
+      : super(key: key);
+
+  final ValueChanged<String> onMacroTap;
+
+  final ValueNotifier<TextEditingValue> consoleInputNotifier;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
-    var highlightColor = themeData.colorScheme.primary;
+  ConsumerState createState() => _GCodeSuggestionBarState();
+}
 
-    var suggestions = ref.watch(suggestedMacroProvider).valueOrFullNull ?? [];
+class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  List<String> calculateSuggestedMacros(
+      String currentInput, List<String> history, List<Command> available) {
+    List<String> potential = [];
+    potential.addAll(history);
+
+    Iterable<String> filteredAvailable = available.map((e) => e.cmd).where(
+        (element) => !element.startsWith('_') && !potential.contains(element));
+    potential.addAll(additionalCmds);
+    potential.addAll(filteredAvailable);
+    String text = currentInput.toLowerCase();
+    if (text.isEmpty) return potential;
+
+    List<String> terms = text.split(RegExp(r'\W+'));
+
+    return potential
+        .where(
+            (element) => terms.every((t) => element.toLowerCase().contains(t)))
+        .toList(growable: false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var themeData = Theme.of(context);
+
+    var consoleInput = useValueListenable(widget.consoleInputNotifier).text;
+
+    var history = ref.watch(commandHistoryProvider);
+    var available = ref.watch(availableMacrosProvider).valueOrFullNull ?? [];
+    var suggestions =
+        calculateSuggestedMacros(consoleInput, history, available);
     if (suggestions.isEmpty) return const SizedBox.shrink();
     var canSend = ref
         .watch(klipperSelectedProvider)
@@ -153,11 +207,10 @@ class GCodeSuggestionBar extends ConsumerWidget {
               margin: const EdgeInsets.symmetric(horizontal: 2),
               child: RawChip(
                 label: Text(cmd),
-                backgroundColor:
-                    canSend ? highlightColor : themeData.disabledColor,
-                onPressed: canSend
-                    ? () => ref.read(consoleTextEditProvider).text = cmd
-                    : null,
+                backgroundColor: canSend
+                    ? themeData.colorScheme.primary
+                    : themeData.disabledColor,
+                onPressed: canSend ? () => widget.onMacroTap(cmd) : null,
               ),
             );
           },
@@ -168,7 +221,9 @@ class GCodeSuggestionBar extends ConsumerWidget {
 }
 
 class _Console extends ConsumerWidget {
-  const _Console({Key? key}) : super(key: key);
+  const _Console({Key? key, required this.onCommandTap}) : super(key: key);
+
+  final ValueChanged<String> onCommandTap;
 
   TextStyle _commandTextStyle(ThemeData theme, ListTileThemeData tileTheme) {
     final TextStyle textStyle;
@@ -231,10 +286,8 @@ class _Console extends ConsumerWidget {
                                 themeData, ListTileTheme.of(context))),
                         subtitle:
                             Text(DateFormat.Hms().format(entry.timestamp)),
-                        onTap: canSend
-                            ? () => ref.read(consoleTextEditProvider).text =
-                                entry.message
-                            : null,
+                        onTap:
+                            canSend ? () => onCommandTap(entry.message) : null,
                       );
                     }
 
