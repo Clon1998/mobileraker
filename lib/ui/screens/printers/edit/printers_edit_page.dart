@@ -5,12 +5,16 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/config/config_extruder.dart';
+import 'package:mobileraker/data/dto/config/config_heater_bed.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
@@ -470,7 +474,7 @@ class RemoteSettings extends ConsumerWidget {
                           'pages.dashboard.general.temp_card.temp_presets'.tr(),
                       action: TextButton.icon(
                         onPressed: ref
-                            .read(temperaturePresetListControllerProvider
+                            .watch(temperaturePresetListControllerProvider
                                 .notifier)
                             .addNewTemperaturePreset,
                         label: const Text('general.add').tr(),
@@ -646,7 +650,6 @@ class _MacroGroup extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var name = useState(macroGroup.name);
-
     var macros = ref.watch(macroGroupControllerProvder(macroGroup));
     var dragging = ref.watch(
         macroGroupDragginControllerProvider.select((value) => value != null));
@@ -750,12 +753,13 @@ class TemperaturePresetList extends ConsumerWidget {
         child: const Text('pages.printer_edit.presets.no_presets').tr(),
       );
     }
+    var machine = ref.watch(currentlyEditing);
     return ReorderableListView(
       buildDefaultDragHandles: false,
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       onReorder: ref
-          .read(temperaturePresetListControllerProvider.notifier)
+          .watch(temperaturePresetListControllerProvider.notifier)
           .onGroupReorder,
       children: List.generate(tempPresets.length, (index) {
         TemperaturePreset preset = tempPresets[index];
@@ -763,6 +767,7 @@ class TemperaturePresetList extends ConsumerWidget {
           key: ValueKey(preset.uuid),
           preset: preset,
           idx: index,
+          machine: machine,
         );
       }),
     );
@@ -770,20 +775,20 @@ class TemperaturePresetList extends ConsumerWidget {
 }
 
 class _TempPresetItem extends HookConsumerWidget {
-  const _TempPresetItem({Key? key, required this.preset, required this.idx})
+  const _TempPresetItem({Key? key, required this.preset, required this.idx, required this.machine})
       : super(key: key);
   final TemperaturePreset preset;
   final int idx;
+  final Machine machine; // We cant use the provider here since the reordable cant use the provider while dragging!
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var name = useState(preset.name);
-    var machine = ref.watch(currentlyEditing);
-    var primaryExtConfig = ref
+    ConfigExtruder? primaryExtConfig = ref
         .watch(printerProvider(machine.uuid)
             .selectAs((data) => data.configFile.primaryExtruder))
         .valueOrNull;
-    var bedConfig = ref
+    ConfigHeaterBed? bedConfig = ref
         .watch(printerProvider(machine.uuid)
             .selectAs((data) => data.configFile.configHeaterBed))
         .valueOrNull;

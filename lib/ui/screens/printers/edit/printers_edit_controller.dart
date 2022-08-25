@@ -484,6 +484,7 @@ class TemperaturePresetListController
   TemperaturePresetListController(super._state);
 
   onGroupReorder(int oldIndex, int newIndex) {
+    logger.wtf('aaa');
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }

@@ -78,7 +78,7 @@ class SettingView extends ConsumerWidget {
               ),
               _SectionHeader(title: 'pages.setting.notification.title'.tr()),
               const NotificationPermissionWarning(),
-              _ProgressNotificationDropDown(),
+              const _ProgressNotificationDropDown(),
               const Divider(),
               RichText(
                 text: TextSpan(
@@ -158,7 +158,7 @@ class VersionText extends ConsumerWidget {
         data: (d) => '${d.version}-${d.buildNumber}');
 
     return Text(
-      "Version: $version}",
+      "Version: $version",
       textAlign: TextAlign.center,
       style: Theme.of(context).textTheme.bodySmall,
     );
