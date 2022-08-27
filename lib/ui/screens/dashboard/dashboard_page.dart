@@ -99,7 +99,7 @@ class _FloatingActionBtn extends ConsumerWidget {
     switch (printState.value!) {
       case PrintState.printing:
         return FloatingActionButton(
-          onPressed: ref.read(printerServiceSelectedProvider).pausePrint(),
+          onPressed: ref.read(printerServiceSelectedProvider).pausePrint,
           child: const Icon(Icons.pause),
         );
       case PrintState.paused:
