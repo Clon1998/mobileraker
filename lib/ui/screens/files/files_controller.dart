@@ -13,6 +13,7 @@ import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/util/path_utils.dart';
 
@@ -21,12 +22,11 @@ final filePageProvider = StateProvider.autoDispose<int>((ref) => 0);
 final isSearchingProvider = StateProvider.autoDispose<bool>((ref) => false);
 
 final searchTextEditingControllerProvider =
-    ChangeNotifierProvider.autoDispose<TextEditingController>(
-        (ref) {
-          var textEditingController = TextEditingController();
-          ref.onDispose(textEditingController.dispose);
-          return textEditingController;
-        });
+    ChangeNotifierProvider.autoDispose<TextEditingController>((ref) {
+  var textEditingController = TextEditingController();
+  ref.onDispose(textEditingController.dispose);
+  return textEditingController;
+});
 
 final fileSortModeProvider =
     StateProvider.autoDispose<FileSort>((ref) => FileSort.lastModified);
@@ -36,7 +36,9 @@ final filesListControllerProvider =
         (ref) => FilesPageController(ref));
 
 class FilesPageController extends StateNotifier<FilePageState> {
-  FilesPageController(this.ref) : super(FilePageState.loading()) {
+  FilesPageController(this.ref)
+      : _snackBarService = ref.watch(snackBarServiceProvider),
+        super(FilePageState.loading()) {
     ref.listen(filePageProvider, (previous, int next) {
       fetchDirectoryData((next == 0) ? ['gcodes'] : ['config'], true);
     }, fireImmediately: true);
@@ -60,7 +62,8 @@ class FilesPageController extends StateNotifier<FilePageState> {
     });
   }
 
-  AutoDisposeRef ref;
+  final AutoDisposeRef ref;
+  final SnackBarService _snackBarService;
 
   String get pathAsString => state.path.join('/');
 
@@ -168,12 +171,9 @@ class FilesPageController extends StateNotifier<FilePageState> {
             .read(fileServiceSelectedProvider)
             .deleteFile('$pathAsString/$fileName');
       } on JRpcError catch (e) {
-        //TODO:
-        // ref.read(snackBarServiceProvider).show(
-        //     variant: SnackbarType.error,
-        //     duration: const Duration(seconds: 5),
-        //     title: 'Error',
-        //     message: 'Could not perform rename.\n${e.message}');
+        _snackBarService.show(SnackBarConfig(
+            type: SnackbarType.error,
+            message: 'Could not perform rename.\n${e.message}'));
       } finally {
         fetchDirectoryData(state.path, true);
       }
@@ -195,12 +195,9 @@ class FilesPageController extends StateNotifier<FilePageState> {
             .read(fileServiceSelectedProvider)
             .deleteDirForced('$pathAsString/$folder');
       } on JRpcError catch (e) {
-        //TODO:
-        // _snackBarService.showCustomSnackBar(
-        //     variant: SnackbarType.error,
-        //     duration: const Duration(seconds: 5),
-        //     title: 'Error',
-        //     message: 'Could not perform rename.\n${e.message}');
+        _snackBarService.show(SnackBarConfig(
+            type: SnackbarType.error,
+            message: 'Could not delete dir.\n${e.message}'));
       } finally {
         fetchDirectoryData(state.path, true);
       }
@@ -312,11 +309,14 @@ class FilesPageController extends StateNotifier<FilePageState> {
 
   onFileTapped(RemoteFile file) {
     if (file is GCodeFile) {
-      ref.read(goRouterProvider).goNamed(AppRoute.gcodeDetail.name, extra: file);
+      ref
+          .read(goRouterProvider)
+          .goNamed(AppRoute.gcodeDetail.name, extra: file);
     } else {
-      ref.read(goRouterProvider).goNamed(AppRoute.configDetail.name, extra: file);
+      ref
+          .read(goRouterProvider)
+          .goNamed(AppRoute.configDetail.name, extra: file);
     }
-
   }
 }
 

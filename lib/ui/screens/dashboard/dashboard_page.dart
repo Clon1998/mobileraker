@@ -18,6 +18,7 @@ import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
+import 'package:mobileraker/ui/screens/printers/edit/printers_edit_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
@@ -150,23 +151,18 @@ class _DashboardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.wtf('_BUILDING DASHBOARD BODY ');
     return ref
         // We use selectAs null since we want to prevent rebuilding this widget to often!
         .watch(printerSelectedProvider.selectAs((data) => true))
         .when<Widget>(
-          data: (d) => ProviderScope(
-            disposeDelay: const Duration(minutes: 10),
-            cacheTime: const Duration(minutes: 10),
-            child: PageView(
-              key: const PageStorageKey<String>('dashboardPages'),
-              controller: ref.watch(pageControllerProvider),
-              onPageChanged: ref
-                  .watch(dashBoardViewControllerProvider.notifier)
-                  .onPageChanged,
-              children: const [GeneralTab(), ControlTab()],
-              // children: [const GeneralTab(), const ControlTab()],
-            ),
+          data: (d) => PageView(
+            key: const PageStorageKey<String>('dashboardPages'),
+            controller: ref.watch(pageControllerProvider),
+            onPageChanged: ref
+                .watch(dashBoardViewControllerProvider.notifier)
+                .onPageChanged,
+            children: const [GeneralTab(), ControlTab()],
+            // children: [const GeneralTab(), const ControlTab()],
           ),
           error: (e, s) {
             //TODO Error catching wont work..... does not work .....

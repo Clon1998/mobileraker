@@ -5,9 +5,10 @@ import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/ui/snackbar_service.dart';
 
 final configFileProvider =
-    Provider.autoDispose<RemoteFile>((ref) => throw UnimplementedError());
+Provider.autoDispose<RemoteFile>((ref) => throw UnimplementedError());
 
 final configFileDetailsControllerProvider = StateNotifierProvider.autoDispose<
     ConfigFileDetailsController,
@@ -16,18 +17,26 @@ final configFileDetailsControllerProvider = StateNotifierProvider.autoDispose<
 class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   ConfigFileDetailsController(this.ref)
       : fileService = ref.watch(fileServiceSelectedProvider),
-        klippyService = ref.read(klipperServiceSelectedProvider),
-        super(const ConfigDetailPageState()) {
-    _init();
+        klippyService = ref.watch(klipperServiceSelectedProvider),
+        snackBarService = ref.watch(snackBarServiceProvider),
+        super(
+
+  const ConfigDetailPageState()
+
+  ) {
+  _init();
   }
 
   final AutoDisposeRef ref;
   final FileService fileService;
   final KlippyService klippyService;
+  final SnackBarService snackBarService;
 
   _init() async {
     var downloadFile = await fileService
-        .downloadFile(ref.read(configFileProvider).absolutPath);
+        .downloadFile(ref
+        .read(configFileProvider)
+        .absolutPath);
     var content = await downloadFile.readAsString();
     if (mounted) {
       state = state.copyWith(config: AsyncValue.data(content));
@@ -39,15 +48,16 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
 
     try {
       await fileService.uploadAsFile(
-          ref.read(configFileProvider).absolutPath, code);
+          ref
+              .read(configFileProvider)
+              .absolutPath, code);
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
-      // TODO:
-      // _snackBarService.showCustomSnackBar(
-      //     variant: SnackbarType.error,
-      //     duration: const Duration(seconds: 5),
-      //     title: 'Error',
-      //     message: 'Could not save File:.\n${e.message}');
+      snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: 'Http-Error',
+          message: 'Could not save File:.\n${e.message}'
+      ));
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);
@@ -60,16 +70,17 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
 
     try {
       await fileService.uploadAsFile(
-          ref.read(configFileProvider).absolutPath, code);
+          ref
+              .read(configFileProvider)
+              .absolutPath, code);
       klippyService.restartMCUs();
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
-      // TODO:
-      // _snackBarService.showCustomSnackBar(
-      //     variant: SnackbarType.error,
-      //     duration: const Duration(seconds: 5),
-      //     title: 'Error',
-      //     message: 'Could not save File:.\n${e.message}');
+      snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: 'Http-Error',
+          message: 'Could not save File:.\n${e.message}'
+      ));
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);

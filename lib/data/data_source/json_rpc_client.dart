@@ -4,7 +4,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
@@ -36,7 +35,7 @@ class RpcResponse {
 class JsonRpcClient {
   JsonRpcClient(this.url, {Duration? defaultTimeout, this.apiKey})
       : _headers = (apiKey != null) ? {'X-Api-Key': apiKey} : const {},
-        _defaultTimeout = defaultTimeout ?? const Duration(seconds: 5) {}
+        _defaultTimeout = defaultTimeout ?? const Duration(seconds: 5);
 
   final String uuid = const Uuid().v4();
 

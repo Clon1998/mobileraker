@@ -30,6 +30,7 @@ import 'package:mobileraker/ui/components/homed_axis_chip.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_xyz_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
@@ -293,7 +294,7 @@ class CamCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const double minWebCamHeight = 280;
     List<WebcamSetting> webcams = ref.watch(generalTabViewControllerProvider
-        .select((value) => value.value!.webcams));
+        .select((value) => value.value!.machine.cams));
     WebcamSetting selectedCam = ref.watch(camCardControllerProvider);
     return Card(
       child: Column(

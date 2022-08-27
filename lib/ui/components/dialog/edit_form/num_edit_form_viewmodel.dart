@@ -61,7 +61,7 @@ class NumEditFormDialogController extends StateNotifier<DialogType> {
 
     double val;
     if (state == DialogType.numEdit) {
-      int cur = _formBuilderState.value['textValue'];
+      num cur = _formBuilderState.value['textValue'];
       val = cur.toDouble();
     } else {
       double cur = _formBuilderState.value['rangeValue'];
@@ -80,7 +80,7 @@ class NumEditFormDialogController extends StateNotifier<DialogType> {
     if (state == DialogType.numEdit) {
       targetVariant = DialogType.rangeEdit;
 
-      int cur = _formBuilderState.value['textValue'];
+      num cur = _formBuilderState.value['textValue'];
       _formBuilderState.fields['rangeValue']!.didChange(cur.toDouble());
     } else {
       targetVariant = DialogType.numEdit;

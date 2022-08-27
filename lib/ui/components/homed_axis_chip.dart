@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
+import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 
 class HomedAxisChip extends ConsumerWidget {

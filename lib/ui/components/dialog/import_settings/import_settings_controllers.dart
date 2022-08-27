@@ -52,7 +52,6 @@ final importSources =
   if (list.isEmpty) {
     return Future.error('No sources for import found!');
   }
-  logger.wtf('What is going on????ß  $list');
   return list;
 });
 
@@ -65,14 +64,13 @@ class ImportSettingsDialogController
   ImportSettingsDialogController(this.ref) : super(const AsyncValue.loading()) {
     ref.listen(importSources,
         (previous, AsyncValue<List<ImportMachineSettingsDto>> next) {
-      logger.wtf(next);
       next.when(
           data: (sources) {
             state = AsyncValue.data(sources.first);
           },
           error: (e, s) => state = AsyncValue.error(e, stackTrace: s),
           loading: () => null);
-    });
+    },fireImmediately: true);
   }
 
   final AutoDisposeRef ref;

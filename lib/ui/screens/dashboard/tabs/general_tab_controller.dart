@@ -8,7 +8,6 @@ import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
@@ -22,7 +21,7 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
-import 'package:mobileraker/ui/components/homed_axis_chip.dart';
+import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
@@ -31,28 +30,7 @@ import 'package:rxdart/rxdart.dart';
 final flipCardControllerProvider =
     Provider<FlipCardController>((ref) => FlipCardController());
 
-final machinePrinterKlippySettingsProvider =
-    StreamProvider.autoDispose<PrinterKlippySettingsMachineWrapper>(
-        name: 'machinePrinterKlippySettingsProvider', (ref) async* {
-  // var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-  // var printer = await ref.watch(printerSelectedProvider.future);
-  // var machineSettings = await ref.watchWhereNotNull(selectedMachineSettingsProvider.future);
-  // var klippy = await ref.watchWhereNotNull(klipperSelectedProvider.future);
 
-  var selMachine = ref.watchAsSubject(selectedMachineProvider).whereNotNull();
-  var printer = ref.watchAsSubject(printerSelectedProvider);
-  var machineSettings = ref.watchAsSubject(selectedMachineSettingsProvider);
-  var klippy = ref.watchAsSubject(klipperSelectedProvider);
-
-  yield* Rx.combineLatest4(
-      printer,
-      klippy,
-      machineSettings,
-      selMachine,
-      (Printer a, KlipperInstance b, MachineSettings c, Machine d) =>
-          PrinterKlippySettingsMachineWrapper(
-              printerData: a, klippyData: b, settings: c, machine: d));
-});
 
 final generalTabViewControllerProvider = StateNotifierProvider.autoDispose<
         GeneralTabViewController,
@@ -64,10 +42,6 @@ class GeneralTabViewController
     extends StateNotifier<AsyncValue<PrinterKlippySettingsMachineWrapper>> {
   GeneralTabViewController(this.ref)
       : super(ref.read(machinePrinterKlippySettingsProvider)) {
-    logger.wtf('GeneralTabViewController got created');
-    ref.onDispose(() {
-      logger.wtf('GeneralTabViewController.disposed');
-    });
 
     ref.listen<AsyncValue<PrinterKlippySettingsMachineWrapper>>(
         machinePrinterKlippySettingsProvider, (previous, next) {
@@ -169,21 +143,6 @@ class GeneralTabViewController
   }
 }
 
-class PrinterKlippySettingsMachineWrapper {
-  const PrinterKlippySettingsMachineWrapper(
-      {required this.printerData,
-      required this.klippyData,
-      required this.settings,
-      required this.machine});
-
-  final Printer printerData;
-  final KlipperInstance klippyData;
-  final MachineSettings settings;
-  final Machine machine;
-
-  List<WebcamSetting> get webcams => machine.cams;
-}
-
 final filePrintingProvider = FutureProvider.autoDispose<GCodeFile?>((ref) {
   String? fileName = ref.watch(printerSelectedProvider
       .select((data) => data.valueOrNull?.print.filename));
@@ -268,7 +227,10 @@ class MoveTableState {
 
 final babyStepControllerProvider =
     StateNotifierProvider.autoDispose<BabyStepCardController, int>(
-        (ref) => BabyStepCardController(ref));
+        (ref) {
+          ref.keepAlive();
+          return BabyStepCardController(ref);
+        });
 
 class BabyStepCardController extends StateNotifier<int> {
   BabyStepCardController(this.ref) : super(0);
@@ -305,7 +267,7 @@ final camCardControllerProvider =
 
 class CamCardController extends StateNotifier<WebcamSetting> {
   CamCardController(this.ref)
-      : super(ref.read(generalTabViewControllerProvider).value!.webcams.first);
+      : super(ref.read(generalTabViewControllerProvider).value!.machine.cams.first);
   final Ref ref;
 
   onSelectedChange(WebcamSetting? cam) {

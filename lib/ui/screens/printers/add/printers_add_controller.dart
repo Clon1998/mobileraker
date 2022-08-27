@@ -8,6 +8,7 @@ import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/util/misc.dart';
 
@@ -70,9 +71,10 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
       list.cancel();
       jsonRpcClient.dispose();
     } else {
-      logger.e('INPUT INVALID TODO');
-      //TODO::
-      // _snackbarService.showSnackbar(message: 'Input validation failed!');
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
+        type: SnackbarType.error,
+        message: 'Input validation failed!',
+      ));
     }
   }
 

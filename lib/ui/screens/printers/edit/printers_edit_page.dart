@@ -775,11 +775,16 @@ class TemperaturePresetList extends ConsumerWidget {
 }
 
 class _TempPresetItem extends HookConsumerWidget {
-  const _TempPresetItem({Key? key, required this.preset, required this.idx, required this.machine})
+  const _TempPresetItem(
+      {Key? key,
+      required this.preset,
+      required this.idx,
+      required this.machine})
       : super(key: key);
   final TemperaturePreset preset;
   final int idx;
-  final Machine machine; // We cant use the provider here since the reordable cant use the provider while dragging!
+  final Machine
+      machine; // We cant use the provider here since the reordable cant use the provider while dragging!
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

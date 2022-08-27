@@ -10,7 +10,10 @@ import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 final controlXYZController =
     StateNotifierProvider.autoDispose<ControlXYZController, int>(
-        (ref) => ControlXYZController(ref));
+        (ref) {
+          ref.keepAlive();
+          return ControlXYZController(ref);
+        });
 
 class ControlXYZController extends StateNotifier<int> {
   ControlXYZController(this.ref) : super(0);

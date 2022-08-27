@@ -212,7 +212,6 @@ class FileService {
           filename: fileSplit.join('/')))
       ..fields['root'] = root;
     http.StreamedResponse streamedResponse = await multipartRequest.send();
-    logger.wtf('Upload Result! ${streamedResponse.statusCode}');
     http.Response response = await http.Response.fromStream(streamedResponse);
 
     if (response.statusCode != 201) {

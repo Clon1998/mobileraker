@@ -33,6 +33,7 @@ import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
@@ -41,33 +42,40 @@ import 'package:vector_math/vector_math.dart';
 import 'package:stringr/stringr.dart';
 
 final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
-final printerServiceProvider =
-    Provider.autoDispose.family<PrinterService, String>(name:'printerServiceProvider',(ref, machineUUID) {
-      ref.onCancel(() {logger.e('printerServiceProvider - oncCanel');});
-      ref.keepAlive();
+final printerServiceProvider = Provider.autoDispose
+    .family<PrinterService, String>(name: 'printerServiceProvider',
+        (ref, machineUUID) {
+  ref.onCancel(() {
+    logger.e('printerServiceProvider - oncCanel');
+  });
+  ref.keepAlive();
   return PrinterService(ref, machineUUID);
 });
 
-final printerProvider = StreamProvider.autoDispose.family<Printer, String>(name:'printerProvider',(ref, machineUUID)async* {
+final printerProvider = StreamProvider.autoDispose.family<Printer, String>(
+    name: 'printerProvider', (ref, machineUUID) async* {
   ref.keepAlive();
   yield* ref.watch(printerServiceProvider(machineUUID)).printerStream;
 });
 
-final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(name:'printerServiceSelectedProvider',(ref) {
-  return ref.watch(
-      printerServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(
+    name: 'printerServiceSelectedProvider', (ref) {
+  return ref.watch(printerServiceProvider(
+      ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 });
 
-final printerSelectedProvider = StreamProvider.autoDispose<Printer>(name:'printerSelectedProvider',(ref) async* {
+final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
+    name: 'printerSelectedProvider', (ref) async* {
   var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-
 
   yield* ref.watch(printerProvider(machine.uuid).stream);
 });
 
 class PrinterService {
   PrinterService(AutoDisposeRef ref, String machineUUID)
-      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)), _snackBarService = ref.watch(snackBarServiceProvider) {
+      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)),
+        _snackBarService = ref.watch(snackBarServiceProvider),
+        _dialogService = ref.watch(dialogServiceProvider) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
@@ -91,7 +99,10 @@ class PrinterService {
       });
     });
   }
+
   final SnackBarService _snackBarService;
+
+  final DialogService _dialogService;
 
   final JsonRpcClient _jRpcClient;
 
@@ -525,7 +536,8 @@ class PrinterService {
       // Update temp cache for graphs!
       DateTime now = DateTime.now();
       if (now.difference(e.lastHistory).inSeconds >= 1) {
-        temperatureHistory = _updateHistoryList(e.temperatureHistory, temperature ?? e.temperature);
+        temperatureHistory = _updateHistoryList(
+            e.temperatureHistory, temperature ?? e.temperature);
         lastHistory = now;
       }
 
@@ -805,7 +817,7 @@ class PrinterService {
         pressureAdvance: pressureAdvance ?? extruder.pressureAdvance,
         smoothTime: smoothTime ?? extruder.smoothTime,
         power: power ?? extruder.power,
-        temperatureHistory: temperatureHistory?? extruder.temperatureHistory,
+        temperatureHistory: temperatureHistory ?? extruder.temperatureHistory,
         targetHistory: targetHistory ?? extruder.targetHistory,
         powerHistory: powerHistory ?? extruder.powerHistory,
         lastHistory: lastHistory ?? extruder.lastHistory);
@@ -975,12 +987,11 @@ class PrinterService {
 
   _onMessage(String message) {
     if (message.isEmpty) return;
-    //TODO: Add snackbar again
-    // _snackBarService.showCustomSnackBar(
-    //     variant: SnackbarType.warning,
-    //     duration: const Duration(seconds: 5),
-    //     title: 'Print-Message',
-    //     message: message);
+    _snackBarService.show(SnackBarConfig(
+      type: SnackbarType.warning,
+      title: 'Klippy-Message',
+      message: message
+    ));
   }
 
   double _toPrecision(double d, [int fraction = 2]) {
@@ -988,27 +999,19 @@ class PrinterService {
   }
 
   void _showExceptionSnackbar(Object e, StackTrace s) {
-    // logger.e("Should show Exception Snackbar!", e, s);
-    // ToDo: add Snackbar again!
     _snackBarService.show(SnackBarConfig(
-      type: SnackbarType.error,
-      title: 'Refresh Printer Error',
-      body: 'Could not parse: $e'
-    ));
-
-    // _snackBarService.showCustomSnackBar(
-    //     variant: SnackbarType.error,
-    //     duration: const Duration(seconds: 20),
-    //     title: 'Refresh Printer Error',
-    //     message: 'Could not parse: $e',
-    //     mainButtonTitle: "Details",
-    //     onMainButtonTapped: () {
-    //       Get.closeCurrentSnackbar();
-    //       _dialogService.showCustomDialog(
-    //           variant: DialogType.stackTrace,
-    //           title: 'Refresh Printer Error',
-    //           description: 'Exception:\n $e\n\n$s');
-    //     });
+        type: SnackbarType.error,
+        title: 'Refresh Printer Error',
+        message: 'Could not parse: $e',
+        duration: Duration(seconds: 30),
+        mainButtonTitle: 'Details',
+        closeOnMainButtonTapped: true,
+        onMainButtonTapped: () {
+          _dialogService.show(DialogRequest(
+              type: DialogType.stacktrace,
+              title: 'Refresh Printer Error',
+              body: 'Exception:\n $e\n\n$s'));
+        }));
   }
 
   List<T>? _updateHistoryList<T>(List<T>? currentHistory, T toAdd) {

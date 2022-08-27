@@ -71,7 +71,6 @@ class KlippyService {
 
     ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {
       var data = next as AsyncValue<ClientState>;
-      logger.wtf('Listening-flop: $data');
       switch (data.valueOrNull) {
         case ClientState.connected:
           _fetchServerInfo();

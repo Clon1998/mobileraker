@@ -153,6 +153,14 @@
         },
         "stat_card": {
           "title": "Statistics"
+        },
+        "preheat_dialog": {
+          "title": "@:pages.files.details.preheat ?",
+          "body": "Target Temperatures\nExtruder: {}°C\nBed: {}°C"
+        },
+        "preheat_snackbar": {
+          "title": "Started Preheating",
+          "body": "Extruder: {}°C\nBed: {}°C"
         }
       }
     },

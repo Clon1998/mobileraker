@@ -1,10 +1,8 @@
 import 'dart:io';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/util/ref_extension.dart';
 
 import 'json_rpc_client.dart';
 

@@ -371,7 +371,7 @@ class MacroGroupListController extends StateNotifier<List<MacroGroup>> {
           .addAll(macrosInGrp);
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
             title: 'Macro group deleted!',
-            body: plural('pages.printer_edit.macros.macros_to_default',
+            message: plural('pages.printer_edit.macros.macros_to_default',
                 macrosInGrp.length),
           ));
     }
@@ -388,13 +388,7 @@ final macroGroupControllerProvder = StateNotifierProvider.autoDispose
 
 class MacroGroupController extends StateNotifier<List<GCodeMacro>> {
   MacroGroupController(this.ref, this.macroGroup)
-      : super(macroGroup.macros.toList(growable: false)) {
-    // TODO: implement
-    ref.onDispose(() {
-      logger.i('${macroGroup.name} - disposed');
-    });
-    logger.i('${macroGroup.name} - created');
-  }
+      : super(macroGroup.macros.toList(growable: false));
 
   final Ref ref;
   final MacroGroup macroGroup;
@@ -484,7 +478,6 @@ class TemperaturePresetListController
   TemperaturePresetListController(super._state);
 
   onGroupReorder(int oldIndex, int newIndex) {
-    logger.wtf('aaa');
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }

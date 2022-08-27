@@ -63,7 +63,6 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
             onDetect: (barcode, args) {
               if (hasBacorde.value) return;
               hasBacorde.value = true;
-              logger.wtf(barcode.rawValue);
               Navigator.of(context).pop(barcode.rawValue);
             }));
   }

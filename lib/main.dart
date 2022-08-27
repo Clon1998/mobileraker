@@ -3,6 +3,7 @@ import 'package:easy_logger/src/enums.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -33,6 +34,7 @@ Future<void> main() async {
   // initialRoute = await selectInitialRoute();
   final container = ProviderContainer(
     observers: [
+      if (kDebugMode)
       const RiverPodLogger(),
     ],
   );
