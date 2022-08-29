@@ -28,7 +28,7 @@ class SelectedMachineService {
   final Box<String> _boxUuid;
   Machine? _selected;
   final StreamController<Machine?> _selectedMachineCtrler =
-      StreamController<Machine?>.broadcast();
+      StreamController<Machine?>();
 
   Stream<Machine?> get selectedMachine => _selectedMachineCtrler.stream;
 

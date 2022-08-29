@@ -1,11 +1,17 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:logger_flutter/logger_flutter.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
+import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/theme_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
@@ -14,8 +20,8 @@ import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-class SettingView extends ConsumerWidget {
-  const SettingView({Key? key}) : super(key: key);
+class SettingPage extends ConsumerWidget {
+  const SettingPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -135,6 +141,17 @@ class SettingView extends ConsumerWidget {
                             image: AssetImage('assets/icon/mr_logo.png')),
                       ));
                 },
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                    minimumSize: Size.zero, // Set this
+                    padding: EdgeInsets.zero,
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary.lighten(22))),
+                child: const Text(
+                    'Debug Logs'),
+                onPressed: () => LogConsole.openLogConsole(context),
               ),
               // _SectionHeader(title: 'Notifications'),
             ],
@@ -305,9 +322,9 @@ class NotificationPermissionWarning extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var hasPermission = ref.watch(notificationPermissionRequiredProvider);
-
-    if (hasPermission.valueOrFullNull ?? true) const SizedBox.shrink();
+    if (ref.watch(notificationPermissionProvider)) {
+      return const SizedBox.shrink();
+    }
 
     var themeData = Theme.of(context);
     return Padding(
@@ -316,8 +333,7 @@ class NotificationPermissionWarning extends ConsumerWidget {
         tileColor: themeData.colorScheme.errorContainer,
         textColor: themeData.colorScheme.onErrorContainer,
         iconColor: themeData.colorScheme.onErrorContainer,
-        onTap: null,
-        // onTap: model.onRequestPermission,
+        onTap: ref.watch(notificationPermissionProvider.notifier).requestPermission,
         leading: const Icon(
           Icons.notifications_off_outlined,
           size: 40,

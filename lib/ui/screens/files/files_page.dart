@@ -19,8 +19,8 @@ import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
-class FilesView extends ConsumerWidget {
-  const FilesView({Key? key}) : super(key: key);
+class FilesPage extends ConsumerWidget {
+  const FilesPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

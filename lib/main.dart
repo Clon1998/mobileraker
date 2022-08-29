@@ -11,6 +11,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
@@ -26,7 +28,6 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate();
   await EasyLocalization.ensureInitialized();
-  // await locator<NotificationService>().initialize();//TODO
   await FirebaseAnalytics.instance.logAppOpen();
   // await setupCat(); // ToDO
 
@@ -34,10 +35,14 @@ Future<void> main() async {
   // initialRoute = await selectInitialRoute();
   final container = ProviderContainer(
     observers: [
-      if (kDebugMode)
-      const RiverPodLogger(),
+      // if (kDebugMode)
+      // const RiverPodLogger(),
     ],
   );
+
+  container.read(machineServiceProvider).initializeAvailableMachines();
+  await container.read(notificationServiceProvider).initialize();
+
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }

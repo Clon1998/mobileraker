@@ -20,13 +20,14 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
-final machineServiceProvider = Provider((ref) => MachineService(ref));
+final machineServiceProvider = Provider<MachineService>((ref) => MachineService(ref));
 
 final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>(
     (ref) => ref.watch(machineServiceProvider).fetchAll());
 
 final selectedMachineSettingsProvider =
     FutureProvider.autoDispose<MachineSettings>((ref) async {
+      //TODO: This leaks and is not that eefficient!
   var machine = await ref
       .watch(selectedMachineProvider.future)
       .asStream()
@@ -56,10 +57,17 @@ class MachineService {
   Stream<BoxEvent> get machineEventStream =>
       Hive.box<Machine>('printers').watch();
 
+  /// Ensure all services are setup/available/connected if they are also read just once!
+  initializeAvailableMachines() async {
+    List<Machine> all = await fetchAll();
+    for (var machine in all) {
+      ref.read(printerServiceProvider(machine.uuid));
+      ref.read(klipperServiceProvider(machine.uuid));
+    }
+  }
+
   Future<void> updateMachine(Machine machine) async {
     await machine.save();
-    // ref.invalidate(jrpcClientProvider(machine.uuid));
-    // ref.invalidate(jrpcClientStateProvider(machine.uuid));
     var selectedMachineService = ref.read(selectedMachineServiceProvider);
     if (selectedMachineService.isSelectedMachine(machine)) {
       selectedMachineService.selectMachine(machine, true);
@@ -104,6 +112,7 @@ class MachineService {
     ref.invalidate(fileServiceProvider(machine.uuid));
     ref.invalidate(announcementProvider(machine.uuid));
     ref.invalidate(announcementServiceProvider(machine.uuid));
+
     if (_selectedMachineService.isSelectedMachine(machine)) {
       logger.i('Machine ${machine.uuid} is active machine');
       List<Machine> remainingPrinters = await _machineRepo.fetchAll();

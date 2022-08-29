@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
@@ -35,10 +37,6 @@ final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
 final jrpcClientStateProvider = StreamProvider.autoDispose
     .family<ClientState, String>(name: 'jrpcClientStateProvider',
         (ref, machineUUID) {
-  // logger.wtf('jrpcClientStateProvider creating for: $machineUUID');
-  // ref.onDispose(() {
-  //   logger.wtf('jrpcClientStateProvider disposing for: $machineUUID}');
-  // });
   return ref.watch(jrpcClientProvider(machineUUID)).stateStream;
 });
 

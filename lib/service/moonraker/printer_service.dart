@@ -45,9 +45,7 @@ final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
 final printerServiceProvider = Provider.autoDispose
     .family<PrinterService, String>(name: 'printerServiceProvider',
         (ref, machineUUID) {
-  ref.onCancel(() {
-    logger.e('printerServiceProvider - oncCanel');
-  });
+
   ref.keepAlive();
   return PrinterService(ref, machineUUID);
 });

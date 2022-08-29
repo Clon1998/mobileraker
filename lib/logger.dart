@@ -1,8 +1,9 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
+import 'package:logger_flutter/logger_flutter.dart';
 
 final logger =
-    Logger(printer: PrettyPrinter(methodCount: 0, noBoxingByDefault: true));
+    Logger(printer: PrettyPrinter(methodCount: 0, noBoxingByDefault: true), output: LogConsole.wrap(innerOutput: ConsoleOutput()));
 
 class RiverPodLogger extends ProviderObserver {
   const RiverPodLogger();

@@ -1,5 +1,7 @@
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:uuid/uuid.dart';
 
@@ -34,11 +36,11 @@ class Machine extends HiveObject {
   @HiveField(18)
   DateTime? lastModified;
 
-  // PrintState? get lastPrintState =>
-  //     EnumToString.fromString(PrintState.values, _lastPrintState ?? '');
+  PrintState? get lastPrintState =>
+      EnumToString.fromString(PrintState.values, _lastPrintState ?? '');
 
-  // set lastPrintState(PrintState? n) =>
-  //     _lastPrintState = (n == null) ? null : EnumToString.convertToString(n);
+  set lastPrintState(PrintState? n) =>
+      _lastPrintState = (n == null) ? null : EnumToString.convertToString(n);
 
   String get statusUpdatedChannelKey => '$uuid-statusUpdates';
 
@@ -101,5 +103,3 @@ class Machine extends HiveObject {
     return 'Machine{name: $name, wsUrl: $wsUrl, uuid: $uuid, cams: $cams, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUrl: $httpUrl, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
   }
 }
-
-

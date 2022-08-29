@@ -10,6 +10,7 @@ import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
@@ -24,7 +25,6 @@ final isSearchingProvider = StateProvider.autoDispose<bool>((ref) => false);
 final searchTextEditingControllerProvider =
     ChangeNotifierProvider.autoDispose<TextEditingController>((ref) {
   var textEditingController = TextEditingController();
-  ref.onDispose(textEditingController.dispose);
   return textEditingController;
 });
 
@@ -86,7 +86,6 @@ class FilesPageController extends StateNotifier<FilePageState> {
     FolderContentWrapper rawContent = state.apiResult.value!;
     List<Folder> folders = rawContent.folders.toList();
     List<RemoteFile> files = rawContent.files.toList();
-
     String queryTerm =
         ref.read(searchTextEditingControllerProvider).text.toLowerCase();
 

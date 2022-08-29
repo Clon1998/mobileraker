@@ -53,6 +53,8 @@ dependencies:
   url_launcher: ^6.0.20
   json_annotation: ^4.5.0
   logger: ^1.1.0
+  logger_flutter:
+    git: https://github.com/xaynetwork/logger_flutter
   package_info_plus: ^1.4.2
 
 

@@ -85,7 +85,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/files',
         name: AppRoute.files.name,
-        builder: (context, state) => const FilesView(),
+        builder: (context, state) => const FilesPage(),
         routes: [
           GoRoute(
             path: 'gcode-details',
@@ -102,7 +102,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/setting',
         name: AppRoute.settings.name,
-        builder: (context, state) => const SettingView(),
+        builder: (context, state) => const SettingPage(),
       ),
       GoRoute(
         path: '/imprint',
