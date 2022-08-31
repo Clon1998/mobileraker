@@ -207,11 +207,6 @@ class _IdleFAB extends ConsumerWidget {
         ref
             .read(bottomSheetServiceProvider)
             .show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
-
-        // ref
-        //     .read(dialogServiceProvider)
-        //     .show(DialogConfig(title: 'My FABs'));
-        // ref.read(snackBarServiceProvider).showSnackBar(SnackBarConfig(title: 'Idlle FABs'));
       },
       // onPressed: mdodel.showNonPrintingMenu,
       child: const Icon(Icons.menu));
@@ -235,15 +230,13 @@ class _PausedFAB extends ConsumerWidget {
               .cancelButtonLabel
               .toLowerCase()
               .titleCase(),
-          // onTap: model.onCancelPrintPressed,
-          onTap: null,
+          onTap: ref.watch(printerServiceSelectedProvider).cancelPrint,
         ),
         SpeedDialChild(
           child: const Icon(Icons.play_arrow),
           backgroundColor: Colors.blue,
           label: tr('general.resume'),
-          // onTap: model.onResumePrintPressed,
-          onTap: null,
+          onTap: ref.watch(printerServiceSelectedProvider).resumePrint,
         ),
       ],
       spacing: 5,
