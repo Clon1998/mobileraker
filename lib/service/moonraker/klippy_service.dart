@@ -35,12 +35,7 @@ final klipperServiceSelectedProvider =
 // StreamProvider<KlipperInstance>
 final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
     name: 'klipperSelectedProvider', (ref) async* {
-  // var machine = await ref
-  //     .watch(selectedMachineProvider.future)
-  //     .asStream().whereNotNull()
-  //     .first;
   var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-
   yield* ref.watch(klipperProvider(machine.uuid).stream);
 });
 

@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/ui/components/SelectedPrinterAppBar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
@@ -22,11 +22,8 @@ class ConsoleView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'pages.console.title',
-          overflow: TextOverflow.fade,
-        ).tr(),
+      appBar: SwitchPrinterAppBar(
+        title: 'pages.console.title'.tr(),
         actions: const [EmergencyStopBtn()],
       ),
       drawer: const NavigationDrawerWidget(),
@@ -47,8 +44,8 @@ class _ConsoleBody extends HookConsumerWidget {
 
     var klippyCanReceiveCommands = ref
         .watch(klipperSelectedProvider)
-        .valueOrFullNull!
-        .klippyCanReceiveCommands;
+        .valueOrFullNull
+        ?.klippyCanReceiveCommands ?? false;
 
     var theme = Theme.of(context);
     return Container(
@@ -75,7 +72,7 @@ class _ConsoleBody extends HookConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
               child: Text(
-                'GCode Console - ${ref.watch(selectedMachineProvider).maybeWhen(orElse: () => '', data: (d) => '- ${d?.name}')}',
+                'GCode Console',
                 style: theme.textTheme.subtitle1
                     ?.copyWith(color: theme.colorScheme.onPrimary),
               ),
@@ -100,7 +97,7 @@ class _ConsoleBody extends HookConsumerWidget {
                   ? (event) {
                       if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
                         ref
-                            .watch(consoleListControllerProvider.notifier)
+                            .read(consoleListControllerProvider.notifier)
                             .onCommandSubmit(consoleTextEditor.text);
                         consoleTextEditor.clear();
                       }
@@ -117,7 +114,7 @@ class _ConsoleBody extends HookConsumerWidget {
                       onPressed: klippyCanReceiveCommands
                           ? () {
                               ref
-                                  .watch(consoleListControllerProvider.notifier)
+                                  .read(consoleListControllerProvider.notifier)
                                   .onCommandSubmit(consoleTextEditor.text);
                               consoleTextEditor.clear();
                             }
@@ -187,8 +184,8 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
     if (suggestions.isEmpty) return const SizedBox.shrink();
     var canSend = ref
         .watch(klipperSelectedProvider)
-        .valueOrFullNull!
-        .klippyCanReceiveCommands;
+        .valueOrFullNull
+        ?.klippyCanReceiveCommands ?? false;
     return SizedBox(
       height: 33,
       child: ChipTheme(
@@ -245,8 +242,8 @@ class _Console extends ConsumerWidget {
     var themeData = Theme.of(context);
     var canSend = ref
         .watch(klipperSelectedProvider)
-        .valueOrFullNull!
-        .klippyCanReceiveCommands;
+        .valueOrFullNull
+        ?.klippyCanReceiveCommands?? false;
     return ref.watch(consoleListControllerProvider).when(
         data: (entries) {
           if (entries.isEmpty) {

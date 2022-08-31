@@ -34,10 +34,10 @@ Future<void> main() async {
   setupLicenseRegistry();
   // initialRoute = await selectInitialRoute();
   final container = ProviderContainer(
-    observers: [
-      // if (kDebugMode)
-      // const RiverPodLogger(),
-    ],
+    // observers: [
+    //   if (kDebugMode)
+    //   const RiverPodLogger(),
+    // ],
   );
 
   container.read(machineServiceProvider).initializeAvailableMachines();

@@ -8,6 +8,7 @@ const String startWithOverviewKey = 'start_with_overview';
 const String selectedThemeModeKey = 'selectedThemeMode';
 const String selectedThemePackKey = 'selectedThemePack';
 const String selectedGCodeGrpIndex = 'selGCodeGrp';
+const String selectedWebcamGrpIndex = 'selWebcamGrp';
 const String selectedProgressNotifyMode = 'selProgNotMode';
 const String requestedNotifyPermission = 'reqNotifyPerm';
 

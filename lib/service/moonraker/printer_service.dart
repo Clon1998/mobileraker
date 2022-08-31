@@ -45,21 +45,25 @@ final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
 final printerServiceProvider = Provider.autoDispose
     .family<PrinterService, String>(name: 'printerServiceProvider',
         (ref, machineUUID) {
-
-  ref.keepAlive();
-  return PrinterService(ref, machineUUID);
-});
+      ref.keepAlive();
+      return PrinterService(ref, machineUUID);
+    });
 
 final printerProvider = StreamProvider.autoDispose.family<Printer, String>(
     name: 'printerProvider', (ref, machineUUID) async* {
   ref.keepAlive();
-  yield* ref.watch(printerServiceProvider(machineUUID)).printerStream;
+  yield* ref
+      .watch(printerServiceProvider(machineUUID))
+      .printerStream;
 });
 
 final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(
     name: 'printerServiceSelectedProvider', (ref) {
   return ref.watch(printerServiceProvider(
-      ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+      ref
+          .watch(selectedMachineProvider)
+          .valueOrNull!
+          .uuid));
 });
 
 final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
@@ -70,8 +74,9 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
 });
 
 class PrinterService {
-  PrinterService(AutoDisposeRef ref, String machineUUID)
-      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)),
+  PrinterService(AutoDisposeRef ref,  this._ownerUUID)
+      : _jRpcClient = ref.watch(jrpcClientProvider(_ownerUUID)),
+        _machineService= ref.watch(machineServiceProvider),
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
     ref.onDispose(dispose);
@@ -81,28 +86,32 @@ class PrinterService {
     _jRpcClient.addMethodListener(
         _onNotifyGcodeResponse, 'notify_gcode_response');
 
-    ref.listen<AsyncValue<KlipperInstance>>(klipperProvider(machineUUID),
-        (previous, next) {
-      next.whenOrNull(data: (value) {
-        switch (value.klippyState) {
-          case KlipperState.ready:
-            if (!_queriedForSession) {
-              _queriedForSession = true;
-              refreshPrinter();
+    ref.listen<AsyncValue<KlipperInstance>>(klipperProvider(_ownerUUID),
+            (previous, next) {
+          next.whenOrNull(data: (value) {
+            switch (value.klippyState) {
+              case KlipperState.ready:
+                if (!_queriedForSession) {
+                  _queriedForSession = true;
+                  refreshPrinter();
+                }
+                break;
+              default:
+                _queriedForSession = false;
             }
-            break;
-          default:
-            _queriedForSession = false;
-        }
-      });
-    });
+          });
+        });
   }
+
+  final String _ownerUUID;
 
   final SnackBarService _snackBarService;
 
   final DialogService _dialogService;
 
   final JsonRpcClient _jRpcClient;
+
+  final MachineService _machineService;
 
   final StreamController<Printer> _printerStreamCtler = StreamController();
 
@@ -129,7 +138,7 @@ class PrinterService {
   };
 
   final StreamController<String> _gCodeResponseStreamController =
-      StreamController.broadcast();
+  StreamController.broadcast();
 
   bool _queriedForSession = false;
 
@@ -160,8 +169,8 @@ class PrinterService {
       Printer printer = printerBuilder.build();
       _makeSubscribeRequest(printer.queryableObjects);
       current = printer;
-      //TODO:
-      // _machineService.updateMacrosInSettings(, printer.gcodeMacros);
+
+      _machineService.updateMacrosInSettings(_ownerUUID, printer.gcodeMacros);
     } on JRpcError catch (e, s) {
       logger.e('Unable to refresh Printer...', e, s);
       _showExceptionSnackbar(e, s);
@@ -207,7 +216,9 @@ class PrinterService {
 
   activateExtruder([int extruderIndex = 0]) {
     gCode(
-        'ACTIVATE_EXTRUDER EXTRUDER=extruder${extruderIndex > 0 ? extruderIndex : ''}');
+        'ACTIVATE_EXTRUDER EXTRUDER=extruder${extruderIndex > 0
+            ? extruderIndex
+            : ''}');
   }
 
   moveExtruder(double length, [double feedRate = 5]) {
@@ -307,7 +318,7 @@ class PrinterService {
     logger.i('Fetching cached GCode commands');
     try {
       RpcResponse blockingResponse =
-          await _jRpcClient.sendJRpcMethod('server.gcode_store');
+      await _jRpcClient.sendJRpcMethod('server.gcode_store');
 
       List<dynamic> raw = blockingResponse.response['result']['gcode_store'];
       logger.i('Received cached GCode commands');
@@ -323,7 +334,7 @@ class PrinterService {
     logger.i('Fetching available GCode commands');
     try {
       RpcResponse blockingResponse =
-          await _jRpcClient.sendJRpcMethod('printer.gcode.help');
+      await _jRpcClient.sendJRpcMethod('printer.gcode.help');
       Map<dynamic, dynamic> raw = blockingResponse.response['result'];
       logger.i('Received ${raw.length} available GCode commands');
       return raw.entries.map((e) => Command(e.key, e.value)).toList();
@@ -342,7 +353,7 @@ class PrinterService {
 
     try {
       RpcResponse blockingResponse =
-          await _jRpcClient.sendJRpcMethod('server.temperature_store');
+      await _jRpcClient.sendJRpcMethod('server.temperature_store');
 
       Map<String, dynamic> raw = blockingResponse.response['result'];
       List<String> sensors = raw.keys
@@ -387,8 +398,8 @@ class PrinterService {
     current = printerBuilder.build();
   }
 
-  _parseObjectType(
-      String key, Map<String, dynamic> json, PrinterBuilder printer) {
+  _parseObjectType(String key, Map<String, dynamic> json,
+      PrinterBuilder printer) {
     // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
     List<String> split = key.split(' ');
     String mainObjectType = split[0];
@@ -415,12 +426,13 @@ class PrinterService {
     }
   }
 
-  _parsePrinterObjectsList(
-      Map<String, dynamic> response, PrinterBuilder printer) {
+  _parsePrinterObjectsList(Map<String, dynamic> response,
+      PrinterBuilder printer) {
     var result = response['result'];
     logger.i('<<<Received printer objects list!');
     logger.v(
-        'PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
+        'PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(
+            result)}');
     List<String> objects = result['objects'].cast<String>();
     List<String> qObjects = [];
     List<String> gCodeMacros = [];
@@ -457,7 +469,7 @@ class PrinterService {
     printer.temperatureSensors = List.unmodifiable(temperatureSensors);
     printer.outputPins = List.unmodifiable(outputPins);
     printer.extruders = List.generate(extruderCnt,
-        (index) => Extruder(num: index, lastHistory: DateTime(1990)),
+            (index) => Extruder(num: index, lastHistory: DateTime(1990)),
         growable: false);
     printer.queryableObjects = List.unmodifiable(qObjects);
     printer.gcodeMacros = List.unmodifiable(gCodeMacros);
@@ -466,7 +478,8 @@ class PrinterService {
   _parseQueriedObjects(dynamic response, PrinterBuilder printer) async {
     logger.i('<<<Received queried printer objects');
     logger.v(
-        'PrinterObjectsQuery: ${const JsonEncoder.withIndent('  ').convert(response)}');
+        'PrinterObjectsQuery: ${const JsonEncoder.withIndent('  ').convert(
+            response)}');
     Map<String, dynamic> data = response['status'];
 
     data.forEach((key, value) {
@@ -486,8 +499,8 @@ class PrinterService {
     }
   }
 
-  _updateNamedFan<T extends NamedFan>(
-      String fanName, Map<String, dynamic> fanJson,
+  _updateNamedFan<T extends NamedFan>(String fanName,
+      Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
     List<String> split = fanName.split(' ');
     String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
@@ -533,7 +546,9 @@ class PrinterService {
 
       // Update temp cache for graphs!
       DateTime now = DateTime.now();
-      if (now.difference(e.lastHistory).inSeconds >= 1) {
+      if (now
+          .difference(e.lastHistory)
+          .inSeconds >= 1) {
         temperatureHistory = _updateHistoryList(
             e.temperatureHistory, temperature ?? e.temperature);
         lastHistory = now;
@@ -657,7 +672,7 @@ class PrinterService {
 
     if (printStatJson.containsKey('state')) {
       state =
-          EnumToString.fromString(PrintState.values, printStatJson['state'])!;
+      EnumToString.fromString(PrintState.values, printStatJson['state'])!;
     }
     if (printStatJson.containsKey('filename')) {
       filename = printStatJson['filename'];
@@ -723,7 +738,9 @@ class PrinterService {
 
     // Update temp cache for graphs!
     DateTime now = DateTime.now();
-    if (now.difference(old.lastHistory).inSeconds >= 1) {
+    if (now
+        .difference(old.lastHistory)
+        .inSeconds >= 1) {
       temperatureHistory = _updateHistoryList(
           old.temperatureHistory, temperature ?? old.temperature);
       targetHistory =
@@ -788,7 +805,9 @@ class PrinterService {
 
     // Update temp cache for graphs!
     DateTime now = DateTime.now();
-    if (now.difference(extruder.lastHistory).inSeconds >= 1) {
+    if (now
+        .difference(extruder.lastHistory)
+        .inSeconds >= 1) {
       temperatureHistory = _updateHistoryList(
           extruder.temperatureHistory, temperature ?? extruder.temperature);
       targetHistory =
@@ -960,7 +979,7 @@ class PrinterService {
   _printerObjectsQuery(PrinterBuilder printer) async {
     logger.i('>>>Querying Printer Objects!');
     Map<String, List<String>?> queryObjects =
-        _queryPrinterObjectJson(printer.queryableObjects);
+    _queryPrinterObjectJson(printer.queryableObjects);
 
     RpcResponse jRpcResponse = await _jRpcClient.sendJRpcMethod(
         'printer.objects.query',
@@ -973,7 +992,7 @@ class PrinterService {
   _makeSubscribeRequest(List<String> queryableObjects) {
     logger.i('Subscribing printer objects for ws-updates!');
     Map<String, List<String>?> queryObjects =
-        _queryPrinterObjectJson(queryableObjects);
+    _queryPrinterObjectJson(queryableObjects);
 
     _jRpcClient.sendJsonRpcWithCallback('printer.objects.subscribe',
         params: {'objects': queryObjects});
@@ -986,9 +1005,9 @@ class PrinterService {
   _onMessage(String message) {
     if (message.isEmpty) return;
     _snackBarService.show(SnackBarConfig(
-      type: SnackbarType.warning,
-      title: 'Klippy-Message',
-      message: message
+        type: SnackbarType.warning,
+        title: 'Klippy-Message',
+        message: message
     ));
   }
 

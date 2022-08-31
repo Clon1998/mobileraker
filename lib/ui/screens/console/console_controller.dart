@@ -36,15 +36,17 @@ final consoleListControllerProvider = StateNotifierProvider.autoDispose<
 
 class ConsoleListController
     extends StateNotifier<AsyncValue<List<ConsoleEntry>>> {
-  ConsoleListController(this.ref) : super(const AsyncValue.loading()) {
+  ConsoleListController(this.ref)
+      : printerService = ref.watch(printerServiceSelectedProvider),
+        super(const AsyncValue.loading()) {
     _init();
   }
 
   final AutoDisposeRef ref;
+  final PrinterService printerService;
 
   _init() async {
-    var gCodeResponseStream =
-        ref.watch(printerServiceSelectedProvider).gCodeResponseStream;
+    var gCodeResponseStream = printerService.gCodeResponseStream;
     await _fetchHistory();
     if (!mounted) return;
     var l = gCodeResponseStream.listen((event) {
@@ -59,7 +61,7 @@ class ConsoleListController
   }
 
   _fetchHistory() async {
-    var raw = await ref.watch(printerServiceSelectedProvider).gcodeStore();
+    var raw = await printerService.gcodeStore();
     var tempPattern = RegExp(r'^(?:ok\s+)?(B|C|T\d*):', caseSensitive: false);
     var list = raw
         .where((element) => !tempPattern.hasMatch(element.message))
@@ -80,7 +82,7 @@ class ConsoleListController
       ConsoleEntry(command, ConsoleEntryType.COMMAND,
           DateTime.now().millisecondsSinceEpoch / 1000)
     ]);
-    ref.read(printerServiceSelectedProvider).gCode(command);
+    printerService.gCode(command);
     ref.read(commandHistoryProvider.notifier).add(command);
   }
 }

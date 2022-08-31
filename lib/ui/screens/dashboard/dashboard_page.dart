@@ -10,15 +10,14 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service.dart';
+import 'package:mobileraker/ui/components/SelectedPrinterAppBar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
-import 'package:mobileraker/ui/screens/printers/edit/printers_edit_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
@@ -54,18 +53,9 @@ class _DashboardView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
     return Scaffold(
-      appBar: AppBar(
-        title: GestureDetector(
-          onHorizontalDragEnd: ref
-              .watch(dashBoardViewControllerProvider.notifier)
-              .onHorizontalDragEnd,
-          child: Text(
-            '${machine?.name ?? 'Printer'} - ${tr('pages.dashboard.title')}',
-            overflow: TextOverflow.fade,
-          ),
-        ),
+      appBar: SwitchPrinterAppBar(
+        title: tr('pages.dashboard.title'),
         actions: const <Widget>[
           MachineStateIndicator(),
           EmergencyStopBtn(),

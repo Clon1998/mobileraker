@@ -69,9 +69,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'edit',
             name: AppRoute.printerEdit.name,
-            builder: (context, state) =>
-                // TestPage(),
-                PrinterEdit(machine: state.extra! as Machine),
+            builder: (context, state) {
+              return PrinterEdit(machine: state.extra! as Machine);
+            },
           ),
           GoRoute(
             path: 'add',

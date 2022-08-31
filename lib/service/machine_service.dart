@@ -20,14 +20,15 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
-final machineServiceProvider = Provider<MachineService>((ref) => MachineService(ref));
+final machineServiceProvider =
+    Provider<MachineService>((ref) => MachineService(ref));
 
 final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>(
     (ref) => ref.watch(machineServiceProvider).fetchAll());
 
 final selectedMachineSettingsProvider =
     FutureProvider.autoDispose<MachineSettings>((ref) async {
-      //TODO: This leaks and is not that eefficient!
+  //TODO: This leaks and is not that eefficient!
   var machine = await ref
       .watch(selectedMachineProvider.future)
       .asStream()
@@ -220,7 +221,12 @@ class MachineService {
     return i;
   }
 
-  updateMacrosInSettings(Machine machine, List<String> macros) async {
+  updateMacrosInSettings(String machineUUID, List<String> macros) async {
+    Machine? machine = await _machineRepo.get(uuid: machineUUID);
+    if (machine== null) {
+      logger.e('Could not update macros, machine not found!');
+      return;
+    }
     logger
         .i('Updating Default Macros for "${machine.name}(${machine.wsUrl})"!');
     MachineSettings machineSettings = await fetchSettings(machine);
@@ -233,6 +239,8 @@ class MachineService {
       }
     }
 
+    if (filteredMacros.isEmpty) return;
+    logger.i('Adding ${filteredMacros.length} new macros to default group!');
     MacroGroup defaultGroup = modifiableMacroGrps
         .firstWhere((element) => element.name == 'Default', orElse: () {
       MacroGroup group = MacroGroup(name: 'Default');

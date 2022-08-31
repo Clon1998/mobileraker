@@ -17,15 +17,6 @@ final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
     throw MobilerakerException(
         'Machine with UUID "$machineUUID" was not found!');
   }
-  // // logger.wtf('JRPC creating for: $machineUUID## ${identityHashCode(machine)}');
-  // ref.onDispose(() {
-  //   logger
-  //       .wtf('JRPC disposing for: $machineUUID## ${identityHashCode(machine)}');
-  // });
-  // ref.onCancel(() {
-  //   logger
-  //       .wtf('JRPC onCancel for: $machineUUID## ${identityHashCode(machine)}');
-  // });
   var jsonRpcClient = JsonRpcClient(
     machine.wsUrl,
   );

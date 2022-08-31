@@ -11,6 +11,7 @@ import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/ui/components/SelectedPrinterAppBar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
@@ -109,35 +110,31 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
         ),
       );
     } else {
-      return AppBar(
-        title: const Text(
-          'pages.files.title',
-          overflow: TextOverflow.fade,
-        ).tr(),
-        actions: <Widget>[
-          PopupMenuButton<FileSort>(
-            icon: const Icon(
-              Icons.sort,
+      return SwitchPrinterAppBar(
+          title: tr('pages.files.title'),
+          actions: <Widget>[
+            PopupMenuButton<FileSort>(
+              icon: const Icon(
+                Icons.sort,
+              ),
+              onSelected: (s) =>
+                  ref.read(fileSortModeProvider.notifier).state = s,
+              itemBuilder: (BuildContext context) =>
+                  List.generate(FileSort.values.length, (index) {
+                var e = FileSort.values[index];
+                return CheckedPopupMenuItem(
+                  value: e,
+                  checked: e == ref.watch(fileSortModeProvider),
+                  child: Text(e.translation).tr(),
+                );
+              }),
             ),
-            onSelected: (s) =>
-                ref.read(fileSortModeProvider.notifier).state = s,
-            itemBuilder: (BuildContext context) =>
-                List.generate(FileSort.values.length, (index) {
-              var e = FileSort.values[index];
-              return CheckedPopupMenuItem(
-                value: e,
-                checked: e == ref.watch(fileSortModeProvider),
-                child: Text(e.translation).tr(),
-              );
-            }),
-          ),
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () =>
-                ref.read(isSearchingProvider.notifier).state = true,
-          ),
-        ],
-      );
+            IconButton(
+              icon: const Icon(Icons.search),
+              onPressed: () =>
+                  ref.read(isSearchingProvider.notifier).state = true,
+            ),
+          ]);
     }
   }
 
@@ -386,7 +383,7 @@ class FileItem extends ConsumerWidget {
             width: 64, height: 64, child: Icon(Icons.insert_drive_file)),
         title: Text(file.name),
         onTap: () =>
-            ref.watch(filesListControllerProvider.notifier).onFileTapped(file),
+            ref.read(filesListControllerProvider.notifier).onFileTapped(file),
       ),
     );
   }
@@ -413,7 +410,7 @@ class GCodeFileItem extends ConsumerWidget {
             )),
         title: Text(gCode.name),
         onTap: () =>
-            ref.watch(filesListControllerProvider.notifier).onFileTapped(gCode),
+            ref.read(filesListControllerProvider.notifier).onFileTapped(gCode),
       ),
     );
   }

@@ -7,13 +7,14 @@ part 'gcode_macro.g.dart';
 
 @JsonSerializable()
 class GCodeMacro extends StampedEntity {
-  GCodeMacro({DateTime? created,
+  GCodeMacro(
+      {DateTime? created,
       DateTime? lastModified,
       required this.name,
       String? uuid,
       this.visible = true,
       this.showWhilePrinting = true})
-      : uuid = uuid ?? Uuid().v4(),
+      : uuid = uuid ?? const Uuid().v4(),
         super(created, lastModified ?? DateTime.now());
 
   @JsonKey(required: true)

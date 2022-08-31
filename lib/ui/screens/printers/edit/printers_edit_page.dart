@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -12,9 +13,7 @@ import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
@@ -28,17 +27,20 @@ class PrinterEdit extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ProviderScope(overrides: [
-      currentlyEditing.overrideWithValue(machine),
-      printerEditControllerProvider,
-      remoteMachineSettingProvider,
-      webcamListControllerProvider,
-      macroGroupListControllerProvider,
-      temperaturePresetListControllerProvider,
-      moveStepStateProvider,
-      babyStepStateProvider,
-      extruderStepStateProvider
-    ], child: _PrinterEdit());
+    return ProviderScope(
+      overrides: [
+        currentlyEditing.overrideWithValue(machine),
+        printerEditControllerProvider,
+        remoteMachineSettingProvider,
+        webcamListControllerProvider,
+        macroGroupListControllerProvider,
+        temperaturePresetListControllerProvider,
+        moveStepStateProvider,
+        babyStepStateProvider,
+        extruderStepStateProvider
+      ],
+      child: _PrinterEdit(),
+    );
   }
 }
 
@@ -69,10 +71,14 @@ class _PrinterEdit extends ConsumerWidget {
             ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: ref.read(printerEditControllerProvider.notifier).saveForm,
-        child: const Icon(Icons.save_outlined),
-      ),
+      floatingActionButton: ref.watch(isSavingProvider)
+          ? const FloatingActionButton(
+              onPressed: null, child: CircularProgressIndicator())
+          : FloatingActionButton(
+              onPressed:
+                  ref.read(printerEditControllerProvider.notifier).saveForm,
+              child: const Icon(Icons.save_outlined),
+            ),
       body: const PrinterSettingScrollView(),
     );
   }
@@ -89,6 +95,7 @@ class PrinterSettingScrollView extends ConsumerWidget {
 
     return SingleChildScrollView(
       child: FormBuilder(
+        enabled: !ref.watch(isSavingProvider),
         autoFocusOnValidationFailure: true,
         key: ref.watch(editPrinterformKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -189,6 +196,7 @@ class WebcamList extends ConsumerWidget {
         shrinkWrap: true,
         onReorder:
             ref.read(webcamListControllerProvider.notifier).onWebCamReorder,
+        onReorderStart: (i) => FocusScope.of(context).unfocus(),
         children: List.generate(cams.length, (index) {
           WebcamSetting cam = cams[index];
           return _WebCamItem(
@@ -623,6 +631,7 @@ class MacroGroupList extends ConsumerWidget {
         shrinkWrap: true,
         onReorder:
             ref.read(macroGroupListControllerProvider.notifier).onGroupReorder,
+        onReorderStart: (i) => FocusScope.of(context).unfocus(),
         children: List.generate(macroGroups.length, (index) {
           MacroGroup macroGroup = macroGroups[index];
           return _MacroGroup(
@@ -653,6 +662,7 @@ class _MacroGroup extends HookConsumerWidget {
     var macros = ref.watch(macroGroupControllerProvder(macroGroup));
     var dragging = ref.watch(
         macroGroupDragginControllerProvider.select((value) => value != null));
+
     return Card(
         child: ExpansionTile(
             maintainState: true,
@@ -666,15 +676,34 @@ class _MacroGroup extends HookConsumerWidget {
             title: DragTarget<int>(
               builder: (BuildContext context, List<int?> candidateData,
                   List<dynamic> rejectedData) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(name.value),
-                    Chip(
-                      label: Text('${macros.length}'),
-                      backgroundColor: Theme.of(context).colorScheme.background,
-                    )
-                  ],
+                var themeData = Theme.of(context);
+                var row = Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(name.value),
+                      Chip(
+                        label: Text('${macros.length}'),
+                        backgroundColor: themeData.colorScheme.background,
+                      )
+                    ],
+                  ),
+                );
+                if (!dragging) return row;
+
+                var targetCol = candidateData.isNotEmpty
+                    ? themeData.colorScheme.primaryContainer
+                    : themeData.colorScheme.background.lighten(10);
+
+                return Container(
+                  decoration: BoxDecoration(
+                    color: targetCol,
+                    borderRadius: const BorderRadius.horizontal(
+                        left: Radius.circular(14), right: Radius.circular(14)),
+                    border: Border.all(color: themeData.colorScheme.secondary),
+                  ),
+                  child: row,
                 );
               },
               onAccept: (int d) => ref
@@ -722,9 +751,12 @@ class _MacroGroup extends HookConsumerWidget {
                   child: widget,
                 ),
               ),
-              onReorderStarted: (index) => ref
-                  .read(macroGroupDragginControllerProvider.notifier)
-                  .onMacroReorderStarted(macroGroup),
+              onReorderStarted: (index) {
+                FocusScope.of(context).unfocus();
+                ref
+                    .read(macroGroupDragginControllerProvider.notifier)
+                    .onMacroReorderStarted(macroGroup);
+              },
               onReorder: ref
                   .read(macroGroupControllerProvder(macroGroup).notifier)
                   .onMacroReorder,
@@ -761,6 +793,7 @@ class TemperaturePresetList extends ConsumerWidget {
       onReorder: ref
           .watch(temperaturePresetListControllerProvider.notifier)
           .onGroupReorder,
+      onReorderStart: (i) => FocusScope.of(context).unfocus(),
       children: List.generate(tempPresets.length, (index) {
         TemperaturePreset preset = tempPresets[index];
         return _TempPresetItem(
@@ -803,7 +836,8 @@ class _TempPresetItem extends HookConsumerWidget {
         child: ExpansionTile(
             maintainState: true,
             tilePadding: const EdgeInsets.symmetric(horizontal: 10),
-            childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
+            childrenPadding:
+                const EdgeInsets.only(left: 10, right: 10, bottom: 10),
             title: Text(name.value),
             leading: ReorderableDragStartListener(
               index: idx,
@@ -829,9 +863,8 @@ class _TempPresetItem extends HookConsumerWidget {
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
-                labelText:
-                    '${tr('pages.printer_edit.presets.hotend_temp')} [°C]',
-                helperText: ''),
+                labelText: tr('pages.printer_edit.presets.hotend_temp'),
+                suffixText: '°C'),
             name: '${preset.uuid}-extruderTemp',
             initialValue: preset.extruderTemp.toString(),
             valueTransformer: (String? text) => (text != null)
@@ -849,8 +882,8 @@ class _TempPresetItem extends HookConsumerWidget {
           ),
           FormBuilderTextField(
             decoration: InputDecoration(
-                labelText: '${tr('pages.printer_edit.presets.bed_temp')} [°C]',
-                helperText: ''),
+                labelText: tr('pages.printer_edit.presets.bed_temp'),
+                suffixText: '°C'),
             name: '${preset.uuid}-bedTemp',
             initialValue: preset.bedTemp.toString(),
             valueTransformer: (String? text) =>

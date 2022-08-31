@@ -21,22 +21,34 @@ import 'package:mobileraker/util/extensions/async_ext.dart';
 final editPrinterformKeyProvider =
     Provider.autoDispose((ref) => GlobalKey<FormBuilderState>());
 
+final isSavingProvider = StateProvider.autoDispose<bool>((ref) {
+  return false;
+});
+
+
 final currentlyEditing = Provider.autoDispose<Machine>(
     name: 'currentlyEditing', (ref) => throw UnimplementedError());
 
-final printerEditControllerProvider = StateNotifierProvider.autoDispose<
-    PrinterEditPageController,void>((ref) => PrinterEditPageController(ref));
+final printerEditControllerProvider =
+    StateNotifierProvider.autoDispose<PrinterEditPageController, void>(
+        (ref) => PrinterEditPageController(ref));
 
 class PrinterEditPageController extends StateNotifier<void> {
-  PrinterEditPageController(this.ref) : super(null) ;
+  PrinterEditPageController(this.ref) : super(null);
 
   final AutoDisposeRef ref;
 
-
   openQrScanner() async {
-    var qr = await ref.read(goRouterProvider).navigator!.push(MaterialPageRoute(builder: (ctx) => QrScannerPage()));
+    var qr = await ref
+        .read(goRouterProvider)
+        .navigator!
+        .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr != null) {
-      ref.read(editPrinterformKeyProvider).currentState?.fields['printerApiKey']?.didChange(qr);
+      ref
+          .read(editPrinterformKeyProvider)
+          .currentState
+          ?.fields['printerApiKey']
+          ?.didChange(qr);
     }
   }
 
@@ -46,6 +58,7 @@ class PrinterEditPageController extends StateNotifier<void> {
       logger.w('Could not save state!');
       return;
     }
+    ref.read(isSavingProvider.notifier).state = true;
     formBuilderState.save();
     var machine = ref.read(currentlyEditing);
 
@@ -86,15 +99,11 @@ class PrinterEditPageController extends StateNotifier<void> {
       var speedZ = formBuilderState.value['speedZ'];
       var extrudeSpeed = formBuilderState.value['extrudeSpeed'];
 
-      List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider);
-      for (var grp in macroGroups) {
+      List<MacroGroup> macroGroups = [];
+      for (var grp in ref.read(macroGroupListControllerProvider)) {
         List<GCodeMacro> read = ref.read(macroGroupControllerProvder(grp));
-
         var name = formBuilderState.value['${grp.uuid}-macroName'];
-        if (name != null) grp.name = name;
-        grp
-          ..macros = read
-          ..lastModified = DateTime.now();
+        macroGroups.add(grp.copyWith(name: name ,macros: read));
       }
 
       List<TemperaturePreset> presets =
@@ -145,8 +154,7 @@ class PrinterEditPageController extends StateNotifier<void> {
         body:
             "Are you sure you want to remove the printer ${machine.name} running under the address '${machine.httpUrl}'?",
         confirmBtn: 'DELETE',
-        confirmBtnColor: Colors.red
-    );
+        confirmBtnColor: Colors.red);
 
     if (dialogResponse?.confirmed ?? false) {
       await ref.read(machineServiceProvider).removeMachine(machine);
@@ -157,8 +165,8 @@ class PrinterEditPageController extends StateNotifier<void> {
   openImportSettings() {
     ref
         .read(dialogServiceProvider)
-        .show(
-            DialogRequest(type: DialogType.importSettings, data: ref.read(currentlyEditing)))
+        .show(DialogRequest(
+            type: DialogType.importSettings, data: ref.read(currentlyEditing)))
         .then(onImportSettingsReturns);
   }
 
@@ -191,13 +199,16 @@ class PrinterEditPageController extends StateNotifier<void> {
             patchingValues[field] = settings.extrudeFeedrate.toString();
             break;
           case 'moveSteps':
-            ref.read(moveStepStateProvider.notifier).state = List.of(settings.moveSteps);
+            ref.read(moveStepStateProvider.notifier).state =
+                List.of(settings.moveSteps);
             break;
           case 'babySteps':
-            ref.read(babyStepStateProvider.notifier).state = List.of(settings.babySteps);
+            ref.read(babyStepStateProvider.notifier).state =
+                List.of(settings.babySteps);
             break;
           case 'extrudeSteps':
-            ref.read(extruderStepStateProvider.notifier).state = List.of(settings.extrudeSteps);
+            ref.read(extruderStepStateProvider.notifier).state =
+                List.of(settings.extrudeSteps);
             break;
         }
       }
@@ -212,8 +223,7 @@ final importMachines = FutureProvider.autoDispose(
 
 final remoteMachineSettingProvider =
     FutureProvider.autoDispose<MachineSettings>((ref) async {
-      var machine = ref.watch(currentlyEditing);
-
+  var machine = ref.watch(currentlyEditing);
   return ref.watch(machineServiceProvider).fetchSettings(machine);
 });
 
@@ -383,8 +393,9 @@ class MacroGroupListController extends StateNotifier<List<MacroGroup>> {
 }
 
 final macroGroupControllerProvder = StateNotifierProvider.autoDispose
-    .family<MacroGroupController, List<GCodeMacro>, MacroGroup>(
-        (ref, grp) => MacroGroupController(ref, grp));
+    .family<MacroGroupController, List<GCodeMacro>, MacroGroup>((ref, grp) {
+  return MacroGroupController(ref, grp);
+}, name: 'macroGrpCtler');
 
 class MacroGroupController extends StateNotifier<List<GCodeMacro>> {
   MacroGroupController(this.ref, this.macroGroup)
@@ -432,8 +443,9 @@ class MacroGroupController extends StateNotifier<List<GCodeMacro>> {
 }
 
 final macroGroupDragginControllerProvider = StateNotifierProvider.autoDispose<
-    MacroGroupDraggingController,
-    MacroGroup?>((ref) => MacroGroupDraggingController(ref));
+    MacroGroupDraggingController, MacroGroup?>((ref) {
+  return MacroGroupDraggingController(ref);
+});
 
 class MacroGroupDraggingController extends StateNotifier<MacroGroup?> {
   MacroGroupDraggingController(this.ref) : super(null);
@@ -441,18 +453,20 @@ class MacroGroupDraggingController extends StateNotifier<MacroGroup?> {
   final Ref ref;
 
   onMacroDragAccepted(MacroGroup target, int index) {
-    if (target == state) {
+    var srcGrp = state;
+    state = null; // ensure it emoty again!
+    if (target == srcGrp) {
       logger.d("GCode-Drag NOT accepted (SAME GRP)");
       return;
     }
-    if (state == null) {
+    if (srcGrp == null) {
       logger.e('The src MacroGroup was empty?');
       return;
     }
 
     var macro =
-        ref.read(macroGroupControllerProvder(state!).notifier).removeAt(index);
-    logger.d("GCode-Drag accepted ${macro.name} in ${target.name}");
+        ref.read(macroGroupControllerProvder(srcGrp).notifier).removeAt(index);
+    logger.i("GCode-Drag accepted ${macro.name} in ${target.name}");
     ref.read(macroGroupControllerProvder(target).notifier).add(macro);
   }
 

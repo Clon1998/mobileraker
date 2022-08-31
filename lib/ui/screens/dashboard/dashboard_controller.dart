@@ -47,7 +47,6 @@ class PrinterKlippySettingsMachineWrapper {
   final KlipperInstance klippyData;
   final MachineSettings settings;
   final Machine machine;
-
 }
 
 final dashBoardViewControllerProvider =
@@ -63,19 +62,6 @@ class DashBoardViewController extends StateNotifier<int> {
   final AutoDisposeRef ref;
 
   final PageController pageController;
-
-  onHorizontalDragEnd(DragEndDetails endDetails) {
-    double primaryVelocity = endDetails.primaryVelocity ?? 0;
-    var selectedMachineService = ref.read(selectedMachineServiceProvider);
-
-    if (primaryVelocity < 0) {
-      // Page forwards
-      selectedMachineService.selectPreviousMachine();
-    } else if (primaryVelocity > 0) {
-      // Page backwards
-      selectedMachineService.selectNextMachine();
-    }
-  }
 
   onBottomNavTapped(int value) {
     pageController.animateToPage(value,

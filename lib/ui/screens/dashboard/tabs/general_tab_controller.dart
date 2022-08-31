@@ -267,12 +267,25 @@ final camCardControllerProvider =
 
 class CamCardController extends StateNotifier<WebcamSetting> {
   CamCardController(this.ref)
-      : super(ref.read(generalTabViewControllerProvider).value!.machine.cams.first);
+      : super(ref.read(generalTabViewControllerProvider).value!.machine.cams[min(
+      ref.read(generalTabViewControllerProvider).value!.machine.cams.length - 1,
+      max(
+          0,
+          ref
+              .read(settingServiceProvider)
+              .readInt(selectedWebcamGrpIndex, 0)))]);
   final Ref ref;
 
   onSelectedChange(WebcamSetting? cam) {
     if (cam == null) return;
     state = cam;
+    var cams = ref.read(generalTabViewControllerProvider).value!.machine.cams;
+    var indexOf = cams.indexOf(cam);
+    if (indexOf >= 0) {
+      ref
+        .read(settingServiceProvider)
+        .writeInt(selectedWebcamGrpIndex, indexOf);
+    }
   }
 
   onFullScreenTap() {
