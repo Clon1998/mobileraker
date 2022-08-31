@@ -16,6 +16,7 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
@@ -71,19 +72,24 @@ class ControlTab extends ConsumerWidget {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(FlutterIcons.sad_cry_faw5s, size: 99),
-                    SizedBox(
+                  children: [
+                    const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
+                    const SizedBox(
                       height: 22,
                     ),
-                    Text(
+                    const Text(
                       'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
                       textAlign: TextAlign.center,
                     ),
                     TextButton(
                         // onPressed: model.showPrinterFetchingErrorDialog,
-                        onPressed: null,
-                        child: Text('Show Error'))
+                        onPressed: () => ref.read(dialogServiceProvider).show(
+                            DialogRequest(
+                                type: DialogType.stacktrace,
+                                title: e.runtimeType.toString(),
+                                body:
+                                    'Exception:\n $e\n\n$s')),
+                        child: const Text('Show Error'))
                   ],
                 ),
               );

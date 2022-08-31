@@ -91,8 +91,12 @@ class GeneralTab extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     TextButton(
-                        // onPressed: model.showPrinterFetchingErrorDialog,
-                        onPressed: null,
+                        onPressed: () => ref.read(dialogServiceProvider).show(
+                            DialogRequest(
+                                type: DialogType.stacktrace,
+                                title: e.runtimeType.toString(),
+                                body:
+                                'Exception:\n $e\n\n$s')),
                         child: Text('Show Error'))
                   ],
                 ),
