@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger_flutter/logger_flutter.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -141,17 +140,6 @@ class SettingPage extends ConsumerWidget {
                             image: AssetImage('assets/icon/mr_logo.png')),
                       ));
                 },
-              ),
-              TextButton(
-                style: TextButton.styleFrom(
-                    minimumSize: Size.zero, // Set this
-                    padding: EdgeInsets.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary.lighten(22))),
-                child: const Text(
-                    'Debug Logs'),
-                onPressed: () => LogConsole.openLogConsole(context),
               ),
               // _SectionHeader(title: 'Notifications'),
             ],
