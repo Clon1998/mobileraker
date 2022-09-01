@@ -2,9 +2,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 
@@ -51,7 +53,9 @@ class PrinterAddPage extends ConsumerWidget {
                           'pages.printer_edit.general.moonraker_api_key'.tr(),
                       suffix: IconButton(
                         icon: const Icon(Icons.qr_code_sharp),
-                        onPressed: ref.watch(printerAddViewController.notifier).openQrScanner,
+                        onPressed: ref
+                            .watch(printerAddViewController.notifier)
+                            .openQrScanner,
                       ),
                       helperText:
                           'pages.printer_edit.general.moonraker_api_desc'.tr(),
@@ -165,11 +169,11 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
-class WSInput extends HookWidget {
+class WSInput extends HookConsumerWidget {
   const WSInput({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var wsUrl = useState('');
     return FormBuilderTextField(
       decoration: InputDecoration(
@@ -178,7 +182,27 @@ class WSInput extends HookWidget {
           helperMaxLines: 3,
           helperText: (wsUrl.value.isNotEmpty)
               ? 'pages.printer_add.resulting_ws_url'.tr(args: [wsUrl.value])
-              : null),
+              : null,
+          suffix: IconButton(
+            icon: const Icon(
+              Icons.question_mark,
+            ),
+            onPressed: () {
+              ref.read(dialogServiceProvider).show(DialogRequest(
+                  type: DialogType.info,
+                  title: 'URL Input Help',
+                  body:
+                      '''You can either enter an IP, URL or full URI to your webinterface or directly to the websocket instance provided by moonraker.
+
+
+Valid examples:
+192.168.1.1
+192.168.1.1:7125
+http://myprinter.com
+ws://myprinter.com/socket''',
+                  cancelBtn: 'Close'));
+            },
+          )),
       onChanged: (input) {
         if (input != null) wsUrl.value = urlToWebsocketUrl(input);
       },
