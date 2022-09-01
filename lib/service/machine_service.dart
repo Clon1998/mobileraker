@@ -105,6 +105,8 @@ class MachineService {
     logger.i('Removing machine ${machine.uuid}');
     await _machineRepo.remove(machine.uuid);
     ref.invalidate(allMachinesProvider);
+    ref.invalidate(jrpcClientProvider(machine.uuid));
+    ref.invalidate(jrpcClientStateProvider(machine.uuid));
     ref.invalidate(printerProvider(machine.uuid));
     ref.invalidate(printerServiceProvider(machine.uuid));
     ref.invalidate(klipperProvider(machine.uuid));

@@ -15,16 +15,16 @@ import 'package:rxdart/rxdart.dart';
 final klipperServiceProvider = Provider.autoDispose
     .family<KlippyService, String>(name: 'klipperServiceProvider',
         (ref, machineUUID) {
-          ref.keepAlive();
+  ref.keepAlive();
 
-          return KlippyService(ref, machineUUID);
+  return KlippyService(ref, machineUUID);
 });
 
 final klipperProvider = StreamProvider.autoDispose
     .family<KlipperInstance, String>(name: 'klipperProvider',
         (ref, machineUUID) {
-          ref.keepAlive();
-          return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
+  ref.keepAlive();
+  return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
 });
 
 final klipperServiceSelectedProvider =
@@ -35,8 +35,12 @@ final klipperServiceSelectedProvider =
 // StreamProvider<KlipperInstance>
 final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
     name: 'klipperSelectedProvider', (ref) async* {
-  var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-  yield* ref.watch(klipperProvider(machine.uuid).stream);
+  try {
+    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+    yield* ref.watch(klipperProvider(machine.uuid).stream);
+  } on StateError catch (e, s) {
+    // Just catch it. It is expected that the future/where might not complete!
+  }
 });
 
 /// Service managing klippy-server stuff

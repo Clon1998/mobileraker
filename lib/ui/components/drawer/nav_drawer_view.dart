@@ -183,7 +183,8 @@ class _NavHeader extends ConsumerWidget {
                               neverNullMachineAsyncData.maybeWhen(
                                   orElse: () => 'Add printer first',
                                   data: (machine) =>
-                                      Uri.parse(machine.httpUrl).host),
+                                      Uri.tryParse(machine.httpUrl)?.host ??
+                                      machine.httpUrl),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: themeData.textTheme.subtitle2
@@ -202,6 +203,10 @@ class _NavHeader extends ConsumerWidget {
                             .read(navDrawerControllerProvider.notifier)
                             .pushingTo('/printer/edit',
                                 arguments: neverNullMachineAsyncData.value!);
+                      } else {
+                        ref
+                            .read(navDrawerControllerProvider.notifier)
+                            .pushingTo('/printer/add');
                       }
                     },
                     tooltip: 'components.nav_drawer.printer_settings'.tr(),
@@ -285,25 +290,30 @@ class _PrinterSelection extends ConsumerWidget {
       child: (isExpanded)
           ? Column(
               children: [
-                if (selMachine.hasValue)
+                if (selMachine.valueOrFullNull != null)
                   _MachineTile(
                     machine: selMachine.value!,
                     isSelected: true,
                   ),
-                ...ref.watch(allMachinesProvider.selectAs((data) => data.where((element) => element.uuid != selMachine.valueOrFullNull?.uuid))).maybeWhen(
-                    orElse: () => [
-                          ListTile(
-                            title: FadingText(
-                                'components.nav_drawer.fetching_printers'.tr()),
-                            contentPadding: basePadding,
-                          )
-                        ],
-                    data: (data) {
-                      return List.generate(data.length, (index) {
-                        Machine curPS = data.elementAt(index);
-                        return _MachineTile(machine: curPS);
-                      });
-                    }),
+                ...ref
+                    .watch(allMachinesProvider.selectAs((data) => data.where(
+                        (element) =>
+                            element.uuid != selMachine.valueOrFullNull?.uuid)))
+                    .maybeWhen(
+                        orElse: () => [
+                              ListTile(
+                                title: FadingText(
+                                    'components.nav_drawer.fetching_printers'
+                                        .tr()),
+                                contentPadding: basePadding,
+                              )
+                            ],
+                        data: (data) {
+                          return List.generate(data.length, (index) {
+                            Machine curPS = data.elementAt(index);
+                            return _MachineTile(machine: curPS);
+                          });
+                        }),
                 ListTile(
                   title: const Text('pages.printer_add.title').tr(),
                   contentPadding: basePadding,
@@ -356,10 +366,12 @@ class _MachineTile extends ConsumerWidget {
       iconColor: themeData.colorScheme.onBackground,
       contentPadding: basePadding,
       selected: isSelected,
-      onTap: isSelected? null: () {
-        Navigator.pop(context);
-        ref.read(selectedMachineServiceProvider).selectMachine(machine);
-      },
+      onTap: isSelected
+          ? null
+          : () {
+              Navigator.pop(context);
+              ref.read(selectedMachineServiceProvider).selectMachine(machine);
+            },
       onLongPress: () => ref
           .read(navDrawerControllerProvider.notifier)
           .pushingTo('/printer/edit', arguments: machine),

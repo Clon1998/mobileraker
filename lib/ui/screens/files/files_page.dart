@@ -25,15 +25,12 @@ class FilesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return WillPopScope(
-      onWillPop: ref.watch(filesListControllerProvider.notifier).onWillPop,
-      child: const Scaffold(
-        appBar: _AppBar(),
-        drawer: NavigationDrawerWidget(),
-        bottomNavigationBar: _BottomNav(),
-        body: ConnectionStateView(
-          onConnected: _FilesBody(),
-        ),
+    return const Scaffold(
+      appBar: _AppBar(),
+      drawer: NavigationDrawerWidget(),
+      bottomNavigationBar: _BottomNav(),
+      body: ConnectionStateView(
+        onConnected: _FilesBody(),
       ),
     );
   }
@@ -46,6 +43,10 @@ class _BottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (ref.watch(selectedMachineProvider).valueOrFullNull == null) {
+      return const SizedBox.shrink();
+    }
+
     return BottomNavigationBar(
       showSelectedLabels: true,
       currentIndex: ref.watch(filePageProvider),
@@ -149,135 +150,138 @@ class _FilesBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = Theme.of(context);
 
-    return Container(
-      margin: const EdgeInsets.all(4.0),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
-        boxShadow: [
-          if (theme.brightness == Brightness.light)
-            const BoxShadow(
-              color: Colors.grey,
-              offset: Offset(0.0, 4.0), //(x,y)
-              blurRadius: 1.0,
-            ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const _BreadCrumb(),
-          ref
-              .watch(filesListControllerProvider.select((value) => value))
-              .filteredAndSorted
-              .when(
-                  data: (folderContent) {
-                    int lenFolders = folderContent.folders.length;
-                    int lenGcodes = folderContent.files.length;
-                    int lenTotal = lenFolders + lenGcodes;
-                    var isSubFolder =
-                        folderContent.folderPath.split('/').length > 1;
+    return WillPopScope(
+      onWillPop: ref.watch(filesListControllerProvider.notifier).onWillPop,
+      child: Container(
+        margin: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
+          boxShadow: [
+            if (theme.brightness == Brightness.light)
+              const BoxShadow(
+                color: Colors.grey,
+                offset: Offset(0.0, 4.0), //(x,y)
+                blurRadius: 1.0,
+              ),
+          ],
+        ),
+        child: Column(
+          children: [
+            const _BreadCrumb(),
+            ref
+                .watch(filesListControllerProvider.select((value) => value))
+                .filteredAndSorted
+                .when(
+                    data: (folderContent) {
+                      int lenFolders = folderContent.folders.length;
+                      int lenGcodes = folderContent.files.length;
+                      int lenTotal = lenFolders + lenGcodes;
+                      var isSubFolder =
+                          folderContent.folderPath.split('/').length > 1;
 
-                    // Add one of the .. folder to back
-                    if (isSubFolder) lenTotal++;
+                      // Add one of the .. folder to back
+                      if (isSubFolder) lenTotal++;
 
-                    return Expanded(
-                      child: EaseIn(
-                        duration: const Duration(milliseconds: 100),
-                        curve: Curves.easeOutCubic,
-                        child: SmartRefresher(
-                          header: const WaterDropMaterialHeader(),
-                          controller: RefreshController(),
-                          onRefresh: () =>
-                              ref.invalidate(filesListControllerProvider),
-                          child: (lenTotal == 0)
-                              ? ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  leading: const SizedBox(
+                      return Expanded(
+                        child: EaseIn(
+                          duration: const Duration(milliseconds: 100),
+                          curve: Curves.easeOutCubic,
+                          child: SmartRefresher(
+                            header: const WaterDropMaterialHeader(),
+                            controller: RefreshController(),
+                            onRefresh: () =>
+                                ref.invalidate(filesListControllerProvider),
+                            child: (lenTotal == 0)
+                                ? ListTile(
+                                    contentPadding: EdgeInsets.zero,
+                                    leading: const SizedBox(
+                                        width: 64,
+                                        height: 64,
+                                        child: Icon(Icons.search_off)),
+                                    title:
+                                        const Text('pages.files.no_files_found')
+                                            .tr(),
+                                  )
+                                : ListView.builder(
+                                    itemCount: lenTotal,
+                                    itemBuilder: (context, index) {
+                                      if (isSubFolder) {
+                                        if (index == 0) {
+                                          return ListTile(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 5, vertical: 3),
+                                            leading: const SizedBox(
+                                                width: 64,
+                                                height: 64,
+                                                child: Icon(Icons.folder)),
+                                            title: const Text('...'),
+                                            onTap: ref
+                                                .watch(filesListControllerProvider
+                                                    .notifier)
+                                                .popFolder,
+                                          );
+                                        } else {
+                                          index--;
+                                        }
+                                      }
+
+                                      if (index < lenFolders) {
+                                        Folder folder =
+                                            folderContent.folders[index];
+                                        return FolderItem(
+                                          folder: folder,
+                                          key: ValueKey(folder),
+                                        );
+                                      } else {
+                                        RemoteFile file = folderContent
+                                            .files[index - lenFolders];
+                                        if (file is GCodeFile) {
+                                          return GCodeFileItem(
+                                            gCode: file,
+                                            key: ValueKey(file),
+                                          );
+                                        } else {
+                                          return FileItem(
+                                              file: file, key: ValueKey(file));
+                                        }
+                                      }
+                                    }),
+                          ),
+                        ),
+                      );
+                    },
+                    error: (e, s) => const Text('Could not fetch files!'),
+                    loading: () => Expanded(
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey,
+                            highlightColor: theme.colorScheme.background,
+                            child: ListView.builder(
+                                itemCount: 15,
+                                itemBuilder: (context, index) {
+                                  return ListTile(
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 5, vertical: 2),
+                                    leading: Container(
                                       width: 64,
                                       height: 64,
-                                      child: Icon(Icons.search_off)),
-                                  title:
-                                      const Text('pages.files.no_files_found')
-                                          .tr(),
-                                )
-                              : ListView.builder(
-                                  itemCount: lenTotal,
-                                  itemBuilder: (context, index) {
-                                    if (isSubFolder) {
-                                      if (index == 0) {
-                                        return ListTile(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 5, vertical: 3),
-                                          leading: const SizedBox(
-                                              width: 64,
-                                              height: 64,
-                                              child: Icon(Icons.folder)),
-                                          title: const Text('...'),
-                                          onTap: ref
-                                              .watch(filesListControllerProvider
-                                                  .notifier)
-                                              .popFolder,
-                                        );
-                                      } else {
-                                        index--;
-                                      }
-                                    }
-
-                                    if (index < lenFolders) {
-                                      Folder folder =
-                                          folderContent.folders[index];
-                                      return FolderItem(
-                                        folder: folder,
-                                        key: ValueKey(folder),
-                                      );
-                                    } else {
-                                      RemoteFile file = folderContent
-                                          .files[index - lenFolders];
-                                      if (file is GCodeFile) {
-                                        return GCodeFileItem(
-                                          gCode: file,
-                                          key: ValueKey(file),
-                                        );
-                                      } else {
-                                        return FileItem(
-                                            file: file, key: ValueKey(file));
-                                      }
-                                    }
-                                  }),
-                        ),
-                      ),
-                    );
-                  },
-                  error: (e, s) => const Text('Could not fetch files!'),
-                  loading: () => Expanded(
-                        child: Shimmer.fromColors(
-                          baseColor: Colors.grey,
-                          highlightColor: theme.colorScheme.background,
-                          child: ListView.builder(
-                              itemCount: 15,
-                              itemBuilder: (context, index) {
-                                return ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 5, vertical: 2),
-                                  leading: Container(
-                                    width: 64,
-                                    height: 64,
-                                    color: Colors.white,
-                                    margin: const EdgeInsets.symmetric(
-                                        vertical: 2, horizontal: 2),
-                                  ),
-                                  title: Container(
-                                    width: double.infinity,
-                                    height: 16.0,
-                                    margin: const EdgeInsets.only(right: 5),
-                                    color: Colors.white,
-                                  ),
-                                );
-                              }),
-                        ),
-                      )),
-        ],
+                                      color: Colors.white,
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 2, horizontal: 2),
+                                    ),
+                                    title: Container(
+                                      width: double.infinity,
+                                      height: 16.0,
+                                      margin: const EdgeInsets.only(right: 5),
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                }),
+                          ),
+                        )),
+          ],
+        ),
       ),
     );
   }

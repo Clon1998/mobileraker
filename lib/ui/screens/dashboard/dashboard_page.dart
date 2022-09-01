@@ -11,6 +11,7 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/SelectedPrinterAppBar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
@@ -18,6 +19,7 @@ import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
+import 'package:mobileraker/ui/screens/fullcam/full_cam_viewmodel.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
@@ -108,6 +110,10 @@ class _BottomNavigationBar extends ConsumerWidget {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
+    if (ref.watch(machinePrinterKlippySettingsProvider).valueOrFullNull?.machine == null) {
+      return const SizedBox.shrink();
+    }
+
     // AsyncValue<KlipperState> klippyState =
     //     ref.watch(klipperSelectedProvider.selectAs((data) => data.klippyState));
     // AsyncValue<PrintState> printState =
@@ -160,12 +166,12 @@ class _DashboardBody extends ConsumerWidget {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(FlutterIcons.sad_cry_faw5s, size: 99),
-                  SizedBox(
+                children:  [
+                  const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
+                  const SizedBox(
                     height: 22,
                   ),
-                  Text(
+                  const Text(
                     'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
                     textAlign: TextAlign.center,
                   ),
@@ -176,7 +182,7 @@ class _DashboardBody extends ConsumerWidget {
                               title: e.runtimeType.toString(),
                               body:
                               'Exception:\n $e\n\n$s')),
-                      child: Text('Show Error'))
+                      child: const Text('Show Error'))
                 ],
               ),
             );

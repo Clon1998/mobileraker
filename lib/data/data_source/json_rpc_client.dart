@@ -295,6 +295,7 @@ class JsonRpcClient {
   }
 
   dispose() {
+    logger.e('JSON_RPC_DISPOSED');
     _disposed = true;
     _channelSub?.cancel();
     _requestsBlocking.forEach((key, value) => value.completeError(Future.error(

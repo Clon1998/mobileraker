@@ -85,9 +85,13 @@ final fileServiceSelectedProvider = Provider.autoDispose((ref) {
 
 final fileNotificationsSelectedProvider =
     StreamProvider.autoDispose<FileApiResponse>((ref) async* {
-  var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+  try {
+    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-  yield* ref.watch(fileNotificationsProvider(machine.uuid).stream);
+    yield* ref.watch(fileNotificationsProvider(machine.uuid).stream);
+  } on StateError catch (e, s) {
+// Just catch it. It is expected that the future/where might not complete!
+  }
 });
 
 /// The FileService handles all file changes of the different roots of moonraker

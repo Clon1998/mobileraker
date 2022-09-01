@@ -42,6 +42,10 @@ final jrpcClientSelectedProvider = Provider.autoDispose<JsonRpcClient>(
 
 final jrpcClientStateSelectedProvider = StreamProvider.autoDispose<ClientState>(
     name: 'jrpcClientStateSelectedProvider', (ref) async* {
-  var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-  yield* ref.watch(jrpcClientStateProvider(machine.uuid).stream);
+  try {
+    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+    yield* ref.watch(jrpcClientStateProvider(machine.uuid).stream);
+  } on StateError catch (e, s) {
+// Just catch it. It is expected that the future/where might not complete!
+  }
 });

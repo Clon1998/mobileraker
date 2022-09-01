@@ -22,6 +22,7 @@ import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
@@ -81,12 +82,12 @@ class GeneralTab extends ConsumerWidget {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(FlutterIcons.sad_cry_faw5s, size: 99),
-                    SizedBox(
+                  children:  [
+                    const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
+                    const SizedBox(
                       height: 22,
                     ),
-                    Text(
+                    const Text(
                       'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
                       textAlign: TextAlign.center,
                     ),
@@ -97,7 +98,7 @@ class GeneralTab extends ConsumerWidget {
                                 title: e.runtimeType.toString(),
                                 body:
                                 'Exception:\n $e\n\n$s')),
-                        child: Text('Show Error'))
+                        child: const Text('Show Error'))
                   ],
                 ),
               );

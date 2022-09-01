@@ -69,7 +69,7 @@ extension MobilerakerRef on Ref {
     onDispose(() {
       if (!completer.isCompleted) {
         completer.completeError(
-            StateError('provider disposed before `where` could complete'));
+            StateError('provider disposed before `where` could complete'), StackTrace.current);
       }
     });
 
