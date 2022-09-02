@@ -328,6 +328,10 @@
       "confirm_tile_subtitle": "This operation cannot be undone!",
       "exclude": "Exclude",
       "no_visualization": "No visualization data available!"
+    },
+    "ws_input_help": {
+      "title": "URL Input Help",
+      "body": "You can either enter an IP, URL or full URI to your webinterface or directly to the websocket instance provided by moonraker.\n\nValid Examples:"
     }
   },
   "klipper_state": {

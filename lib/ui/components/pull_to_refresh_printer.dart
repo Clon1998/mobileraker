@@ -8,14 +8,12 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
-
 final _refreshController =
-Provider.autoDispose((ref) => RefreshController(initialRefresh: false));
+    Provider.autoDispose((ref) => RefreshController(initialRefresh: false));
 
 final refreshPrinterController =
-StateNotifierProvider.autoDispose<RefreshPrinterController, void>(
+    StateNotifierProvider.autoDispose<RefreshPrinterController, void>(
         (ref) => RefreshPrinterController(ref));
-
 
 class PullToRefreshPrinter extends HookConsumerWidget {
   final Widget? child;
@@ -66,7 +64,6 @@ class RefreshPrinterController extends StateNotifier<void> {
         }
       });
     });
-    
   }
 
   @override

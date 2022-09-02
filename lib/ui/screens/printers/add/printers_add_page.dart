@@ -190,16 +190,13 @@ class WSInput extends HookConsumerWidget {
             onPressed: () {
               ref.read(dialogServiceProvider).show(DialogRequest(
                   type: DialogType.info,
-                  title: 'URL Input Help',
+                  title: tr('dialogs.ws_input_help.title'),
                   body:
-                      '''You can either enter an IP, URL or full URI to your webinterface or directly to the websocket instance provided by moonraker.
-
-
-Valid examples:
-192.168.1.1
-192.168.1.1:7125
-http://myprinter.com
-ws://myprinter.com/socket''',
+                      '${tr('dialogs.ws_input_help.body')}'
+                          '\n192.168.1.1'
+                          '\n192.168.1.1:7125'
+                          '\nhttp://myprinter.com'
+                          '\nws://myprinter.com/socket',
                   cancelBtn: 'Close'));
             },
           )),
