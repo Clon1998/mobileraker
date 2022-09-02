@@ -21,9 +21,6 @@ class AsyncValueWidget<T> extends StatelessWidget {
       error: (e, s) {
         logger.e('Error in Widget',e, StackTrace.current);
         throw e;
-        return Center(
-        child: ErrorWidget(e)
-      );
       },
     );
   }

@@ -3,7 +3,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';

@@ -1,5 +1,3 @@
-import 'package:flutter/widgets.dart';
-
 class MobilerakerException implements Exception {
   final String message;
   final Object? parentException;

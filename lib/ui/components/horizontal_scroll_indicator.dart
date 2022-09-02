@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 
+
 class HorizontalScrollIndicator extends StatefulWidget {
   final int steps;
   final ScrollController controller;
@@ -28,7 +29,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   final int steps;
 
   _HorizontalScrollIndicatorState(int steps, int? childsPerScreen)
-      : this.steps = (childsPerScreen == null)
+      : steps = (childsPerScreen == null)
             ? steps
             : (steps / childsPerScreen).ceil();
 
@@ -40,8 +41,9 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   }
 
   _listenerForController() {
-    if (!controller.hasClients || !controller.position.hasContentDimensions)
+    if (!controller.hasClients || !controller.position.hasContentDimensions) {
       return;
+    }
     double maxScrollExtent = controller.position.maxScrollExtent;
     if (maxScrollExtent == 0) return;
 

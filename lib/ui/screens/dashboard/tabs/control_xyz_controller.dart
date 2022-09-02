@@ -1,12 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 final controlXYZController =
     StateNotifierProvider.autoDispose<ControlXYZController, int>(

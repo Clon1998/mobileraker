@@ -2,18 +2,24 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 
 class MachineStateIndicator extends ConsumerWidget {
-  const MachineStateIndicator({Key? key}) : super(key: key);
+  const MachineStateIndicator(this.machine, {Key? key}) : super(key: key);
+  final Machine? machine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    KlipperInstance? klippyData = ref.watch(klipperSelectedProvider).valueOrFullNull;
+    KlipperInstance? klippyData;
+    if (machine != null) {
+      klippyData = ref.watch(klipperProvider(machine!.uuid)).valueOrFullNull;
+    }
 
-    KlipperState serverState = klippyData?.klippyState ?? KlipperState.disconnected;
+    KlipperState serverState =
+        klippyData?.klippyState ?? KlipperState.disconnected;
 
     return Tooltip(
       padding: const EdgeInsets.all(8.0),

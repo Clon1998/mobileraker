@@ -3,14 +3,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
 

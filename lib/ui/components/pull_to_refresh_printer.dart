@@ -1,11 +1,9 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 final _refreshController =

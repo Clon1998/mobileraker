@@ -10,7 +10,6 @@ import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';

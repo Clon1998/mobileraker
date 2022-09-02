@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -35,7 +34,7 @@ class NonPrintingBottomSheet extends ConsumerWidget {
             children: [
               Flexible(
                   flex: 5,
-                  child: Container(
+                  child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed:
@@ -53,7 +52,7 @@ class NonPrintingBottomSheet extends ConsumerWidget {
               ),
               Flexible(
                   flex: 5,
-                  child: Container(
+                  child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _btnAction(context, klippyService.rebootHost),

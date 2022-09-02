@@ -11,7 +11,7 @@ import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/ui/components/SelectedPrinterAppBar.dart';
+import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
@@ -77,8 +77,6 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
     TextEditingController textCtler =
         ref.watch(searchTextEditingControllerProvider);
-
-    ;
 
     if (ref.watch(isSearchingProvider)) {
       return AppBar(

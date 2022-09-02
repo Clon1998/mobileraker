@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/ui/components/SelectedPrinterAppBar.dart';
+import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
@@ -16,8 +16,8 @@ import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
-class ConsoleView extends ConsumerWidget {
-  const ConsoleView({Key? key}) : super(key: key);
+class ConsolePage extends ConsumerWidget {
+  const ConsolePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

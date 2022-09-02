@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/logger.dart';
 
 extension MobilerakerRef on Ref {
   // Future<T> watchUntil<T>(AlwaysAliveProviderListenable<AsyncValue<T>> provider,

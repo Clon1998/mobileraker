@@ -1,8 +1,6 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
-import 'package:mobileraker/exceptions.dart';
 
 import 'machine_settings_repository.dart';
 

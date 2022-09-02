@@ -1,6 +1,3 @@
-import 'dart:math';
-
-import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/config/config_output.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
@@ -11,7 +8,6 @@ import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 

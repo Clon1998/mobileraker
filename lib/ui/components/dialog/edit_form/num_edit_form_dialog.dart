@@ -56,7 +56,6 @@ class _FormEditDialog extends HookConsumerWidget {
         onChanged: () {
           isValid.value =
               ref.read(numEditFormKeyProvider).currentState!.validate();
-          ;
         },
         child: Padding(
           padding: const EdgeInsets.all(15.0),

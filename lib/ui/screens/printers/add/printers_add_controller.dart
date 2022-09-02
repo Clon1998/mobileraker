@@ -79,7 +79,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   }
 
   openQrScanner() async {
-    var qr = await ref.read(goRouterProvider).navigator!.push(MaterialPageRoute(builder: (ctx) => QrScannerPage()));
+    var qr = await ref.read(goRouterProvider).navigator!.push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr != null) {
       ref.read(formAddKeyProvider).currentState?.fields['printerApiKey']?.didChange(qr);
     }

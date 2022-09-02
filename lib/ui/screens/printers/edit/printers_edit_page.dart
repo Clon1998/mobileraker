@@ -21,8 +21,8 @@ import 'package:stringr/stringr.dart';
 
 import 'printers_edit_controller.dart';
 
-class PrinterEdit extends ConsumerWidget {
-  const PrinterEdit({Key? key, required this.machine}) : super(key: key);
+class PrinterEditPage extends ConsumerWidget {
+  const PrinterEditPage({Key? key, required this.machine}) : super(key: key);
   final Machine machine;
 
   @override
@@ -1035,7 +1035,7 @@ class _SegmentsState<T> extends State<Segments<T>> {
             ChoiceChip(
               label: const Text('pages.printer_edit.no_values_found').tr(),
               selected: false,
-              onSelected: (v) => null,
+              onSelected: (v) {return;},
             ),
           if (widget.onAdd != null && widget.options.length < widget.maxOptions)
             ChoiceChip(

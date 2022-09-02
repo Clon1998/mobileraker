@@ -9,7 +9,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
@@ -34,6 +33,7 @@ Future<void> main() async {
   setupLicenseRegistry();
   // initialRoute = await selectInitialRoute();
   final container = ProviderContainer(
+    overrides: [initialRouteProvider.overrideWithValue('/')]
     // observers: [
     //   if (kDebugMode)
     //   const RiverPodLogger(),

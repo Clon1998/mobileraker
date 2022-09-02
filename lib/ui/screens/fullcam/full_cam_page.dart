@@ -6,14 +6,14 @@ import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
-import 'package:mobileraker/ui/screens/fullcam/full_cam_viewmodel.dart';
+import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
 import 'package:stringr/stringr.dart';
 
-class FullCamView extends ConsumerWidget {
+class FullCamPage extends ConsumerWidget {
   final Machine machine;
   final int initialCam;
 
-  const FullCamView(this.machine, this.initialCam);
+  const FullCamPage(this.machine, this.initialCam);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

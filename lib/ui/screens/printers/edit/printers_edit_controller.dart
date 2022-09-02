@@ -16,7 +16,6 @@ import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 
 final editPrinterformKeyProvider =
     Provider.autoDispose((ref) => GlobalKey<FormBuilderState>());

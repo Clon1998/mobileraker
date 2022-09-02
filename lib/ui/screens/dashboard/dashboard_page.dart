@@ -10,16 +10,16 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/ui/components/SelectedPrinterAppBar.dart';
+import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
-import 'package:mobileraker/ui/screens/fullcam/full_cam_viewmodel.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
@@ -27,8 +27,8 @@ import 'package:stringr/stringr.dart';
 
 import 'dashboard_controller.dart';
 
-class DashboardView extends StatelessWidget {
-  const DashboardView({Key? key}) : super(key: key);
+class DashboardPage extends StatelessWidget {
+  const DashboardPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -51,16 +51,17 @@ class DashboardView extends StatelessWidget {
 }
 
 class _DashboardView extends ConsumerWidget {
-  const _DashboardView({super.key});
+  const _DashboardView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: tr('pages.dashboard.title'),
-        actions: const <Widget>[
-          MachineStateIndicator(),
-          EmergencyStopBtn(),
+        actions: <Widget>[
+          MachineStateIndicator(
+              ref.watch(selectedMachineProvider).valueOrFullNull),
+          const EmergencyStopBtn(),
         ],
       ),
       body: const ConnectionStateView(onConnected: _DashboardBody()),
@@ -110,7 +111,11 @@ class _BottomNavigationBar extends ConsumerWidget {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
-    if (ref.watch(machinePrinterKlippySettingsProvider).valueOrFullNull?.machine == null) {
+    if (ref
+            .watch(machinePrinterKlippySettingsProvider)
+            .valueOrFullNull
+            ?.machine ==
+        null) {
       return const SizedBox.shrink();
     }
 
@@ -166,7 +171,7 @@ class _DashboardBody extends ConsumerWidget {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children:  [
+                children: [
                   const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
                   const SizedBox(
                     height: 22,
@@ -180,8 +185,7 @@ class _DashboardBody extends ConsumerWidget {
                           DialogRequest(
                               type: DialogType.stacktrace,
                               title: e.runtimeType.toString(),
-                              body:
-                              'Exception:\n $e\n\n$s')),
+                              body: 'Exception:\n $e\n\n$s')),
                       child: const Text('Show Error'))
                 ],
               ),

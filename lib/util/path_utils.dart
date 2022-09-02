@@ -15,8 +15,9 @@ int isWithin(String parent, String child) {
 
   if (parent == childPath.sublist(0, parentPath.length).join('/')) {
     return childPathLen - parentPath.length;
-  } else
+  } else {
     return -1;
+  }
 }
 
 bool isFilePath(String path) => baseName(path).split('.').length > 1;

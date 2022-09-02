@@ -23,7 +23,6 @@ import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab_controller.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
