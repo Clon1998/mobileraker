@@ -30,8 +30,6 @@ import 'package:rxdart/rxdart.dart';
 final flipCardControllerProvider =
     Provider<FlipCardController>((ref) => FlipCardController());
 
-
-
 final generalTabViewControllerProvider = StateNotifierProvider.autoDispose<
         GeneralTabViewController,
         AsyncValue<PrinterKlippySettingsMachineWrapper>>(
@@ -42,7 +40,6 @@ class GeneralTabViewController
     extends StateNotifier<AsyncValue<PrinterKlippySettingsMachineWrapper>> {
   GeneralTabViewController(this.ref)
       : super(ref.read(machinePrinterKlippySettingsProvider)) {
-
     ref.listen<AsyncValue<PrinterKlippySettingsMachineWrapper>>(
         machinePrinterKlippySettingsProvider, (previous, next) {
       if (next.isRefreshing) state = AsyncValue.loading();
@@ -194,7 +191,7 @@ class MoveTableState {
     }
 
     return MoveTableState(
-        postion: a.toolhead.position,
+        postion: a.toolhead.position.toList(growable: false),
         printingOrPaused: const {PrintState.printing, PrintState.paused}
             .contains(a.print.state),
         mmSpeed: a.gCodeMove.mmSpeed,
@@ -226,11 +223,10 @@ class MoveTableState {
 }
 
 final babyStepControllerProvider =
-    StateNotifierProvider.autoDispose<BabyStepCardController, int>(
-        (ref) {
-          ref.keepAlive();
-          return BabyStepCardController(ref);
-        });
+    StateNotifierProvider.autoDispose<BabyStepCardController, int>((ref) {
+  ref.keepAlive();
+  return BabyStepCardController(ref);
+});
 
 class BabyStepCardController extends StateNotifier<int> {
   BabyStepCardController(this.ref) : super(0);
@@ -267,13 +263,20 @@ final camCardControllerProvider =
 
 class CamCardController extends StateNotifier<WebcamSetting> {
   CamCardController(this.ref)
-      : super(ref.read(generalTabViewControllerProvider).value!.machine.cams[min(
-      ref.read(generalTabViewControllerProvider).value!.machine.cams.length - 1,
-      max(
-          0,
-          ref
-              .read(settingServiceProvider)
-              .readInt(selectedWebcamGrpIndex, 0)))]);
+      : super(ref.read(generalTabViewControllerProvider).value!.machine.cams[
+            min(
+                ref
+                        .read(generalTabViewControllerProvider)
+                        .value!
+                        .machine
+                        .cams
+                        .length -
+                    1,
+                max(
+                    0,
+                    ref
+                        .read(settingServiceProvider)
+                        .readInt(selectedWebcamGrpIndex, 0)))]);
   final Ref ref;
 
   onSelectedChange(WebcamSetting? cam) {
@@ -283,8 +286,8 @@ class CamCardController extends StateNotifier<WebcamSetting> {
     var indexOf = cams.indexOf(cam);
     if (indexOf >= 0) {
       ref
-        .read(settingServiceProvider)
-        .writeInt(selectedWebcamGrpIndex, indexOf);
+          .read(settingServiceProvider)
+          .writeInt(selectedWebcamGrpIndex, indexOf);
     }
   }
 
