@@ -405,7 +405,7 @@ class NotificationService {
 
     if (machine.lastPrintProgress == normalizedProgress) return;
     machine.lastPrintProgress = normalizedProgress;
-    var dt;
+    DateTime? dt;
     if (printDuration > 0 && progress > 0) {
       double est = printDuration / progress - printDuration;
       dt = DateTime.now().add(Duration(seconds: est.round()));

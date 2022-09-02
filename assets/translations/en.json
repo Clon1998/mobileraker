@@ -180,7 +180,9 @@
         "progress_label": "Progress Notification",
         "progress_helper": "Update interval for print progress notification",
         "no_permission_title": "No Notification Permission!",
-        "no_permission_desc": "Can not display notifications.\nRequest permission by clicking!"
+        "no_permission_desc": "Can not display notifications.\nRequest permission by clicking!",
+        "ios_notifications_title": "IOS Notification Delivery",
+        "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!"
       },
       "imprint": "Privacy/Impressum"
     },

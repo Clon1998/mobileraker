@@ -82,6 +82,7 @@ class SettingPage extends ConsumerWidget {
                 activeColor: Theme.of(context).colorScheme.primary,
               ),
               _SectionHeader(title: 'pages.setting.notification.title'.tr()),
+              const _NotificationReliabilityInfo(),
               const NotificationPermissionWarning(),
               const _ProgressNotificationDropDown(),
               const Divider(),
@@ -321,7 +322,11 @@ class NotificationPermissionWarning extends ConsumerWidget {
         tileColor: themeData.colorScheme.errorContainer,
         textColor: themeData.colorScheme.onErrorContainer,
         iconColor: themeData.colorScheme.onErrorContainer,
-        onTap: ref.watch(notificationPermissionProvider.notifier).requestPermission,
+        onTap: ref
+            .watch(notificationPermissionProvider.notifier)
+            .requestPermission,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15))),
         leading: const Icon(
           Icons.notifications_off_outlined,
           size: 40,
@@ -331,6 +336,39 @@ class NotificationPermissionWarning extends ConsumerWidget {
         ).tr(),
         subtitle:
             const Text('pages.setting.notification.no_permission_desc').tr(),
+      ),
+    );
+  }
+}
+
+class _NotificationReliabilityInfo extends ConsumerWidget {
+  const _NotificationReliabilityInfo({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (!Platform.isIOS) {
+      return const SizedBox.shrink();
+    }
+
+    var themeData = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: ListTile(
+        tileColor: themeData.colorScheme.primaryContainer,
+        textColor: themeData.colorScheme.onPrimaryContainer,
+        iconColor: themeData.colorScheme.onPrimaryContainer,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(15))),
+        leading: const Icon(
+          FlutterIcons.info_ent,
+          size: 40,
+        ),
+        title: const Text(
+          'pages.setting.notification.ios_notifications_title',
+        ).tr(),
+        subtitle:
+            const Text('pages.setting.notification.ios_notifications_desc')
+                .tr(),
       ),
     );
   }
