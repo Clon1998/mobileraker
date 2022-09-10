@@ -35,7 +35,7 @@ class DashboardPage extends StatelessWidget {
     return RateMyAppBuilder(
       rateMyApp: RateMyApp(
         minDays: 2,
-        minLaunches: 1,
+        minLaunches: 5,
         remindDays: 7,
       ),
       onInitialized: (context, rateMyApp) {
@@ -154,7 +154,7 @@ class _DashboardBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref
         // We use selectAs null since we want to prevent rebuilding this widget to often!
-        .watch(printerSelectedProvider.selectAs((data) => true))
+        .watch(printerSelectedProvider.selectAs((value) => true))
         .when<Widget>(
           data: (d) => PageView(
             key: const PageStorageKey<String>('dashboardPages'),

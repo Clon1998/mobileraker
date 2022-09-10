@@ -11,6 +11,7 @@ import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/moonraker/announcement_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -102,6 +103,7 @@ class MachineService {
     await _machineRepo.insert(machine);
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);
+    ref.read(analyticsProvider).logEvent(name: 'add_machine');
     return machine;
   }
 

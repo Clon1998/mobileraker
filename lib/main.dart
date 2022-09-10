@@ -10,6 +10,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
@@ -27,7 +28,6 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate();
   await EasyLocalization.ensureInitialized();
-  await FirebaseAnalytics.instance.logAppOpen();
   // await setupCat(); // ToDO
 
   setupLicenseRegistry();
@@ -39,6 +39,9 @@ Future<void> main() async {
     //   const RiverPodLogger(),
     // ],
   );
+
+  await container.read(analyticsProvider).logAppOpen();
+
 
   container.read(machineServiceProvider).initializeAvailableMachines();
   await container.read(notificationServiceProvider).initialize();
