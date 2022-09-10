@@ -99,7 +99,7 @@ class PrinterService {
             _queriedForSession = false;
         }
       });
-    });
+    }, fireImmediately: true);
   }
 
   final String _ownerUUID;

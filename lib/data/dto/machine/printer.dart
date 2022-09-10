@@ -55,7 +55,6 @@ class PrinterBuilder {
         printFan == null ||
         gCodeMove == null ||
         print == null ||
-        excludeObject == null ||
         configFile == null ||
         virtualSdCard == null) {
       throw const MobilerakerException('Missing field');
