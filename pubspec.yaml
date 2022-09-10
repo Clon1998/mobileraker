@@ -118,6 +118,7 @@ dev_dependencies:
   hive_generator: ^1.1.1
   flutter_lints: ^2.0.0
   freezed: ^2.1.0+1
+  mockito: ^5.0.15
   json_serializable: ^6.1.5
 
 flutter_icons:
