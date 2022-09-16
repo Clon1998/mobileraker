@@ -82,7 +82,7 @@ class GeneralTab extends ConsumerWidget {
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children:  [
+                  children: [
                     const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
                     const SizedBox(
                       height: 22,
@@ -96,8 +96,7 @@ class GeneralTab extends ConsumerWidget {
                             DialogRequest(
                                 type: DialogType.stacktrace,
                                 title: e.runtimeType.toString(),
-                                body:
-                                'Exception:\n $e\n\n$s')),
+                                body: 'Exception:\n $e\n\n$s')),
                         child: const Text('Show Error'))
                   ],
                 ),
@@ -197,17 +196,22 @@ class PrintCard extends ConsumerWidget {
                 )
               ],
             ),
+          const M117Message(),
           if (klippyInstance.klippyCanReceiveCommands &&
               isPrintingOrPaused &&
               excludeObject != null &&
-              excludeObject.available)
+              excludeObject.available) ...[
+            const Divider(
+              thickness: 1,
+              height: 0,
+            ),
             Padding(
               padding: const EdgeInsets.only(right: 8.0, bottom: 4.0),
               child: Row(
                 children: [
                   IconButton(
                     color: themeData.colorScheme.primary,
-                    icon: const Icon(Icons.token),
+                    icon: const Icon(FlutterIcons.object_group_faw5),
                     tooltip: 'dialogs.exclude_object.title'.tr(),
                     onPressed: ref
                         .read(generalTabViewControllerProvider.notifier)
@@ -221,7 +225,7 @@ class PrintCard extends ConsumerWidget {
                                 'pages.dashboard.general.print_card.current_object')
                             .tr(),
                         Text(
-                          excludeObject.currentObject ?? 'general.none'.tr(),
+                          excludeObject?.currentObject ?? 'general.none'.tr(),
                           style: themeData.textTheme.bodyText2?.copyWith(
                               color: themeData.textTheme.caption?.color),
                         ),
@@ -231,6 +235,7 @@ class PrintCard extends ConsumerWidget {
                 ],
               ),
             ),
+          ],
           if (klippyInstance.klippyCanReceiveCommands &&
               isPrintingOrPaused) ...[
             const Divider(
@@ -279,9 +284,9 @@ class PrintCard extends ConsumerWidget {
         .select((data) => data.value!.printerData.print));
 
     switch (print.state) {
+      case PrintState.paused:
       case PrintState.printing:
-        return const Text('pages.dashboard.general.print_card.printing_for').tr(
-            args: [print.filename, secondsToDurationText(print.totalDuration)]);
+        return Text(print.filename);
       case PrintState.error:
         return Text(print.message);
       default:
@@ -429,10 +434,12 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
     var extruderCnt = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.printerData.extruderCount));
 
-    int sensorsCnt = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
-        (value) => value.printerData.temperatureSensors
+    int sensorsCnt = ref
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
+            .printerData.temperatureSensors
             .where((e) => !e.name.startsWith('_'))
-            .length)).valueOrFullNull!;
+            .length))
+        .valueOrFullNull!;
 
     return AdaptiveHorizontalScroll(
       pageStorageKey: "temps",
@@ -443,8 +450,7 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
             sensorsCnt,
             (index) => _SensorCard(
                 sensorProvider: machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value
-                        .printerData.temperatureSensors
+                    (value) => value.printerData.temperatureSensors
                         .where((element) => !element.name.startsWith('_'))
                         .elementAt(index))))
       ],
@@ -525,7 +531,8 @@ class _SensorCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TemperatureSensor temperatureSensor = ref.watch(sensorProvider).valueOrFullNull!;
+    TemperatureSensor temperatureSensor =
+        ref.watch(sensorProvider).valueOrFullNull!;
 
     var spots = useState(<FlSpot>[]);
     var temperatureHistory = temperatureSensor.temperatureHistory;
@@ -1129,6 +1136,10 @@ class MoveTable extends ConsumerWidget {
       // dont ask me why but this.selectAs prevents rebuild on the exact same value...
       value: ref.watch(moveTableStateProvider.selectAs((data) => data)),
       data: (MoveTableState moveTableState) {
+        var position =
+            ref.watch(settingServiceProvider).readBool(useOffsetPosKey)
+                ? moveTableState.postion
+                : moveTableState.livePosition;
         return Table(
           border: TableBorder(
               horizontalInside: BorderSide(
@@ -1152,7 +1163,7 @@ class MoveTable extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const Text('X'),
-                        Text(moveTableState.postion[0].toStringAsFixed(2)),
+                        Text(position[0].toStringAsFixed(2)),
                       ],
                     )),
                 Padding(
@@ -1161,7 +1172,7 @@ class MoveTable extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text('Y'),
-                      Text(moveTableState.postion[1].toStringAsFixed(2)),
+                      Text(position[1].toStringAsFixed(2)),
                     ],
                   ),
                 ),
@@ -1171,17 +1182,18 @@ class MoveTable extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const Text('Z'),
-                      Text(moveTableState.postion[2].toStringAsFixed(2)),
+                      Text(position[2].toStringAsFixed(2)),
                     ],
                   ),
                 ),
               ]),
-            if (rowsToShow.contains(MOV_ROW) && moveTableState.printingOrPaused)
+            if (rowsToShow.contains(MOV_ROW) &&
+                moveTableState.printingOrPaused) ...[
               TableRow(
                 children: [
                   const Padding(
                     padding: EdgeInsets.all(8.0),
-                    child: Icon(FlutterIcons.printer_3d_mco),
+                    child: Icon(FlutterIcons.layers_fea),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -1211,6 +1223,62 @@ class MoveTable extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+                        const Text('pages.dashboard.general.print_card.elapsed')
+                            .tr(),
+                        Text(secondsToDurationText(
+                            moveTableState.totalDuration)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              TableRow(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Icon(FlutterIcons.printer_3d_mco),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text('pages.dashboard.general.print_card.flow')
+                            .tr(),
+                        Text('${moveTableState.currentFlow ?? 0} mm³/s'),
+                      ],
+                    ),
+                  ),
+                  Tooltip(
+                    textAlign: TextAlign.center,
+                    message: tr(
+                        'pages.dashboard.general.print_card.filament_used',
+                        args: [
+                          moveTableState.usedFilamentPerc.toStringAsFixed(0),
+                          moveTableState.usedFilament?.toStringAsFixed(1) ??
+                              '0',
+                          moveTableState.totalFilament?.toStringAsFixed(1) ??
+                              '-'
+                        ]),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Text(
+                                  'pages.dashboard.general.print_card.filament')
+                              .tr(),
+                          Text(
+                              '${moveTableState.usedFilament?.toStringAsFixed(1) ?? 0} m'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
                         const Text('pages.dashboard.general.print_card.eta')
                             .tr(),
                         Text((moveTableState.eta != null)
@@ -1220,10 +1288,54 @@ class MoveTable extends ConsumerWidget {
                     ),
                   ),
                 ],
-              )
+              ),
+            ]
           ],
         );
       },
+    );
+  }
+}
+
+class M117Message extends ConsumerWidget {
+  const M117Message({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var m117 = ref.watch(generalTabViewControllerProvider
+        .selectAs((data) => data.printerData.displayStatus.message));
+    if (m117.valueOrFullNull == null) return const SizedBox.shrink();
+
+    var themeData = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(left: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            'M117',
+            style: themeData.textTheme.titleSmall,
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 12),
+              child: Text(
+                m117.valueOrFullNull.toString(),
+                style: themeData.textTheme.bodySmall,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: ref.read(controlXYZController.notifier).onClearM117,
+            icon: const Icon(Icons.clear),
+            iconSize: 16,
+            color: themeData.colorScheme.primary,
+            tooltip: "Clear M117",
+          )
+        ],
+      ),
     );
   }
 }

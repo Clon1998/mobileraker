@@ -81,6 +81,17 @@ class SettingPage extends ConsumerWidget {
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: Theme.of(context).colorScheme.primary,
               ),
+              FormBuilderSwitch(
+                name: 'useLivePos',
+                title: const Text('pages.setting.general.use_offset_pos')
+                    .tr(),
+                onChanged: (b) =>
+                    settingService.writeBool(useOffsetPosKey, b ?? false),
+                initialValue: ref.watch(boolSetting(useOffsetPosKey)),
+                decoration: const InputDecoration(
+                    border: InputBorder.none, isCollapsed: true),
+                activeColor: Theme.of(context).colorScheme.primary,
+              ),
               _SectionHeader(title: 'pages.setting.notification.title'.tr()),
               const _NotificationReliabilityInfo(),
               const NotificationPermissionWarning(),

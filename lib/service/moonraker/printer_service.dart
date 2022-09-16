@@ -9,6 +9,7 @@ import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/machine/display_status.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/controller_fan.dart';
@@ -19,6 +20,7 @@ import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/gcode_move.dart';
 import 'package:mobileraker/data/dto/machine/heater_bed.dart';
+import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
@@ -26,20 +28,18 @@ import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:vector_math/vector_math.dart';
 import 'package:stringr/stringr.dart';
+import 'package:vector_math/vector_math.dart';
 
 final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
 final printerServiceProvider = Provider.autoDispose
@@ -122,6 +122,8 @@ class PrinterService {
     'toolhead': _updateToolhead,
     'extruder': _updateExtruder,
     'gcode_move': _updateGCodeMove,
+    'motion_report': _updateMotionReport,
+    'display_status': _updateDisplayStatus,
     'heater_bed': _updateHeaterBed,
     'virtual_sdcard': _updateVirtualSd,
     'configfile': _updateConfigFile,
@@ -239,6 +241,10 @@ class PrinterService {
 
   m84() {
     gCode('M84');
+  }
+
+  m117([String? msg]) {
+    gCode('M117 ${msg??''}');
   }
 
   bedMeshLevel() {
@@ -628,6 +634,44 @@ class PrinterService {
       position: position ?? old.position,
       homingOrigin: homingOrigin ?? old.homingOrigin,
       gcodePosition: gcodePosition ?? old.gcodePosition,
+    );
+  }
+
+  _updateMotionReport(Map<String, dynamic> gCodeJson,
+      {required PrinterBuilder printer}) {
+    List<double>? position;
+    double? liveVelocity;
+    double? liveExtruderVelocity;
+
+    if (gCodeJson.containsKey('live_position')) {
+      position = gCodeJson['live_position'].cast<double>();
+    }
+    if (gCodeJson.containsKey('live_velocity')) {
+      liveVelocity = gCodeJson['live_velocity'];
+    }
+    if (gCodeJson.containsKey('live_extruder_velocity')) {
+      liveExtruderVelocity = gCodeJson['live_extruder_velocity'];
+    }
+
+    MotionReport old = printer.motionReport ?? const MotionReport();
+
+    printer.motionReport = MotionReport(
+      livePosition: position ?? old.livePosition,
+      liveExtruderVelocity: liveExtruderVelocity ?? old.liveExtruderVelocity,
+      liveVelocity: liveVelocity ?? old.liveVelocity,
+    );
+  }
+
+  _updateDisplayStatus(Map<String, dynamic> json,
+      {required PrinterBuilder printer}) {
+    double? progress = json['progress'];
+    String? message = json['message'];
+
+    DisplayStatus old = printer.displayStatus ?? const DisplayStatus();
+
+    printer.displayStatus = DisplayStatus(
+      progress: progress ?? old.progress,
+      message: message,
     );
   }
 

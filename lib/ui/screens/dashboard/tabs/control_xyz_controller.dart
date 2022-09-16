@@ -65,4 +65,8 @@ class ControlXYZController extends StateNotifier<int> {
   onMotorOff() {
     ref.read(printerServiceSelectedProvider).m84();
   }
+
+  onClearM117() {
+    ref.read(printerServiceSelectedProvider).m117();
+  }
 }

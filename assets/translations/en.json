@@ -30,11 +30,16 @@
       "general": {
         "print_card": {
           "reset": "Reset",
-          "printing_for": "Printing: {}\nFor: {}",
+          "printing_for": "Printing: {}",
           "speed": "Speed",
           "layer": "Layer",
           "eta": "ETA",
-          "current_object": "Current Object"
+          "current_object": "Current Object",
+          "elapsed": "Elapsed",
+          "flow": "Flow",
+          "filament": "Filament",
+          "filament_used": "Used {} % of Filament, that is {} m of the {} m predicted."
+
         },
         "cam_card": {
           "webcam": "Webcam",
@@ -172,8 +177,9 @@
         "always_baby": "Always show Babystepping Card",
         "num_edit": "Use keyboard for number input",
         "start_with_overview": "Show @:pages.overview.title by default",
+        "use_offset_pos": "Show coordinates with offset applied.",
         "language": "Language",
-        "companion": "Learn how to setup Mobileraker's Companion on its "
+        "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its "
       },
       "notification": {
         "title": "Notification",

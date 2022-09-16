@@ -4,7 +4,7 @@
       "title": "Übersicht",
       "general": {
         "reset": "Zurücksetzen",
-        "printing_for": "Drucke: {}\\nSeit: {}",
+        "printing_for": "Drucke: {}",
         "speed": "Geschwindigkeit",
         "layer": "Schicht",
         "webcam": "Webcam",

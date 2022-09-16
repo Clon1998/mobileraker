@@ -5,11 +5,13 @@ const String emsKey = 'ems_setting';
 const String showBabyAlwaysKey = 'always_babystepping_setting';
 const String useTextInputForNumKey = 'text_inpt_for_num_fields';
 const String startWithOverviewKey = 'start_with_overview';
+const String useOffsetPosKey = 'use_offset_pos';
 const String selectedThemeModeKey = 'selectedThemeMode';
 const String selectedThemePackKey = 'selectedThemePack';
 const String selectedGCodeGrpIndex = 'selGCodeGrp';
 const String selectedWebcamGrpIndex = 'selWebcamGrp';
 const String selectedProgressNotifyMode = 'selProgNotMode';
+const String activeStateNotifyMode = 'activeStateNotMode';
 const String requestedNotifyPermission = 'reqNotifyPerm';
 
 final settingServiceProvider = Provider((ref) => SettingService());
@@ -31,6 +33,14 @@ class SettingService {
   }
 
   int readInt(String key, [int fallback = 0]) {
+    return _boxSettings.get(key) ?? fallback;
+  }
+
+  Future<void> write<T>(String key, T val) {
+    return _boxSettings.put(key, val);
+  }
+
+  T read<T>(String key, T fallback) {
     return _boxSettings.get(key) ?? fallback;
   }
 }

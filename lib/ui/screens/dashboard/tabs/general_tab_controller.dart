@@ -23,6 +23,7 @@ import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
@@ -156,48 +157,85 @@ final moveTableStateProvider =
 });
 
 class MoveTableState {
+  final List<double> livePosition;
   final List<double> postion;
   final bool printingOrPaused;
   final int mmSpeed;
   final int currentLayer;
   final int maxLayers;
+  final double? currentFlow;
+  final double? usedFilament; // in meters!
+  final double? totalFilament; // in meters!
+  final double usedFilamentPerc;
   final DateTime? eta;
+  final double totalDuration;
 
   MoveTableState(
-      {required this.postion,
+      {required this.livePosition,
+      required this.postion,
       required this.printingOrPaused,
       required this.mmSpeed,
       required this.currentLayer,
       required this.maxLayers,
-      this.eta});
+      required this.currentFlow,
+      this.usedFilament,
+      this.totalFilament,
+      required this.usedFilamentPerc,
+      this.eta,
+      required this.totalDuration});
 
   factory MoveTableState.byComponents(Printer a, GCodeFile? b) {
     int maxLayer = 0;
     int curLayer = 0;
+    double currentFlow = 0;
+    double? usedFilament, totalFilament;
+    double usedFilamentPerc = 0;
+    if (b != null) {
+      if (b.objectHeight != null &&
+          b.firstLayerHeight != null &&
+          b.layerHeight != null) {
+        maxLayer = max(
+            0,
+            ((b.objectHeight! - b.firstLayerHeight!) / b.layerHeight! + 1)
+                .ceil());
 
-    if (b != null &&
-        b.objectHeight != null &&
-        b.firstLayerHeight != null &&
-        b.layerHeight != null) {
-      maxLayer = max(
-          0,
-          ((b.objectHeight! - b.firstLayerHeight!) / b.layerHeight! + 1)
-              .ceil());
-
-      curLayer = min(
-          maxLayer,
-          ((a.toolhead.position[2] - b.firstLayerHeight!) / b.layerHeight! + 1)
-              .ceil());
+        curLayer = max(
+            0,
+            min(
+                maxLayer,
+                ((a.toolhead.position[2] - b.firstLayerHeight!) /
+                            b.layerHeight! +
+                        1)
+                    .ceil()));
+      }
+      if (b.filamentTotal != null) {
+        usedFilament = a.print.filamentUsed / 1000;
+        totalFilament = b.filamentTotal! / 1000;
+        usedFilamentPerc =
+            min(100, (a.print.filamentUsed / b.filamentTotal! * 100));
+      }
+      double crossSection =
+          pow((a.configFile.primaryExtruder?.filamentDiameter ?? 1.75) / 2, 2) *
+              pi;
+      currentFlow = (crossSection * a.motionReport.liveExtruderVelocity)
+          .toPrecision(1)
+          .abs();
     }
 
     return MoveTableState(
-        postion: a.toolhead.position.toList(growable: false),
+        livePosition: a.motionReport.livePosition.toList(growable: false),
+        postion: a.gCodeMove.gcodePosition.toList(growable: false),
         printingOrPaused: const {PrintState.printing, PrintState.paused}
             .contains(a.print.state),
         mmSpeed: a.gCodeMove.mmSpeed,
         currentLayer: curLayer,
         maxLayers: maxLayer,
-        eta: a.eta);
+        currentFlow: currentFlow,
+        usedFilament: usedFilament,
+        totalFilament: totalFilament,
+        usedFilamentPerc: usedFilamentPerc,
+        eta: a.eta,
+        totalDuration: a.print.totalDuration);
   }
 
   @override
@@ -205,21 +243,33 @@ class MoveTableState {
       identical(this, other) ||
       other is MoveTableState &&
           runtimeType == other.runtimeType &&
+          listEquals(livePosition, other.livePosition) &&
           listEquals(postion, other.postion) &&
           printingOrPaused == other.printingOrPaused &&
           mmSpeed == other.mmSpeed &&
           currentLayer == other.currentLayer &&
           maxLayers == other.maxLayers &&
-          eta == other.eta;
+          currentFlow == other.currentFlow &&
+          usedFilament == other.usedFilament &&
+          totalFilament == other.totalFilament &&
+          usedFilamentPerc == other.usedFilamentPerc &&
+          eta == other.eta &&
+          totalDuration == other.totalDuration;
 
   @override
   int get hashCode =>
+      livePosition.hashIterable ^
       postion.hashIterable ^
       printingOrPaused.hashCode ^
       mmSpeed.hashCode ^
       currentLayer.hashCode ^
       maxLayers.hashCode ^
-      eta.hashCode;
+      currentFlow.hashCode ^
+      usedFilament.hashCode ^
+      totalFilament.hashCode ^
+      usedFilamentPerc.hashCode ^
+      eta.hashCode ^
+      totalDuration.hashCode;
 }
 
 final babyStepControllerProvider =

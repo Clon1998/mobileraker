@@ -1,4 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/dto/machine/display_status.dart';
+import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/exceptions.dart';
 
 import '../config/config_file.dart';
@@ -32,13 +34,17 @@ class PrinterBuilder {
         temperatureSensors = printer.temperatureSensors,
         outputPins = printer.outputPins,
         queryableObjects = printer.queryableObjects,
-        gcodeMacros = printer.gcodeMacros;
+        gcodeMacros = printer.gcodeMacros,
+        motionReport = printer.motionReport,
+        displayStatus = printer.displayStatus;
 
   Toolhead? toolhead;
   List<Extruder> extruders = [];
   HeaterBed? heaterBed;
   PrintFan? printFan;
   GCodeMove? gCodeMove;
+  MotionReport? motionReport;
+  DisplayStatus? displayStatus;
   PrintStats? print;
   ExcludeObject? excludeObject;
   ConfigFile? configFile;
@@ -54,6 +60,8 @@ class PrinterBuilder {
         heaterBed == null ||
         printFan == null ||
         gCodeMove == null ||
+        motionReport == null ||
+        displayStatus == null ||
         print == null ||
         configFile == null ||
         virtualSdCard == null) {
@@ -65,6 +73,8 @@ class PrinterBuilder {
         heaterBed: heaterBed!,
         printFan: printFan!,
         gCodeMove: gCodeMove!,
+        motionReport: motionReport!,
+        displayStatus: displayStatus!,
         print: print!,
         excludeObject: excludeObject,
         configFile: configFile!,
@@ -88,6 +98,8 @@ class Printer with _$Printer {
     required HeaterBed heaterBed,
     required PrintFan printFan,
     required GCodeMove gCodeMove,
+    required MotionReport motionReport,
+    required DisplayStatus displayStatus,
     required PrintStats print,
     ExcludeObject? excludeObject,
     required ConfigFile configFile,
