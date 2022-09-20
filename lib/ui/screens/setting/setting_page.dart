@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -25,6 +27,7 @@ class SettingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var settingService = ref.watch(settingServiceProvider);
+    var themeData = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -83,8 +86,7 @@ class SettingPage extends ConsumerWidget {
               ),
               FormBuilderSwitch(
                 name: 'useLivePos',
-                title: const Text('pages.setting.general.use_offset_pos')
-                    .tr(),
+                title: const Text('pages.setting.general.use_offset_pos').tr(),
                 onChanged: (b) =>
                     settingService.writeBool(useOffsetPosKey, b ?? false),
                 initialValue: ref.watch(boolSetting(useOffsetPosKey)),
@@ -96,6 +98,57 @@ class SettingPage extends ConsumerWidget {
               const _NotificationReliabilityInfo(),
               const NotificationPermissionWarning(),
               const _ProgressNotificationDropDown(),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: FormBuilderField<Set<PrintState>>(
+                    name: 'notificationStates',
+                    initialValue: settingService
+                        .read(activeStateNotifyMode,
+                            'standby,printing,paused,complete,error')
+                        .split(',')
+                        .map((e) =>
+                            EnumToString.fromString(PrintState.values, e) ??
+                            PrintState.error)
+                        .toSet(),
+                    onChanged: (values) {
+                      if (values == null) return;
+                      var str = values.map((e) => e.name).join(',');
+                      settingService.write(activeStateNotifyMode, str);
+                    },
+                    builder: (FormFieldState<Set<PrintState>> field) {
+                      Set<PrintState> value = field.value ?? {};
+
+                      return InputDecorator(
+                        decoration: InputDecoration(
+                            labelText: "State Notification",
+                            labelStyle: themeData.textTheme.labelLarge,
+                            helperText:
+                                'States that issue a state changed notification'),
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceEvenly,
+                          children: PrintState.values.map((e) {
+                            var selected = value.contains(e);
+                            return FilterChip(
+                              selected: selected,
+                              elevation: 2,
+                              label: Text(
+                                e.displayName,
+                              ),
+                              onSelected: (bool s) {
+                                if (s) {
+                                  field.didChange({...value, e});
+                                } else {
+                                  var set = value.toSet();
+                                  set.remove(e);
+                                  field.didChange(set);
+                                }
+                              },
+                            );
+                          }).toList(growable: false),
+                        ),
+                      );
+                    }),
+              ),
               const Divider(),
               RichText(
                 text: TextSpan(
@@ -229,6 +282,7 @@ class _LanguageSelector extends ConsumerWidget {
               value: local, child: Text(constructLanguageText(local))))
           .toList(),
       decoration: InputDecoration(
+        labelStyle: Theme.of(context).textTheme.labelLarge,
         labelText: 'pages.setting.general.language'.tr(),
       ),
       onChanged: (Locale? local) =>
@@ -256,7 +310,8 @@ class _ThemeSelector extends ConsumerWidget {
           .map((theme) =>
               DropdownMenuItem(value: theme, child: Text(theme.name)))
           .toList(),
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
+        labelStyle: Theme.of(context).textTheme.labelLarge,
         labelText: 'Theme',
       ),
       onChanged: (ThemePack? themePack) =>
@@ -281,7 +336,8 @@ class _ThemeModeSelector extends ConsumerWidget {
           .map((themeMode) => DropdownMenuItem(
               value: themeMode, child: Text(themeMode.name.capitalize)))
           .toList(),
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
+        labelStyle: Theme.of(context).textTheme.labelLarge,
         labelText: 'Theme Mode',
       ),
       onChanged: (ThemeMode? themeMode) =>
@@ -311,6 +367,7 @@ class _ProgressNotificationDropDown extends ConsumerWidget {
       onChanged: (v) =>
           settingService.writeInt(selectedProgressNotifyMode, v?.index ?? 0),
       decoration: InputDecoration(
+          labelStyle: Theme.of(context).textTheme.labelLarge,
           labelText: 'pages.setting.notification.progress_label'.tr(),
           helperText: 'pages.setting.notification.progress_helper'.tr()),
     );

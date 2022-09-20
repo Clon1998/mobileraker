@@ -316,10 +316,20 @@ class NotificationService {
       [bool createNotification = true]) async {
     PrintState? oldState = machine.lastPrintState;
 
+    var allowed = _settingsService.read(
+        activeStateNotifyMode, 'standby,printing,paused,complete,error');
+
     if (updatedState == oldState) return updatedState;
     machine.lastPrintState = updatedState;
     logger.i("Transition update $oldState -> $updatedState");
     if (oldState == null && updatedState != PrintState.printing) {
+      return updatedState;
+    }
+
+    if (!allowed.contains(oldState?.name ?? PrintState.error.name) &&
+        !allowed.contains(updatedState.name)) {
+      logger.i(
+          'Skipping notifications,  "$oldState" nor "$updatedState" contained in allowedStates:"$allowed"');
       return updatedState;
     }
 
