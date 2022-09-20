@@ -326,7 +326,8 @@ class NotificationService {
       return updatedState;
     }
 
-    if (!allowed.contains(oldState?.name ?? PrintState.error.name) &&
+    if (
+    // !allowed.contains(oldState?.name ?? PrintState.error.name) &&
         !allowed.contains(updatedState.name)) {
       logger.i(
           'Skipping notifications,  "$oldState" nor "$updatedState" contained in allowedStates:"$allowed"');
