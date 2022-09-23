@@ -69,7 +69,6 @@ class GeneralTabViewController
   }
 
   flipTemperatureCard() {
-    logger.w('Flip');
     try {
       ref.read(flipCardControllerProvider).toggleCard();
     } catch (e) {

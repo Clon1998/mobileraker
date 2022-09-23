@@ -6,6 +6,8 @@ import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
@@ -18,6 +20,8 @@ import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/ref_extension.dart';
 
 enum AppRoute {
   dashBoard,
@@ -34,12 +38,26 @@ enum AppRoute {
   configDetail
 }
 
-final initialRouteProvider =
-    Provider<String>((ref) => throw UnimplementedError());
+final initialRouteProvider = FutureProvider.autoDispose<String>((ref) async {
+  ref.keepAlive();
+  SettingService settingService = ref.watch(settingServiceProvider);
 
-final goRouterProvider = Provider<GoRouter>((ref) {
+  if (!settingService.readBool(startWithOverviewKey)) {
+    return '/';
+  }
+  int printerCnt =
+      await ref.watch(allMachinesProvider.selectAsync((data) => data.length));
+
+  if (printerCnt > 1) {
+    return '/overview';
+  }
+  return '/';
+});
+
+final goRouterProvider = Provider.autoDispose<GoRouter>((ref) {
+  ref.keepAlive();
   return GoRouter(
-    initialLocation: ref.watch(initialRouteProvider),
+    initialLocation: ref.watch(initialRouteProvider).valueOrFullNull!,
     debugLogDiagnostics: false,
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
@@ -70,7 +88,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.fullCam.name,
         builder: (context, state) {
           Map<String, dynamic> b = state.extra as Map<String, dynamic>;
-          logger.w(b);
           return FullCamPage(b['machine'], b['selectedCam']);
         },
       ),

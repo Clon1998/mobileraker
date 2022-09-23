@@ -31,9 +31,7 @@ Future<void> main() async {
   // await setupCat(); // ToDO
 
   setupLicenseRegistry();
-  // initialRoute = await selectInitialRoute();
   final container = ProviderContainer(
-    overrides: [initialRouteProvider.overrideWithValue('/')]
     // observers: [
     //   if (kDebugMode)
     //   const RiverPodLogger(),
@@ -42,7 +40,8 @@ Future<void> main() async {
 
   await container.read(analyticsProvider).logAppOpen();
 
-
+  // await for the initial rout provider to be ready and setup!
+  await container.read(initialRouteProvider.future);
   container.read(machineServiceProvider).initializeAvailableMachines();
   await container.read(notificationServiceProvider).initialize();
 

@@ -12,6 +12,7 @@ import 'package:http/http.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 typedef StreamConnectedBuilder = Widget Function(
@@ -46,86 +47,140 @@ class Mjpeg extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(_mjpegViewControllerProvider(config)).when(
-        data: (data) {
-          Widget img = Image(
-            image: data.image,
-            width: width,
-            height: height,
-            gaplessPlayback: true,
-            fit: fit,
-          );
-          if (transform != null) {
-            img = Transform(
-              alignment: Alignment.center,
-              transform: transform!,
-              child: img,
-            );
-          }
-
-          return EaseIn(
-            child: Stack(
-              children: [
-                (imageBuilder == null) ? img : imageBuilder!(context, img),
-                if (showFps)
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: Container(
-                          padding: const EdgeInsets.all(4),
-                          margin: const EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.secondary,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(5))),
-                          child: Text(
-                            'FPS: ${data.fps.toStringAsFixed(1)}',
-                            style: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSecondary),
-                          )),
+    return ref
+        .watch(_mjpegViewControllerProvider(config).selectAs((data) => true))// just wait for data to be ready!
+        .when(
+            data: (data) {
+              Widget img = _TransformedImage(
+                config: config,
+                transform: transform,
+                fit: fit,
+                width: width,
+                height: height,
+              );
+              return EaseIn(
+                child: Stack(
+                  children: [
+                    (imageBuilder == null) ? img : imageBuilder!(context, img),
+                    if (showFps) _FPSDisplay(config: config),
+                    if (stackChild != null) stackChild!
+                  ],
+                ),
+              );
+            },
+            error: (e, s) => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error_outline),
+                    const SizedBox(
+                      height: 30,
                     ),
-                  ),
-                if (stackChild != null) stackChild!
-              ],
-            ),
-          );
-        },
-        error: (e, s) => Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline),
-                const SizedBox(
-                  height: 30,
+                    Text(e.toString(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Theme.of(context).errorColor)),
+                    TextButton.icon(
+                        onPressed: ref
+                            .read(_mjpegViewControllerProvider(config).notifier)
+                            .onRetryPressed,
+                        icon: const Icon(Icons.restart_alt_outlined),
+                        label: const Text(
+                                'components.connection_watcher.reconnect')
+                            .tr())
+                  ],
                 ),
-                Text(e.toString(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Theme.of(context).errorColor)),
-                TextButton.icon(
-                    onPressed: ref
-                        .read(_mjpegViewControllerProvider(config).notifier)
-                        .onRetryPressed,
-                    icon: const Icon(Icons.restart_alt_outlined),
-                    label: const Text('components.connection_watcher.reconnect')
-                        .tr())
-              ],
-            ),
-        loading: () => Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SpinKitDancingSquare(
-                  color: Theme.of(context).colorScheme.secondary,
+            loading: () => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SpinKitDancingSquare(
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    FadingText(
+                        tr('components.connection_watcher.trying_connect'))
+                  ],
+                ));
+  }
+}
+
+class _FPSDisplay extends ConsumerWidget {
+  const _FPSDisplay({
+    Key? key,
+    required this.config,
+  }) : super(key: key);
+  final MjpegConfig config;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(
+            _mjpegViewControllerProvider(config).selectAs((data) => data.fps))
+        .maybeWhen(
+            data: (fps) {
+              var themeData = Theme.of(context);
+              return Positioned.fill(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                      padding: const EdgeInsets.all(4),
+                      margin: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                          color: themeData.colorScheme.secondary,
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5))),
+                      child: Text(
+                        'FPS: ${fps.toStringAsFixed(1)}',
+                        style: themeData.textTheme.bodySmall?.copyWith(
+                            color: themeData.colorScheme.onSecondary),
+                      )),
                 ),
-                const SizedBox(
-                  height: 15,
-                ),
-                FadingText(tr('components.connection_watcher.trying_connect'))
-              ],
-            ));
+              );
+            },
+            orElse: () => const SizedBox.shrink());
+  }
+}
+
+class _TransformedImage extends ConsumerWidget {
+  const _TransformedImage({
+    Key? key,
+    required this.config,
+    this.transform,
+    this.fit,
+    this.width,
+    this.height,
+  }) : super(key: key);
+
+  final MjpegConfig config;
+  final Matrix4? transform;
+  final BoxFit? fit;
+  final double? width;
+  final double? height;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ref
+        .watch(
+            _mjpegViewControllerProvider(config).selectAs((data) => data.image))
+        .maybeWhen(
+            data: (image) {
+              Widget img = Image(
+                image: image,
+                width: width,
+                height: height,
+                gaplessPlayback: true,
+                fit: fit,
+              );
+              if (transform != null) {
+                img = Transform(
+                  alignment: Alignment.center,
+                  transform: transform!,
+                  child: img,
+                );
+              }
+              return img;
+            },
+            orElse: () => const SizedBox.shrink());
   }
 }
 

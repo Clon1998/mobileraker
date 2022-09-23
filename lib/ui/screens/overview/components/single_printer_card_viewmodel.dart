@@ -19,8 +19,6 @@ class SinglePrinterCardController extends StateNotifier<WebcamSetting?> {
       : _selectedMachineService = ref.watch(selectedMachineServiceProvider),
         _goRouter = ref.watch(goRouterProvider),
         super(null) {
-    logger.w(
-        'CREATED SinglePrinterCardController ${_machine.hashCode} #${identityHashCode(this)}');
 
     ref.read(jrpcClientProvider(_machine.uuid)).ensureConnection();
     List<WebcamSetting> tmpCams = _machine.cams;

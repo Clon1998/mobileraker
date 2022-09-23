@@ -34,24 +34,22 @@ class _OverviewBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(allMachinesProvider).when<Widget>(
         data: (d) {
-
-          logger.w('Now i am here.. Why!');
           return SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...d.map((machine) => SinglePrinterCard(machine)),
-                  Center(
-                    child: ElevatedButton.icon(
-                        onPressed: () => ref
-                            .read(goRouterProvider)
-                            .pushNamed(AppRoute.printerAdd.name),
-                        icon: const Icon(Icons.add),
-                        label: const Text('pages.overview.add_machine').tr()),
-                  )
-                ],
-              ),
-            );
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ...d.map((machine) => SinglePrinterCard(machine)),
+                Center(
+                  child: ElevatedButton.icon(
+                      onPressed: () => ref
+                          .read(goRouterProvider)
+                          .pushNamed(AppRoute.printerAdd.name),
+                      icon: const Icon(Icons.add),
+                      label: const Text('pages.overview.add_machine').tr()),
+                )
+              ],
+            ),
+          );
         },
         error: (e, s) {
           logger.e('Error in OverView', e, StackTrace.current);
