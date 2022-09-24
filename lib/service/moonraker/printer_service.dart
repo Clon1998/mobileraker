@@ -243,6 +243,14 @@ class PrinterService {
     gCode('M84');
   }
 
+  zTiltAdjust() {
+    gCode('Z_TILT_ADJUST');
+  }
+
+  screwsTiltCalculate() {
+    gCode('SCREWS_TILT_CALCULATE');
+  }
+
   m117([String? msg]) {
     gCode('M117 ${msg??''}');
   }

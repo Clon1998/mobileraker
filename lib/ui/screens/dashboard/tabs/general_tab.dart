@@ -638,37 +638,37 @@ class _Presets extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Card(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Column(
-          children: [
-            ListTile(
-              leading: Icon(
-                FlutterIcons.fire_alt_faw5s,
-                color: ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.value!.printerData.extruder.target +
-                                data.value!.printerData.heaterBed.target >
-                            0))
-                    ? Colors.deepOrange
-                    : null,
-              ),
-              title:
-                  const Text('pages.dashboard.general.temp_card.temp_presets')
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(
+                  FlutterIcons.fire_alt_faw5s,
+                  color: ref.watch(generalTabViewControllerProvider.select(
+                          (data) =>
+                              data.value!.printerData.extruder.target +
+                                  data.value!.printerData.heaterBed.target >
+                              0))
+                      ? Colors.deepOrange
+                      : null,
+                ),
+                title:
+                    const Text('pages.dashboard.general.temp_card.temp_presets')
+                        .tr(),
+                trailing: TextButton(
+                  onPressed: ref
+                      .read(generalTabViewControllerProvider.notifier)
+                      .flipTemperatureCard,
+                  child: const Text('pages.dashboard.general.temp_card.sensors')
                       .tr(),
-              trailing: TextButton(
-                onPressed: ref
-                    .read(generalTabViewControllerProvider.notifier)
-                    .flipTemperatureCard,
-                child: const Text('pages.dashboard.general.temp_card.sensors')
-                    .tr(),
+                ),
               ),
-            ),
-            const _TemperaturePresetsHorizontalScroll()
-          ],
+              const _TemperaturePresetsHorizontalScroll()
+            ],
+          ),
         ),
-      ),
-    );
+      );
 }
 
 class _TemperaturePresetsHorizontalScroll extends ConsumerWidget {
@@ -946,7 +946,7 @@ class _ControlXYZCard extends ConsumerWidget {
                       ),
                     ),
                     if (ref.watch(printerSelectedProvider.select((data) =>
-                        data.valueOrNull?.configFile.hasQuadGantry ?? false)))
+                        data.valueOrNull?.configFile.hasQuadGantry == true)))
                       Tooltip(
                         message: 'pages.dashboard.general.move_card.qgl_tooltip'
                             .tr(),
@@ -964,7 +964,7 @@ class _ControlXYZCard extends ConsumerWidget {
                         ),
                       ),
                     if (ref.watch(printerSelectedProvider.select((data) =>
-                        data.valueOrNull?.configFile.hasBedMesh ?? false)))
+                        data.valueOrNull?.configFile.hasBedMesh == true)))
                       Tooltip(
                         message:
                             'pages.dashboard.general.move_card.mesh_tooltip'
@@ -981,6 +981,47 @@ class _ControlXYZCard extends ConsumerWidget {
                                   .tr()
                                   .toUpperCase()),
                           // color: Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    if (ref.watch(printerSelectedProvider.select((data) =>
+                        data.valueOrNull?.configFile.hasScrewTiltAdjust ==
+                        true)))
+                      Tooltip(
+                        message: 'pages.dashboard.general.move_card.stc_tooltip'
+                            .tr(),
+                        child: ElevatedButton.icon(
+                          onPressed: klippyCanReceiveCommands
+                              ? ref
+                                  .read(controlXYZController.notifier)
+                                  .onScrewTiltCalc
+                              : null,
+                          icon: const Icon(
+                              FlutterIcons.screw_machine_flat_top_mco),
+                          label: Text(
+                              'pages.dashboard.general.move_card.stc_btn'
+                                  .tr()
+                                  .toUpperCase()),
+                        ),
+                      ),
+                    if (ref.watch(printerSelectedProvider.select((data) =>
+                        data.valueOrNull?.configFile.hasScrewTiltAdjust ==
+                        true)))
+                      Tooltip(
+                        message:
+                            'pages.dashboard.general.move_card.ztilt_tooltip'
+                                .tr(),
+                        child: ElevatedButton.icon(
+                          onPressed: klippyCanReceiveCommands
+                              ? ref
+                                  .read(controlXYZController.notifier)
+                                  .onZTiltAdjust
+                              : null,
+                          icon:
+                              const Icon(FlutterIcons.unfold_less_vertical_mco),
+                          label: Text(
+                              'pages.dashboard.general.move_card.ztilt_btn'
+                                  .tr()
+                                  .toUpperCase()),
                         ),
                       ),
                     Tooltip(
@@ -1324,7 +1365,8 @@ class M117Message extends ConsumerWidget {
             ),
           ),
           IconButton(
-            onPressed: ref.read(controlXYZController.notifier).onClearM117,
+            onPressed:
+                ref.read(generalTabViewControllerProvider.notifier).onClearM117,
             icon: const Icon(Icons.clear),
             iconSize: 16,
             color: themeData.colorScheme.primary,

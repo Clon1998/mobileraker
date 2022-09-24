@@ -68,11 +68,15 @@
           "home_all_btn": "All",
           "qgl_tooltip": "Run Quad-Gantry leveling",
           "qgl_btn": "QGL",
-          "mesh_tooltip": "Run bed-mesh Calibration",
+          "mesh_tooltip": "Run Med-Mesh calibration",
           "mesh_btn": "Mesh",
           "m84_tooltip": "Disable Motors",
           "m84_btn": "M84",
-          "step_size": "Step size"
+          "step_size": "Step size",
+          "stc_tooltip": "Run Screws-Tilt calculation",
+          "stc_btn": "STC",
+          "ztilt_tooltip": "Run Z-Tilt calibration",
+          "ztilt_btn": "zTilt"
         },
         "baby_step_card": {
           "title": "Babystepping Z-Axis"

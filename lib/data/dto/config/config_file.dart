@@ -69,6 +69,10 @@ class ConfigFile {
 
   bool get hasBedMesh => rawConfig.containsKey('bed_mesh');
 
+  bool get hasScrewTiltAdjust => rawConfig.containsKey('screws_tilt_adjust');
+
+  bool get hasZTilt => rawConfig.containsKey('z_tilt');
+
   ConfigExtruder? get primaryExtruder => extruders['extruder'];
 
   ConfigExtruder? extruderForIndex(int idx) =>

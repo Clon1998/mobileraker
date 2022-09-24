@@ -138,6 +138,10 @@ class GeneralTabViewController
           'extruder${extruder.num > 0 ? extruder.num : ''}', v.toInt());
     });
   }
+
+  onClearM117() {
+    ref.read(printerServiceSelectedProvider).m117();
+  }
 }
 
 final filePrintingProvider = FutureProvider.autoDispose<GCodeFile?>((ref) {
