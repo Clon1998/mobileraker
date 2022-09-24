@@ -225,7 +225,7 @@ class PrintCard extends ConsumerWidget {
                                 'pages.dashboard.general.print_card.current_object')
                             .tr(),
                         Text(
-                          excludeObject?.currentObject ?? 'general.none'.tr(),
+                          excludeObject.currentObject ?? 'general.none'.tr(),
                           style: themeData.textTheme.bodyText2?.copyWith(
                               color: themeData.textTheme.caption?.color),
                         ),
@@ -637,10 +637,7 @@ class _Presets extends ConsumerWidget {
   const _Presets({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ;
-
-    return Card(
+  Widget build(BuildContext context, WidgetRef ref) => Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child: Column(
@@ -672,7 +669,6 @@ class _Presets extends ConsumerWidget {
         ),
       ),
     );
-  }
 }
 
 class _TemperaturePresetsHorizontalScroll extends ConsumerWidget {

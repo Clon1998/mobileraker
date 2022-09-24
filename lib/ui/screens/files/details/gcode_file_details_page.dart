@@ -241,7 +241,7 @@ class _GCodeFileDetailPage extends ConsumerWidget {
         ],
       ),
 
-      floatingActionButton: Fab(),
+      floatingActionButton: const Fab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }

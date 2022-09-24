@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 
-
 class HorizontalScrollIndicator extends StatefulWidget {
   final int steps;
   final ScrollController controller;
@@ -19,25 +18,26 @@ class HorizontalScrollIndicator extends StatefulWidget {
 
   @override
   State<HorizontalScrollIndicator> createState() =>
-      _HorizontalScrollIndicatorState(steps, childsPerScreen);
+      _HorizontalScrollIndicatorState();
 }
 
 class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
+  late final int steps;
+
   double _curIndex = 0;
 
   ScrollController get controller => widget.controller;
-  final int steps;
-
-  _HorizontalScrollIndicatorState(int steps, int? childsPerScreen)
-      : steps = (childsPerScreen == null)
-            ? steps
-            : (steps / childsPerScreen).ceil();
 
   @override
   initState() {
     super.initState();
+    steps = (widget.childsPerScreen == null)
+        ? widget.steps
+        : (widget.steps / widget.childsPerScreen!).ceil();
+
     controller.addListener(_listenerForController);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _listenerForController());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _listenerForController());
   }
 
   _listenerForController() {

@@ -75,7 +75,7 @@ class SnackBarService {
               if (config.mainButtonTitle != null)
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                        primary: btnBg, onPrimary: btnOnBg),
+                        backgroundColor: btnBg, foregroundColor: btnOnBg),
                     onPressed: config.onMainButtonTapped != null
                         ? () {
                             if (config.closeOnMainButtonTapped == true) {

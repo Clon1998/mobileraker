@@ -1050,7 +1050,7 @@ class PrinterService {
         type: SnackbarType.error,
         title: 'Refresh Printer Error',
         message: 'Could not parse: $e',
-        duration: Duration(seconds: 30),
+        duration: const Duration(seconds: 30),
         mainButtonTitle: 'Details',
         closeOnMainButtonTapped: true,
         onMainButtonTapped: () {

@@ -5,7 +5,6 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:uuid/uuid.dart';
 
-import 'macro_group.dart';
 import 'temperature_preset.dart';
 import 'webcam_setting.dart';
 

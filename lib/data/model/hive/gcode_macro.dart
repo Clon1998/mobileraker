@@ -8,7 +8,7 @@ class GCodeMacro {
   @HiveField(0)
   String name;
   @HiveField(1)
-  String uuid = Uuid().v4();
+  String uuid = const Uuid().v4();
   @HiveField(2)
   bool visible = true;
   @HiveField(3)

@@ -13,7 +13,7 @@ class WebcamSetting {
   @HiveField(0)
   String name;
   @HiveField(1)
-  String uuid = Uuid().v4();
+  String uuid = const Uuid().v4();
   @HiveField(2)
   String url;
   @HiveField(3)

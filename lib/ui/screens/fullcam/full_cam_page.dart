@@ -13,7 +13,8 @@ class FullCamPage extends ConsumerWidget {
   final Machine machine;
   final int initialCam;
 
-  const FullCamPage(this.machine, this.initialCam);
+  const FullCamPage(this.machine, this.initialCam, {Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,7 +56,8 @@ class _FullCamView extends ConsumerWidget {
             alignment: Alignment.bottomCenter,
             child: DropdownButton<int>(
                 value: index,
-                onChanged: (s) => ref.read(selectedCamIndexProvider.notifier).state = s!,
+                onChanged: (s) =>
+                    ref.read(selectedCamIndexProvider.notifier).state = s!,
                 items: machine.cams.mapIndex((e, i) {
                   return DropdownMenuItem(
                     value: i,

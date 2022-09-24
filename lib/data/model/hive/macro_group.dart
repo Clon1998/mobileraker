@@ -10,14 +10,14 @@ class MacroGroup {
   @HiveField(0)
   String name;
   @HiveField(1)
-  String uuid = Uuid().v4();
+  String uuid = const Uuid().v4();
   @HiveField(16, defaultValue: [])
   List<GCodeMacro> macros;
 
   MacroGroup({
     required this.name,
     List<GCodeMacro>? macros,
-  }) : this.macros = macros ?? [];
+  }) : macros = macros ?? [];
 
   @override
   String toString() {

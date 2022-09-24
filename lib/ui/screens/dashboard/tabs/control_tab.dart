@@ -86,8 +86,7 @@ class ControlTab extends ConsumerWidget {
                             DialogRequest(
                                 type: DialogType.stacktrace,
                                 title: e.runtimeType.toString(),
-                                body:
-                                    'Exception:\n $e\n\n$s')),
+                                body: 'Exception:\n $e\n\n$s')),
                         child: const Text('Show Error'))
                   ],
                 ),
@@ -437,8 +436,6 @@ class GcodeMacroCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.w('GcodeMacroCard Build');
-
     var klippyCanReceiveCommands = ref
         .watch(machinePrinterKlippySettingsProvider
             .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
@@ -551,7 +548,6 @@ class PinsCard extends ConsumerWidget {
             .where((element) => !element.name.startsWith('_'))
             .length))
         .valueOrFullNull!;
-    logger.w('PinsCard');
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),

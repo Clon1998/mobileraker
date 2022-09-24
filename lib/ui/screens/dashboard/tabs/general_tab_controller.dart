@@ -43,7 +43,7 @@ class GeneralTabViewController
       : super(ref.read(machinePrinterKlippySettingsProvider)) {
     ref.listen<AsyncValue<PrinterKlippySettingsMachineWrapper>>(
         machinePrinterKlippySettingsProvider, (previous, next) {
-      if (next.isRefreshing) state = AsyncValue.loading();
+      if (next.isRefreshing) state = const AsyncValue.loading();
       state = next;
     });
   }

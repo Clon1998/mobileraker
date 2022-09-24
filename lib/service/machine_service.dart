@@ -87,7 +87,7 @@ class MachineService {
     MachineSettings machineSettings =
         await ref.read(machineSettingsRepositoryProvider(machine.uuid)).get() ??
             MachineSettings.fallback();
-    ;
+
 
     return machineSettings;
   }
@@ -151,7 +151,7 @@ class MachineService {
     String? item = await moonrakerDatabaseClient.getDatabaseItem('mobileraker',
         key: 'printerId');
     if (item == null) {
-      String nId = Uuid().v4();
+      String nId = const Uuid().v4();
       item = await moonrakerDatabaseClient.addDatabaseItem(
           'mobileraker', 'printerId', nId);
       logger.i('Registered fcm-PrinterId in MoonrakerDB: $nId');

@@ -3,7 +3,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/wrapper/riverpod_machine_wrapper.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
@@ -19,7 +18,6 @@ class SinglePrinterCardController extends StateNotifier<WebcamSetting?> {
       : _selectedMachineService = ref.watch(selectedMachineServiceProvider),
         _goRouter = ref.watch(goRouterProvider),
         super(null) {
-
     ref.read(jrpcClientProvider(_machine.uuid)).ensureConnection();
     List<WebcamSetting> tmpCams = _machine.cams;
     if (tmpCams.isNotEmpty) state = tmpCams.first;

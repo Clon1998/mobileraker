@@ -440,7 +440,9 @@ class NotificationService {
 
   dispose() {
     _hiveStreamListener?.cancel();
-    _printerStreamMap.values.forEach((element) => element.close());
+    for (var element in _printerStreamMap.values) {
+      element.close();
+    }
     _actionStreamListener?.cancel();
   }
 }

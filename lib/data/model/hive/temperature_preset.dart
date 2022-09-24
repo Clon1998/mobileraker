@@ -8,7 +8,7 @@ class TemperaturePreset {
   @HiveField(0)
   String name;
   @HiveField(1)
-  String uuid = Uuid().v4();
+  String uuid = const Uuid().v4();
   @HiveField(2)
   int bedTemp = 60; // Safe values
   @HiveField(3)
