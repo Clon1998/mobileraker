@@ -34,7 +34,7 @@ class SettingPage extends ConsumerWidget {
         key: ref.watch(settingPageFormKey),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(8.0),
           child: ListView(
             children: <Widget>[
               _SectionHeader(title: 'pages.setting.general.title'.tr()),

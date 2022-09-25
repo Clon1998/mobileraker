@@ -153,69 +153,74 @@ class _NavHeader extends ConsumerWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Image(
-                          height: 60,
-                          width: 60,
-                          image: brandingIcon ??
-                              const AssetImage('assets/icon/mr_logo.png')),
-                      Flexible(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              neverNullMachineAsyncData.maybeWhen<String>(
-                                  orElse: () => 'NO PRINTER',
-                                  data: (data) => data.name),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.titleLarge
-                                  ?.copyWith(color: onBackground),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              neverNullMachineAsyncData.maybeWhen(
-                                  orElse: () => 'Add printer first',
-                                  data: (machine) =>
-                                      Uri.tryParse(machine.httpUrl)?.host ??
-                                      machine.httpUrl),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.subtitle2
-                                  ?.copyWith(color: onBackground),
-                            ),
-                          ],
+            InkWell(
+              onTap: () {
+                if (neverNullMachineAsyncData.hasValue) {
+                  ref.read(navDrawerControllerProvider.notifier).pushingTo(
+                      '/printer/edit',
+                      arguments: neverNullMachineAsyncData.value!);
+                } else {
+                  ref
+                      .read(navDrawerControllerProvider.notifier)
+                      .pushingTo('/printer/add');
+                }
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Image(
+                            height: 60,
+                            width: 60,
+                            image: brandingIcon ??
+                                const AssetImage('assets/icon/mr_logo.png')),
+                        Flexible(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                neverNullMachineAsyncData.maybeWhen<String>(
+                                    orElse: () => 'NO PRINTER',
+                                    data: (data) => data.name),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: themeData.textTheme.titleLarge
+                                    ?.copyWith(color: onBackground),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                neverNullMachineAsyncData.maybeWhen(
+                                    orElse: () => 'Add printer first',
+                                    data: (machine) =>
+                                        Uri.tryParse(machine.httpUrl)?.host ??
+                                        machine.httpUrl),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: themeData.textTheme.subtitle2
+                                    ?.copyWith(color: onBackground),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                IconButton(
-                    onPressed: () {
-                      if (neverNullMachineAsyncData.hasValue) {
-                        ref
-                            .read(navDrawerControllerProvider.notifier)
-                            .pushingTo('/printer/edit',
-                                arguments: neverNullMachineAsyncData.value!);
-                      } else {
-                        ref
-                            .read(navDrawerControllerProvider.notifier)
-                            .pushingTo('/printer/add');
-                      }
-                    },
-                    tooltip: 'components.nav_drawer.printer_settings'.tr(),
-                    icon: Icon(
-                      FlutterIcons.settings_fea,
-                      color: onBackground,
-                      size: 27,
-                    ))
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Tooltip(
+                      message: 'components.nav_drawer.printer_settings'.tr(),
+                      child: Icon(
+                        FlutterIcons.settings_mdi,
+                        color: themeData.colorScheme.secondary,
+                        size: 27,
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
             ListTile(
               title: Text(
