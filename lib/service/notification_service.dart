@@ -54,6 +54,7 @@ class NotificationService {
   StreamSubscription<ReceivedAction>? _actionStreamListener;
   StreamSubscription<BoxEvent>? _hiveStreamListener;
 
+  @pragma("vm:entry-point")
   static Future<void> _firebaseMessagingBackgroundHandler(
       RemoteMessage message) async {
     // If you're going to use other Firebase services in the background, such as Firestore,
