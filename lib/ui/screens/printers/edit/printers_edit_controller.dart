@@ -24,7 +24,6 @@ final isSavingProvider = StateProvider.autoDispose<bool>((ref) {
   return false;
 });
 
-
 final currentlyEditing = Provider.autoDispose<Machine>(
     name: 'currentlyEditing', (ref) => throw UnimplementedError());
 
@@ -61,11 +60,12 @@ class PrinterEditPageController extends StateNotifier<void> {
     formBuilderState.save();
     var machine = ref.read(currentlyEditing);
 
-    logger.w('saving $machine#${identityHashCode(machine)}');
     machine.name = formBuilderState.value['printerName'];
     machine.apiKey = formBuilderState.value['printerApiKey'];
     machine.httpUrl = formBuilderState.value['printerUrl'];
     machine.wsUrl = formBuilderState.value['wsUrl'];
+    machine.trustUntrustedCertificate =
+        formBuilderState.value['trustSelfSigned'];
 
     var cams = ref.read(webcamListControllerProvider);
     for (var cam in cams) {
@@ -102,7 +102,7 @@ class PrinterEditPageController extends StateNotifier<void> {
       for (var grp in ref.read(macroGroupListControllerProvider)) {
         List<GCodeMacro> read = ref.read(macroGroupControllerProvder(grp));
         var name = formBuilderState.value['${grp.uuid}-macroName'];
-        macroGroups.add(grp.copyWith(name: name ,macros: read));
+        macroGroups.add(grp.copyWith(name: name, macros: read));
       }
 
       List<TemperaturePreset> presets =

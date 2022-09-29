@@ -15,7 +15,8 @@ final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
   }
   var jsonRpcClient = JsonRpcClient(
     machine.wsUrl,
-    apiKey: machine.apiKey
+    apiKey: machine.apiKey,
+    trustSelfSignedCertificate: machine.trustUntrustedCertificate
   );
   ref.onDispose(jsonRpcClient.dispose);
   jsonRpcClient.openChannel();

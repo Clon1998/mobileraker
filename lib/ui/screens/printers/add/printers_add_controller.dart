@@ -30,6 +30,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
       var printerName = formState.value['printerName'];
       var printerAPIKey = formState.value['printerApiKey'];
       var printerUrl = formState.value['printerUrl'];
+      var trustSelfSigned = formState.value['trustSelfSigned'];
       String wsUrl = urlToWebsocketUrl(printerUrl);
       String httpUrl = urlToHttpUrl(printerUrl);
 
@@ -37,6 +38,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
           name: printerName,
           wsUrl: wsUrl,
           httpUrl: httpUrl,
+          trustUntrustedCertificate: trustSelfSigned,
           apiKey: printerAPIKey);
       await ref.read(machineServiceProvider).addMachine(machine);
       ref.read(goRouterProvider).goNamed(AppRoute.dashBoard.name);
@@ -51,10 +53,11 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
     if (formState.saveAndValidate()) {
       var printerUrl = formState.value['printerUrl'];
       var printerAPIKey = formState.value['printerApiKey'];
+      var trustSelfSigned = formState.value['trustSelfSigned'];
       printerUrl = urlToWebsocketUrl(printerUrl);
 
-      JsonRpcClient jsonRpcClient =
-          JsonRpcClient(printerUrl, apiKey: printerAPIKey);
+      JsonRpcClient jsonRpcClient = JsonRpcClient(printerUrl,
+          apiKey: printerAPIKey, trustSelfSignedCertificate: trustSelfSigned);
 
       jsonRpcClient.openChannel();
       StreamSubscription list = jsonRpcClient.stateStream.listen((event) {
@@ -72,16 +75,23 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
       jsonRpcClient.dispose();
     } else {
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
-        type: SnackbarType.error,
-        message: 'Input validation failed!',
-      ));
+            type: SnackbarType.error,
+            message: 'Input validation failed!',
+          ));
     }
   }
 
   openQrScanner() async {
-    var qr = await ref.read(goRouterProvider).navigator!.push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
+    var qr = await ref
+        .read(goRouterProvider)
+        .navigator!
+        .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr != null) {
-      ref.read(formAddKeyProvider).currentState?.fields['printerApiKey']?.didChange(qr);
+      ref
+          .read(formAddKeyProvider)
+          .currentState
+          ?.fields['printerApiKey']
+          ?.didChange(qr);
     }
   }
 }

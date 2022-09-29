@@ -155,6 +155,12 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 name: 'printerApiKey',
                 initialValue: machine.apiKey,
               ),
+              FormBuilderCheckbox(
+                name: 'trustSelfSigned',
+                title: const Text('pages.printer_edit.general.self_signed').tr(),
+                controlAffinity: ListTileControlAffinity.trailing,
+                initialValue: machine.trustUntrustedCertificate,
+              ),
               const Divider(),
               _SectionHeaderWithAction(
                   title: 'pages.dashboard.general.cam_card.webcam'.tr(),

@@ -34,6 +34,8 @@ class Machine extends HiveObject {
   String? fcmIdentifier;
   @HiveField(18)
   DateTime? lastModified;
+  @HiveField(19, defaultValue: false)
+  bool trustUntrustedCertificate;
 
   PrintState? get lastPrintState =>
       EnumToString.fromString(PrintState.values, _lastPrintState ?? '');
@@ -52,6 +54,7 @@ class Machine extends HiveObject {
     this.apiKey,
     this.temperaturePresets = const [],
     this.cams = const [],
+    this.trustUntrustedCertificate = false
   });
 
   @override

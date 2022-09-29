@@ -210,7 +210,8 @@
         "ws_addr": "Websocket - Address",
         "moonraker_api_key": "Moonraker - API Key",
         "moonraker_api_desc": "Only needed if youre using trusted clients. FluiddPI enforces this!",
-        "full_url": "Full URL"
+        "full_url": "Full URL",
+        "self_signed": "Trust Self-Signed Certificates"
       },
       "motion_system": {
         "title": "Motion System",

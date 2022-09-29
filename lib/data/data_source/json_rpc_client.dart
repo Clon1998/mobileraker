@@ -33,7 +33,10 @@ class RpcResponse {
 }
 
 class JsonRpcClient {
-  JsonRpcClient(this.url, {Duration? defaultTimeout, this.apiKey})
+  JsonRpcClient(this.url,
+      {Duration? defaultTimeout,
+      this.apiKey,
+      this.trustSelfSignedCertificate = false})
       : _headers = (apiKey != null) ? {'X-Api-Key': apiKey} : const {},
         _defaultTimeout = defaultTimeout ?? const Duration(seconds: 5);
 
@@ -44,6 +47,8 @@ class JsonRpcClient {
   bool _disposed = false;
 
   String url;
+
+  bool trustSelfSignedCertificate;
 
   String? apiKey;
 
@@ -167,7 +172,14 @@ class JsonRpcClient {
     curState = ClientState.connecting;
     reset();
     try {
-      WebSocket socket = await WebSocket.connect(url, headers: _headers)
+      var httpClient = HttpClient();
+      if (trustSelfSignedCertificate) {
+        // only allow self signed certificates!
+        httpClient.badCertificateCallback = (cert, host,port) => cert.issuer==cert.subject;
+      }
+
+      WebSocket socket = await WebSocket.connect(url,
+              headers: _headers, customClient: httpClient)
           .timeout(_defaultTimeout);
       if (_disposed) {
         socket.close();

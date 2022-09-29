@@ -63,6 +63,11 @@ class PrinterAddPage extends ConsumerWidget {
                 ),
                 const Divider(),
                 _SectionHeader(title: 'pages.printer_add.misc'.tr()),
+                FormBuilderCheckbox(
+                  name: 'trustSelfSigned',
+                  title: const Text('pages.printer_edit.general.self_signed').tr(),
+                  controlAffinity: ListTileControlAffinity.trailing,
+                ),
                 InputDecorator(
                   decoration: InputDecoration(
                     labelText: 'pages.printer_add.test_ws'.tr(),
@@ -190,12 +195,11 @@ class WSInput extends HookConsumerWidget {
               ref.read(dialogServiceProvider).show(DialogRequest(
                   type: DialogType.info,
                   title: tr('dialogs.ws_input_help.title'),
-                  body:
-                      '${tr('dialogs.ws_input_help.body')}'
-                          '\n192.168.1.1'
-                          '\n192.168.1.1:7125'
-                          '\nhttp://myprinter.com'
-                          '\nws://myprinter.com/socket',
+                  body: '${tr('dialogs.ws_input_help.body')}'
+                      '\n192.168.1.1'
+                      '\n192.168.1.1:7125'
+                      '\nhttp://myprinter.com'
+                      '\nws://myprinter.com/socket',
                   cancelBtn: 'Close'));
             },
           )),
