@@ -717,7 +717,7 @@ class PrinterService {
 
     if (printStatJson.containsKey('state')) {
       state =
-          EnumToString.fromString(PrintState.values, printStatJson['state'])!;
+          EnumToString.fromString(PrintState.values, printStatJson['state']) ?? PrintState.error;
     }
     if (printStatJson.containsKey('filename')) {
       filename = printStatJson['filename'];
