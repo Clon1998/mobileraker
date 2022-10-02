@@ -33,6 +33,8 @@ final powerDevicesSelectedProvider = StreamProvider.autoDispose
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
+    // ToDo: Remove woraround once StreamProvider.stream is fixed!
+    yield await ref.read(powerDevicesProvider(machine.uuid).future);
     yield* ref.watch(powerDevicesProvider(machine.uuid).stream);
   } on StateError catch (e, s) {
 // Just catch it. It is expected that the future/where might not complete!
