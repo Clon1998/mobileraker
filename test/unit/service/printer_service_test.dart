@@ -39,10 +39,12 @@ void main() {
         "gcode_move": null,
         "print_stats": null,
         "virtual_sdcard": null,
+        "display_status": null,
         "heater_bed": null,
         "fan": null,
         "heater_fan toolhead_cooling_fan": null,
         "controller_fan controller_fan": null,
+        "motion_report": null,
         "toolhead": null,
         "extruder": null
       }
@@ -99,8 +101,8 @@ void main() {
       machineServiceProvider.overrideWithValue(mockMachineService),
       snackBarServiceProvider.overrideWithValue(mockSnackBarService),
       dialogServiceProvider.overrideWithValue(mockDialogService),
-      klipperProvider(uuid)
-          .overrideWithValue(AsyncValue.data(mockKlipyInstance))
+      klipperProvider(uuid).overrideWithProvider(
+          StreamProvider.autoDispose((ref) => Stream.value(mockKlipyInstance)))
     ]);
 
     var printerService = container.read(printerServiceProvider(uuid));
