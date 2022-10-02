@@ -22,7 +22,8 @@ class KlipperInstance with _$KlipperInstance {
   const factory KlipperInstance(
       {@Default(false) bool klippyConnected,
       @Default(KlipperState.error) KlipperState klippyState,
-      @Default([]) List<String> plugins,
+      @Default([]) List<String> components,
+      @Default([]) List<String> warnings,
       String? klippyStateMessage}) = _KlipperInstance;
 
   bool get klippyCanReceiveCommands =>

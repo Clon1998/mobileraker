@@ -152,14 +152,19 @@ class KlippyService {
         EnumToString.fromString(KlipperState.values, result['klippy_state'])!;
     bool con = result['klippy_connected'];
 
-    List<String> plugins =
-        (result.containsKey('plugins')) ? result['plugins'].cast<String>() : [];
+    List<String> components = (result.containsKey('components'))
+        ? result['components'].cast<String>()
+        : [];
+
+    List<String> warnings = (result.containsKey('warnings'))
+        ? result['warnings'].cast<String>()
+        : [];
 
     KlipperInstance klipperInstance = KlipperInstance(
-      klippyConnected: con,
-      klippyState: state,
-      plugins: plugins,
-    );
+        klippyConnected: con,
+        klippyState: state,
+        components: components,
+        warnings: warnings);
 
     _current = klipperInstance;
   }
