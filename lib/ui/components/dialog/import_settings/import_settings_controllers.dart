@@ -67,7 +67,7 @@ class ImportSettingsDialogController
           data: (sources) {
             state = AsyncValue.data(sources.first);
           },
-          error: (e, s) => state = AsyncValue.error(e, stackTrace: s),
+          error: (e, s) => state = AsyncValue.error(e, s),
           loading: () => null);
     },fireImmediately: true);
   }

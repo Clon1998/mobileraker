@@ -49,7 +49,7 @@ class GeneralTab extends ConsumerWidget {
     return ref
         .watch(generalTabViewControllerProvider.select((value) => value.when(
             data: (data) => const AsyncValue.data(true),
-            error: (e, s) => AsyncValue.error(e, stackTrace: s),
+            error: (e, s) => AsyncValue.error(e, s),
             loading: () => const AsyncValue.loading())))
         .when(
             data: (data) {

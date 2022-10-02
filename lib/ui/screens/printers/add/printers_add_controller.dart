@@ -69,7 +69,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
             ClientState.error
           ].contains(element.valueOrNull));
       if (jsonRpcClient.hasError) {
-        state = AsyncValue.error(jsonRpcClient.errorReason!);
+        state = AsyncValue.error(jsonRpcClient.errorReason!, StackTrace.current);
       }
       list.cancel();
       jsonRpcClient.dispose();
