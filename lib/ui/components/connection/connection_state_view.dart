@@ -164,9 +164,9 @@ class KlippyState extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(printerSelectedProvider.select((value) => value.hasValue))) {
-      return onConnected;
-    }
+    // if (ref.watch(printerSelectedProvider.select((value) => value.hasValue))) {
+    //   return onConnected;
+    // }
 
     return AsyncValueWidget<KlipperInstance>(
       value: ref.watch(klipperSelectedProvider),
@@ -177,8 +177,8 @@ class KlippyState extends ConsumerWidget {
           case KlipperState.error:
             return Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
                   Card(
                       child: Padding(
                     padding:
@@ -222,15 +222,14 @@ class KlippyState extends ConsumerWidget {
                       ],
                     ),
                   )),
-                  const Spacer()
                 ],
               ),
             );
           case KlipperState.startup:
             return Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Spacer(),
                   Card(
                       child: Padding(
                     padding:
@@ -249,7 +248,6 @@ class KlippyState extends ConsumerWidget {
                       ],
                     ),
                   )),
-                  const Spacer()
                 ],
               ),
             );

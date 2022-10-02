@@ -26,8 +26,6 @@ final machineServiceProvider =
 
 final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>(
     (ref) {
-      ref.onDispose(() {logger.wtf('Dispoed allMachinesProvider');});
-      logger.wtf('CREATED allMachinesProvider');
       return ref.watch(machineServiceProvider).fetchAll();
     },name: 'allMachinesProvider');
 

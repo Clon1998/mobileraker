@@ -13,14 +13,8 @@ StateNotifierProvider.autoDispose<ConnectionStateController, ClientState>(
 
 class ConnectionStateController extends StateNotifier<ClientState> {
   ConnectionStateController(this.ref) : super(ClientState.disconnected) {
-    ref.listenSelf((previous, next) {
-      logger.wtf('$previous -> $next');
-    });
-
     ref.listen<AsyncValue<ClientState>>(jrpcClientStateSelectedProvider,
         (previous, next) {
-          logger.wtf('jrpcClientStateSelectedProvider::: $previous -> $next');
-
           if (next.isRefreshing) {
         state = ClientState.connecting;
       } else {

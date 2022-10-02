@@ -27,10 +27,6 @@ final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
 final jrpcClientStateProvider = StreamProvider.autoDispose
     .family<ClientState, String>(name: 'jrpcClientStateProvider',
         (ref, machineUUID) {
-          logger.wtf('Created: jrpcClientStateProvider($machineUUID)');
-          ref.onDispose(() {logger.wtf('Dispo: jrpcClientStateProvider($machineUUID)');});
-          ref.listenSelf((previous, next) {logger.wtf('jrpcClientStateProvider($machineUUID): $previous -> $next');});
-
           return ref.watch(jrpcClientProvider(machineUUID)).stateStream;
 });
 
@@ -45,9 +41,6 @@ final jrpcClientSelectedProvider = Provider.autoDispose<JsonRpcClient>(
 
 final jrpcClientStateSelectedProvider = StreamProvider.autoDispose<ClientState>(
     name: 'jrpcClientStateSelectedProvider', (ref) async* {
-      logger.wtf('Created: jrpcClientStateSelectedProvider');
-      ref.onDispose(() {logger.wtf('Dispo: jrpcClientStateSelectedProvider');});
-      ref.listenSelf((previous, next) {logger.wtf('jrpcClientStateSelectedProvider: $previous -> $next');});
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
     // ToDo: Remove woraround once StreamProvider.stream is fixed!
