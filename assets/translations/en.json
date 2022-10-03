@@ -3,6 +3,7 @@
     "resume": "Resume",
     "connected": "Connected",
     "off": "Off",
+    "on": "On",
     "none": "None",
     "add": "Add",
     "create": "Create",
@@ -111,6 +112,10 @@
             "two": "Output Pins",
             "other": "Output Pins"
           },
+          "pin_btn": "Pin"
+        },
+        "power_card": {
+          "title": "Power Panel",
           "pin_btn": "Pin"
         },
         "multipl_card": {

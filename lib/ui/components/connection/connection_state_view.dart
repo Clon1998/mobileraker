@@ -13,6 +13,7 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
+import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConnectionStateView extends ConsumerWidget {
@@ -164,9 +165,9 @@ class KlippyState extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // if (ref.watch(printerSelectedProvider.select((value) => value.hasValue))) {
-    //   return onConnected;
-    // }
+    if (ref.watch(printerSelectedProvider.select((value) => value.hasValue))) {
+      return onConnected;
+    }
 
     return AsyncValueWidget<KlipperInstance>(
       value: ref.watch(klipperSelectedProvider),
@@ -222,6 +223,7 @@ class KlippyState extends ConsumerWidget {
                       ],
                     ),
                   )),
+                  if (data.components.contains('power')) const PowerApiCard(),
                 ],
               ),
             );

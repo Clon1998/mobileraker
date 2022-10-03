@@ -23,13 +23,13 @@ final powerDevicesProvider = StreamProvider.autoDispose
   return ref.watch(powerServiceProvider(machineUUID)).devices;
 });
 
-final powerServiceSelectedProvider = Provider.autoDispose((ref) {
+final powerServiceSelectedProvider = Provider.autoDispose<PowerService>((ref) {
   return ref.watch(powerServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 });
 
-final powerDevicesSelectedProvider = StreamProvider.autoDispose
-    .family<List<PowerDevice>, String>((ref, machineUUID) async* {
+final powerDevicesSelectedProvider =
+    StreamProvider.autoDispose<List<PowerDevice>>((ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
@@ -56,7 +56,7 @@ class PowerService {
           break;
         default:
       }
-    });
+    }, fireImmediately: true);
   }
 
   final StreamController<List<PowerDevice>> _devicesStreamCtler =
@@ -71,7 +71,7 @@ class PowerService {
     try {
       RpcResponse rpcResponse =
           await _jRpcClient.sendJRpcMethod('machine.device_power.devices');
-
+      logger.i('Fetching [power] devices!');
       List<Map<String, dynamic>> devices = rpcResponse.response['result']
               ['devices']
           .cast<Map<String, dynamic>>();
@@ -91,6 +91,8 @@ class PowerService {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
           'machine.device_power.post_device',
           params: {'device': deviceName, 'action': state.name});
+      logger.i('Setting [power] device "$deviceName" -> $state!');
+
 
       Map<String, dynamic> result = rpcResponse.response['result'];
       return EnumToString.fromString(PowerState.values, result[deviceName]) ??
@@ -109,13 +111,14 @@ class PowerService {
       RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
           'machine.device_power.get_device',
           params: {'device': deviceName});
+      logger.i('Fetching [power] device state of "$deviceName" !');
 
       Map<String, dynamic> result = rpcResponse.response['result'];
       return EnumToString.fromString(PowerState.values, result[deviceName]) ??
           PowerState.off;
     } on JRpcError catch (e, s) {
       logger.e(
-          'Error while trying to set state of [power] device with name "$deviceName"!',
+          'Error while trying to fetch state of [power] device with name "$deviceName"!',
           s);
       return PowerState.off;
     }

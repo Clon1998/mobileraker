@@ -19,6 +19,7 @@ import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
+import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
@@ -60,6 +61,11 @@ class ControlTab extends ConsumerWidget {
                             (value) => value.printerData.outputPins.isNotEmpty))
                         .valueOrFullNull!)
                       const PinsCard(),
+                    if (ref
+                        .watch(machinePrinterKlippySettingsProvider.selectAs(
+                            (value) => value.klippyData.components.contains('power')))
+                        .valueOrFullNull!)
+                    const PowerApiCard(),
                     const MultipliersCard(),
                     const LimitsCard(),
                   ],
