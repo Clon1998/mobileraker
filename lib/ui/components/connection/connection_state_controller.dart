@@ -8,21 +8,21 @@ import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 
 final connectionStateControllerProvider =
-StateNotifierProvider.autoDispose<ConnectionStateController, ClientState>(
+    StateNotifierProvider.autoDispose<ConnectionStateController, ClientState>(
         (ref) => ConnectionStateController(ref));
 
 class ConnectionStateController extends StateNotifier<ClientState> {
   ConnectionStateController(this.ref) : super(ClientState.disconnected) {
     ref.listen<AsyncValue<ClientState>>(jrpcClientStateSelectedProvider,
         (previous, next) {
-          if (next.isRefreshing) {
+      if (next.isRefreshing) {
         state = ClientState.connecting;
       } else {
         next.whenData((value) {
           state = value;
         });
       }
-    },fireImmediately: true);
+    }, fireImmediately: true);
   }
 
   final AutoDisposeRef ref;
@@ -68,5 +68,3 @@ class ConnectionStateController extends StateNotifier<ClientState> {
     ref.read(klipperServiceSelectedProvider).restartMCUs();
   }
 }
-
-
