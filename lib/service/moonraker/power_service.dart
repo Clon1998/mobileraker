@@ -28,8 +28,8 @@ final powerServiceSelectedProvider = Provider.autoDispose<PowerService>((ref) {
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 });
 
-final powerDevicesSelectedProvider = StreamProvider.autoDispose
-    .family<List<PowerDevice>, String>((ref, machineUUID) async* {
+final powerDevicesSelectedProvider =
+    StreamProvider.autoDispose<List<PowerDevice>>((ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
@@ -61,6 +61,13 @@ class PowerService {
 
   final StreamController<List<PowerDevice>> _devicesStreamCtler =
       StreamController();
+
+  List<PowerDevice>? __current;
+
+  set _current(List<PowerDevice> p) {
+    __current = p;
+    if (!_devicesStreamCtler.isClosed) _devicesStreamCtler.add(p);
+  }
 
   Stream<List<PowerDevice>> get devices => _devicesStreamCtler.stream;
 
@@ -125,7 +132,7 @@ class PowerService {
 
   _init() async {
     var devices = await getDeviceList();
-    if (!_devicesStreamCtler.isClosed) _devicesStreamCtler.add(devices);
+    _current = devices;
   }
 
   _onPowerChanged(Map<String, dynamic> rawMessage) {
@@ -135,8 +142,14 @@ class PowerService {
     List<PowerDevice> parsed = List.generate(
         devices.length, (index) => PowerDevice.fromJson(devices[index]),
         growable: false);
-    logger.i('Updated powerDevices to: $devices');
-    if (!_devicesStreamCtler.isClosed) _devicesStreamCtler.add(parsed);
+    if (__current == null || __current!.isEmpty) return;
+
+    var result = __current!.map((e) {
+      return parsed.firstWhere((p) => p.name == e.name, orElse: () => e);
+    }).toList(growable: false);
+
+    logger.v('Updated powerDevices to: $result');
+    _current = result;
   }
 
   dispose() {

@@ -33,7 +33,11 @@ class CardWithSwitch extends HookWidget {
                 .blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
 
     ValueNotifier<bool?> lastState = useState(null);
-    bool isLoading = lastState.value == value;
+    ValueNotifier<bool> loading = useState(false);
+    if (loading.value && lastState.value != value) {
+      loading.value = false;
+    }
+
     return Container(
       padding: CardTheme.of(context).margin ?? const EdgeInsets.all(4),
       child: Column(
@@ -71,9 +75,10 @@ class CardWithSwitch extends HookWidget {
                   disabledColor:
                       themeData.colorScheme.onPrimary.withOpacity(0.38),
                   color: themeData.colorScheme.onPrimary,
-                  onPressed: onChanged != null && !isLoading
+                  onPressed: onChanged != null && !loading.value
                       ? () {
                           lastState.value = value;
+                          loading.value = true;
                           onChanged!(!value);
                         }
                       : null,
@@ -89,7 +94,7 @@ class CardWithSwitch extends HookWidget {
                                     .animate(anim),
                                 child: child),
                           ),
-                      child: _animIcon(isLoading, value))))
+                      child: _animIcon(loading.value, value))))
         ],
       ),
     );

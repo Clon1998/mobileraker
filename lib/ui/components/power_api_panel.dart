@@ -20,10 +20,12 @@ class PowerApiCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var powerDevices = ref.watch(powerDevicesSelectedProvider);
-    var isPrinting = ref.watch(printerSelectedProvider
-        .select((d) => d.valueOrFullNull?.print.state == PrintState.printing));
-    return powerDevices.maybeWhen(
+
+
+    var powerDevicesLen = ref.watch(powerDevicesSelectedProvider.selectAs(
+        (data) =>
+            data.where((element) => !element.name.startsWith('_')).length));
+    return powerDevicesLen.maybeWhen(
         data: (data) => Card(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
@@ -39,33 +41,15 @@ class PowerApiCard extends ConsumerWidget {
                     ),
                     AdaptiveHorizontalScroll(
                       pageStorageKey: 'powers',
-                      children: List.generate(data.length, (index) {
-                        PowerDevice powerDevice = data[index];
+                      children: List.generate(data, (index) {
+                        var powerDeviceProvider =
+                            powerDevicesSelectedProvider.selectAs((data) => data
+                                .where(
+                                    (element) => !element.name.startsWith('_'))
+                                .elementAt(index));
 
-                        return CardWithSwitch(
-                            value: powerDevice.status == PowerState.on,
-                            onChanged: (isPrinting &&
-                                        powerDevice.lockedWhilePrinting ||
-                                    powerDevice.status == PowerState.init)
-                                ? null
-                                : (d) => ref
-                                    .read(powerServiceSelectedProvider)
-                                    .setDeviceStatus(powerDevice.name,
-                                        d ? PowerState.on : PowerState.off),
-                            child: Builder(builder: (context) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(beautifyName(powerDevice.name),
-                                      style:
-                                          Theme.of(context).textTheme.caption),
-                                  Text(powerDevice.status.name.capitalize,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headlineSmall),
-                                ],
-                              );
-                            }));
+                        return _PowerDeviceCard(
+                            powerDeviceProvider: powerDeviceProvider);
                       }),
                     )
                   ],
@@ -73,5 +57,38 @@ class PowerApiCard extends ConsumerWidget {
               ),
             ),
         orElse: () => const SizedBox.shrink());
+  }
+}
+
+class _PowerDeviceCard extends ConsumerWidget {
+  const _PowerDeviceCard({Key? key, required this.powerDeviceProvider})
+      : super(key: key);
+
+  final ProviderListenable<AsyncValue<PowerDevice>> powerDeviceProvider;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var powerDevice = ref.watch(powerDeviceProvider).valueOrFullNull!;
+    return CardWithSwitch(
+        value: powerDevice.status == PowerState.on,
+        onChanged: (powerDevice.lockedWhilePrinting &&
+                    ref.watch(printerSelectedProvider.select((d) =>
+                        d.valueOrFullNull?.print.state ==
+                        PrintState.printing)) ||
+                powerDevice.status == PowerState.init)
+            ? null
+            : (d) => ref.read(powerServiceSelectedProvider).setDeviceStatus(
+                powerDevice.name, d ? PowerState.on : PowerState.off),
+        child: Builder(builder: (context) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(beautifyName(powerDevice.name),
+                  style: Theme.of(context).textTheme.caption),
+              Text(powerDevice.status.name.capitalize,
+                  style: Theme.of(context).textTheme.headlineSmall),
+            ],
+          );
+        }));
   }
 }
