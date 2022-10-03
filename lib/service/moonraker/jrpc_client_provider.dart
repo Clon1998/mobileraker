@@ -14,11 +14,9 @@ final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
     throw MobilerakerException(
         'Machine with UUID "$machineUUID" was not found!');
   }
-  var jsonRpcClient = JsonRpcClient(
-    machine.wsUrl,
-    apiKey: machine.apiKey,
-    trustSelfSignedCertificate: machine.trustUntrustedCertificate
-  );
+  var jsonRpcClient = JsonRpcClient(machine.wsUrl,
+      apiKey: machine.apiKey,
+      trustSelfSignedCertificate: machine.trustUntrustedCertificate);
   ref.onDispose(jsonRpcClient.dispose);
   jsonRpcClient.openChannel();
   return jsonRpcClient;
@@ -27,7 +25,7 @@ final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
 final jrpcClientStateProvider = StreamProvider.autoDispose
     .family<ClientState, String>(name: 'jrpcClientStateProvider',
         (ref, machineUUID) {
-          return ref.watch(jrpcClientProvider(machineUUID)).stateStream;
+  return ref.watch(jrpcClientProvider(machineUUID)).stateStream;
 });
 
 final jrpcClientSelectedProvider = Provider.autoDispose<JsonRpcClient>(
@@ -39,14 +37,14 @@ final jrpcClientSelectedProvider = Provider.autoDispose<JsonRpcClient>(
   return ref.watch(jrpcClientProvider(machine.uuid));
 });
 
-final jrpcClientStateSelectedProvider = FutureProvider.autoDispose<ClientState>(
-    name: 'jrpcClientStateSelectedProvider', (ref) async {
+final jrpcClientStateSelectedProvider = StreamProvider.autoDispose<ClientState>(
+    name: 'jrpcClientStateSelectedProvider', (ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-
-    return ref.watch(jrpcClientStateProvider(machine.uuid).future);
+    // ToDo: Remove woraround once StreamProvider.stream is fixed!
+    yield await ref.read(jrpcClientStateProvider(machine.uuid).future);
+    yield* ref.watch(jrpcClientStateProvider(machine.uuid).stream);
   } on StateError catch (e, s) {
-    return Future.any([]);
 // Just catch it. It is expected that the future/where might not complete!
   }
 });

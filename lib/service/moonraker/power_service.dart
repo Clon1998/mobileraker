@@ -28,15 +28,16 @@ final powerServiceSelectedProvider = Provider.autoDispose<PowerService>((ref) {
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 });
 
-final powerDevicesSelectedProvider =
-    FutureProvider.autoDispose<List<PowerDevice>>((ref) async {
+final powerDevicesSelectedProvider = StreamProvider.autoDispose
+    .family<List<PowerDevice>, String>((ref, machineUUID) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    return ref.read(powerDevicesProvider(machine.uuid).future);
+    // ToDo: Remove woraround once StreamProvider.stream is fixed!
+    yield await ref.read(powerDevicesProvider(machine.uuid).future);
+    yield* ref.watch(powerDevicesProvider(machine.uuid).stream);
   } on StateError catch (e, s) {
 // Just catch it. It is expected that the future/where might not complete!
-    return Future.any([]);
   }
 });
 
@@ -134,6 +135,7 @@ class PowerService {
     List<PowerDevice> parsed = List.generate(
         devices.length, (index) => PowerDevice.fromJson(devices[index]),
         growable: false);
+    logger.i('Updated powerDevices to: $devices');
     if (!_devicesStreamCtler.isClosed) _devicesStreamCtler.add(parsed);
   }
 
