@@ -1,4 +1,5 @@
 enum PowerState {
 on,
-off
+off,
+init;
 }

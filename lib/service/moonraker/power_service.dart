@@ -79,7 +79,7 @@ class PowerService {
           devices.length, (index) => PowerDevice.fromJson(devices[index]),
           growable: false);
     } on JRpcError catch (e, s) {
-      logger.e('Error while trying to fetch [power] devices!', s);
+      logger.e('Error while trying to fetch [power] devices!', e, s);
       return List.empty();
     }
   }
