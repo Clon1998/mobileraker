@@ -39,8 +39,7 @@ final selectedMachineSettingsProvider =
       .first;
 
   await ref
-      .watch(jrpcClientStateSelectedProvider.stream)
-      .firstWhere((event) => event == ClientState.connected);
+      .watch(jrpcClientStateSelectedProvider.selectAsync((data) => data == ClientState.connected));
   var fetchSettings =
       await ref.watch(machineServiceProvider).fetchSettings(machine);
   ref.keepAlive();

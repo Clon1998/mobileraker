@@ -82,15 +82,14 @@ final fileServiceSelectedProvider = Provider.autoDispose((ref) {
 });
 
 final fileNotificationsSelectedProvider =
-    StreamProvider.autoDispose<FileApiResponse>((ref) async* {
+    FutureProvider.autoDispose<FileApiResponse>((ref) async {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(fileNotificationsProvider(machine.uuid).future);
-    yield* ref.watch(fileNotificationsProvider(machine.uuid).stream);
+    return ref.read(fileNotificationsProvider(machine.uuid).future);
   } on StateError catch (e, s) {
 // Just catch it. It is expected that the future/where might not complete!
+    return Future.any([]);
   }
 });
 

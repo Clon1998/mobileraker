@@ -31,16 +31,15 @@ final klipperServiceSelectedProvider =
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 });
 // StreamProvider<KlipperInstance>
-final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
-    name: 'klipperSelectedProvider', (ref) async* {
+final klipperSelectedProvider = FutureProvider.autoDispose<KlipperInstance>(
+    name: 'klipperSelectedProvider', (ref) async {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(klipperProvider(machine.uuid).future);
-    yield* ref.watch(klipperProvider(machine.uuid).stream);
+    return ref.read(klipperProvider(machine.uuid).future);
   } on StateError catch (e, s) {
     // Just catch it. It is expected that the future/where might not complete!
+    return Future.any([]);
   }
 });
 

@@ -61,17 +61,15 @@ final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 });
 
-final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
-    name: 'printerSelectedProvider', (ref) async* {
+final printerSelectedProvider = FutureProvider.autoDispose<Printer>(
+    name: 'printerSelectedProvider', (ref) async {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(printerProvider(machine.uuid).future);
-    yield* ref.watch(printerProvider(machine.uuid).stream);
+    return ref.read(printerProvider(machine.uuid).future);
   } on StateError catch (e, s) {
     // Just catch it. It is expected that the future/where might not complete!
+    return Future.any([]);
   }
 });
 
@@ -255,7 +253,7 @@ class PrinterService {
   }
 
   m117([String? msg]) {
-    gCode('M117 ${msg??''}');
+    gCode('M117 ${msg ?? ''}');
   }
 
   bedMeshLevel() {
@@ -720,7 +718,8 @@ class PrinterService {
 
     if (printStatJson.containsKey('state')) {
       state =
-          EnumToString.fromString(PrintState.values, printStatJson['state']) ?? PrintState.error;
+          EnumToString.fromString(PrintState.values, printStatJson['state']) ??
+              PrintState.error;
     }
     if (printStatJson.containsKey('filename')) {
       filename = printStatJson['filename'];

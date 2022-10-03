@@ -29,15 +29,14 @@ final powerServiceSelectedProvider = Provider.autoDispose<PowerService>((ref) {
 });
 
 final powerDevicesSelectedProvider =
-    StreamProvider.autoDispose<List<PowerDevice>>((ref) async* {
+    FutureProvider.autoDispose<List<PowerDevice>>((ref) async {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(powerDevicesProvider(machine.uuid).future);
-    yield* ref.watch(powerDevicesProvider(machine.uuid).stream);
+    return ref.read(powerDevicesProvider(machine.uuid).future);
   } on StateError catch (e, s) {
 // Just catch it. It is expected that the future/where might not complete!
+    return Future.any([]);
   }
 });
 
@@ -92,7 +91,6 @@ class PowerService {
           'machine.device_power.post_device',
           params: {'device': deviceName, 'action': state.name});
       logger.i('Setting [power] device "$deviceName" -> $state!');
-
 
       Map<String, dynamic> result = rpcResponse.response['result'];
       return EnumToString.fromString(PowerState.values, result[deviceName]) ??

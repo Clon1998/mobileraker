@@ -39,14 +39,14 @@ final jrpcClientSelectedProvider = Provider.autoDispose<JsonRpcClient>(
   return ref.watch(jrpcClientProvider(machine.uuid));
 });
 
-final jrpcClientStateSelectedProvider = StreamProvider.autoDispose<ClientState>(
-    name: 'jrpcClientStateSelectedProvider', (ref) async* {
+final jrpcClientStateSelectedProvider = FutureProvider.autoDispose<ClientState>(
+    name: 'jrpcClientStateSelectedProvider', (ref) async {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(jrpcClientStateProvider(machine.uuid).future);
-    yield* ref.watch(jrpcClientStateProvider(machine.uuid).stream);
+
+    return ref.watch(jrpcClientStateProvider(machine.uuid).future);
   } on StateError catch (e, s) {
+    return Future.any([]);
 // Just catch it. It is expected that the future/where might not complete!
   }
 });
