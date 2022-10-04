@@ -10,7 +10,7 @@ class AdaptiveHorizontalScroll extends HookWidget {
       required this.pageStorageKey,
       this.children = const [],
       this.minWidth = 150,
-      this.maxWidth = 200});
+      this.maxWidth = 200}):super(key:key);
 
   final List<Widget> children;
 
@@ -35,7 +35,7 @@ class AdaptiveHorizontalScroll extends HookWidget {
                 key: PageStorageKey<String>('${pageStorageKey}M'),
                 controller: scrollCtrler,
                 scrollDirection: Axis.horizontal,
-                child: Container(
+                child: SizedBox(
                   width: max(width * children.length, constraints.maxWidth),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,

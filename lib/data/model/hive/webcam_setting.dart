@@ -2,8 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:uuid/uuid.dart';
+
+import 'webcam_mode.dart';
 
 part 'webcam_setting.g.dart';
 
@@ -12,7 +13,7 @@ class WebcamSetting {
   @HiveField(0)
   String name;
   @HiveField(1)
-  String uuid = Uuid().v4();
+  String uuid = const Uuid().v4();
   @HiveField(2)
   String url;
   @HiveField(3)
@@ -27,17 +28,19 @@ class WebcamSetting {
   WebcamSetting(this.name, this.url);
 
   double get yTransformation {
-    if (flipVertical)
+    if (flipVertical) {
       return pi;
-    else
+    } else {
       return 0;
+    }
   }
 
   double get xTransformation {
-    if (flipHorizontal)
+    if (flipHorizontal) {
       return pi;
-    else
+    } else {
       return 0;
+    }
   }
 
   Matrix4 get transformMatrix => Matrix4.identity()

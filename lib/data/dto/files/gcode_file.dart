@@ -1,9 +1,16 @@
 import 'package:flutter/foundation.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
-import 'package:mobileraker/data/dto/files/gcode_thumbnail.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
+import 'gcode_thumbnail.dart';
+import 'remote_file.dart';
+
 class GCodeFile extends RemoteFile {
+  static int lastPrintedComparator(RemoteFile a, RemoteFile b) {
+    if (a is! GCodeFile || b is! GCodeFile) return 0;
+
+    return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
+  }
+
   double? printStartTime;
 
   String? jobID;
@@ -37,6 +44,7 @@ class GCodeFile extends RemoteFile {
   String? filamentName;
 
   double? nozzleDiameter;
+
   /// CUSTOM FIELDS:
 
   GCodeFile(
@@ -48,40 +56,54 @@ class GCodeFile extends RemoteFile {
 
   GCodeFile.fromJson(Map<String, dynamic> json, String parentPath)
       : super.fromJson(json, parentPath) {
-    if (json.containsKey('print_start_time'))
-      this.printStartTime = json['print_start_time'];
-    if (json.containsKey('job_id')) this.jobID = json['job_id'];
-    if (json.containsKey('slicer')) this.slicer = json['slicer'];
-    if (json.containsKey('slicer_version'))
-      this.slicerVersion = json['slicer_version'];
-    if (json.containsKey('layer_height'))
-      this.layerHeight = json['layer_height'];
-    if (json.containsKey('first_layer_height'))
-      this.firstLayerHeight = json['first_layer_height'];
-    if (json.containsKey('object_height'))
-      this.objectHeight = json['object_height'];
-    if (json.containsKey('filament_total'))
-      this.filamentTotal = json['filament_total'];
-    if (json.containsKey('estimated_time'))
-      this.estimatedTime = double.tryParse(json['estimated_time'].toString());
-    if (json.containsKey('first_layer_bed_temp'))
-      this.firstLayerTempBed = json['first_layer_bed_temp'];
-    if (json.containsKey('first_layer_extr_temp'))
-      this.firstLayerTempExtruder = json['first_layer_extr_temp'];
-    if (json.containsKey('gcode_start_byte'))
-      this.gcodeEndByte = json['gcode_start_byte'];
-    if (json.containsKey('gcode_end_byte'))
-      this.gcodeEndByte = json['gcode_end_byte'];
-    if (json.containsKey('filament_type'))
-      this.filamentType = json['filament_type'];
-    if (json.containsKey('filament_name'))
-      this.filamentName = json['filament_name'];
-    if (json.containsKey('nozzle_diameter'))
-      this.nozzleDiameter = json['nozzle_diameter'];
+    if (json.containsKey('print_start_time')) {
+      printStartTime = json['print_start_time'];
+    }
+    if (json.containsKey('job_id')) jobID = json['job_id'];
+    if (json.containsKey('slicer')) slicer = json['slicer'];
+    if (json.containsKey('slicer_version')) {
+      slicerVersion = json['slicer_version'];
+    }
+    if (json.containsKey('layer_height')) {
+      layerHeight = json['layer_height'];
+    }
+    if (json.containsKey('first_layer_height')) {
+      firstLayerHeight = json['first_layer_height'];
+    }
+    if (json.containsKey('object_height')) {
+      objectHeight = json['object_height'];
+    }
+    if (json.containsKey('filament_total')) {
+      filamentTotal = json['filament_total'];
+    }
+    if (json.containsKey('estimated_time')) {
+      estimatedTime = double.tryParse(json['estimated_time'].toString());
+    }
+    if (json.containsKey('first_layer_bed_temp')) {
+      firstLayerTempBed = json['first_layer_bed_temp'];
+    }
+    if (json.containsKey('first_layer_extr_temp')) {
+      firstLayerTempExtruder = json['first_layer_extr_temp'];
+    }
+    if (json.containsKey('gcode_start_byte')) {
+      gcodeEndByte = json['gcode_start_byte'];
+    }
+    if (json.containsKey('gcode_end_byte')) {
+      gcodeEndByte = json['gcode_end_byte'];
+    }
+    if (json.containsKey('filament_type')) {
+      filamentType = json['filament_type'];
+    }
+    if (json.containsKey('filament_name')) {
+      filamentName = json['filament_name'];
+    }
+    if (json.containsKey('nozzle_diameter')) {
+      nozzleDiameter = json['nozzle_diameter'];
+    }
 
     if (json.containsKey('thumbnails')) {
       List<dynamic> thumbs = json['thumbnails'];
-      this.thumbnails = thumbs.map((e) => GCodeThumbnail.fromJson(e)).toList();
+      thumbnails = thumbs.map((e) => GCodeThumbnail.fromJson(e)).toList();
     }
   }
 

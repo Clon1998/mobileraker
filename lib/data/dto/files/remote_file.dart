@@ -1,4 +1,8 @@
 class RemoteFile {
+  static int nameComparator(RemoteFile a, RemoteFile b) => a.name.compareTo(b.name);
+  static int modifiedComparator(RemoteFile a, RemoteFile b) => b.modified.compareTo(a.modified);
+
+
   RemoteFile(this.name, this.modified, this.size, this.parentPath);
 
   RemoteFile.fromJson(Map<String, dynamic> json, this.parentPath)
@@ -7,18 +11,18 @@ class RemoteFile {
         modified = json['modified'];
 
   /// MOONRAKER FIELDS:
-  String name;
+  final String name;
 
-  double modified;
+  final double modified;
 
-  int size;
+  final int size;
 
   /// Path to the location/directory where the file is located
-  String parentPath;
+  final String parentPath;
 
   String get absolutPath => '$parentPath/$name';
 
-  DateTime? get modifiedDate {
+  DateTime get modifiedDate {
     return DateTime.fromMillisecondsSinceEpoch(modified.toInt() * 1000);
   }
 

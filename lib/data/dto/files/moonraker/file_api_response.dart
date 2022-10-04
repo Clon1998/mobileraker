@@ -9,10 +9,10 @@ class FileApiResponse {
   final FileNotificationSourceItem? sourceItem;
   
   FileApiResponse.fromJson(Map<String, dynamic> json)
-      : this.fileAction =
+      : fileAction =
             EnumToString.fromString(FileAction.values, json['action'])!,
-        this.item = FileNotificationItem.fromJson(json['item']),
-        this.sourceItem = (json.containsKey('source_item'))
+        item = FileNotificationItem.fromJson(json['item']),
+        sourceItem = (json.containsKey('source_item'))
             ? FileNotificationSourceItem.fromJson(json['source_item'])
             : null;
 

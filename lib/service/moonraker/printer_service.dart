@@ -3,69 +3,120 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:get/get.dart';
-import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/app/exceptions.dart';
-import 'package:mobileraker/data/datasource/json_rpc_client.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/machine/display_status.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/controller_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/heater_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
+import 'package:mobileraker/data/dto/machine/gcode_move.dart';
 import 'package:mobileraker/data/dto/machine/heater_bed.dart';
+import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
+import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/exceptions.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/ui/components/dialog/setup_dialog_ui.dart';
-import 'package:mobileraker/ui/components/snackbar/setup_snackbar.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:stacked_services/stacked_services.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/service/ui/snackbar_service.dart';
+import 'package:mobileraker/util/extensions/double_extension.dart';
+import 'package:mobileraker/util/ref_extension.dart';
+import 'package:stringr/stringr.dart';
+import 'package:vector_math/vector_math.dart';
 
 final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
+final printerServiceProvider = Provider.autoDispose
+    .family<PrinterService, String>(name: 'printerServiceProvider',
+        (ref, machineUUID) {
+  ref.keepAlive();
+  return PrinterService(ref, machineUUID);
+});
+
+final printerProvider = StreamProvider.autoDispose.family<Printer, String>(
+    name: 'printerProvider', (ref, machineUUID) async* {
+  ref.keepAlive();
+  yield* ref.watch(printerServiceProvider(machineUUID)).printerStream;
+});
+
+final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(
+    name: 'printerServiceSelectedProvider', (ref) {
+  return ref.watch(printerServiceProvider(
+      ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+});
+
+final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
+    name: 'printerSelectedProvider', (ref) async* {
+  try {
+    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+
+    // ToDo: Remove woraround once StreamProvider.stream is fixed!
+    yield await ref.read(printerProvider(machine.uuid).future);
+    yield* ref.watch(printerProvider(machine.uuid).stream);
+  } on StateError catch (e, s) {
+    // Just catch it. It is expected that the future/where might not complete!
+  }
+});
 
 class PrinterService {
-  PrinterService(this._owner) {
+  PrinterService(AutoDisposeRef ref, this._ownerUUID)
+      : _jRpcClient = ref.watch(jrpcClientProvider(_ownerUUID)),
+        _machineService = ref.watch(machineServiceProvider),
+        _snackBarService = ref.watch(snackBarServiceProvider),
+        _dialogService = ref.watch(dialogServiceProvider) {
+    ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
 
     _jRpcClient.addMethodListener(
         _onNotifyGcodeResponse, 'notify_gcode_response');
 
-    klippySubscription =
-        _owner.klippyService.klipperStream.listen((KlipperInstance value) {
-      switch (value.klippyState) {
-        case KlipperState.ready:
-          if (!_queriedForSession) {
-            _queriedForSession = true;
-            refreshPrinter();
-          }
-          break;
-        default:
-          _queriedForSession = false;
-      }
-    });
+    ref.listen<AsyncValue<KlipperInstance>>(klipperProvider(_ownerUUID),
+        (previous, next) {
+      next.whenOrNull(data: (value) {
+        switch (value.klippyState) {
+          case KlipperState.ready:
+            if (!_queriedForSession) {
+              _queriedForSession = true;
+              refreshPrinter();
+            }
+            break;
+          default:
+            _queriedForSession = false;
+        }
+      });
+    }, fireImmediately: true);
   }
 
-  final BehaviorSubject<Printer> printerStream = BehaviorSubject<Printer>();
-  late final StreamSubscription<KlipperInstance> klippySubscription;
+  final String _ownerUUID;
 
-  final Machine _owner;
-  final _logger = getLogger('PrinterService');
-  final _snackBarService = locator<SnackbarService>();
-  final _dialogService = locator<DialogService>();
-  final _machineService = locator<MachineService>();
+  final SnackBarService _snackBarService;
+
+  final DialogService _dialogService;
+
+  final JsonRpcClient _jRpcClient;
+
+  final MachineService _machineService;
+
+  final StreamController<Printer> _printerStreamCtler = StreamController();
+
+  Stream<Printer> get printerStream => _printerStreamCtler.stream;
 
   /// This map defines how different printerObjects will be parsed
   /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
@@ -73,15 +124,17 @@ class PrinterService {
     'toolhead': _updateToolhead,
     'extruder': _updateExtruder,
     'gcode_move': _updateGCodeMove,
+    'motion_report': _updateMotionReport,
+    'display_status': _updateDisplayStatus,
     'heater_bed': _updateHeaterBed,
     'virtual_sdcard': _updateVirtualSd,
     'configfile': _updateConfigFile,
     'print_stats': _updatePrintStat,
-    'fan': _updatePartFan,
-    'heater_fan': _updateHeaterFan,
-    'controller_fan': _updateControllerFan,
-    'temperature_fan': _updateTemperatureFan,
-    'fan_generic': _updateGenericFan,
+    'fan': _updatePrintFan,
+    'heater_fan': _updateNamedFan<HeaterFan>,
+    'controller_fan': _updateNamedFan<ControllerFan>,
+    'temperature_fan': _updateNamedFan<TemperatureFan>,
+    'fan_generic': _updateNamedFan<GenericFan>,
     'output_pin': _updateOutputPin,
     'temperature_sensor': _updateTemperatureSensor,
     'exclude_object': _updateExcludeObject,
@@ -95,30 +148,39 @@ class PrinterService {
   Stream<String> get gCodeResponseStream =>
       _gCodeResponseStreamController.stream;
 
-  JsonRpcClient get _jRpcClient => _owner.jRpcClient;
+  Printer? _current;
 
-  Printer get _latestPrinter {
-    return printerStream.hasValue ? printerStream.value : Printer();
+  set current(Printer nI) {
+    _current = nI;
+    _printerStreamCtler.add(nI);
   }
+
+  Printer get current => _current!;
+
+  Printer? get currentOrNull => _current;
+
+  bool get hasCurrent => _current != null;
 
   refreshPrinter() async {
     try {
-      Printer printer = Printer();
-      await _printerObjectsList(printer);
-      await _printerObjectsQuery(printer);
+      PrinterBuilder printerBuilder = PrinterBuilder();
+      await _printerObjectsList(printerBuilder);
+      await _printerObjectsQuery(printerBuilder);
 
-      await _temperatureStore(printer);
+      await _temperatureStore(printerBuilder);
       // After initally getting all information we can get the data!
-      _makeSubscribeRequest(printer);
-      printerStream.add(printer);
-      _machineService.updateMacrosInSettings(_owner, printer.gcodeMacros);
+      Printer printer = printerBuilder.build();
+      _makeSubscribeRequest(printer.queryableObjects);
+      current = printer;
+
+      _machineService.updateMacrosInSettings(_ownerUUID, printer.gcodeMacros);
     } on JRpcError catch (e, s) {
-      _logger.e('Unable to refresh Printer...', e, s);
-      _logger.e(e);
-      _logger.e(s);
+      logger.e('Unable to refresh Printer...', e, s);
       _showExceptionSnackbar(e, s);
-      printerStream.addError(MobilerakerException('Could not fetch printer...',
-          parentException: e, parentStack: s));
+      _printerStreamCtler.addError(MobilerakerException(
+          'Could not fetch printer...',
+          parentException: e,
+          parentStack: s));
     }
   }
 
@@ -152,7 +214,7 @@ class PrinterService {
     if (y != null) moves.add(_gcodeMoveCode('Y', y));
     if (z != null) moves.add(_gcodeMoveCode('Z', z));
 
-    gCode('G91\n' + 'G1 ${moves.join(' ')} F${feedRate * 60}\nG90');
+    gCode('G91\nG1 ${moves.join(' ')} F${feedRate * 60}\nG90');
   }
 
   activateExtruder([int extruderIndex = 0]) {
@@ -161,12 +223,12 @@ class PrinterService {
   }
 
   moveExtruder(double length, [double feedRate = 5]) {
-    gCode('M83\n' + 'G1 E$length F${feedRate * 60}');
+    gCode('M83\nG1 E$length F${feedRate * 60}');
   }
 
   homePrintHead(Set<PrinterAxis> axis) {
     if (axis.contains(PrinterAxis.E)) {
-      throw FormatException('E axis cant be homed');
+      throw const FormatException('E axis cant be homed');
     }
     String gcode = 'G28 ';
     if (axis.length < 3) {
@@ -181,6 +243,18 @@ class PrinterService {
 
   m84() {
     gCode('M84');
+  }
+
+  zTiltAdjust() {
+    gCode('Z_TILT_ADJUST');
+  }
+
+  screwsTiltCalculate() {
+    gCode('SCREWS_TILT_CALCULATE');
+  }
+
+  m117([String? msg]) {
+    gCode('M117 ${msg ?? ''}');
   }
 
   bedMeshLevel() {
@@ -253,52 +327,32 @@ class PrinterService {
     gCode('SDCARD_RESET_FILE');
   }
 
-  Future<void> _temperatureStore(Printer printer) async {
-    _logger.i('Fetching cached temperature store data');
-
-    try {
-      RpcResponse blockingResponse =
-          await _jRpcClient.sendJRpcMethod('server.temperature_store');
-
-      Map<String, dynamic> raw = blockingResponse.response['result'];
-      List<String> sensors = raw.keys
-          .toList(); // temperature_sensor <NAME>, extruder, heater_bed, temperature_fan
-      _logger.i('Received cached temperature store for $sensors');
-
-      raw.forEach((key, value) {
-        _parseObjectType(key, raw, printer);
-      });
-    } on JRpcError catch (e) {
-      _logger.e('Error while fetching cached temperature store: $e');
-    }
-  }
-
   Future<List<ConsoleEntry>> gcodeStore() async {
-    _logger.i('Fetching cached GCode commands');
+    logger.i('Fetching cached GCode commands');
     try {
       RpcResponse blockingResponse =
           await _jRpcClient.sendJRpcMethod('server.gcode_store');
 
       List<dynamic> raw = blockingResponse.response['result']['gcode_store'];
-      _logger.i('Received cached GCode commands');
+      logger.i('Received cached GCode commands');
       return List.generate(
           raw.length, (index) => ConsoleEntry.fromJson(raw[index]));
     } on JRpcError catch (e) {
-      _logger.e('Error while fetching cached GCode commands: $e');
+      logger.e('Error while fetching cached GCode commands: $e');
     }
     return List.empty();
   }
 
   Future<List<Command>> gcodeHelp() async {
-    _logger.i('Fetching available GCode commands');
+    logger.i('Fetching available GCode commands');
     try {
       RpcResponse blockingResponse =
           await _jRpcClient.sendJRpcMethod('printer.gcode.help');
       Map<dynamic, dynamic> raw = blockingResponse.response['result'];
-      _logger.i('Received ${raw.length} available GCode commands');
+      logger.i('Received ${raw.length} available GCode commands');
       return raw.entries.map((e) => Command(e.key, e.value)).toList();
     } on JRpcError catch (e) {
-      _logger.e('Error while fetching cached GCode commands: $e');
+      logger.e('Error while fetching cached GCode commands: $e');
     }
     return List.empty();
   }
@@ -307,9 +361,29 @@ class PrinterService {
     gCode('EXCLUDE_OBJECT NAME=${objToExc.name}');
   }
 
-  _printerObjectsList(Printer printer) async {
+  Future<void> _temperatureStore(PrinterBuilder printer) async {
+    logger.i('Fetching cached temperature store data');
+
+    try {
+      RpcResponse blockingResponse =
+          await _jRpcClient.sendJRpcMethod('server.temperature_store');
+
+      Map<String, dynamic> raw = blockingResponse.response['result'];
+      List<String> sensors = raw.keys
+          .toList(); // temperature_sensor <NAME>, extruder, heater_bed, temperature_fan
+      logger.i('Received cached temperature store for $sensors');
+
+      raw.forEach((key, value) {
+        _parseObjectType(key, raw, printer);
+      });
+    } on JRpcError catch (e) {
+      logger.e('Error while fetching cached temperature store: $e');
+    }
+  }
+
+  _printerObjectsList(PrinterBuilder printer) async {
     // printerStream.value = Printer();
-    _logger.i('>>>Querying printers object list');
+    logger.i('>>>Querying printers object list');
     RpcResponse resp = await _jRpcClient.sendJRpcMethod('printer.objects.list');
     _parsePrinterObjectsList(resp.response, printer);
   }
@@ -324,17 +398,21 @@ class PrinterService {
 
   _onStatusUpdateHandler(Map<String, dynamic> rawMessage) {
     Map<String, dynamic> params = rawMessage['params'][0];
-    Printer latestPrinter = _latestPrinter;
+    if (!hasCurrent) {
+      logger.w('Received statusUpdate before a printer was parsed initially!');
+      return;
+    }
+
+    PrinterBuilder printerBuilder = PrinterBuilder.fromPrinter(current);
 
     params.forEach((key, value) {
-      // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-
-      _parseObjectType(key, params, latestPrinter);
+      _parseObjectType(key, params, printerBuilder);
     });
-    printerStream.add(latestPrinter);
+    current = printerBuilder.build();
   }
 
-  _parseObjectType(String key, Map<String, dynamic> json, Printer printer) {
+  _parseObjectType(
+      String key, Map<String, dynamic> json, PrinterBuilder printer) {
     // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
     List<String> split = key.split(' ');
     String mainObjectType = split[0];
@@ -342,10 +420,11 @@ class PrinterService {
       if (_subToPrinterObjects.containsKey(mainObjectType)) {
         var method = _subToPrinterObjects[mainObjectType];
         if (method != null) {
-          if (split.length > 1)
+          if (split.length > 1) {
             method(key, json[key], printer: printer);
-          else
+          } else {
             method(json[key], printer: printer);
+          }
         }
       } else if (mainObjectType.startsWith('extruder')) {
         // Note that extruder will be handled above!
@@ -354,38 +433,64 @@ class PrinterService {
             num: int.tryParse(mainObjectType.substring(8)) ?? 0);
       }
     } catch (e, s) {
-      _logger.e('Error while parsing $key object', e, s);
-      _logger.e(e);
-      _logger.e(s);
+      logger.e('Error while parsing $key object', e, s);
+      _printerStreamCtler.addError(e, s);
       _showExceptionSnackbar(e, s);
     }
   }
 
-  _parsePrinterObjectsList(Map<String, dynamic> response, Printer printer) {
+  _parsePrinterObjectsList(
+      Map<String, dynamic> response, PrinterBuilder printer) {
     var result = response['result'];
-    _logger.i('<<<Received printer objects list!');
-    _logger
-        .v('PrinterObjList: ${JsonEncoder.withIndent('  ').convert(result)}');
+    logger.i('<<<Received printer objects list!');
+    logger.v(
+        'PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
     List<String> objects = result['objects'].cast<String>();
     List<String> qObjects = [];
     List<String> gCodeMacros = [];
+    int extruderCnt = 0;
+    Set<NamedFan> fans = {};
+    Set<TemperatureSensor> temperatureSensors = {};
+    Set<OutputPin> outputPins = {};
 
-    objects.forEach((element) {
+    for (String element in objects) {
       qObjects.add(element);
 
       if (element.startsWith('gcode_macro ')) {
-        String macro = element.split(' ')[1];
+        String macro = element.substring(12);
         if (!skipGCodes.contains(macro)) gCodeMacros.add(macro);
+      } else if (element.startsWith('extruder')) {
+        int extNum = int.tryParse(element.substring(8)) ?? 0;
+        extruderCnt = max(extNum + 1, extruderCnt);
+      } else if (element.startsWith('heater_fan ')) {
+        fans.add(HeaterFan(name: element.substring(11)));
+      } else if (element.startsWith('controller_fan ')) {
+        fans.add(ControllerFan(name: element.substring(15)));
+      } else if (element.startsWith('temperature_fan ')) {
+        fans.add(TemperatureFan(name: element.substring(16)));
+      } else if (element.startsWith('fan_generic ')) {
+        fans.add(GenericFan(name: element.substring(12)));
+      } else if (element.startsWith('output_pin ')) {
+        outputPins.add(OutputPin(name: element.substring(11)));
+      } else if (element.startsWith('temperature_sensor ')) {
+        temperatureSensors.add(TemperatureSensor(
+            name: element.substring(19), lastHistory: DateTime(1990)));
       }
-    });
-    printer.queryableObjects = qObjects;
-    printer.gcodeMacros = gCodeMacros;
+    }
+    printer.fans = List.unmodifiable(fans);
+    printer.temperatureSensors = List.unmodifiable(temperatureSensors);
+    printer.outputPins = List.unmodifiable(outputPins);
+    printer.extruders = List.generate(extruderCnt,
+        (index) => Extruder(num: index, lastHistory: DateTime(1990)),
+        growable: false);
+    printer.queryableObjects = List.unmodifiable(qObjects);
+    printer.gcodeMacros = List.unmodifiable(gCodeMacros);
   }
 
-  _parseQueriedObjects(dynamic response, Printer printer) async {
-    _logger.i('<<<Received queried printer objects');
-    _logger.v(
-        'PrinterObjectsQuery: ${JsonEncoder.withIndent('  ').convert(response)}');
+  _parseQueriedObjects(dynamic response, PrinterBuilder printer) async {
+    logger.i('<<<Received queried printer objects');
+    logger.v(
+        'PrinterObjectsQuery: ${const JsonEncoder.withIndent('  ').convert(response)}');
     Map<String, dynamic> data = response['status'];
 
     data.forEach((key, value) {
@@ -393,351 +498,532 @@ class PrinterService {
     });
   }
 
-  _updatePartFan(Map<String, dynamic> fanJson, {required Printer printer}) {
-    if (fanJson.containsKey('speed')) printer.printFan.speed = fanJson['speed'];
+  _updatePrintFan(Map<String, dynamic> fanJson,
+      {required PrinterBuilder printer}) {
+    if (fanJson.containsKey('speed')) {
+      double speed = fanJson['speed'];
+      if (printer.printFan == null) {
+        printer.printFan = PrintFan(speed: speed);
+      } else {
+        printer.printFan = printer.printFan!.copyWith(speed: speed);
+      }
+    }
   }
 
-  _updateHeaterFan(String heaterFanName, Map<String, dynamic> fanJson,
-      {required Printer printer}) {
-    List<String> split = heaterFanName.split(' ');
-    String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
-
-    NamedFan namedFan = printer.fans.firstWhere(
-        (element) => element.name == hName && element is HeaterFan, orElse: () {
-      var f = HeaterFan(hName);
-      printer.fans.add(f);
-      return f;
-    });
-    if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
-  }
-
-  _updateControllerFan(String fanName, Map<String, dynamic> fanJson,
-      {required Printer printer}) {
+  _updateNamedFan<T extends NamedFan>(
+      String fanName, Map<String, dynamic> fanJson,
+      {required PrinterBuilder printer}) {
     List<String> split = fanName.split(' ');
     String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
 
-    NamedFan namedFan = printer.fans.firstWhere(
-        (element) => element.name == hName && element is ControllerFan,
-        orElse: () {
-      var f = ControllerFan(hName);
-      printer.fans.add(f);
-      return f;
-    });
-    if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
-  }
+    if (!fanJson.containsKey('speed')) {
+      return;
+    }
 
-  _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson,
-      {required Printer printer}) {
-    List<String> split = fanName.split(' ');
-    String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
-
-    NamedFan namedFan = printer.fans.firstWhere(
-        (element) => element.name == hName && element is TemperatureFan,
-        orElse: () {
-      var f = TemperatureFan(hName);
-      printer.fans.add(f);
-      return f;
-    });
-    if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
-  }
-
-  _updateGenericFan(String fanName, Map<String, dynamic> fanJson,
-      {required Printer printer}) {
-    List<String> split = fanName.split(' ');
-    String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
-
-    NamedFan namedFan = printer.fans
-        .firstWhere((element) => element.name == hName && element is GenericFan,
-            orElse: () {
-      var f = GenericFan(hName);
-      printer.fans.add(f);
-      return f;
-    });
-    if (fanJson.containsKey('speed')) namedFan.speed = fanJson['speed'];
+    printer.fans = printer.fans.map((e) {
+      if (e is T && e.name == hName) {
+        return e.copyWith(speed: fanJson['speed']);
+      }
+      return e;
+    }).toList(growable: false);
   }
 
   _updateTemperatureSensor(String sensor, Map<String, dynamic> sensorJson,
-      {required Printer printer}) {
+      {required PrinterBuilder printer}) {
     List<String> split = sensor.split(' ');
     String sName = split.length > 1 ? split.skip(1).join(' ') : split[0];
 
-    TemperatureSensor tempSensor = printer.temperatureSensors
-        .firstWhere((element) => element.name == sName, orElse: () {
-      var t = TemperatureSensor(sName);
-      printer.temperatureSensors.add(t);
-      return t;
-    });
+    printer.temperatureSensors = printer.temperatureSensors.map((e) {
+      if (e.name != sName) {
+        return e;
+      }
 
-    if (sensorJson.containsKey('temperature'))
-      tempSensor.temperature = sensorJson['temperature'];
-    if (sensorJson.containsKey('measured_min_temp'))
-      tempSensor.measuredMinTemp = sensorJson['measured_min_temp'];
-    if (sensorJson.containsKey('measured_max_temp'))
-      tempSensor.measuredMaxTemp = sensorJson['measured_max_temp'];
+      String? name;
+      double? temperature;
+      double? measuredMinTemp;
+      double? measuredMaxTemp;
+      DateTime? lastHistory;
+      List<double>? temperatureHistory;
 
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(tempSensor.lastHistory).inSeconds >= 1) {
-      if ((tempSensor.temperatureHistory?.length ?? 0) >= 1200)
-        tempSensor.temperatureHistory?.removeAt(0);
-      tempSensor.temperatureHistory?.add(tempSensor.temperature);
-      tempSensor.lastHistory = now;
-    }
+      if (sensorJson.containsKey('temperature')) {
+        temperature = sensorJson['temperature'];
+      }
+      if (sensorJson.containsKey('measured_min_temp')) {
+        measuredMinTemp = sensorJson['measured_min_temp'];
+      }
+      if (sensorJson.containsKey('measured_max_temp')) {
+        measuredMaxTemp = sensorJson['measured_max_temp'];
+      }
 
-    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    if (sensorJson.containsKey('temperatures'))
-      tempSensor.temperatureHistory =
-          (sensorJson['temperatures'] as List<dynamic>).cast<double>();
+      // Update temp cache for graphs!
+      DateTime now = DateTime.now();
+      if (now.difference(e.lastHistory).inSeconds >= 1) {
+        temperatureHistory = _updateHistoryList(
+            e.temperatureHistory, temperature ?? e.temperature);
+        lastHistory = now;
+      }
+
+      // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
+      if (sensorJson.containsKey('temperatures')) {
+        temperatureHistory =
+            (sensorJson['temperatures'] as List<dynamic>).cast<double>();
+      }
+
+      return e.copyWith(
+        name: name ?? e.name,
+        temperature: temperature ?? e.temperature,
+        measuredMinTemp: measuredMinTemp ?? e.measuredMinTemp,
+        measuredMaxTemp: measuredMaxTemp ?? e.measuredMaxTemp,
+        lastHistory: lastHistory ?? e.lastHistory,
+        temperatureHistory: temperatureHistory ?? e.temperatureHistory,
+      );
+    }).toList(growable: false);
   }
 
   _updateOutputPin(String pin, Map<String, dynamic> pinJson,
-      {required Printer printer}) {
+      {required PrinterBuilder printer}) {
     List<String> split = pin.split(' ');
     String sName = split.length > 1 ? split.skip(1).join(' ') : split[0];
+    if (!pinJson.containsKey('value')) {
+      return;
+    }
 
-    OutputPin output = printer.outputPins
-        .firstWhere((element) => element.name == sName, orElse: () {
-      var t = OutputPin(sName);
-      printer.outputPins.add(t);
-      return t;
-    });
-
-    if (pinJson.containsKey('value')) output.value = pinJson['value'];
+    printer.outputPins = printer.outputPins.map((e) {
+      if (e.name == sName) {
+        return e.copyWith(value: pinJson['value']);
+      }
+      return e;
+    }).toList(growable: false);
   }
 
-  _updateGCodeMove(Map<String, dynamic> gCodeJson, {required Printer printer}) {
-    if (gCodeJson.containsKey('speed_factor'))
-      printer.gCodeMove.speedFactor = _toPrecision(gCodeJson['speed_factor']);
-    if (gCodeJson.containsKey('speed'))
-      printer.gCodeMove.speed = gCodeJson['speed'];
-    if (gCodeJson.containsKey('extrude_factor'))
-      printer.gCodeMove.extrudeFactor =
-          _toPrecision(gCodeJson['extrude_factor']);
-    if (gCodeJson.containsKey('absolute_coordinates'))
-      printer.gCodeMove.absoluteCoordinates = gCodeJson['absolute_coordinates'];
-    if (gCodeJson.containsKey('absolute_extrude'))
-      printer.gCodeMove.absoluteExtrude = gCodeJson['absolute_extrude'];
+  _updateGCodeMove(Map<String, dynamic> gCodeJson,
+      {required PrinterBuilder printer}) {
+    double? speedFactor;
+    double? speed;
+    double? extrudeFactor;
+    bool? absoluteCoordinates;
+    bool? absoluteExtrude;
+    List<double>? position;
+    List<double>? homingOrigin;
+    List<double>? gcodePosition;
+
+    if (gCodeJson.containsKey('speed_factor')) {
+      speedFactor = (gCodeJson['speed_factor'] as double).toPrecision(2);
+    }
+    if (gCodeJson.containsKey('speed')) {
+      speed = gCodeJson['speed'];
+    }
+    if (gCodeJson.containsKey('extrude_factor')) {
+      extrudeFactor = _toPrecision(gCodeJson['extrude_factor']);
+    }
+    if (gCodeJson.containsKey('absolute_coordinates')) {
+      absoluteCoordinates = gCodeJson['absolute_coordinates'];
+    }
+    if (gCodeJson.containsKey('absolute_extrude')) {
+      absoluteExtrude = gCodeJson['absolute_extrude'];
+    }
 
     if (gCodeJson.containsKey('position')) {
-      List<double> posJson = gCodeJson['position'].cast<double>();
-      printer.gCodeMove.position = posJson;
+      position = gCodeJson['position'].cast<double>();
     }
     if (gCodeJson.containsKey('homing_origin')) {
-      List<double> posJson = gCodeJson['homing_origin'].cast<double>();
-      printer.gCodeMove.homingOrigin = posJson;
+      homingOrigin = gCodeJson['homing_origin'].cast<double>();
     }
     if (gCodeJson.containsKey('gcode_position')) {
-      List<double> posJson = gCodeJson['gcode_position'].cast<double>();
-      printer.gCodeMove.gcodePosition = posJson;
+      gcodePosition = gCodeJson['gcode_position'].cast<double>();
     }
+
+    GCodeMove old = printer.gCodeMove ?? const GCodeMove();
+
+    printer.gCodeMove = GCodeMove(
+      speedFactor: speedFactor ?? old.speedFactor,
+      speed: speed ?? old.speed,
+      extrudeFactor: extrudeFactor ?? old.extrudeFactor,
+      absoluteCoordinates: absoluteCoordinates ?? old.absoluteCoordinates,
+      absoluteExtrude: absoluteExtrude ?? old.absoluteExtrude,
+      position: position ?? old.position,
+      homingOrigin: homingOrigin ?? old.homingOrigin,
+      gcodePosition: gcodePosition ?? old.gcodePosition,
+    );
+  }
+
+  _updateMotionReport(Map<String, dynamic> gCodeJson,
+      {required PrinterBuilder printer}) {
+    List<double>? position;
+    double? liveVelocity;
+    double? liveExtruderVelocity;
+
+    if (gCodeJson.containsKey('live_position')) {
+      position = gCodeJson['live_position'].cast<double>();
+    }
+    if (gCodeJson.containsKey('live_velocity')) {
+      liveVelocity = gCodeJson['live_velocity'];
+    }
+    if (gCodeJson.containsKey('live_extruder_velocity')) {
+      liveExtruderVelocity = gCodeJson['live_extruder_velocity'];
+    }
+
+    MotionReport old = printer.motionReport ?? const MotionReport();
+
+    printer.motionReport = MotionReport(
+      livePosition: position ?? old.livePosition,
+      liveExtruderVelocity: liveExtruderVelocity ?? old.liveExtruderVelocity,
+      liveVelocity: liveVelocity ?? old.liveVelocity,
+    );
+  }
+
+  _updateDisplayStatus(Map<String, dynamic> json,
+      {required PrinterBuilder printer}) {
+    double? progress = json['progress'];
+    String? message = json['message'];
+
+    DisplayStatus old = printer.displayStatus ?? const DisplayStatus();
+
+    printer.displayStatus = DisplayStatus(
+      progress: progress ?? old.progress,
+      message: message,
+    );
   }
 
   _updateVirtualSd(Map<String, dynamic> virtualSDJson,
-      {required Printer printer}) {
-    if (virtualSDJson.containsKey('progress'))
-      printer.virtualSdCard.progress = virtualSDJson['progress'];
-    if (virtualSDJson.containsKey('is_active'))
-      printer.virtualSdCard.isActive = virtualSDJson['is_active'];
-    if (virtualSDJson.containsKey('file_position'))
-      printer.virtualSdCard.filePosition =
+      {required PrinterBuilder printer}) {
+    double? progress;
+    bool? isActive;
+    int? filePosition;
+
+    if (virtualSDJson.containsKey('progress')) {
+      progress = virtualSDJson['progress'];
+    }
+    if (virtualSDJson.containsKey('is_active')) {
+      isActive = virtualSDJson['is_active'];
+    }
+    if (virtualSDJson.containsKey('file_position')) {
+      filePosition =
           int.tryParse(virtualSDJson['file_position'].toString()) ?? 0;
+    }
+    VirtualSdCard old = printer.virtualSdCard ?? const VirtualSdCard();
+    printer.virtualSdCard = old.copyWith(
+        progress: progress ?? old.progress,
+        isActive: isActive ?? old.isActive,
+        filePosition: filePosition ?? old.filePosition);
   }
 
   _updatePrintStat(Map<String, dynamic> printStatJson,
-      {required Printer printer}) {
-    if (printStatJson.containsKey('state'))
-      printer.print.state =
-          EnumToString.fromString(PrintState.values, printStatJson['state'])!;
-    if (printStatJson.containsKey('filename'))
-      printer.print.filename = printStatJson['filename'];
-    if (printStatJson.containsKey('total_duration'))
-      printer.print.totalDuration = printStatJson['total_duration'];
-    if (printStatJson.containsKey('print_duration'))
-      printer.print.printDuration = printStatJson['print_duration'];
-    if (printStatJson.containsKey('filament_used'))
-      printer.print.filamentUsed = printStatJson['filament_used'];
-    if (printStatJson.containsKey('message')) {
-      printer.print.message = printStatJson['message'];
-      _onMessage(printer.print.message);
+      {required PrinterBuilder printer}) {
+    PrintState? state;
+    double? totalDuration;
+    double? printDuration;
+    double? filamentUsed;
+    String? message;
+    String? filename;
+
+    if (printStatJson.containsKey('state')) {
+      state =
+          EnumToString.fromString(PrintState.values, printStatJson['state']) ??
+              PrintState.error;
     }
+    if (printStatJson.containsKey('filename')) {
+      filename = printStatJson['filename'];
+    }
+    if (printStatJson.containsKey('total_duration')) {
+      totalDuration = printStatJson['total_duration'];
+    }
+    if (printStatJson.containsKey('print_duration')) {
+      printDuration = printStatJson['print_duration'];
+    }
+    if (printStatJson.containsKey('filament_used')) {
+      filamentUsed = printStatJson['filament_used'];
+    }
+    if (printStatJson.containsKey('message')) {
+      message = printStatJson['message'];
+      _onMessage(message!);
+    }
+    PrintStats old = printer.print ?? const PrintStats();
+
+    printer.print = PrintStats(
+      state: state ?? old.state,
+      totalDuration: totalDuration ?? old.totalDuration,
+      printDuration: printDuration ?? old.printDuration,
+      filamentUsed: filamentUsed ?? old.filamentUsed,
+      message: message ?? old.message,
+      filename: filename ?? old.filename,
+    );
   }
 
   _updateConfigFile(Map<String, dynamic> printStatJson,
-      {required Printer printer}) {
-    if (printStatJson.containsKey('settings'))
-      printer.configFile = ConfigFile.parse(printStatJson['settings']);
-    if (printStatJson.containsKey('save_config_pending'))
-      printer.configFile.saveConfigPending =
-          printStatJson['save_config_pending'];
+      {required PrinterBuilder printer}) {
+    var config = printer.configFile ?? ConfigFile();
+    if (printStatJson.containsKey('settings')) {
+      config = ConfigFile.parse(printStatJson['settings']);
+    }
+    if (printStatJson.containsKey('save_config_pending')) {
+      config.saveConfigPending = printStatJson['save_config_pending'];
+    }
+    printer.configFile = config;
   }
 
   _updateHeaterBed(Map<String, dynamic> heatedBedJson,
-      {required Printer printer}) {
-    HeaterBed heaterBed = printer.heaterBed;
-    if (heatedBedJson.containsKey('temperature'))
-      heaterBed.temperature = heatedBedJson['temperature'];
-    if (heatedBedJson.containsKey('target'))
-      heaterBed.target = heatedBedJson['target'];
-    if (heatedBedJson.containsKey('power'))
-      heaterBed.power = heatedBedJson['power'];
+      {required PrinterBuilder printer}) {
+    HeaterBed old = printer.heaterBed ?? HeaterBed(lastHistory: DateTime(1990));
+
+    double? temperature;
+    double? target;
+    double? power;
+    List<double>? temperatureHistory;
+    List<double>? targetHistory;
+    List<double>? powerHistory;
+    DateTime? lastHistory;
+
+    if (heatedBedJson.containsKey('temperature')) {
+      temperature = heatedBedJson['temperature'];
+    }
+    if (heatedBedJson.containsKey('target')) {
+      target = heatedBedJson['target'];
+    }
+    if (heatedBedJson.containsKey('power')) {
+      power = heatedBedJson['power'];
+    }
 
     // Update temp cache for graphs!
     DateTime now = DateTime.now();
-    if (now.difference(heaterBed.lastHistory).inSeconds >= 1) {
-      if ((heaterBed.temperatureHistory?.length ?? 0) >= 1200)
-        heaterBed.temperatureHistory?.removeAt(0);
-      heaterBed.temperatureHistory?.add(heaterBed.temperature);
-      heaterBed.powerHistory?.removeAt(0);
-      heaterBed.powerHistory?.add(heaterBed.power);
-      heaterBed.targetHistory?.removeAt(0);
-      heaterBed.targetHistory?.add(heaterBed.target);
-      heaterBed.lastHistory = now;
+    if (now.difference(old.lastHistory).inSeconds >= 1) {
+      temperatureHistory = _updateHistoryList(
+          old.temperatureHistory, temperature ?? old.temperature);
+      targetHistory =
+          _updateHistoryList(old.targetHistory, target ?? old.target);
+      powerHistory = _updateHistoryList(old.powerHistory, power ?? old.target);
+      lastHistory = now;
     }
 
     // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    if (heatedBedJson.containsKey('temperatures'))
-      heaterBed.temperatureHistory =
+    if (heatedBedJson.containsKey('temperatures')) {
+      temperatureHistory =
           (heatedBedJson['temperatures'] as List<dynamic>).cast<double>();
-    if (heatedBedJson.containsKey('targets'))
-      heaterBed.targetHistory =
+    }
+    if (heatedBedJson.containsKey('targets')) {
+      targetHistory =
           (heatedBedJson['targets'] as List<dynamic>).cast<double>();
-    if (heatedBedJson.containsKey('powers'))
-      heaterBed.powerHistory =
-          (heatedBedJson['powers'] as List<dynamic>).cast<double>();
+    }
+    if (heatedBedJson.containsKey('powers')) {
+      powerHistory = (heatedBedJson['powers'] as List<dynamic>).cast<double>();
+    }
+
+    printer.heaterBed = HeaterBed(
+      temperature: temperature ?? old.temperature,
+      target: target ?? old.target,
+      power: power ?? old.power,
+      temperatureHistory: temperatureHistory ?? old.temperatureHistory,
+      targetHistory: targetHistory ?? old.targetHistory,
+      powerHistory: powerHistory ?? old.powerHistory,
+      lastHistory: lastHistory ?? old.lastHistory,
+    );
   }
 
   _updateExtruder(Map<String, dynamic> extruderJson,
-      {required Printer printer, int num = 0}) {
-    Extruder extruder = printer.extruderIfAbsence(num);
-    if (extruderJson.containsKey('temperature'))
-      extruder.temperature = extruderJson['temperature'];
-    if (extruderJson.containsKey('target'))
-      extruder.target = extruderJson['target'];
-    if (extruderJson.containsKey('pressure_advance'))
-      extruder.pressureAdvance = extruderJson['pressure_advance'];
-    if (extruderJson.containsKey('smooth_time'))
-      extruder.smoothTime = extruderJson['smooth_time'];
-    if (extruderJson.containsKey('power'))
-      extruder.power = extruderJson['power'];
+      {required PrinterBuilder printer, int num = 0}) {
+    List<Extruder> extruders = printer.extruders;
+
+    Extruder extruder = printer.extruders[num];
+    double? temperature;
+    double? target;
+    double? pressureAdvance;
+    double? smoothTime;
+    double? power;
+    List<double>? temperatureHistory;
+    List<double>? targetHistory;
+    List<double>? powerHistory;
+    DateTime? lastHistory;
+    if (extruderJson.containsKey('temperature')) {
+      temperature = extruderJson['temperature'];
+    }
+    if (extruderJson.containsKey('target')) {
+      target = extruderJson['target'];
+    }
+    if (extruderJson.containsKey('pressure_advance')) {
+      pressureAdvance = extruderJson['pressure_advance'];
+    }
+    if (extruderJson.containsKey('smooth_time')) {
+      smoothTime = extruderJson['smooth_time'];
+    }
+    if (extruderJson.containsKey('power')) {
+      power = extruderJson['power'];
+    }
 
     // Update temp cache for graphs!
     DateTime now = DateTime.now();
     if (now.difference(extruder.lastHistory).inSeconds >= 1) {
-      if ((extruder.temperatureHistory?.length ?? 0) >= 1200)
-        extruder.temperatureHistory?.removeAt(0);
-      extruder.temperatureHistory?.add(extruder.temperature);
-      extruder.powerHistory?.removeAt(0);
-      extruder.powerHistory?.add(extruder.power);
-      extruder.targetHistory?.removeAt(0);
-      extruder.targetHistory?.add(extruder.target);
-      extruder.lastHistory = now;
+      temperatureHistory = _updateHistoryList(
+          extruder.temperatureHistory, temperature ?? extruder.temperature);
+      targetHistory =
+          _updateHistoryList(extruder.targetHistory, target ?? extruder.target);
+      powerHistory =
+          _updateHistoryList(extruder.powerHistory, power ?? extruder.power);
+      lastHistory = now;
     }
 
     // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    if (extruderJson.containsKey('temperatures'))
-      extruder.temperatureHistory =
+    if (extruderJson.containsKey('temperatures')) {
+      temperatureHistory =
           (extruderJson['temperatures'] as List<dynamic>).cast<double>();
-    if (extruderJson.containsKey('targets'))
-      extruder.targetHistory =
-          (extruderJson['targets'] as List<dynamic>).cast<double>();
-    if (extruderJson.containsKey('powers'))
-      extruder.powerHistory =
-          (extruderJson['powers'] as List<dynamic>).cast<double>();
+    }
+    if (extruderJson.containsKey('targets')) {
+      targetHistory = (extruderJson['targets'] as List<dynamic>).cast<double>();
+    }
+    if (extruderJson.containsKey('powers')) {
+      powerHistory = (extruderJson['powers'] as List<dynamic>).cast<double>();
+    }
+    var newExtruder = extruder.copyWith(
+        temperature: temperature ?? extruder.temperature,
+        target: target ?? extruder.target,
+        pressureAdvance: pressureAdvance ?? extruder.pressureAdvance,
+        smoothTime: smoothTime ?? extruder.smoothTime,
+        power: power ?? extruder.power,
+        temperatureHistory: temperatureHistory ?? extruder.temperatureHistory,
+        targetHistory: targetHistory ?? extruder.targetHistory,
+        powerHistory: powerHistory ?? extruder.powerHistory,
+        lastHistory: lastHistory ?? extruder.lastHistory);
+
+    printer.extruders = extruders
+        .mapIndex((e, i) => i == num ? newExtruder : e)
+        .toList(growable: false);
   }
 
   _updateToolhead(Map<String, dynamic> toolHeadJson,
-      {required Printer printer}) {
+      {required PrinterBuilder printer}) {
+    Toolhead toolhead = printer.toolhead ?? const Toolhead();
+
+    Set<PrinterAxis> homedAxes = toolhead.homedAxes;
+    List<double> position = toolhead.position;
+    double? printTime = toolhead.printTime;
+    double? estimatedPrintTime = toolhead.estimatedPrintTime;
+    double maxVelocity = toolhead.maxVelocity;
+    double maxAccel = toolhead.maxAccel;
+    double maxAccelToDecel = toolhead.maxAccelToDecel;
+    String activeExtruder = toolhead.activeExtruder;
+    double squareCornerVelocity = toolhead.squareCornerVelocity;
+
     if (toolHeadJson.containsKey('homed_axes')) {
       String hAxes = toolHeadJson['homed_axes'];
-      Set<PrinterAxis> homed = {};
-      hAxes.toUpperCase().split('').forEach(
-          (e) => homed.add(EnumToString.fromString(PrinterAxis.values, e)!));
-      printer.toolhead.homedAxes = homed;
+      homedAxes = hAxes
+          .toUpperCase()
+          .split('')
+          .map((e) => EnumToString.fromString(PrinterAxis.values, e)!)
+          .toSet();
+    }
+    if (toolHeadJson.containsKey('position')) {
+      position = toolHeadJson['position'].cast<double>();
+    }
+    if (toolHeadJson.containsKey('print_time')) {
+      printTime = toolHeadJson['print_time'];
+    }
+    if (toolHeadJson.containsKey('max_velocity')) {
+      maxVelocity = toolHeadJson['max_velocity'];
+    }
+    if (toolHeadJson.containsKey('max_accel')) {
+      maxAccel = toolHeadJson['max_accel'];
+    }
+    if (toolHeadJson.containsKey('max_accel_to_decel')) {
+      maxAccelToDecel = toolHeadJson['max_accel_to_decel'];
+    }
+    if (toolHeadJson.containsKey('extruder')) {
+      activeExtruder = toolHeadJson['extruder'];
+    }
+    if (toolHeadJson.containsKey('square_corner_velocity')) {
+      squareCornerVelocity = toolHeadJson['square_corner_velocity'];
+    }
+    if (toolHeadJson.containsKey('estimated_print_time')) {
+      estimatedPrintTime = toolHeadJson['estimated_print_time'];
     }
 
-    if (toolHeadJson.containsKey('position')) {
-      List<double> posJson = toolHeadJson['position'].cast<double>();
-      printer.toolhead.position = posJson;
-    }
-    if (toolHeadJson.containsKey('print_time'))
-      printer.toolhead.printTime = toolHeadJson['print_time'];
-    if (toolHeadJson.containsKey('max_velocity'))
-      printer.toolhead.maxVelocity = toolHeadJson['max_velocity'];
-    if (toolHeadJson.containsKey('max_accel'))
-      printer.toolhead.maxAccel = toolHeadJson['max_accel'];
-    if (toolHeadJson.containsKey('max_accel_to_decel'))
-      printer.toolhead.maxAccelToDecel = toolHeadJson['max_accel_to_decel'];
-    if (toolHeadJson.containsKey('extruder'))
-      printer.toolhead.activeExtruder = toolHeadJson['extruder'];
-    if (toolHeadJson.containsKey('square_corner_velocity'))
-      printer.toolhead.squareCornerVelocity =
-          toolHeadJson['square_corner_velocity'];
-    if (toolHeadJson.containsKey('estimated_print_time'))
-      printer.toolhead.estimatedPrintTime =
-          toolHeadJson['estimated_print_time'];
+    printer.toolhead = toolhead.copyWith(
+      homedAxes: homedAxes,
+      position: position,
+      printTime: printTime,
+      estimatedPrintTime: estimatedPrintTime,
+      maxVelocity: maxVelocity,
+      maxAccel: maxAccel,
+      maxAccelToDecel: maxAccelToDecel,
+      activeExtruder: activeExtruder,
+      squareCornerVelocity: squareCornerVelocity,
+    );
   }
 
-  _updateExcludeObject(Map<String, dynamic> json, {required Printer printer}) {
-    if (json.containsKey('current_object'))
-      printer.excludeObject.currentObject = json['current_object'];
+  _updateExcludeObject(Map<String, dynamic> json,
+      {required PrinterBuilder printer}) {
+    String? currentObject;
+    List<String>? excludedObjects;
+    List<ParsedObject>? objects;
+
+    if (json.containsKey('current_object')) {
+      currentObject = json['current_object'];
+    }
 
     if (json.containsKey('excluded_objects')) {
-      List<dynamic> _excludedObjects = json['excluded_objects'];
-
-      printer.excludeObject.excludedObjects =
-          _excludedObjects.map((e) => e as String).toList();
+      excludedObjects =
+          (json['excluded_objects'] as List<dynamic>).cast<String>();
     }
     if (json.containsKey('objects')) {
-      List<dynamic> _objects = json['objects'];
-      List<ParsedObject> objects = [];
-      for (Map<String, dynamic> e in _objects) {
+      List<dynamic> objRaw = json['objects'];
+      List<ParsedObject> prasedObjects = [];
+      for (Map<String, dynamic> e in objRaw) {
+        Vector2 center;
         String name = e['name'];
-        List<double> center;
-        List<List<double>> polygons;
+        List<Vector2> polygons;
         if (e.containsKey('center')) {
-          List<dynamic> _center = e['center'];
-          center = _center.cast<double>();
+          List<dynamic> centerFromMsg = e['center'];
+          center = centerFromMsg.isEmpty
+              ? Vector2.zero()
+              : Vector2.array(centerFromMsg.cast<double>());
         } else {
-          center = [];
+          center = Vector2.zero();
         }
         if (e.containsKey('polygon')) {
-          List<dynamic> _polygons = e['polygon'];
-          polygons = _polygons.map((e) {
+          List<dynamic> polys = e['polygon'];
+          polygons = polys.map((e) {
             List<dynamic> list = e as List<dynamic>;
-            return list.cast<double>();
-          }).toList();
+            return Vector2.array(list.cast<double>());
+          }).toList(growable: false);
         } else {
           polygons = [];
         }
 
-        objects.add(ParsedObject.fromList(
-            name: name, center: center, polygons: polygons));
+        prasedObjects
+            .add(ParsedObject(name: name, center: center, polygons: polygons));
       }
 
-      printer.excludeObject.objects = objects;
+      objects = List.unmodifiable(prasedObjects);
     }
-    _logger.v('New exclude_printer: ${printer.excludeObject}');
+
+    ExcludeObject old = printer.excludeObject ?? const ExcludeObject();
+    printer.excludeObject = old.copyWith(
+        currentObject: currentObject,
+        excludedObjects: excludedObjects ?? old.excludedObjects,
+        objects: objects ?? old.objects);
+    logger.v('New exclude_printer: ${printer.excludeObject}');
   }
 
-  Map<String, List<String>?> _queryPrinterObjectJson(Printer printer) {
-    Map<String, List<String>?> queryObjects = Map();
-    printer.queryableObjects.forEach((ele) {
+  Map<String, List<String>?> _queryPrinterObjectJson(
+      List<String> queryableObjects) {
+    Map<String, List<String>?> queryObjects = {};
+    for (String ele in queryableObjects) {
       // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
       List<String> split = ele.split(' ');
       String objTypeKey = split[0];
 
-      if (_subToPrinterObjects.keys.contains(objTypeKey))
+      if (_subToPrinterObjects.keys.contains(objTypeKey)) {
         queryObjects[ele] = null;
-      else if (ele.startsWith('extruder')) // used for multiple extruders!
+      } else if (ele.startsWith('extruder')) {
         queryObjects[ele] = null;
-    });
+      }
+    }
     return queryObjects;
   }
 
   /// Query the state of queryable printer objects once!
-  _printerObjectsQuery(Printer printer) async {
-    _logger.i('>>>Querying Printer Objects!');
-    Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer);
+  _printerObjectsQuery(PrinterBuilder printer) async {
+    logger.i('>>>Querying Printer Objects!');
+    Map<String, List<String>?> queryObjects =
+        _queryPrinterObjectJson(printer.queryableObjects);
 
     RpcResponse jRpcResponse = await _jRpcClient.sendJRpcMethod(
         'printer.objects.query',
@@ -747,9 +1033,10 @@ class PrinterService {
   }
 
   /// This method registeres every printer object for websocket updates!
-  _makeSubscribeRequest(Printer printer) {
-    _logger.i('Subscribing printer objects for ws-updates!');
-    Map<String, List<String>?> queryObjects = _queryPrinterObjectJson(printer);
+  _makeSubscribeRequest(List<String> queryableObjects) {
+    logger.i('Subscribing printer objects for ws-updates!');
+    Map<String, List<String>?> queryObjects =
+        _queryPrinterObjectJson(queryableObjects);
 
     _jRpcClient.sendJsonRpcWithCallback('printer.objects.subscribe',
         params: {'objects': queryObjects});
@@ -761,11 +1048,8 @@ class PrinterService {
 
   _onMessage(String message) {
     if (message.isEmpty) return;
-    _snackBarService.showCustomSnackBar(
-        variant: SnackbarType.warning,
-        duration: const Duration(seconds: 5),
-        title: 'Print-Message',
-        message: message);
+    _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning, title: 'Klippy-Message', message: message));
   }
 
   double _toPrecision(double d, [int fraction = 2]) {
@@ -773,24 +1057,34 @@ class PrinterService {
   }
 
   void _showExceptionSnackbar(Object e, StackTrace s) {
-    _snackBarService.showCustomSnackBar(
-        variant: SnackbarType.error,
-        duration: const Duration(seconds: 20),
+    _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
         title: 'Refresh Printer Error',
         message: 'Could not parse: $e',
-        mainButtonTitle: "Details",
+        duration: const Duration(seconds: 30),
+        mainButtonTitle: 'Details',
+        closeOnMainButtonTapped: true,
         onMainButtonTapped: () {
-          Get.closeCurrentSnackbar();
-          _dialogService.showCustomDialog(
-              variant: DialogType.stackTrace,
+          _dialogService.show(DialogRequest(
+              type: DialogType.stacktrace,
               title: 'Refresh Printer Error',
-              description: 'Exception:\n $e\n\n$s');
-        });
+              body: 'Exception:\n $e\n\n$s'));
+        }));
+  }
+
+  List<T>? _updateHistoryList<T>(List<T>? currentHistory, T toAdd) {
+    if (currentHistory == null) {
+      return null;
+    }
+    if (currentHistory.length >= 1200) {
+      return [...currentHistory.sublist(1), toAdd];
+    }
+    return [...currentHistory, toAdd];
   }
 
   dispose() {
-    klippySubscription.cancel();
-    printerStream.close();
+    logger.e('PrinterService Dispo');
+    _printerStreamCtler.close();
     _gCodeResponseStreamController.close();
   }
 }

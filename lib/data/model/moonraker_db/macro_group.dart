@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobileraker/data/model/moonraker_db/stamped_entity.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:uuid/uuid.dart';
 
 import 'gcode_macro.dart';
+import 'stamped_entity.dart';
 
 part 'macro_group.g.dart';
 
@@ -16,7 +16,7 @@ class MacroGroup extends StampedEntity {
     required this.name,
     String? uuid,
     this.macros = const [],
-  })  : uuid = uuid ?? Uuid().v4(),
+  })  : uuid = uuid ?? const Uuid().v4(),
         super(created, lastModified ?? DateTime.now());
 
   String name;
@@ -26,6 +26,14 @@ class MacroGroup extends StampedEntity {
   factory MacroGroup.fromJson(Map<String, dynamic> json) => _$MacroGroupFromJson(json);
 
   Map<String, dynamic> toJson() => _$MacroGroupToJson(this);
+
+  MacroGroup copyWith({String? name, List<GCodeMacro>? macros}) {
+    return MacroGroup(
+      name: name ?? this.name,
+      uuid: uuid,
+      macros: macros ?? this.macros,
+    );
+  }
 
   @override
   String toString() {

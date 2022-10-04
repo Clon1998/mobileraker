@@ -64,13 +64,13 @@ class CardWithButton extends StatelessWidget {
                 borderRadius:
                     BorderRadius.vertical(bottom: Radius.circular(radius)),
               ),
-              primary: themeData.colorScheme.onPrimary,
+              foregroundColor: themeData.colorScheme.onPrimary,
               backgroundColor: themeData.colorScheme.primary,
               // onPrimary: Theme.of(context).colorScheme.onSecondary,
-              onSurface: themeData.colorScheme.onPrimary,
+              disabledForegroundColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
             ),
-            child: buttonChild,
             onPressed: onTap,
+            child: buttonChild,
           )
         ],
       ),

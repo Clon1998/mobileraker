@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobileraker/data/model/moonraker_db/stamped_entity.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 import 'macro_group.dart';
+import 'stamped_entity.dart';
 import 'temperature_preset.dart';
 
 part 'machine_settings.g.dart';

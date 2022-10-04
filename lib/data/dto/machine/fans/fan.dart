@@ -1,3 +1,3 @@
 abstract class Fan {
-  double speed = 0;
+  abstract final double speed;
 }

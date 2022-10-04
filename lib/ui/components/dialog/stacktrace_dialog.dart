@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:stacked_services/stacked_services.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 
 class StackTraceDialog extends StatelessWidget {
   final DialogRequest request;
-  final Function(DialogResponse) completer;
+  final DialogCompleter completer;
 
   const StackTraceDialog(
       {Key? key, required this.request, required this.completer})
@@ -24,22 +24,22 @@ class StackTraceDialog extends StatelessWidget {
             ),
             Expanded(
               child: SingleChildScrollView(
-                child: Text(request.description!),
+                child: Text(request.body!),
               ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
-                  onPressed: () => this.completer(DialogResponse()),
+                  onPressed: () => completer(DialogResponse()),
                   child:
                       Text(MaterialLocalizations.of(context).closeButtonLabel),
                 ),
                 IconButton(
                   color: Theme.of(context).colorScheme.primary,
                   onPressed: () => Clipboard.setData(
-                      ClipboardData(text: request.description)),
-                  icon: Icon(Icons.copy_all),
+                      ClipboardData(text: request.body)),
+                  icon: const Icon(Icons.copy_all),
                   tooltip: MaterialLocalizations.of(context).copyButtonLabel,
                 )
               ],

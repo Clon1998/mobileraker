@@ -17,31 +17,33 @@ class HorizontalScrollIndicator extends StatefulWidget {
         super(key: key);
 
   @override
-  _HorizontalScrollIndicatorState createState() =>
-      _HorizontalScrollIndicatorState(steps, childsPerScreen);
+  State<HorizontalScrollIndicator> createState() =>
+      _HorizontalScrollIndicatorState();
 }
 
 class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
+  late final int steps;
+
   double _curIndex = 0;
 
   ScrollController get controller => widget.controller;
-  final int steps;
-
-  _HorizontalScrollIndicatorState(int steps, int? childsPerScreen)
-      : this.steps = (childsPerScreen == null)
-            ? steps
-            : (steps / childsPerScreen).ceil();
 
   @override
   initState() {
     super.initState();
+    steps = (widget.childsPerScreen == null)
+        ? widget.steps
+        : (widget.steps / widget.childsPerScreen!).ceil();
+
     controller.addListener(_listenerForController);
-    WidgetsBinding.instance.addPostFrameCallback((_) => _listenerForController());
+    WidgetsBinding.instance
+        .addPostFrameCallback((_) => _listenerForController());
   }
 
   _listenerForController() {
-    if (!controller.hasClients || !controller.position.hasContentDimensions)
+    if (!controller.hasClients || !controller.position.hasContentDimensions) {
       return;
+    }
     double maxScrollExtent = controller.position.maxScrollExtent;
     if (maxScrollExtent == 0) return;
 

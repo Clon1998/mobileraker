@@ -28,7 +28,7 @@
       "general": {
         "print_card": {
           "reset": "Visszaállítás",
-          "printing_for": "Nyomtatás: {\nFor: {}",
+          "printing_for": "Nyomtatás: {}",
           "speed": "Sebesség",
           "layer": "Réteg",
           "eta": "ETA"

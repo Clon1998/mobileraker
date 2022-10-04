@@ -1,116 +1,130 @@
 import 'dart:async';
 
 import 'package:hive/hive.dart';
-import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/data/datasource/moonraker_database_client.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
-import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
+import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/firebase/analytics.dart';
+import 'package:mobileraker/service/moonraker/announcement_service.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
+
+final machineServiceProvider =
+    Provider<MachineService>((ref) => MachineService(ref));
+
+final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>(
+    (ref) {
+      return ref.watch(machineServiceProvider).fetchAll();
+    },name: 'allMachinesProvider');
+
+final selectedMachineSettingsProvider =
+    FutureProvider.autoDispose<MachineSettings>((ref) async {
+  //TODO: This leaks and is not that eefficient!
+  var machine = await ref
+      .watch(selectedMachineProvider.future)
+      .asStream()
+      .whereNotNull()
+      .first;
+
+  await ref
+      .watch(jrpcClientStateSelectedProvider.selectAsync((data) => data == ClientState.connected));
+  var fetchSettings =
+      await ref.watch(machineServiceProvider).fetchSettings(machine);
+  ref.keepAlive();
+  return fetchSettings;
+});
 
 /// Service handling the management of a machine
 class MachineService {
-  final _logger = getLogger('MachineService');
-  final _machineRepo = locator<MachineHiveRepository>();
-  final _selectedMachineService = locator<SelectedMachineService>();
-  final MachineSettingsMoonrakerRepository _machineSettingsRepository =
-      locator<MachineSettingsMoonrakerRepository>();
+  MachineService(this.ref)
+      : _machineRepo = ref.watch(machineRepositoryProvider),
+        _selectedMachineService = ref.watch(selectedMachineServiceProvider);
+  final Ref ref;
+  final MachineHiveRepository _machineRepo;
+  final SelectedMachineService _selectedMachineService;
 
-  final MoonrakerDatabaseClient _moonrakerDatabaseClient =
-      locator<MoonrakerDatabaseClient>();
+  // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
   Stream<BoxEvent> get machineEventStream =>
       Hive.box<Machine>('printers').watch();
 
+  /// Ensure all services are setup/available/connected if they are also read just once!
+  initializeAvailableMachines() async {
+    List<Machine> all = await fetchAll();
+    for (var machine in all) {
+      ref.read(printerServiceProvider(machine.uuid));
+      ref.read(klipperServiceProvider(machine.uuid));
+    }
+  }
+
   Future<void> updateMachine(Machine machine) async {
     await machine.save();
-    if (_selectedMachineService.isSelectedMachine(machine))
-      await _selectedMachineService.selectMachine(machine, true);
+    var selectedMachineService = ref.read(selectedMachineServiceProvider);
+    if (selectedMachineService.isSelectedMachine(machine)) {
+      selectedMachineService.selectMachine(machine, true);
+    }
 
     return;
   }
 
   Future<MachineSettings> fetchSettings(Machine machine) async {
     // await _tryMigrateSettings(machine);
-    MachineSettings? machineSettings =
-        await _machineSettingsRepository.get(machine.jRpcClient);
-    if (machineSettings == null) {
-      machineSettings = _tryMigrateSettings(machine);
-      await _machineSettingsRepository.update(machineSettings);
-    }
+    MachineSettings machineSettings =
+        await ref.read(machineSettingsRepositoryProvider(machine.uuid)).get() ??
+            MachineSettings.fallback();
+
 
     return machineSettings;
   }
 
-  MachineSettings _tryMigrateSettings(Machine machine) {
-    if (machine.speedXY == null) {
-      _logger.i('No MachineSettings found... Creating from fallback');
-
-      return MachineSettings.fallback();
-    } else {
-      _logger.i('No MachineSettings found... Migrating from known once');
-
-      List<TemperaturePreset> migratedTemps = machine.temperaturePresets
-          .map((element) => TemperaturePreset(
-              name: element.name,
-              uuid: element.uuid,
-              extruderTemp: element.extruderTemp,
-              bedTemp: element.bedTemp))
-          .toList();
-
-      List<MacroGroup> migratedMacroGrps = machine.macroGroups
-          .map((element) => MacroGroup(
-              name: element.name,
-              uuid: element.uuid,
-              macros: element.macros
-                  .map((element) =>
-                      GCodeMacro(name: element.name, uuid: element.uuid))
-                  .toList()))
-          .toList();
-
-      var machineSettings = MachineSettings(
-        temperaturePresets: migratedTemps,
-        inverts: machine.inverts,
-        speedXY: machine.speedXY!,
-        speedZ: machine.speedZ,
-        extrudeFeedrate: machine.extrudeFeedrate,
-        moveSteps: machine.moveSteps,
-        babySteps: machine.babySteps,
-        extrudeSteps: machine.extrudeSteps,
-        macroGroups: migratedMacroGrps,
-      );
-      machine
-        ..speedXY = null
-        ..save();
-      return machineSettings;
-    }
-  }
-
   Future<void> updateSettings(
-          Machine machine, MachineSettings machineSettings) =>
-      _machineSettingsRepository.update(machineSettings, machine.jRpcClient);
+      Machine machine, MachineSettings machineSettings) {
+    return ref
+        .read(machineSettingsRepositoryProvider(machine.uuid))
+        .update(machineSettings);
+  }
 
   Future<Machine> addMachine(Machine machine) async {
     await _machineRepo.insert(machine);
     await _selectedMachineService.selectMachine(machine);
+    ref.invalidate(allMachinesProvider);
+    ref.read(analyticsProvider).logEvent(name: 'add_machine');
     return machine;
   }
 
   Future<void> removeMachine(Machine machine) async {
-    _logger.i('Removing machine ${machine.uuid}');
+    logger.i('Removing machine ${machine.uuid}');
     await _machineRepo.remove(machine.uuid);
+    ref.invalidate(allMachinesProvider);
+    ref.invalidate(jrpcClientProvider(machine.uuid));
+    ref.invalidate(jrpcClientStateProvider(machine.uuid));
+    ref.invalidate(printerProvider(machine.uuid));
+    ref.invalidate(printerServiceProvider(machine.uuid));
+    ref.invalidate(klipperProvider(machine.uuid));
+    ref.invalidate(klipperServiceProvider(machine.uuid));
+    ref.invalidate(fileNotificationsProvider(machine.uuid));
+    ref.invalidate(fileServiceProvider(machine.uuid));
+    ref.invalidate(announcementProvider(machine.uuid));
+    ref.invalidate(announcementServiceProvider(machine.uuid));
+
     if (_selectedMachineService.isSelectedMachine(machine)) {
-      _logger.i('Machine ${machine.uuid} is active machine');
+      logger.i('Machine ${machine.uuid} is active machine');
       List<Machine> remainingPrinters = await _machineRepo.fetchAll();
 
       Machine? nextMachine =
-          remainingPrinters.length > 0 ? remainingPrinters.first : null;
+          remainingPrinters.isNotEmpty ? remainingPrinters.first : null;
 
       await _selectedMachineService.selectMachine(nextMachine);
     }
@@ -129,62 +143,66 @@ class MachineService {
   /// a user configured multiple printers in the app.
   /// Because of that the FCMIdentifier should be set only once!
   Future<String> fetchOrCreateFcmIdentifier(Machine machine) async {
-    String? item = await _moonrakerDatabaseClient.getDatabaseItem('mobileraker',
-        key: 'printerId', client: machine.jRpcClient);
+    MoonrakerDatabaseClient moonrakerDatabaseClient =
+        ref.read(moonrakerDatabaseClientProvider(machine.uuid));
+    String? item = await moonrakerDatabaseClient.getDatabaseItem('mobileraker',
+        key: 'printerId');
     if (item == null) {
-      String nId = Uuid().v4();
-      item = await _moonrakerDatabaseClient.addDatabaseItem(
+      String nId = const Uuid().v4();
+      item = await moonrakerDatabaseClient.addDatabaseItem(
           'mobileraker', 'printerId', nId);
-      _logger.i('Registered fcm-PrinterId in MoonrakerDB: $nId');
+      logger.i('Registered fcm-PrinterId in MoonrakerDB: $nId');
     } else {
-      _logger.i(
+      logger.i(
           'Got FCM-PrinterID from MoonrakerDB for "${machine.name}(${machine.wsUrl})" to set in Settings: $item');
     }
 
     if (item != machine.fcmIdentifier) {
       machine.fcmIdentifier = item;
       await machine.save();
-      _logger.i('Updated FCM-PrinterID in settings $item');
+      logger.i('Updated FCM-PrinterID in settings $item');
     }
     return item!;
   }
 
   Future<void> registerFCMTokenOnMachineNEW(
       Machine machine, String fcmToken) async {
-    Map<String, dynamic>? item = await _moonrakerDatabaseClient.getDatabaseItem(
-        'mobileraker',
-        key: 'fcm.$fcmToken',
-        client: machine.jRpcClient);
+    MoonrakerDatabaseClient moonrakerDatabaseClient =
+        ref.read(moonrakerDatabaseClientProvider(machine.uuid));
+    Map<String, dynamic>? item = await moonrakerDatabaseClient
+        .getDatabaseItem('mobileraker', key: 'fcm.$fcmToken');
     if (item == null) {
       item = {'printerName': machine.name};
-      item = await _moonrakerDatabaseClient.addDatabaseItem(
+      item = await moonrakerDatabaseClient.addDatabaseItem(
           'mobileraker', 'fcm.$fcmToken', item);
-      _logger.i('Registered FCM Token in MoonrakerDB: $item');
+      logger.i('Registered FCM Token in MoonrakerDB: $item');
     } else if (item['printerName'] != machine.name) {
       item['printerName'] = machine.name;
-      item = await _moonrakerDatabaseClient.addDatabaseItem(
+      item = await moonrakerDatabaseClient.addDatabaseItem(
           'mobileraker', 'fcm.$fcmToken', item);
-      _logger.i('Updated Printer\'s name in MoonrakerDB: $item');
+      logger.i('Updated Printer\'s name in MoonrakerDB: $item');
     }
-    _logger.i('Got FCM data from MoonrakerDB: $item');
+    logger.i('Got FCM data from MoonrakerDB: $item');
   }
 
   Future<void> registerFCMTokenOnMachine(
       Machine machine, String fcmToken) async {
-    var item = await _moonrakerDatabaseClient.getDatabaseItem('mobileraker',
-        key: 'fcmTokens', client: machine.jRpcClient);
+    MoonrakerDatabaseClient moonrakerDatabaseClient =
+        ref.read(moonrakerDatabaseClientProvider(machine.uuid));
+    var item = await moonrakerDatabaseClient.getDatabaseItem('mobileraker',
+        key: 'fcmTokens');
     if (item == null) {
-      _logger.i('Creating fcmTokens in moonraker-Database');
-      await _moonrakerDatabaseClient
+      logger.i('Creating fcmTokens in moonraker-Database');
+      await moonrakerDatabaseClient
           .addDatabaseItem('mobileraker', 'fcmTokens', [fcmToken]);
     } else {
       List<String> fcmTokens = List.from(item);
       if (!fcmTokens.contains(fcmToken)) {
-        _logger.i('Adding token to existing fcmTokens in moonraker-Database');
-        await _moonrakerDatabaseClient.addDatabaseItem(
+        logger.i('Adding token to existing fcmTokens in moonraker-Database');
+        await moonrakerDatabaseClient.addDatabaseItem(
             'mobileraker', 'fcmTokens', fcmTokens..add(fcmToken));
       } else {
-        _logger
+        logger
             .i('FCM token was registed for ${machine.name}(${machine.wsUrl})');
       }
     }
@@ -192,8 +210,9 @@ class MachineService {
 
   Future<Machine?> machineFromFcmIdentifier(String fcmIdentifier) async {
     List<Machine> machines = await fetchAll();
-    for (Machine element in machines)
+    for (Machine element in machines) {
       if (element.fcmIdentifier == fcmIdentifier) return element;
+    }
     return null;
   }
 
@@ -207,8 +226,13 @@ class MachineService {
     return i;
   }
 
-  updateMacrosInSettings(Machine machine, List<String> macros) async {
-    _logger
+  updateMacrosInSettings(String machineUUID, List<String> macros) async {
+    Machine? machine = await _machineRepo.get(uuid: machineUUID);
+    if (machine== null) {
+      logger.e('Could not update macros, machine not found!');
+      return;
+    }
+    logger
         .i('Updating Default Macros for "${machine.name}(${machine.wsUrl})"!');
     MachineSettings machineSettings = await fetchSettings(machine);
     List<String> filteredMacros =
@@ -220,6 +244,8 @@ class MachineService {
       }
     }
 
+    if (filteredMacros.isEmpty) return;
+    logger.i('Adding ${filteredMacros.length} new macros to default group!');
     MacroGroup defaultGroup = modifiableMacroGrps
         .firstWhere((element) => element.name == 'Default', orElse: () {
       MacroGroup group = MacroGroup(name: 'Default');
@@ -232,14 +258,8 @@ class MachineService {
 
     defaultGroup.macros = modifiableDefaultGrpMacros;
     machineSettings.macroGroups = modifiableMacroGrps;
-    await _machineSettingsRepository.update(machineSettings);
-  }
-
-  dispose() {
-    fetchAll().then((machines) {
-      for (Machine machine in machines) {
-        machine.disposeServices();
-      }
-    });
+    await ref
+        .read(machineSettingsRepositoryProvider(machine.uuid))
+        .update(machineSettings);
   }
 }

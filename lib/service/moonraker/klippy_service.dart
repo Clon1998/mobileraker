@@ -2,76 +2,109 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:enum_to_string/enum_to_string.dart';
-import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/data/datasource/json_rpc_client.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/util/ref_extension.dart';
+
+final klipperServiceProvider = Provider.autoDispose
+    .family<KlippyService, String>(name: 'klipperServiceProvider',
+        (ref, machineUUID) {
+  ref.keepAlive();
+
+  return KlippyService(ref, machineUUID);
+});
+
+final klipperProvider = StreamProvider.autoDispose
+    .family<KlipperInstance, String>(name: 'klipperProvider',
+        (ref, machineUUID) {
+  ref.keepAlive();
+  return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
+});
+
+final klipperServiceSelectedProvider =
+    Provider.autoDispose(name: 'klipperServiceSelectedProvider', (ref) {
+  return ref.watch(klipperServiceProvider(
+      ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+});
+// StreamProvider<KlipperInstance>
+final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
+    name: 'klipperSelectedProvider', (ref) async* {
+  try {
+    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+
+    // ToDo: Remove woraround once StreamProvider.stream is fixed!
+    yield await ref.read(klipperProvider(machine.uuid).future);
+    yield* ref.watch(klipperProvider(machine.uuid).stream);
+  } on StateError catch (e, s) {
+    // Just catch it. It is expected that the future/where might not complete!
+  }
+});
 
 /// Service managing klippy-server stuff
 class KlippyService {
-  KlippyService(this._owner) {
+  KlippyService(this.ref, String machineUUID)
+      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
+    ref.onDispose(dispose);
+
     _jRpcClient.addMethodListener((m) {
-      KlipperInstance l = _latestKlippy;
-      l.klippyState = KlipperState.ready;
-      klipperStream.add(l);
-      _logger.i('State: notify_klippy_ready');
+      _current = _current.copyWith(klippyState: KlipperState.ready);
+      logger.i('State: notify_klippy_ready');
     }, "notify_klippy_ready");
 
     _jRpcClient.addMethodListener((m) {
-      KlipperInstance l = _latestKlippy;
-      l.klippyState = KlipperState.shutdown;
-      klipperStream.add(l);
-      _logger.i('State: notify_klippy_shutdown');
+      _current = _current.copyWith(klippyState: KlipperState.shutdown);
+      logger.i('State: notify_klippy_shutdown');
     }, "notify_klippy_shutdown");
 
     _jRpcClient.addMethodListener((m) {
-      KlipperInstance l = _latestKlippy;
-      l.klippyState = KlipperState.disconnected;
-      l.klippyStateMessage = null;
-      klipperStream.add(l);
-      _logger.i('State: notify_klippy_disconnected: $m');
+      _current = _current.copyWith(
+          klippyState: KlipperState.disconnected, klippyStateMessage: null);
+      logger.i('State: notify_klippy_disconnected: $m');
 
-      Future.delayed(Duration(seconds: 2)).then((value) =>
+      Future.delayed(const Duration(seconds: 2)).then((value) =>
           _fetchPrinterInfo()); // need to delay this until its bac connected!
     }, "notify_klippy_disconnected");
 
-    wsSubscription = _jRpcClient.stateStream.listen((value) {
-      switch (value) {
+    ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {
+      var data = next as AsyncValue<ClientState>;
+      switch (data.valueOrNull) {
         case ClientState.connected:
           _fetchServerInfo();
           _fetchPrinterInfo();
           break;
         case ClientState.disconnected:
         case ClientState.error:
-          KlipperInstance l = _latestKlippy;
-          l.klippyState = KlipperState.error;
-          l.klippyConnected = false;
-          klipperStream.add(l);
+          _current = _current.copyWith(
+              klippyConnected: false, klippyState: KlipperState.error);
           break;
         default:
       }
     });
   }
 
-  late final StreamSubscription<ClientState> wsSubscription;
+  final AutoDisposeRef ref;
 
-  final BehaviorSubject<KlipperInstance> klipperStream = BehaviorSubject.seeded(
-      KlipperInstance(
-          klippyConnected: false, klippyState: KlipperState.startup));
+  final JsonRpcClient _jRpcClient;
 
-  final Machine _owner;
-  final _logger = getLogger('KlippyService');
+  final StreamController<KlipperInstance> _klipperStreamCtler =
+      StreamController();
 
-  JsonRpcClient get _jRpcClient => _owner.jRpcClient;
+  Stream<KlipperInstance> get klipperStream => _klipperStreamCtler.stream;
 
-  //This is not useless since the steam is seeded now!
-  KlipperInstance get _latestKlippy {
-    return klipperStream.hasValue ? klipperStream.value : KlipperInstance();
+  KlipperInstance __current = const KlipperInstance();
+
+  set _current(KlipperInstance nI) {
+    __current = nI;
+    _klipperStreamCtler.add(nI);
   }
 
-  bool get isKlippyConnected =>
-      klipperStream.valueOrNull?.klippyConnected ?? false;
+  KlipperInstance get _current => __current;
+
+  bool get isKlippyConnected => _current.klippyConnected;
 
   restartMCUs() {
     _jRpcClient.sendJsonRpcWithCallback("printer.firmware_restart");
@@ -100,13 +133,13 @@ class KlippyService {
   }
 
   _fetchServerInfo() {
-    _logger.i('>>>Fetching Server.Info');
+    logger.i('>>>Fetching Server.Info');
     _jRpcClient.sendJsonRpcWithCallback("server.info",
         onReceive: _parseServerInfo);
   }
 
   _fetchPrinterInfo() {
-    _logger.i(">>>Fetching Printer.Info");
+    logger.i(">>>Fetching Printer.Info");
     _jRpcClient.sendJsonRpcWithCallback("printer.info",
         onReceive: _parsePrinterInfo);
   }
@@ -114,39 +147,46 @@ class KlippyService {
   _parseServerInfo(response, {err}) {
     if (err != null) return;
     var result = response['result'];
-    _logger.i('<<<Received Server.Info');
-    _logger.v('ServerInfo: ${JsonEncoder.withIndent('  ').convert(result)}');
+    logger.i('<<<Received Server.Info');
+    logger
+        .v('ServerInfo: ${const JsonEncoder.withIndent('  ').convert(result)}');
 
     KlipperState state =
         EnumToString.fromString(KlipperState.values, result['klippy_state'])!;
     bool con = result['klippy_connected'];
 
-    List<String> plugins =
-        (result.containsKey('plugins')) ? result['plugins'].cast<String>() : [];
-    KlipperInstance klipperInstance = _latestKlippy;
+    List<String> components = (result.containsKey('components'))
+        ? result['components'].cast<String>()
+        : [];
 
-    klipperInstance.klippyState = state;
-    klipperInstance.plugins = plugins;
-    klipperInstance.klippyConnected = con;
+    List<String> warnings = (result.containsKey('warnings'))
+        ? result['warnings'].cast<String>()
+        : [];
 
-    klipperStream.add(klipperInstance);
+    KlipperInstance klipperInstance = KlipperInstance(
+        klippyConnected: con,
+        klippyState: state,
+        components: components,
+        warnings: warnings);
+
+    _current = klipperInstance;
   }
 
   _parsePrinterInfo(response, {err}) {
     if (err != null) return;
     var result = response['result'];
-    _logger.i('<<<Received Printer.Info');
-    _logger.v('PrinterInfo: ${JsonEncoder.withIndent('  ').convert(result)}');
+    logger.i('<<<Received Printer.Info');
+    logger.v(
+        'PrinterInfo: ${const JsonEncoder.withIndent('  ').convert(result)}');
 
-    KlipperInstance latestKlippy = _latestKlippy;
-    _latestKlippy.klippyState =
-        EnumToString.fromString(KlipperState.values, result['state'])!;
-    _latestKlippy.klippyStateMessage = result['state_message'];
-    klipperStream.add(latestKlippy);
+    KlipperInstance latestKlippy = _current.copyWith(
+        klippyState:
+            EnumToString.fromString(KlipperState.values, result['state'])!,
+        klippyStateMessage: result['state_message']);
+    _current = latestKlippy;
   }
 
   dispose() {
-    wsSubscription.cancel();
-    klipperStream.close();
+    _klipperStreamCtler.close();
   }
 }

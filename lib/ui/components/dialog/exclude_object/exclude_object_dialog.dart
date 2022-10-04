@@ -3,37 +3,52 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_objects_viewmodel.dart';
-import 'package:mobileraker/ui/themes/theme_pack.dart';
-import 'package:stacked/stacked.dart';
-import 'package:stacked_services/stacked_services.dart';
+import 'package:mobileraker/ui/theme/theme_pack.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 import 'package:touchable/touchable.dart';
 import 'package:vector_math/vector_math.dart' as vec;
 
-class ExcludeObjectDialog
-    extends ViewModelBuilderWidget<ExcludeObjectViewModel> {
+class ExcludeObjectDialog extends ConsumerWidget {
   final DialogRequest request;
-  final Function(DialogResponse) completer;
+  final DialogCompleter completer;
 
-  ExcludeObjectDialog(
+  const ExcludeObjectDialog(
       {Key? key, required this.request, required this.completer})
       : super(key: key);
 
   @override
-  Widget builder(
-      BuildContext context, ExcludeObjectViewModel model, Widget? child) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ProviderScope(overrides: [
+      dialogCompleter.overrideWithValue(completer),
+      excludeObjectControllerProvider
+    ], child: const _ExcludeObjectDialog());
+  }
+}
+
+class _ExcludeObjectDialog extends ConsumerWidget {
+  const _ExcludeObjectDialog({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     ThemeData themeData = Theme.of(context);
-    return FormBuilder(
-        autoFocusOnValidationFailure: true,
-        key: model.formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: Dialog(
-            child: Padding(
+
+    return Dialog(
+      child: FormBuilder(
+        key: ref.watch(excludeObjectFormKey),
+        child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: (model.dataReady)
-              ? Column(
+          child: ref.watch(excludeObjectProvider).when<Widget>(
+              data: (ExcludeObject? data) {
+                var isConfirmed = ref.watch(conirmedProvider);
+                return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
@@ -41,102 +56,128 @@ class ExcludeObjectDialog
                       style: themeData.textTheme.titleLarge,
                       textAlign: TextAlign.center,
                     ).tr(),
-                    Divider(),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: ExcludeObject(),
+                    const Divider(),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: ExcludeObjectMap(),
                     ),
-                    if (model.confirmed)
-                      ListTile(
-                        tileColor: themeData.colorScheme.errorContainer,
-                        textColor: themeData.colorScheme.onErrorContainer,
-                        iconColor: themeData.colorScheme.onErrorContainer,
-                        leading: Icon(
-                          Icons.warning_amber_outlined,
-                          size: 40,
-                        ),
-                        title: Text(
-                          'dialogs.exclude_object.confirm_tile_title',
-                        ).tr(),
-                        subtitle:
-                            Text('dialogs.exclude_object.confirm_tile_subtitle')
-                                .tr(),
-                      ),
+                    AnimatedSwitcher(
+                        duration: kThemeAnimationDuration,
+                        switchInCurve: Curves.easeInCubic,
+                        switchOutCurve: Curves.easeOutCubic,
+                        transitionBuilder: (child, anim) => SizeTransition(
+                              sizeFactor:anim,
+                              child: ScaleTransition(
+                                  scale: anim,
+                                  child: FadeTransition(
+                                    opacity: anim,
+                                    child: child,
+                                  )),
+                            ),
+                        child: (isConfirmed)
+                            ? ListTile(
+                                tileColor: themeData.colorScheme.errorContainer,
+                                textColor:
+                                    themeData.colorScheme.onErrorContainer,
+                                iconColor:
+                                    themeData.colorScheme.onErrorContainer,
+                                leading: const Icon(
+                                  Icons.warning_amber_outlined,
+                                  size: 40,
+                                ),
+                                title: const Text(
+                                  'dialogs.exclude_object.confirm_tile_title',
+                                ).tr(),
+                                subtitle: const Text(
+                                        'dialogs.exclude_object.confirm_tile_subtitle')
+                                    .tr(),
+                              )
+                            : const SizedBox.shrink()),
                     FormBuilderDropdown<ParsedObject?>(
-                      initialValue: null,
-                      enabled: !model.confirmed,
+                      enabled: !isConfirmed,
                       validator: FormBuilderValidators.compose(
                           [FormBuilderValidators.required()]),
                       name: 'selected',
-                      items: model.excludeObject.canBeExcluded
+                      items: data!.canBeExcluded
                           .map((parsedObj) => DropdownMenuItem(
-                              value: parsedObj,
-                              child: Text('${parsedObj.name}')))
+                              value: parsedObj, child: Text(parsedObj.name)))
                           .toList(),
-                      onChanged: model.onSelectedObjectChanged,
+                      onChanged: ref
+                          .watch(excludeObjectControllerProvider.notifier)
+                          .onSelectedObjectChanged,
                       decoration: InputDecoration(
                         labelText: 'dialogs.exclude_object.label'.tr(),
                       ),
                     ),
-                    (model.confirmed) ? ExcludeBtnRow() : DefaultBtnRow()
+                    (isConfirmed)
+                        ? const ExcludeBtnRow()
+                        : const DefaultBtnRow()
                   ],
-                )
-              : Text('Waiting for data...'),
-        )));
-  }
-
-  @override
-  ExcludeObjectViewModel viewModelBuilder(BuildContext context) {
-    return ExcludeObjectViewModel(request, completer);
+                );
+              },
+              error: (e, s) => const Text('Error while loading excludeObject'),
+              loading: () => FadingText('Waiting for data...')),
+        ),
+      ),
+    );
   }
 }
 
-class DefaultBtnRow extends ViewModelWidget<ExcludeObjectViewModel> {
+class DefaultBtnRow extends ConsumerWidget {
   const DefaultBtnRow({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ExcludeObjectViewModel model) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TextButton(
-          onPressed: model.closeForm,
+          onPressed:
+              ref.watch(excludeObjectControllerProvider.notifier).closeForm,
           child: Text(MaterialLocalizations.of(context)
               .cancelButtonLabel
               .toLowerCase()
               .titleCase()),
         ),
         TextButton(
-          onPressed: (model.formValid && model.canExclude)
-              ? model.onExcludePressed
+          onPressed: ((ref.watch(excludeObjectProvider.select(
+                          (data) => data.valueOrNull?.objects.length ?? 0))) >
+                      1 &&
+                  ref.watch(excludeObjectControllerProvider) != null)
+              ? ref
+                  .watch(excludeObjectControllerProvider.notifier)
+                  .onExcludePressed
               : null,
-          child: Text('dialogs.exclude_object.exclude').tr(),
+          child: const Text('dialogs.exclude_object.exclude').tr(),
         )
       ],
     );
   }
 }
 
-class ExcludeBtnRow extends ViewModelWidget<ExcludeObjectViewModel> {
+class ExcludeBtnRow extends ConsumerWidget {
   const ExcludeBtnRow({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ExcludeObjectViewModel model) {
+  Widget build(BuildContext context, WidgetRef ref) {
     ThemeData themeData = Theme.of(context);
     CustomColors? customColors = themeData.extension<CustomColors>();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TextButton(
-          onPressed: model.onBackPressed,
+          onPressed: () => ref.read(conirmedProvider.notifier).state = false,
           child: Text(MaterialLocalizations.of(context).backButtonTooltip),
         ),
         TextButton(
-          onPressed: model.onCofirmPressed,
+          onPressed: ref
+              .watch(excludeObjectControllerProvider.notifier)
+              .onCofirmPressed,
           child: Text(
             'general.confirm',
             style: TextStyle(color: customColors?.danger),
@@ -147,19 +188,31 @@ class ExcludeBtnRow extends ViewModelWidget<ExcludeObjectViewModel> {
   }
 }
 
-class ExcludeObject extends ViewModelWidget<ExcludeObjectViewModel> {
-  const ExcludeObject({
+class ExcludeObjectMap extends ConsumerWidget {
+  const ExcludeObjectMap({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ExcludeObjectViewModel model) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ConfigFile config = ref
+        .watch(printerSelectedProvider.selectAs((data) => data.configFile))
+        .valueOrFullNull!;
+
     return AspectRatio(
-      aspectRatio: model.sizeX / model.sizeY,
+      aspectRatio: config.sizeX / config.sizeY,
       child: CanvasTouchDetector(
-          gesturesToOverride: [GestureType.onTapDown, GestureType.onTapUp],
-          builder: (context) =>
-              CustomPaint(painter: ExcludeObjectPainter(context, model))),
+          gesturesToOverride: const [
+            GestureType.onTapDown,
+            GestureType.onTapUp
+          ],
+          builder: (context) => CustomPaint(
+              painter: ExcludeObjectPainter(
+                  context,
+                  ref.watch(excludeObjectControllerProvider.notifier),
+                  ref.watch(excludeObjectProvider).valueOrFullNull!,
+                  ref.watch(excludeObjectControllerProvider),
+                  config))),
     );
   }
 }
@@ -167,15 +220,19 @@ class ExcludeObject extends ViewModelWidget<ExcludeObjectViewModel> {
 class ExcludeObjectPainter extends CustomPainter {
   static const double bgLineDis = 50;
 
+  ExcludeObjectPainter(this.context, this.controller, this.excludeObject,
+      this.selected, this.config)
+      : obj = selected;
+
   final BuildContext context;
-  final ExcludeObjectViewModel model;
+  final ExcludeObjectController controller;
+  final ExcludeObject excludeObject;
+  final ParsedObject? selected;
+  final ConfigFile config;
 
-  ExcludeObjectPainter(this.context, this.model)
-      : this.obj = model.selectedObject;
+  double get _maxXBed => config.sizeX;
 
-  double get _maxXBed => model.sizeX;
-
-  double get _maxYBed => model.sizeY;
+  double get _maxYBed => config.sizeY;
 
   ParsedObject? obj;
 
@@ -183,15 +240,27 @@ class ExcludeObjectPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     TouchyCanvas myCanvas = TouchyCanvas(context, canvas);
 
+    Color paintBgCol, paintObjCol, paintObjExcludedCol;
+    if (Theme.of(context).brightness == Brightness.dark) {
+      paintObjCol = Theme.of(context).colorScheme.onSurface;
+
+      paintBgCol = paintObjCol.darken(60);
+      paintObjExcludedCol = paintObjCol.darken(35);
+    } else {
+      paintObjCol = Theme.of(context).colorScheme.onSurface.lighten(20);
+      paintBgCol = paintObjCol.lighten(30);
+      paintObjExcludedCol = paintObjCol.darken(15);
+    }
+
     var paintBg = Paint()
-      ..color = Theme.of(context).colorScheme.onSurface.darken(60)
+      ..color = paintBgCol
       ..strokeWidth = 2;
 
     var paintObj = Paint()
-      ..color = Theme.of(context).colorScheme.onSurface
+      ..color = paintObjCol
       ..strokeWidth = 2;
     var paintObjExcluded = Paint()
-      ..color = Theme.of(context).colorScheme.onSurface.darken(35)
+      ..color = paintObjExcludedCol
       ..strokeWidth = 2;
 
     Paint paintSelected = Paint()
@@ -206,29 +275,29 @@ class ExcludeObjectPainter extends CustomPainter {
     drawYLines(maxY, myCanvas, maxX, paintBg);
 
     bool tmp = false;
-    for (ParsedObject obj in model.excludeObject.objects) {
+    for (ParsedObject obj in excludeObject.objects) {
       List<vec.Vector2> polygons = obj.polygons;
       if (polygons.isEmpty) continue;
       tmp = true;
       Path path = constructPath(polygons, maxX, maxY);
 
-      if (model.excludeObject.excludedObjects.contains(obj.name)) {
+      if (excludeObject.excludedObjects.contains(obj.name)) {
         myCanvas.drawPath(path, paintObjExcluded);
       } else {
         myCanvas.drawPath(path, paintObj,
-            onTapDown: (x) => model.onPathTapped(obj));
-        if (model.selectedObject == obj) myCanvas.drawPath(path, paintSelected);
+            onTapDown: (x) => controller.onPathTapped(obj));
+        if (selected == obj) myCanvas.drawPath(path, paintSelected);
       }
     }
     if (!tmp) drawNoDataText(canvas, maxX, maxY);
   }
 
   void drawNoDataText(Canvas canvas, double maxX, double maxY) {
-    TextSpan span = new TextSpan(
+    TextSpan span = TextSpan(
       text: 'dialogs.exclude_object.no_visualization'.tr(),
       style: Theme.of(context).textTheme.headline4,
     );
-    TextPainter tp = new TextPainter(
+    TextPainter tp = TextPainter(
         text: span,
         textAlign: TextAlign.center,
         textDirection: TextDirection.ltr);
@@ -270,6 +339,6 @@ class ExcludeObjectPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return obj != model.selectedObject;
+    return false;
   }
 }

@@ -1,28 +1,32 @@
-import 'package:mobileraker/app/app_setup.locator.dart';
-import 'package:mobileraker/app/app_setup.logger.dart';
-import 'package:mobileraker/data/datasource/json_rpc_client.dart';
-import 'package:mobileraker/data/datasource/moonraker_database_client.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 
 import 'machine_settings_repository.dart';
 
+final machineSettingsRepositoryProvider =
+    Provider.autoDispose.family<MachineSettingsRepository, String>((ref, machineUUID) {
+  return MachineSettingsMoonrakerRepository(
+      ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
+});
+
 class MachineSettingsMoonrakerRepository implements MachineSettingsRepository {
-  final _logger = getLogger('MachineSettingsMoonrakerRepository');
-  final _databaseService = locator<MoonrakerDatabaseClient>();
+  MachineSettingsMoonrakerRepository(this._databaseService);
+
+  final MoonrakerDatabaseClient _databaseService;
 
   @override
-  Future<void> update(MachineSettings machineSettings,
-      [JsonRpcClient? jsonRpcClient]) async {
+  Future<void> update(MachineSettings machineSettings) async {
     machineSettings.lastModified = DateTime.now();
 
     await _databaseService.addDatabaseItem(
-        'mobileraker', 'settings', machineSettings, jsonRpcClient);
+        'mobileraker', 'settings', machineSettings);
   }
 
   @override
-  Future<MachineSettings?> get([JsonRpcClient? jsonRpcClient]) async {
-    var json = await _databaseService.getDatabaseItem('mobileraker',
-        key: 'settings', client: jsonRpcClient);
+  Future<MachineSettings?> get() async {
+    var json =
+        await _databaseService.getDatabaseItem('mobileraker', key: 'settings');
     if (json == null) return null;
     return MachineSettings.fromJson(json);
   }

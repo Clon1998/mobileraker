@@ -1,19 +1,11 @@
-class OutputPin {
-  String name;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  // This value is between 0-1
-  double value = 0.0;
+part 'output_pin.freezed.dart';
 
-  OutputPin(this.name);
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is OutputPin &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          value == other.value;
-
-  @override
-  int get hashCode => name.hashCode ^ value.hashCode;
+@freezed
+class OutputPin with _$OutputPin {
+  const factory OutputPin({
+    required String name,
+    @Default(0.0) double value,
+  }) = _OutputPin;
 }

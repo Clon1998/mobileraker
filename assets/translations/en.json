@@ -3,6 +3,7 @@
     "resume": "Resume",
     "connected": "Connected",
     "off": "Off",
+    "on": "On",
     "none": "None",
     "add": "Add",
     "create": "Create",
@@ -30,11 +31,16 @@
       "general": {
         "print_card": {
           "reset": "Reset",
-          "printing_for": "Printing: {}\nFor: {}",
+          "printing_for": "Printing: {}",
           "speed": "Speed",
           "layer": "Layer",
           "eta": "ETA",
-          "current_object": "Current Object"
+          "current_object": "Current Object",
+          "elapsed": "Elapsed",
+          "flow": "Flow",
+          "filament": "Filament",
+          "filament_used": "Used {} % of Filament, that is {} m of the {} m predicted."
+
         },
         "cam_card": {
           "webcam": "Webcam",
@@ -63,11 +69,15 @@
           "home_all_btn": "All",
           "qgl_tooltip": "Run Quad-Gantry leveling",
           "qgl_btn": "QGL",
-          "mesh_tooltip": "Run bed-mesh Calibration",
+          "mesh_tooltip": "Run Med-Mesh calibration",
           "mesh_btn": "Mesh",
           "m84_tooltip": "Disable Motors",
           "m84_btn": "M84",
-          "step_size": "Step size"
+          "step_size": "Step size",
+          "stc_tooltip": "Run Screws-Tilt calculation",
+          "stc_btn": "STC",
+          "ztilt_tooltip": "Run Z-Tilt calibration",
+          "ztilt_btn": "zTilt"
         },
         "baby_step_card": {
           "title": "Babystepping Z-Axis"
@@ -102,6 +112,10 @@
             "two": "Output Pins",
             "other": "Output Pins"
           },
+          "pin_btn": "Pin"
+        },
+        "power_card": {
+          "title": "Power Panel",
           "pin_btn": "Pin"
         },
         "multipl_card": {
@@ -153,6 +167,14 @@
         },
         "stat_card": {
           "title": "Statistics"
+        },
+        "preheat_dialog": {
+          "title": "@:pages.files.details.preheat ?",
+          "body": "Target Temperatures\nExtruder: {}°C\nBed: {}°C"
+        },
+        "preheat_snackbar": {
+          "title": "Started Preheating",
+          "body": "Extruder: {}°C\nBed: {}°C"
         }
       }
     },
@@ -164,15 +186,18 @@
         "always_baby": "Always show Babystepping Card",
         "num_edit": "Use keyboard for number input",
         "start_with_overview": "Show @:pages.overview.title by default",
+        "use_offset_pos": "Show coordinates with offset applied.",
         "language": "Language",
-        "companion": "Learn how to setup Mobileraker's Companion on its "
+        "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its "
       },
       "notification": {
         "title": "Notification",
         "progress_label": "Progress Notification",
         "progress_helper": "Update interval for print progress notification",
         "no_permission_title": "No Notification Permission!",
-        "no_permission_desc": "Can not display notifications.\nRequest permission by clicking!"
+        "no_permission_desc": "Can not display notifications.\nRequest permission by clicking!",
+        "ios_notifications_title": "IOS Notification Delivery",
+        "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!"
       },
       "imprint": "Privacy/Impressum"
     },
@@ -190,7 +215,8 @@
         "ws_addr": "Websocket - Address",
         "moonraker_api_key": "Moonraker - API Key",
         "moonraker_api_desc": "Only needed if youre using trusted clients. FluiddPI enforces this!",
-        "full_url": "Full URL"
+        "full_url": "Full URL",
+        "self_signed": "Trust Self-Signed Certificates"
       },
       "motion_system": {
         "title": "Motion System",
@@ -268,6 +294,9 @@
     }
   },
   "components": {
+    "pull_to_refresh": {
+      "pull_up_idle" : "Pull up to Refresh"
+    },
     "nav_drawer": {
       "printer_settings": "Printer Settings",
       "manage_printers": "Manage Printers",
@@ -317,6 +346,10 @@
       "confirm_tile_subtitle": "This operation cannot be undone!",
       "exclude": "Exclude",
       "no_visualization": "No visualization data available!"
+    },
+    "ws_input_help": {
+      "title": "URL Input Help",
+      "body": "You can either enter an IP, URL or full URI to your webinterface or directly to the websocket instance provided by moonraker.\n\nValid Examples:"
     }
   },
   "klipper_state": {

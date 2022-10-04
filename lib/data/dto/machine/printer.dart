@@ -1,42 +1,118 @@
-import 'package:flutter/foundation.dart';
-import 'package:mobileraker/data/dto/config/config_file.dart';
-import 'package:mobileraker/data/dto/machine/exclude_object.dart';
-import 'package:mobileraker/data/dto/machine/extruder.dart';
-import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
-import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
-import 'package:mobileraker/data/dto/machine/gcode_move.dart';
-import 'package:mobileraker/data/dto/machine/heater_bed.dart';
-import 'package:mobileraker/data/dto/machine/output_pin.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
-import 'package:mobileraker/data/dto/machine/toolhead.dart';
-import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/dto/machine/display_status.dart';
+import 'package:mobileraker/data/dto/machine/motion_report.dart';
+import 'package:mobileraker/exceptions.dart';
 
-class Printer {
-  Toolhead toolhead = Toolhead();
-  List<Extruder?> extruders = [Extruder(0)];// 1 exgruder always present!
-  HeaterBed heaterBed = HeaterBed();
-  PrintFan printFan = PrintFan();
-  GCodeMove gCodeMove = GCodeMove();
-  PrintStats print = PrintStats();
+import '../config/config_file.dart';
+import 'exclude_object.dart';
+import 'extruder.dart';
+import 'fans/named_fan.dart';
+import 'fans/print_fan.dart';
+import 'gcode_move.dart';
+import 'heater_bed.dart';
+import 'output_pin.dart';
+import 'print_stats.dart';
+import 'temperature_sensor.dart';
+import 'toolhead.dart';
+import 'virtual_sd_card.dart';
 
-  ExcludeObject excludeObject = ExcludeObject();
+part 'printer.freezed.dart';
 
-  ConfigFile configFile = ConfigFile();
+class PrinterBuilder {
+  PrinterBuilder();
+  PrinterBuilder.fromPrinter(Printer printer)
+      : toolhead = printer.toolhead,
+        extruders = printer.extruders,
+        heaterBed = printer.heaterBed,
+        printFan = printer.printFan,
+        gCodeMove = printer.gCodeMove,
+        print = printer.print,
+        excludeObject = printer.excludeObject,
+        configFile = printer.configFile,
+        virtualSdCard = printer.virtualSdCard,
+        fans = printer.fans,
+        temperatureSensors = printer.temperatureSensors,
+        outputPins = printer.outputPins,
+        queryableObjects = printer.queryableObjects,
+        gcodeMacros = printer.gcodeMacros,
+        motionReport = printer.motionReport,
+        displayStatus = printer.displayStatus;
 
-  Set<NamedFan> fans = {};
-
-  Set<TemperatureSensor> temperatureSensors = {};
-  Set<OutputPin> outputPins = {};
-
-  VirtualSdCard virtualSdCard = VirtualSdCard();
-
+  Toolhead? toolhead;
+  List<Extruder> extruders = [];
+  HeaterBed? heaterBed;
+  PrintFan? printFan;
+  GCodeMove? gCodeMove;
+  MotionReport? motionReport;
+  DisplayStatus? displayStatus;
+  PrintStats? print;
+  ExcludeObject? excludeObject;
+  ConfigFile? configFile;
+  VirtualSdCard? virtualSdCard;
+  List<NamedFan> fans = [];
+  List<TemperatureSensor> temperatureSensors = [];
+  List<OutputPin> outputPins = [];
   List<String> queryableObjects = [];
   List<String> gcodeMacros = [];
 
+  Printer build() {
+    if (toolhead == null ||
+        heaterBed == null ||
+        printFan == null ||
+        gCodeMove == null ||
+        motionReport == null ||
+        displayStatus == null ||
+        print == null ||
+        configFile == null ||
+        virtualSdCard == null) {
+      throw const MobilerakerException('Missing field');
+    }
+    var printer = Printer(
+        toolhead: toolhead!,
+        extruders: extruders,
+        heaterBed: heaterBed!,
+        printFan: printFan!,
+        gCodeMove: gCodeMove!,
+        motionReport: motionReport!,
+        displayStatus: displayStatus!,
+        print: print!,
+        excludeObject: excludeObject,
+        configFile: configFile!,
+        virtualSdCard: virtualSdCard!,
+        fans: fans,
+        temperatureSensors: temperatureSensors,
+        outputPins: outputPins,
+        queryableObjects: queryableObjects,
+        gcodeMacros: gcodeMacros);
+    return printer;
+  }
+}
+
+@freezed
+class Printer with _$Printer {
+  const Printer._();
+
+  const factory Printer({
+    required Toolhead toolhead,
+    required List<Extruder> extruders,
+    required HeaterBed heaterBed,
+    required PrintFan printFan,
+    required GCodeMove gCodeMove,
+    required MotionReport motionReport,
+    required DisplayStatus displayStatus,
+    required PrintStats print,
+    ExcludeObject? excludeObject,
+    required ConfigFile configFile,
+    required VirtualSdCard virtualSdCard,
+    @Default([]) List<NamedFan> fans,
+    @Default([]) List<TemperatureSensor> temperatureSensors,
+    @Default([]) List<OutputPin> outputPins,
+    @Default([]) List<String> queryableObjects,
+    @Default([]) List<String> gcodeMacros,
+  }) = _Printer;
+
   Extruder get extruder =>
-      extruders[0]!; // Fast way for first extruder -> always present!
+      extruders[0]; // Fast way for first extruder -> always present!
 
   int get extruderCount => extruders.length;
 
@@ -44,73 +120,10 @@ class Printer {
 
   DateTime? get eta {
     if ((this.print.printDuration) > 0 && (virtualSdCard.progress) > 0) {
-      var est =
-          print.printDuration / virtualSdCard.progress - print.printDuration;
+      var est = this.print.printDuration / virtualSdCard.progress -
+          this.print.printDuration;
       return DateTime.now().add(Duration(seconds: est.round()));
     }
     return null;
   }
-
-  /// Expects that the extruder is available prev.
-  Extruder extruderFromIndex(int num) {
-    return extruders[num]!;
-  }
-
-  /// Creates a new Extruder if missing else returns current one!
-  Extruder extruderIfAbsence(int num) {
-    if (num >= extruders.length) {
-      extruders.length = num + 1;
-      Extruder element = Extruder(num);
-      extruders[num] = element;
-      return element;
-    }
-
-    Extruder? extruder = extruders[num];
-    if (extruder != null) return extruder;
-
-    Extruder element = Extruder(num);
-    extruders[num] = element;
-
-    return element;
-  }
-
-  @override
-  String toString() {
-    return 'Printer{toolhead: $toolhead, extruder: $extruder, heaterBed: $heaterBed, printFan: $printFan, gCodeMove: $gCodeMove, print: $print, configFile: $configFile, fans: $fans, temperatureSensors: $temperatureSensors, outputPins: $outputPins, virtualSdCard: $virtualSdCard, queryableObjects: $queryableObjects, gcodeMacros: $gcodeMacros}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Printer &&
-          runtimeType == other.runtimeType &&
-          toolhead == other.toolhead &&
-          heaterBed == other.heaterBed &&
-          printFan == other.printFan &&
-          gCodeMove == other.gCodeMove &&
-          print == other.print &&
-          configFile == other.configFile &&
-          setEquals(fans, other.fans) &&
-          setEquals(temperatureSensors, other.temperatureSensors) &&
-          setEquals(outputPins, other.outputPins) &&
-          virtualSdCard == other.virtualSdCard &&
-          listEquals(queryableObjects, other.queryableObjects) &&
-          listEquals(gcodeMacros, other.gcodeMacros) &&
-          listEquals(extruders, other.extruders);
-
-  @override
-  int get hashCode =>
-      toolhead.hashCode ^
-      heaterBed.hashCode ^
-      printFan.hashCode ^
-      gCodeMove.hashCode ^
-      print.hashCode ^
-      configFile.hashCode ^
-      fans.hashIterable ^
-      temperatureSensors.hashIterable ^
-      outputPins.hashIterable ^
-      virtualSdCard.hashCode ^
-      queryableObjects.hashCode ^
-      gcodeMacros.hashCode^
-      extruders.hashIterable;
 }

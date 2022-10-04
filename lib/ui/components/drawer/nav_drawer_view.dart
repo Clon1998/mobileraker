@@ -3,87 +3,81 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:mobileraker/app/app_setup.router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/theme_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_viewmodel.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
-import 'package:stacked/stacked.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-class NavigationDrawerWidget
-    extends ViewModelBuilderWidget<NavDrawerViewModel> {
-  final String curPath;
+const double baseIconSize = 20;
+const basePadding = EdgeInsets.only(left: 16, right: 16);
 
-  const NavigationDrawerWidget({required this.curPath});
-
-  @override
-  NavDrawerViewModel viewModelBuilder(BuildContext context) =>
-      NavDrawerViewModel(curPath);
+class NavigationDrawerWidget extends ConsumerWidget {
+  const NavigationDrawerWidget({super.key});
 
   @override
-  Widget builder(
-      BuildContext context, NavDrawerViewModel model, Widget? child) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
 
     return Drawer(
       child: Column(
         children: [
-          _NavHeader(),
+          const _NavHeader(),
           Expanded(
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _PrinterSelection(),
-                  if ((model.data?.length ?? 0) > 1) ...[
+                  const _PrinterSelection(),
+                  if ((ref.watch(allMachinesProvider.select(
+                              (value) => value.valueOrFullNull?.length)) ??
+                          0) >
+                      1) ...[
                     _DrawerItem(
                       text: 'pages.overview.title'.tr(),
                       icon: FlutterIcons.view_dashboard_mco,
-                      path: Routes.overViewView,
+                      routeName: '/overview',
                     ),
                     const Divider(),
                   ],
                   _DrawerItem(
                     text: 'pages.dashboard.title'.tr(),
                     icon: FlutterIcons.printer_3d_nozzle_mco,
-                    path: Routes.dashboardView,
+                    routeName: '/',
                   ),
                   _DrawerItem(
                     text: 'pages.console.title'.tr(),
                     icon: Icons.terminal,
-                    path: Routes.consoleView,
+                    routeName: '/console',
                   ),
                   _DrawerItem(
                     text: 'pages.files.title'.tr(),
                     icon: Icons.file_present,
-                    path: Routes.filesView,
+                    routeName: '/files',
                   ),
                   const Divider(),
                   _DrawerItem(
                     text: 'pages.setting.title'.tr(),
                     icon: Icons.engineering_outlined,
-                    path: Routes.settingView,
+                    routeName: '/setting',
                   ),
                   if (kDebugMode)
-                    _DrawerItem(
+                    const _DrawerItem(
                       text: 'Support the Dev!',
                       icon: Icons.perm_identity,
-                      path: Routes.paywallView,
+                      routeName: '/dev',
                     ),
-                  // Divider(color: Colors.white70),
-                  // const SizedBox(height: 16),
-                  // buildMenuItem(
-                  //   text: 'Notifications',
-                  //   icon: Icons.notifications_outlined,
-                  //   onClicked: () => selectedItem(context, 5),
-                  // ),
                 ],
               ),
             ),
           ),
           Container(
               alignment: Alignment.center,
-              padding: EdgeInsets.only(bottom: 20, top: 10),
+              padding: const EdgeInsets.only(bottom: 20, top: 10),
               child: RichText(
                 text: TextSpan(
                     style: themeData.textTheme.bodySmall!
@@ -94,10 +88,9 @@ class NavigationDrawerWidget
                         text: ' GitHub ',
                         style:
                             TextStyle(color: themeData.colorScheme.secondary),
-                        children: [
+                        children: const [
                           WidgetSpan(
-                            child: const Icon(FlutterIcons.github_alt_faw,
-                                size: 18),
+                            child: Icon(FlutterIcons.github_alt_faw, size: 18),
                           ),
                         ],
                         recognizer: TapGestureRecognizer()
@@ -105,7 +98,6 @@ class NavigationDrawerWidget
                             const String url =
                                 'https://github.com/Clon1998/mobileraker';
                             if (await canLaunchUrlString(url)) {
-                              //TODO Fix this... neds Android Package Visibility
                               await launchUrlString(url);
                             } else {
                               throw 'Could not launch $url';
@@ -114,12 +106,13 @@ class NavigationDrawerWidget
                       ),
                       const TextSpan(text: '\n\n'),
                       TextSpan(
-                        text: tr('pages.setting.imprint'),
-                        style:
-                            TextStyle(color: themeData.colorScheme.secondary),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = model.navigateToLegal,
-                      ),
+                          text: tr('pages.setting.imprint'),
+                          style:
+                              TextStyle(color: themeData.colorScheme.secondary),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () => ref
+                                .read(navDrawerControllerProvider.notifier)
+                                .pushingTo('/imprint')),
                     ]),
                 textAlign: TextAlign.center,
               )),
@@ -127,23 +120,18 @@ class NavigationDrawerWidget
       ),
     );
   } // Note always the first is the currently selected!
-
-// Widget buildFooter() {
-//   return Row(children: [
-//     TextButton(onPressed: onPressed, child: Text('Imprint'))
-//   ]);
-// }
 }
 
-class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
+class _NavHeader extends ConsumerWidget {
   const _NavHeader({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, NavDrawerViewModel model) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
+    var themePack = ref.watch(activeThemeProvider).value!.themePack;
     var brandingIcon = (themeData.brightness == Brightness.light)
-        ? context.themeService.selectedThemePack.brandingIcon
-        : context.themeService.selectedThemePack.brandingIconDark;
+        ? themePack.brandingIcon
+        : themePack.brandingIconDark;
     var background = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.primary
         : themeData.colorScheme.surfaceVariant;
@@ -151,6 +139,13 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
         ? themeData.colorScheme.onPrimary
         : themeData.colorScheme.onSurfaceVariant;
 
+    var neverNullMachineAsyncData = ref
+        .watch(selectedMachineProvider)
+        .maybeMap<AsyncValue<Machine>>(
+            orElse: () => const AsyncValue.loading(),
+            data: (data) => data.value != null
+                ? AsyncData(data.value!)
+                : const AsyncValue.loading());
     return DrawerHeader(
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
@@ -158,52 +153,74 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Image(
-                          height: 60,
-                          width: 60,
-                          image: brandingIcon ??
-                              const AssetImage('assets/icon/mr_logo.png')),
-                      Flexible(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              model.selectedPrinterDisplayName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.titleLarge
-                                  ?.copyWith(color: onBackground),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              model.printerUrl,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: themeData.textTheme.subtitle2
-                                  ?.copyWith(color: onBackground),
-                            ),
-                          ],
+            InkWell(
+              onTap: () {
+                if (neverNullMachineAsyncData.hasValue) {
+                  ref.read(navDrawerControllerProvider.notifier).pushingTo(
+                      '/printer/edit',
+                      arguments: neverNullMachineAsyncData.value!);
+                } else {
+                  ref
+                      .read(navDrawerControllerProvider.notifier)
+                      .pushingTo('/printer/add');
+                }
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Image(
+                            height: 60,
+                            width: 60,
+                            image: brandingIcon ??
+                                const AssetImage('assets/icon/mr_logo.png')),
+                        Flexible(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                neverNullMachineAsyncData.maybeWhen<String>(
+                                    orElse: () => 'NO PRINTER',
+                                    data: (data) => data.name),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: themeData.textTheme.titleLarge
+                                    ?.copyWith(color: onBackground),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                neverNullMachineAsyncData.maybeWhen(
+                                    orElse: () => 'Add printer first',
+                                    data: (machine) =>
+                                        Uri.tryParse(machine.httpUrl)?.host ??
+                                        machine.httpUrl),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: themeData.textTheme.subtitle2
+                                    ?.copyWith(color: onBackground),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                IconButton(
-                    onPressed: () => model.onEditTap(null),
-                    tooltip: 'components.nav_drawer.printer_settings'.tr(),
-                    icon: Icon(
-                      FlutterIcons.settings_fea,
-                      color: onBackground,
-                      size: 27,
-                    ))
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Tooltip(
+                      message: 'components.nav_drawer.printer_settings'.tr(),
+                      child: Icon(
+                        FlutterIcons.settings_mdi,
+                        color: themeData.colorScheme.secondary,
+                        size: 27,
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
             ListTile(
               title: Text(
@@ -212,122 +229,157 @@ class _NavHeader extends ViewModelWidget<NavDrawerViewModel> {
               ).tr(),
               trailing: AnimatedRotation(
                   duration: kThemeAnimationDuration,
-                  curve: Curves.easeOutCubic,
-                  turns: model.isManagePrintersExpanded ? 0 : 0.5,
+                  curve: Curves.easeInOutCubic,
+                  turns: ref.watch(navDrawerControllerProvider) ? 0 : 0.5,
                   child: Icon(
                     Icons.expand_less,
                     color: onBackground,
                   )),
-              onTap: model.toggleManagePrintersExpanded,
+              onTap: ref
+                  .read(navDrawerControllerProvider.notifier)
+                  .toggleManagePrintersExpanded,
             )
           ],
         ));
   }
 }
 
-class _DrawerItem extends ViewModelWidget<NavDrawerViewModel> {
-  _DrawerItem(
-      {required this.text,
-      required this.icon,
-      required this.path,
-      this.onClicked});
+class _DrawerItem extends ConsumerWidget {
+  const _DrawerItem(
+      {required this.text, required this.icon, required this.routeName});
 
   final String text;
   final IconData icon;
-  final String path;
-  final VoidCallback? onClicked;
+  final String routeName;
 
   @override
-  Widget build(BuildContext context, NavDrawerViewModel model) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var selectedTileColor = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.surfaceVariant
         : themeData.colorScheme.primaryContainer.withOpacity(.1);
 
     return ListTile(
-      selected: model.isSelected(path),
+      selected: ref.watch(goRouterProvider).location == routeName,
       selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
       textColor: themeData.colorScheme.onBackground,
       leading: Icon(icon),
       title: Text(text),
-      onTap: onClicked ?? () => model.navigateMenu(path),
+      onTap: () =>
+          ref.read(navDrawerControllerProvider.notifier).navigateTo(routeName),
     );
   }
 }
 
-class _PrinterSelection extends ViewModelWidget<NavDrawerViewModel> {
-  static const double baseIconSize = 20;
-  static const basePadding = const EdgeInsets.only(left: 16, right: 16);
+class _PrinterSelection extends ConsumerWidget {
+  const _PrinterSelection({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, NavDrawerViewModel model) {
-    List<Machine> printers = model.dataReady ? model.printers : [];
+  Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var onBackGroundColor = themeData.colorScheme.onBackground;
+    var isExpanded = ref.watch(navDrawerControllerProvider);
+    var selMachine = ref.watch(selectedMachineProvider);
+
+    return AnimatedSwitcher(
+      duration: kThemeAnimationDuration,
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeOutBack,
+      transitionBuilder: (child, anim) => SizeTransition(
+        sizeFactor: anim,
+        child: FadeTransition(
+          opacity: anim,
+          child: child,
+        ),
+      ),
+      child: (isExpanded)
+          ? Column(
+              children: [
+                if (selMachine.valueOrFullNull != null)
+                  _MachineTile(
+                    machine: selMachine.value!,
+                    isSelected: true,
+                  ),
+                ...ref
+                    .watch(allMachinesProvider.selectAs((data) => data.where(
+                        (element) =>
+                            element.uuid != selMachine.valueOrFullNull?.uuid)))
+                    .maybeWhen(
+                        orElse: () => [
+                              ListTile(
+                                title: FadingText(
+                                    'components.nav_drawer.fetching_printers'
+                                        .tr()),
+                                contentPadding: basePadding,
+                              )
+                            ],
+                        data: (data) {
+                          return List.generate(data.length, (index) {
+                            Machine curPS = data.elementAt(index);
+                            return _MachineTile(machine: curPS);
+                          });
+                        }),
+                ListTile(
+                  title: const Text('pages.printer_add.title').tr(),
+                  contentPadding: basePadding,
+                  textColor: themeData.colorScheme.onBackground,
+                  iconColor: themeData.colorScheme.onBackground,
+                  trailing: const Icon(
+                    Icons.add,
+                    size: baseIconSize,
+                  ),
+                  onTap: () => ref
+                      .read(navDrawerControllerProvider.notifier)
+                      .pushingTo('/printer/add'),
+                )
+              ],
+            )
+          : const SizedBox.shrink(),
+    );
+  }
+}
+
+class _MachineTile extends ConsumerWidget {
+  const _MachineTile({
+    Key? key,
+    required this.machine,
+    this.isSelected = false,
+  }) : super(key: key);
+
+  final Machine machine;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
     var selectedTileColor = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.surfaceVariant
         : themeData.colorScheme.primaryContainer.withOpacity(.1);
 
-    return AnimatedContainer(
-      height: model.isManagePrintersExpanded
-          ? kToolbarHeight * (printers.length + 1)
-          : 0,
-      duration: kThemeAnimationDuration,
-      curve: Curves.easeOutCubic,
-      child: AnimatedOpacity(
-        opacity: model.isManagePrintersExpanded ? 1 : 0,
-        curve: Curves.easeOutCubic,
-        duration: kThemeAnimationDuration,
-        child: ListView(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          children: [
-            if (!model.dataReady)
-              ListTile(
-                title:
-                    FadingText('components.nav_drawer.fetching_printers'.tr()),
-                contentPadding: basePadding,
-              )
-            else
-              ...List.generate(printers.length, (index) {
-                Machine curPS = printers[index];
-                return ListTile(
-                  title: Text(
-                    curPS.name,
-                    maxLines: 1,
-                  ),
-                  trailing: Icon(
-                    index == 0 ? Icons.check : Icons.arrow_forward_ios_sharp,
-                    size: baseIconSize,
-                  ),
-                  selectedTileColor: model.isManagePrintersExpanded
-                      ? selectedTileColor
-                      : Colors.transparent,
-                  selectedColor: themeData.colorScheme.secondary,
-                  textColor: onBackGroundColor,
-                  iconColor: onBackGroundColor,
-                  contentPadding: basePadding,
-                  selected: index == 0,
-                  onTap: () => model.onSetActiveTap(curPS),
-                  onLongPress: () => model.onEditTap(curPS),
-                );
-              }),
-            ListTile(
-              title: Text('pages.printer_add.title').tr(),
-              contentPadding: basePadding,
-              textColor: onBackGroundColor,
-              iconColor: onBackGroundColor,
-              trailing: const Icon(
-                Icons.add,
-                size: baseIconSize,
-              ),
-              onTap: () => model.navigateTo(Routes.printerAdd),
-            )
-          ],
-        ),
+    return ListTile(
+      title: Text(
+        machine.name,
+        maxLines: 1,
       ),
+      trailing: Icon(
+        isSelected ? Icons.check : Icons.arrow_forward_ios_sharp,
+        size: baseIconSize,
+      ),
+      selectedTileColor: selectedTileColor,
+      selectedColor: themeData.colorScheme.secondary,
+      textColor: themeData.colorScheme.onBackground,
+      iconColor: themeData.colorScheme.onBackground,
+      contentPadding: basePadding,
+      selected: isSelected,
+      onTap: isSelected
+          ? null
+          : () {
+              Navigator.pop(context);
+              ref.read(selectedMachineServiceProvider).selectMachine(machine);
+            },
+      onLongPress: () => ref
+          .read(navDrawerControllerProvider.notifier)
+          .pushingTo('/printer/edit', arguments: machine),
     );
   }
 }

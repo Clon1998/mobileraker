@@ -7,10 +7,10 @@ class FileNotificationItem {
   String get fullPath => '$root/$path';
 
   FileNotificationItem.fromJson(Map<String, dynamic> json)
-      : this.path = json['path'],
-        this.root = json['root'],
-        this.size = json['size'],
-        this.modified = double.tryParse(json['modified'].toString());
+      : path = json['path'],
+        root = json['root'],
+        size = json['size'],
+        modified = double.tryParse(json['modified'].toString());
 
   @override
   bool operator ==(Object other) =>

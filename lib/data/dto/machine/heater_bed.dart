@@ -1,42 +1,16 @@
-import 'package:flutter/foundation.dart';
-import 'package:mobileraker/util/misc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class HeaterBed {
-  double temperature = 0;
-  double target = 0;
-  double power = 0;
+part 'heater_bed.freezed.dart';
 
-  DateTime lastHistory = DateTime(1990);
-
-  List<double>? temperatureHistory;
-  List<double>? targetHistory;
-  List<double>? powerHistory;
-
-  @override
-  String toString() {
-    return 'HeaterBed{temperature: $temperature, target: $target}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is HeaterBed &&
-          runtimeType == other.runtimeType &&
-          temperature == other.temperature &&
-          target == other.target &&
-          power == other.power &&
-          lastHistory == other.lastHistory &&
-          listEquals(temperatureHistory, other.temperatureHistory) &&
-          listEquals(targetHistory, other.targetHistory) &&
-          listEquals(powerHistory, other.powerHistory);
-
-  @override
-  int get hashCode =>
-      temperature.hashCode ^
-      target.hashCode ^
-      power.hashCode ^
-      lastHistory.hashCode ^
-      hashAllNullable(temperatureHistory) ^
-      hashAllNullable(targetHistory) ^
-      hashAllNullable(powerHistory);
+@freezed
+class HeaterBed with _$HeaterBed {
+  const factory HeaterBed({
+    @Default(0) double temperature,
+    @Default(0) double target,
+    @Default(0) double power,
+    List<double>? temperatureHistory,
+    List<double>? targetHistory,
+    List<double>? powerHistory,
+    required DateTime lastHistory,
+  }) = _HeaterBed;
 }

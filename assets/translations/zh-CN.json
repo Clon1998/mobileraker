@@ -152,7 +152,7 @@
 				"print_card": {
 					"eta": "预计结束时间",
 					"layer": "层",
-					"printing_for": "打印： {}\n对于： {}",
+					"printing_for": "打印：{}",
 					"reset": "重启",
 					"speed": "速度"
 				},
