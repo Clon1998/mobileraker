@@ -65,6 +65,7 @@ class PrinterAddPage extends ConsumerWidget {
                 _SectionHeader(title: 'pages.printer_add.misc'.tr()),
                 FormBuilderCheckbox(
                   name: 'trustSelfSigned',
+                  initialValue: false,
                   title: const Text('pages.printer_edit.general.self_signed').tr(),
                   controlAffinity: ListTileControlAffinity.trailing,
                 ),
