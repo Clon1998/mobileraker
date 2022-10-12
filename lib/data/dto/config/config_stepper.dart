@@ -6,7 +6,7 @@ class ConfigStepper {
   String name;
   String stepPin;
   String dirPin;
-  String enablePin;
+  String? enablePin;
   double rotationDistance;
   int microsteps;
   int fullStepsPerRotation;
@@ -30,9 +30,9 @@ class ConfigStepper {
         rotationDistance = json['rotation_distance'],
         microsteps = json['microsteps'],
         fullStepsPerRotation = json['full_steps_per_rotation'],
-        gearRatio = (json['gear_ratio'] as List<dynamic>)
+        gearRatio = ((json['gear_ratio'] ?? []) as List<dynamic>)
             .unpackAndCast<double>()
-            .toList(),
+            .toList(growable: false),
         // this.stepPulseDuration = json['step_pulse_duration'],
         endstopPin = json['endstop_pin'],
         positionMin = json['position_min'] ?? 0,

@@ -3,6 +3,7 @@
     "resume": "Folytatás",
     "connected": "Csatlakozva",
     "off": "Ki",
+    "on": "Be",
     "none": "Nincs",
     "add": "Hozzáadás",
     "create": "Létrehozás",
@@ -14,7 +15,9 @@
     "shutdown": "Leállítás",
     "firmware": "Firmware",
     "fetching": "Vonza",
-    "unknown": "Ismeretlen"
+    "unknown": "Ismeretlen",
+    "disabled": "Disabled",
+    "confirm": "Confirm"
   },
   "pages": {
     "dashboard": {
@@ -31,14 +34,20 @@
           "printing_for": "Nyomtatás: {}",
           "speed": "Sebesség",
           "layer": "Réteg",
-          "eta": "ETA"
+          "eta": "ETA",
+          "current_object": "Aktuális objektum",
+          "elapsed": "Eltelt",
+          "flow": "Áramlás",
+          "filament": "Nyomtatószál",
+          "filament_used": "A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből."
+
         },
         "cam_card": {
           "webcam": "Webkamera",
           "fullscreen": "Teljes képernyő"
         },
         "temp_card": {
-          "title": "Hőmérsékletszabályzók",
+          "title": "Hőmérséklet szabályozók",
           "presets_btn": "Előbeállítások",
           "hotend": "Nyomtatófej",
           "bed": "Ágy",
@@ -64,7 +73,11 @@
           "mesh_btn": "Háló",
           "m84_tooltip": "Motorok kikapcsolása",
           "m84_btn": "M84",
-          "step_size": "Lépés mérete"
+          "step_size": "Lépés mérete",
+          "stc_tooltip": "Csavar dőlésszámítás indítása",
+          "stc_btn": "STC",
+          "ztilt_tooltip": "Z-Tilt kalibráció indítása",
+          "ztilt_btn": "zTilt"
         },
         "baby_step_card": {
           "title": "Mikrolépés Z tengely"
@@ -86,7 +99,8 @@
           "title": "Adagoló",
           "extrude": "Extrudálás",
           "retract": "Visszahúzás",
-          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude hossza"
+          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude hossza",
+          "cold_extrude_error": "A nyomtatófej még nem érte el a {}°C-os hőmérsékletet min_extrude_temp {}°C !"
         },
         "macro_card": {
           "title": "Gcode - Makrók"
@@ -100,9 +114,22 @@
           },
           "pin_btn": "Tű"
         },
+        "power_card": {
+          "title": "Energia Panel",
+          "pin_btn": "Tű"
+        },
         "multipl_card": {
           "title": "Szorzók",
-          "flow": "Folyam"
+          "flow": "Folyam",
+          "press_adv": "Nyomás előtolás",
+          "smooth_time": "Simítási idő"
+        },
+        "limit_card": {
+          "title": "Korlátok",
+          "velocity": "Sebesség",
+          "accel": "Gyorsulás",
+          "sq_corn_vel": "Sebesség a sarkokban",
+          "accel_to_decel": "Gyorsítás-Lassítás"
         }
       }
     },
@@ -126,8 +153,12 @@
         },
         "meta_card": {
           "title": "Gcode Meta adatok",
+          "filament": "Nyomtatószál",
+          "filament_type": "Nyomtatószál típusa",
+          "filament_name": "Nyomtatószál neve",
           "est_print_time": "Becsült nyomtatási idő",
           "slicer": "Használt szeletelő",
+          "nozzle_diameter": "Fúvóka átmérője",
           "layer_higher": "Rétegmagasság",
           "first_layer": "Első réteg",
           "others": "Egyebek",
@@ -136,6 +167,14 @@
         },
         "stat_card": {
           "title": "Statisztikák"
+        },
+        "preheat_dialog": {
+          "title": "@:pages.files.details.preheat ?",
+          "body": "Célhőmérséklet\nFúvóka: {}°C\nÁgy: {}°C"
+        },
+        "preheat_snackbar": {
+          "title": "Előmelegítés elkezdődött",
+          "body": "Fúvóka: {}°C\nÁgy: {}°C"
         }
       }
     },
@@ -147,8 +186,18 @@
         "always_baby": "Mindig mutassa a mikroléptető kártyát",
         "num_edit": "Számbevitelhez billentyűzet használata",
         "start_with_overview": "@:pages.overview.title mutatása alapesetben",
+        "use_offset_pos": "Koordináták megjelenítése adott eltolás mellett.",
         "language": "Nyelv",
-        "companion": "Ismerje meg, hogyan kell a Mobileraker's Companion-t beállítani "
+        "companion": "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani "
+      },
+      "notification": {
+        "title": "Értesítés",
+        "progress_label": "Haladási értesítés",
+        "progress_helper": "Frissítési időköz a nyomtatási folyamatról szóló értesítéshez",
+        "no_permission_title": "Nincs értesítési engedély!",
+        "no_permission_desc": "Az értesítések nem jeleníthetők meg.\nKérj engedélyt kattintással!",
+        "ios_notifications_title": "IOS értesítések kézbesítése",
+        "ios_notifications_desc": "Az értesítésekhez a Mobilerakert legalább egyszer meg kell nyitni, és a háttérben kell futnia.\nElőfordulhat, hogy néhány értesítést még mindig letiltott az operációs rendszer!"
       },
       "imprint": "Adatvédelem/Impresszum"
     },
@@ -158,15 +207,16 @@
       "remove_printer": "Nyomtató eltávolítása",
       "no_values_found": "Nincsenek értékek!",
       "fetching_additional_settings": "@:general.fetching további beállítások a hálózatról...",
-      "could_not_fetch_additional": "Nem tudta lekérni a további beállításokat!",
-      "fetch_error_hint": "Győződjön meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.",
+      "could_not_fetch_additional": "Nem tudtam lekérni a további beállításokat!",
+      "fetch_error_hint": "Győződj meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.",
       "general": {
         "displayname": "Megjelenítendő név",
         "printer_addr": "Nyomtató - Címe",
         "ws_addr": "Webhely - Cím",
         "moonraker_api_key": "Moonraker - API kulcs",
-        "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfelei vannak. A FluiddPI ezt kikényszeríti!",
-        "full_url": "Teljes URL"
+        "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfeleid vannak. A FluiddPI ezt kikényszeríti!",
+        "full_url": "Teljes URL",
+        "self_signed": "Bízz az Ön-aláírt tanúsítványokban"
       },
       "motion_system": {
         "title": "Mozgásrendszer",
@@ -199,7 +249,8 @@
         "webcam_addr": "Webkamera - Cím",
         "default_addr": "Alapértelmezett cím",
         "flip_vertical": "Függőleges fordítás",
-        "flip_horizontal": "Vízszintes fordítás"
+        "flip_horizontal": "Vízszintes fordítás",
+        "cam_mode": "Kamera mód"
       },
       "macros": {
         "new_macro_grp": "Új makró - Csoport",
@@ -243,11 +294,14 @@
     }
   },
   "components": {
+    "pull_to_refresh": {
+      "pull_up_idle" : "Frissítéshez húzd fel"
+    },
     "nav_drawer": {
       "printer_settings": "Nyomtató beállítások",
       "manage_printers": "Nyomtatók kezelése",
       "fetching_printers": "@:general.fetching nyomtatók...",
-      "footer": "Készítette ❤️ Patrick Schmidt\nNézze meg a projektet"
+      "footer": "Készítette ❤️ Patrick Schmidt\nNézd meg a projektet"
     },
     "connection_watcher": {
       "reconnect": "Újracsatlakoztatás",
@@ -256,11 +310,15 @@
     }
   },
   "dialogs": {
+    "rate_my_app": {
+      "title": "Értékeled a Mobileraker-t?",
+      "message": "Ha tetszik a Mobileraker, és támogatni szeretnéd a nyílt forráskódú fejlesztést, kérjük, fontold meg a Mobileraker értékelését!"
+    },
     "import_setting": {
       "fetching": "Források keresése...",
       "fetching_error_title": "Nem sikerült lekérni a beállításokat!",
-      "fetching_error_sub": "Győződjön meg arról, hogy a többi gép csatlakoztatva van.",
-      "select_source": "Válasszon forrást"
+      "fetching_error_sub": "Győződj meg arról, hogy a többi gép csatlakoztatva van.",
+      "select_source": "Válassz forrást"
     },
     "create_folder": {
       "title": "Mappa létrehozása",
@@ -268,7 +326,7 @@
     },
     "delete_folder": {
       "title": "Biztos vagy benne?",
-      "description": "A mappában található összes fájl is eltávolításra kerül!\n\nA '/{}' mappa törlésének megerősítése."
+      "description": "A mappában lévő összes fájl is törlődik!\n\nErősítsd meg a mappa törlését '/{}'."
     },
     "rename_folder": {
       "title": "Mappa átnevezése",
@@ -280,6 +338,18 @@
     "rename_file": {
       "title": "Fájl átnevezése",
       "label": "Fájlnév"
+    },
+    "exclude_object": {
+      "title": "Objektum kizárása a nyomtatásból",
+      "label": "Kizárandó objektum",
+      "confirm_tile_title": "Biztos vagy benne?",
+      "confirm_tile_subtitle": "Ez a művelet nem vonható vissza!",
+      "exclude": "Kizárás",
+      "no_visualization": "Nem állnak rendelkezésre vizualizációs adatok!"
+    },
+    "ws_input_help": {
+      "title": "URL beviteli súgó",
+      "body": "Megadhatsz egy IP-címet, URL-t vagy teljes URI-t a webes felületen, vagy közvetlenül a moonraker által biztosított websocket példányban.\n\nÉrvényes példák:"
     }
   },
   "klipper_state": {
