@@ -1,4 +1,3 @@
-
 //TODO Decide regarding null values or not!
 import 'package:flutter/foundation.dart';
 
@@ -78,7 +77,6 @@ class ConfigFile {
   ConfigExtruder? extruderForIndex(int idx) =>
       extruders['extruder${idx > 0 ? idx : ''}'];
 
-
   double get maxX => stepperX?.positionMax ?? 300;
 
   double get minX => stepperX?.positionMin ?? 0;
@@ -90,7 +88,6 @@ class ConfigFile {
   double get sizeX => maxX + minX.abs();
 
   double get sizeY => maxY + minY.abs();
-
 
   @override
   bool operator ==(Object other) =>
