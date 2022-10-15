@@ -285,7 +285,7 @@ class NotificationService {
                 }
                 logger.i("Device's FCM token: $fcmToken");
 
-                await _machineService.fetchOrCreateFcmIdentifier(machine);
+                await _machineService.syncMachinePrinterIdForFCM(machine);
                 await _machineService.registerFCMTokenOnMachine(
                     machine, fcmToken);
                 // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
