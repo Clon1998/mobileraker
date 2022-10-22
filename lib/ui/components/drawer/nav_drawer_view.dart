@@ -214,7 +214,7 @@ class _NavHeader extends ConsumerWidget {
                       message: 'components.nav_drawer.printer_settings'.tr(),
                       child: Icon(
                         FlutterIcons.settings_mdi,
-                        color: themeData.colorScheme.secondary,
+                        color: onBackground,
                         size: 27,
                       ),
                     ),
