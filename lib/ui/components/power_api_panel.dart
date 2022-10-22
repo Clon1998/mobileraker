@@ -20,8 +20,6 @@ class PowerApiCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-
     var powerDevicesLen = ref.watch(powerDevicesSelectedProvider.selectAs(
         (data) =>
             data.where((element) => !element.name.startsWith('_')).length));
@@ -79,7 +77,7 @@ class _PowerDeviceCard extends ConsumerWidget {
             ? null
             : (d) => ref.read(powerServiceSelectedProvider).setDeviceStatus(
                 powerDevice.name, d ? PowerState.on : PowerState.off),
-        child: Builder(builder: (context) {
+        builder: (context) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -89,6 +87,6 @@ class _PowerDeviceCard extends ConsumerWidget {
                   style: Theme.of(context).textTheme.headlineSmall),
             ],
           );
-        }));
+        });
   }
 }

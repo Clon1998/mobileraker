@@ -10,14 +10,14 @@ class GraphCardWithButton extends StatelessWidget {
     this.backgroundColor,
     this.graphColor,
     required this.plotSpots,
-    required this.child,
+    required this.builder,
     required this.buttonChild,
     required this.onTap,
   }) : super(key: key);
 
   final Color? backgroundColor;
   final Color? graphColor;
-  final Widget child;
+  final WidgetBuilder builder;
   final Widget buttonChild;
   final VoidCallback? onTap;
   final List<FlSpot> plotSpots;
@@ -75,7 +75,7 @@ class GraphCardWithButton extends StatelessWidget {
                               .copyWith(color: _onBackgroundColor)),
                       child: DefaultTextStyle(
                         style: TextStyle(color: _onBackgroundColor),
-                        child: child,
+                        child: Builder(builder: builder),
                       )),
                 ),
               ],

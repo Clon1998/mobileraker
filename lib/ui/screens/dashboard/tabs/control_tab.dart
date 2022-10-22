@@ -63,9 +63,10 @@ class ControlTab extends ConsumerWidget {
                       const PinsCard(),
                     if (ref
                         .watch(machinePrinterKlippySettingsProvider.selectAs(
-                            (value) => value.klippyData.components.contains('power')))
+                            (value) =>
+                                value.klippyData.components.contains('power')))
                         .valueOrFullNull!)
-                    const PowerApiCard(),
+                      const PowerApiCard(),
                     const MultipliersCard(),
                     const LimitsCard(),
                   ],
@@ -238,7 +239,7 @@ class _FanCard extends StatelessWidget {
             ? const Text('pages.dashboard.control.fan_card.static_fan_btn').tr()
             : const Text('general.set').tr(),
         onTap: onTap,
-        child: Builder(builder: (context) {
+        builder: (context) {
           return Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -257,7 +258,7 @@ class _FanCard extends StatelessWidget {
                     ),
             ],
           );
-        }));
+        });
   }
 }
 
@@ -612,7 +613,7 @@ class _PinTile extends ConsumerWidget {
                 .read(controlTabControllerProvider.notifier)
                 .onEditPin(pin, pinConfig)
             : null,
-        child: Builder(builder: (context) {
+        builder: (context) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -622,7 +623,7 @@ class _PinTile extends ConsumerWidget {
                   style: Theme.of(context).textTheme.headlineSmall),
             ],
           );
-        }));
+        });
   }
 }
 

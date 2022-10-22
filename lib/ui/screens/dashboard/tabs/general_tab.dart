@@ -549,7 +549,7 @@ class _SensorCard extends HookConsumerWidget {
       buttonChild:
           const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
-      child: Column(
+      builder: (context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(beautifyName(temperatureSensor.name),
@@ -603,33 +603,37 @@ class _HeaterCard extends StatelessWidget {
               .withOpacity(min(current / _stillHotTemp - 1, 1)),
           colorBg);
     }
+
     return GraphCardWithButton(
         backgroundColor: colorBg,
         plotSpots: spots,
         buttonChild: const Text('general.set').tr(),
         onTap: onTap,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: themeData.textTheme.caption),
-                Text('${current.toStringAsFixed(1)} °C',
-                    style: themeData.textTheme.headline6),
-                Text(targetTemp),
-              ],
-            ),
-            AnimatedOpacity(
-              opacity: current > _stillHotTemp ? 1 : 0,
-              duration: kThemeAnimationDuration,
-              child: Tooltip(
-                message: '$name is still hot!',
-                child: const Icon(Icons.do_not_touch_outlined),
+        builder: (BuildContext context) {
+          var innerTheme = Theme.of(context);
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: innerTheme.textTheme.caption),
+                  Text('${current.toStringAsFixed(1)} °C',
+                      style: innerTheme.textTheme.headline6),
+                  Text(targetTemp),
+                ],
               ),
-            )
-          ],
-        ));
+              AnimatedOpacity(
+                opacity: current > _stillHotTemp ? 1 : 0,
+                duration: kThemeAnimationDuration,
+                child: Tooltip(
+                  message: '$name is still hot!',
+                  child: const Icon(Icons.do_not_touch_outlined),
+                ),
+              )
+            ],
+          );
+        });
   }
 }
 
@@ -733,7 +737,7 @@ class _TemperaturePresetCard extends StatelessWidget {
     return CardWithButton(
         buttonChild: const Text('general.set').tr(),
         onTap: onTap,
-        child: Builder(builder: (context) {
+        builder: (context) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -749,7 +753,7 @@ class _TemperaturePresetCard extends StatelessWidget {
                   .tr(args: [bedTemp.toString()]),
             ],
           );
-        }));
+        });
   }
 }
 
