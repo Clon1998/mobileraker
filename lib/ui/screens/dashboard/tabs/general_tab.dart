@@ -1008,8 +1008,7 @@ class _ControlXYZCard extends ConsumerWidget {
                         ),
                       ),
                     if (ref.watch(printerSelectedProvider.select((data) =>
-                        data.valueOrNull?.configFile.hasScrewTiltAdjust ==
-                        true)))
+                        data.valueOrNull?.configFile.hasZTilt == true)))
                       Tooltip(
                         message:
                             'pages.dashboard.general.move_card.ztilt_tooltip'
