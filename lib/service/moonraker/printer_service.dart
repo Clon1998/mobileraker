@@ -435,7 +435,7 @@ class PrinterService {
     } catch (e, s) {
       logger.e('Error while parsing $key object', e, s);
       _printerStreamCtler.addError(e, s);
-      _showExceptionSnackbar(e, s);
+      _showParsingExceptionSnackbar(e, s, key, json);
     }
   }
 
@@ -1069,6 +1069,22 @@ class PrinterService {
               type: DialogType.stacktrace,
               title: 'Refresh Printer Error',
               body: 'Exception:\n $e\n\n$s'));
+        }));
+  }
+
+  void _showParsingExceptionSnackbar(Object e, StackTrace s, String key, Map<String, dynamic> json) {
+    _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: 'Refreshing Printer failed',
+        message: 'Parsing of $key failed:\n$e',
+        duration: const Duration(seconds: 30),
+        mainButtonTitle: 'Details',
+        closeOnMainButtonTapped: true,
+        onMainButtonTapped: () {
+          _dialogService.show(DialogRequest(
+              type: DialogType.stacktrace,
+              title: 'Parsing "${key.titleCase()}" failed',
+              body: '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}'));
         }));
   }
 

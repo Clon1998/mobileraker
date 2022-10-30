@@ -51,8 +51,8 @@ class MoonrakerDatabaseClient {
       if (blockingResponse.response.containsKey('result')) {
         return blockingResponse.response['result']['value'];
       }
-    } on JRpcError catch (e) {
-      logger.e("Could not fetch settings!", e);
+    } on JRpcError catch (e,s) {
+      logger.e("Could not fetch settings!", e, StackTrace.current);
     }
     return null;
   }

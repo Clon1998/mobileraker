@@ -7,13 +7,13 @@ class CardWithButton extends StatelessWidget {
   const CardWithButton({
     Key? key,
     this.backgroundColor,
-    required this.child,
+    required this.builder,
     required this.buttonChild,
     required this.onTap,
   }) : super(key: key);
 
   final Color? backgroundColor;
-  final Builder child;
+  final WidgetBuilder builder;
   final Widget buttonChild;
   final VoidCallback? onTap;
 
@@ -52,7 +52,7 @@ class CardWithButton extends StatelessWidget {
                           .copyWith(color: _onBackgroundColor)),
                   child: DefaultTextStyle(
                     style: TextStyle(color: _onBackgroundColor),
-                    child: child,
+                    child: Builder(builder: builder),
                   )),
             ),
           ),

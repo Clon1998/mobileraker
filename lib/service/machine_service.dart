@@ -24,10 +24,9 @@ import 'package:uuid/uuid.dart';
 final machineServiceProvider =
     Provider<MachineService>((ref) => MachineService(ref));
 
-final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>(
-    (ref) {
-      return ref.watch(machineServiceProvider).fetchAll();
-    },name: 'allMachinesProvider');
+final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>((ref) {
+  return ref.watch(machineServiceProvider).fetchAll();
+}, name: 'allMachinesProvider');
 
 final selectedMachineSettingsProvider =
     FutureProvider.autoDispose<MachineSettings>((ref) async {
@@ -38,8 +37,8 @@ final selectedMachineSettingsProvider =
       .whereNotNull()
       .first;
 
-  await ref
-      .watch(jrpcClientStateSelectedProvider.selectAsync((data) => data == ClientState.connected));
+  await ref.watch(jrpcClientStateSelectedProvider
+      .selectAsync((data) => data == ClientState.connected));
   var fetchSettings =
       await ref.watch(machineServiceProvider).fetchSettings(machine);
   ref.keepAlive();
@@ -85,7 +84,6 @@ class MachineService {
         await ref.read(machineSettingsRepositoryProvider(machine.uuid)).get() ??
             MachineSettings.fallback();
 
-
     return machineSettings;
   }
 
@@ -98,6 +96,8 @@ class MachineService {
 
   Future<Machine> addMachine(Machine machine) async {
     await _machineRepo.insert(machine);
+
+
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);
     ref.read(analyticsProvider).logEvent(name: 'add_machine');
@@ -142,7 +142,18 @@ class MachineService {
   /// identify the printer that sends a notification in case
   /// a user configured multiple printers in the app.
   /// Because of that the FCMIdentifier should be set only once!
-  Future<String> fetchOrCreateFcmIdentifier(Machine machine) async {
+  Future<String> syncMachinePrinterIdForFCM(Machine machine) async {
+    String? item = await _fetchOrCreateFcmIdentifier(machine);
+
+    if (item != machine.fcmIdentifier) {
+      machine.fcmIdentifier = item;
+      await machine.save();
+      logger.i('Updated FCM-PrinterID in settings $item');
+    }
+    return item!;
+  }
+
+  Future<String?> _fetchOrCreateFcmIdentifier(Machine machine) async {
     MoonrakerDatabaseClient moonrakerDatabaseClient =
         ref.read(moonrakerDatabaseClientProvider(machine.uuid));
     String? item = await moonrakerDatabaseClient.getDatabaseItem('mobileraker',
@@ -156,13 +167,7 @@ class MachineService {
       logger.i(
           'Got FCM-PrinterID from MoonrakerDB for "${machine.name}(${machine.wsUrl})" to set in Settings: $item');
     }
-
-    if (item != machine.fcmIdentifier) {
-      machine.fcmIdentifier = item;
-      await machine.save();
-      logger.i('Updated FCM-PrinterID in settings $item');
-    }
-    return item!;
+    return item;
   }
 
   Future<void> registerFCMTokenOnMachineNEW(
@@ -228,7 +233,7 @@ class MachineService {
 
   updateMacrosInSettings(String machineUUID, List<String> macros) async {
     Machine? machine = await _machineRepo.get(uuid: machineUUID);
-    if (machine== null) {
+    if (machine == null) {
       logger.e('Could not update macros, machine not found!');
       return;
     }

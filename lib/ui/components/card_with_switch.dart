@@ -11,13 +11,13 @@ class CardWithSwitch extends HookWidget {
     this.backgroundColor,
     this.onChanged,
     required this.value,
-    required this.child,
+    required this.builder,
   }) : super(key: key);
 
   final Color? backgroundColor;
   final ValueChanged<bool>? onChanged;
   final bool value;
-  final Builder child;
+  final WidgetBuilder builder;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +60,7 @@ class CardWithSwitch extends HookWidget {
                           .copyWith(color: _onBackgroundColor)),
                   child: DefaultTextStyle(
                     style: TextStyle(color: _onBackgroundColor),
-                    child: child,
+                    child: Builder(builder: builder),
                   )),
             ),
           ),
