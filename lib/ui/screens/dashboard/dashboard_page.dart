@@ -13,11 +13,11 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
+import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
@@ -112,10 +112,10 @@ class _BottomNavigationBar extends ConsumerWidget {
     var colorScheme = themeData.colorScheme;
 
     if (ref
-            .watch(machinePrinterKlippySettingsProvider)
-            .valueOrFullNull
-            ?.machine ==
-        null) {
+            .watch(
+                machinePrinterKlippySettingsProvider.selectAs((data) => true))
+            .valueOrFullNull !=
+        true) {
       return const SizedBox.shrink();
     }
 
