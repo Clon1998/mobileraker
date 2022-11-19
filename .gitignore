@@ -50,3 +50,4 @@ google-services.json
 GoogleService-Info.plist
 
 *.patch
+/lib/license.dart

@@ -97,7 +97,6 @@ class MachineService {
   Future<Machine> addMachine(Machine machine) async {
     await _machineRepo.insert(machine);
 
-
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);
     ref.read(analyticsProvider).logEvent(name: 'add_machine');
@@ -138,56 +137,48 @@ class MachineService {
     return _machineRepo.count();
   }
 
-  /// The FCM-Identifier is used by the python companion to
-  /// identify the printer that sends a notification in case
-  /// a user configured multiple printers in the app.
-  /// Because of that the FCMIdentifier should be set only once!
-  Future<String> syncMachinePrinterIdForFCM(Machine machine) async {
-    String? item = await _fetchOrCreateFcmIdentifier(machine);
+  Future<void> updateMachineFcmConfig(
+      Machine machine, String deviceFcmToken) async {
+    /*
 
-    if (item != machine.fcmIdentifier) {
-      machine.fcmIdentifier = item;
-      await machine.save();
-      logger.i('Updated FCM-PrinterID in settings $item');
+    "key": "fcm",
+    "value": {
+        "<device-fcm-token>": {
+            "machineId":"Device local MACHIN UUIDE!",
+            "machineName": "V2.1111",
+            "language": "en",
+            "progressConfig": 0.25,
+            "stateConfig": ["error","printing","paused"]
+        }
     }
-    return item!;
-  }
 
-  Future<String?> _fetchOrCreateFcmIdentifier(Machine machine) async {
+     */
+
     MoonrakerDatabaseClient moonrakerDatabaseClient =
         ref.read(moonrakerDatabaseClientProvider(machine.uuid));
-    String? item = await moonrakerDatabaseClient.getDatabaseItem('mobileraker',
-        key: 'printerId');
-    if (item == null) {
-      String nId = const Uuid().v4();
-      item = await moonrakerDatabaseClient.addDatabaseItem(
-          'mobileraker', 'printerId', nId);
-      logger.i('Registered fcm-PrinterId in MoonrakerDB: $nId');
-    } else {
-      logger.i(
-          'Got FCM-PrinterID from MoonrakerDB for "${machine.name}(${machine.wsUrl})" to set in Settings: $item');
-    }
-    return item;
-  }
+    String dbKey = 'fcm.$deviceFcmToken';
+    Map<String, dynamic>? fcmCfg = await moonrakerDatabaseClient
+        .getDatabaseItem('mobileraker', key: dbKey);
+    if (fcmCfg == null) {
+      fcmCfg = {
+        'machineId': machine.uuid,
+        'machineName': machine.name,
+        'language': 'en',
+        'progressConfig': 0.25,
+        'stateConfig': ['error', 'printing', 'paused']
+      };
 
-  Future<void> registerFCMTokenOnMachineNEW(
-      Machine machine, String fcmToken) async {
-    MoonrakerDatabaseClient moonrakerDatabaseClient =
-        ref.read(moonrakerDatabaseClientProvider(machine.uuid));
-    Map<String, dynamic>? item = await moonrakerDatabaseClient
-        .getDatabaseItem('mobileraker', key: 'fcm.$fcmToken');
-    if (item == null) {
-      item = {'printerName': machine.name};
-      item = await moonrakerDatabaseClient.addDatabaseItem(
-          'mobileraker', 'fcm.$fcmToken', item);
-      logger.i('Registered FCM Token in MoonrakerDB: $item');
-    } else if (item['printerName'] != machine.name) {
-      item['printerName'] = machine.name;
-      item = await moonrakerDatabaseClient.addDatabaseItem(
-          'mobileraker', 'fcm.$fcmToken', item);
-      logger.i('Updated Printer\'s name in MoonrakerDB: $item');
+      logger.i('Registered FCM Token in MoonrakerDB: $fcmCfg');
+
+      fcmCfg = await moonrakerDatabaseClient.addDatabaseItem(
+          'mobileraker', dbKey, fcmCfg);
+    } else if (fcmCfg['machineName'] != machine.name) {
+      fcmCfg['machineName'] = machine.name;
+      fcmCfg = await moonrakerDatabaseClient.addDatabaseItem(
+          'mobileraker', dbKey, fcmCfg);
     }
-    logger.i('Got FCM data from MoonrakerDB: $item');
+
+    logger.i('Current FCMConfig in MoonrakerDB: $fcmCfg');
   }
 
   Future<void> registerFCMTokenOnMachine(
