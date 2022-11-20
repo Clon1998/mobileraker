@@ -426,7 +426,7 @@ class _DefaultStreamManager implements _StreamManager {
     _mjpegStreamController.close();
 
     _httpClient.close();
-    logger.i('DISPOSED');
+    logger.i('_DefaultStreamManager DISPOSED');
   }
 }
 
@@ -535,6 +535,6 @@ class _AdaptiveStreamManager implements _StreamManager {
     stop();
     _mjpegStreamController.close();
     _httpClient.close();
-    logger.i('DISPOSED');
+    logger.i('_AdaptiveStreamManager DISPOSED');
   }
 }
