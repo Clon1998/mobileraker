@@ -1089,11 +1089,14 @@ class _BabySteppingCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var zOffset = ref
         .watch(printerSelectedProvider.select((data) => data.value!.zOffset));
-    var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider
-        .select((data) => data.value!.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref
+        .watch(generalTabViewControllerProvider
+            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .valueOrFullNull!;
 
     return Card(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
               leading: const Icon(FlutterIcons.align_vertical_middle_ent),
@@ -1153,8 +1156,8 @@ class _BabySteppingCard extends ConsumerWidget {
                             .read(babyStepControllerProvider.notifier)
                             .onSelectedBabySteppingSizeChanged,
                         values: ref
-                            .watch(selectedMachineSettingsProvider
-                                .select((data) => data.value!.babySteps))
+                            .read(generalTabViewControllerProvider.select(
+                                (data) => data.value!.settings.babySteps))
                             .map((e) => e.toString())
                             .toList()),
                   ],

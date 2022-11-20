@@ -27,7 +27,7 @@
                 "unavailable": "没有服务器可用",
                 "available": "服务器状态为{}，klippy是{}"
             },
-            "fetching_printer": "@：General.fetching打印机...",
+            "fetching_printer": "@general.fetching打印机...",
             "general": {
                 "print_card": {
                     "reset": "重置",
@@ -57,8 +57,8 @@
                 },
                 "temp_preset_card": {
                     "cooloff": "冷却",
-                    "h_temp": "@：pages.dashboard.general.temp_card.hotend {}°C",
-                    "b_temp": "@：pages.dashboard.general.temp_card.bed {}°C"
+                    "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
+                    "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
                 },
                 "move_card": {
                     "title": "移动轴",
@@ -98,7 +98,7 @@
                     "title": "挤出机",
                     "extrude": "拉伸",
                     "retract": "缩回",
-                    "extrude_len": "@：pages.dashboard.control.extrude_card.extrude长度",
+                    "extrude_len": "@:pages.dashboard.control.extrude_card.extrude长度",
                     "cold_extrude_error": "挤出机还没有达到{}°C的min_extrude_temp！"
                 },
                 "macro_card": {
@@ -139,7 +139,7 @@
             "name": "姓名",
             "last_mod": "最后修改",
             "last_printed": "最后打印",
-            "fetching_files": "@：enstry.fetching文件...",
+            "fetching_files": "@:general.fetching文件...",
             "no_files_found": "找不到文件！",
             "details": {
                 "preheat": "预热",
@@ -161,14 +161,14 @@
                     "layer_higher": "层高度",
                     "first_layer": "第一层",
                     "others": "其他",
-                    "first_layer_temps": "@：pages.files.details.meta_card.first_layer-温度",
-                    "first_layer_temps_value": "@：pages.dashboard.general.temp_card.hotend：{}°C \n @：pages.dashboard.general.temp_card.bed：{}°C"
+                    "first_layer_temps": "@:pages.files.details.meta_card.first_layer-温度",
+                    "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend：{}°C \n @:pages.dashboard.general.temp_card.bed：{}°C"
                 },
                 "stat_card": {
                     "title": "统计数据"
                 },
                 "preheat_dialog": {
-                    "title": "@：pages.files.details.preheat？",
+                    "title": "@:pages.files.details.preheat？",
                     "body": "目标温度 \n 挤出器：{}°C \n 床：{}°C"
                 },
                 "preheat_snackbar": {
@@ -184,7 +184,7 @@
                 "ems_confirm": "确认紧急漫步",
                 "always_baby": "始终显示babysteppping卡",
                 "num_edit": "使用键盘进行数字输入",
-                "start_with_overview": "show @：pages.overview.title默认",
+                "start_with_overview": "show @:pages.overview.title默认",
                 "use_offset_pos": "显示使用偏移量的坐标。",
                 "language": "语",
                 "companion": "想接收远程通知吗？ \n 了解如何在其上设置Mobileraker的同伴"
@@ -205,7 +205,7 @@
             "import_settings": "导入设置",
             "remove_printer": "删除打印机",
             "no_values_found": "找不到值！",
-            "fetching_additional_settings": "@：General.fetch从网络...",
+            "fetching_additional_settings": "@:general.fetching从网络...",
             "could_not_fetch_additional": "无法获取其他设置！",
             "fetch_error_hint": "确保机器可以触及，并连接到它。",
             "general": {
@@ -239,7 +239,7 @@
                 "feedrate": "挤出机饲料率",
                 "feedrate_short": "饲料率",
                 "steps_extrude": "挤压步骤",
-                "steps_extrude_short": "@：pages.printer_edit.extruders.steps_extrude"
+                "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
             },
             "cams": {
                 "target_fps": "目标fps",
@@ -263,8 +263,8 @@
             },
             "presets": {
                 "no_presets": "没有预设！",
-                "hotend_temp": "@：pages.dashboard.general.temp_card.hotend温度",
-                "bed_temp": "@：pages.dashboard.general.temp_card.bed温度",
+                "hotend_temp": "@:pages.dashboard.general.temp_card.hotend温度",
+                "bed_temp": "@:pages.dashboard.general.temp_card.bed温度",
                 "new_preset": "新预设"
             }
         },
@@ -280,14 +280,14 @@
         "console": {
             "title": "安慰",
             "no_entries": "找不到缓存命令",
-            "fetching_console": "@：General.fetching Console条目...",
+            "fetching_console": "@:general.fetching Console条目...",
             "command_input": {
                 "hint": "输入控制台命令"
             }
         },
         "overview": {
             "title": "概述",
-            "fetching_machines": "@：General.fetching机器...",
+            "fetching_machines": "@:general.fetching机器...",
             "no_entries": "找不到机器",
             "add_machine": "添加机器"
         }
@@ -299,7 +299,7 @@
         "nav_drawer": {
             "printer_settings": "打印机设置",
             "manage_printers": "管理打印机",
-            "fetching_printers": "@：General.fetching打印机...",
+            "fetching_printers": "@:general.fetching打印机...",
             "footer": "由帕特里克·施密特（Patrick Schmidt）制成的❤️ \n 结帐项目"
         },
         "connection_watcher": {
