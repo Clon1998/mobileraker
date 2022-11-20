@@ -8,6 +8,12 @@ import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/data/model/hive/temperature_preset.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
+import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:riverpod/src/framework.dart';
+
+import 'logger.dart';
 
 setupBoxes() async {
   await Hive.initFlutter();
@@ -72,4 +78,16 @@ setupLicenseRegistry() {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
+}
+
+
+initializeAvailableMachines(ProviderContainer container) async {
+  logger.i('Started initializeAvailableMachines');
+  List<Machine> all = await container.read(machineServiceProvider).fetchAll();
+  for (var machine in all) {
+    logger.i('Init for ${machine.name}(${machine.uuid})');
+    container.read(klipperServiceProvider(machine.uuid));
+    container.read(printerServiceProvider(machine.uuid));
+  }
+  logger.i('Finished initializeAvailableMachines');
 }

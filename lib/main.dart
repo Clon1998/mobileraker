@@ -9,7 +9,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
-import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -30,19 +29,19 @@ Future<void> main() async {
 
   setupLicenseRegistry();
   final container = ProviderContainer(
-    // observers: [
-    //   if (kDebugMode)
-    //   const RiverPodLogger(),
-    // ],
-  );
+      // observers: [
+      //   if (kDebugMode)
+      //   const RiverPodLogger(),
+      // ],
+      );
 
   await container.read(analyticsProvider).logAppOpen();
 
   // await for the initial rout provider to be ready and setup!
   await container.read(initialRouteProvider.future);
-  container.read(machineServiceProvider).initializeAvailableMachines();
-  await container.read(notificationServiceProvider).initialize();
+  await initializeAvailableMachines(container);
 
+  await container.read(notificationServiceProvider).initialize();
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
