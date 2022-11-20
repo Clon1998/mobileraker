@@ -21,8 +21,9 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
-final machineServiceProvider =
-    Provider<MachineService>((ref) => MachineService(ref));
+final machineServiceProvider = Provider<MachineService>(
+    (ref) => MachineService(ref),
+    name: 'machineServiceProvider');
 
 final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>((ref) {
   return ref.watch(machineServiceProvider).fetchAll();
@@ -61,11 +62,16 @@ class MachineService {
 
   /// Ensure all services are setup/available/connected if they are also read just once!
   initializeAvailableMachines() async {
-    List<Machine> all = await fetchAll();
-    for (var machine in all) {
-      ref.read(printerServiceProvider(machine.uuid));
-      ref.read(klipperServiceProvider(machine.uuid));
-    }
+    //TODO: This currently fails since somehow the read is interpreted as circular dependecy betweend the machineService and printerService...
+    // Replaced with method in app_setup
+    // logger.i('Started initializeAvailableMachines');
+    // List<Machine> all = await fetchAll();
+    // for (var machine in all) {
+    //   logger.i('Init for ${machine.name}(${machine.uuid})');
+    //   ref.read(klipperServiceProvider(machine.uuid));
+    //   ref.read(printerServiceProvider(machine.uuid));
+    // }
+    // logger.i('Finished initializeAvailableMachines');
   }
 
   Future<void> updateMachine(Machine machine) async {
