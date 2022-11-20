@@ -35,7 +35,7 @@ class _ConfigFileDetail extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var codeController =
-    useValueNotifier(CodeController(language: properties, theme: atomOneDarkTheme));
+    useValueNotifier(CodeController(language: properties));
     var file = ref.watch(configFileProvider);
     ref.listen(configFileDetailsControllerProvider.select((value) => value.config),
         (previous, AsyncValue<String> next) {
@@ -43,7 +43,6 @@ class _ConfigFileDetail extends HookConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: codeController.value.theme?['root']?.backgroundColor,
       appBar: AppBar(
         title: Text(
           file.name,
@@ -170,12 +169,15 @@ class _FileReadyBody extends ConsumerWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          CodeField(
-            controller: codeController,
-            enabled:
-                !ref.watch(configFileDetailsControllerProvider).isUploading,
-            // expands: true,
-            // wrap: true,
+          CodeTheme(
+            data: const CodeThemeData(styles: atomOneDarkTheme),
+            child: CodeField(
+              controller: codeController,
+              enabled:
+                  !ref.watch(configFileDetailsControllerProvider).isUploading,
+              // expands: true,
+              // wrap: true,
+            ),
           ),
           const SizedBox(
             height: 30,
