@@ -80,7 +80,7 @@ setupLicenseRegistry() {
   });
 }
 
-
+/// Ensure all services are setup/available/connected if they are also read just once!
 initializeAvailableMachines(ProviderContainer container) async {
   logger.i('Started initializeAvailableMachines');
   List<Machine> all = await container.read(machineServiceProvider).fetchAll();

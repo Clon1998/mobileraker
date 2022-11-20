@@ -39,7 +39,7 @@ dependencies:
   #architecture
   freezed_annotation: ^2.1.0
   flutter_hooks: ^0.18.0
-  hooks_riverpod: ^2.0.1
+  hooks_riverpod: ^2.1.0
 
   #routing
   go_router: 5.0.3

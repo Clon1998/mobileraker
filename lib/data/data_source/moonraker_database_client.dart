@@ -8,7 +8,7 @@ import 'json_rpc_client.dart';
 
 final moonrakerDatabaseClientProvider = Provider.autoDispose
     .family<MoonrakerDatabaseClient, String>(
-        (ref, machineUUID) => MoonrakerDatabaseClient(ref, machineUUID));
+        (ref, machineUUID) => MoonrakerDatabaseClient(ref, machineUUID),name: 'moonrakerDatabaseClientProvider');
 
 /// The DatabaseService handles interacts with moonrakers database!
 class MoonrakerDatabaseClient {

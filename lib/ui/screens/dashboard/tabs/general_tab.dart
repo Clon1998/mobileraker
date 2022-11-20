@@ -18,8 +18,6 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
@@ -766,8 +764,8 @@ class _ControlXYZCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider
-        .select((data) => data.value!.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref.watch(generalTabViewControllerProvider
+        .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
 
     return Card(
       child: Column(
@@ -949,8 +947,11 @@ class _ControlXYZCard extends ConsumerWidget {
                                 .toUpperCase()),
                       ),
                     ),
-                    if (ref.watch(printerSelectedProvider.select((data) =>
-                        data.valueOrNull?.configFile.hasQuadGantry == true)))
+                    if (ref.watch(generalTabViewControllerProvider.select(
+                        (data) =>
+                            data.valueOrNull?.printerData.configFile
+                                .hasQuadGantry ==
+                            true)))
                       Tooltip(
                         message: 'pages.dashboard.general.move_card.qgl_tooltip'
                             .tr(),
@@ -967,8 +968,11 @@ class _ControlXYZCard extends ConsumerWidget {
                                   .toUpperCase()),
                         ),
                       ),
-                    if (ref.watch(printerSelectedProvider.select((data) =>
-                        data.valueOrNull?.configFile.hasBedMesh == true)))
+                    if (ref.watch(generalTabViewControllerProvider.select(
+                        (data) =>
+                            data.valueOrNull?.printerData.configFile
+                                .hasBedMesh ==
+                            true)))
                       Tooltip(
                         message:
                             'pages.dashboard.general.move_card.mesh_tooltip'
@@ -987,9 +991,11 @@ class _ControlXYZCard extends ConsumerWidget {
                           // color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
-                    if (ref.watch(printerSelectedProvider.select((data) =>
-                        data.valueOrNull?.configFile.hasScrewTiltAdjust ==
-                        true)))
+                    if (ref.watch(generalTabViewControllerProvider.select(
+                        (data) =>
+                            data.valueOrNull?.printerData.configFile
+                                .hasScrewTiltAdjust ==
+                            true)))
                       Tooltip(
                         message: 'pages.dashboard.general.move_card.stc_tooltip'
                             .tr(),
@@ -1007,8 +1013,10 @@ class _ControlXYZCard extends ConsumerWidget {
                                   .toUpperCase()),
                         ),
                       ),
-                    if (ref.watch(printerSelectedProvider.select((data) =>
-                        data.valueOrNull?.configFile.hasZTilt == true)))
+                    if (ref.watch(generalTabViewControllerProvider.select(
+                        (data) =>
+                            data.valueOrNull?.printerData.configFile.hasZTilt ==
+                            true)))
                       Tooltip(
                         message:
                             'pages.dashboard.general.move_card.ztilt_tooltip'
@@ -1054,9 +1062,9 @@ class _ControlXYZCard extends ConsumerWidget {
                             .read(controlXYZController.notifier)
                             .onSelectedAxisStepSizeChanged,
                         values: ref
-                            .watch(
-                                selectedMachineSettingsProvider.select((data) {
-                              return data.valueOrNull!.moveSteps;
+                            .watch(generalTabViewControllerProvider
+                                .select((data) {
+                              return data.valueOrNull!.settings.moveSteps;
                             }))
                             .map((e) => e.toString())
                             .toList())
@@ -1086,7 +1094,6 @@ class _BabySteppingCard extends ConsumerWidget {
 
     return Card(
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           ListTile(
               leading: const Icon(FlutterIcons.align_vertical_middle_ent),

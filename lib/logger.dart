@@ -7,39 +7,40 @@ final logger =
 class RiverPodLogger extends ProviderObserver {
   const RiverPodLogger();
 
-
   @override
   void providerDidFail(ProviderBase provider, Object error,
       StackTrace stackTrace, ProviderContainer container) {
-
-    logger.e('${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} failed with', error, stackTrace);
-
+    logger.e(
+        '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} failed with',
+        error,
+        stackTrace);
   }
-
 
   @override
   void didDisposeProvider(ProviderBase provider, ProviderContainer container) {
-    logger.i(
-        'DISPOSED-> ${provider.name ?? provider.runtimeType}#${identityHashCode(provider)}');
+    var familiy = provider.argument?.toString() ?? '';
+    logger.wtf(
+        'RiverPod::DISPOSED:${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy');
   }
 
   @override
-  void didAddProvider(ProviderBase provider, Object? value, ProviderContainer container) {
-    logger.i(
-        'CREAATED-> ${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} WITH PARENT? ${container.depth}');
-
+  void didAddProvider(
+      ProviderBase provider, Object? value, ProviderContainer container) {
+    var familiy = provider.argument?.toString() ?? '';
+    logger.wtf(
+        'RiverPod::CREATED-> ${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy WITH PARENT? ${container.depth}');
   }
 
 // @override
-  // void didUpdateProvider(
-  //   ProviderBase provider,
-  //   Object? previousValue,
-  //   Object? newValue,
-  //   ProviderContainer container,
-  // ) {
-  //   logger.i(
-  //       '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)}');
-  //   logger.i('OLD: ${previousValue.runtimeType}#${identityHashCode(previousValue)}');
-  //   logger.i('new: ${previousValue.runtimeType}#${identityHashCode(previousValue)}');
-  // }
+// void didUpdateProvider(
+//   ProviderBase provider,
+//   Object? previousValue,
+//   Object? newValue,
+//   ProviderContainer container,
+// ) {
+//   logger.i(
+//       '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)}');
+//   logger.i('OLD: ${previousValue.runtimeType}#${identityHashCode(previousValue)}');
+//   logger.i('new: ${previousValue.runtimeType}#${identityHashCode(previousValue)}');
+// }
 }
