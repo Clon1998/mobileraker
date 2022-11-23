@@ -9,12 +9,12 @@
     "create": "Créer",
     "rename": "Renommer",
     "remove": "Enlever",
-    "set": "Set",
+    "set": "Définir",
     "use": "Utiliser",
     "restart": "Redémarrer",
     "shutdown": "Eteindre",
     "firmware": "Firmware",
-    "fetching": "Fetching",
+    "fetching": "A la recherche",
     "unknown": "Inconnu",
     "disabled": "Désactiver",
     "confirm": "Confirmer"
@@ -30,24 +30,24 @@
       "fetching_printer": "@:general.fetching printer...",
       "general": {
         "print_card": {
-          "reset": "Reset",
-          "printing_for": "Printing: {}",
+          "reset": "Réinitialiser",
+          "printing_for": "Impression: {}",
           "speed": "Vitesse",
           "layer": "Couche",
           "eta": "ETA",
-          "current_object": "Current Object",
-          "elapsed": "Elapsed",
-          "flow": "Flow",
+          "current_object": "Objet actuel",
+          "elapsed": "Temps écoulé",
+          "flow": "Débit",
           "filament": "Filament",
-          "filament_used": "Used {} % of Filament, that is {} m of the {} m predicted."
+          "filament_used": "{} % de filament utilisé, correspond à {} m sur les {} m prédit."
 
         },
         "cam_card": {
-          "webcam": "Webcam",
-          "fullscreen": "Fullscreen"
+          "webcam": "Caméra",
+          "fullscreen": "Plein écran"
         },
         "temp_card": {
-          "title": "Temperature Controls",
+          "title": "Contrôles des températures",
           "presets_btn": "Presets",
           "hotend": "Hotend",
           "bed": "Bed",
