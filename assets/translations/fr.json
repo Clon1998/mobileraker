@@ -67,20 +67,20 @@
           "home_z_tooltip": "Home axe Z",
           "home_all_tooltip": "Home tout les axes",
           "home_all_btn": "Tous",
-          "qgl_tooltip": "Run Quad-Gantry leveling",
+          "qgl_tooltip": "Lancer nivellement Quad-Gantry",
           "qgl_btn": "QGL",
-          "mesh_tooltip": "Run Med-Mesh calibration",
+          "mesh_tooltip": "Lancer nivellement",
           "mesh_btn": "Mesh",
           "m84_tooltip": "Désactiver les moteurs",
           "m84_btn": "M84",
           "step_size": "Taille des steps",
-          "stc_tooltip": "Run Screws-Tilt calculation",
+          "stc_tooltip": "Lancer calcul de l'ajustement des vis",
           "stc_btn": "STC",
-          "ztilt_tooltip": "Run Z-Tilt calibration",
+          "ztilt_tooltip": "Lancer calibration Z-Tilt",
           "ztilt_btn": "zTilt"
         },
         "baby_step_card": {
-          "title": "Babystepping Z-Axis"
+          "title": "Micro-step de l'axe Z"
         },
         "restart_klipper": "Redémarrer Klipper",
         "restart_mcu": "Redémarrer carte mère"
@@ -119,10 +119,10 @@
           "pin_btn": "Pin"
         },
         "multipl_card": {
-          "title": "Multipliers",
-          "flow": "Flow",
+          "title": "Multiplicateurs",
+          "flow": "Débit",
           "press_adv": "Pressure Advance",
-          "smooth_time": "Smooth Time"
+          "smooth_time": "Temps de lissage"
         },
         "limit_card": {
           "title": "Limite",
@@ -154,19 +154,19 @@
         "meta_card": {
           "title": "GCode Meta Data",
           "filament": "Filament",
-          "filament_type": "Filament Type",
-          "filament_name": "Filament Name",
-          "est_print_time": "Estimated Print Time",
-          "slicer": "Used Slicer",
-          "nozzle_diameter": "Nozzle Diameter",
-          "layer_higher": "Layer Height",
-          "first_layer": "First Layer",
-          "others": "Others",
+          "filament_type": "Type de filament",
+          "filament_name": "Nom du Filament",
+          "est_print_time": "Estimation du temps d'impression",
+          "slicer": "Slicer utilisé",
+          "nozzle_diameter": "Diamètre de la buse",
+          "layer_higher": "Hauteur de la couche",
+          "first_layer": "Première couche",
+          "others": "Autres",
           "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperatures",
           "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
         },
         "stat_card": {
-          "title": "Statistics"
+          "title": "Statistiques"
         },
         "preheat_dialog": {
           "title": "@:pages.files.details.preheat ?",
@@ -179,25 +179,25 @@
       }
     },
     "setting": {
-      "title": "App - Settings",
+      "title": "Paramètres de l'application",
       "general": {
-        "title": "General",
-        "ems_confirm": "Confirm Emergency-Stop",
-        "always_baby": "Always show Babystepping Card",
-        "num_edit": "Use keyboard for number input",
+        "title": "Général",
+        "ems_confirm": "Confirmation de l'Arrêt d'urgence",
+        "always_baby": "Toujours afficher le micro stepping",
+        "num_edit": "Utiliser le clavier pour la saisie des chiffres",
         "start_with_overview": "Show @:pages.overview.title by default",
-        "use_offset_pos": "Show coordinates with offset applied.",
-        "language": "Language",
-        "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its "
+        "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué.",
+        "language": "Langue",
+        "companion": "Vous voulez recevoir une notification à distance ? Apprenez à configurer Mobileraker's Companion sur son site Web. "
       },
       "notification": {
         "title": "Notification",
-        "progress_label": "Progress Notification",
-        "progress_helper": "Update interval for print progress notification",
-        "no_permission_title": "No Notification Permission!",
-        "no_permission_desc": "Can not display notifications.\nRequest permission by clicking!",
-        "ios_notifications_title": "IOS Notification Delivery",
-        "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!"
+        "progress_label": "Notification d'avancement",
+        "progress_helper": "Intervalle de mise à jour pour la notification de la progression de l'impression",
+        "no_permission_title": "Pas de permission de notification !",
+        "no_permission_desc": "Impossible d'afficher les notifications.Demandez la permission en cliquant !",
+        "ios_notifications_title": "Transmission des notifications IOS",
+        "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !"
       },
       "imprint": "Privacy/Impressum"
     },
