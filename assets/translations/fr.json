@@ -82,25 +82,25 @@
         "baby_step_card": {
           "title": "Babystepping Z-Axis"
         },
-        "restart_klipper": "Restart Klipper",
-        "restart_mcu": "Restart MCU"
+        "restart_klipper": "Redémarrer Klipper",
+        "restart_mcu": "Redémarrer carte mère"
       },
       "control": {
         "fan_card": {
           "title": {
-            "zero": "Fan",
-            "one": "Fan",
-            "other": "Fans"
+            "zero": "Ventilateur",
+            "one": "Ventilateur",
+            "other": "Ventilateurs"
           },
-          "part_fan": "Part Fan",
-          "static_fan_btn": "Fan"
+          "part_fan": "Ventilateur de pièce",
+          "static_fan_btn": "Ventilateur"
         },
         "extrude_card": {
-          "title": "Extruder",
-          "extrude": "Extrude",
-          "retract": "Retract",
+          "title": "Extrudeur",
+          "extrude": "Extruder",
+          "retract": "Rétracter",
           "extrude_len": "@:pages.dashboard.control.extrude_card.extrude length",
-          "cold_extrude_error": "Extruder did not reach min_extrude_temp of {}°C yet!"
+          "cold_extrude_error": "L'extrudeur n'a pas atteit la temperature minimal d'extrusion de {}°C!"
         },
         "macro_card": {
           "title": "Gcode - Macros"
@@ -125,31 +125,31 @@
           "smooth_time": "Smooth Time"
         },
         "limit_card": {
-          "title": "Limits",
-          "velocity": "Velocity",
-          "accel": "Acceleration",
-          "sq_corn_vel": "Square Corner Velocity",
-          "accel_to_decel": "Accel to Decel"
+          "title": "Limite",
+          "velocity": "Vitesse",
+          "accel": "Accélération",
+          "sq_corn_vel": "Vitesse d'angle droit",
+          "accel_to_decel": "Accel à Decel"
         }
       }
     },
     "files": {
       "title": "Files",
-      "search_files": "Search files",
-      "clear_search": "Clear search",
-      "name": "Name",
-      "last_mod": "Last modified",
-      "last_printed": "Last printed",
+      "search_files": "Chercher fichier",
+      "clear_search": "Supprimer la recherche",
+      "name": "Nom",
+      "last_mod": "Dernière modification",
+      "last_printed": "Dernière impression",
       "fetching_files": "@:general.fetching Files...",
-      "no_files_found": "No files found!",
+      "no_files_found": "Aucun fichier trouver!",
       "details": {
-        "preheat": "Preheat",
-        "print": "Print",
+        "preheat": "Prechauffer",
+        "print": "Imprimer",
         "general_card": {
-          "path": "Path",
-          "last_mod": "Last Modified",
-          "last_printed": "Last Printed",
-          "no_data": "No data"
+          "path": "Chemin",
+          "last_mod": "Dernière modification",
+          "last_printed": "Dernière impression",
+          "no_data": "Pas de données"
         },
         "meta_card": {
           "title": "GCode Meta Data",
