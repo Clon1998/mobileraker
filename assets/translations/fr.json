@@ -10,30 +10,30 @@
     "rename": "Renommer",
     "remove": "Enlever",
     "set": "Set",
-    "use": "Use",
-    "restart": "Restart",
-    "shutdown": "Shutdown",
+    "use": "Utiliser",
+    "restart": "Redémarrer",
+    "shutdown": "Eteindre",
     "firmware": "Firmware",
     "fetching": "Fetching",
-    "unknown": "Unknown",
-    "disabled": "Disabled",
-    "confirm": "Confirm"
+    "unknown": "Inconnu",
+    "disabled": "Désactiver",
+    "confirm": "Confirmer"
   },
   "pages": {
     "dashboard": {
-      "title": "Dashboard",
-      "ems_btn": "Emergency-Stop",
+      "title": "Tableau de bord",
+      "ems_btn": "Arrêt d'urgence",
       "server_status": {
-        "unavailable": "No Server available",
-        "available": "Server State is {} and Klippy is {}"
+        "unavailable": "Pas de serveur disponible",
+        "available": "Le statut serveur est {} et Klippy est {}"
       },
       "fetching_printer": "@:general.fetching printer...",
       "general": {
         "print_card": {
           "reset": "Reset",
           "printing_for": "Printing: {}",
-          "speed": "Speed",
-          "layer": "Layer",
+          "speed": "Vitesse",
+          "layer": "Couche",
           "eta": "ETA",
           "current_object": "Current Object",
           "elapsed": "Elapsed",
