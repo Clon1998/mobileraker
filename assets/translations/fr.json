@@ -2,8 +2,8 @@
   "general": {
     "resume": "Reprendre",
     "connected": "Connecté",
-    "off": "Off",
-    "on": "On",
+    "off": "Eteint",
+    "on": "Allumer",
     "none": "Aucune",
     "add": "Ajouter",
     "create": "Créer",
