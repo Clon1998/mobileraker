@@ -253,128 +253,128 @@
         "cam_mode": "Mode caméra"
       },
       "macros": {
-        "new_macro_grp": "New Macro - Group",
-        "no_macros_available": "No Macros available!",
-        "no_macros_found": "No Macros found!",
+        "new_macro_grp": "Nouveau groupe de macro",
+        "no_macros_available": "Aucune macro disponible!",
+        "no_macros_found": "Aucune macro trouvée!",
         "macros_to_default": {
-          "one": "Moved one macro to default group!",
-          "two": "Moved two macro to default group!",
-          "other": "Moved {} macros to default group!"
+          "one": "Déplacement d'une macro vers le groupe par défaut !",
+          "two": "Déplacement de deux macros vers le groupe par défaut !",
+          "other": "Déplacement de {} vers le groupe par défaut !"
         }
       },
       "presets": {
-        "no_presets": "No Presets added!",
+        "no_presets": "Aucun préréglage ajouté !",
         "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperature",
         "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperature",
-        "new_preset": "New Preset"
+        "new_preset": "Nouveau préréglage"
       }
     },
     "printer_add": {
-      "title": "Add New Printer",
-      "printer_add_helper": "Host, IP, or full URL",
-      "resulting_ws_url": "Resulting WebSocket-URL: {}",
-      "misc": "Misc",
-      "test_ws": "Test websocket connection",
-      "result_ws_test": "Result: {}",
+      "title": "Ajouter une nouvelle imprimante",
+      "printer_add_helper": "Hôte, IP, ou URL complète",
+      "resulting_ws_url": "URL WebSocket résultante : {}",
+      "misc": "Divers",
+      "test_ws": "Tester la connexion websocket",
+      "result_ws_test": "Résultat: {}",
       "run_test_btn": "Test"
     },
     "console": {
       "title": "Console",
-      "no_entries": "No cached commands found",
+      "no_entries": "Aucune commande en cache n'a été trouvée",
       "fetching_console": "@:general.fetching console entries...",
       "command_input": {
-        "hint": "Enter console command"
+        "hint": "Entrer la commande console"
       }
     },
     "overview": {
-      "title": "Overview",
+      "title": "Vue d'ensemble",
       "fetching_machines": "@:general.fetching machines...",
-      "no_entries": "No machines found",
-      "add_machine": "Add Machine"
+      "no_entries": "Aucune machine trouvée",
+      "add_machine": "Ajouter une machine"
     }
   },
   "components": {
     "pull_to_refresh": {
-      "pull_up_idle" : "Pull up to Refresh"
+      "pull_up_idle" : "Tirez vers le haut pour rafraîchir"
     },
     "nav_drawer": {
-      "printer_settings": "Printer Settings",
-      "manage_printers": "Manage Printers",
+      "printer_settings": "Paramètres de l'imprimante",
+      "manage_printers": "Gérer les imprimantes",
       "fetching_printers": "@:general.fetching printers...",
-      "footer": "Made with ❤️ by Patrick Schmidt\nCheckout the project's"
+      "footer": "Fait avec ❤️ par Patrick Schmidt\nConsultez le site du projet"
     },
     "connection_watcher": {
-      "reconnect": "Reconnect",
-      "trying_connect": "Trying to connect ...",
-      "server_starting": "Server is starting..."
+      "reconnect": "Reconnexion",
+      "trying_connect": "Essayer de se connecter ...",
+      "server_starting": "Le serveur démarre..."
     }
   },
   "dialogs": {
     "rate_my_app": {
-      "title": "Rate Mobileraker?",
-      "message": "If you like Mobileraker and want to support the open source development, please consider rating Mobileraker!"
+      "title": "Notez Mobileraker?",
+      "message": "Si vous aimez Mobileraker et que vous souhaitez soutenir le développement du logiciel libre, pensez à évaluer Mobileraker !"
     },
     "import_setting": {
-      "fetching": "Fetching sources...",
-      "fetching_error_title": "Unable to fetch settings!",
-      "fetching_error_sub": "Ensure other machines are connected.",
-      "select_source": "Select Source"
+      "fetching": "Récupération des sources...",
+      "fetching_error_title": "Impossible de récupérer les paramètres !",
+      "fetching_error_sub": "Assurez-vous que les autres machines sont connectées.",
+      "select_source": "Sélectionner la source"
     },
     "create_folder": {
-      "title": "Create Folder",
-      "label": "Folder Name"
+      "title": "Créer un dossier",
+      "label": "Nom du dossier"
     },
     "delete_folder": {
-      "title": "Are you sure?",
-      "description": "All files contained in folder will be removed as well!\n\nConfirm deletion of folder '/{}'."
+      "title": "Vous êtes sûr ?",
+      "description": "Tous les fichiers contenus dans le dossier seront également supprimés!\n\nConfirmer la suppression du dossier '/{}'."
     },
     "rename_folder": {
-      "title": "Rename Folder",
-      "label": "Folder Name"
+      "title": "Renommer dossier",
+      "label": "Nom du dossier"
     },
     "delete_file": {
-      "description": "Confirm deletion of file '{}'."
+      "description": "Confirmer la suppression du fichier '{}'."
     },
     "rename_file": {
-      "title": "Rename File",
-      "label": "File Name"
+      "title": "Renommer fichier",
+      "label": "Nom du fichier"
     },
     "exclude_object": {
-      "title": "Exclude Object from Print",
-      "label": "Object to exclude",
-      "confirm_tile_title": "Are you sure?",
-      "confirm_tile_subtitle": "This operation cannot be undone!",
-      "exclude": "Exclude",
-      "no_visualization": "No visualization data available!"
+      "title": "Exclure un objet de l'impression",
+      "label": "Objet à exclure",
+      "confirm_tile_title": "Vous êtes sûr ?",
+      "confirm_tile_subtitle": "Cette opération ne peut être annulée !",
+      "exclude": "Exclure",
+      "no_visualization": "Pas de données de visualisation disponibles !"
     },
     "ws_input_help": {
-      "title": "URL Input Help",
-      "body": "You can either enter an IP, URL or full URI to your webinterface or directly to the websocket instance provided by moonraker.\n\nValid Examples:"
+      "title": "Aide à la saisie de l'URL",
+      "body": "Vous pouvez entrer une IP, une URL ou une URI complète vers votre interface web ou directement vers l'instance websocket fournie par moonraker.\n\nExamples valides:"
     }
   },
   "klipper_state": {
-    "ready": "Ready",
-    "shutdown": "Shutdown",
-    "starting": "Starting",
-    "disconnected": "Disconnected",
-    "error": "Error"
+    "ready": "Prêt",
+    "shutdown": "Arrêt",
+    "starting": "Démarrage",
+    "disconnected": "Déconnecté",
+    "error": "Erreur"
   },
   "notifications": {
-    "channel_printer_grp": "Printer {}",
+    "channel_printer_grp": "Imprimante {}",
     "channels": {
       "status": {
-        "name": "Print Status Updates - {}",
-        "desc": "Notifications regarding the print status.",
-        "title": "Print state of {} changed!",
-        "body_printing": "Started to print file: \"{}\"",
-        "body_paused": "Paused printing file: \"{}\"",
-        "body_complete": "Finished printing: \"{}\"",
-        "body_error": "Error while printing file: \"{}\""
+        "name": "Mise à jour de l'état d'impression - {}",
+        "desc": "Notifications concernant l'état de l'impression.",
+        "title": "L'état d'impression de {} a changé !",
+        "body_printing": "Début de l'impression du fichier : \"{}\"",
+        "body_paused": "Fichier d'impression en pause : \"{}\"",
+        "body_complete": "Impression terminée : \"{}\"",
+        "body_error": "Erreur lors de l'impression du fichier : \"{}\""
       },
       "progress": {
-        "name": "Print Progress Updates - {}",
-        "desc": "Notifications regarding the print progress.",
-        "title": "Print progress of {}"
+        "name": "Mise à jour de la progression d'impression - {}",
+        "desc": "Notifications concernant la progression de l'impression.",
+        "title": "Progression de l'impression {}"
       }
     }
   },
