@@ -29,6 +29,7 @@ class MacroGroup extends StampedEntity {
 
   MacroGroup copyWith({String? name, List<GCodeMacro>? macros}) {
     return MacroGroup(
+      created: created,
       name: name ?? this.name,
       uuid: uuid,
       macros: macros ?? this.macros,
