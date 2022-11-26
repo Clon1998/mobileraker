@@ -82,7 +82,7 @@ final fileServiceSelectedProvider = Provider.autoDispose((ref) {
 });
 
 final fileNotificationsSelectedProvider =
-StreamProvider.autoDispose<FileApiResponse>((ref) async* {
+    StreamProvider.autoDispose<FileApiResponse>((ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
@@ -125,11 +125,16 @@ class FileService {
           'server.files.get_directory',
           params: {'path': path, 'extended': extended});
 
-      String fileType = '.gcode';
+      Set<String> allowedFileType = {
+        '.gcode',
+        '.g',
+        '.gc',
+        '.gco',
+      };
 
-      if (path.startsWith('config')) fileType = '.cfg';
+      if (path.startsWith('config')) allowedFileType = {'.conf', '.cfg', '.md'};
 
-      return _parseDirectory(blockingResp, path, fileType);
+      return _parseDirectory(blockingResp, path, allowedFileType);
     } on JRpcError catch (e) {
       throw FileFetchException(e.toString(), reqPath: path);
     }
@@ -236,7 +241,7 @@ class FileService {
 
   FolderContentWrapper _parseDirectory(
       RpcResponse blockingResponse, String forPath,
-      [String fileType = '.gcode']) {
+      [Set<String> allowedFileType = const {'.gcode'}]) {
     Map<String, dynamic> response = blockingResponse.response['result'];
     List<dynamic> filesResponse = response['files']; // Just add an type
     List<dynamic> directoriesResponse = response['dirs']; // Just add an type
@@ -258,13 +263,15 @@ class FileService {
 
     filesResponse.removeWhere((element) {
       String name = element['filename'];
-      return !name.toLowerCase().endsWith(fileType);
+      var regExp = RegExp('^.*(${allowedFileType.join('|')})\$',
+          multiLine: true, caseSensitive: false);
+      return !regExp.hasMatch(name);
     });
 
     List<RemoteFile> listOfFiles = List.generate(filesResponse.length, (index) {
       var element = filesResponse[index];
       String name = element['filename'];
-      if (name.endsWith('.gcode')) {
+      if (RegExp(r'^.*(.gcode|.g|.gc|.gco)$').hasMatch(name)) {
         return GCodeFile.fromJson(element, forPath);
       } else {
         return RemoteFile.fromJson(element, forPath);
