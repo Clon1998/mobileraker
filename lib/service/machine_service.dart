@@ -1,15 +1,22 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
+import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
+import 'package:mobileraker/data/model/moonraker_db/fcm_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
+import 'package:mobileraker/data/model/moonraker_db/notification_settings.dart';
+import 'package:mobileraker/data/repository/fcm_settings_repository.dart';
+import 'package:mobileraker/data/repository/fcm_settings_repository_impl.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
+import 'package:mobileraker/data/repository/notification_settings_repository_impl.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/moonraker/announcement_service.dart';
@@ -18,11 +25,13 @@ import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/service/setting_service.dart';
 import 'package:rxdart/rxdart.dart';
 
-final machineServiceProvider = Provider<MachineService>(
-    (ref) => MachineService(ref),
-    name: 'machineServiceProvider');
+final machineServiceProvider = Provider.autoDispose<MachineService>((ref) {
+  ref.keepAlive();
+  return MachineService(ref);
+}, name: 'machineServiceProvider');
 
 final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>((ref) {
   return ref.watch(machineServiceProvider).fetchAll();
@@ -49,16 +58,18 @@ final selectedMachineSettingsProvider =
 class MachineService {
   MachineService(this.ref)
       : _machineRepo = ref.watch(machineRepositoryProvider),
-        _selectedMachineService = ref.watch(selectedMachineServiceProvider);
-  final Ref ref;
+        _selectedMachineService = ref.watch(selectedMachineServiceProvider),
+        _settingService = ref.watch(settingServiceProvider);
+
+  final AutoDisposeRef ref;
   final MachineHiveRepository _machineRepo;
   final SelectedMachineService _selectedMachineService;
+  final SettingService _settingService;
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
   Stream<BoxEvent> get machineEventStream =>
       Hive.box<Machine>('printers').watch();
-
 
   Future<void> updateMachine(Machine machine) async {
     await machine.save();
@@ -135,73 +146,80 @@ class MachineService {
 
     "key": "fcm",
     "value": {
-        "<device-fcm-token>": {
-            "machineId":"Device local MACHIN UUIDE!",
+        "<machineId>": {
+            "fcmToken":"<FCM-TOKEN>",
             "machineName": "V2.1111",
             "language": "en",
-            "progressConfig": 0.25,
-            "stateConfig": ["error","printing","paused"]
+            "settings": {
+              "progressConfig": 0.25,
+              "stateConfig": ["error","printing","paused"]
+            }
         }
     }
 
      */
 
-    MoonrakerDatabaseClient moonrakerDatabaseClient =
-        ref.read(moonrakerDatabaseClientProvider(machine.uuid));
-    String dbKey = 'fcm.$deviceFcmToken';
-    Map<String, dynamic>? fcmCfg = await moonrakerDatabaseClient
-        .getDatabaseItem('mobileraker', key: dbKey);
-    if (fcmCfg == null) {
-      fcmCfg = {
-        'machineId': machine.uuid,
-        'machineName': machine.name,
-        'language': 'en',
-        'progressConfig': 0.25,
-        'stateConfig': ['error', 'printing', 'paused']
-      };
+    FcmSettingsRepository fcmRepo =
+        ref.watch(fcmSettingsRepositoryProvider(machine.uuid));
 
+    FcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
+
+    int progressModeInt =
+        _settingService.readInt(selectedProgressNotifyMode, -1);
+    var progressMode = (progressModeInt < 0)
+        ? ProgressNotificationMode.TWENTY_FIVE
+        : ProgressNotificationMode.values[progressModeInt];
+
+    var states = _settingService
+        .read(activeStateNotifyMode, 'standby,printing,paused,complete,error')
+        .split(',')
+        .toSet();
+
+    if (fcmCfg == null) {
+      fcmCfg = FcmSettings.fallback(deviceFcmToken, machine.name);
+      fcmCfg.settings =
+          NotificationSettings(progress: progressMode.value, states: states);
       logger.i('Registered FCM Token in MoonrakerDB: $fcmCfg');
 
-      fcmCfg = await moonrakerDatabaseClient.addDatabaseItem(
-          'mobileraker', dbKey, fcmCfg);
-    } else if (fcmCfg['machineName'] != machine.name) {
-      fcmCfg['machineName'] = machine.name;
-      fcmCfg = await moonrakerDatabaseClient.addDatabaseItem(
-          'mobileraker', dbKey, fcmCfg);
+      await fcmRepo.update(machine.uuid, fcmCfg);
+    } else if (fcmCfg.machineName != machine.name ||
+        fcmCfg.fcmToken != deviceFcmToken ||
+        fcmCfg.settings.progress != progressMode.value ||
+        fcmCfg.settings.states != states) {
+      fcmCfg.machineName = machine.name;
+      fcmCfg.fcmToken = deviceFcmToken;
+      fcmCfg.settings = fcmCfg.settings
+          .copyWith(progress: progressMode.value, states: states);
+      logger.i('Updating fcmCfgs');
+      await fcmRepo.update(machine.uuid, fcmCfg);
     }
 
     logger.i('Current FCMConfig in MoonrakerDB: $fcmCfg');
   }
 
-  Future<void> registerFCMTokenOnMachine(
-      Machine machine, String fcmToken) async {
-    MoonrakerDatabaseClient moonrakerDatabaseClient =
-        ref.read(moonrakerDatabaseClientProvider(machine.uuid));
-    var item = await moonrakerDatabaseClient.getDatabaseItem('mobileraker',
-        key: 'fcmTokens');
-    if (item == null) {
-      logger.i('Creating fcmTokens in moonraker-Database');
-      await moonrakerDatabaseClient
-          .addDatabaseItem('mobileraker', 'fcmTokens', [fcmToken]);
-    } else {
-      List<String> fcmTokens = List.from(item);
-      if (!fcmTokens.contains(fcmToken)) {
-        logger.i('Adding token to existing fcmTokens in moonraker-Database');
-        await moonrakerDatabaseClient.addDatabaseItem(
-            'mobileraker', 'fcmTokens', fcmTokens..add(fcmToken));
-      } else {
-        logger
-            .i('FCM token was registed for ${machine.name}(${machine.wsUrl})');
-      }
-    }
-  }
+  Future<void> updateMachineFcmNotificationConfig(
+      {required Machine machine,
+      ProgressNotificationMode? mode,
+      Set<PrintState>? printStates}) async {
+    var notificationSettingsRepository =
+        ref.read(notificationSettingsRepositoryProvider(machine.uuid));
 
-  Future<Machine?> machineFromFcmIdentifier(String fcmIdentifier) async {
-    List<Machine> machines = await fetchAll();
-    for (Machine element in machines) {
-      if (element.fcmIdentifier == fcmIdentifier) return element;
+    var rpcClient = ref.read(jrpcClientProvider(machine.uuid));
+    var connected = await rpcClient.ensureConnection();
+    if (!connected) {
+      logger.w(
+          '[${machine.name}@${machine.wsUrl}]Unable to propagate new notification settings because JRPC was not connected!');
+      return;
     }
-    return null;
+
+    if (mode != null) {
+      notificationSettingsRepository.updateProgressSettings(
+          machine.uuid, mode.value);
+    }
+    if (printStates != null) {
+      notificationSettingsRepository.updateStateSettings(
+          machine.uuid, printStates);
+    }
   }
 
   Future<int> indexOfMachine(Machine setting) async {

@@ -98,7 +98,7 @@ class NotificationService {
     return notificationAllowed;
   }
 
-  registerLocalMessageHandling(Machine setting) {
+  void registerLocalMessageHandling(Machine setting) {
     // ToDo: Implement local notification handling again!
     return;
     _printerStreamMap[setting.uuid] = ref.listen(printerProvider(setting.uuid),
@@ -124,7 +124,7 @@ class NotificationService {
     });
   }
 
-  initializeNotificationChannels(List<Machine> machines) async {
+  Future<void> initializeNotificationChannels(List<Machine> machines) async {
     // Always have a basic channel!
     List<NotificationChannelGroup> groups = [
       NotificationChannelGroup(
@@ -153,12 +153,11 @@ class NotificationService {
         channelGroups: groups);
   }
 
-  initializeRemoteMessaging() async {
+  Future<void> initializeRemoteMessaging() async {
     await _notifyFCM.initialize(
         onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
         onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
         licenseKeys: [AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
-
 
     await _notifyFCM.requestFirebaseAppToken();
   }
@@ -184,7 +183,35 @@ class NotificationService {
   //   }
   // }
 
-  onMachineAdded(Machine setting) {
+  double normalizeProgress(ProgressNotificationMode mode, double prog) {
+    double m;
+    switch (mode) {
+      case ProgressNotificationMode.FIVE:
+        m = 0.05;
+        break;
+      case ProgressNotificationMode.TEN:
+        m = 0.10;
+        break;
+      case ProgressNotificationMode.TWENTY:
+        m = 0.20;
+        break;
+      case ProgressNotificationMode.TWENTY_FIVE:
+        m = 0.25;
+        break;
+      case ProgressNotificationMode.FIFTY:
+        m = 0.50;
+        break;
+      default:
+        return prog;
+    }
+    return prog - prog % m;
+  }
+
+  Future<String> fetchCurrentFcmToken() {
+    return _notifyFCM.requestFirebaseAppToken();
+  }
+
+  void onMachineAdded(Machine setting) {
     List<NotificationChannel> channelsOfmachines = _channelsOfmachines(setting);
     for (var channels in channelsOfmachines) {
       _notifyAPI.setChannel(channels);
@@ -195,12 +222,100 @@ class NotificationService {
         "Added notifications channels and stream-listener for UUID=${setting.uuid}");
   }
 
-  onMachineRemoved(String uuid) {
+  void onMachineRemoved(String uuid) {
     _notifyAPI.removeChannel('$uuid-statusUpdates');
     _notifyAPI.removeChannel('$uuid-progressUpdates');
     _printerStreamMap.remove(uuid)?.close();
     logger
         .i("Removed notifications channels and stream-listener for UUID=$uuid");
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> _onActionReceivedMethod(
+      ReceivedAction receivedAction) async {
+    //TODO: Swap to active printer that issued the notification!
+    // Your code goes here
+    // ref
+    //     .read(selectedMachineProvider)
+    //     .whenData((value) => ref.read(jrpcClientProvider(value!.uuid)));
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> _awesomeNotificationFCMTokenHandler(
+      String firebaseToken) async {
+    logger.i('Token from FCM $firebaseToken');
+
+    // ToDo: Add listener to token update to clear fcm.cfg!
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> _awesomeNotificationFCMBackgroundHandler(
+      FcmSilentData message) async {
+    // Todo: Do I even need background stuff ?
+    // logger.i('Receieved a notif Message');
+    // print('I-AM-COOL');
+    // debugPrint('I-AM-COOL-DEBUG');
+
+    // DartPluginRegistrant.ensureInitialized();
+    // logger
+    //     .wtf("Handling a background message: ${message.data} (${message.createdLifeCycle?.name})");
+    //
+    //
+    // if (Platform.isAndroid) {
+    //   // Only for Android a isolate is spawned!
+    //   await setupBoxes();
+    // }
+    //
+    // ProviderContainer container = ProviderContainer();
+    // NotificationService notificationService =
+    //     container.read(notificationServiceProvider);
+    //
+    // Map<String, String?>? data = message.data;
+    // if (data != null && message.createdLifeCycle != NotificationLifeCycle.Foreground) {
+    //   PrintState? state;
+    //   if (data.containsKey('printState')) {
+    //     state = EnumToString.fromString(
+    //             PrintState.values, data['printState'] ?? '') ??
+    //         PrintState.error;
+    //   }
+    //   String? printerIdentifier;
+    //   if (data.containsKey('printerIdentifier')) {
+    //     printerIdentifier = data['printerIdentifier'];
+    //   }
+    //   double? progress;
+    //   if (data.containsKey('progress')) {
+    //     var content = data['progress'];
+    //     if (content != null) progress = double.tryParse(content);
+    //   }
+    //
+    //   double? printingDuration;
+    //   if (data.containsKey('printingDuration')) {
+    //     var content = data["printingDuration"];
+    //     if (content != null) printingDuration = double.tryParse(content);
+    //   }
+    //   String? file;
+    //   if (data.containsKey('filename')) file = data['filename'];
+    //
+    //   if (state != null && printerIdentifier != null) {
+    //     Machine? machine = await notificationService._machineService
+    //         .machineFromFcmIdentifier(printerIdentifier);
+    //     if (machine != null) {
+    //       var printState = await notificationService
+    //           ._updatePrintStatusNotification(machine, state, file);
+    //       if (printState == PrintState.printing &&
+    //           progress != null &&
+    //           printingDuration != null) {
+    //         await notificationService._updatePrintProgressNotification(
+    //             machine, progress, printingDuration);
+    //       }
+    //       await machine.save();
+    //     }
+    //   }
+    // } else {
+    //   logger.e('Received data was empty!');
+    // }
+    // await Future.delayed(Duration(milliseconds: 200));
+    // container.dispose();
   }
 
   List<NotificationChannel> _channelsOfmachines(Machine machine) {
@@ -231,7 +346,7 @@ class NotificationService {
         channelGroupName: 'Printer ${machine.name}');
   }
 
-  _setupFCMOnPrinterOnceConnected(Machine machine) async {
+  void _setupFCMOnPrinterOnceConnected(Machine machine) async {
     late ProviderSubscription<AsyncValue<ClientState>> sub;
     sub = ref.listen(
         jrpcClientStateProvider(machine.uuid),
@@ -246,13 +361,12 @@ class NotificationService {
                 }
                 logger.i("Device's FCM token: $fcmToken");
 
-                await _machineService.updateMachineFcmConfig(
-                    machine, fcmToken);
+                await _machineService.updateMachineFcmConfig(machine, fcmToken);
                 // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
               } catch (e, s) {
                 logger.w(
                     'Could not setupFCM on ${machine.name}(${machine.wsUrl})',
-                    null,
+                    e,
                     s);
               } finally {
                 sub.close();
@@ -340,30 +454,6 @@ class NotificationService {
   Future<void> _removePrintProgressNotification(Machine machine) => _notifyAPI
       .cancelNotificationsByChannelKey(machine.printProgressChannelKey);
 
-  double normalizeProgress(ProgressNotificationMode mode, double prog) {
-    double m;
-    switch (mode) {
-      case ProgressNotificationMode.FIVE:
-        m = 0.05;
-        break;
-      case ProgressNotificationMode.TEN:
-        m = 0.10;
-        break;
-      case ProgressNotificationMode.TWENTY:
-        m = 0.20;
-        break;
-      case ProgressNotificationMode.TWENTY_FIVE:
-        m = 0.25;
-        break;
-      case ProgressNotificationMode.FIFTY:
-        m = 0.50;
-        break;
-      default:
-        return prog;
-    }
-    return prog - prog % m;
-  }
-
   Future<void> _updatePrintProgressNotification(
       Machine machine, double progress, double printDuration,
       [bool normalize = true]) async {
@@ -402,95 +492,6 @@ class NotificationService {
             notificationLayout: NotificationLayout.ProgressBar,
             locked: true,
             progress: progressPerc));
-  }
-
-  @pragma("vm:entry-point")
-  static Future<void> _onActionReceivedMethod(
-      ReceivedAction receivedAction) async {
-    //TODO: Swap to active printer that issued the notification!
-    // Your code goes here
-    // ref
-    //     .read(selectedMachineProvider)
-    //     .whenData((value) => ref.read(jrpcClientProvider(value!.uuid)));
-  }
-
-  @pragma("vm:entry-point")
-  static Future<void> _awesomeNotificationFCMTokenHandler(
-      String firebaseToken) async {
-    logger.i('Token from FCM $firebaseToken');
-
-    // ToDo: Add listener to token update to clear fcm.cfg!
-
-  }
-
-  @pragma("vm:entry-point")
-  static Future<void> _awesomeNotificationFCMBackgroundHandler(
-      FcmSilentData message) async {
-    // Todo: Do I even need background stuff ?
-    // logger.i('Receieved a notif Message');
-    // print('I-AM-COOL');
-    // debugPrint('I-AM-COOL-DEBUG');
-
-    // DartPluginRegistrant.ensureInitialized();
-    // logger
-    //     .wtf("Handling a background message: ${message.data} (${message.createdLifeCycle?.name})");
-    //
-    //
-    // if (Platform.isAndroid) {
-    //   // Only for Android a isolate is spawned!
-    //   await setupBoxes();
-    // }
-    //
-    // ProviderContainer container = ProviderContainer();
-    // NotificationService notificationService =
-    //     container.read(notificationServiceProvider);
-    //
-    // Map<String, String?>? data = message.data;
-    // if (data != null && message.createdLifeCycle != NotificationLifeCycle.Foreground) {
-    //   PrintState? state;
-    //   if (data.containsKey('printState')) {
-    //     state = EnumToString.fromString(
-    //             PrintState.values, data['printState'] ?? '') ??
-    //         PrintState.error;
-    //   }
-    //   String? printerIdentifier;
-    //   if (data.containsKey('printerIdentifier')) {
-    //     printerIdentifier = data['printerIdentifier'];
-    //   }
-    //   double? progress;
-    //   if (data.containsKey('progress')) {
-    //     var content = data['progress'];
-    //     if (content != null) progress = double.tryParse(content);
-    //   }
-    //
-    //   double? printingDuration;
-    //   if (data.containsKey('printingDuration')) {
-    //     var content = data["printingDuration"];
-    //     if (content != null) printingDuration = double.tryParse(content);
-    //   }
-    //   String? file;
-    //   if (data.containsKey('filename')) file = data['filename'];
-    //
-    //   if (state != null && printerIdentifier != null) {
-    //     Machine? machine = await notificationService._machineService
-    //         .machineFromFcmIdentifier(printerIdentifier);
-    //     if (machine != null) {
-    //       var printState = await notificationService
-    //           ._updatePrintStatusNotification(machine, state, file);
-    //       if (printState == PrintState.printing &&
-    //           progress != null &&
-    //           printingDuration != null) {
-    //         await notificationService._updatePrintProgressNotification(
-    //             machine, progress, printingDuration);
-    //       }
-    //       await machine.save();
-    //     }
-    //   }
-    // } else {
-    //   logger.e('Received data was empty!');
-    // }
-    // await Future.delayed(Duration(milliseconds: 200));
-    // container.dispose();
   }
 
   dispose() {

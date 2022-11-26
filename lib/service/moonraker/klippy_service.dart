@@ -26,7 +26,7 @@ final klipperProvider = StreamProvider.autoDispose
 });
 
 final klipperServiceSelectedProvider =
-    Provider.autoDispose(name: 'klipperServiceSelectedProvider', (ref) {
+    Provider.autoDispose<KlippyService>(name: 'klipperServiceSelectedProvider', (ref) {
   return ref.watch(klipperServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 });

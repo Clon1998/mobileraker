@@ -194,6 +194,8 @@
         "title": "Notification",
         "progress_label": "Progress Notification",
         "progress_helper": "Update interval for print progress notification",
+        "state_label": "State Notification",
+        "state_helper": "States that issue a state changed notification",
         "no_permission_title": "No Notification Permission!",
         "no_permission_desc": "Can not display notifications.\nRequest permission by clicking!",
         "ios_notifications_title": "IOS Notification Delivery",
