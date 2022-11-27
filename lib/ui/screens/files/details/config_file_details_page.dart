@@ -9,6 +9,7 @@ import 'package:highlight/languages/properties.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
@@ -34,10 +35,10 @@ class _ConfigFileDetail extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var codeController =
-    useValueNotifier(CodeController(language: properties));
+    var codeController = useValueNotifier(CodeController(language: properties));
     var file = ref.watch(configFileProvider);
-    ref.listen(configFileDetailsControllerProvider.select((value) => value.config),
+    ref.listen(
+        configFileDetailsControllerProvider.select((value) => value.config),
         (previous, AsyncValue<String> next) {
       next.whenData((value) => codeController.value.text = value);
     });
@@ -119,19 +120,14 @@ class _Fab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
+    logger.wtf('rebuilding SpeedChild');
 
-    if (ref.watch(configFileDetailsControllerProvider).isUploading) {
-      return FloatingActionButton(
-        backgroundColor: themeData.disabledColor,
-        onPressed: null,
-        child: const CircularProgressIndicator(),
-      );
-    }
-
+    logger.wtf('I am a speedchild');
+    var uploading = ref.watch(configFileDetailsControllerProvider).isUploading;
     return SpeedDial(
       icon: FlutterIcons.save_mdi,
       activeIcon: Icons.close,
-      children: [
+      children: uploading?[]:[
         SpeedDialChild(
           child: const Icon(Icons.save),
           backgroundColor: themeData.colorScheme.primaryContainer,
@@ -154,6 +150,10 @@ class _Fab extends ConsumerWidget {
       ],
       spacing: 5,
       overlayOpacity: 0.5,
+      backgroundColor: uploading? themeData.disabledColor:null,
+      child: uploading
+          ? const CircularProgressIndicator()
+          : null,
     );
   }
 }

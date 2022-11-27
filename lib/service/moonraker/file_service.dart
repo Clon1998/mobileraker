@@ -271,7 +271,7 @@ class FileService {
     List<RemoteFile> listOfFiles = List.generate(filesResponse.length, (index) {
       var element = filesResponse[index];
       String name = element['filename'];
-      if (RegExp(r'^.*(.gcode|.g|.gc|.gco)$').hasMatch(name)) {
+      if (RegExp(r'^.*\.(gcode|g|gc|gco)$').hasMatch(name)) {
         return GCodeFile.fromJson(element, forPath);
       } else {
         return RemoteFile.fromJson(element, forPath);

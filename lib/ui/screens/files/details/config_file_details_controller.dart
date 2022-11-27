@@ -45,7 +45,6 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
 
   Future<void> onSaveTapped(String code) async {
     state = state.copyWith(isUploading: true);
-
     try {
       await fileService.uploadAsFile(
           ref
