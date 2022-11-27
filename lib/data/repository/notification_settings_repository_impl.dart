@@ -1,9 +1,7 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/model/moonraker_db/fcm_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/notification_settings.dart';
-import 'package:mobileraker/data/repository/fcm_settings_repository.dart';
 import 'package:mobileraker/data/repository/notification_settings_repository.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 

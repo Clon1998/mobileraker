@@ -1,7 +1,7 @@
-import 'package:mobileraker/data/model/moonraker_db/fcm_settings.dart';
+import 'package:mobileraker/data/model/moonraker_db/device_fcm_settings.dart';
 
 abstract class FcmSettingsRepository {
-  Future<void> update(String machineId, FcmSettings fcmSettings);
+  Future<void> update(String machineId, DeviceFcmSettings fcmSettings);
 
-  Future<FcmSettings?> get(String machineId);
+  Future<DeviceFcmSettings?> get(String machineId);
 }

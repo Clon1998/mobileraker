@@ -7,7 +7,7 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
-import 'package:mobileraker/data/model/moonraker_db/fcm_settings.dart';
+import 'package:mobileraker/data/model/moonraker_db/device_fcm_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
@@ -162,7 +162,7 @@ class MachineService {
     FcmSettingsRepository fcmRepo =
         ref.watch(fcmSettingsRepositoryProvider(machine.uuid));
 
-    FcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
+    DeviceFcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
 
     int progressModeInt =
         _settingService.readInt(selectedProgressNotifyMode, -1);
@@ -176,7 +176,7 @@ class MachineService {
         .toSet();
 
     if (fcmCfg == null) {
-      fcmCfg = FcmSettings.fallback(deviceFcmToken, machine.name);
+      fcmCfg = DeviceFcmSettings.fallback(deviceFcmToken, machine.name);
       fcmCfg.settings =
           NotificationSettings(progress: progressMode.value, states: states);
       logger.i('Registered FCM Token in MoonrakerDB: $fcmCfg');

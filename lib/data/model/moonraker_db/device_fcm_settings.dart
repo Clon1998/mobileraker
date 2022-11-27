@@ -1,14 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/notification_settings.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
-import 'macro_group.dart';
 import 'stamped_entity.dart';
-import 'temperature_preset.dart';
 
-part 'fcm_settings.g.dart';
+part 'device_fcm_settings.g.dart';
 
 /**
 
@@ -27,8 +22,8 @@ part 'fcm_settings.g.dart';
  */
 
 @JsonSerializable()
-class FcmSettings extends StampedEntity {
-  FcmSettings(
+class DeviceFcmSettings extends StampedEntity {
+  DeviceFcmSettings(
       {DateTime? created,
       DateTime? lastModified,
       required this.fcmToken,
@@ -42,7 +37,7 @@ class FcmSettings extends StampedEntity {
   String language;
   NotificationSettings settings;
 
-  FcmSettings.fallback(String fcmToken, String machineName)
+  DeviceFcmSettings.fallback(String fcmToken, String machineName)
       : this(
           created: DateTime.now(),
           lastModified: DateTime.now(),
@@ -51,16 +46,16 @@ class FcmSettings extends StampedEntity {
           settings: NotificationSettings.fallback(),
         );
 
-  factory FcmSettings.fromJson(Map<String, dynamic> json) =>
-      _$FcmSettingsFromJson(json);
+  factory DeviceFcmSettings.fromJson(Map<String, dynamic> json) =>
+      _$DeviceFcmSettingsFromJson(json);
 
-  Map<String, dynamic> toJson() => _$FcmSettingsToJson(this);
+  Map<String, dynamic> toJson() => _$DeviceFcmSettingsToJson(this);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       super == other &&
-          other is FcmSettings &&
+          other is DeviceFcmSettings &&
           runtimeType == other.runtimeType &&
           fcmToken == other.fcmToken &&
           machineName == other.machineName &&
@@ -77,6 +72,6 @@ class FcmSettings extends StampedEntity {
 
   @override
   String toString() {
-    return 'FcmSettings{machineId: $fcmToken, machineName: $machineName, language: $language, settings: $settings}';
+    return 'DeviceFcmSettings{machineId: $fcmToken, machineName: $machineName, language: $language, settings: $settings}';
   }
 }
