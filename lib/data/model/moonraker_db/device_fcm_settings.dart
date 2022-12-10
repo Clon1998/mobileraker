@@ -1,3 +1,7 @@
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobileraker/data/model/moonraker_db/notification_settings.dart';
 
@@ -29,13 +33,15 @@ class DeviceFcmSettings extends StampedEntity {
       required this.fcmToken,
       required this.machineName,
       this.language = 'en',
-      required this.settings})
+      required this.settings,
+      this.snap})
       : super(created, lastModified ?? DateTime.now());
 
   String fcmToken;
   String machineName;
   String language;
   NotificationSettings settings;
+  Map<String, dynamic>? snap;
 
   DeviceFcmSettings.fallback(String fcmToken, String machineName)
       : this(
@@ -60,7 +66,8 @@ class DeviceFcmSettings extends StampedEntity {
           fcmToken == other.fcmToken &&
           machineName == other.machineName &&
           language == other.language &&
-          settings == other.settings;
+          settings == other.settings &&
+          mapEquals(snap,other.snap);
 
   @override
   int get hashCode =>
@@ -68,7 +75,8 @@ class DeviceFcmSettings extends StampedEntity {
       fcmToken.hashCode ^
       machineName.hashCode ^
       language.hashCode ^
-      settings.hashCode;
+      settings.hashCode^
+      snap.hashCode;
 
   @override
   String toString() {

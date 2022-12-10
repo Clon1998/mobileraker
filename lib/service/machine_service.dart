@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
@@ -185,7 +186,7 @@ class MachineService {
     } else if (fcmCfg.machineName != machine.name ||
         fcmCfg.fcmToken != deviceFcmToken ||
         fcmCfg.settings.progress != progressMode.value ||
-        fcmCfg.settings.states != states) {
+        !setEquals(fcmCfg.settings.states, states)) {
       fcmCfg.machineName = machine.name;
       fcmCfg.fcmToken = deviceFcmToken;
       fcmCfg.settings = fcmCfg.settings

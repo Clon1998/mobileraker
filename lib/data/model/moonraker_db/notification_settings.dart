@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:mobileraker/util/extensions/iterable_extension.dart';
 
 import 'stamped_entity.dart';
 
@@ -53,10 +55,10 @@ class NotificationSettings extends StampedEntity {
           other is NotificationSettings &&
           runtimeType == other.runtimeType &&
           progress == other.progress &&
-          states == other.states;
+          setEquals(states, other.states);
 
   @override
-  int get hashCode => super.hashCode ^ progress.hashCode ^ states.hashCode;
+  int get hashCode => super.hashCode ^ progress.hashCode ^ states.hashIterable;
 
   @override
   String toString() {
