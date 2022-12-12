@@ -1,311 +1,380 @@
 {
-	"components": {
-		"connection_watcher": {
-			"reconnect": "重新连接",
-			"server_starting": "服务器正在启动...",
-			"trying_connect": "正在尝试连接..."
-		},
-		"nav_drawer": {
-			"fetching_printers": "@:general.fetching printers...",
-			"footer": "帕特里克·施密特用❤️制作\n查看项目",
-			"manage_printers": "管理打印机",
-			"printer_settings": "打印机设置"
-		}
-	},
-	"dialogs": {
-		"create_folder": {
-			"label": "文件夹名称",
-			"title": "创建文件夹"
-		},
-		"delete_file": {
-			"description": "确认删除文件“{}”。"
-		},
-		"delete_folder": {
-			"description": "文件夹中包含的所有文件也将被删除！\n\n确认删除文件夹“/{}”。",
-			"title": "你确定吗？"
-		},
-		"import_setting": {
-			"fetching": "正在获取来源...",
-			"fetching_error_sub": "确保其他机器已连接。",
-			"fetching_error_title": "无法获取设置！",
-			"select_source": "选择来源"
-		},
-		"rename_file": {
-			"label": "文档名称",
-			"title": "重新命名文件"
-		},
-		"rename_folder": {
-			"label": "文件夹名称",
-			"title": "重命名文件夹"
-		}
-	},
-	"general": {
-		"add": "新增",
-		"connected": "已连接",
-		"create": "创建",
-		"fetching": "抓取",
-		"firmware": "固件",
-		"none": "没有",
-		"off": "关闭",
-		"remove": "去掉",
-		"rename": "改名",
-		"restart": "重新开始",
-		"resume": "恢复",
-		"set": "组",
-		"shutdown": "关掉",
-		"unknown": "未知",
-		"use": "采用"
-	},
-	"klipper_state": {
-		"disconnected": "未连接",
-		"error": "错误",
-		"ready": "准备",
-		"shutdown": "关掉",
-		"starting": "开始"
-	},
-	"notifications": {
-		"channel_printer_grp": "打印机 {}",
-		"channels": {
-			"progress": {
-				"desc": "有关打印进度的通知。",
-				"name": "打印进度更新 - {}",
-				"title": " {}的打印进度"
-			},
-			"status": {
-				"body_complete": "完成打印：“{}”",
-				"body_error": "打印文件时出错：“{}”",
-				"body_paused": "暂停打印文件：“{}”",
-				"body_printing": "开始打印文件：“{}”",
-				"desc": "有关打印状态的通知。",
-				"name": "打印状态更新 - {}",
-				"title": " {} 的打印状态已更改！"
-			}
-		}
-	},
-	"pages": {
-		"console": {
-			"command_input": {
-				"hint": "输入控制台命令"
-			},
-			"fetching_console": "@:general.fetching console entries...",
-			"no_entries": "未找到缓存的命令",
-			"title": "主机"
-		},
-		"dashboard": {
-			"control": {
-				"extrude_card": {
-					"extrude": "挤出",
-					"extrude_len": "@:pages.dashboard.control.extrude_card.extrude length",
-					"retract": "收回",
-					"title": "挤出机"
-				},
-				"fan_card": {
-					"part_fan": "部件风扇",
-					"static_fan_btn": "风扇",
-					"title": {
-						"one": "风扇",
-						"other": "风扇",
-						"zero": "风扇"
-					}
-				},
-				"macro_card": {
-					"title": "Gcode - 宏"
-				},
-				"multipl_card": {
-					"flow": "流量",
-					"title": "倍数器"
-				},
-				"pin_card": {
-					"pin_btn": "引脚",
-					"title": {
-						"one": "输出引脚",
-						"other": "输出引脚",
-						"two": "输出引脚",
-						"zero": "输出引脚"
-					}
-				}
-			},
-			"ems_btn": "紧急停止",
-			"fetching_printer": "@:general.fetching printer...",
-			"general": {
-				"baby_step_card": {
-					"title": "Babystepping Z 轴"
-				},
-				"cam_card": {
-					"fullscreen": "全屏",
-					"webcam": "摄像头"
-				},
-				"move_card": {
-					"home_all_btn": "所有",
-					"home_all_tooltip": "归零所有轴",
-					"home_xy_tooltip": "原点 X 和 Y 轴",
-					"home_z_tooltip": "Z轴原点",
-					"m84_btn": "M84",
-					"m84_tooltip": "禁用电机",
-					"mesh_btn": "网络",
-					"mesh_tooltip": "运行热床网络校准",
-					"qgl_btn": "QGL",
-					"qgl_tooltip": "运行四点调平",
-					"step_size": "步长",
-					"title": "移动轴"
-				},
-				"print_card": {
-					"eta": "预计结束时间",
-					"layer": "层",
-					"printing_for": "打印：{}",
-					"reset": "重启",
-					"speed": "速度"
-				},
-				"restart_klipper": "重启 Klipper",
-				"restart_mcu": "重启MCU",
-				"temp_card": {
-					"bed": "床",
-					"btn_thermistor": "传感器",
-					"heater_on": "{} °C 目标",
-					"hotend": "加热端",
-					"presets_btn": "预设",
-					"sensors": "传感器",
-					"temp_presets": "温度预设",
-					"title": "温度控制"
-				},
-				"temp_preset_card": {
-					"b_temp": "@:pages.dashboard.general.temp_card.bed {}°C",
-					"cooloff": "冷却",
-					"h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C"
-				}
-			},
-			"server_status": {
-				"available": "服务器状态为 {} ，Klippy 为 {}",
-				"unavailable": "没有可用的服务器"
-			},
-			"title": "仪表板"
-		},
-		"files": {
-			"clear_search": "清除搜寻",
-			"details": {
-				"general_card": {
-					"last_mod": "最后修改",
-					"last_printed": "最后印刷",
-					"no_data": "没有数据",
-					"path": "路径"
-				},
-				"meta_card": {
-					"est_print_time": "预计打印时间",
-					"first_layer": "第一层",
-					"first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperatures",
-					"first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend： {}°C\n@:pages.dashboard.general.temp_card.bed： {}°C",
-					"layer_higher": "层高",
-					"others": "其他",
-					"slicer": "使用的切片软件",
-					"title": "GCode 元数据"
-				},
-				"preheat": "预热",
-				"print": "打印",
-				"stat_card": {
-					"title": "统计"
-				}
-			},
-			"fetching_files": "@:general.fetching Files...",
-			"last_mod": "最后修改",
-			"last_printed": "最后打印",
-			"name": "名称",
-			"no_files_found": "没有找到文件！",
-			"search_files": "搜索文件",
-			"title": "档案"
-		},
-		"overview": {
-			"add_machine": "添加机器",
-			"fetching_machines": "@:general.fetching machines...",
-			"no_entries": "没有找到机器",
-			"title": "概观"
-		},
-		"printer_add": {
-			"misc": "杂项",
-			"printer_add_helper": "主机、IP 或完整 URL",
-			"result_ws_test": "结果： {}",
-			"resulting_ws_url": "生成的 WebSocket-URL： {}",
-			"run_test_btn": "测试",
-			"test_ws": "测试 websocket 连接",
-			"title": "添加新打印机"
-		},
-		"printer_edit": {
-			"cams": {
-				"default_addr": "默认地址",
-				"flip_horizontal": "水平翻转",
-				"flip_vertical": "垂直翻转",
-				"new_cam": "新的网络摄像头",
-				"no_webcams": "没有添加网络摄像头！",
-				"target_fps": "目标 FPS",
-				"webcam_addr": "网络摄像头 - 地址"
-			},
-			"could_not_fetch_additional": "无法获取其他设置！",
-			"extruders": {
-				"feedrate": "挤出机进料速度",
-				"feedrate_short": "进给速度",
-				"steps_extrude": "挤出步骤",
-				"steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude",
-				"title": "挤出机"
-			},
-			"fetch_error_hint": "确保机器可访问，并且 Mobileraker 已连接到它。",
-			"fetching_additional_settings": "@:general.fetching additional settings from network...",
-			"general": {
-				"displayname": "显示名称",
-				"full_url": "完整网址",
-				"moonraker_api_desc": "仅当您使用受信任的客户端时才需要。 FluiddPI 强制执行此操作！",
-				"moonraker_api_key": "Moonraker - API 密钥",
-				"printer_addr": "打印机 - 地址",
-				"ws_addr": "Websocket - 地址"
-			},
-			"import_settings": "导入设置",
-			"macros": {
-				"macros_to_default": {
-					"one": "将一个宏移至默认组！",
-					"other": "将 {} 个宏移至默认组！",
-					"two": "将两个宏移至默认组！"
-				},
-				"new_macro_grp": "新宏 - 组",
-				"no_macros_available": "没有可用的宏！",
-				"no_macros_found": "未找到宏！"
-			},
-			"motion_system": {
-				"invert_x": "反转 X - 轴",
-				"invert_x_short": "反转 X",
-				"invert_y": "反转 Y - 轴",
-				"invert_y_short": "反转 Y",
-				"invert_z": "反转 Z - 轴",
-				"invert_z_short": "反转 Z",
-				"speed_xy": "速度 X/Y - 轴",
-				"speed_xy_short": "速度 X/Y",
-				"speed_z": "速度 Z - 轴",
-				"speed_z_short": "速度 Z",
-				"steps_baby": "Babystepping Z 步",
-				"steps_baby_short": "Baby Steps",
-				"steps_move": "移动步骤",
-				"steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-				"title": "运动系统"
-			},
-			"no_values_found": "未找到任何值！",
-			"presets": {
-				"bed_temp": "@:pages.dashboard.general.temp_card.bed Temperature",
-				"hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperature",
-				"new_preset": "新预设",
-				"no_presets": "没有添加预设！"
-			},
-			"remove_printer": "移除打印机",
-			"title": "编辑 {}"
-		},
-		"setting": {
-			"general": {
-				"always_baby": "始终显示 Babystepping Card",
-				"companion": "了解如何在其上设置 Mobileraker 的 Companion",
-				"ems_confirm": "确认紧急停止",
-				"language": "语言",
-				"num_edit": "使用键盘输入数字",
-				"start_with_overview": "Show @:pages.overview.title by default",
-				"title": "一般"
-			},
-			"imprint": "隐私/印象",
-			"title": "应用程序 - 设置"
-		}
-	}
+    "general": {
+        "resume": "恢复",
+        "connected": "连接的",
+        "off": "离开",
+        "on": "上",
+        "none": "没有任何",
+        "add": "添加",
+        "create": "创造",
+        "rename": "改名",
+        "remove": "消除",
+        "set": "放",
+        "use": "利用",
+        "restart": "重新开始",
+        "shutdown": "关闭",
+        "firmware": "固件",
+        "fetching": "提取",
+        "unknown": "未知",
+        "disabled": "禁用",
+        "confirm": "确认"
+    },
+    "pages": {
+        "dashboard": {
+            "title": "仪表板",
+            "ems_btn": "紧急漫步",
+            "server_status": {
+                "unavailable": "没有服务器可用",
+                "available": "服务器状态为{}，klippy是{}"
+            },
+            "fetching_printer": "@general.fetching打印机...",
+            "general": {
+                "print_card": {
+                    "reset": "重置",
+                    "printing_for": "印刷： {}",
+                    "speed": "速度",
+                    "layer": "层",
+                    "eta": "eta",
+                    "current_object": "当前对象",
+                    "elapsed": "过去",
+                    "flow": "流动",
+                    "filament": "灯丝",
+                    "filament_used": "使用的{}％的丝，即{} m的{} m预测。"
+                },
+                "cam_card": {
+                    "webcam": "摄像头",
+                    "fullscreen": "全屏"
+                },
+                "temp_card": {
+                    "title": "温度控制",
+                    "presets_btn": "预设",
+                    "hotend": "热台",
+                    "bed": "床",
+                    "temp_presets": "温度预设",
+                    "sensors": "传感器",
+                    "heater_on": "{}°C目标",
+                    "btn_thermistor": "传感器"
+                },
+                "temp_preset_card": {
+                    "cooloff": "冷却",
+                    "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
+                    "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+                },
+                "move_card": {
+                    "title": "移动轴",
+                    "home_xy_tooltip": "主X和Y轴",
+                    "home_z_tooltip": "主Z轴",
+                    "home_all_tooltip": "主轴",
+                    "home_all_btn": "全部",
+                    "qgl_tooltip": "运行四轮锻炼",
+                    "qgl_btn": "QGL",
+                    "mesh_tooltip": "运行MED-MESH校准",
+                    "mesh_btn": "网",
+                    "m84_tooltip": "禁用电动机",
+                    "m84_btn": "M84",
+                    "step_size": "步长",
+                    "stc_tooltip": "运行螺钉倾斜计算",
+                    "stc_btn": "STC",
+                    "ztilt_tooltip": "运行Z-TILT校准",
+                    "ztilt_btn": "ZTILT"
+                },
+                "baby_step_card": {
+                    "title": "babySteppping z轴"
+                },
+                "restart_klipper": "重新启动Klipper",
+                "restart_mcu": "重新启动MCU"
+            },
+            "control": {
+                "fan_card": {
+                    "title": {
+                        "zero": "扇子",
+                        "one": "扇子",
+                        "other": "粉丝"
+                    },
+                    "part_fan": "零件风扇",
+                    "static_fan_btn": "扇子"
+                },
+                "extrude_card": {
+                    "title": "挤出机",
+                    "extrude": "拉伸",
+                    "retract": "缩回",
+                    "extrude_len": "@:pages.dashboard.control.extrude_card.extrude长度",
+                    "cold_extrude_error": "挤出机还没有达到{}°C的min_extrude_temp！"
+                },
+                "macro_card": {
+                    "title": "GCODE-宏"
+                },
+                "pin_card": {
+                    "title": {
+                        "zero": "输出引脚",
+                        "one": "输出引脚",
+                        "two": "输出引脚",
+                        "other": "输出引脚"
+                    },
+                    "pin_btn": "别针"
+                },
+                "power_card": {
+                    "title": "动力面板",
+                    "pin_btn": "别针"
+                },
+                "multipl_card": {
+                    "title": "乘数",
+                    "flow": "流动",
+                    "press_adv": "压力提高",
+                    "smooth_time": "光滑的时间"
+                },
+                "limit_card": {
+                    "title": "极限",
+                    "velocity": "速度",
+                    "accel": "加速度",
+                    "sq_corn_vel": "方角速度",
+                    "accel_to_decel": "加速减速"
+                }
+            }
+        },
+        "files": {
+            "title": "文件",
+            "search_files": "搜索文件",
+            "clear_search": "清除搜索",
+            "name": "姓名",
+            "last_mod": "最后修改",
+            "last_printed": "最后打印",
+            "fetching_files": "@:general.fetching文件...",
+            "no_files_found": "找不到文件！",
+            "details": {
+                "preheat": "预热",
+                "print": "打印",
+                "general_card": {
+                    "path": "小路",
+                    "last_mod": "最后修改",
+                    "last_printed": "最后打印",
+                    "no_data": "没有数据"
+                },
+                "meta_card": {
+                    "title": "GCODE元数据",
+                    "filament": "灯丝",
+                    "filament_type": "细丝类型",
+                    "filament_name": "灯丝名称",
+                    "est_print_time": "估计打印时间",
+                    "slicer": "使用的切片机",
+                    "nozzle_diameter": "喷嘴直径",
+                    "layer_higher": "层高度",
+                    "first_layer": "第一层",
+                    "others": "其他",
+                    "first_layer_temps": "@:pages.files.details.meta_card.first_layer-温度",
+                    "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend：{}°C \n @:pages.dashboard.general.temp_card.bed：{}°C"
+                },
+                "stat_card": {
+                    "title": "统计数据"
+                },
+                "preheat_dialog": {
+                    "title": "@:pages.files.details.preheat？",
+                    "body": "目标温度 \n 挤出器：{}°C \n 床：{}°C"
+                },
+                "preheat_snackbar": {
+                    "title": "开始预热",
+                    "body": "挤出器：{}°C \n 床：{}°C"
+                }
+            }
+        },
+        "setting": {
+            "title": "应用 - 设置",
+            "general": {
+                "title": "一般的",
+                "ems_confirm": "确认紧急漫步",
+                "always_baby": "始终显示babysteppping卡",
+                "num_edit": "使用键盘进行数字输入",
+                "start_with_overview": "show @:pages.overview.title默认",
+                "use_offset_pos": "显示使用偏移量的坐标。",
+                "language": "语",
+                "companion": "想接收远程通知吗？ \n 了解如何在其上设置Mobileraker的同伴"
+            },
+            "notification": {
+                "title": "通知",
+                "progress_label": "进度通知",
+                "progress_helper": "打印进度通知的更新间隔",
+                "no_permission_title": "无通知许可！",
+                "no_permission_desc": "无法显示通知。 \n 单击请求许可！",
+                "ios_notifications_title": "iOS通知交付",
+                "ios_notifications_desc": "通知要求至少一次打开一次通知，并在后台。 \n 仍然可以通过操作系统阻止一些通知！"
+            },
+            "imprint": "隐私/印象"
+        },
+        "printer_edit": {
+            "title": "编辑 {}",
+            "import_settings": "导入设置",
+            "remove_printer": "删除打印机",
+            "no_values_found": "找不到值！",
+            "fetching_additional_settings": "@:general.fetching从网络...",
+            "could_not_fetch_additional": "无法获取其他设置！",
+            "fetch_error_hint": "确保机器可以触及，并连接到它。",
+            "general": {
+                "displayname": "显示名称",
+                "printer_addr": "打印机 - 地址",
+                "ws_addr": "Websocket-地址",
+                "moonraker_api_key": "Moonraker -API钥匙",
+                "moonraker_api_desc": "仅当您使用受信任的客户时才需要。 Fluiddpi强制执行此功能！",
+                "full_url": "完整的URL",
+                "self_signed": "信任自我签名的证书"
+            },
+            "motion_system": {
+                "title": "运动系统",
+                "invert_x": "反转x-轴",
+                "invert_x_short": "倒x",
+                "invert_y": "倒y-轴",
+                "invert_y_short": "倒y",
+                "invert_z": "反转Z-轴",
+                "invert_z_short": "倒z",
+                "speed_xy": "速度x/y-轴",
+                "speed_xy_short": "速度x/y",
+                "speed_z": "速度Z-轴",
+                "speed_z_short": "速度z",
+                "steps_move": "移动步骤",
+                "steps_move_short": "@：pages.printer_edit.motion_system.steps_move",
+                "steps_baby": "babysteppping z-steps",
+                "steps_baby_short": "婴儿步"
+            },
+            "extruders": {
+                "title": "挤出机",
+                "feedrate": "挤出机饲料率",
+                "feedrate_short": "饲料率",
+                "steps_extrude": "挤压步骤",
+                "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+            },
+            "cams": {
+                "target_fps": "目标fps",
+                "new_cam": "新网络摄像头",
+                "no_webcams": "没有添加网络摄像头！",
+                "webcam_addr": "网络摄像头 - 地址",
+                "default_addr": "默认地址",
+                "flip_vertical": "翻转垂直",
+                "flip_horizontal": "翻转水平",
+                "cam_mode": "凸轮模式"
+            },
+            "macros": {
+                "new_macro_grp": "新宏 - 小组",
+                "no_macros_available": "没有宏！",
+                "no_macros_found": "找不到宏！",
+                "macros_to_default": {
+                    "one": "将一个宏移至默认组！",
+                    "two": "将两个宏移至默认组！",
+                    "other": "将{}宏移至默认组！"
+                }
+            },
+            "presets": {
+                "no_presets": "没有预设！",
+                "hotend_temp": "@:pages.dashboard.general.temp_card.hotend温度",
+                "bed_temp": "@:pages.dashboard.general.temp_card.bed温度",
+                "new_preset": "新预设"
+            }
+        },
+        "printer_add": {
+            "title": "添加新打印机",
+            "printer_add_helper": "主机，IP或完整URL",
+            "resulting_ws_url": "结果Websocket-url：{}",
+            "misc": "杂项",
+            "test_ws": "测试Websocket连接",
+            "result_ws_test": "结果： {}",
+            "run_test_btn": "测试"
+        },
+        "console": {
+            "title": "安慰",
+            "no_entries": "找不到缓存命令",
+            "fetching_console": "@:general.fetching Console条目...",
+            "command_input": {
+                "hint": "输入控制台命令"
+            }
+        },
+        "overview": {
+            "title": "概述",
+            "fetching_machines": "@:general.fetching机器...",
+            "no_entries": "找不到机器",
+            "add_machine": "添加机器"
+        }
+    },
+    "components": {
+        "pull_to_refresh": {
+            "pull_up_idle": "刷新"
+        },
+        "nav_drawer": {
+            "printer_settings": "打印机设置",
+            "manage_printers": "管理打印机",
+            "fetching_printers": "@:general.fetching打印机...",
+            "footer": "由帕特里克·施密特（Patrick Schmidt）制成的❤️ \n 结帐项目"
+        },
+        "connection_watcher": {
+            "reconnect": "重新连接",
+            "trying_connect": "试图连接...",
+            "server_starting": "服务器正在开始..."
+        }
+    },
+    "dialogs": {
+        "rate_my_app": {
+            "title": "评分机票？",
+            "message": "如果您喜欢Mobileraker并希望支持开源开发，请考虑对Mobileraker进行评级！"
+        },
+        "import_setting": {
+            "fetching": "获取来源...",
+            "fetching_error_title": "无法获取设置！",
+            "fetching_error_sub": "确保连接其他机器。",
+            "select_source": "选择源"
+        },
+        "create_folder": {
+            "title": "创建文件夹",
+            "label": "文件夹名称"
+        },
+        "delete_folder": {
+            "title": "你确定吗？",
+            "description": "文件夹中包含的所有文件也将被删除！ \n\n 确认文件夹'/{}'的删除。"
+        },
+        "rename_folder": {
+            "title": "重命名文件夹",
+            "label": "文件夹名称"
+        },
+        "delete_file": {
+            "description": "确认文件'{}'的删除。"
+        },
+        "rename_file": {
+            "title": "重新命名文件",
+            "label": "文件名"
+        },
+        "exclude_object": {
+            "title": "从打印中排除对象",
+            "label": "排除对象",
+            "confirm_tile_title": "你确定吗？",
+            "confirm_tile_subtitle": "这个操作无法撤消！",
+            "exclude": "排除",
+            "no_visualization": "没有可视化数据！"
+        },
+        "ws_input_help": {
+            "title": "URL输入帮助",
+            "body": "您可以将IP，URL或完整URI输入到Webinterface或直接到Moonraker提供的WebSocket实例。 \n\n 有效示例："
+        }
+    },
+    "klipper_state": {
+        "ready": "准备好",
+        "shutdown": "关闭",
+        "starting": "开始",
+        "disconnected": "断开连接",
+        "error": "错误"
+    },
+    "notifications": {
+        "channel_printer_grp": "打印机{}",
+        "channels": {
+            "status": {
+                "name": "打印状态更新 -  {}",
+                "desc": "有关打印状态的通知。",
+                "title": "{}的打印状态更改！",
+                "body_printing": "开始打印文件：“ {}”",
+                "body_paused": "暂停打印文件：“ {}”",
+                "body_complete": "完成打印：“ {}”",
+                "body_error": "打印文件时错误：“ {}”"
+            },
+            "progress": {
+                "name": "打印进度更新 -  {}",
+                "desc": "有关打印进度的通知。",
+                "title": "打印{}的进度"
+            }
+        }
+    }
 }

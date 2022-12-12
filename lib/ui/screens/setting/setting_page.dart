@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -92,60 +90,9 @@ class SettingPage extends ConsumerWidget {
                 activeColor: Theme.of(context).colorScheme.primary,
               ),
               _SectionHeader(title: 'pages.setting.notification.title'.tr()),
-              const _NotificationReliabilityInfo(),
               const NotificationPermissionWarning(),
-              const _ProgressNotificationDropDown(),
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: FormBuilderField<Set<PrintState>>(
-                    name: 'notificationStates',
-                    initialValue: settingService
-                        .read(activeStateNotifyMode,
-                            'standby,printing,paused,complete,error')
-                        .split(',')
-                        .map((e) =>
-                            EnumToString.fromString(PrintState.values, e) ??
-                            PrintState.error)
-                        .toSet(),
-                    onChanged: (values) {
-                      if (values == null) return;
-                      var str = values.map((e) => e.name).join(',');
-                      settingService.write(activeStateNotifyMode, str);
-                    },
-                    builder: (FormFieldState<Set<PrintState>> field) {
-                      Set<PrintState> value = field.value ?? {};
-
-                      return InputDecorator(
-                        decoration: InputDecoration(
-                            labelText: "State Notification",
-                            labelStyle: themeData.textTheme.labelLarge,
-                            helperText:
-                                'States that issue a state changed notification'),
-                        child: Wrap(
-                          alignment: WrapAlignment.spaceEvenly,
-                          children: PrintState.values.map((e) {
-                            var selected = value.contains(e);
-                            return FilterChip(
-                              selected: selected,
-                              elevation: 2,
-                              label: Text(
-                                e.displayName,
-                              ),
-                              onSelected: (bool s) {
-                                if (s) {
-                                  field.didChange({...value, e});
-                                } else {
-                                  var set = value.toSet();
-                                  set.remove(e);
-                                  field.didChange(set);
-                                }
-                              },
-                            );
-                          }).toList(growable: false),
-                        ),
-                      );
-                    }),
-              ),
+              const _ProgressNotificationSettingField(),
+              const _StateNotificationSettingField(),
               const Divider(),
               RichText(
                 text: TextSpan(
@@ -343,30 +290,84 @@ class _ThemeModeSelector extends ConsumerWidget {
   }
 }
 
-class _ProgressNotificationDropDown extends ConsumerWidget {
-  const _ProgressNotificationDropDown({Key? key}) : super(key: key);
+class _ProgressNotificationSettingField extends ConsumerWidget {
+  const _ProgressNotificationSettingField({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var settingService = ref.watch(settingServiceProvider);
-    int readInt = settingService.readInt(selectedProgressNotifyMode, -1);
-    var m = (readInt < 0)
-        ? ProgressNotificationMode.TWENTY_FIVE
-        : ProgressNotificationMode.values[readInt];
+    var progressSettings =
+        ref.watch(notificationProgressSettingControllerProvider);
 
     return FormBuilderDropdown<ProgressNotificationMode>(
-      initialValue: m,
+      initialValue: progressSettings,
       name: 'progressNotifyMode',
       items: ProgressNotificationMode.values
           .map((mode) => DropdownMenuItem(
-              value: mode, child: Text(progressNotificationModeStr(mode))))
+              value: mode, child: Text(mode.progressNotificationModeStr())))
           .toList(),
-      onChanged: (v) =>
-          settingService.writeInt(selectedProgressNotifyMode, v?.index ?? 0),
+      onChanged: (v) => ref
+          .read(notificationProgressSettingControllerProvider.notifier)
+          .onProgressChanged(v ?? ProgressNotificationMode.TWENTY_FIVE),
       decoration: InputDecoration(
           labelStyle: Theme.of(context).textTheme.labelLarge,
           labelText: 'pages.setting.notification.progress_label'.tr(),
           helperText: 'pages.setting.notification.progress_helper'.tr()),
+    );
+  }
+}
+
+class _StateNotificationSettingField extends ConsumerWidget {
+  const _StateNotificationSettingField({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var stateSettings = ref.watch(notificationStateSettingControllerProvider);
+
+    var themeData = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: FormBuilderField<Set<PrintState>>(
+          name: 'notificationStates',
+          initialValue: stateSettings,
+          onChanged: (values) {
+            if (values == null) return;
+            ref
+                .read(notificationStateSettingControllerProvider.notifier)
+                .onStatesChanged(values);
+          },
+          builder: (FormFieldState<Set<PrintState>> field) {
+            Set<PrintState> value = field.value ?? {};
+
+            return InputDecorator(
+              decoration: InputDecoration(
+                  labelText: 'pages.setting.notification.state_label'.tr(),
+                  labelStyle: themeData.textTheme.labelLarge,
+                  helperText: 'pages.setting.notification.state_helper'.tr()),
+              child: Wrap(
+                alignment: WrapAlignment.spaceEvenly,
+                children: PrintState.values.map((e) {
+                  var selected = value.contains(e);
+                  return FilterChip(
+                    selected: selected,
+                    elevation: 2,
+                    label: Text(
+                      e.displayName,
+                    ),
+                    onSelected: (bool s) {
+                      if (s) {
+                        field.didChange({...value, e});
+                      } else {
+                        var set = value.toSet();
+                        set.remove(e);
+                        field.didChange(set);
+                      }
+                    },
+                  );
+                }).toList(growable: false),
+              ),
+            );
+          }),
     );
   }
 }
@@ -376,7 +377,7 @@ class NotificationPermissionWarning extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(notificationPermissionProvider)) {
+    if (ref.watch(notificationPermissionControllerProvider)) {
       return const SizedBox.shrink();
     }
 
@@ -388,7 +389,7 @@ class NotificationPermissionWarning extends ConsumerWidget {
         textColor: themeData.colorScheme.onErrorContainer,
         iconColor: themeData.colorScheme.onErrorContainer,
         onTap: ref
-            .watch(notificationPermissionProvider.notifier)
+            .watch(notificationPermissionControllerProvider.notifier)
             .requestPermission,
         shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(15))),
@@ -401,39 +402,6 @@ class NotificationPermissionWarning extends ConsumerWidget {
         ).tr(),
         subtitle:
             const Text('pages.setting.notification.no_permission_desc').tr(),
-      ),
-    );
-  }
-}
-
-class _NotificationReliabilityInfo extends ConsumerWidget {
-  const _NotificationReliabilityInfo({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (!Platform.isIOS) {
-      return const SizedBox.shrink();
-    }
-
-    var themeData = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: ListTile(
-        tileColor: themeData.colorScheme.primaryContainer,
-        textColor: themeData.colorScheme.onPrimaryContainer,
-        iconColor: themeData.colorScheme.onPrimaryContainer,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15))),
-        leading: const Icon(
-          FlutterIcons.info_ent,
-          size: 40,
-        ),
-        title: const Text(
-          'pages.setting.notification.ios_notifications_title',
-        ).tr(),
-        subtitle:
-            const Text('pages.setting.notification.ios_notifications_desc')
-                .tr(),
       ),
     );
   }

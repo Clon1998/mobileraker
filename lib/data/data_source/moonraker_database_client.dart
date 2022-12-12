@@ -52,7 +52,7 @@ class MoonrakerDatabaseClient {
         return blockingResponse.response['result']['value'];
       }
     } on JRpcError catch (e,s) {
-      logger.e("Could not fetch settings!", e, StackTrace.current);
+      logger.e("Could not retrieve key: $key", e, StackTrace.current);
     }
     return null;
   }

@@ -33,7 +33,8 @@ enum AppRoute {
   settings,
   imprint,
   gcodeDetail,
-  configDetail
+  configDetail,
+  dev
 }
 
 final initialRouteProvider = FutureProvider.autoDispose<String>((ref) async {
@@ -142,6 +143,10 @@ final goRouterProvider = Provider.autoDispose<GoRouter>((ref) {
         name: AppRoute.console.name,
         builder: (context, state) => const ConsolePage(),
       ),
+      // GoRoute(
+      //     path: '/dev',
+      //     name: AppRoute.dev.name,
+      //     builder: (context, state) => const MyTestHomeScreen())
       // GoRoute(
       //   path: 'cart',
       //   name: AppRoute.cart.name,

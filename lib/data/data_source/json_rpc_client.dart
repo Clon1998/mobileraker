@@ -104,8 +104,8 @@ class JsonRpcClient {
   }
 
   /// Initialization the WebSockets connection with the server
-  openChannel() {
-    _tryConnect();
+  Future<bool> openChannel() {
+    return _tryConnect();
   }
 
   /// Closes the WebSocket communication
@@ -126,13 +126,14 @@ class JsonRpcClient {
   }
 
   /// Ensures that the ws is still connected.
-  /// returns [bool] regarding if the connection still was valid/open!
-  bool ensureConnection() {
+  /// returns a future that completes to true if the WS is connected or false once the
+  /// reconnection try, if needded is completed!
+  Future<bool> ensureConnection() async {
     if (curState != ClientState.connected &&
         curState != ClientState.connecting) {
       logger.i('[$url] WS not connected! connecting...');
-      openChannel();
-      return false;
+
+      return openChannel();
     }
     return true;
   }
@@ -166,7 +167,7 @@ class JsonRpcClient {
     _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
   }
 
-  _tryConnect() async {
+  Future<bool> _tryConnect() async {
     logger
         .i('Trying to connect to $url with APIkey: `${apiKey ?? 'NO-APIKEY'}`');
     curState = ClientState.connecting;
@@ -175,7 +176,8 @@ class JsonRpcClient {
       var httpClient = HttpClient();
       if (trustSelfSignedCertificate) {
         // only allow self signed certificates!
-        httpClient.badCertificateCallback = (cert, host,port) => cert.issuer==cert.subject;
+        httpClient.badCertificateCallback =
+            (cert, host, port) => cert.issuer == cert.subject;
       }
 
       WebSocket socket = await WebSocket.connect(url,
@@ -183,7 +185,7 @@ class JsonRpcClient {
           .timeout(_defaultTimeout);
       if (_disposed) {
         socket.close();
-        return;
+        return false;
       }
 
       socket.pingInterval = _defaultTimeout;
@@ -203,14 +205,16 @@ class JsonRpcClient {
       if (_stateStream.isClosed) {
         _channelSub?.cancel();
         _channel?.sink.close();
-        return;
+        return false;
       }
 
       if (curState != ClientState.connected) {
         curState = ClientState.connected;
       }
+      return true;
     } on Exception catch (e) {
       _onChannelError(e);
+      return false;
     }
   }
 
