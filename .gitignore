@@ -35,6 +35,7 @@
 *.logger.dart
 *.g.dart
 *.freezed.dart
+*.mocks.dart
 *.lock
 pubspec.lock
 # Web related
