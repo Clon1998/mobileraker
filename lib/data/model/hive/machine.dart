@@ -45,6 +45,8 @@ class Machine extends HiveObject {
 
   String get statusUpdatedChannelKey => '$uuid-statusUpdates';
 
+  String get m117ChannelKey => '$uuid-m117';
+
   String get printProgressChannelKey => '$uuid-progressUpdates';
 
   Machine({

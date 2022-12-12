@@ -328,6 +328,13 @@ class NotificationService {
           importance: NotificationImportance.Max,
           defaultColor: brownish.shade500),
       NotificationChannel(
+          channelKey: machine.m117ChannelKey,
+          channelName: 'User M117 Notifications - ${machine.name}',
+          channelDescription: 'Notifications issued by M117 with prefix "\$MR\$:".',
+          channelGroupKey: machine.uuid,
+          importance: NotificationImportance.Max,
+          defaultColor: brownish.shade500),
+      NotificationChannel(
           channelKey: machine.printProgressChannelKey,
           channelName: 'Print Progress Updates - ${machine.name}',
           channelDescription: 'Notifications regarding the print progress.',
