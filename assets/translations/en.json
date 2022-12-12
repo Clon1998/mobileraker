@@ -1,5 +1,6 @@
 {
   "general": {
+    "pause": "Pause",
     "resume": "Resume",
     "connected": "Connected",
     "off": "Off",

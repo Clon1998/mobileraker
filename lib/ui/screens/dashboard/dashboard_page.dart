@@ -20,6 +20,7 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
+import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
@@ -87,19 +88,46 @@ class _FloatingActionBtn extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    if (klippyState.value! == KlipperState.error) return const _IdleFAB();
+    if (klippyState.value == KlipperState.error) return const _IdleFAB();
 
-    switch (printState.value!) {
-      case PrintState.printing:
-        return FloatingActionButton(
-          onPressed: ref.read(printerServiceSelectedProvider).pausePrint,
-          child: const Icon(Icons.pause),
-        );
-      case PrintState.paused:
-        return const _PausedFAB();
-      default:
-        return const _IdleFAB();
-    }
+    ThemeData themeData = Theme.of(context);
+    return SpeedDial(
+      icon: FlutterIcons.options_vertical_sli,
+      activeIcon: Icons.close,
+      children: [
+        SpeedDialChild(
+          child: const Icon(Icons.cleaning_services),
+          backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
+          label: MaterialLocalizations.of(context)
+              .cancelButtonLabel
+              .toLowerCase()
+              .titleCase(),
+          onTap: ref.watch(printerServiceSelectedProvider).cancelPrint,
+        ),
+        if (printState.value == PrintState.paused)
+          SpeedDialChild(
+            child: Icon(
+              Icons.play_arrow,
+              color: themeData.colorScheme.onPrimaryContainer,
+            ),
+            backgroundColor: themeData.colorScheme.primaryContainer,
+            label: tr('general.resume'),
+            onTap: ref.watch(printerServiceSelectedProvider).resumePrint,
+          ),
+        if (printState.value == PrintState.printing)
+          SpeedDialChild(
+            child: Icon(
+              Icons.pause,
+              color: themeData.colorScheme.onPrimaryContainer,
+            ),
+            backgroundColor: themeData.colorScheme.primaryContainer,
+            label: tr('general.pause'),
+            onTap: ref.watch(printerServiceSelectedProvider).pausePrint,
+          ),
+      ],
+      spacing: 5,
+      overlayOpacity: 0,
+    );
   }
 }
 
@@ -224,37 +252,4 @@ class _IdleFAB extends ConsumerWidget {
       },
       // onPressed: mdodel.showNonPrintingMenu,
       child: const Icon(Icons.menu));
-}
-
-class _PausedFAB extends ConsumerWidget {
-  const _PausedFAB({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return SpeedDial(
-      icon: FlutterIcons.options_vertical_sli,
-      activeIcon: Icons.close,
-      children: [
-        SpeedDialChild(
-          child: const Icon(Icons.cleaning_services),
-          backgroundColor: Colors.red,
-          label: MaterialLocalizations.of(context)
-              .cancelButtonLabel
-              .toLowerCase()
-              .titleCase(),
-          onTap: ref.watch(printerServiceSelectedProvider).cancelPrint,
-        ),
-        SpeedDialChild(
-          child: const Icon(Icons.play_arrow),
-          backgroundColor: Colors.blue,
-          label: tr('general.resume'),
-          onTap: ref.watch(printerServiceSelectedProvider).resumePrint,
-        ),
-      ],
-      spacing: 5,
-      overlayOpacity: 0,
-    );
-  }
 }

@@ -1,5 +1,6 @@
 {
   "general": {
+    "pause": "Pausieren",
     "resume": "Fortsetzen",
     "connected": "Verbunden",
     "off": "Aus",
