@@ -39,6 +39,7 @@ dependencies:
   freezed_annotation: ^2.1.0
   flutter_hooks: ^0.18.0
   hooks_riverpod: ^2.1.0
+  riverpod_annotation: ^1.0.6
 
   #routing
   go_router: 5.0.3
@@ -120,6 +121,7 @@ dev_dependencies:
   freezed: ^2.2.1
   mockito: ^5.3.2
   json_serializable: ^6.4.1
+  riverpod_generator: ^1.0.6
 
 flutter_icons:
   android: true

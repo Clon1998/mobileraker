@@ -13,6 +13,7 @@ const String selectedWebcamGrpIndex = 'selWebcamGrp';
 const String selectedProgressNotifyMode = 'selProgNotMode';
 const String activeStateNotifyMode = 'activeStateNotMode';
 const String requestedNotifyPermission = 'reqNotifyPerm';
+const String selectedFileSort = 'selFileSrt';
 
 final settingServiceProvider = Provider((ref) => SettingService());
 
