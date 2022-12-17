@@ -39,12 +39,17 @@ class ConsoleListController
 
   final AutoDisposeRef ref;
   final PrinterService printerService;
+  final RegExp _tempPattern =
+      RegExp(r'^(?:ok\s+)?(B|C|T\d*):', caseSensitive: false);
 
   _init() async {
     var gCodeResponseStream = printerService.gCodeResponseStream;
     await _fetchHistory();
     if (!mounted) return;
     var l = gCodeResponseStream.listen((event) {
+      if (_tempPattern.hasMatch(event)) {
+        return;
+      }
       var consoleEntry = ConsoleEntry(event, ConsoleEntryType.RESPONSE,
           DateTime.now().millisecondsSinceEpoch / 1000);
       state = AsyncValue.data([...state.value!, consoleEntry]);
@@ -57,9 +62,8 @@ class ConsoleListController
 
   _fetchHistory() async {
     var raw = await printerService.gcodeStore();
-    var tempPattern = RegExp(r'^(?:ok\s+)?(B|C|T\d*):', caseSensitive: false);
     var list = raw
-        .where((element) => !tempPattern.hasMatch(element.message))
+        .where((element) => !_tempPattern.hasMatch(element.message))
         .toList(growable: false);
     if (!mounted) return;
     state = AsyncValue.data(list);
