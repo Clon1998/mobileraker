@@ -136,10 +136,7 @@ class DefaultBtnRow extends ConsumerWidget {
         TextButton(
           onPressed:
               ref.watch(excludeObjectControllerProvider.notifier).closeForm,
-          child: Text(MaterialLocalizations.of(context)
-              .cancelButtonLabel
-              .toLowerCase()
-              .titleCase()),
+          child: Text(tr('general.cancel')),
         ),
         TextButton(
           onPressed: ((ref.watch(excludeObjectProvider.select(

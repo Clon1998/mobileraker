@@ -201,7 +201,7 @@ class WSInput extends HookConsumerWidget {
                       '\n192.168.1.1:7125'
                       '\nhttp://myprinter.com'
                       '\nws://myprinter.com/socket',
-                  cancelBtn: 'Close'));
+                  cancelBtn: tr('general.close')));
             },
           )),
       onChanged: (input) {

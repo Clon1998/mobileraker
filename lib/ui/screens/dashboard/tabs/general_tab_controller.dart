@@ -92,8 +92,8 @@ class GeneralTabViewController
                     ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: "Edit Heated Bed Temperature",
-            cancelBtn: "Cancel",
-            confirmBtn: "Confirm",
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
                 current: state.value!.printerData.heaterBed.target.round(),
                 min: 0,
@@ -121,8 +121,8 @@ class GeneralTabViewController
                     : DialogType.rangeEdit,
             title:
                 'Edit Extruder ${extruder.num > 0 ? extruder.num : ''} Temperature',
-            cancelBtn: "Cancel",
-            confirmBtn: "Confirm",
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
                 current: extruder.target.round(),
                 min: 0,

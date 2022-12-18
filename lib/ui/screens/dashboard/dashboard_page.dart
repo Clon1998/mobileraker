@@ -98,10 +98,7 @@ class _FloatingActionBtn extends ConsumerWidget {
         SpeedDialChild(
           child: const Icon(Icons.cleaning_services),
           backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
-          label: MaterialLocalizations.of(context)
-              .cancelButtonLabel
-              .toLowerCase()
-              .titleCase(),
+          label: tr('general.cancel'),
           onTap: ref.watch(printerServiceSelectedProvider).cancelPrint,
         ),
         if (printState.value == PrintState.paused)

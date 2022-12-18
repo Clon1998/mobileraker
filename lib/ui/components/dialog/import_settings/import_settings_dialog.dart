@@ -241,7 +241,7 @@ class _Footer extends ConsumerWidget {
           onPressed: () {
             ref.read(dialogCompleter)(DialogResponse.aborted());
           },
-          child: Text(materialLocalizations.cancelButtonLabel.titleCase()),
+          child: Text(tr('general.cancel')),
         ),
         TextButton(
           onPressed: ref.watch(footerControllerProvider)

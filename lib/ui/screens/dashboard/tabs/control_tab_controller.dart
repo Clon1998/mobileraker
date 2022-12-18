@@ -72,8 +72,8 @@ class ControlTabController extends StateNotifier<void> {
                     ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: 'Edit Part Cooling fan %',
-            cancelBtn: "Cancel",
-            confirmBtn: "Confirm",
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
                 current: d.speed * 100.round(), min: 0, max: 100)))
         .then((value) {
@@ -93,8 +93,8 @@ class ControlTabController extends StateNotifier<void> {
                     ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: 'Edit ${beautifyName(namedFan.name)} %',
-            cancelBtn: "Cancel",
-            confirmBtn: "Confirm",
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
                 current: namedFan.speed * 100.round(), min: 0, max: 100)))
         .then((value) {
@@ -116,8 +116,8 @@ class ControlTabController extends StateNotifier<void> {
                     ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: 'Edit ${beautifyName(pin.name)} value!',
-            cancelBtn: "Cancel",
-            confirmBtn: "Confirm",
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
                 current: pin.value * (configOutput?.scale ?? 1),
                 min: 0,

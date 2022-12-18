@@ -18,7 +18,9 @@
     "fetching": "Fetching",
     "unknown": "Unknown",
     "disabled": "Disabled",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "close": "Close"
   },
   "pages": {
     "dashboard": {
@@ -41,7 +43,6 @@
           "flow": "Flow",
           "filament": "Filament",
           "filament_used": "Used {} % of Filament, that is {} m of the {} m predicted."
-
         },
         "cam_card": {
           "webcam": "Webcam",
@@ -298,7 +299,7 @@
   },
   "components": {
     "pull_to_refresh": {
-      "pull_up_idle" : "Pull up to Refresh"
+      "pull_up_idle": "Pull up to Refresh"
     },
     "nav_drawer": {
       "printer_settings": "Printer Settings",
@@ -353,6 +354,9 @@
     "ws_input_help": {
       "title": "URL Input Help",
       "body": "You can either enter an IP, URL or full URI to your webinterface or directly to the websocket instance provided by moonraker.\n\nValid Examples:"
+    },
+    "gcode_params": {
+      "hint": "Hint: You can also long press if you want to submit the macro with default values!"
     }
   },
   "klipper_state": {
