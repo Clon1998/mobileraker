@@ -9,6 +9,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:form_builder_validators/localization/l10n.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
@@ -498,42 +499,67 @@ class GcodeMacroCard extends HookConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: ChipTheme(
-              data: ChipThemeData(
-                  labelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                  deleteIconColor: Theme.of(context).colorScheme.onPrimary),
-              child: Wrap(
-                spacing: 5.0,
-                children: List<Widget>.generate(
-                  macrosOfGrp.length,
-                  (int index) {
-                    GCodeMacro macro = macrosOfGrp[index];
-                    bool disabled = (!klippyCanReceiveCommands ||
-                        (isPrinting && !macro.showWhilePrinting));
-                    return Visibility(
-                      visible: ref
-                              .watch(
-                                  machinePrinterKlippySettingsProvider.selectAs(
-                                      (value) => value.printerData.gcodeMacros
-                                          .contains(macro.name)))
-                              .valueOrFullNull! &&
-                          macro.visible,
-                      child: ActionChip(
-                        label: Text(macro.beautifiedName),
-                        backgroundColor: disabled
-                            ? themeData.disabledColor
-                            : themeData.colorScheme.primary,
-                        onPressed: () => disabled
-                            ? null
-                            : ref
-                                .watch(controlTabControllerProvider.notifier)
-                                .onMacroPressed(macro.name),
+            child: Wrap(
+              spacing: 5.0,
+              children: List<Widget>.generate(
+                macrosOfGrp.length,
+                (int index) {
+                  GCodeMacro macro = macrosOfGrp[index];
+                  ConfigGcodeMacro? configGcodeMacro = ref
+                      .watch(machinePrinterKlippySettingsProvider.selectAs(
+                          (data) => data.printerData.configFile
+                              .gcodeMacros[macro.name.toLowerCase()]))
+                      .valueOrFullNull;
+                  bool disabled = (!klippyCanReceiveCommands ||
+                      (isPrinting && !macro.showWhilePrinting));
+                  return Visibility(
+                    visible: ref
+                            .watch(
+                                machinePrinterKlippySettingsProvider.selectAs(
+                                    (value) => value.printerData.gcodeMacros
+                                        .contains(macro.name)))
+                            .valueOrFullNull! &&
+                        macro.visible,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 12),
+                        minimumSize: const Size(0, 32),
+                        foregroundColor: themeData.colorScheme.onPrimary,
+                        backgroundColor: themeData.colorScheme.primary,
+                        disabledBackgroundColor:
+                            themeData.colorScheme.onSurface.withOpacity(0.12),
+                        disabledForegroundColor:
+                            themeData.colorScheme.onSurface.withOpacity(0.38),
+                        textStyle: themeData.chipTheme.labelStyle,
+                        shape: const StadiumBorder(),
                       ),
-                    );
-                  },
-                ).toList(),
-              ),
+                      onPressed: disabled
+                          ? null
+                          : () => ref
+                              .watch(controlTabControllerProvider.notifier)
+                              .onMacroPressed(macro.name, configGcodeMacro),
+
+                      onLongPress: disabled
+                          ? null
+                          : () => ref
+                              .watch(controlTabControllerProvider.notifier)
+                              .onMacroLongPressed(
+                                macro.name,
+                              ),
+                      child: Text(macro.beautifiedName),
+
+                      // Chip(
+                      //   surfaceTintColor: Colors.red,
+                      //   label: Text(macro.beautifiedName),
+                      //   backgroundColor: disabled
+                      //       ? themeData.disabledColor
+                      //       : themeData.colorScheme.primary,
+                      // ),
+                    ),
+                  );
+                },
+              ).toList(),
             ),
           ),
         ],

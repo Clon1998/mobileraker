@@ -8,6 +8,7 @@ import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/info_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/macro_params/macro_params_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 
@@ -21,7 +22,8 @@ enum DialogType {
   rangeEdit,
   excludeObject,
   stacktrace,
-  renameFile
+  renameFile,
+  gcodeParams
 }
 
 typedef DialogCompleter = Function(DialogResponse);
@@ -47,7 +49,9 @@ class DialogService {
           completer: c,
         ),
     DialogType.stacktrace: (r, c) => StackTraceDialog(request: r, completer: c),
-    DialogType.renameFile: (r, c) => RenameFileDialog(request: r, completer: c)
+    DialogType.renameFile: (r, c) => RenameFileDialog(request: r, completer: c),
+    DialogType.gcodeParams: (r, c) =>
+        MacroParamsDialog(request: r, completer: c)
   };
 
   Future<DialogResponse?> showConfirm({

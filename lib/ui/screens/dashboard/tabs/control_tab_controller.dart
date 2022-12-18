@@ -1,4 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
 import 'package:mobileraker/data/dto/config/config_output.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
@@ -59,7 +61,26 @@ class ControlTabController extends StateNotifier<void> {
     if (idx != null) printerService.activateExtruder(idx);
   }
 
-  onMacroPressed(String name) {
+  onMacroPressed(String name, ConfigGcodeMacro? configGcodeMacro) async {
+    if (configGcodeMacro != null && configGcodeMacro.params.isNotEmpty) {
+      DialogResponse? response = await ref.read(dialogServiceProvider).show(
+          DialogRequest(type: DialogType.gcodeParams, data: configGcodeMacro));
+
+      if (response?.confirmed == true) {
+        var paramsMap = response!.data as Map<String, String>;
+
+        var paramStr = paramsMap.keys
+            .where((e) => paramsMap[e]!.trim().isNotEmpty)
+            .map((e) => '${e.toUpperCase()}=${paramsMap[e]}')
+            .join(" ");
+        printerService.gCode('$name $paramStr');
+      }
+    } else {
+      printerService.gCode(name);
+    }
+  }
+
+  onMacroLongPressed(String name) async {
     printerService.gCode(name);
   }
 
@@ -135,9 +156,9 @@ class ControlTabController extends StateNotifier<void> {
 final extruderControlCardControllerProvider =
     StateNotifierProvider.autoDispose<ExtruderControlCardController, int>(
         (ref) {
-          ref.keepAlive();
-          return ExtruderControlCardController(ref);
-        });
+  ref.keepAlive();
+  return ExtruderControlCardController(ref);
+});
 
 class ExtruderControlCardController extends StateNotifier<int> {
   ExtruderControlCardController(this.ref)

@@ -1072,7 +1072,8 @@ class PrinterService {
         }));
   }
 
-  void _showParsingExceptionSnackbar(Object e, StackTrace s, String key, Map<String, dynamic> json) {
+  void _showParsingExceptionSnackbar(
+      Object e, StackTrace s, String key, Map<String, dynamic> json) {
     _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         title: 'Refreshing Printer failed',
@@ -1084,7 +1085,8 @@ class PrinterService {
           _dialogService.show(DialogRequest(
               type: DialogType.stacktrace,
               title: 'Parsing "${key.titleCase()}" failed',
-              body: '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}'));
+              body:
+                  '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}'));
         }));
   }
 

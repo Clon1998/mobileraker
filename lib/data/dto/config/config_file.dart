@@ -1,5 +1,6 @@
 //TODO Decide regarding null values or not!
 import 'package:flutter/foundation.dart';
+import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
 
 import 'config_extruder.dart';
 import 'config_heater_bed.dart';
@@ -13,6 +14,7 @@ class ConfigFile {
   Map<String, ConfigExtruder> extruders = {};
   Map<String, ConfigOutput> outputs = {};
   Map<String, ConfigStepper> steppers = {};
+  Map<String, ConfigGcodeMacro> gcodeMacros = {};
 
   ConfigFile();
 
@@ -40,23 +42,23 @@ class ConfigFile {
           jsonChild.addAll(sharedHeaterConfig);
         }
         extruders[key] = ConfigExtruder.parse(key, jsonChild);
-      }
-
-      if (key.startsWith('output')) {
+      } else if (key.startsWith('output')) {
         List<String> split = key.split(" ");
         String name = split.length > 1 ? split.skip(1).join(" ") : split[0];
         Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
         outputs[name] = ConfigOutput.parse(name, jsonChild);
-      }
-
-      if (key.startsWith('stepper')) {
+      } else if (key.startsWith('stepper')) {
         List<String> split = key.split("_");
         String name = split.length > 1 ? split.skip(1).join("_") : split[0];
         Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
         steppers[name] = ConfigStepper.parse(name, jsonChild);
+      } else if (key.startsWith('gcode_macro')) {
+        List<String> split = key.split(" ");
+        String name = split.skip(1).join(" ").toLowerCase();
+        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
+        gcodeMacros[name] = ConfigGcodeMacro.parse(name, jsonChild);
       }
     }
-
     //ToDo parse the config for e.g. EXTRUDERS (Temp settings), ...
   }
 
