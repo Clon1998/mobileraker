@@ -88,7 +88,7 @@ class _FloatingActionBtn extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    if (klippyState.value == KlipperState.error) return const _IdleFAB();
+    if (klippyState.value == KlipperState.error || !{PrintState.printing,PrintState.paused}.contains(printState.value)) return const _IdleFAB();
 
     ThemeData themeData = Theme.of(context);
     return SpeedDial(
