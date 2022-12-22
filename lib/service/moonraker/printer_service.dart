@@ -9,6 +9,7 @@ import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/dto/machine/display_status.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
@@ -333,7 +334,7 @@ class PrinterService {
       RpcResponse blockingResponse =
           await _jRpcClient.sendJRpcMethod('server.gcode_store');
 
-      List<dynamic> raw = blockingResponse.response['result']['gcode_store'];
+      List<dynamic> raw = blockingResponse.result['gcode_store'];
       logger.i('Received cached GCode commands');
       return List.generate(
           raw.length, (index) => ConsoleEntry.fromJson(raw[index]));
@@ -348,7 +349,7 @@ class PrinterService {
     try {
       RpcResponse blockingResponse =
           await _jRpcClient.sendJRpcMethod('printer.gcode.help');
-      Map<dynamic, dynamic> raw = blockingResponse.response['result'];
+      Map<dynamic, dynamic> raw = blockingResponse.result;
       logger.i('Received ${raw.length} available GCode commands');
       return raw.entries.map((e) => Command(e.key, e.value)).toList();
     } on JRpcError catch (e) {
@@ -368,7 +369,7 @@ class PrinterService {
       RpcResponse blockingResponse =
           await _jRpcClient.sendJRpcMethod('server.temperature_store');
 
-      Map<String, dynamic> raw = blockingResponse.response['result'];
+      Map<String, dynamic> raw = blockingResponse.result;
       List<String> sensors = raw.keys
           .toList(); // temperature_sensor <NAME>, extruder, heater_bed, temperature_fan
       logger.i('Received cached temperature store for $sensors');
@@ -385,7 +386,7 @@ class PrinterService {
     // printerStream.value = Printer();
     logger.i('>>>Querying printers object list');
     RpcResponse resp = await _jRpcClient.sendJRpcMethod('printer.objects.list');
-    _parsePrinterObjectsList(resp.response, printer);
+    _parsePrinterObjectsList(resp.result, printer);
   }
 
   /// Method Handler for registered in the Websocket wrapper.
@@ -440,8 +441,7 @@ class PrinterService {
   }
 
   _parsePrinterObjectsList(
-      Map<String, dynamic> response, PrinterBuilder printer) {
-    var result = response['result'];
+      Map<String, dynamic> result, PrinterBuilder printer) {
     logger.i('<<<Received printer objects list!');
     logger.v(
         'PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
@@ -1029,7 +1029,7 @@ class PrinterService {
         'printer.objects.query',
         params: {'objects': queryObjects});
 
-    _parseQueriedObjects(jRpcResponse.response['result'], printer);
+    _parseQueriedObjects(jRpcResponse.result, printer);
   }
 
   /// This method registeres every printer object for websocket updates!

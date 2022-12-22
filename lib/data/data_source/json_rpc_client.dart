@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
@@ -26,11 +27,11 @@ class JRpcError implements Exception {
   }
 }
 
-class RpcResponse {
-  RpcResponse(this.response);
-
-  final Map<String, dynamic> response;
-}
+// class RpcResponse {
+//   RpcResponse(this.response);
+//
+//   final Map<String, dynamic> response;
+// }
 
 class JsonRpcClient {
   JsonRpcClient(this.url,
@@ -285,7 +286,7 @@ class JsonRpcClient {
         completer.completeError(
             JRpcError(err['code'], err['message']), StackTrace.current);
       } else {
-        completer.complete(RpcResponse(response));
+        completer.complete(RpcResponse.fromJson(response));
       }
     } else {
       logger.w('Received response for unknown id "$mId"');

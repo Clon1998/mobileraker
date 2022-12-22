@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/dto/power/power_device.dart';
 import 'package:mobileraker/data/dto/power/power_state.dart';
 import 'package:mobileraker/logger.dart';
@@ -79,7 +80,7 @@ class PowerService {
       RpcResponse rpcResponse =
           await _jRpcClient.sendJRpcMethod('machine.device_power.devices');
       logger.i('Fetching [power] devices!');
-      List<Map<String, dynamic>> devices = rpcResponse.response['result']
+      List<Map<String, dynamic>> devices = rpcResponse.result
               ['devices']
           .cast<Map<String, dynamic>>();
       return List.generate(
@@ -100,7 +101,7 @@ class PowerService {
           params: {'device': deviceName, 'action': state.name});
       logger.i('Setting [power] device "$deviceName" -> $state!');
 
-      Map<String, dynamic> result = rpcResponse.response['result'];
+      Map<String, dynamic> result = rpcResponse.result;
       return EnumToString.fromString(PowerState.values, result[deviceName]) ??
           PowerState.off;
     } on JRpcError catch (e, s) {
@@ -119,7 +120,7 @@ class PowerService {
           params: {'device': deviceName});
       logger.i('Fetching [power] device state of "$deviceName" !');
 
-      Map<String, dynamic> result = rpcResponse.response['result'];
+      Map<String, dynamic> result = rpcResponse.result;
       return EnumToString.fromString(PowerState.values, result[deviceName]) ??
           PowerState.off;
     } on JRpcError catch (e, s) {

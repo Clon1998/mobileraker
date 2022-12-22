@@ -13,6 +13,7 @@ import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
@@ -160,7 +161,7 @@ class FileService {
     var rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.post_directory',
         params: {'path': filePath});
-    return FileApiResponse.fromJson(rpcResponse.response['result']);
+    return FileApiResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileApiResponse> deleteFile(String filePath) async {
@@ -168,7 +169,7 @@ class FileService {
 
     RpcResponse rpcResponse = await _jRpcClient
         .sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
-    return FileApiResponse.fromJson(rpcResponse.response['result']);
+    return FileApiResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileApiResponse> deleteDirForced(String filePath) async {
@@ -177,7 +178,7 @@ class FileService {
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.delete_directory',
         params: {'path': filePath, 'force': true});
-    return FileApiResponse.fromJson(rpcResponse.response['result']);
+    return FileApiResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileApiResponse> moveFile(String origin, String destination) async {
@@ -186,7 +187,7 @@ class FileService {
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.move',
         params: {'source': origin, 'dest': destination});
-    return FileApiResponse.fromJson(rpcResponse.response['result']);
+    return FileApiResponse.fromJson(rpcResponse.result);
   }
 
   Future<File> downloadFile(String filePath) async {
@@ -242,7 +243,7 @@ class FileService {
   FolderContentWrapper _parseDirectory(
       RpcResponse blockingResponse, String forPath,
       [Set<String> allowedFileType = const {'.gcode'}]) {
-    Map<String, dynamic> response = blockingResponse.response['result'];
+    Map<String, dynamic> response = blockingResponse.result;
     List<dynamic> filesResponse = response['files']; // Just add an type
     List<dynamic> directoriesResponse = response['dirs']; // Just add an type
 
@@ -282,7 +283,7 @@ class FileService {
   }
 
   GCodeFile _parseFileMeta(RpcResponse blockingResponse, String forFile) {
-    Map<String, dynamic> response = blockingResponse.response['result'];
+    Map<String, dynamic> response = blockingResponse.result;
 
     var split = forFile.split('/');
     split.removeLast();

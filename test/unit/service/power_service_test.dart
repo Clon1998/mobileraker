@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/dto/power/power_device.dart';
 import 'package:mobileraker/data/dto/power/power_state.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -21,7 +22,7 @@ void main() {
     when(mockRpc.addMethodListener(any, 'notify_power_changed'))
         .thenReturn(null);
     when(mockRpc.sendJRpcMethod('machine.device_power.devices'))
-        .thenAnswer((realInvocation) async => RpcResponse(jsonDecode('''{
+        .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
           "result": {
             "devices": [
               {
@@ -59,7 +60,7 @@ void main() {
         .thenReturn(null);
     when(mockRpc.sendJRpcMethod('machine.device_power.get_device',
             params: {'device': 'WTF'}))
-        .thenAnswer((realInvocation) async => RpcResponse(jsonDecode('''{
+        .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
       "result": {
         "WTF": "off"
       }
@@ -82,7 +83,7 @@ void main() {
         .thenReturn(null);
     when(mockRpc.sendJRpcMethod('machine.device_power.post_device',
             params: {'device': 'WTF', 'action': 'off'}))
-        .thenAnswer((realInvocation) async => RpcResponse(jsonDecode('''{
+        .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
           "result": {
             "WTF": "off"
           }
@@ -106,7 +107,7 @@ void main() {
         .thenReturn(null);
     when(mockRpc.sendJRpcMethod('machine.device_power.post_device',
             params: {'device': 'WTF', 'action': 'off'}))
-        .thenAnswer((realInvocation) async => RpcResponse(jsonDecode('''{
+        .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
           "result": {
             "WTF": "off"
           }

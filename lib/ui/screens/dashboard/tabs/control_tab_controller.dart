@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
 import 'package:mobileraker/data/dto/config/config_output.dart';
@@ -76,11 +77,13 @@ class ControlTabController extends StateNotifier<void> {
         printerService.gCode('$name $paramStr');
       }
     } else {
+      HapticFeedback.vibrate();
       printerService.gCode(name);
     }
   }
 
   onMacroLongPressed(String name) async {
+    HapticFeedback.vibrate();
     printerService.gCode(name);
   }
 

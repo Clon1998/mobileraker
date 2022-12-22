@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/announcement/announcement_entry.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -55,7 +56,7 @@ class AnnouncementService {
           params: {'include_dismissed': includeDismissed});
 
       List<Map<String, dynamic>> entries =
-          rpcResponse.response['result']['entries'];
+          rpcResponse.result['entries'];
 
       return _parseAnnouncementsList(entries);
     } on JRpcError catch (e) {
@@ -71,7 +72,7 @@ class AnnouncementService {
           'server.announcements.list',
           params: {'entry_id': entryId, 'wake_time': wakeTime});
 
-      String respEntryId = rpcResponse.response['result']['entry_id'];
+      String respEntryId = rpcResponse.result['entry_id'];
       return respEntryId;
     } on JRpcError catch (e) {
       throw MobilerakerException(
