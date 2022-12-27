@@ -10,7 +10,7 @@ class ConfigHeaterBed {
   ConfigHeaterBed.parse(Map<String, dynamic> json)
       : heaterPin = json['heater_pin'],
         sensorType = json['sensor_type'],
-        sensorPin = json['sensor_pin'],
+        sensorPin = json['sensor_pin'] ?? '',
         control = json['control'],
         minTemp = json['min_temp'],
         maxTemp = json['max_temp'],
