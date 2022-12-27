@@ -11,8 +11,10 @@ class RpcResponse with _$RpcResponse {
   const factory RpcResponse(
       {required String jsonrpc,
       required int id,
-      required Map<String, dynamic> result}) = _IRpcReponse;
+      required Map<String, dynamic> result}) = _RpcReponse;
 
   factory RpcResponse.fromJson(Map<String, dynamic> json) =>
       _$RpcResponseFromJson(json);
+
+
 }
