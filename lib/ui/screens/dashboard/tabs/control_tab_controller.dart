@@ -85,7 +85,7 @@ class ControlTabController extends StateNotifier<void> {
         printerService.gCode('$name $paramStr');
       }
     } else {
-      HapticFeedback.vibrate();
+      HapticFeedback.selectionClick();
       printerService.gCode(name);
     }
   }

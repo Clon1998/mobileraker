@@ -7,6 +7,7 @@
      FlutterApplication and put your custom class here. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.BILLING" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <queries>
         <intent>
