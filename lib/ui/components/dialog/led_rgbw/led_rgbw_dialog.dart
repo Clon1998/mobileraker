@@ -56,6 +56,7 @@ class _LedRGBWDialog extends HookConsumerWidget {
               shrinkWrap: true,
               children: [
                 HueRingPicker(
+                  hueRingStrokeWidth: 30,
                   pickerColor: ledRGBWDialogState.selectedColor,
                   onColorChanged: ref
                       .watch(ledRGBWDialogControllerProvider.notifier)
@@ -64,7 +65,7 @@ class _LedRGBWDialog extends HookConsumerWidget {
                 Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Recent Colors:',
+                      '${tr('dialogs.rgbw.recent_colors')}:',
                       style: themeData.textTheme.labelLarge,
                     )),
                 Padding(

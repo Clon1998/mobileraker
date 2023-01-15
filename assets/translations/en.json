@@ -358,6 +358,9 @@
     },
     "gcode_params": {
       "hint": "Hint: You can also long press if you want to submit the macro with default values!"
+    },
+    "rgbw": {
+      "recent_colors": "Recent Colors"
     }
   },
   "klipper_state": {
