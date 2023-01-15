@@ -472,7 +472,8 @@ class _ExtruderCard extends HookConsumerWidget {
           temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
 
       spots.value.clear();
-      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
+      spots.value
+          .addAll(sublist.mapIndex((e, i) => FlSpot(max(i.toDouble(), 0), e)));
     }
     final String extruderNameStr =
         tr('pages.dashboard.control.extrude_card.title');
@@ -507,7 +508,8 @@ class _HeatedBedCard extends HookConsumerWidget {
       List<double> sublist =
           temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
-      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
+      spots.value
+          .addAll(sublist.mapIndex((e, i) => FlSpot(max(i.toDouble(), 0), e)));
     }
 
     return _HeaterCard(
@@ -539,25 +541,34 @@ class _SensorCard extends HookConsumerWidget {
       List<double> sublist =
           temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
-      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
+      spots.value
+          .addAll(sublist.mapIndex((e, i) => FlSpot(max(i.toDouble(), 0), e)));
     }
+    var beautifiedNamed = beautifyName(temperatureSensor.name);
 
     return GraphCardWithButton(
       plotSpots: spots.value,
       buttonChild:
           const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
-      builder: (context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(beautifyName(temperatureSensor.name),
-              style: Theme.of(context).textTheme.caption),
-          Text('${temperatureSensor.temperature.toStringAsFixed(1)} °C',
-              style: Theme.of(context).textTheme.headline6),
-          Text(
-            '${temperatureSensor.measuredMaxTemp.toStringAsFixed(1)} °C max',
-          ),
-        ],
+      builder: (context) => Tooltip(
+        message: beautifiedNamed,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              beautifiedNamed,
+              style: Theme.of(context).textTheme.caption,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text('${temperatureSensor.temperature.toStringAsFixed(1)} °C',
+                style: Theme.of(context).textTheme.headline6),
+            Text(
+              '${temperatureSensor.measuredMaxTemp.toStringAsFixed(1)} °C max',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -609,27 +620,35 @@ class _HeaterCard extends StatelessWidget {
         onTap: onTap,
         builder: (BuildContext context) {
           var innerTheme = Theme.of(context);
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: innerTheme.textTheme.caption),
-                  Text('${current.toStringAsFixed(1)} °C',
-                      style: innerTheme.textTheme.headline6),
-                  Text(targetTemp),
-                ],
-              ),
-              AnimatedOpacity(
-                opacity: current > _stillHotTemp ? 1 : 0,
-                duration: kThemeAnimationDuration,
-                child: Tooltip(
-                  message: '$name is still hot!',
-                  child: const Icon(Icons.do_not_touch_outlined),
+          return Tooltip(
+            message: name,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: innerTheme.textTheme.caption,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text('${current.toStringAsFixed(1)} °C',
+                        style: innerTheme.textTheme.headline6),
+                    Text(targetTemp),
+                  ],
                 ),
-              )
-            ],
+                AnimatedOpacity(
+                  opacity: current > _stillHotTemp ? 1 : 0,
+                  duration: kThemeAnimationDuration,
+                  child: Tooltip(
+                    message: '$name is still hot!',
+                    child: const Icon(Icons.do_not_touch_outlined),
+                  ),
+                )
+              ],
+            ),
           );
         });
   }
@@ -1062,8 +1081,8 @@ class _ControlXYZCard extends ConsumerWidget {
                             .read(controlXYZController.notifier)
                             .onSelectedAxisStepSizeChanged,
                         values: ref
-                            .watch(generalTabViewControllerProvider
-                                .select((data) {
+                            .watch(
+                                generalTabViewControllerProvider.select((data) {
                               return data.valueOrNull!.settings.moveSteps;
                             }))
                             .map((e) => e.toString())
