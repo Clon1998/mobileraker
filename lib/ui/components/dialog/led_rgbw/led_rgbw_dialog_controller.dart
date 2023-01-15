@@ -83,8 +83,7 @@ class LedRGBWDialogController extends _$LedRGBWDialogController {
 
   onSubmit() {
     SettingService settingService = ref.watch(settingServiceProvider);
-    var recentColors = state.recentColors;
-    recentColors.where((element) => element != state.selectedColor);
+    var recentColors = state.recentColors.where((element) => element != state.selectedColor);
     var list = [state.selectedColor, ...recentColors.take(9)]
         .map((e) => e.hexCode)
         .toList();
