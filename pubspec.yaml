@@ -84,6 +84,7 @@ dependencies:
   rate_my_app: ^1.1.3
 
   #ui
+  flutter_colorpicker: ^1.0.3
   percent_indicator: ^4.0.1
   flutter_icons:
     git: https://github.com/jibiel/flutter-icons.git

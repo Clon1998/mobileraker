@@ -1,15 +1,23 @@
+import 'dart:math';
+
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
 import 'package:mobileraker/data/dto/config/config_output.dart';
+import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
+import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
+import 'package:mobileraker/data/dto/machine/leds/dumb_led.dart';
+import 'package:mobileraker/data/dto/machine/leds/led.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_viewmodel.dart';
+import 'package:mobileraker/ui/components/dialog/led_rgbw/led_rgbw_dialog_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
@@ -151,6 +159,82 @@ class ControlTabController extends StateNotifier<void> {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
         printerService.outputPin(pin.name, v.toDouble());
+      }
+    });
+  }
+
+  onUpdateBinaryPin(OutputPin pin, bool uValue) {
+    printerService.outputPin(pin.name, uValue ? 1 : 0);
+  }
+
+  onEditLed(Led led, ConfigLed? configLed) {
+    if (configLed == null) return;
+
+    String name = beautifyName(led.name);
+    if (configLed.isSingleColor == true && configLed is ConfigDumbLed) {
+      ref
+          .read(dialogServiceProvider)
+          .show(DialogRequest(
+              type: ref
+                      .read(settingServiceProvider)
+                      .readBool(useTextInputForNumKey)
+                  ? DialogType.numEdit
+                  : DialogType.rangeEdit,
+              title: '${tr('general.edit')} $name %',
+              cancelBtn: tr('general.cancel'),
+              confirmBtn: tr('general.confirm'),
+              data: NumberEditDialogArguments(
+                  current:
+                      (led as DumbLed).color.asList().reduce(max) * 100.round(),
+                  min: 0,
+                  max: 100)))
+          .then((value) {
+        if (value != null && value.confirmed && value.data != null) {
+          double v = (value.data as num).toInt() / 100;
+          List<double> rgbw = [0, 0, 0, 0];
+          if (configLed.hasRed) {
+            rgbw[0] = v;
+          } else if (configLed.hasGreen) {
+            rgbw[1] = v;
+          } else if (configLed.hasBlue) {
+            rgbw[2] = v;
+          } else if (configLed.hasWhite) {
+            rgbw[3] = v;
+          }
+
+          printerService.led(led.name, Pixel.fromList(rgbw));
+        }
+      });
+      return;
+    }
+
+    ref
+        .read(dialogServiceProvider)
+        .show(DialogRequest(
+            type: DialogType.ledRGBW,
+            data: LedRGBWDialogArgument(
+              configLed,
+              led,
+            )))
+        .then((value) {
+      if (value != null && value.confirmed && value.data != null) {
+        Color selectedColor = value.data;
+
+
+        double white = 0;
+        if (configLed.hasWhite && selectedColor.value == 0xFFFFFFFF) {
+          white = 1;
+        }
+
+        Pixel pixel = Pixel.fromList([
+          selectedColor.red / 255,
+          selectedColor.green / 255,
+          selectedColor.blue / 255,
+          white
+        ]);
+
+
+        printerService.led(led.name, pixel);
       }
     });
   }

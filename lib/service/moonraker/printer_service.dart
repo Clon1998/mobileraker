@@ -6,6 +6,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
+import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
@@ -21,6 +22,9 @@ import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/gcode_move.dart';
 import 'package:mobileraker/data/dto/machine/heater_bed.dart';
+import 'package:mobileraker/data/dto/machine/leds/addressable_led.dart';
+import 'package:mobileraker/data/dto/machine/leds/dumb_led.dart';
+import 'package:mobileraker/data/dto/machine/leds/led.dart';
 import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
@@ -139,6 +143,11 @@ class PrinterService {
     'output_pin': _updateOutputPin,
     'temperature_sensor': _updateTemperatureSensor,
     'exclude_object': _updateExcludeObject,
+    'led': _updateLed,
+    'neopixel': _updateLed,
+    'dotstar': _updateLed,
+    'pca9533': _updateLed,
+    'pca9632': _updateLed,
   };
 
   final StreamController<String> _gCodeResponseStreamController =
@@ -328,6 +337,11 @@ class PrinterService {
     gCode('SDCARD_RESET_FILE');
   }
 
+  led(String ledName, Pixel pixel) {
+    gCode(
+        'SET_LED LED=$ledName RED=${pixel.red.toStringAsFixed(2)} GREEN=${pixel.green.toStringAsFixed(2)} BLUE=${pixel.blue.toStringAsFixed(2)} WHITE=${pixel.white.toStringAsFixed(2)}');
+  }
+
   Future<List<ConsoleEntry>> gcodeStore() async {
     logger.i('Fetching cached GCode commands');
     try {
@@ -452,6 +466,7 @@ class PrinterService {
     Set<NamedFan> fans = {};
     Set<TemperatureSensor> temperatureSensors = {};
     Set<OutputPin> outputPins = {};
+    Set<Led> leds = {};
 
     for (String element in objects) {
       qObjects.add(element);
@@ -475,6 +490,16 @@ class PrinterService {
       } else if (element.startsWith('temperature_sensor ')) {
         temperatureSensors.add(TemperatureSensor(
             name: element.substring(19), lastHistory: DateTime(1990)));
+      } else if (element.startsWith('led ')) {
+        leds.add(DumbLed(name: element.substring(4)));
+      } else if (element.startsWith('pca9533 ')) {
+        leds.add(DumbLed(name: element.substring(8)));
+      } else if (element.startsWith('pca9632 ')) {
+        leds.add(DumbLed(name: element.substring(8)));
+      } else if (element.startsWith('neopixel ')) {
+        leds.add(AddressableLed(name: element.substring(9)));
+      } else if (element.startsWith('dotstar ')) {
+        leds.add(AddressableLed(name: element.substring(8)));
       }
     }
     printer.fans = List.unmodifiable(fans);
@@ -485,6 +510,7 @@ class PrinterService {
         growable: false);
     printer.queryableObjects = List.unmodifiable(qObjects);
     printer.gcodeMacros = List.unmodifiable(gCodeMacros);
+    printer.leds = List.unmodifiable(leds);
   }
 
   _parseQueriedObjects(dynamic response, PrinterBuilder printer) async {
@@ -1000,6 +1026,30 @@ class PrinterService {
         excludedObjects: excludedObjects ?? old.excludedObjects,
         objects: objects ?? old.objects);
     logger.v('New exclude_printer: ${printer.excludeObject}');
+  }
+
+  _updateLed(String led, Map<String, dynamic> ledJson,
+      {required PrinterBuilder printer}) {
+    List<String> split = led.split(' ');
+    String name = split.length > 1 ? split.skip(1).join(' ') : split[0];
+    if (!ledJson.containsKey('color_data')) {
+      return;
+    }
+
+    List<dynamic> colorData = ledJson['color_data'];
+    var pixels = colorData
+        .map((e) => Pixel.fromList(e.cast<double>()))
+        .toList(growable: false);
+
+    printer.leds = printer.leds.map((e) {
+      if (e.name == name) {
+        if (e is DumbLed) {
+          return e.copyWith(color: pixels[0]);
+        }
+        return (e as AddressableLed).copyWith(pixels: pixels);
+      }
+      return e;
+    }).toList(growable: false);
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(

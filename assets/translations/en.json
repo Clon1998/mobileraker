@@ -20,7 +20,8 @@
     "disabled": "Disabled",
     "confirm": "Confirm",
     "cancel": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "edit": "Edit"
   },
   "pages": {
     "dashboard": {

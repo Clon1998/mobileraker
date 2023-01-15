@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/machine/display_status.dart';
+import 'package:mobileraker/data/dto/machine/leds/led.dart';
 import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/exceptions.dart';
 
@@ -20,6 +21,7 @@ part 'printer.freezed.dart';
 
 class PrinterBuilder {
   PrinterBuilder();
+
   PrinterBuilder.fromPrinter(Printer printer)
       : toolhead = printer.toolhead,
         extruders = printer.extruders,
@@ -36,7 +38,8 @@ class PrinterBuilder {
         queryableObjects = printer.queryableObjects,
         gcodeMacros = printer.gcodeMacros,
         motionReport = printer.motionReport,
-        displayStatus = printer.displayStatus;
+        displayStatus = printer.displayStatus,
+        leds = printer.leds;
 
   Toolhead? toolhead;
   List<Extruder> extruders = [];
@@ -54,6 +57,7 @@ class PrinterBuilder {
   List<OutputPin> outputPins = [];
   List<String> queryableObjects = [];
   List<String> gcodeMacros = [];
+  List<Led> leds = [];
 
   Printer build() {
     if (toolhead == null ||
@@ -83,7 +87,8 @@ class PrinterBuilder {
         temperatureSensors: temperatureSensors,
         outputPins: outputPins,
         queryableObjects: queryableObjects,
-        gcodeMacros: gcodeMacros);
+        gcodeMacros: gcodeMacros,
+        leds: leds);
     return printer;
   }
 }
@@ -109,6 +114,7 @@ class Printer with _$Printer {
     @Default([]) List<OutputPin> outputPins,
     @Default([]) List<String> queryableObjects,
     @Default([]) List<String> gcodeMacros,
+    @Default([]) List<Led> leds,
   }) = _Printer;
 
   Extruder get extruder =>
