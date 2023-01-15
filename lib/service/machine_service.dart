@@ -74,11 +74,15 @@ class MachineService {
 
   Future<void> updateMachine(Machine machine) async {
     await machine.save();
+
+
     var selectedMachineService = ref.read(selectedMachineServiceProvider);
     if (selectedMachineService.isSelectedMachine(machine)) {
       selectedMachineService.selectMachine(machine, true);
     }
-
+    ref
+        .read(jrpcClientProvider(machine.uuid))
+        .update(machine.wsUrl, machine.apiKey);
     return;
   }
 
