@@ -7,7 +7,7 @@ import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_neopixel.dart';
 import 'package:mobileraker/data/dto/config/led/config_pca_led.dart';
 
-import 'config_extru^der.dart';
+import 'config_extruder.dart';
 import 'config_heater_bed.dart';
 import 'config_output.dart';
 import 'config_printer.dart';
