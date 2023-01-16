@@ -386,6 +386,10 @@ class GCodeFileItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    String? lastPrinted = gCode.lastPrintDate != null
+        ? DateFormat.yMd(context.deviceLocale.languageCode).add_jm().format(gCode.lastPrintDate!)
+        : null;
+
     return _Slideable(
       fileName: gCode.name,
       child: ListTile(
@@ -399,6 +403,7 @@ class GCodeFileItem extends ConsumerWidget {
                   gCode, ref.watch(selectedMachineProvider).valueOrFullNull),
             )),
         title: Text(gCode.name),
+        subtitle:  Text((lastPrinted != null)?'${tr('pages.files.last_printed')}: $lastPrinted':tr('pages.files.not_printed')),
         onTap: () =>
             ref.read(filesListControllerProvider.notifier).onFileTapped(gCode),
       ),

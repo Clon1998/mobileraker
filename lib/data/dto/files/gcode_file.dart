@@ -120,6 +120,8 @@ class GCodeFile extends RemoteFile {
   }
 
   DateTime? get lastPrintDate {
+    if (printStartTime == null) return null;
+
     return DateTime.fromMillisecondsSinceEpoch(
         (printStartTime?.toInt() ?? 0) * 1000);
   }
