@@ -18,7 +18,10 @@
     "fetching": "Hole",
     "unknown": "Unbekannt",
     "disabled": "Deaktiviert",
-    "confirm": "Bestätigen"
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "edit": "Editiere"
   },
   "pages": {
     "dashboard": {
@@ -135,11 +138,12 @@
       "clear_search": "Suche löschen",
       "name": "Name",
       "last_mod": "Zuletzt bearbeitet",
+      "not_printed": "Nicht gedruckt",
       "last_printed": "Zuletzt gedruckt",
       "fetching_files": "@:general.fetching Dateien ...",
       "no_files_found": "Keine Datei gefunden!",
       "details": {
-        "preheat": "Borheizen",
+        "preheat": "Vorheizen",
         "print": "Drucken",
         "general_card": {
           "path": "Pfad",
@@ -344,6 +348,12 @@
     "ws_input_help": {
       "title": "URL-Eingabehilfe",
       "body": "Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer  Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz Adresse eingeben. \n\nGültige Beispiele:"
+    },
+    "gcode_params": {
+      "hint": "Tipp: Sie können auch lange drücken, um das Makro mit Standardwerten zu senden!"
+    },
+    "rgbw": {
+      "recent_colors": "Letzte Farben"
     }
   },
   "klipper_state": {

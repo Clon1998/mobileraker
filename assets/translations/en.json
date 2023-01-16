@@ -143,6 +143,7 @@
       "name": "Name",
       "last_mod": "Last modified",
       "last_printed": "Last printed",
+      "not_printed": "Not printed",
       "fetching_files": "@:general.fetching Files...",
       "no_files_found": "No files found!",
       "details": {
