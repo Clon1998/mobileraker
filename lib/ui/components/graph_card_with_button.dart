@@ -137,6 +137,8 @@ class _Chart extends StatelessWidget {
             belowBarData: BarAreaData(
               show: true,
               color: graphColor,
+              applyCutOffY: true,
+              cutOffY: 0,
             ),
           ),
         ],

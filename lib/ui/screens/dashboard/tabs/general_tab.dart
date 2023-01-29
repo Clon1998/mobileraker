@@ -472,8 +472,7 @@ class _ExtruderCard extends HookConsumerWidget {
           temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
 
       spots.value.clear();
-      spots.value
-          .addAll(sublist.mapIndex((e, i) => FlSpot(max(i.toDouble(), 0), e)));
+      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
     final String extruderNameStr =
         tr('pages.dashboard.control.extrude_card.title');
@@ -508,8 +507,7 @@ class _HeatedBedCard extends HookConsumerWidget {
       List<double> sublist =
           temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
-      spots.value
-          .addAll(sublist.mapIndex((e, i) => FlSpot(max(i.toDouble(), 0), e)));
+      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
 
     return _HeaterCard(
@@ -541,8 +539,7 @@ class _SensorCard extends HookConsumerWidget {
       List<double> sublist =
           temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
-      spots.value
-          .addAll(sublist.mapIndex((e, i) => FlSpot(max(i.toDouble(), 0), e)));
+      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
     var beautifiedNamed = beautifyName(temperatureSensor.name);
 
