@@ -1,26 +1,23 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'named_fan.dart';
 
-class TemperatureFan implements NamedFan {
-  TemperatureFan({required this.name, this.speed = 0.0});
+part 'temperature_fan.freezed.dart';
 
-  @override
-  final String name;
-  @override
-  final double speed;
+//     "temperature_fan Case": {
+// "speed": 0,
+// "rpm": null,
+// "temperature": 41.27,
+// "target": 55
+// }
 
-  @override
-  TemperatureFan copyWith({String? name, double? speed}) {
-    return TemperatureFan(name: name ?? this.name, speed: speed ?? this.speed);
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TemperatureFan &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          speed == other.speed;
-
-  @override
-  int get hashCode => name.hashCode ^ speed.hashCode;
+@freezed
+class TemperatureFan extends NamedFan with _$TemperatureFan {
+  const factory TemperatureFan({
+    required String name,
+    @Default(0) double speed,
+    double? rpm,
+    @Default(0) double temperature,
+    @Default(0) double target,
+  }) = _TemperatureFan;
 }

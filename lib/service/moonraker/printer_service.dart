@@ -151,10 +151,10 @@ class PrinterService {
     'configfile': _updateConfigFile,
     'print_stats': _updatePrintStat,
     'fan': _updatePrintFan,
-    'heater_fan': _updateNamedFan<HeaterFan>,
-    'controller_fan': _updateNamedFan<ControllerFan>,
-    'temperature_fan': _updateNamedFan<TemperatureFan>,
-    'fan_generic': _updateNamedFan<GenericFan>,
+    'heater_fan': _updateHeaterFan,
+    'controller_fan': _updateControllerFan,
+    'temperature_fan': _updateTemperatureFan,
+    'fan_generic': _updateGenericFan,
     'output_pin': _updateOutputPin,
     'temperature_sensor': _updateTemperatureSensor,
     'exclude_object': _updateExcludeObject,
@@ -346,6 +346,10 @@ class PrinterService {
 
   setTemperature(String heater, int target) {
     gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
+  }
+
+  setTemperatureFanTarget(String fan, int target) {
+    gCode('SET_TEMPERATURE_FAN_TARGET TEMPERATURE_FAN=$fan TARGET=$target');
   }
 
   startPrintFile(GCodeFile file) {
@@ -556,7 +560,66 @@ class PrinterService {
     }
   }
 
-  _updateNamedFan<T extends NamedFan>(
+  _updateHeaterFan(String fanName, Map<String, dynamic> fanJson,
+      {required PrinterBuilder printer}) {
+    List<String> split = fanName.split(' ');
+    String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
+
+    if (!fanJson.containsKey('speed')) {
+      return;
+    }
+
+    printer.fans = printer.fans.map((e) {
+      if (e is HeaterFan && e.name == hName) {
+        return e.copyWith(speed: fanJson['speed']);
+      }
+      return e;
+    }).toList(growable: false);
+  }
+
+  _updateControllerFan(String fanName, Map<String, dynamic> fanJson,
+      {required PrinterBuilder printer}) {
+    List<String> split = fanName.split(' ');
+    String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
+
+    if (!fanJson.containsKey('speed')) {
+      return;
+    }
+
+    printer.fans = printer.fans.map((e) {
+      if (e is ControllerFan && e.name == hName) {
+        return e.copyWith(speed: fanJson['speed']);
+      }
+      return e;
+    }).toList(growable: false);
+  }
+
+  _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson,
+      {required PrinterBuilder printer}) {
+    List<String> split = fanName.split(' ');
+    String hName = split.length > 1 ? split.skip(1).join(' ') : split[0];
+
+    if (!fanJson.containsKey('speed') &&
+        !fanJson.containsKey('rpm') &&
+        !fanJson.containsKey('temperature') &&
+        !fanJson.containsKey('target')) {
+      return;
+    }
+
+    printer.fans = printer.fans.map((e) {
+      if (e is TemperatureFan && e.name == hName) {
+        return e.copyWith(
+          speed: fanJson['speed'] ?? e.speed,
+          rpm: fanJson['rpm'] ?? e.rpm,
+          temperature: fanJson['temperature'] ?? e.temperature,
+          target: fanJson['target'] ?? e.target,
+        );
+      }
+      return e;
+    }).toList(growable: false);
+  }
+
+  _updateGenericFan<T extends NamedFan>(
       String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
     List<String> split = fanName.split(' ');
@@ -567,7 +630,7 @@ class PrinterService {
     }
 
     printer.fans = printer.fans.map((e) {
-      if (e is T && e.name == hName) {
+      if (e is GenericFan && e.name == hName) {
         return e.copyWith(speed: fanJson['speed']);
       }
       return e;
