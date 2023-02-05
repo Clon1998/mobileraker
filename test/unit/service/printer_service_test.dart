@@ -112,7 +112,7 @@ void main() {
     var printerService = container.read(printerServiceProvider(uuid));
   });
 
-  test('Test with valid initialization', () {
+  test('Test with valid initialization', () async {
     var mockRpc = MockJsonRpcClient();
 
     // MethodListener for subscribed object status updates
@@ -154,9 +154,37 @@ void main() {
     expect(printerService.currentOrNull, null);
 
     when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
-        (realInvocation) async => RpcResponse()
-    );
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
+              'objects': ['toolhead']
+            }));
 
+    when(mockRpc.sendJRpcMethod('printer.objects.query', params: {
+      'objects': {'toolhead':null}
+    })).thenAnswer(
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
+              'status': {
+                "toolhead": {
+                  "position": [0, 0, 0, 0],
+                  "status": "Ready"
+                }
+              }
+            }));
 
+    when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {}));
+
+    when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
+        params: ['toolhead'])).thenReturn(null);
+
+    when(mockMachineService.updateMacrosInSettings(uuid, any)).thenReturn(null);
+
+    mockKlipyyStreamCtl.add(const KlipperInstance(
+        klippyConnected: true, klippyState: KlipperState.ready));
+    await expectLater(printerService.printerStream, emits(isNotNull));
+
+    verify(mockRpc.sendJRpcMethod('printer.objects.list'));
+    verify(mockRpc.sendJRpcMethod('printer.objects.query', params: {
+      'objects': ['toolhead']
+    }));
   });
 }

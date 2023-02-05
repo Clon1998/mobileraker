@@ -2,8 +2,10 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/repository/octo_everywhere_hive_repository.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 
@@ -14,6 +16,11 @@ final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
     throw MobilerakerException(
         'Machine with UUID "$machineUUID" was not found!');
   }
+
+  var octoEverywhereHiveRepository = ref.watch(octoEverywhereHiveRepositoryProvider);
+
+  var octoEverywhere = octoEverywhereHiveRepository.fetch(machineUUID);
+
   var jsonRpcClient = JsonRpcClient(machine.wsUrl,
       apiKey: machine.apiKey,
       trustSelfSignedCertificate: machine.trustUntrustedCertificate);

@@ -54,12 +54,13 @@ dependencies:
   json_annotation: ^4.7.0
   logger: ^1.1.0
   package_info_plus: ^3.0.1
-
+  flutter_web_auth: ^0.5.0
 
   #persisstent
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   file: ^6.1.2
+  flutter_secure_storage: ^7.0.1
 
   #theme
   cupertino_icons: ^1.0.2

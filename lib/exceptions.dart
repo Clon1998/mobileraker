@@ -8,7 +8,7 @@ class MobilerakerException implements Exception {
 
   @override
   String toString() {
-    return 'MobilerakerException{message: $message, parentException: $parentException, parentStack: $parentStack}';
+    return 'MobilerakerException{$message, parentException: $parentException, parentStack: $parentStack}';
   }
 }
 
@@ -20,5 +20,15 @@ class FileFetchException extends MobilerakerException {
   @override
   String toString() {
     return 'FileFetchException{path: $reqPath, error: $message}';
+  }
+}
+
+class OctoEverywhereException extends MobilerakerException {
+  const OctoEverywhereException(String message,
+      {super.parentException, super.parentStack}) : super(message);
+
+  @override
+  String toString() {
+    return 'OctoEverywhereException{$message, parentException: $parentException, parentStack: $parentStack}';
   }
 }

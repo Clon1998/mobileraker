@@ -16,6 +16,7 @@ class PrinterAddPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('pages.printer_add.title').tr(),
@@ -66,7 +67,8 @@ class PrinterAddPage extends ConsumerWidget {
                 FormBuilderCheckbox(
                   name: 'trustSelfSigned',
                   initialValue: false,
-                  title: const Text('pages.printer_edit.general.self_signed').tr(),
+                  title:
+                      const Text('pages.printer_edit.general.self_signed').tr(),
                   controlAffinity: ListTileControlAffinity.trailing,
                 ),
                 InputDecorator(
@@ -80,6 +82,29 @@ class PrinterAddPage extends ConsumerWidget {
                   ),
                   child: const TestConnection(),
                 ),
+                ElevatedButton(
+                  onPressed: ref.read(printerAddViewController.notifier).importFromOctoeverywhere,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      const Image(
+                        height: 40,
+                        width: 40,
+                        image: AssetImage('assets/images/octo_everywhere.png'),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(
+                          'Use OctoEverywhere',
+                          style: themeData.textTheme.titleLarge,
+                        ),
+                      ),
+                    ],
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xff7399ff),
+                  ),
+                )
               ],
             ),
           ),
