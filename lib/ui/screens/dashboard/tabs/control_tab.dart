@@ -144,7 +144,7 @@ class FansCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var fanLen = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.fans
+            .printerData.fans.values
             .where((element) => !element.name.startsWith('_'))
             .length))
         .valueOrFullNull!;
@@ -165,6 +165,7 @@ class FansCard extends ConsumerWidget {
               ...List.generate(fanLen, (index) {
                 var fanProvider = machinePrinterKlippySettingsProvider.selectAs(
                     (value) => value.printerData.fans
+                    .values
                         .where((element) => !element.name.startsWith('_'))
                         .elementAt(index));
 
@@ -602,14 +603,14 @@ class PinsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var pinLen = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.outputPins
+            .printerData.outputPins.values
             .where((element) => !element.name.startsWith('_'))
             .length))
         .valueOrFullNull!;
 
     var ledLen = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.leds
+            .printerData.leds.values
             .where((element) => !element.name.startsWith('_'))
             .length))
         .valueOrFullNull!;
@@ -630,7 +631,7 @@ class PinsCard extends ConsumerWidget {
               children: [
                 ...List.generate(pinLen, (index) {
                   var pinProvider = machinePrinterKlippySettingsProvider
-                      .selectAs((value) => value.printerData.outputPins
+                      .selectAs((value) => value.printerData.outputPins.values
                           .where((element) => !element.name.startsWith('_'))
                           .elementAt(index));
 
@@ -638,7 +639,7 @@ class PinsCard extends ConsumerWidget {
                 }),
                 ...List.generate(ledLen, (index) {
                   var ledProvider = machinePrinterKlippySettingsProvider
-                      .selectAs((value) => value.printerData.leds
+                      .selectAs((value) => value.printerData.leds.values
                           .where((element) => !element.name.startsWith('_'))
                           .elementAt(index));
 

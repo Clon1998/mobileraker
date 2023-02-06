@@ -436,14 +436,14 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
 
     int sensorsCnt = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.temperatureSensors
+            .printerData.temperatureSensors.values
             .where((e) => !e.name.startsWith('_'))
             .length))
         .valueOrFullNull!;
 
     int temperatureFanCnt = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.fans
+            .printerData.fans.values
             .where((e) => !e.name.startsWith('_'))
             .whereType<TemperatureFan>()
             .length))
@@ -458,14 +458,14 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
             sensorsCnt,
             (index) => _SensorCard(
                 sensorProvider: machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.temperatureSensors
+                    (value) => value.printerData.temperatureSensors.values
                         .where((element) => !element.name.startsWith('_'))
                         .elementAt(index)))),
         ...List.generate(
             temperatureFanCnt,
             (index) => _TemperatureFanCard(
                 tempFanProvider: machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.fans
+                    (value) => value.printerData.fans.values
                         .where((element) => !element.name.startsWith('_'))
                         .whereType<TemperatureFan>()
                         .elementAt(index)))),
