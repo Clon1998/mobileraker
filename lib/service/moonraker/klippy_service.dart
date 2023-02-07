@@ -25,8 +25,8 @@ final klipperProvider = StreamProvider.autoDispose
   return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
 });
 
-final klipperServiceSelectedProvider =
-    Provider.autoDispose<KlippyService>(name: 'klipperServiceSelectedProvider', (ref) {
+final klipperServiceSelectedProvider = Provider.autoDispose<KlippyService>(
+    name: 'klipperServiceSelectedProvider', (ref) {
   return ref.watch(klipperServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 });
@@ -36,9 +36,23 @@ final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(klipperProvider(machine.uuid).future);
-    yield* ref.watch(klipperProvider(machine.uuid).stream);
+    StreamController<KlipperInstance> sc = StreamController<KlipperInstance>();
+    ref.onDispose(() {
+      if (!sc.isClosed) {
+        sc.close();
+      }
+    });
+    ref.listen<AsyncValue<KlipperInstance>>(klipperProvider(machine.uuid),
+        (previous, next) {
+      next.when(
+          data: (data) => sc.add(data),
+          error: (err, st) => sc.addError(err, st),
+          loading: () {
+            if (previous != null) ref.invalidateSelf();
+          });
+    }, fireImmediately: true);
+
+    yield* sc.stream;
   } on StateError catch (e, s) {
     // Just catch it. It is expected that the future/where might not complete!
   }

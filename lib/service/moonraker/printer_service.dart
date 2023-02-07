@@ -71,9 +71,23 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(printerProvider(machine.uuid).future);
-    yield* ref.watch(printerProvider(machine.uuid).stream);
+    StreamController<Printer> sc = StreamController<Printer>();
+    ref.onDispose(() {
+      if (!sc.isClosed) {
+        sc.close();
+      }
+    });
+    ref.listen<AsyncValue<Printer>>(printerProvider(machine.uuid),
+        (previous, next) {
+      next.when(
+          data: (data) => sc.add(data),
+          error: (err, st) => sc.addError(err, st),
+          loading: () {
+            if (previous != null) ref.invalidateSelf();
+          });
+    }, fireImmediately: true);
+
+    yield* sc.stream;
   } on StateError catch (e, s) {
     // Just catch it. It is expected that the future/where might not complete!
   }
