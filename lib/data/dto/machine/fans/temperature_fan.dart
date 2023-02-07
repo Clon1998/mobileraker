@@ -13,11 +13,17 @@ part 'temperature_fan.freezed.dart';
 
 @freezed
 class TemperatureFan extends NamedFan with _$TemperatureFan {
+  const TemperatureFan._();
+
   const factory TemperatureFan({
     required String name,
     @Default(0) double speed,
     double? rpm,
     @Default(0) double temperature,
     @Default(0) double target,
+    List<double>? temperatureHistory,
+    List<double>? targetHistory,
+    List<double>? powerHistory,
+    required DateTime lastHistory
   }) = _TemperatureFan;
 }
