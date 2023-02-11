@@ -24,23 +24,19 @@ final formAddKeyProvider = Provider.autoDispose<GlobalKey<FormBuilderState>>(
     name: 'formAddKeyProvider', (ref) => GlobalKey<FormBuilderState>());
 
 final printerAddViewController = StateNotifierProvider.autoDispose<
-    PrinterAddViewController,
-    AsyncValue<ClientState>>(
+        PrinterAddViewController, AsyncValue<ClientState>>(
     name: 'printerAddViewController', (ref) => PrinterAddViewController(ref));
 
 class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   PrinterAddViewController(this.ref)
-      :appConnectionService=ref.watch(appConnectionServiceProvider),
+      : appConnectionService = ref.watch(appConnectionServiceProvider),
         super(const AsyncValue.loading());
 
   final AutoDisposeRef ref;
   AppConnectionService appConnectionService;
 
-
   onFormConfirm() async {
-    var formState = ref
-        .read(formAddKeyProvider)
-        .currentState!;
+    var formState = ref.read(formAddKeyProvider).currentState!;
     if (formState.saveAndValidate()) {
       var printerName = formState.value['printerName'];
       var printerAPIKey = formState.value['printerApiKey'];
@@ -61,9 +57,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   }
 
   onTestConnectionTap() async {
-    var formState = ref
-        .read(formAddKeyProvider)
-        .currentState!;
+    var formState = ref.read(formAddKeyProvider).currentState!;
 
     logger.e('onTestConnectionTap');
 
@@ -73,16 +67,17 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
       var trustSelfSigned = formState.value['trustSelfSigned'];
       printerUrl = urlToWebsocketUrl(printerUrl);
 
-      JsonRpcClient jsonRpcClient = JsonRpcClient(printerUrl,
-          apiKey: printerAPIKey, trustSelfSignedCertificate: trustSelfSigned);
-
+      var jsonRpcClientBuilder = JsonRpcClientBuilder()
+        ..uri = Uri.parse(printerUrl)
+        ..apiKey = printerAPIKey
+        ..trustSelfSignedCertificate = trustSelfSigned;
+      var jsonRpcClient = jsonRpcClientBuilder.build();
       jsonRpcClient.openChannel();
       StreamSubscription list = jsonRpcClient.stateStream.listen((event) {
         state = AsyncValue.data(event);
       });
 
-      await stream.firstWhere((element) =>
-          [
+      await stream.firstWhere((element) => [
             ClientState.connected,
             ClientState.error
           ].contains(element.valueOrNull));
@@ -94,9 +89,9 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
       jsonRpcClient.dispose();
     } else {
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
-        type: SnackbarType.error,
-        message: 'Input validation failed!',
-      ));
+            type: SnackbarType.error,
+            message: 'Input validation failed!',
+          ));
     }
   }
 
@@ -115,9 +110,11 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   }
 
   importFromOctoeverywhere() async {
-    AppPortalResult appPortalResult = await appConnectionService.linkAppWithOcto();
+    AppPortalResult appPortalResult =
+        await appConnectionService.linkAppWithOcto();
 
-    AppConnectionInfoResponse appConnectionInfo = await appConnectionService.getInfo(appPortalResult.appApiToken);
+    AppConnectionInfoResponse appConnectionInfo =
+        await appConnectionService.getInfo(appPortalResult.appApiToken);
 
     var infoResult = appConnectionInfo.result;
     var localIp = infoResult.printerLocalIp;
@@ -131,7 +128,6 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
     String wsUrl = urlToWebsocketUrl(localIp);
     String httpUrl = urlToHttpUrl(localIp);
 
-
     var machine = Machine(
       name: infoResult.printerName,
       wsUrl: wsUrl,
@@ -140,10 +136,11 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
     );
     machine = await ref.read(machineServiceProvider).addMachine(machine);
 
-    var octoEverywhereHiveRepository = ref.read(
-        octoEverywhereHiveRepositoryProvider);
+    var octoEverywhereHiveRepository =
+        ref.read(octoEverywhereHiveRepositoryProvider);
 
-    octoEverywhereHiveRepository.insert(machine.uuid, OctoEverywhere.fromDto(appPortalResult));
+    octoEverywhereHiveRepository.insert(
+        machine.uuid, OctoEverywhere.fromDto(appPortalResult));
 
     ref.read(goRouterProvider).goNamed(AppRoute.dashBoard.name);
   }

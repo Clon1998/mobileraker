@@ -99,7 +99,7 @@ class MoonrakerDatabaseClient {
   _validateClientConnection() {
     if (_jsonRpcClient.curState != ClientState.connected) {
       throw WebSocketException(
-          'JsonRpcClient is not connected. Target-URL: ${_jsonRpcClient.url}');
+          'JsonRpcClient is not connected. Target-URL: ${_jsonRpcClient.uri}');
     }
   }
 }
