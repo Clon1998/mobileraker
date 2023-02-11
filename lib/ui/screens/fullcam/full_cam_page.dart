@@ -21,7 +21,7 @@ class FullCamPage extends ConsumerWidget {
     ref.read(selectedCamIndexProvider.notifier).state = initialCam;
     return ProviderScope(
       overrides: [
-        machineProvider.overrideWithValue(machine),
+        camMachineProvider.overrideWithValue(machine),
       ],
       child: const _FullCamView(),
     );
@@ -33,7 +33,7 @@ class _FullCamView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(machineProvider);
+    var machine = ref.watch(camMachineProvider);
     var index = ref.watch(selectedCamIndexProvider);
     var selectedCam = machine.cams[index];
 
@@ -83,7 +83,7 @@ class StackContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(machineProvider);
+    var machine = ref.watch(camMachineProvider);
     var printer = ref.watch(printerProvider(machine.uuid));
 
     return Positioned.fill(

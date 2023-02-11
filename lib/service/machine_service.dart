@@ -27,12 +27,21 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 final machineServiceProvider = Provider.autoDispose<MachineService>((ref) {
   ref.keepAlive();
   return MachineService(ref);
 }, name: 'machineServiceProvider');
+
+final machineProvider =
+    FutureProvider.autoDispose.family<Machine?, String>((ref, uuid) {
+  var repo = ref.watch(machineRepositoryProvider);
+  ref.keepAlive();
+  return repo.get(uuid: uuid);
+}, name: 'machineProvider');
 
 final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>((ref) {
   return ref.watch(machineServiceProvider).fetchAll();
@@ -47,13 +56,14 @@ final selectedMachineSettingsProvider =
       .whereNotNull()
       .first;
 
-  await ref.watch(jrpcClientStateSelectedProvider
-      .selectAsync((data) => data == ClientState.connected));
+  await ref.watchWhere<ClientState>(
+      jrpcClientStateSelectedProvider, (c) => c == ClientState.connected);
+
   var fetchSettings =
       await ref.watch(machineServiceProvider).fetchSettings(machine);
   ref.keepAlive();
   return fetchSettings;
-});
+}, name: 'selectedMachineSettingsProvider');
 
 /// Service handling the management of a machine
 class MachineService {
@@ -75,11 +85,12 @@ class MachineService {
   Future<void> updateMachine(Machine machine) async {
     await machine.save();
     logger.i('Updated machine: ${machine.name}');
+    await ref.refresh(machineProvider(machine.uuid).future);
     var selectedMachineService = ref.read(selectedMachineServiceProvider);
     if (selectedMachineService.isSelectedMachine(machine)) {
       selectedMachineService.selectMachine(machine, true);
     }
-    ref.invalidate(jrpcClientProvider(machine.uuid));
+
     return;
   }
 
@@ -134,6 +145,10 @@ class MachineService {
     }
   }
 
+  Future<Machine?> fetch(String uuid) {
+    return _machineRepo.get(uuid: uuid);
+  }
+
   Future<List<Machine>> fetchAll() {
     return _machineRepo.fetchAll();
   }
@@ -162,7 +177,7 @@ class MachineService {
      */
 
     FcmSettingsRepository fcmRepo =
-        ref.watch(fcmSettingsRepositoryProvider(machine.uuid));
+        ref.read(fcmSettingsRepositoryProvider(machine.uuid));
 
     DeviceFcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
 

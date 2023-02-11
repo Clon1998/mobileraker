@@ -7,7 +7,7 @@ final fcmSettingsRepositoryProvider = Provider.autoDispose
     .family<FcmSettingsRepository, String>((ref, machineUUID) {
   return FcmSettingsRepositoryImpl(
       ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
-});
+},name:'fcmSettingsRepositoryProvider');
 
 class FcmSettingsRepositoryImpl
     extends FcmSettingsRepository {

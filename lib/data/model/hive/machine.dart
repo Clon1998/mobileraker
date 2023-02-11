@@ -81,7 +81,7 @@ class Machine extends HiveObject {
           uuid == other.uuid &&
           listEquals(cams, other.cams) &&
           apiKey == other.apiKey &&
-          temperaturePresets == other.temperaturePresets &&
+          listEquals(temperaturePresets, other.temperaturePresets)&&
           httpUrl == other.httpUrl &&
           lastPrintProgress == other.lastPrintProgress &&
           _lastPrintState == other._lastPrintState &&

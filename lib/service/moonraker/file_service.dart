@@ -69,7 +69,7 @@ final fileServiceProvider =
         'Machine with UUID "$machineUUID" was not found!');
   }
   return FileService(ref, jsonRpcClient, machine.httpUrl);
-});
+}, name:'fileServiceProvider');
 
 final fileNotificationsProvider = StreamProvider.autoDispose
     .family<FileApiResponse, String>((ref, machineUUID) {

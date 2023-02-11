@@ -23,7 +23,7 @@ final canStartPrintProvider = Provider.autoDispose<bool>((ref) {
       (value) => value.valueOrFullNull?.klippyCanReceiveCommands == true));
 
   return canPrint && klippyCanReceiveCommands;
-});
+}, name:'canStartPrintProvider');
 
 final gcodeFileDetailsControllerProvider =
     StateNotifierProvider.autoDispose<GCodeFileDetailsController, void>(

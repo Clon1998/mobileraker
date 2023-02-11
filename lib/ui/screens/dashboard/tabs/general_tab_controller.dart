@@ -150,7 +150,7 @@ final filePrintingProvider = FutureProvider.autoDispose<GCodeFile?>((ref) {
       .select((data) => data.valueOrNull?.print.filename));
   if (fileName == null || fileName.isEmpty) return Future.value();
   return ref.watch(fileServiceSelectedProvider).getGCodeMetadata(fileName);
-});
+}, name:'filePrintingProvider');
 
 final moveTableStateProvider =
     StreamProvider.autoDispose<MoveTableState>((ref) async* {
@@ -158,7 +158,7 @@ final moveTableStateProvider =
   Stream<GCodeFile?> filePrinting = ref.watchAsSubject(filePrintingProvider);
   yield* Rx.combineLatest2(
       printerStream, filePrinting, MoveTableState.byComponents);
-});
+}, name:'moveTableStateProvider');
 
 class MoveTableState {
   final List<double> livePosition;

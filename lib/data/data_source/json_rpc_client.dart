@@ -313,7 +313,10 @@ class JsonRpcClient {
   }
 
   _onChannelClosesNormal() {
-    if (_disposed) return;
+    if (_disposed) {
+      logger.i('[$uri] WS-Stream Subscription is DONE!');
+      return;
+    }
     ClientState t = curState;
     if (t != ClientState.error) {
       t = ClientState.disconnected;

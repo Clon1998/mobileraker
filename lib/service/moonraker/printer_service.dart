@@ -175,6 +175,10 @@ class PrinterService {
   Printer? _current;
 
   set current(Printer nI) {
+    if (_printerStreamCtler.isClosed) {
+      logger.w('Tried to set current Printer on an old printerService? ${identityHashCode(this)}');
+      return;
+    }
     _current = nI;
     _printerStreamCtler.add(nI);
   }
@@ -1165,7 +1169,7 @@ class PrinterService {
   }
 
   dispose() {
-    logger.e('PrinterService Dispo');
+    logger.e('PrinterService.$_ownerUUID Dispo ${identityHashCode(this)}');
     _printerStreamCtler.close();
     _gCodeResponseStreamController.close();
   }

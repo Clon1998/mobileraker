@@ -110,11 +110,20 @@ setupLicenseRegistry() {
 /// Ensure all services are setup/available/connected if they are also read just once!
 initializeAvailableMachines(ProviderContainer container) async {
   logger.i('Started initializeAvailableMachines');
-  List<Machine> all = await container.read(machineServiceProvider).fetchAll();
+  List<Machine> all = await container.read(allMachinesProvider.future);
+  List<Future> futures = [];
+
+  for (var machine in all) {
+    futures.add(container.read(machineProvider(machine.uuid).future));
+  }
+
+  await Future.wait(futures);
+  logger.i('initialized all machineProviders');
   for (var machine in all) {
     logger.i('Init for ${machine.name}(${machine.uuid})');
     container.read(klipperServiceProvider(machine.uuid));
     container.read(printerServiceProvider(machine.uuid));
   }
+
   logger.i('Finished initializeAvailableMachines');
 }
