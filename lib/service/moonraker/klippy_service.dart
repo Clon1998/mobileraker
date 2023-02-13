@@ -35,7 +35,6 @@ final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
     name: 'klipperSelectedProvider', (ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-
     StreamController<KlipperInstance> sc = StreamController<KlipperInstance>();
     ref.onDispose(() {
       if (!sc.isClosed) {
@@ -60,8 +59,10 @@ final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
 
 /// Service managing klippy-server stuff
 class KlippyService {
-  KlippyService(this.ref, String machineUUID)
-      : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
+  String ownerUUID;
+
+  KlippyService(this.ref, this.ownerUUID)
+      : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)) {
     ref.onDispose(dispose);
 
     _jRpcClient.addMethodListener((m) {
@@ -83,7 +84,7 @@ class KlippyService {
           _fetchPrinterInfo()); // need to delay this until its bac connected!
     }, "notify_klippy_disconnected");
 
-    ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {
+    ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       var data = next as AsyncValue<ClientState>;
       switch (data.valueOrNull) {
         case ClientState.connected:

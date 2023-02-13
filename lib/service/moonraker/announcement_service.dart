@@ -13,7 +13,7 @@ final announcementServiceProvider = Provider.autoDispose
   ref.keepAlive();
 
   return AnnouncementService(ref, machineUUID);
-});
+},name: 'announcementServiceProvider');
 
 final announcementProvider = StreamProvider.autoDispose
     .family<List<AnnouncementEntry>, String>((ref, machineUUID) {

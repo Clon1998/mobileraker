@@ -68,8 +68,8 @@ final fileServiceProvider =
     throw MobilerakerException(
         'Machine with UUID "$machineUUID" was not found!');
   }
-  return FileService(ref, jsonRpcClient, machine.httpUrl);
-}, name:'fileServiceProvider');
+  return FileService(ref, jsonRpcClient, machine.httpUrl, machineUUID);
+}, name: 'fileServiceProvider');
 
 final fileNotificationsProvider = StreamProvider.autoDispose
     .family<FileApiResponse, String>((ref, machineUUID) {
@@ -77,10 +77,10 @@ final fileNotificationsProvider = StreamProvider.autoDispose
   return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
 });
 
-final fileServiceSelectedProvider = Provider.autoDispose((ref) {
+final fileServiceSelectedProvider = Provider.autoDispose<FileService>((ref) {
   return ref.watch(fileServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-});
+}, name: 'fileServiceSelectedProvider');
 
 final fileNotificationsSelectedProvider =
     StreamProvider.autoDispose<FileApiResponse>((ref) async* {
@@ -100,7 +100,10 @@ final fileNotificationsSelectedProvider =
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUrl) {
+  String ownerUuid;
+
+  FileService(
+      AutoDisposeRef ref, this._jRpcClient, this.httpUrl, this.ownerUuid) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onFileListChanged, "notify_filelist_changed");

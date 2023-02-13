@@ -84,11 +84,17 @@ class _FloatingActionBtn extends ConsumerWidget {
     AsyncValue<PrintState> printState =
         ref.watch(printerSelectedProvider.selectAs((data) => data.print.state));
 
-    if (!klippyState.hasValue || !printState.hasValue) {
+    if (!klippyState.hasValue ||
+        !printState.hasValue ||
+        klippyState.isLoading ||
+        printState.isLoading) {
       return const SizedBox.shrink();
     }
 
-    if (klippyState.value == KlipperState.error || !{PrintState.printing,PrintState.paused}.contains(printState.value)) return const _IdleFAB();
+    if (klippyState.value == KlipperState.error ||
+        !{PrintState.printing, PrintState.paused}.contains(printState.value)) {
+      return const _IdleFAB();
+    }
 
     ThemeData themeData = Theme.of(context);
     return SpeedDial(
@@ -97,7 +103,8 @@ class _FloatingActionBtn extends ConsumerWidget {
       children: [
         SpeedDialChild(
           child: const Icon(Icons.cleaning_services),
-          backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
+          backgroundColor:
+              themeData.extension<CustomColors>()?.danger ?? Colors.red,
           label: tr('general.cancel'),
           onTap: ref.watch(printerServiceSelectedProvider).cancelPrint,
         ),

@@ -12,6 +12,7 @@ class MachineHiveRepository implements MachineRepository {
 
   @override
   Future<void> insert(Machine machine) async {
+    machine.lastModified = DateTime.now();
     await _boxMachines.put(machine.uuid, machine);
     return;
   }

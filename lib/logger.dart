@@ -21,6 +21,10 @@ class RiverPodLogger extends ProviderObserver {
     var familiy = provider.argument?.toString() ?? '';
     logger.wtf(
         'RiverPod::DISPOSED:${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy');
+    //
+    // if (provider.name == 'klipperServiceProvider') {
+    //   logger.wtf('RiverPod::klipperServiceProvider:  ${container}');
+    // }
   }
 
   @override

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -27,7 +26,6 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -116,26 +114,16 @@ class MachineService {
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);
     ref.read(analyticsProvider).logEvent(name: 'add_machine');
+    await ref.read(machineProvider(machine.uuid).future);
     return machine;
   }
 
   Future<void> removeMachine(Machine machine) async {
     logger.i('Removing machine ${machine.uuid}');
     await _machineRepo.remove(machine.uuid);
-    ref.invalidate(allMachinesProvider);
-    ref.invalidate(jrpcClientProvider(machine.uuid));
-    ref.invalidate(jrpcClientStateProvider(machine.uuid));
-    ref.invalidate(printerProvider(machine.uuid));
-    ref.invalidate(printerServiceProvider(machine.uuid));
-    ref.invalidate(klipperProvider(machine.uuid));
-    ref.invalidate(klipperServiceProvider(machine.uuid));
-    ref.invalidate(fileNotificationsProvider(machine.uuid));
-    ref.invalidate(fileServiceProvider(machine.uuid));
-    ref.invalidate(announcementProvider(machine.uuid));
-    ref.invalidate(announcementServiceProvider(machine.uuid));
-
     if (_selectedMachineService.isSelectedMachine(machine)) {
-      logger.i('Machine ${machine.uuid} is active machine');
+      logger.i(
+          'Removed Machine ${machine.uuid} is active machine... move to next one...');
       List<Machine> remainingPrinters = await _machineRepo.fetchAll();
 
       Machine? nextMachine =
@@ -143,6 +131,21 @@ class MachineService {
 
       await _selectedMachineService.selectMachine(nextMachine);
     }
+
+    // await Future.delayed(Duration(seconds: 4));
+// DANGER!! It is really important to invalidate in the correct order!
+    ref.invalidate(allMachinesProvider);
+    ref.invalidate(announcementProvider(machine.uuid));
+    ref.invalidate(announcementServiceProvider(machine.uuid));
+    ref.invalidate(fileNotificationsProvider(machine.uuid));
+    ref.invalidate(fileServiceProvider(machine.uuid));
+    ref.invalidate(printerProvider(machine.uuid));
+    ref.invalidate(printerServiceProvider(machine.uuid));
+    ref.invalidate(klipperProvider(machine.uuid));
+    ref.invalidate(klipperServiceProvider(machine.uuid));
+    ref.invalidate(jrpcClientStateProvider(machine.uuid));
+    ref.invalidate(jrpcClientProvider(machine.uuid));
+    ref.invalidate(machineProvider(machine.uuid));
   }
 
   Future<Machine?> fetch(String uuid) {
@@ -252,7 +255,7 @@ class MachineService {
   updateMacrosInSettings(String machineUUID, List<String> macros) async {
     Machine? machine = await _machineRepo.get(uuid: machineUUID);
     if (machine == null) {
-      logger.e('Could not update macros, machine not found!');
+      logger.e('Could not update macros, machine $machineUUID not found!');
       return;
     }
     logger

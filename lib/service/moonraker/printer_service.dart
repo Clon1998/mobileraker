@@ -41,6 +41,7 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:stringr/stringr.dart';
@@ -94,8 +95,8 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
 });
 
 class PrinterService {
-  PrinterService(AutoDisposeRef ref, this._ownerUUID)
-      : _jRpcClient = ref.watch(jrpcClientProvider(_ownerUUID)),
+  PrinterService(AutoDisposeRef ref, this.ownerUUID)
+      : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
         _machineService = ref.watch(machineServiceProvider),
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
@@ -106,7 +107,7 @@ class PrinterService {
     _jRpcClient.addMethodListener(
         _onNotifyGcodeResponse, 'notify_gcode_response');
 
-    ref.listen<AsyncValue<KlipperInstance>>(klipperProvider(_ownerUUID),
+    ref.listen<AsyncValue<KlipperInstance>>(klipperProvider(ownerUUID),
         (previous, next) {
       next.whenOrNull(data: (value) {
         switch (value.klippyState) {
@@ -123,7 +124,7 @@ class PrinterService {
     }, fireImmediately: true);
   }
 
-  final String _ownerUUID;
+  final String ownerUUID;
 
   final SnackBarService _snackBarService;
 
@@ -191,6 +192,7 @@ class PrinterService {
 
   refreshPrinter() async {
     try {
+      logger.i('Refreshing printer for uuid: $ownerUUID');
       PrinterBuilder printerBuilder = PrinterBuilder();
       await _printerObjectsList(printerBuilder);
       await _printerObjectsQuery(printerBuilder);
@@ -201,9 +203,9 @@ class PrinterService {
       _makeSubscribeRequest(printer.queryableObjects);
       current = printer;
 
-      _machineService.updateMacrosInSettings(_ownerUUID, printer.gcodeMacros);
+      _machineService.updateMacrosInSettings(ownerUUID, printer.gcodeMacros);
     } on JRpcError catch (e, s) {
-      logger.e('Unable to refresh Printer...', e, s);
+      logger.e('Unable to refresh Printer $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
       _printerStreamCtler.addError(MobilerakerException(
           'Could not fetch printer...',
@@ -1169,7 +1171,7 @@ class PrinterService {
   }
 
   dispose() {
-    logger.e('PrinterService.$_ownerUUID Dispo ${identityHashCode(this)}');
+    logger.e('PrinterService.$ownerUUID Dispo ${identityHashCode(this)}');
     _printerStreamCtler.close();
     _gCodeResponseStreamController.close();
   }
