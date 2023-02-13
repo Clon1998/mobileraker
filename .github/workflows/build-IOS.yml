@@ -1,24 +1,24 @@
-name: Build iOS
-on:
-  workflow_dispatch:
-  push:
-    branches:
-      - master
-jobs:
-  build:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
-      - run: echo ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }} | base64 -d > ./ios/Runner/GoogleService-Info.plist
-      - run: flutter pub get
-      - run: flutter packages pub run build_runner build
-      - run: find . -name "Podfile" -execdir pod install \;
-      - uses: mxcl/xcodebuild@v1.10.0
-        with:
-          action: build
-          working-directory: ios
-          authentication-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          authentication-key-issuer-id: ${{ secrets.APP_STORE_CONNECT_KEY_ISSUER_ID }}
-          authentication-key-base64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
-          
+#name: Build iOS
+#on:
+#  workflow_dispatch:
+#  push:
+#    branches:
+#      - master
+#jobs:
+#  build:
+#    runs-on: macos-latest
+#    steps:
+#      - uses: actions/checkout@v2
+#      - uses: subosito/flutter-action@v2
+#      - run: echo ${{ secrets.GOOGLE_SERVICE_INFO_PLIST }} | base64 -d > ./ios/Runner/GoogleService-Info.plist
+#      - run: flutter pub get
+#      - run: flutter packages pub run build_runner build
+#      - run: find . -name "Podfile" -execdir pod install \;
+#      - uses: mxcl/xcodebuild@v1.10.0
+#        with:
+#          action: build
+#          working-directory: ios
+#          authentication-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+#          authentication-key-issuer-id: ${{ secrets.APP_STORE_CONNECT_KEY_ISSUER_ID }}
+#          authentication-key-base64: ${{ secrets.APP_STORE_CONNECT_KEY_BASE64 }}
+#
