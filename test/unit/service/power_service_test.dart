@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -23,6 +24,8 @@ void main() {
         .thenReturn(null);
     when(mockRpc.sendJRpcMethod('machine.device_power.devices'))
         .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
+          "jsonrpc": "2.0",
+          "id":1,
           "result": {
             "devices": [
               {
@@ -61,6 +64,8 @@ void main() {
     when(mockRpc.sendJRpcMethod('machine.device_power.get_device',
             params: {'device': 'WTF'}))
         .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
+      "jsonrpc": "2.0",
+      "id":1,
       "result": {
         "WTF": "off"
       }
@@ -84,6 +89,8 @@ void main() {
     when(mockRpc.sendJRpcMethod('machine.device_power.post_device',
             params: {'device': 'WTF', 'action': 'off'}))
         .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
+          "jsonrpc": "2.0",
+          "id":1,
           "result": {
             "WTF": "off"
           }
@@ -108,6 +115,8 @@ void main() {
     when(mockRpc.sendJRpcMethod('machine.device_power.post_device',
             params: {'device': 'WTF', 'action': 'off'}))
         .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
+          "jsonrpc": "2.0",
+          "id":1,
           "result": {
             "WTF": "off"
           }
