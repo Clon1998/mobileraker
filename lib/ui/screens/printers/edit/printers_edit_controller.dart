@@ -22,7 +22,7 @@ final editPrinterformKeyProvider =
 
 final isSavingProvider = StateProvider.autoDispose<bool>((ref) {
   return false;
-});
+}, name:'isSavingProvider');
 
 final currentlyEditing = Provider.autoDispose<Machine>(
     name: 'currentlyEditing', (ref) => throw UnimplementedError());
@@ -224,7 +224,7 @@ final remoteMachineSettingProvider =
     FutureProvider.autoDispose<MachineSettings>((ref) async {
   var machine = ref.watch(currentlyEditing);
   return ref.watch(machineServiceProvider).fetchSettings(machine);
-});
+}, name:'remoteMachineSettingProvider');
 
 final webcamListControllerProvider = StateNotifierProvider.autoDispose<
     WebcamListController, List<WebcamSetting>>((ref) {

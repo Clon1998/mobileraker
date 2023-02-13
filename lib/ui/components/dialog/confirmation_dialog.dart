@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:stringr/stringr.dart';
@@ -30,8 +31,7 @@ class ConfirmationDialog extends StatelessWidget {
         TextButton(
           onPressed: () => completer(DialogResponse()),
           child: Text(
-              dialogRequest.cancelBtn ??
-                  MaterialLocalizations.of(context).cancelButtonLabel.toLowerCase().capitalize(),
+              dialogRequest.cancelBtn ?? tr('general.cancel'),
               style: TextStyle(color: dialogRequest.cancelBtnColor)),
         ),
         TextButton(

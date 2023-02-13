@@ -35,6 +35,7 @@ class AdaptiveHorizontalScroll extends HookWidget {
                 key: PageStorageKey<String>('${pageStorageKey}M'),
                 controller: scrollCtrler,
                 scrollDirection: Axis.horizontal,
+                // physics: const BouncingScrollPhysics(),
                 child: SizedBox(
                   width: max(width * children.length, constraints.maxWidth),
                   child: Row(

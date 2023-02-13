@@ -10,12 +10,17 @@ import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
+import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
+import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_controller.dart';
 import 'package:mobileraker/util/path_utils.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 
 final filePageProvider = StateProvider.autoDispose<int>((ref) => 0);
 
@@ -26,9 +31,6 @@ final searchTextEditingControllerProvider =
   var textEditingController = TextEditingController();
   return textEditingController;
 });
-
-final fileSortModeProvider =
-    StateProvider.autoDispose<FileSort>((ref) => FileSort.lastModified);
 
 final filesListControllerProvider =
     StateNotifierProvider.autoDispose<FilesPageController, FilePageState>(
@@ -46,7 +48,7 @@ class FilesPageController extends StateNotifier<FilePageState> {
       _filterAndSortResult();
     });
 
-    ref.listen(fileSortModeProvider, (previous, next) {
+    ref.listen(fileSortControllerProvider, (previous, next) {
       _filterAndSortResult();
     });
 
@@ -101,7 +103,7 @@ class FilesPageController extends StateNotifier<FilePageState> {
           .toList(growable: false);
     }
 
-    var sortMode = ref.read(fileSortModeProvider);
+    var sortMode = ref.read(fileSortControllerProvider);
     if (sortMode.comparatorFolder != null) {
       folders.sort(sortMode.comparatorFolder);
     }
@@ -342,19 +344,4 @@ class FilePageState {
             ? AsyncValue.data(filteredAndSorted)
             : this.filteredAndSorted);
   }
-}
-
-enum FileSort {
-  name('pages.files.name', RemoteFile.nameComparator, Folder.nameComparator),
-  lastModified('pages.files.last_mod', RemoteFile.modifiedComparator,
-      Folder.modifiedComparator),
-  lastPrinted(
-      'pages.files.last_printed', GCodeFile.lastPrintedComparator, null);
-
-  const FileSort(this.translation, this.comparatorFile, this.comparatorFolder);
-
-  final String translation;
-
-  final Comparator<RemoteFile>? comparatorFile;
-  final Comparator<Folder>? comparatorFolder;
 }

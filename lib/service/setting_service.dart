@@ -13,12 +13,15 @@ const String selectedWebcamGrpIndex = 'selWebcamGrp';
 const String selectedProgressNotifyMode = 'selProgNotMode';
 const String activeStateNotifyMode = 'activeStateNotMode';
 const String requestedNotifyPermission = 'reqNotifyPerm';
+const String selectedFileSortKey = 'selFileSrt';
+const String recentColorsKey = 'selectedColors';
 
 final settingServiceProvider = Provider((ref) => SettingService());
 
 /// Settings related to the App!
 class SettingService {
-  late final _boxSettings = Hive.box('settingsbox');
+  late final _boxSettings =
+      Hive.box('settingsbox'); // maybe move it to the repo ?
 
   Future<void> writeBool(String key, bool val) {
     return _boxSettings.put(key, val);
@@ -43,5 +46,14 @@ class SettingService {
   T read<T>(String key, T fallback) {
     return _boxSettings.get(key) ?? fallback;
   }
-}
 
+  Future<void> writeList<T>(String key, List<T> val) {
+    return _boxSettings.put(key, val);
+  }
+
+  List<T> readList<T>(String key, [List<T>? fallback]) {
+    return (_boxSettings.get(key) as List<dynamic>?)?.cast<T>() ??
+        fallback ??
+        [];
+  }
+}

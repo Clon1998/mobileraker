@@ -4,7 +4,7 @@ import 'package:mobileraker/data/model/hive/machine.dart';
 
 import 'machine_repository.dart';
 
-final machineRepositoryProvider = Provider((ref) => MachineHiveRepository());
+final machineRepositoryProvider = Provider((ref) => MachineHiveRepository(),name:'machineRepositoryProvider');
 
 class MachineHiveRepository implements MachineRepository {
   MachineHiveRepository() : _boxMachines = Hive.box<Machine>('printers');
@@ -12,6 +12,7 @@ class MachineHiveRepository implements MachineRepository {
 
   @override
   Future<void> insert(Machine machine) async {
+    machine.lastModified = DateTime.now();
     await _boxMachines.put(machine.uuid, machine);
     return;
   }

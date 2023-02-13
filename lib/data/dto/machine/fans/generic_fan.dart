@@ -1,27 +1,14 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'named_fan.dart';
 
-class GenericFan implements NamedFan {
-  GenericFan({required this.name, this.speed = 0.0});
 
-  @override
-  final String name;
+part 'generic_fan.freezed.dart';
 
-  @override
-  final double speed;
-
-  @override
-  GenericFan copyWith({String? name, double? speed}) {
-    return GenericFan(name: name ?? this.name, speed: speed ?? this.speed);
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GenericFan &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          speed == other.speed;
-
-  @override
-  int get hashCode => name.hashCode ^ speed.hashCode;
+@freezed
+class GenericFan extends NamedFan with _$GenericFan {
+  const factory GenericFan({
+    required String name,
+    @Default(0) double speed,
+  }) = _GenericFan;
 }

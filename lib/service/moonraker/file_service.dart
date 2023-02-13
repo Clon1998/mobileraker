@@ -13,6 +13,7 @@ import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
@@ -67,8 +68,8 @@ final fileServiceProvider =
     throw MobilerakerException(
         'Machine with UUID "$machineUUID" was not found!');
   }
-  return FileService(ref, jsonRpcClient, machine.httpUrl);
-});
+  return FileService(ref, jsonRpcClient, machine.httpUrl, machineUUID);
+}, name: 'fileServiceProvider');
 
 final fileNotificationsProvider = StreamProvider.autoDispose
     .family<FileApiResponse, String>((ref, machineUUID) {
@@ -76,10 +77,10 @@ final fileNotificationsProvider = StreamProvider.autoDispose
   return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
 });
 
-final fileServiceSelectedProvider = Provider.autoDispose((ref) {
+final fileServiceSelectedProvider = Provider.autoDispose<FileService>((ref) {
   return ref.watch(fileServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-});
+}, name: 'fileServiceSelectedProvider');
 
 final fileNotificationsSelectedProvider =
     StreamProvider.autoDispose<FileApiResponse>((ref) async* {
@@ -99,7 +100,10 @@ final fileNotificationsSelectedProvider =
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUrl) {
+  String ownerUuid;
+
+  FileService(
+      AutoDisposeRef ref, this._jRpcClient, this.httpUrl, this.ownerUuid) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onFileListChanged, "notify_filelist_changed");
@@ -160,7 +164,7 @@ class FileService {
     var rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.post_directory',
         params: {'path': filePath});
-    return FileApiResponse.fromJson(rpcResponse.response['result']);
+    return FileApiResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileApiResponse> deleteFile(String filePath) async {
@@ -168,7 +172,7 @@ class FileService {
 
     RpcResponse rpcResponse = await _jRpcClient
         .sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
-    return FileApiResponse.fromJson(rpcResponse.response['result']);
+    return FileApiResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileApiResponse> deleteDirForced(String filePath) async {
@@ -177,7 +181,7 @@ class FileService {
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.delete_directory',
         params: {'path': filePath, 'force': true});
-    return FileApiResponse.fromJson(rpcResponse.response['result']);
+    return FileApiResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileApiResponse> moveFile(String origin, String destination) async {
@@ -186,7 +190,7 @@ class FileService {
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.move',
         params: {'source': origin, 'dest': destination});
-    return FileApiResponse.fromJson(rpcResponse.response['result']);
+    return FileApiResponse.fromJson(rpcResponse.result);
   }
 
   Future<File> downloadFile(String filePath) async {
@@ -242,7 +246,7 @@ class FileService {
   FolderContentWrapper _parseDirectory(
       RpcResponse blockingResponse, String forPath,
       [Set<String> allowedFileType = const {'.gcode'}]) {
-    Map<String, dynamic> response = blockingResponse.response['result'];
+    Map<String, dynamic> response = blockingResponse.result;
     List<dynamic> filesResponse = response['files']; // Just add an type
     List<dynamic> directoriesResponse = response['dirs']; // Just add an type
 
@@ -282,7 +286,7 @@ class FileService {
   }
 
   GCodeFile _parseFileMeta(RpcResponse blockingResponse, String forFile) {
-    Map<String, dynamic> response = blockingResponse.response['result'];
+    Map<String, dynamic> response = blockingResponse.result;
 
     var split = forFile.split('/');
     split.removeLast();
@@ -293,6 +297,8 @@ class FileService {
   }
 
   dispose() {
+    _jRpcClient.removeMethodListener(
+        _onFileListChanged, "notify_filelist_changed");
     _fileActionStreamCtrler.close();
   }
 }

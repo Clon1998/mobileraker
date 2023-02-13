@@ -32,6 +32,7 @@ extension MobilerakerRef on Ref {
   //   return completer.future;
   // }
 
+  // Watches/Listens to the provided provider until the given whereCb is met!
   Future<T> watchWhere<T>(AlwaysAliveProviderListenable<AsyncValue<T>> provider,
       bool Function(T) whereCb) {
     final completer = Completer<T>();
@@ -165,5 +166,36 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
           loading: () => null);
     }, fireImmediately: true);
     return ctrler.stream;
+  }
+
+  // Watches/Listens to the provided provider until the given whereCb is met!
+  Future<T> watchWhere<T>(ProviderListenable<AsyncValue<T>> provider,
+      bool Function(T) whereCb) {
+    final completer = Completer<T>();
+    onDispose(() {
+      if (!completer.isCompleted) {
+        completer.completeError(
+            StateError('provider disposed before `where` could complete'));
+      }
+    });
+
+    listen<AsyncValue<T>>(provider, (prev, next) {
+      if (next.isRefreshing) return;
+      if (completer.isCompleted) {
+        invalidateSelf();
+        return;
+      }
+      next.when(
+          data: (d) {
+            if (whereCb(d)) {
+              completer.complete(d);
+            }
+          },
+          error: (e, s) {
+            completer.completeError(e, s);
+          },
+          loading: () => null);
+    }, fireImmediately: true);
+    return completer.future;
   }
 }

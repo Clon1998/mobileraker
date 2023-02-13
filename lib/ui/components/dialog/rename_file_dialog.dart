@@ -1,10 +1,10 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/util/misc.dart';
-import 'package:stringr/stringr.dart';
 
 class RenameFileDialogArguments {
   final String initialValue;
@@ -79,11 +79,7 @@ class RenameFileDialog extends HookWidget {
                   TextButton(
                     onPressed: () =>
                         completer(DialogResponse(confirmed: false)),
-                    child: Text(request.cancelBtn ??
-                        MaterialLocalizations.of(context)
-                            .cancelButtonLabel
-                            .toLowerCase()
-                            .titleCase()),
+                    child: Text(request.cancelBtn ?? tr('general.cancel')),
                   ),
                   TextButton(
                     onPressed: () {

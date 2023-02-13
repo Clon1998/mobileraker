@@ -40,7 +40,6 @@ class _ImportSettingsDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return Dialog(
       child: FormBuilder(
         autovalidateMode: AutovalidateMode.always,
@@ -58,7 +57,7 @@ class _ImportSettingsDialog extends ConsumerWidget {
                 // ref.watch(footerControllerProvider.notifier).state = true;
                 return const _DialogBody();
               }, error: (e, s) {
-                logger.e('Ww',e,s);
+                logger.e('Error in importSettings', e, s);
                 return Column(
                   children: [
                     ListTile(
@@ -70,7 +69,7 @@ class _ImportSettingsDialog extends ConsumerWidget {
                         'dialogs.import_setting.fetching_error_title',
                       ).tr(),
                       subtitle: const Text(
-                          'dialogs.import_setting.fetching_error_sub')
+                              'dialogs.import_setting.fetching_error_sub')
                           .tr(),
                       iconColor: Theme.of(context).colorScheme.error,
                     )
@@ -97,7 +96,6 @@ class _ImportSettingsDialog extends ConsumerWidget {
   }
 }
 
-
 class _DialogBody extends ConsumerWidget {
   const _DialogBody({Key? key}) : super(key: key);
 
@@ -106,123 +104,126 @@ class _DialogBody extends ConsumerWidget {
     var selectedSource = ref.watch(importSettingsDialogController);
     return AsyncValueWidget<ImportMachineSettingsDto>(
       value: selectedSource,
-      data: (data) => Expanded(
-        child: Column(
-            children: [
-          FormBuilderDropdown<ImportMachineSettingsDto>(
-            name: 'source',
-            initialValue: data,
-            decoration: InputDecoration(
-              labelText: tr('dialogs.import_setting.select_source'),
-            ),
-            items: ref
-                .watch(importSources)
-                .valueOrNull!
-                .map(
-                  (e) => DropdownMenuItem<ImportMachineSettingsDto>(
-                value: e,
-                child: Text(
-                    '${e.machine.name} (${Uri.parse(e.machine.httpUrl).host})'),
+      data: (data) => Flexible(
+        child:
+            Column(mainAxisSize: MainAxisSize.min, // To make the card compact
+                children: [
+              FormBuilderDropdown<ImportMachineSettingsDto>(
+                name: 'source',
+                initialValue: data,
+                decoration: InputDecoration(
+                  labelText: tr('dialogs.import_setting.select_source'),
+                ),
+                items: ref
+                    .watch(importSources)
+                    .valueOrNull!
+                    .map(
+                      (e) => DropdownMenuItem<ImportMachineSettingsDto>(
+                        value: e,
+                        child: Text(
+                            '${e.machine.name} (${Uri.parse(e.machine.httpUrl).host})'),
+                      ),
+                    )
+                    .toList(growable: false),
+                onChanged: ref
+                    .read(importSettingsDialogController.notifier)
+                    .onSourceChanged,
+                validator: FormBuilderValidators.compose([
+                  FormBuilderValidators.required(),
+                ]),
               ),
-            )
-                .toList(growable: false),
-            onChanged:
-            ref.read(importSettingsDialogController.notifier).onSourceChanged,
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    FormBuilderCheckboxGroup<String>(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                          labelText:
+                              tr('pages.printer_edit.motion_system.title')),
+                      name: 'motionsysFields',
+                      // initialValue: const ['Dart'],
+                      options: [
+                        FormBuilderFieldOption(
+                            value: 'invertX',
+                            child: const Text(
+                                    'pages.printer_edit.motion_system.invert_x_short')
+                                .tr()),
+                        FormBuilderFieldOption(
+                            value: 'invertY',
+                            child: const Text(
+                                    'pages.printer_edit.motion_system.invert_y_short')
+                                .tr()),
+                        FormBuilderFieldOption(
+                            value: 'invertZ',
+                            child: const Text(
+                                    'pages.printer_edit.motion_system.invert_z_short')
+                                .tr()),
+                        FormBuilderFieldOption(
+                            value: 'speedXY',
+                            child: const Text(
+                                    'pages.printer_edit.motion_system.speed_xy_short')
+                                .tr()),
+                        FormBuilderFieldOption(
+                            value: 'speedZ',
+                            child: const Text(
+                                    'pages.printer_edit.motion_system.speed_z_short')
+                                .tr()),
+                        FormBuilderFieldOption(
+                            value: 'moveSteps',
+                            child: const Text(
+                                    'pages.printer_edit.motion_system.steps_move_short')
+                                .tr()),
+                        FormBuilderFieldOption(
+                            value: 'babySteps',
+                            child: const Text(
+                                    'pages.printer_edit.motion_system.steps_baby_short')
+                                .tr()),
+                      ],
+                      activeColor: Theme.of(context).colorScheme.primary,
+                    ),
+                    FormBuilderCheckboxGroup<String>(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      decoration: InputDecoration(
+                          labelText: tr('pages.printer_edit.extruders.title')),
+                      name: 'extrudersFields',
+                      options: [
+                        FormBuilderFieldOption(
+                            value: 'extrudeSpeed',
+                            child: const Text(
+                                    'pages.printer_edit.extruders.feedrate_short')
+                                .tr()),
+                        FormBuilderFieldOption(
+                            value: 'extrudeSteps',
+                            child: const Text(
+                                    'pages.printer_edit.extruders.steps_extrude_short')
+                                .tr()),
+                      ],
+                      activeColor: Theme.of(context).colorScheme.primary,
+                    ),
+                    if (data.machineSettings.temperaturePresets.isNotEmpty)
+                      FormBuilderCheckboxGroup<TemperaturePreset>(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        decoration: InputDecoration(
+                            labelText: tr(
+                                'pages.dashboard.general.temp_card.temp_presets')),
+                        name: 'temp_presets',
+                        // initialValue: const ['Dart'],
+                        options: data.machineSettings.temperaturePresets
+                            .map((e) => FormBuilderFieldOption(
+                                  value: e,
+                                  child: Text(
+                                      '${e.name} (N:${e.extruderTemp}°C, B:${e.bedTemp}°C)'),
+                                ))
+                            .toList(),
+                        activeColor: Theme.of(context).colorScheme.primary,
+                      ),
+                  ],
+                ),
+              ),
             ]),
-          ),
-          Expanded(
-            child: ListView(
-              children: [
-                FormBuilderCheckboxGroup<String>(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                      labelText: tr('pages.printer_edit.motion_system.title')),
-                  name: 'motionsysFields',
-                  // initialValue: const ['Dart'],
-                  options: [
-                    FormBuilderFieldOption(
-                        value: 'invertX',
-                        child: const Text(
-                            'pages.printer_edit.motion_system.invert_x_short')
-                            .tr()),
-                    FormBuilderFieldOption(
-                        value: 'invertY',
-                        child: const Text(
-                            'pages.printer_edit.motion_system.invert_y_short')
-                            .tr()),
-                    FormBuilderFieldOption(
-                        value: 'invertZ',
-                        child: const Text(
-                            'pages.printer_edit.motion_system.invert_z_short')
-                            .tr()),
-                    FormBuilderFieldOption(
-                        value: 'speedXY',
-                        child: const Text(
-                            'pages.printer_edit.motion_system.speed_xy_short')
-                            .tr()),
-                    FormBuilderFieldOption(
-                        value: 'speedZ',
-                        child: const Text(
-                            'pages.printer_edit.motion_system.speed_z_short')
-                            .tr()),
-                    FormBuilderFieldOption(
-                        value: 'moveSteps',
-                        child: const Text(
-                            'pages.printer_edit.motion_system.steps_move_short')
-                            .tr()),
-                    FormBuilderFieldOption(
-                        value: 'babySteps',
-                        child: const Text(
-                            'pages.printer_edit.motion_system.steps_baby_short')
-                            .tr()),
-                  ],
-                  activeColor: Theme.of(context).colorScheme.primary,
-                ),
-                FormBuilderCheckboxGroup<String>(
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
-                  decoration: InputDecoration(
-                      labelText: tr('pages.printer_edit.extruders.title')),
-                  name: 'extrudersFields',
-                  options: [
-                    FormBuilderFieldOption(
-                        value: 'extrudeSpeed',
-                        child: const Text(
-                            'pages.printer_edit.extruders.feedrate_short')
-                            .tr()),
-                    FormBuilderFieldOption(
-                        value: 'extrudeSteps',
-                        child: const Text(
-                            'pages.printer_edit.extruders.steps_extrude_short')
-                            .tr()),
-                  ],
-                  activeColor: Theme.of(context).colorScheme.primary,
-                ),
-                if (data.machineSettings.temperaturePresets.isNotEmpty)
-                  FormBuilderCheckboxGroup<TemperaturePreset>(
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                    decoration: InputDecoration(
-                        labelText:
-                        tr('pages.dashboard.general.temp_card.temp_presets')),
-                    name: 'temp_presets',
-                    // initialValue: const ['Dart'],
-                    options: data.machineSettings.temperaturePresets
-                        .map((e) => FormBuilderFieldOption(
-                      value: e,
-                      child: Text(
-                          '${e.name} (N:${e.extruderTemp}°C, B:${e.bedTemp}°C)'),
-                    ))
-                        .toList(),
-                    activeColor: Theme.of(context).colorScheme.primary,
-                  ),
-              ],
-            ),
-          ),
-        ]),
       ),
     );
-
   }
 }
 
@@ -240,7 +241,7 @@ class _Footer extends ConsumerWidget {
           onPressed: () {
             ref.read(dialogCompleter)(DialogResponse.aborted());
           },
-          child: Text(materialLocalizations.cancelButtonLabel.titleCase()),
+          child: Text(tr('general.cancel')),
         ),
         TextButton(
           onPressed: ref.watch(footerControllerProvider)

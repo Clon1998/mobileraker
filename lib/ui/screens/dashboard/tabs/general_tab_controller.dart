@@ -1,10 +1,12 @@
 import 'dart:math';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
+import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
@@ -25,6 +27,7 @@ import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -92,8 +95,8 @@ class GeneralTabViewController
                     ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: "Edit Heated Bed Temperature",
-            cancelBtn: "Cancel",
-            confirmBtn: "Confirm",
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
                 current: state.value!.printerData.heaterBed.target.round(),
                 min: 0,
@@ -121,8 +124,8 @@ class GeneralTabViewController
                     : DialogType.rangeEdit,
             title:
                 'Edit Extruder ${extruder.num > 0 ? extruder.num : ''} Temperature',
-            cancelBtn: "Cancel",
-            confirmBtn: "Confirm",
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
                 current: extruder.target.round(),
                 min: 0,
@@ -139,6 +142,31 @@ class GeneralTabViewController
     });
   }
 
+  editTemperatureFan(TemperatureFan temperatureFan) {
+    ref
+        .read(dialogServiceProvider)
+        .show(DialogRequest(
+            type:
+                ref.read(settingServiceProvider).readBool(useTextInputForNumKey)
+                    ? DialogType.numEdit
+                    : DialogType.rangeEdit,
+            title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
+            data: NumberEditDialogArguments(
+              current: temperatureFan.target.round(),
+              min: 0,
+              max: 100,
+            )))
+        .then((value) {
+      if (value == null || !value.confirmed || value.data == null) return;
+      num v = value.data;
+      ref
+          .read(printerServiceSelectedProvider)
+          .setTemperatureFanTarget(temperatureFan.name, v.toInt());
+    });
+  }
+
   onClearM117() {
     ref.read(printerServiceSelectedProvider).m117();
   }
@@ -149,7 +177,7 @@ final filePrintingProvider = FutureProvider.autoDispose<GCodeFile?>((ref) {
       .select((data) => data.valueOrNull?.print.filename));
   if (fileName == null || fileName.isEmpty) return Future.value();
   return ref.watch(fileServiceSelectedProvider).getGCodeMetadata(fileName);
-});
+}, name:'filePrintingProvider');
 
 final moveTableStateProvider =
     StreamProvider.autoDispose<MoveTableState>((ref) async* {
@@ -157,7 +185,7 @@ final moveTableStateProvider =
   Stream<GCodeFile?> filePrinting = ref.watchAsSubject(filePrintingProvider);
   yield* Rx.combineLatest2(
       printerStream, filePrinting, MoveTableState.byComponents);
-});
+}, name:'moveTableStateProvider');
 
 class MoveTableState {
   final List<double> livePosition;

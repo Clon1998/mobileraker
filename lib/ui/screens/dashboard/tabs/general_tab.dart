@@ -10,6 +10,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
+import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
@@ -30,6 +31,7 @@ import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
+import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_xyz_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
@@ -429,13 +431,21 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var extruderCnt = ref.watch(generalTabViewControllerProvider
+    int extruderCnt = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.printerData.extruderCount));
 
     int sensorsCnt = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.temperatureSensors
+            .printerData.temperatureSensors.values
             .where((e) => !e.name.startsWith('_'))
+            .length))
+        .valueOrFullNull!;
+
+    int temperatureFanCnt = ref
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
+            .printerData.fans.values
+            .where((e) => !e.name.startsWith('_'))
+            .whereType<TemperatureFan>()
             .length))
         .valueOrFullNull!;
 
@@ -448,9 +458,17 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
             sensorsCnt,
             (index) => _SensorCard(
                 sensorProvider: machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.temperatureSensors
+                    (value) => value.printerData.temperatureSensors.values
                         .where((element) => !element.name.startsWith('_'))
-                        .elementAt(index))))
+                        .elementAt(index)))),
+        ...List.generate(
+            temperatureFanCnt,
+            (index) => _TemperatureFanCard(
+                tempFanProvider: machinePrinterKlippySettingsProvider.selectAs(
+                    (value) => value.printerData.fans.values
+                        .where((element) => !element.name.startsWith('_'))
+                        .whereType<TemperatureFan>()
+                        .elementAt(index)))),
       ],
     );
   }
@@ -541,23 +559,31 @@ class _SensorCard extends HookConsumerWidget {
       spots.value.clear();
       spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
+    var beautifiedNamed = beautifyName(temperatureSensor.name);
 
     return GraphCardWithButton(
       plotSpots: spots.value,
       buttonChild:
           const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
-      builder: (context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(beautifyName(temperatureSensor.name),
-              style: Theme.of(context).textTheme.caption),
-          Text('${temperatureSensor.temperature.toStringAsFixed(1)} °C',
-              style: Theme.of(context).textTheme.headline6),
-          Text(
-            '${temperatureSensor.measuredMaxTemp.toStringAsFixed(1)} °C max',
-          ),
-        ],
+      builder: (context) => Tooltip(
+        message: beautifiedNamed,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              beautifiedNamed,
+              style: Theme.of(context).textTheme.caption,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text('${temperatureSensor.temperature.toStringAsFixed(1)} °C',
+                style: Theme.of(context).textTheme.headline6),
+            Text(
+              '${temperatureSensor.measuredMaxTemp.toStringAsFixed(1)} °C max',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -609,29 +635,101 @@ class _HeaterCard extends StatelessWidget {
         onTap: onTap,
         builder: (BuildContext context) {
           var innerTheme = Theme.of(context);
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: innerTheme.textTheme.caption),
-                  Text('${current.toStringAsFixed(1)} °C',
-                      style: innerTheme.textTheme.headline6),
-                  Text(targetTemp),
-                ],
-              ),
-              AnimatedOpacity(
-                opacity: current > _stillHotTemp ? 1 : 0,
-                duration: kThemeAnimationDuration,
-                child: Tooltip(
-                  message: '$name is still hot!',
-                  child: const Icon(Icons.do_not_touch_outlined),
+          return Tooltip(
+            message: name,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: innerTheme.textTheme.caption,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text('${current.toStringAsFixed(1)} °C',
+                        style: innerTheme.textTheme.headline6),
+                    Text(targetTemp),
+                  ],
                 ),
-              )
-            ],
+                AnimatedOpacity(
+                  opacity: current > _stillHotTemp ? 1 : 0,
+                  duration: kThemeAnimationDuration,
+                  child: Tooltip(
+                    message: '$name is still hot!',
+                    child: const Icon(Icons.do_not_touch_outlined),
+                  ),
+                )
+              ],
+            ),
           );
         });
+  }
+}
+
+class _TemperatureFanCard extends HookConsumerWidget {
+  const _TemperatureFanCard({Key? key, required this.tempFanProvider})
+      : super(key: key);
+  final ProviderListenable<AsyncValue<TemperatureFan>> tempFanProvider;
+  static const double icoSize = 30;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    TemperatureFan temperatureFan = ref.watch(tempFanProvider).valueOrFullNull!;
+
+    // var spots = useState(<FlSpot>[]);
+    // var temperatureHistory = temperatureSensor.temperatureHistory;
+    //
+    // if (temperatureHistory != null) {
+    //   List<double> sublist =
+    //   temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
+    //   spots.value.clear();
+    //   spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
+    // }
+    var beautifiedNamed = beautifyName(temperatureFan.name);
+
+    return CardWithButton(
+      buttonChild: const Text('general.set').tr(),
+      onTap: ref.watch(generalTabViewControllerProvider.select(
+              (data) => data.value!.klippyData.klippyCanReceiveCommands))
+          ? () => ref
+              .read(generalTabViewControllerProvider.notifier)
+              .editTemperatureFan(temperatureFan)
+          : null,
+      builder: (context) => Tooltip(
+        message: beautifiedNamed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  beautifiedNamed,
+                  style: Theme.of(context).textTheme.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text('${temperatureFan.temperature.toStringAsFixed(1)} °C',
+                    style: Theme.of(context).textTheme.headline6),
+                Text(
+                  'pages.dashboard.general.temp_card.heater_on'
+                      .tr(args: [temperatureFan.target.toStringAsFixed(1)]),
+                ),
+              ],
+            ),
+            temperatureFan.speed > 0
+                ? const SpinningFan(size: icoSize)
+                : const Icon(
+                    FlutterIcons.fan_off_mco,
+                    size: icoSize,
+                  ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -1062,8 +1160,8 @@ class _ControlXYZCard extends ConsumerWidget {
                             .read(controlXYZController.notifier)
                             .onSelectedAxisStepSizeChanged,
                         values: ref
-                            .watch(generalTabViewControllerProvider
-                                .select((data) {
+                            .watch(
+                                generalTabViewControllerProvider.select((data) {
                               return data.valueOrNull!.settings.moveSteps;
                             }))
                             .map((e) => e.toString())

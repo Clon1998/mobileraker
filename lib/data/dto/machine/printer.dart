@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/machine/display_status.dart';
+import 'package:mobileraker/data/dto/machine/leds/led.dart';
 import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/exceptions.dart';
 
@@ -20,6 +21,7 @@ part 'printer.freezed.dart';
 
 class PrinterBuilder {
   PrinterBuilder();
+
   PrinterBuilder.fromPrinter(Printer printer)
       : toolhead = printer.toolhead,
         extruders = printer.extruders,
@@ -36,7 +38,8 @@ class PrinterBuilder {
         queryableObjects = printer.queryableObjects,
         gcodeMacros = printer.gcodeMacros,
         motionReport = printer.motionReport,
-        displayStatus = printer.displayStatus;
+        displayStatus = printer.displayStatus,
+        leds = printer.leds;
 
   Toolhead? toolhead;
   List<Extruder> extruders = [];
@@ -49,11 +52,12 @@ class PrinterBuilder {
   ExcludeObject? excludeObject;
   ConfigFile? configFile;
   VirtualSdCard? virtualSdCard;
-  List<NamedFan> fans = [];
-  List<TemperatureSensor> temperatureSensors = [];
-  List<OutputPin> outputPins = [];
+  Map<String, NamedFan> fans = {};
+  Map<String, TemperatureSensor> temperatureSensors = {};
+  Map<String, OutputPin> outputPins = {};
   List<String> queryableObjects = [];
   List<String> gcodeMacros = [];
+  Map<String, Led> leds = {};
 
   Printer build() {
     if (toolhead == null ||
@@ -79,11 +83,12 @@ class PrinterBuilder {
         excludeObject: excludeObject,
         configFile: configFile!,
         virtualSdCard: virtualSdCard!,
-        fans: fans,
-        temperatureSensors: temperatureSensors,
-        outputPins: outputPins,
+        fans: Map.unmodifiable(fans),
+        temperatureSensors: Map.unmodifiable(temperatureSensors),
+        outputPins: Map.unmodifiable(outputPins),
         queryableObjects: queryableObjects,
-        gcodeMacros: gcodeMacros);
+        gcodeMacros: gcodeMacros,
+        leds: Map.unmodifiable(leds));
     return printer;
   }
 }
@@ -104,11 +109,12 @@ class Printer with _$Printer {
     ExcludeObject? excludeObject,
     required ConfigFile configFile,
     required VirtualSdCard virtualSdCard,
-    @Default([]) List<NamedFan> fans,
-    @Default([]) List<TemperatureSensor> temperatureSensors,
-    @Default([]) List<OutputPin> outputPins,
+    @Default({}) Map<String, NamedFan> fans,
+    @Default({}) Map<String, TemperatureSensor> temperatureSensors,
+    @Default({}) Map<String, OutputPin> outputPins,
     @Default([]) List<String> queryableObjects,
     @Default([]) List<String> gcodeMacros,
+    @Default({}) Map<String, Led> leds,
   }) = _Printer;
 
   Extruder get extruder =>

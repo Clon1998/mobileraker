@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flex_color_scheme/flex_color_scheme.dart';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,8 +11,14 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:form_builder_validators/localization/l10n.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
+import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
+import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
+import 'package:mobileraker/data/dto/machine/leds/addressable_led.dart';
+import 'package:mobileraker/data/dto/machine/leds/dumb_led.dart';
+import 'package:mobileraker/data/dto/machine/leds/led.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
@@ -19,12 +27,14 @@ import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
+import 'package:mobileraker/ui/components/card_with_switch.dart';
 import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/pixel_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
@@ -44,28 +54,35 @@ class ControlTab extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 20),
                   children: [
                     if (ref
-                        .watch(machinePrinterKlippySettingsProvider.selectAs(
-                            (value) => value.settings.macroGroups.isNotEmpty))
-                        .valueOrFullNull!)
+                            .watch(machinePrinterKlippySettingsProvider
+                                .selectAs((value) =>
+                                    value.settings.macroGroups.isNotEmpty))
+                            .valueOrFullNull ??
+                        false)
                       const GcodeMacroCard(),
                     if (ref
-                        .watch(machinePrinterKlippySettingsProvider.selectAs(
-                            (value) =>
-                                value.printerData.print.state !=
-                                PrintState.printing))
-                        .valueOrFullNull!)
+                            .watch(machinePrinterKlippySettingsProvider
+                                .selectAs((value) =>
+                                    value.printerData.print.state !=
+                                    PrintState.printing))
+                            .valueOrFullNull ??
+                        false)
                       const ExtruderControlCard(),
                     const FansCard(),
                     if (ref
-                        .watch(machinePrinterKlippySettingsProvider.selectAs(
-                            (value) => value.printerData.outputPins.isNotEmpty))
-                        .valueOrFullNull!)
+                            .watch(machinePrinterKlippySettingsProvider
+                                .selectAs((value) =>
+                                    value.printerData.outputPins.isNotEmpty ||
+                                    value.printerData.leds.isNotEmpty))
+                            .valueOrFullNull ??
+                        false)
                       const PinsCard(),
                     if (ref
-                        .watch(machinePrinterKlippySettingsProvider.selectAs(
-                            (value) =>
-                                value.klippyData.components.contains('power')))
-                        .valueOrFullNull!)
+                            .watch(machinePrinterKlippySettingsProvider
+                                .selectAs((value) => value.klippyData.components
+                                    .contains('power')))
+                            .valueOrFullNull ??
+                        false)
                       const PowerApiCard(),
                     const MultipliersCard(),
                     const LimitsCard(),
@@ -127,7 +144,7 @@ class FansCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var fanLen = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.fans
+            .printerData.fans.values
             .where((element) => !element.name.startsWith('_'))
             .length))
         .valueOrFullNull!;
@@ -148,6 +165,7 @@ class FansCard extends ConsumerWidget {
               ...List.generate(fanLen, (index) {
                 var fanProvider = machinePrinterKlippySettingsProvider.selectAs(
                     (value) => value.printerData.fans
+                    .values
                         .where((element) => !element.name.startsWith('_'))
                         .elementAt(index));
 
@@ -240,23 +258,32 @@ class _FanCard extends StatelessWidget {
             : const Text('general.set').tr(),
         onTap: onTap,
         builder: (context) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(name, style: Theme.of(context).textTheme.caption),
-                  Text(fanSpeed, style: Theme.of(context).textTheme.headline6),
-                ],
-              ),
-              speed > 0
-                  ? const SpinningFan(size: icoSize)
-                  : const Icon(
-                      FlutterIcons.fan_off_mco,
-                      size: icoSize,
+          return Tooltip(
+            message: name,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: Theme.of(context).textTheme.caption,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-            ],
+                    Text(fanSpeed,
+                        style: Theme.of(context).textTheme.headlineSmall),
+                  ],
+                ),
+                speed > 0
+                    ? const SpinningFan(size: icoSize)
+                    : const Icon(
+                        FlutterIcons.fan_off_mco,
+                        size: icoSize,
+                      ),
+              ],
+            ),
           );
         });
   }
@@ -498,42 +525,67 @@ class GcodeMacroCard extends HookConsumerWidget {
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: ChipTheme(
-              data: ChipThemeData(
-                  labelStyle:
-                      TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                  deleteIconColor: Theme.of(context).colorScheme.onPrimary),
-              child: Wrap(
-                spacing: 5.0,
-                children: List<Widget>.generate(
-                  macrosOfGrp.length,
-                  (int index) {
-                    GCodeMacro macro = macrosOfGrp[index];
-                    bool disabled = (!klippyCanReceiveCommands ||
-                        (isPrinting && !macro.showWhilePrinting));
-                    return Visibility(
-                      visible: ref
-                              .watch(
-                                  machinePrinterKlippySettingsProvider.selectAs(
-                                      (value) => value.printerData.gcodeMacros
-                                          .contains(macro.name)))
-                              .valueOrFullNull! &&
-                          macro.visible,
-                      child: ActionChip(
-                        label: Text(macro.beautifiedName),
-                        backgroundColor: disabled
-                            ? themeData.disabledColor
-                            : themeData.colorScheme.primary,
-                        onPressed: () => disabled
-                            ? null
-                            : ref
-                                .watch(controlTabControllerProvider.notifier)
-                                .onMacroPressed(macro.name),
+            child: Wrap(
+              spacing: 5.0,
+              children: List<Widget>.generate(
+                macrosOfGrp.length,
+                (int index) {
+                  GCodeMacro macro = macrosOfGrp[index];
+                  ConfigGcodeMacro? configGcodeMacro = ref
+                      .watch(machinePrinterKlippySettingsProvider.selectAs(
+                          (data) => data.printerData.configFile
+                              .gcodeMacros[macro.name.toLowerCase()]))
+                      .valueOrFullNull;
+                  bool disabled = (!klippyCanReceiveCommands ||
+                      (isPrinting && !macro.showWhilePrinting));
+                  return Visibility(
+                    visible: ref
+                            .watch(
+                                machinePrinterKlippySettingsProvider.selectAs(
+                                    (value) => value.printerData.gcodeMacros
+                                        .contains(macro.name)))
+                            .valueOrFullNull! &&
+                        macro.visible,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 12),
+                        minimumSize: const Size(0, 32),
+                        foregroundColor: themeData.colorScheme.onPrimary,
+                        backgroundColor: themeData.colorScheme.primary,
+                        disabledBackgroundColor:
+                            themeData.colorScheme.onSurface.withOpacity(0.12),
+                        disabledForegroundColor:
+                            themeData.colorScheme.onSurface.withOpacity(0.38),
+                        textStyle: themeData.chipTheme.labelStyle,
+                        shape: const StadiumBorder(),
                       ),
-                    );
-                  },
-                ).toList(),
-              ),
+                      onPressed: disabled
+                          ? null
+                          : () => ref
+                              .watch(controlTabControllerProvider.notifier)
+                              .onMacroPressed(macro.name, configGcodeMacro),
+
+                      onLongPress: disabled
+                          ? null
+                          : () => ref
+                              .watch(controlTabControllerProvider.notifier)
+                              .onMacroLongPressed(
+                                macro.name,
+                              ),
+                      child: Text(macro.beautifiedName),
+
+                      // Chip(
+                      //   surfaceTintColor: Colors.red,
+                      //   label: Text(macro.beautifiedName),
+                      //   backgroundColor: disabled
+                      //       ? themeData.disabledColor
+                      //       : themeData.colorScheme.primary,
+                      // ),
+                    ),
+                  );
+                },
+              ).toList(),
             ),
           ),
         ],
@@ -551,7 +603,14 @@ class PinsCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var pinLen = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.outputPins
+            .printerData.outputPins.values
+            .where((element) => !element.name.startsWith('_'))
+            .length))
+        .valueOrFullNull!;
+
+    var ledLen = ref
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
+            .printerData.leds.values
             .where((element) => !element.name.startsWith('_'))
             .length))
         .valueOrFullNull!;
@@ -564,19 +623,31 @@ class PinsCard extends ConsumerWidget {
               leading: const Icon(
                 FlutterIcons.led_outline_mco,
               ),
-              title: Text(
-                  plural('pages.dashboard.control.pin_card.title', pinLen)),
+              title: Text(plural(
+                  'pages.dashboard.control.pin_card.title', pinLen + ledLen)),
             ),
             AdaptiveHorizontalScroll(
               pageStorageKey: 'pins',
-              children: List.generate(pinLen, (index) {
-                var pinProvider = machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.outputPins
-                        .where((element) => !element.name.startsWith('_'))
-                        .elementAt(index));
+              children: [
+                ...List.generate(pinLen, (index) {
+                  var pinProvider = machinePrinterKlippySettingsProvider
+                      .selectAs((value) => value.printerData.outputPins.values
+                          .where((element) => !element.name.startsWith('_'))
+                          .elementAt(index));
 
-                return _PinTile(pinProvider: pinProvider);
-              }),
+                  return _PinTile(pinProvider: pinProvider);
+                }),
+                ...List.generate(ledLen, (index) {
+                  var ledProvider = machinePrinterKlippySettingsProvider
+                      .selectAs((value) => value.printerData.leds.values
+                          .where((element) => !element.name.startsWith('_'))
+                          .elementAt(index));
+
+                  return _Led(
+                    ledProvider: ledProvider,
+                  );
+                })
+              ],
             )
           ],
         ),
@@ -606,6 +677,34 @@ class _PinTile extends ConsumerWidget {
             .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrFullNull!;
 
+    if (pinConfig?.pwm == false) {
+      return CardWithSwitch(
+          value: pin.value > 0,
+          onChanged: (v) => ref
+              .read(controlTabControllerProvider.notifier)
+              .onUpdateBinaryPin(pin, v),
+          builder: (context) {
+            var textTheme = Theme.of(context).textTheme;
+            var beautifiedName = beautifyName(pin.name);
+            return Tooltip(
+              message: beautifiedName,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    beautifiedName,
+                    style: textTheme.caption,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(pin.value > 0 ? 'general.on'.tr() : 'general.off'.tr(),
+                      style: textTheme.headlineSmall),
+                ],
+              ),
+            );
+          });
+    }
+
     return CardWithButton(
         buttonChild: const Text('general.set').tr(),
         onTap: klippyCanReceiveCommands
@@ -614,14 +713,163 @@ class _PinTile extends ConsumerWidget {
                 .onEditPin(pin, pinConfig)
             : null,
         builder: (context) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(beautifyName(pin.name),
-                  style: Theme.of(context).textTheme.caption),
-              Text(pinValue(pin.value * (pinConfig?.scale ?? 1)),
-                  style: Theme.of(context).textTheme.headlineSmall),
-            ],
+          var textTheme = Theme.of(context).textTheme;
+          var beautifiedName = beautifyName(pin.name);
+          return Tooltip(
+            message: beautifiedName,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  beautifiedName,
+                  style: textTheme.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text(pinValue(pin.value * (pinConfig?.scale ?? 1)),
+                    style: textTheme.headlineSmall),
+              ],
+            ),
+          );
+        });
+  }
+}
+
+class _Led extends ConsumerWidget {
+  const _Led({Key? key, required this.ledProvider}) : super(key: key);
+  final ProviderListenable<AsyncValue<Led>> ledProvider;
+  static const double _iconSize = 30;
+  static const int _maxPixelInGradient = 5;
+
+  Color dumbLedStatusColor(DumbLed led, ConfigLed? ledConfig) {
+    Pixel pixel = led.color;
+    if (!pixel.hasColor) {
+      return Colors.white;
+    }
+    if (ledConfig?.isSingleColor == true) {
+      var dumpLedConfig = ledConfig as ConfigDumbLed;
+      Color color = Colors.white;
+      if (dumpLedConfig.hasRed) {
+        color = Colors.red;
+      }
+      if (dumpLedConfig.hasGreen) {
+        color = Colors.green;
+      }
+      if (dumpLedConfig.hasBlue) {
+        color = Colors.blue;
+      }
+      return color.darken(((1 - pixel.white) * 10).toInt());
+    }
+
+    return pixel.rgbwColor;
+  }
+
+  String statusText(Led led, ConfigLed? ledConfig) {
+    if (led is DumbLed &&
+            ledConfig?.isSingleColor == false &&
+            led.color.hasColor ||
+        led is AddressableLed && led.pixels.any((e) => e.hasColor)) {
+      return 'general.on'.tr();
+    }
+
+    if (led is DumbLed && ledConfig?.isSingleColor == true) {
+      List<double> rgbw = led.color.asList();
+      var value = rgbw.reduce(max);
+      if (value > 0) return NumberFormat('0%').format(value);
+    }
+    return 'general.off'.tr();
+  }
+
+  Widget statusWidget(Led led, ConfigLed? ledConfig) {
+    bool power = false;
+    if (led is DumbLed) {
+      power = led.color.hasColor;
+    } else if (led is AddressableLed) {
+      power = led.pixels.any((e) => e.hasColor);
+    }
+
+    if (!power) {
+      return const Icon(
+        Icons.circle_outlined,
+        size: _iconSize,
+        color: Colors.white,
+      );
+    }
+
+    List<Color> colors;
+    if (led is DumbLed) {
+      colors = [dumbLedStatusColor(led, ledConfig)];
+    } else if (led is AddressableLed) {
+      colors = led.pixels
+          .sublist(0, min(led.pixels.length, _maxPixelInGradient))
+          .map((e) => e.rgbwColor)
+          .toList(growable: false);
+    } else {
+      throw ArgumentError('Unknown LED type');
+    }
+
+    if (colors.length <= 1) {
+      Color c = (colors.length == 1) ? colors.first : Colors.white;
+      return Icon(
+        Icons.circle,
+        size: _iconSize,
+        color: c,
+      );
+    }
+
+    return ShaderMask(
+      shaderCallback: (bounds) => SweepGradient(
+        colors: colors,
+      ).createShader(bounds),
+      child: const Icon(
+        Icons.circle,
+        size: _iconSize,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Led led = ref.watch(ledProvider).valueOrFullNull!;
+    var ledConfig = ref.watch(machinePrinterKlippySettingsProvider.select(
+        (value) => value.valueOrFullNull?.printerData.configFile
+            .leds[led.name.toLowerCase()]));
+    var klippyCanReceiveCommands = ref
+        .watch(machinePrinterKlippySettingsProvider
+            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .valueOrFullNull!;
+
+    return CardWithButton(
+        buttonChild: const Text('general.set').tr(),
+        onTap: klippyCanReceiveCommands
+            ? () => ref
+                .read(controlTabControllerProvider.notifier)
+                .onEditLed(led, ledConfig)
+            : null,
+        builder: (context) {
+          var textTheme = Theme.of(context).textTheme;
+          var beautifiedName = beautifyName(led.name);
+          return Tooltip(
+            message: beautifiedName,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      beautifiedName,
+                      style: textTheme.caption,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(statusText(led, ledConfig),
+                        style: Theme.of(context).textTheme.headlineSmall),
+                  ],
+                ),
+                statusWidget(led, ledConfig),
+              ],
+            ),
           );
         });
   }

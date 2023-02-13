@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
+import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -18,8 +21,9 @@ import 'printer_service_test.mocks.dart';
 
 @GenerateMocks([JsonRpcClient, MachineService, SnackBarService, DialogService])
 void main() {
+  String uuid = "test";
+
   test('Test without exclude object', () {
-    String uuid = "test";
     var mockRpc = MockJsonRpcClient();
 
     when(mockRpc.addMethodListener(any, 'notify_status_update'))
@@ -29,7 +33,7 @@ void main() {
     final respList = File('test_resources/list_resp.json');
     when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
         (realInvocation) async =>
-            RpcResponse(jsonDecode(respList.readAsStringSync())));
+            RpcResponse.fromJson(jsonDecode(respList.readAsStringSync())));
     final respQuery = File('test_resources/query_resp.json');
     var queryAbleObjects = {
       'objects': {
@@ -52,11 +56,11 @@ void main() {
     when(mockRpc.sendJRpcMethod('printer.objects.query',
             params: queryAbleObjects))
         .thenAnswer((realInvocation) async =>
-            RpcResponse(jsonDecode(respQuery.readAsStringSync())));
+            RpcResponse.fromJson(jsonDecode(respQuery.readAsStringSync())));
     final respTemp = File('test_resources/temp_store_resp.json');
     when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
         (realInvocation) async =>
-            RpcResponse(jsonDecode(respTemp.readAsStringSync())));
+            RpcResponse.fromJson(jsonDecode(respTemp.readAsStringSync())));
 
     when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
             params: queryAbleObjects))
@@ -101,10 +105,86 @@ void main() {
       machineServiceProvider.overrideWithValue(mockMachineService),
       snackBarServiceProvider.overrideWithValue(mockSnackBarService),
       dialogServiceProvider.overrideWithValue(mockDialogService),
-      klipperProvider(uuid).overrideWithProvider(
-          StreamProvider.autoDispose((ref) => Stream.value(mockKlipyInstance)))
+      klipperProvider(uuid)
+          .overrideWith((ref) => Stream.value(mockKlipyInstance))
     ]);
 
     var printerService = container.read(printerServiceProvider(uuid));
+  });
+
+  test('Test with valid initialization', () async {
+    var mockRpc = MockJsonRpcClient();
+
+    // MethodListener for subscribed object status updates
+    when(mockRpc.addMethodListener(any, 'notify_status_update'))
+        .thenReturn(null);
+    // MethodListener, for gcode responses updates
+    when(mockRpc.addMethodListener(any, 'notify_gcode_response'))
+        .thenReturn(null);
+
+    var mockSnackBarService = MockSnackBarService();
+    var mockMachineService = MockMachineService();
+    var mockDialogService = MockDialogService();
+
+    // Initially the klipper service reports that klipper currently is starting/not yet ready
+
+    var mockKlipyyStreamCtl = StreamController<KlipperInstance>()
+      ..add(const KlipperInstance(
+          klippyConnected: true, klippyState: KlipperState.startup));
+
+    var container = ProviderContainer(overrides: [
+      jrpcClientProvider(uuid).overrideWithValue(mockRpc),
+      machineServiceProvider.overrideWithValue(mockMachineService),
+      snackBarServiceProvider.overrideWithValue(mockSnackBarService),
+      dialogServiceProvider.overrideWithValue(mockDialogService),
+      klipperProvider(uuid).overrideWith((ref) => mockKlipyyStreamCtl.stream)
+    ]);
+
+    // ToDO: Do I need tests for the provider? I mean it is basd on the service so??
+    // var printer = container.read(printerProvider(uuid));
+    // expect(printer, const AsyncValue<Printer>.loading());
+    // expect(printer.isLoading, true);
+    // expect(printer.hasValue, false);
+    var printerService = container.read(printerServiceProvider(uuid));
+    verify(mockRpc.addMethodListener(
+        any, 'notify_status_update')); // Objects' status updates
+    verify(mockRpc.addMethodListener(
+        any, 'notify_gcode_response')); // Gcode responses
+    expect(printerService.hasCurrent, false);
+    expect(printerService.currentOrNull, null);
+
+    when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
+              'objects': ['toolhead']
+            }));
+
+    when(mockRpc.sendJRpcMethod('printer.objects.query', params: {
+      'objects': {'toolhead':null}
+    })).thenAnswer(
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
+              'status': {
+                "toolhead": {
+                  "position": [0, 0, 0, 0],
+                  "status": "Ready"
+                }
+              }
+            }));
+
+    when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {}));
+
+    when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
+        params: ['toolhead'])).thenReturn(null);
+
+    when(mockMachineService.updateMacrosInSettings(uuid, any)).thenReturn(null);
+
+    mockKlipyyStreamCtl.add(const KlipperInstance(
+        klippyConnected: true, klippyState: KlipperState.ready));
+    await expectLater(printerService.printerStream, emits(isNotNull));
+
+    verify(mockRpc.sendJRpcMethod('printer.objects.list'));
+    verify(mockRpc.sendJRpcMethod('printer.objects.query', params: {
+      'objects': ['toolhead']
+    }));
   });
 }

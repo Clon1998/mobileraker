@@ -21,6 +21,10 @@ class RiverPodLogger extends ProviderObserver {
     var familiy = provider.argument?.toString() ?? '';
     logger.wtf(
         'RiverPod::DISPOSED:${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy');
+    //
+    // if (provider.name == 'klipperServiceProvider') {
+    //   logger.wtf('RiverPod::klipperServiceProvider:  ${container}');
+    // }
   }
 
   @override
@@ -30,17 +34,21 @@ class RiverPodLogger extends ProviderObserver {
     logger.wtf(
         'RiverPod::CREATED-> ${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy WITH PARENT? ${container.depth}');
   }
-
-// @override
-// void didUpdateProvider(
-//   ProviderBase provider,
-//   Object? previousValue,
-//   Object? newValue,
-//   ProviderContainer container,
-// ) {
-//   logger.i(
-//       '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)}');
-//   logger.i('OLD: ${previousValue.runtimeType}#${identityHashCode(previousValue)}');
-//   logger.i('new: ${previousValue.runtimeType}#${identityHashCode(previousValue)}');
-// }
+  //
+  // @override
+  // void didUpdateProvider(
+  //   ProviderBase provider,
+  //   Object? previousValue,
+  //   Object? newValue,
+  //   ProviderContainer container,
+  // ) {
+  //   var familiy = provider.argument?.toString() ?? '';
+  //   var providerStr =
+  //       '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)}$familiy';
+  //
+  //   logger.wtf(
+  //       'RiverPod::UPDATE-old-> $providerStr ${identityHashCode(previousValue)}:${previousValue.toString().truncate(200)}');
+  //   logger.wtf(
+  //       'RiverPod::UPDATE-new->$providerStr ${identityHashCode(newValue)}:${newValue.toString().truncate(200)}');
+  // }
 }

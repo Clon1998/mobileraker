@@ -21,14 +21,17 @@ import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';
+import 'package:mobileraker/util/ref_extension.dart';
 
 import 'machine_service.dart';
 
-final awesomeNotificationProvider =
-    Provider<AwesomeNotifications>((ref) => AwesomeNotifications());
+final awesomeNotificationProvider = Provider<AwesomeNotifications>(
+    (ref) => AwesomeNotifications(),
+    name: 'awesomeNotificationProvider');
 
-final awesomeNotificationFcmProvider =
-    Provider<AwesomeNotificationsFcm>((ref) => AwesomeNotificationsFcm());
+final awesomeNotificationFcmProvider = Provider<AwesomeNotificationsFcm>(
+    (ref) => AwesomeNotificationsFcm(),
+    name: 'awesomeNotificationFcmProvider');
 
 final notificationServiceProvider =
     Provider.autoDispose<NotificationService>((ref) {
@@ -36,7 +39,7 @@ final notificationServiceProvider =
   var notificationService = NotificationService(ref);
   ref.onDispose(notificationService.dispose);
   return notificationService;
-});
+}, name: 'notificationServiceProvider');
 
 class NotificationService {
   NotificationService(this.ref)
@@ -325,15 +328,20 @@ class NotificationService {
           channelName: 'Print Status Updates - ${machine.name}',
           channelDescription: 'Notifications regarding the print status.',
           channelGroupKey: machine.uuid,
-          importance: NotificationImportance.Max,
-          defaultColor: brownish.shade500),
+          // importance: NotificationImportance.Default,
+          defaultColor: brownish.shade500,
+          playSound: true,
+          enableVibration: true),
       NotificationChannel(
           channelKey: machine.m117ChannelKey,
           channelName: 'User M117 Notifications - ${machine.name}',
-          channelDescription: 'Notifications issued by M117 with prefix "\$MR\$:".',
+          channelDescription:
+              'Notifications issued by M117 with prefix "\$MR\$:".',
           channelGroupKey: machine.uuid,
-          importance: NotificationImportance.Max,
-          defaultColor: brownish.shade500),
+          // importance: NotificationImportance.Max,
+          defaultColor: brownish.shade500,
+          playSound: true,
+          enableVibration: true),
       NotificationChannel(
           channelKey: machine.printProgressChannelKey,
           channelName: 'Print Progress Updates - ${machine.name}',
@@ -354,32 +362,19 @@ class NotificationService {
   }
 
   void _setupFCMOnPrinterOnceConnected(Machine machine) async {
-    late ProviderSubscription<AsyncValue<ClientState>> sub;
-    sub = ref.listen(
-        jrpcClientStateProvider(machine.uuid),
-        (previous, AsyncValue<ClientState> next) =>
-            next.whenData((value) async {
-              if (value != ClientState.connected) return;
-              try {
-                String? fcmToken = await _notifyFCM.requestFirebaseAppToken();
-                if (fcmToken == null) {
-                  logger.w("Could not fetch fcm token");
-                  return Future.error("No token available for device!");
-                }
-                logger.i("Device's FCM token: $fcmToken");
+    String fcmToken = await _notifyFCM
+        .requestFirebaseAppToken(); // TODO: Extract to seperate provider
+    logger.i('Device\'s FCM token: $fcmToken');
 
-                await _machineService.updateMachineFcmConfig(machine, fcmToken);
-                // _machineService.registerFCMTokenOnMachineNEW(setting, fcmToken);
-              } catch (e, s) {
-                logger.w(
-                    'Could not setupFCM on ${machine.name}(${machine.wsUrl})',
-                    e,
-                    s);
-              } finally {
-                sub.close();
-              }
-            }),
-        fireImmediately: true);
+    // Wait until connected
+    await ref.watchWhere<ClientState>(jrpcClientStateProvider(machine.uuid),
+        (c) => c == ClientState.connected);
+    logger.i('Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
+    try {
+      await _machineService.updateMachineFcmConfig(machine, fcmToken);
+    } catch (e, s) {
+      logger.w('Could not setupFCM on ${machine.name}(${machine.wsUrl})', e, s);
+    }
   }
 
   Future<void> _processPrinterUpdate(Machine machine, Printer printer) async {

@@ -120,9 +120,7 @@ class _Fab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    logger.wtf('rebuilding SpeedChild');
 
-    logger.wtf('I am a speedchild');
     var uploading = ref.watch(configFileDetailsControllerProvider).isUploading;
     return SpeedDial(
       icon: FlutterIcons.save_mdi,

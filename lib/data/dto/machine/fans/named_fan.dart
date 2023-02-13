@@ -1,7 +1,6 @@
 import 'fan.dart';
 
 abstract class NamedFan implements Fan {
+  const NamedFan();
   abstract final String name;
-
-  NamedFan copyWith({String? name, double? speed});
 }

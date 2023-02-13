@@ -18,7 +18,6 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
   final RefreshController refreshController =
       RefreshController(initialRefresh: false);
 
-
   @override
   Widget build(BuildContext context) {
     var onBackground = Theme.of(context).colorScheme.onBackground;

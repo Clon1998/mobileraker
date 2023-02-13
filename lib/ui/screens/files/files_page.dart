@@ -11,10 +11,11 @@ import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
+import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
+import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -112,22 +113,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       return SwitchPrinterAppBar(
           title: tr('pages.files.title'),
           actions: <Widget>[
-            PopupMenuButton<FileSort>(
-              icon: const Icon(
-                Icons.sort,
-              ),
-              onSelected: (s) =>
-                  ref.read(fileSortModeProvider.notifier).state = s,
-              itemBuilder: (BuildContext context) =>
-                  List.generate(FileSort.values.length, (index) {
-                var e = FileSort.values[index];
-                return CheckedPopupMenuItem(
-                  value: e,
-                  checked: e == ref.watch(fileSortModeProvider),
-                  child: Text(e.translation).tr(),
-                );
-              }),
-            ),
+            const FileSortModeSelector(),
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () =>
@@ -154,7 +140,8 @@ class _FilesBody extends ConsumerWidget {
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(10)),
           boxShadow: [
             if (theme.brightness == Brightness.light)
               const BoxShadow(
@@ -216,8 +203,9 @@ class _FilesBody extends ConsumerWidget {
                                                 child: Icon(Icons.folder)),
                                             title: const Text('...'),
                                             onTap: ref
-                                                .watch(filesListControllerProvider
-                                                    .notifier)
+                                                .watch(
+                                                    filesListControllerProvider
+                                                        .notifier)
                                                 .popFolder,
                                           );
                                         } else {
@@ -398,6 +386,10 @@ class GCodeFileItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    String? lastPrinted = gCode.lastPrintDate != null
+        ? DateFormat.yMd(context.deviceLocale.languageCode).add_jm().format(gCode.lastPrintDate!)
+        : null;
+
     return _Slideable(
       fileName: gCode.name,
       child: ListTile(
@@ -411,6 +403,7 @@ class GCodeFileItem extends ConsumerWidget {
                   gCode, ref.watch(selectedMachineProvider).valueOrFullNull),
             )),
         title: Text(gCode.name),
+        subtitle:  Text((lastPrinted != null)?'${tr('pages.files.last_printed')}: $lastPrinted':tr('pages.files.not_printed')),
         onTap: () =>
             ref.read(filesListControllerProvider.notifier).onFileTapped(gCode),
       ),

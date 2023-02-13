@@ -8,9 +8,10 @@ import 'package:mobileraker/logger.dart';
 
 final selectedMachineServiceProvider = Provider((ref) {
   return SelectedMachineService(ref);
-});
+}, name: 'selectedMachineServiceProvider');
 
-final selectedMachineProvider = StreamProvider<Machine?>(name:'selectedMachineProvider',(ref) {
+final selectedMachineProvider =
+    StreamProvider<Machine?>(name: 'selectedMachineProvider', (ref) {
   return ref.watch(selectedMachineServiceProvider).selectedMachine;
 });
 

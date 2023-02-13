@@ -8,7 +8,7 @@ import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_objects_viewmodel.dart';
+import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_objects_controller.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -136,10 +136,7 @@ class DefaultBtnRow extends ConsumerWidget {
         TextButton(
           onPressed:
               ref.watch(excludeObjectControllerProvider.notifier).closeForm,
-          child: Text(MaterialLocalizations.of(context)
-              .cancelButtonLabel
-              .toLowerCase()
-              .titleCase()),
+          child: Text(tr('general.cancel')),
         ),
         TextButton(
           onPressed: ((ref.watch(excludeObjectProvider.select(
