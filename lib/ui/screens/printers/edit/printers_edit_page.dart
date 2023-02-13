@@ -123,7 +123,7 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.url(
-                      protocols: ['http', 'https'], requireProtocol: true)
+                      protocols: ['http', 'https'], requireProtocol: true, requireTld: false)
                 ]),
               ),
               FormBuilderTextField(
