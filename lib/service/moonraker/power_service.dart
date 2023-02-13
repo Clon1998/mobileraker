@@ -154,6 +154,7 @@ class PowerService {
   }
 
   dispose() {
+    _jRpcClient.removeMethodListener(_onPowerChanged, "notify_power_changed");
     _devicesStreamCtler.close();
   }
 }

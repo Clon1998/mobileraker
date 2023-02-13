@@ -65,24 +65,11 @@ class KlippyService {
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)) {
     ref.onDispose(dispose);
 
-    _jRpcClient.addMethodListener((m) {
-      _current = _current.copyWith(klippyState: KlipperState.ready);
-      logger.i('State: notify_klippy_ready');
-    }, "notify_klippy_ready");
-
-    _jRpcClient.addMethodListener((m) {
-      _current = _current.copyWith(klippyState: KlipperState.shutdown);
-      logger.i('State: notify_klippy_shutdown');
-    }, "notify_klippy_shutdown");
-
-    _jRpcClient.addMethodListener((m) {
-      _current = _current.copyWith(
-          klippyState: KlipperState.disconnected, klippyStateMessage: null);
-      logger.i('State: notify_klippy_disconnected: $m');
-
-      Future.delayed(const Duration(seconds: 2)).then((value) =>
-          _fetchPrinterInfo()); // need to delay this until its bac connected!
-    }, "notify_klippy_disconnected");
+    _jRpcClient.addMethodListener(_onNotifyKlippyReady, "notify_klippy_ready");
+    _jRpcClient.addMethodListener(
+        _onNotifyKlippyShutdown, "notify_klippy_shutdown");
+    _jRpcClient.addMethodListener(
+        _onNotifyKlippyDisconnected, "notify_klippy_disconnected");
 
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       var data = next as AsyncValue<ClientState>;
@@ -201,7 +188,33 @@ class KlippyService {
     _current = latestKlippy;
   }
 
+  _onNotifyKlippyReady(Map<String, dynamic> m) {
+    _current = _current.copyWith(klippyState: KlipperState.ready);
+    logger.i('State: notify_klippy_ready');
+  }
+
+  _onNotifyKlippyShutdown(Map<String, dynamic> m) {
+    _current = _current.copyWith(klippyState: KlipperState.shutdown);
+    logger.i('State: notify_klippy_shutdown');
+  }
+
+  _onNotifyKlippyDisconnected(Map<String, dynamic> m) {
+    _current = _current.copyWith(
+        klippyState: KlipperState.disconnected, klippyStateMessage: null);
+    logger.i('State: notify_klippy_disconnected: $m');
+
+    Future.delayed(const Duration(seconds: 2)).then((value) =>
+        _fetchPrinterInfo()); // need to delay this until its bac connected!
+  }
+
   dispose() {
+    _jRpcClient.removeMethodListener(
+        _onNotifyKlippyReady, "notify_klippy_ready");
+    _jRpcClient.removeMethodListener(
+        _onNotifyKlippyShutdown, "notify_klippy_shutdown");
+    _jRpcClient.removeMethodListener(
+        _onNotifyKlippyDisconnected, "notify_klippy_disconnected");
+
     _klipperStreamCtler.close();
   }
 }

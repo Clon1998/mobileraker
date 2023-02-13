@@ -102,6 +102,13 @@ class AnnouncementService {
   }
 
   dispose() {
+    _jRpcClient.removeMethodListener(
+        _onNotifyAnnouncementUpdate, "notify_announcement_update");
+    _jRpcClient.removeMethodListener(
+        _onNotifyAnnouncementDismissed, "notify_announcement_dismissed");
+    _jRpcClient.removeMethodListener(
+        _onNotifyAnnouncementWake, "notify_announcement_wake");
+
     _announcementsStreamCtrler.close();
   }
 }

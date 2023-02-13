@@ -194,6 +194,18 @@ class JsonRpcClient {
     _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
   }
 
+  // removes the method that was previously added by addMethodListeners
+  bool removeMethodListener(Function(Map<String, dynamic> rawMessage) callback,
+      [String? method]) {
+    if (method != null) {
+      return _methodListeners.values
+          .where((element) => element.contains(callback))
+          .map((element) => element.remove(callback))
+          .reduce((value, element) => value || element);
+    }
+    return _methodListeners[method]?.remove(callback) ?? false;
+  }
+
   Future<bool> _tryConnect() async {
     logger.i('Trying to connect to $uri');
     curState = ClientState.connecting;

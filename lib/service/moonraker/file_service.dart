@@ -297,6 +297,8 @@ class FileService {
   }
 
   dispose() {
+    _jRpcClient.removeMethodListener(
+        _onFileListChanged, "notify_filelist_changed");
     _fileActionStreamCtrler.close();
   }
 }
