@@ -57,4 +57,32 @@ class OctoEverywhere extends HiveObject {
     await super.delete();
     return;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OctoEverywhere &&
+          runtimeType == other.runtimeType &&
+          appApiToken == other.appApiToken &&
+          authBasicHttpPassword == other.authBasicHttpPassword &&
+          authBasicHttpUser == other.authBasicHttpUser &&
+          authBearerToken == other.authBearerToken &&
+          appConnectionId == other.appConnectionId &&
+          url == other.url &&
+          lastModified == other.lastModified;
+
+  @override
+  int get hashCode =>
+      appApiToken.hashCode ^
+      authBasicHttpPassword.hashCode ^
+      authBasicHttpUser.hashCode ^
+      authBearerToken.hashCode ^
+      appConnectionId.hashCode ^
+      url.hashCode ^
+      lastModified.hashCode;
+
+  @override
+  String toString() {
+    return 'OctoEverywhere{appApiToken: $appApiToken, authBasicHttpPassword: XXX, authBasicHttpUser: XXX, authBearerToken: XXX, appConnectionId: $appConnectionId, url: $url, lastModified: $lastModified}';
+  }
 }
