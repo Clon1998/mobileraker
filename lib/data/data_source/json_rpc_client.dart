@@ -239,7 +239,8 @@ class JsonRpcClient {
       _channelSub = ioChannel.stream.listen(
         _onChannelMessage,
         onError: _onChannelError,
-        onDone: _onChannelClosesNormal,
+        onDone: () =>
+            _onChannelClosesNormal(socket.closeCode, socket.closeReason),
       );
 
       curState = ClientState.connected;
@@ -324,18 +325,21 @@ class JsonRpcClient {
     }
   }
 
-  _onChannelClosesNormal() {
+  _onChannelClosesNormal(int? closeCode, String? closeReason) {
     if (_disposed) {
       logger.i('[$uri] WS-Stream Subscription is DONE!');
       return;
     }
+
+    logger.i(
+        '[$uri] WS-Stream closed normal! Code: $closeCode, Reason: $closeReason');
+
     ClientState t = curState;
     if (t != ClientState.error) {
       t = ClientState.disconnected;
     }
     if (!_stateStream.isClosed) curState = t;
     openChannel();
-    logger.i('[$uri] WS-Stream closed normal!');
   }
 
   _onChannelError(error) {
