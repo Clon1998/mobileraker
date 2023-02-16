@@ -209,8 +209,10 @@ class JsonRpcClient {
   bool removeMethodListener(Function(Map<String, dynamic> rawMessage) callback,
       [String? method]) {
     if (method != null) {
-      return _methodListeners.values
-          .where((element) => element.contains(callback))
+      var foundListeners = _methodListeners.values
+          .where((element) => element.contains(callback));
+      if (foundListeners.isEmpty) return true;
+      return foundListeners
           .map((element) => element.remove(callback))
           .reduce((value, element) => value || element);
     }
