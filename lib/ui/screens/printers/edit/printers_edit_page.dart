@@ -94,9 +94,10 @@ class PrinterSettingScrollView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(currentlyEditing);
 
+    var isSaving = ref.watch(isSavingProvider);
     return SingleChildScrollView(
       child: FormBuilder(
-        enabled: !ref.watch(isSavingProvider),
+        enabled: !isSaving,
         autoFocusOnValidationFailure: true,
         key: ref.watch(editPrinterformKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -166,13 +167,12 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 initialValue: machine.trustUntrustedCertificate,
               ),
               if (machine.octoEverywhere == null)
-              OctoEveryWhereBtn(
-                title: 'Connect OctoEverywhere',
-                onPressed: ref
-                    .read(printerEditControllerProvider.notifier)
-                    .linkWithOctoeverywhere,
-              ),
-
+                OctoEveryWhereBtn(
+                  title: 'Connect OctoEverywhere',
+                  onPressed: ref
+                      .read(printerEditControllerProvider.notifier)
+                      .linkWithOctoeverywhere,
+                ),
               if (machine.octoEverywhere != null)
                 OctoEveryWhereBtn(
                   title: 'Unlink OctoEverywhere',
@@ -184,9 +184,11 @@ class PrinterSettingScrollView extends ConsumerWidget {
               _SectionHeaderWithAction(
                   title: 'pages.dashboard.general.cam_card.webcam'.tr(),
                   action: TextButton.icon(
-                    onPressed: ref
-                        .read(webcamListControllerProvider.notifier)
-                        .addNewWebCam,
+                    onPressed: isSaving
+                        ? null
+                        : ref
+                            .read(webcamListControllerProvider.notifier)
+                            .addNewWebCam,
                     label: const Text('general.add').tr(),
                     icon: const Icon(FlutterIcons.webcam_mco),
                   )),
@@ -263,9 +265,11 @@ class _WebCamItem extends HookConsumerWidget {
               labelText: 'pages.printer_edit.general.displayname'.tr(),
               suffix: IconButton(
                   icon: const Icon(Icons.delete),
-                  onPressed: () => ref
-                      .read(webcamListControllerProvider.notifier)
-                      .removeWebcam(cam)),
+                  onPressed: ref.watch(isSavingProvider)
+                      ? null
+                      : () => ref
+                          .read(webcamListControllerProvider.notifier)
+                          .removeWebcam(cam)),
             ),
             name: '${cam.uuid}-camName',
             initialValue: cam.name,
@@ -398,10 +402,13 @@ class RemoteSettings extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
+    var isSaving = ref.watch(isSavingProvider);
+
     return Column(
       children: [
         ...ref.watch(remoteMachineSettingProvider).when(
-            data: (machineSettings) => [
+            data: (machineSettings) {
+              return [
                   _SectionHeader(
                       title: 'pages.printer_edit.motion_system.title'.tr()),
                   FormBuilderSwitch(
@@ -494,9 +501,11 @@ class RemoteSettings extends ConsumerWidget {
                   _SectionHeaderWithAction(
                       title: 'pages.dashboard.control.macro_card.title'.tr(),
                       action: TextButton.icon(
-                        onPressed: ref
-                            .read(macroGroupListControllerProvider.notifier)
-                            .addNewMacroGroup,
+                        onPressed: isSaving
+                            ? null
+                            : ref
+                                .read(macroGroupListControllerProvider.notifier)
+                                .addNewMacroGroup,
                         label: const Text('general.add').tr(),
                         icon: const Icon(Icons.source_outlined),
                       )),
@@ -506,15 +515,18 @@ class RemoteSettings extends ConsumerWidget {
                       title:
                           'pages.dashboard.general.temp_card.temp_presets'.tr(),
                       action: TextButton.icon(
-                        onPressed: ref
-                            .watch(temperaturePresetListControllerProvider
-                                .notifier)
-                            .addNewTemperaturePreset,
+                        onPressed: isSaving
+                            ? null
+                            : ref
+                                .watch(temperaturePresetListControllerProvider
+                                    .notifier)
+                                .addNewTemperaturePreset,
                         label: const Text('general.add').tr(),
                         icon: const Icon(FlutterIcons.thermometer_lines_mco),
                       )),
                   const TemperaturePresetList(),
-                ],
+                ];
+            },
             error: (e, s) => [
                   ListTile(
                     tileColor: themeData.colorScheme.errorContainer,
@@ -539,8 +551,9 @@ class RemoteSettings extends ConsumerWidget {
         Align(
           alignment: Alignment.bottomCenter,
           child: TextButton.icon(
-              onPressed:
-                  ref.read(printerEditControllerProvider.notifier).deleteIt,
+              onPressed: isSaving
+                  ? null
+                  : ref.read(printerEditControllerProvider.notifier).deleteIt,
               icon: const Icon(Icons.delete_forever_outlined),
               label: const Text('pages.printer_edit.remove_printer').tr()),
         )
@@ -556,6 +569,7 @@ class MoveStepSegmentInput extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var isSaving = ref.watch(isSavingProvider);
     return Segments(
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.motion_system.steps_move'.tr(),
@@ -564,8 +578,12 @@ class MoveStepSegmentInput extends ConsumerWidget {
           .watch(moveStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
           .toList(growable: false),
-      onAdd: ref.read(moveStepStateProvider.notifier).onAdd,
-      onSelected: ref.read(moveStepStateProvider.notifier).onSelected,
+      onAdd: isSaving
+          ? null
+          : ref.read(moveStepStateProvider.notifier).onAdd,
+      onSelected: isSaving
+          ? null
+          : ref.read(moveStepStateProvider.notifier).onSelected,
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(),
         FormBuilderValidators.numeric(),
@@ -585,6 +603,7 @@ class BabyStepSegmentInput extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var isSaving = ref.watch(isSavingProvider);
     return Segments(
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.motion_system.steps_baby'.tr(),
@@ -593,8 +612,12 @@ class BabyStepSegmentInput extends ConsumerWidget {
           .watch(babyStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
           .toList(growable: false),
-      onAdd: ref.read(babyStepStateProvider.notifier).onAdd,
-      onSelected: ref.read(babyStepStateProvider.notifier).onSelected,
+      onAdd: isSaving
+          ? null
+          : ref.read(babyStepStateProvider.notifier).onAdd,
+      onSelected: isSaving
+          ? null
+          : ref.read(babyStepStateProvider.notifier).onSelected,
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(),
         FormBuilderValidators.numeric(),
@@ -613,6 +636,7 @@ class ExtruderStepSegmentInput extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var isSaving = ref.watch(isSavingProvider);
     return Segments(
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.extruders.steps_extrude'.tr(),
@@ -621,8 +645,12 @@ class ExtruderStepSegmentInput extends ConsumerWidget {
           .watch(extruderStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
           .toList(growable: false),
-      onAdd: ref.read(extruderStepStateProvider.notifier).onAdd,
-      onSelected: ref.read(extruderStepStateProvider.notifier).onSelected,
+      onAdd: isSaving
+          ? null
+          : ref.read(extruderStepStateProvider.notifier).onAdd,
+      onSelected: isSaving
+          ? null
+          : ref.read(extruderStepStateProvider.notifier).onSelected,
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(),
         FormBuilderValidators.numeric(),
@@ -688,6 +716,7 @@ class _MacroGroup extends HookConsumerWidget {
     var dragging = ref.watch(
         macroGroupDragginControllerProvider.select((value) => value != null));
 
+    var isSaving = ref.watch(isSavingProvider);
     return Card(
         child: ExpansionTile(
             maintainState: true,
@@ -742,9 +771,11 @@ class _MacroGroup extends HookConsumerWidget {
                   labelText: 'pages.printer_edit.general.displayname'.tr(),
                   suffix: IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed: () => ref
-                        .read(macroGroupListControllerProvider.notifier)
-                        .removeMacroGroup(macroGroup),
+                    onPressed: isSaving
+                        ? null
+                        : () => ref
+                            .read(macroGroupListControllerProvider.notifier)
+                            .removeMacroGroup(macroGroup),
                   )),
               name: '${macroGroup.uuid}-macroName',
               initialValue: name.value,
@@ -768,6 +799,7 @@ class _MacroGroup extends HookConsumerWidget {
             )
           else
             ReorderableWrap(
+              enableReorder: !isSaving,
               spacing: 4.0,
               buildDraggableFeedback: (context, constraint, widget) => Material(
                 color: Colors.transparent,
@@ -874,9 +906,12 @@ class _TempPresetItem extends HookConsumerWidget {
                 labelText: 'pages.printer_edit.general.displayname'.tr(),
                 suffix: IconButton(
                   icon: const Icon(Icons.delete),
-                  onPressed: () => ref
-                      .read(temperaturePresetListControllerProvider.notifier)
-                      .removeTemperaturePreset(preset),
+                  onPressed: ref.watch(isSavingProvider)
+                      ? null
+                      : () => ref
+                          .read(
+                              temperaturePresetListControllerProvider.notifier)
+                          .removeTemperaturePreset(preset),
                 )),
             name: '${preset.uuid}-presetName',
             initialValue: name.value,
@@ -1055,7 +1090,9 @@ class _SegmentsState<T> extends State<Segments<T>> {
             ChoiceChip(
                 selected: false,
                 label: option,
-                onSelected: (s) => onChipPressed(option)),
+                onSelected: widget.onSelected == null
+                    ? null
+                    : (s) => onChipPressed(option)),
           if (widget.options.isEmpty)
             ChoiceChip(
               label: const Text('pages.printer_edit.no_values_found').tr(),
