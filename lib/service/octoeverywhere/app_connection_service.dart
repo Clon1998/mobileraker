@@ -28,13 +28,14 @@ class AppConnectionService {
     host: 'octoeverywhere.com',
   );
 
-  Future<AppPortalResult> linkAppWithOcto() async {
+  Future<AppPortalResult> linkAppWithOcto({String? printerId}) async {
     var uri = _octoURI.replace(path: 'appportal/v1/', queryParameters: {
       'appid': 'mobileraker',
       'moonraker': 'true',
       'returnUrl': 'octoeverywhere://mobileraker',
       'appLogoUrl':
-          'https://raw.githubusercontent.com/Clon1998/mobileraker/master/assets/icon/mr_appicon.png'
+          'https://raw.githubusercontent.com/Clon1998/mobileraker/master/assets/icon/mr_appicon.png',
+      if (printerId != null) 'printerId': printerId,
     });
 
     try {

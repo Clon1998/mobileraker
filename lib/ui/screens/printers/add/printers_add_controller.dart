@@ -10,7 +10,6 @@ import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response
 import 'package:mobileraker/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
-import 'package:mobileraker/data/repository/octo_everywhere_hive_repository.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -29,11 +28,13 @@ final printerAddViewController = StateNotifierProvider.autoDispose<
 
 class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   PrinterAddViewController(this.ref)
-      : appConnectionService = ref.watch(appConnectionServiceProvider),
+      : _appConnectionService = ref.watch(appConnectionServiceProvider),
+        _snackBarService = ref.watch(snackBarServiceProvider),
         super(const AsyncValue.loading());
 
   final AutoDisposeRef ref;
-  AppConnectionService appConnectionService;
+  final AppConnectionService _appConnectionService;
+  final SnackBarService _snackBarService;
 
   onFormConfirm() async {
     var formState = ref.read(formAddKeyProvider).currentState!;
@@ -109,40 +110,42 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
     }
   }
 
-  importFromOctoeverywhere() async {
+  addUsingOctoeverywhere() async {
     AppPortalResult appPortalResult =
-        await appConnectionService.linkAppWithOcto();
+        await _appConnectionService.linkAppWithOcto();
 
-    AppConnectionInfoResponse appConnectionInfo =
-        await appConnectionService.getInfo(appPortalResult.appApiToken);
+    try {
+      AppConnectionInfoResponse appConnectionInfo =
+          await _appConnectionService.getInfo(appPortalResult.appApiToken);
 
-    var infoResult = appConnectionInfo.result;
-    var localIp = infoResult.printerLocalIp;
-    logger.i('OctoEverywhere returned Local IP: $localIp');
+      var infoResult = appConnectionInfo.result;
+      var localIp = infoResult.printerLocalIp;
+      logger.i('OctoEverywhere returned Local IP: $localIp');
 
-    if (localIp == null) {
-      throw const OctoEverywhereException(
-          'Could not retrieve Printer\'s local IP.');
+      if (localIp == null) {
+        throw const OctoEverywhereException(
+            'Could not retrieve Printer\'s local IP.');
+      }
+
+      String wsUrl = urlToWebsocketUrl(localIp);
+      String httpUrl = urlToHttpUrl(localIp);
+
+      var machine = Machine(
+          name: infoResult.printerName,
+          wsUrl: wsUrl,
+          httpUrl: httpUrl,
+          trustUntrustedCertificate: false,
+          octoEverywhere: OctoEverywhere.fromDto(appPortalResult));
+      machine = await ref.read(machineServiceProvider).addMachine(machine);
+
+      ref.read(goRouterProvider).goNamed(AppRoute.dashBoard.name);
+    } on OctoEverywhereException catch (e, s) {
+      logger.e('Error while trying to add printer via Ocot', e, s);
+      _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: 'OctoEverywhere-Error:',
+          message: e.message));
     }
-
-    String wsUrl = urlToWebsocketUrl(localIp);
-    String httpUrl = urlToHttpUrl(localIp);
-
-    var machine = Machine(
-      name: infoResult.printerName,
-      wsUrl: wsUrl,
-      httpUrl: httpUrl,
-      trustUntrustedCertificate: false,
-    );
-    machine = await ref.read(machineServiceProvider).addMachine(machine);
-
-    var octoEverywhereHiveRepository =
-        ref.read(octoEverywhereHiveRepositoryProvider);
-
-    octoEverywhereHiveRepository.insert(
-        machine.uuid, OctoEverywhere.fromDto(appPortalResult));
-
-    ref.read(goRouterProvider).goNamed(AppRoute.dashBoard.name);
   }
 }
 //

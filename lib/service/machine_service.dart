@@ -1,11 +1,15 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/data/model/moonraker_db/device_fcm_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
@@ -24,6 +28,7 @@ import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
@@ -68,12 +73,14 @@ class MachineService {
   MachineService(this.ref)
       : _machineRepo = ref.watch(machineRepositoryProvider),
         _selectedMachineService = ref.watch(selectedMachineServiceProvider),
-        _settingService = ref.watch(settingServiceProvider);
+        _settingService = ref.watch(settingServiceProvider),
+        _appConnectionService = ref.watch(appConnectionServiceProvider);
 
   final AutoDisposeRef ref;
   final MachineHiveRepository _machineRepo;
   final SelectedMachineService _selectedMachineService;
   final SettingService _settingService;
+  final AppConnectionService _appConnectionService;
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
@@ -287,5 +294,24 @@ class MachineService {
     await ref
         .read(machineSettingsRepositoryProvider(machine.uuid))
         .update(machineSettings);
+  }
+
+  Future<Machine> linkMachineWithOctoeverywhere(Machine machineToLink) async {
+    MoonrakerDatabaseClient moonrakerDatabaseClient =
+        ref.read(moonrakerDatabaseClientProvider(machineToLink.uuid));
+    String? octoPrinterId;
+    try {
+       octoPrinterId = await moonrakerDatabaseClient
+          .getDatabaseItem('octoeverywhere', key: 'public.printerId');
+    } on WebSocketException catch (e,s) {
+      logger.w('Rpc Client was not connected, could not fetch octo.printerId. User can select by himself!');
+    }
+
+
+    var appPortalResult =
+        await _appConnectionService.linkAppWithOcto(printerId: octoPrinterId);
+
+    return machineToLink
+      ..octoEverywhere = OctoEverywhere.fromDto(appPortalResult);
   }
 }

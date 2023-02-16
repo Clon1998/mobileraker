@@ -5,27 +5,32 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/moonraker/jrpc_fallback_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 
 final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
     name: 'jrpcClientProvider', (ref, machineUUID) {
-  var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
-  if (machine == null) {
-    throw MobilerakerException(
-        'Machine with UUID "$machineUUID" was not found!');
-  }
+  // var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
+  // if (machine == null) {
+  //   throw MobilerakerException(
+  //       'Machine with UUID "$machineUUID" was not found!');
+  // }
+  //
+  // var jsonRpcClient = JsonRpcClientBuilder.fromMachine(machine).build();
+  // ref.onDispose(jsonRpcClient.dispose);
+  // return jsonRpcClient..openChannel();
 
-  var jsonRpcClient = JsonRpcClientBuilder.fromMachine(machine).build();
-  ref.onDispose(jsonRpcClient.dispose);
-  return jsonRpcClient..openChannel();
+  return ref.watch(activeClientProvider(machineUUID));
 });
 
 final jrpcClientStateProvider = StreamProvider.autoDispose
     .family<ClientState, String>(name: 'jrpcClientStateProvider',
         (ref, machineUUID) {
-  return ref.watch(jrpcClientProvider(machineUUID)).stateStream;
+  return ref.watchAsSubject(activeClientStateProvider(machineUUID));
+
+  // return ref.watch(jrpcClientProvider(machineUUID)).stateStream;
 });
 
 // final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(

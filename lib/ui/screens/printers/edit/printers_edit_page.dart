@@ -14,6 +14,7 @@ import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/ui/components/octo_btn.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
@@ -123,7 +124,9 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.url(
-                      protocols: ['http', 'https'], requireProtocol: true, requireTld: false)
+                      protocols: ['http', 'https'],
+                      requireProtocol: true,
+                      requireTld: false)
                 ]),
               ),
               FormBuilderTextField(
@@ -157,10 +160,26 @@ class PrinterSettingScrollView extends ConsumerWidget {
               ),
               FormBuilderCheckbox(
                 name: 'trustSelfSigned',
-                title: const Text('pages.printer_edit.general.self_signed').tr(),
+                title:
+                    const Text('pages.printer_edit.general.self_signed').tr(),
                 controlAffinity: ListTileControlAffinity.trailing,
                 initialValue: machine.trustUntrustedCertificate,
               ),
+              if (machine.octoEverywhere == null)
+              OctoEveryWhereBtn(
+                title: 'Connect OctoEverywhere',
+                onPressed: ref
+                    .read(printerEditControllerProvider.notifier)
+                    .linkWithOctoeverywhere,
+              ),
+
+              if (machine.octoEverywhere != null)
+                OctoEveryWhereBtn(
+                  title: 'Unlink OctoEverywhere',
+                  onPressed: ref
+                      .read(printerEditControllerProvider.notifier)
+                      .unlinkOctoeverwhere,
+                ),
               const Divider(),
               _SectionHeaderWithAction(
                   title: 'pages.dashboard.general.cam_card.webcam'.tr(),
@@ -1041,7 +1060,9 @@ class _SegmentsState<T> extends State<Segments<T>> {
             ChoiceChip(
               label: const Text('pages.printer_edit.no_values_found').tr(),
               selected: false,
-              onSelected: (v) {return;},
+              onSelected: (v) {
+                return;
+              },
             ),
           if (widget.onAdd != null && widget.options.length < widget.maxOptions)
             ChoiceChip(

@@ -50,7 +50,7 @@ class MoonrakerDatabaseClient {
 
         return blockingResponse.result['value'];
     } on JRpcError catch (e, s) {
-      logger.e("Could not retrieve key: $key", e, StackTrace.current);
+      logger.w("Could not retrieve key: $key", e, StackTrace.current);
     }
     return null;
   }

@@ -12,6 +12,8 @@ import 'package:web_socket_channel/io.dart';
 
 enum ClientState { disconnected, connecting, connected, error }
 
+enum ClientType { local, octo }
+
 typedef RpcCallback = Function(Map<String, dynamic> response,
     {Map<String, dynamic>? err});
 
@@ -33,18 +35,22 @@ class JsonRpcClientBuilder {
 
   factory JsonRpcClientBuilder.fromOcto(OctoEverywhere octoEverywhere) {
     return JsonRpcClientBuilder()
-      ..uri = Uri.parse(octoEverywhere.url).replace(scheme: 'wss')
+      ..uri = Uri.parse(octoEverywhere.url)
+          .replace(scheme: 'wss', path: 'websocket')
       ..basicAuthUser = octoEverywhere.authBasicHttpUser
-      ..basicAuthPassword = octoEverywhere.authBasicHttpPassword;
+      ..basicAuthPassword = octoEverywhere.authBasicHttpPassword
+      ..clientType = ClientType.octo;
   }
 
   factory JsonRpcClientBuilder.fromMachine(Machine machine) {
     return JsonRpcClientBuilder()
       ..uri = Uri.parse(machine.wsUrl)
       ..apiKey = machine.apiKey
-      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate;
+      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
+      ..clientType = ClientType.local;
   }
 
+  ClientType clientType = ClientType.local;
   String? apiKey;
   Uri? uri;
   bool trustSelfSignedCertificate = false;
@@ -65,22 +71,27 @@ class JsonRpcClientBuilder {
     }
 
     return JsonRpcClient(
-        uri: uri!,
-        timeout: timeout,
-        trustSelfSignedCertificate: trustSelfSignedCertificate,
-        headers: headers);
+      uri: uri!,
+      timeout: timeout,
+      trustSelfSignedCertificate: trustSelfSignedCertificate,
+      headers: headers,
+      clientType: clientType,
+    );
   }
 }
 
 class JsonRpcClient {
-  JsonRpcClient(
-      {required this.uri,
-      Duration? timeout,
-      this.trustSelfSignedCertificate = false,
-      this.headers = const {}})
-      : timeout = timeout ?? const Duration(seconds: 3),
+  JsonRpcClient({
+    required this.uri,
+    Duration? timeout,
+    this.trustSelfSignedCertificate = false,
+    this.headers = const {},
+    this.clientType = ClientType.local,
+  })  : timeout = timeout ?? const Duration(seconds: 3),
         assert(['ws', 'wss'].contains(uri.scheme),
             'Scheme of provided URI must be WS or WSS!');
+
+  final ClientType clientType;
 
   final Uri uri;
 

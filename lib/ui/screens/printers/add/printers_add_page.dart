@@ -7,6 +7,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/ui/components/octo_btn.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 
@@ -84,29 +85,12 @@ class PrinterAddPage extends ConsumerWidget {
                   child: const TestConnection(),
                 ),
                 if (kDebugMode)
-                ElevatedButton(
-                  onPressed: ref.read(printerAddViewController.notifier).importFromOctoeverywhere,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const Image(
-                        height: 40,
-                        width: 40,
-                        image: AssetImage('assets/images/octo_everywhere.png'),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          'Use OctoEverywhere',
-                          style: themeData.textTheme.titleLarge,
-                        ),
-                      ),
-                    ],
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xff7399ff),
-                  ),
-                )
+                  OctoEveryWhereBtn(
+                    title: 'Add using OctoEverywhere',
+                    onPressed: ref
+                        .read(printerAddViewController.notifier)
+                        .addUsingOctoeverywhere,
+                  )
               ],
             ),
           ),

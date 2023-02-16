@@ -163,6 +163,10 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
           error: (e, s) {
             ctrler.addError(e, s);
           },
+          // This does not work with all usage rn!...
+          // loading: () {
+          //   if (prev != null) invalidateSelf();
+          // });
           loading: () => null);
     }, fireImmediately: true);
     return ctrler.stream;
