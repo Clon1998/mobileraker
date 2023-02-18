@@ -352,7 +352,6 @@ class _DefaultStreamManager implements _StreamManager {
     try {
       final request = Request('GET', _uri);
       request.headers.addAll(headers);
-      logger.wtf('Uri is $_uri, Headers are: ${request.headers}');
       final StreamedResponse response = await _httpClient.send(request).timeout(
           _timeout); //timeout is to prevent process to hang forever in some case
 
