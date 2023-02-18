@@ -84,7 +84,6 @@ class PrinterAddPage extends ConsumerWidget {
                   ),
                   child: const TestConnection(),
                 ),
-                if (kDebugMode)
                   OctoEveryWhereBtn(
                     title: 'Add using OctoEverywhere',
                     onPressed: ref
