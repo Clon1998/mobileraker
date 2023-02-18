@@ -16,6 +16,7 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import 'app_setup.dart';
 import 'firebase_options.dart';
+import 'logger.dart';
 
 Future<void> main() async {
   Logger.level = Level.info;

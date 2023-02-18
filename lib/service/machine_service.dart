@@ -40,10 +40,16 @@ final machineServiceProvider = Provider.autoDispose<MachineService>((ref) {
 }, name: 'machineServiceProvider');
 
 final machineProvider =
-    FutureProvider.autoDispose.family<Machine?, String>((ref, uuid) {
+    FutureProvider.autoDispose.family<Machine?, String>((ref, uuid) async {
   var repo = ref.watch(machineRepositoryProvider);
   ref.keepAlive();
-  return repo.get(uuid: uuid);
+
+  ref.onDispose(() => logger.e('machineProvider disposed $uuid'));
+  logger.e('machineProvider creation STARTED $uuid');
+  var future = await repo.get(uuid: uuid);
+  logger.e('machineProvider creation DONE $uuid');
+
+  return future;
 }, name: 'machineProvider');
 
 final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>((ref) {
@@ -301,12 +307,12 @@ class MachineService {
         ref.read(moonrakerDatabaseClientProvider(machineToLink.uuid));
     String? octoPrinterId;
     try {
-       octoPrinterId = await moonrakerDatabaseClient
+      octoPrinterId = await moonrakerDatabaseClient
           .getDatabaseItem('octoeverywhere', key: 'public.printerId');
-    } on WebSocketException catch (e,s) {
-      logger.w('Rpc Client was not connected, could not fetch octo.printerId. User can select by himself!');
+    } on WebSocketException catch (e, s) {
+      logger.w(
+          'Rpc Client was not connected, could not fetch octo.printerId. User can select by himself!');
     }
-
 
     var appPortalResult =
         await _appConnectionService.linkAppWithOcto(printerId: octoPrinterId);

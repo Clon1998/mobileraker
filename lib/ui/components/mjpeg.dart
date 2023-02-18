@@ -26,7 +26,7 @@ class Mjpeg extends ConsumerWidget {
     Map<String, String> headers = const {},
     int targetFps = 10,
     required WebCamMode camMode,
-    this.stackChild,
+    this.stackChild = const [],
     this.transform,
     this.fit,
     this.width,
@@ -36,7 +36,7 @@ class Mjpeg extends ConsumerWidget {
   })  : config = MjpegConfig(feedUri, timeout, headers, targetFps, camMode),
         super(key: key);
 
-  final Widget? stackChild;
+  final List<Widget> stackChild;
   final Matrix4? transform;
   final BoxFit? fit;
   final double? width;
@@ -48,7 +48,8 @@ class Mjpeg extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref
-        .watch(_mjpegViewControllerProvider(config).selectAs((data) => true))// just wait for data to be ready!
+        .watch(_mjpegViewControllerProvider(config)
+            .selectAs((data) => true)) // just wait for data to be ready!
         .when(
             data: (data) {
               Widget img = _TransformedImage(
@@ -63,7 +64,7 @@ class Mjpeg extends ConsumerWidget {
                   children: [
                     (imageBuilder == null) ? img : imageBuilder!(context, img),
                     if (showFps) _FPSDisplay(config: config),
-                    if (stackChild != null) stackChild!
+                    ...stackChild!
                   ],
                 ),
               );
@@ -196,7 +197,7 @@ class _MjpegController extends StateNotifier<AsyncValue<MjpegState>>
             : _AdaptiveStreamManager(config),
         super(const AsyncValue.loading()) {
     WidgetsBinding.instance.addObserver(this);
-    _jpegSub = _manager.jpegStream.listen(onImageData);
+    _jpegSub = _manager.jpegStream.listen(onImageData, onError: onImageDataError);
     // move the manager to an isolate maybe?
     _manager.start();
   }
@@ -246,6 +247,10 @@ class _MjpegController extends StateNotifier<AsyncValue<MjpegState>>
       _frameCnt = 0;
       _start = now;
     }
+  }
+
+  onImageDataError(Object err, StackTrace s) {
+    state = AsyncValue.error(err, s);
   }
 
   @override
@@ -347,6 +352,7 @@ class _DefaultStreamManager implements _StreamManager {
     try {
       final request = Request('GET', _uri);
       request.headers.addAll(headers);
+      logger.wtf('Uri is $_uri, Headers are: ${request.headers}');
       final StreamedResponse response = await _httpClient.send(request).timeout(
           _timeout); //timeout is to prevent process to hang forever in some case
 
@@ -467,7 +473,7 @@ class _AdaptiveStreamManager implements _StreamManager {
   @override
   start() {
     active = true;
-    logger.i('Start MJPEG - targFps: $targetFps');
+    logger.i('Start MJPEG - targFps: $targetFps - $_uri');
     if (_timer?.isActive ?? false) return;
     _timer = Timer(const Duration(milliseconds: 0), _timerCallback);
   }

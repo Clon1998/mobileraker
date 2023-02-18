@@ -215,14 +215,14 @@ class NotificationService {
   }
 
   void onMachineAdded(Machine setting) {
-    List<NotificationChannel> channelsOfmachines = _channelsOfmachines(setting);
-    for (var channels in channelsOfmachines) {
-      _notifyAPI.setChannel(channels);
-    }
-    _setupFCMOnPrinterOnceConnected(setting);
-    registerLocalMessageHandling(setting);
-    logger.i(
-        "Added notifications channels and stream-listener for UUID=${setting.uuid}");
+    // List<NotificationChannel> channelsOfmachines = _channelsOfmachines(setting);
+    // for (var channels in channelsOfmachines) {
+    //   _notifyAPI.setChannel(channels);
+    // }
+    // _setupFCMOnPrinterOnceConnected(setting);
+    // registerLocalMessageHandling(setting);
+    logger.w(
+        'THIS NEEDS TO BE REFACTORED! DONT USE LISTNERS OF HIVE FOR IT!');
   }
 
   void onMachineRemoved(String uuid) {

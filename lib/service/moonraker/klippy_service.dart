@@ -15,6 +15,7 @@ final klipperServiceProvider = Provider.autoDispose
         (ref, machineUUID) {
   ref.keepAlive();
 
+  ref.onDispose(() => logger.e('Dispo klipperServiceProvider'));
   return KlippyService(ref, machineUUID);
 });
 
@@ -64,7 +65,9 @@ class KlippyService {
   KlippyService(this.ref, this.ownerUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)) {
     ref.onDispose(dispose);
+    logger.e('Crated klipperServiceProvider. $ownerUUID - ${identityHashCode(_jRpcClient)} ');
 
+    
     _jRpcClient.addMethodListener(_onNotifyKlippyReady, "notify_klippy_ready");
     _jRpcClient.addMethodListener(
         _onNotifyKlippyShutdown, "notify_klippy_shutdown");

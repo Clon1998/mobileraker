@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
@@ -28,6 +31,7 @@ import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/graph_card_with_button.dart';
 import 'package:mobileraker/ui/components/homed_axis_chip.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
+import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
@@ -57,11 +61,17 @@ class GeneralTab extends ConsumerWidget {
                   .select((data) => data.value!.machine.cams.isNotEmpty));
               var printState = ref.watch(generalTabViewControllerProvider
                   .select((data) => data.value!.printerData.print.state));
+              var clientType = ref.watch(generalTabViewControllerProvider
+                  .select((data) => data.value!.clientType));
+
+              var dismissedRemoteInfo = ref.watch(dismissiedRemoteInfoProvider);
+
               return PullToRefreshPrinter(
                 child: ListView(
                   key: const PageStorageKey('gTab'),
                   padding: const EdgeInsets.only(bottom: 20),
                   children: [
+                    if (clientType != ClientType.local) const RemoteIndicator(),
                     const PrintCard(),
                     const TemperatureCard(),
                     if (showCams) const CamCard(),
@@ -128,6 +138,47 @@ class _FetchingData extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class RemoteIndicator extends ConsumerWidget {
+  const RemoteIndicator({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AnimatedSwitcher(
+        duration: kThemeAnimationDuration,
+        switchInCurve: Curves.easeInCubic,
+        switchOutCurve: Curves.easeOutCubic,
+        transitionBuilder: (child, anim) => SizeTransition(
+              sizeFactor: anim,
+              child: FadeTransition(
+                opacity: anim,
+                child: child,
+              ),
+            ),
+        child: (ref.watch(dismissiedRemoteInfoProvider))
+            ? const SizedBox.shrink()
+            : Card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      contentPadding:
+                          const EdgeInsets.only(top: 3, left: 16, right: 16),
+                      leading: const OctoIndicator(),
+                      title: Text('Using remote connection!'),
+                      trailing: IconButton(
+                          onPressed: () => ref
+                              .read(dismissiedRemoteInfoProvider.notifier)
+                              .state = true,
+                          icon: const Icon(Icons.close)),
+                    ),
+                  ],
+                ),
+              ));
   }
 }
 
@@ -303,9 +354,28 @@ class CamCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const double minWebCamHeight = 280;
-    List<WebcamSetting> webcams = ref.watch(generalTabViewControllerProvider
-        .select((value) => value.value!.machine.cams));
+    var machine = ref.watch(generalTabViewControllerProvider
+        .select((value) => value.value!.machine));
     WebcamSetting selectedCam = ref.watch(camCardControllerProvider);
+    var clientType = ref.watch(generalTabViewControllerProvider
+        .select((value) => value.value!.clientType));
+
+    Uri camUri = Uri.parse(selectedCam.url);
+    Map<String, String> headers = {};
+    if (clientType == ClientType.octo) {
+      Uri machineUri = Uri.parse(machine.wsUrl);
+      logger.e('${machineUri.host}');
+      logger.e('${camUri.host}');
+
+      if (machineUri.host == camUri.host) {
+        var octoEverywhere = machine.octoEverywhere!;
+        camUri = camUri.replace(scheme: 'https', host: octoEverywhere.uri.host);
+
+        headers[HttpHeaders.authorizationHeader] =
+            octoEverywhere.basicAuthorizationHeader;
+      }
+    }
+    var webcams = machine.cams;
     return Card(
       child: Column(
         children: [
@@ -336,23 +406,36 @@ class CamCard extends ConsumerWidget {
               key: ValueKey(selectedCam),
               imageBuilder: _imageBuilder,
               targetFps: selectedCam.targetFps,
-              feedUri: selectedCam.url,
+              feedUri: camUri.toString(),
               transform: selectedCam.transformMatrix,
               camMode: selectedCam.mode,
               showFps: true,
-              stackChild: Positioned.fill(
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: IconButton(
-                    color: Colors.white,
-                    icon: const Icon(Icons.aspect_ratio),
-                    tooltip: 'pages.dashboard.general.cam_card.fullscreen'.tr(),
-                    onPressed: ref
-                        .read(camCardControllerProvider.notifier)
-                        .onFullScreenTap,
+              headers: headers,
+              stackChild: [
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: IconButton(
+                      color: Colors.white,
+                      icon: const Icon(Icons.aspect_ratio),
+                      tooltip:
+                          'pages.dashboard.general.cam_card.fullscreen'.tr(),
+                      onPressed: ref
+                          .read(camCardControllerProvider.notifier)
+                          .onFullScreenTap,
+                    ),
                   ),
                 ),
-              ),
+                if (clientType != ClientType.local)
+                  const Positioned.fill(
+                      child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: OctoIndicator(),
+                    ),
+                  )),
+              ],
             )),
           ),
         ],
@@ -1013,12 +1096,12 @@ class _ControlXYZCard extends ConsumerWidget {
                     ),
                   ],
                 ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.0),
-                  child: MoveTable(
-                    rowsToShow: [MoveTable.POS_ROW],
-                  ),
-                ),
+                // const Padding(
+                //   padding: EdgeInsets.symmetric(horizontal: 4.0),
+                //   child: MoveTable(
+                //     rowsToShow: [MoveTable.POS_ROW],
+                //   ),
+                // ),
                 Wrap(
                   runSpacing: 4,
                   spacing: 8,

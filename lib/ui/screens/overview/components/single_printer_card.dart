@@ -47,25 +47,22 @@ class SinglePrinterCard extends ConsumerWidget {
               transform: webcamSetting.transformMatrix,
               camMode: webcamSetting.mode,
               imageBuilder: _imageBuilder,
-              stackChild: Positioned.fill(
-                  child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: IconButton(
-                        color: Colors.white,
-                        icon: const Icon(Icons.aspect_ratio),
-                        tooltip:
-                            tr('pages.dashboard.general.cam_card.fullscreen'),
-                        onPressed: singlePrinterCardController.onFullScreenTap,
-                      ),
+              stackChild: [
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: IconButton(
+                      color: Colors.white,
+                      icon: const Icon(Icons.aspect_ratio),
+                      tooltip:
+                      tr('pages.dashboard.general.cam_card.fullscreen'),
+                      onPressed: singlePrinterCardController.onFullScreenTap,
                     ),
                   ),
-                  if (printState == PrintState.printing)
-                    _PrintProgressBar(_machine)
-                ],
-              )),
+                ),
+                if (printState == PrintState.printing)
+                  _PrintProgressBar(_machine)
+              ],
             )),
           ListTile(
             onTap: singlePrinterCardController.onTapTile,

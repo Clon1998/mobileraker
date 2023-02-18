@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -45,6 +47,11 @@ class OctoEverywhere extends HiveObject {
         authBearerToken = appPortalResult.authBearerToken,
         appConnectionId = appPortalResult.appConnectionID,
         url = appPortalResult.url;
+
+  Uri get uri => Uri.parse(url);
+
+  String get basicAuthorizationHeader =>
+      'Basic ${base64.encode(utf8.encode('$authBasicHttpUser:$authBasicHttpPassword'))}';
 
   @override
   Future<void> save() async {

@@ -33,3 +33,20 @@ class OctoEveryWhereBtn extends StatelessWidget {
       ),
     );
 }
+
+
+class OctoIndicator extends StatelessWidget {
+  const OctoIndicator({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Tooltip(
+      message: 'Using OctoEveryWhere!',
+      child: Image(
+        height: 20,
+        width: 20,
+        image: AssetImage('assets/images/octo_everywhere.png'),
+      ),
+    );
+  }
+}

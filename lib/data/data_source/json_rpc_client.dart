@@ -8,6 +8,7 @@ import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
 enum ClientState { disconnected, connecting, connected, error }
@@ -33,10 +34,14 @@ class JRpcError implements Exception {
 class JsonRpcClientBuilder {
   JsonRpcClientBuilder();
 
-  factory JsonRpcClientBuilder.fromOcto(OctoEverywhere octoEverywhere) {
+  factory JsonRpcClientBuilder.fromOcto(Machine machine) {
+    var octoEverywhere = machine.octoEverywhere!;
+    var localWsUir = Uri.parse(machine.wsUrl);
+    var octoUri = Uri.parse(octoEverywhere.url);
+
     return JsonRpcClientBuilder()
-      ..uri = Uri.parse(octoEverywhere.url)
-          .replace(scheme: 'wss', path: 'websocket')
+      ..uri = localWsUir
+          .replace(scheme: 'wss', host: octoUri.host)
       ..basicAuthUser = octoEverywhere.authBasicHttpUser
       ..basicAuthPassword = octoEverywhere.authBasicHttpPassword
       ..clientType = ClientType.octo;
@@ -89,7 +94,9 @@ class JsonRpcClient {
     this.clientType = ClientType.local,
   })  : timeout = timeout ?? const Duration(seconds: 3),
         assert(['ws', 'wss'].contains(uri.scheme),
-            'Scheme of provided URI must be WS or WSS!');
+            'Scheme of provided URI must be WS or WSS!') {
+    logger.w('Created client, ${identityHashCode(this)} - $clientType - $uri');
+  }
 
   final ClientType clientType;
 
@@ -148,7 +155,7 @@ class JsonRpcClient {
 
   set curState(ClientState newState) {
     if (curState == newState) return;
-    logger.i('[$uri] $curState ➝ $newState');
+    logger.i('[${identityHashCode(this)}-$uri] $curState ➝ $newState');
     if (!_stateStream.isClosed) _stateStream.add(newState);
     _curState = newState;
   }
@@ -220,7 +227,7 @@ class JsonRpcClient {
   }
 
   Future<bool> _tryConnect() async {
-    logger.i('Trying to connect to $uri');
+    logger.i('[${identityHashCode(this)}]Trying to connect to $uri');
     curState = ClientState.connecting;
     _resetChannel();
     try {
@@ -340,12 +347,12 @@ class JsonRpcClient {
 
   _onChannelClosesNormal(int? closeCode, String? closeReason) {
     if (_disposed) {
-      logger.i('[$uri] WS-Stream Subscription is DONE!');
+      logger.i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
       return;
     }
 
     logger.i(
-        '[$uri] WS-Stream closed normal! Code: $closeCode, Reason: $closeReason');
+        '[$uri${identityHashCode(this)}] WS-Stream closed normal! Code: $closeCode, Reason: $closeReason');
 
     ClientState t = curState;
     if (t != ClientState.error) {
@@ -357,13 +364,14 @@ class JsonRpcClient {
 
   _onChannelError(error) {
     if (_disposed) return;
-    logger.e('[$uri] WS-Stream error: $error');
+    logger.e('[$uri${identityHashCode(this)}] WS-Stream error: $error');
     errorReason = error;
     curState = ClientState.error;
   }
 
   dispose() {
-    logger.e('JSON_RPC_DISPOSED+${identityHashCode(this)}');
+    logger
+        .w('JSON_RPC_DISPOSED+${identityHashCode(this)} - $clientType - $uri');
     _disposed = true;
     _channelSub?.cancel();
     _requestsBlocking.forEach((key, value) => value.completeError(Future.error(
@@ -373,4 +381,41 @@ class JsonRpcClient {
     _resetChannel();
     _stateStream.close();
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is JsonRpcClient &&
+          runtimeType == other.runtimeType &&
+          clientType == other.clientType &&
+          uri == other.uri &&
+          timeout == other.timeout &&
+          trustSelfSignedCertificate == other.trustSelfSignedCertificate &&
+           mapEquals(headers, other.headers) &&
+          errorReason == other.errorReason &&
+          _disposed == other._disposed &&
+          _channel == other._channel &&
+          _channelSub == other._channelSub &&
+          _stateStream == other._stateStream &&
+           mapEquals(_methodListeners, other._methodListeners) &&
+          mapEquals(_requests, other._requests) &&
+          mapEquals(_requestsBlocking, other._requestsBlocking) &&
+          _curState == other._curState;
+
+  @override
+  int get hashCode =>
+      clientType.hashCode ^
+      uri.hashCode ^
+      timeout.hashCode ^
+      trustSelfSignedCertificate.hashCode ^
+      headers.hashCode ^
+      errorReason.hashCode ^
+      _disposed.hashCode ^
+      _channel.hashCode ^
+      _channelSub.hashCode ^
+      _stateStream.hashCode ^
+      _methodListeners.hashCode ^
+      _requests.hashCode ^
+      _requestsBlocking.hashCode ^
+      _curState.hashCode;
 }

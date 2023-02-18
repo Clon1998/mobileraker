@@ -7,7 +7,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/ui/components/octo_btn.dart';
+import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 
