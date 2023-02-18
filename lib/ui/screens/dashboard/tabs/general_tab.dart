@@ -1096,12 +1096,12 @@ class _ControlXYZCard extends ConsumerWidget {
                     ),
                   ],
                 ),
-                // const Padding(
-                //   padding: EdgeInsets.symmetric(horizontal: 4.0),
-                //   child: MoveTable(
-                //     rowsToShow: [MoveTable.POS_ROW],
-                //   ),
-                // ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.0),
+                  child: MoveTable(
+                    rowsToShow: [MoveTable.POS_ROW],
+                  ),
+                ),
                 Wrap(
                   runSpacing: 4,
                   spacing: 8,
