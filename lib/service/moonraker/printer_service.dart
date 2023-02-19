@@ -100,7 +100,8 @@ class PrinterService {
         _machineService = ref.watch(machineServiceProvider),
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
-    logger.wtf('Created PrinterService.$ownerUUID with Jrpc: ${identityHashCode(_jRpcClient)}');
+    logger.wtf(
+        'Created PrinterService.$ownerUUID with Jrpc: ${identityHashCode(_jRpcClient)}');
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
@@ -178,7 +179,10 @@ class PrinterService {
 
   set current(Printer nI) {
     if (_printerStreamCtler.isClosed) {
-      logger.w('Tried to set current Printer on an old printerService? ${identityHashCode(this)}',null, StackTrace.current);
+      logger.w(
+          'Tried to set current Printer on an old printerService? ${identityHashCode(this)}',
+          null,
+          StackTrace.current);
       return;
     }
     _current = nI;
@@ -256,7 +260,7 @@ class PrinterService {
     gCode('M83\nG1 E$length F${feedRate * 60}');
   }
 
-  homePrintHead(Set<PrinterAxis> axis) {
+  Future<bool> homePrintHead(Set<PrinterAxis> axis) {
     if (axis.contains(PrinterAxis.E)) {
       throw const FormatException('E axis cant be homed');
     }
@@ -264,23 +268,24 @@ class PrinterService {
     if (axis.length < 3) {
       gcode += axis.map(EnumToString.convertToString).join(' ');
     }
-    gCode(gcode);
+    return gCode(gcode);
   }
 
-  quadGantryLevel() {
-    gCode('QUAD_GANTRY_LEVEL');
+  Future<bool> quadGantryLevel() {
+    return gCode('QUAD_GANTRY_LEVEL');
+
   }
 
-  m84() {
-    gCode('M84');
+  Future<bool> m84() {
+    return gCode('M84');
   }
 
-  zTiltAdjust() {
-    gCode('Z_TILT_ADJUST');
+  Future<bool> zTiltAdjust() {
+    return gCode('Z_TILT_ADJUST');
   }
 
-  screwsTiltCalculate() {
-    gCode('SCREWS_TILT_CALCULATE');
+  Future<bool> screwsTiltCalculate() {
+    return gCode('SCREWS_TILT_CALCULATE');
   }
 
   m117([String? msg]) {
@@ -303,9 +308,29 @@ class PrinterService {
     gCode('SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}');
   }
 
-  gCode(String script) {
-    _jRpcClient.sendJsonRpcWithCallback('printer.gcode.script',
-        params: {'script': script});
+  Future<bool> gCode(String script,
+      {bool throwOnError = false, bool showSnackOnErr = true}) async {
+    try {
+      await _jRpcClient
+          .sendJRpcMethod('printer.gcode.script', params: {'script': script});
+      logger.i('GCode "$script" executed successfully!');
+      return true;
+    } on JRpcError catch (e, s) {
+      var gCodeException = GCodeException.fromJrpcError(e, parentStack: s);
+      logger.i('GCode execution failed: ${gCodeException.message}');
+
+      if (showSnackOnErr) {
+        _snackBarService.show(SnackBarConfig(
+            type: SnackbarType.warning,
+            title: 'GCode-Error',
+            message: gCodeException.message));
+      }
+
+      if (throwOnError) {
+        throw gCodeException;
+      }
+      return false;
+    }
   }
 
   gCodeMacro(String macro) {

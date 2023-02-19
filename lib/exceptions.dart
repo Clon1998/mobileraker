@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+
 class MobilerakerException implements Exception {
   final String message;
   final Object? parentException;
@@ -25,10 +29,34 @@ class FileFetchException extends MobilerakerException {
 
 class OctoEverywhereException extends MobilerakerException {
   const OctoEverywhereException(String message,
-      {super.parentException, super.parentStack}) : super(message);
+      {super.parentException, super.parentStack})
+      : super(message);
 
   @override
   String toString() {
     return 'OctoEverywhereException{$message, parentException: $parentException, parentStack: $parentStack}';
+  }
+}
+
+/// Thrown whenever a Gcode exception fails!
+class GCodeException extends MobilerakerException {
+  const GCodeException(super.message, this.code, this.error,
+      {super.parentException, super.parentStack});
+
+  factory GCodeException.fromJrpcError(JRpcError e, {StackTrace? parentStack}) {
+    Map<String, dynamic> errorInfo =
+        jsonDecode(e.message.replaceAll('\'', '"'));
+
+    return GCodeException(
+        errorInfo['message'] ?? 'UNKNOWN', e.code, errorInfo['error'],
+        parentException: e);
+  }
+
+  final int code;
+  final String error;
+
+  @override
+  String toString() {
+    return 'GCodeException{code: $code, message: $message, error:$error, parentException: $parentException, parentStack: $parentStack}';
   }
 }

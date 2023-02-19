@@ -40,8 +40,7 @@ class JsonRpcClientBuilder {
     var octoUri = Uri.parse(octoEverywhere.url);
 
     return JsonRpcClientBuilder()
-      ..uri = localWsUir
-          .replace(scheme: 'wss', host: octoUri.host)
+      ..uri = localWsUir.replace(scheme: 'wss', host: octoUri.host)
       ..basicAuthUser = octoEverywhere.authBasicHttpUser
       ..basicAuthPassword = octoEverywhere.authBasicHttpPassword
       ..clientType = ClientType.octo;
@@ -339,6 +338,12 @@ class JsonRpcClient {
         completer.completeError(
             JRpcError(err['code'], err['message']), StackTrace.current);
       } else {
+        if (response['result'] == 'ok') {
+          response = {
+            ...response,
+            'result': <String, dynamic>{}
+          }; // do some trickery here because the gcode response (Why idk) returns `result:ok` instead of an empty map/wrapped in a map..
+        }
         completer.complete(RpcResponse.fromJson(response));
       }
     } else {
@@ -348,7 +353,8 @@ class JsonRpcClient {
 
   _onChannelClosesNormal(int? closeCode, String? closeReason) {
     if (_disposed) {
-      logger.i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
+      logger
+          .i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
       return;
     }
 
@@ -392,13 +398,13 @@ class JsonRpcClient {
           uri == other.uri &&
           timeout == other.timeout &&
           trustSelfSignedCertificate == other.trustSelfSignedCertificate &&
-           mapEquals(headers, other.headers) &&
+          mapEquals(headers, other.headers) &&
           errorReason == other.errorReason &&
           _disposed == other._disposed &&
           _channel == other._channel &&
           _channelSub == other._channelSub &&
           _stateStream == other._stateStream &&
-           mapEquals(_methodListeners, other._methodListeners) &&
+          mapEquals(_methodListeners, other._methodListeners) &&
           mapEquals(_requests, other._requests) &&
           mapEquals(_requestsBlocking, other._requestsBlocking) &&
           _curState == other._curState;
