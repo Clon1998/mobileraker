@@ -1006,7 +1006,10 @@ class _ControlXYZCard extends ConsumerWidget {
                                     'pages.dashboard.general.move_card.home_xy_tooltip'
                                         .tr(),
                                 child: ElevatedButton(
-                                    onPressed: klippyCanReceiveCommands
+                                    onPressed: klippyCanReceiveCommands &&
+                                            ref.watch(
+                                                controlXYZController.select(
+                                                    (value) => !value.homing))
                                         ? () => ref
                                             .read(controlXYZController.notifier)
                                             .onHomeAxisBtn(
@@ -1072,7 +1075,9 @@ class _ControlXYZCard extends ConsumerWidget {
                                 'pages.dashboard.general.move_card.home_z_tooltip'
                                     .tr(),
                             child: ElevatedButton(
-                                onPressed: klippyCanReceiveCommands
+                                onPressed: klippyCanReceiveCommands &&
+                                        ref.watch(controlXYZController
+                                            .select((value) => !value.homing))
                                     ? () => ref
                                         .read(controlXYZController.notifier)
                                         .onHomeAxisBtn({PrinterAxis.Z})
@@ -1112,7 +1117,9 @@ class _ControlXYZCard extends ConsumerWidget {
                           'pages.dashboard.general.move_card.home_all_tooltip'
                               .tr(),
                       child: ElevatedButton.icon(
-                        onPressed: klippyCanReceiveCommands
+                        onPressed: klippyCanReceiveCommands &&
+                                ref.watch(controlXYZController
+                                    .select((value) => !value.homing))
                             ? () => ref
                                     .read(controlXYZController.notifier)
                                     .onHomeAxisBtn({
@@ -1137,7 +1144,9 @@ class _ControlXYZCard extends ConsumerWidget {
                         message: 'pages.dashboard.general.move_card.qgl_tooltip'
                             .tr(),
                         child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands
+                          onPressed: klippyCanReceiveCommands &&
+                                  ref.watch(controlXYZController
+                                      .select((value) => !value.qgl))
                               ? ref
                                   .read(controlXYZController.notifier)
                                   .onQuadGantry
@@ -1159,7 +1168,9 @@ class _ControlXYZCard extends ConsumerWidget {
                             'pages.dashboard.general.move_card.mesh_tooltip'
                                 .tr(),
                         child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands
+                          onPressed: klippyCanReceiveCommands &&
+                                  ref.watch(controlXYZController
+                                      .select((value) => !value.mesh))
                               ? ref
                                   .read(controlXYZController.notifier)
                                   .onBedMesh
@@ -1181,7 +1192,9 @@ class _ControlXYZCard extends ConsumerWidget {
                         message: 'pages.dashboard.general.move_card.stc_tooltip'
                             .tr(),
                         child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands
+                          onPressed: klippyCanReceiveCommands &&
+                                  ref.watch(controlXYZController
+                                      .select((value) => !value.screwTilt))
                               ? ref
                                   .read(controlXYZController.notifier)
                                   .onScrewTiltCalc
@@ -1203,7 +1216,9 @@ class _ControlXYZCard extends ConsumerWidget {
                             'pages.dashboard.general.move_card.ztilt_tooltip'
                                 .tr(),
                         child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands
+                          onPressed: klippyCanReceiveCommands &&
+                                  ref.watch(controlXYZController
+                                      .select((value) => !value.zTilt))
                               ? ref
                                   .read(controlXYZController.notifier)
                                   .onZTiltAdjust
@@ -1220,7 +1235,9 @@ class _ControlXYZCard extends ConsumerWidget {
                       message:
                           'pages.dashboard.general.move_card.m84_tooltip'.tr(),
                       child: ElevatedButton.icon(
-                        onPressed: klippyCanReceiveCommands
+                        onPressed: klippyCanReceiveCommands &&
+                                ref.watch(controlXYZController
+                                    .select((value) => !value.motorsOff))
                             ? ref.read(controlXYZController.notifier).onMotorOff
                             : null,
                         icon: const Icon(Icons.near_me_disabled),
@@ -1238,7 +1255,8 @@ class _ControlXYZCard extends ConsumerWidget {
                     Text(
                         '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]'),
                     RangeSelector(
-                        selectedIndex: ref.watch(controlXYZController),
+                        selectedIndex: ref.watch(controlXYZController
+                            .select((value) => value.index)),
                         onSelected: ref
                             .read(controlXYZController.notifier)
                             .onSelectedAxisStepSizeChanged,
