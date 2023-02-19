@@ -100,7 +100,7 @@ class PrinterService {
         _machineService = ref.watch(machineServiceProvider),
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
-    logger.wtf('Created PrinterService with Jrpc: ${identityHashCode(_jRpcClient)}');
+    logger.wtf('Created PrinterService.$ownerUUID with Jrpc: ${identityHashCode(_jRpcClient)}');
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');

@@ -85,6 +85,7 @@ class JsonRpcClientBuilder {
   }
 }
 
+// await Future.delayed(Duration(seconds: 5));
 class JsonRpcClient {
   JsonRpcClient({
     required this.uri,

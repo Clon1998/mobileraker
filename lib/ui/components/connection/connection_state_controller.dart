@@ -6,6 +6,8 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 
 final connectionStateControllerProvider =
     StateNotifierProvider.autoDispose<ConnectionStateController, ClientState>(
@@ -49,7 +51,12 @@ class ConnectionStateController extends StateNotifier<ClientState> {
     switch (state) {
       case AppLifecycleState.resumed:
         logger.i("App forgrounded");
-        ref.read(jrpcClientSelectedProvider).ensureConnection();
+        var selMachine = ref.read(selectedMachineProvider).valueOrFullNull;
+
+        if (selMachine != null) {
+          ref.refresh(jrpcClientProvider(selMachine.uuid));
+        }
+
         break;
 
       case AppLifecycleState.paused:
