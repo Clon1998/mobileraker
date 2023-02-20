@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class PullToRefreshPrinter extends ConsumerStatefulWidget {
@@ -35,25 +40,43 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
     );
   }
 
-  onRefresh() {
-    var printerService = ref.read(printerServiceSelectedProvider);
+  onRefresh() async {
+    Machine? selMachine = await ref.read(selectedMachineProvider.future);
 
-    var old = printerService.currentOrNull;
-    late ProviderSubscription sub;
+    if (selMachine == null) {
+      refreshController.refreshFailed();
+      return;
+    }
 
-    sub = ref.listenManual<AsyncValue<Printer>>(printerSelectedProvider,
-        (_, next) {
-      next.whenData((value) {
-        if (value != old) {
-          refreshController.refreshCompleted();
-          logger.i("Refreshing printer COMPLETE");
-          sub.close();
-        } else {
-          logger.e('Expected not the same !');
-        }
-      });
-    });
-    printerService.refreshPrinter();
+
+    // late ProviderSubscription sub;
+    ClientType clientType = ref
+        .read(jrpcClientSelectedProvider.select((value) => value.clientType));
+
+    if (clientType == ClientType.octo) {
+      await ref.refresh(machineProvider(selMachine.uuid).future);
+      refreshController.refreshCompleted();
+      return;
+    } else {
+      // need to invalidate the printer Service to ensure we get new printer data!
+      ref.invalidate(printerServiceProvider(selMachine.uuid));
+      await ref.refresh(printerProvider(selMachine.uuid).future);
+      refreshController.refreshCompleted();
+    }
+
+    // sub = ref.listenManual<AsyncValue<Printer>>(printerSelectedProvider,
+    //     (_, next) {
+    //   next.whenData((value) {
+    //     if (value != old) {
+    //       refreshController.refreshCompleted();
+    //       logger.i("Refreshing printer COMPLETE");
+    //       sub.close();
+    //     } else {
+    //       logger.e('Expected not the same !');
+    //     }
+    //   });
+    // });
+    // printerService.refreshPrinter();
   }
 
   @override

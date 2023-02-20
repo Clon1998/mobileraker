@@ -85,8 +85,10 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
         'Machine with UUID "$machineUUID" was not found!');
   }
   logger.wtf('Fetching local Client ref:${identityHashCode(ref)}');
-  JsonRpcClient localClient =
-      ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.local));
+  JsonRpcClient localClient = ref
+      .watch(_jsonRpcClientProvider(machineUUID, ClientType.local))
+    ..ensureConnection();
+
   logger.wtf(
       'Done fetching local Client ref:${identityHashCode(ref)} - ${identityHashCode(localClient)}');
 
