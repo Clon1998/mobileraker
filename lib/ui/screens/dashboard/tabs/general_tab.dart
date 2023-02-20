@@ -936,7 +936,7 @@ class _TemperaturePresetCard extends StatelessWidget {
   }
 }
 
-class _ControlXYZCard extends ConsumerWidget {
+class _ControlXYZCard extends HookConsumerWidget {
   static const marginForBtns = EdgeInsets.all(10);
 
   const _ControlXYZCard({
@@ -947,6 +947,7 @@ class _ControlXYZCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
+    var iconThemeData = IconTheme.of(context);
 
     return Card(
       child: Column(
@@ -1005,7 +1006,7 @@ class _ControlXYZCard extends ConsumerWidget {
                                 message:
                                     'pages.dashboard.general.move_card.home_xy_tooltip'
                                         .tr(),
-                                child: ElevatedButton(
+                                child: _ButtonWithRunningIndicator(
                                     onPressed: klippyCanReceiveCommands &&
                                             ref.watch(
                                                 controlXYZController.select(
@@ -1074,7 +1075,7 @@ class _ControlXYZCard extends ConsumerWidget {
                             message:
                                 'pages.dashboard.general.move_card.home_z_tooltip'
                                     .tr(),
-                            child: ElevatedButton(
+                            child: _ButtonWithRunningIndicator(
                                 onPressed: klippyCanReceiveCommands &&
                                         ref.watch(controlXYZController
                                             .select((value) => !value.homing))
@@ -1116,7 +1117,7 @@ class _ControlXYZCard extends ConsumerWidget {
                       message:
                           'pages.dashboard.general.move_card.home_all_tooltip'
                               .tr(),
-                      child: ElevatedButton.icon(
+                      child: _ButtonWithRunningIndicator.icon(
                         onPressed: klippyCanReceiveCommands &&
                                 ref.watch(controlXYZController
                                     .select((value) => !value.homing))
@@ -1143,7 +1144,7 @@ class _ControlXYZCard extends ConsumerWidget {
                       Tooltip(
                         message: 'pages.dashboard.general.move_card.qgl_tooltip'
                             .tr(),
-                        child: ElevatedButton.icon(
+                        child: _ButtonWithRunningIndicator.icon(
                           onPressed: klippyCanReceiveCommands &&
                                   ref.watch(controlXYZController
                                       .select((value) => !value.qgl))
@@ -1167,7 +1168,7 @@ class _ControlXYZCard extends ConsumerWidget {
                         message:
                             'pages.dashboard.general.move_card.mesh_tooltip'
                                 .tr(),
-                        child: ElevatedButton.icon(
+                        child: _ButtonWithRunningIndicator.icon(
                           onPressed: klippyCanReceiveCommands &&
                                   ref.watch(controlXYZController
                                       .select((value) => !value.mesh))
@@ -1215,7 +1216,7 @@ class _ControlXYZCard extends ConsumerWidget {
                         message:
                             'pages.dashboard.general.move_card.ztilt_tooltip'
                                 .tr(),
-                        child: ElevatedButton.icon(
+                        child: _ButtonWithRunningIndicator.icon(
                           onPressed: klippyCanReceiveCommands &&
                                   ref.watch(controlXYZController
                                       .select((value) => !value.zTilt))
@@ -1234,7 +1235,7 @@ class _ControlXYZCard extends ConsumerWidget {
                     Tooltip(
                       message:
                           'pages.dashboard.general.move_card.m84_tooltip'.tr(),
-                      child: ElevatedButton.icon(
+                      child: _ButtonWithRunningIndicator.icon(
                         onPressed: klippyCanReceiveCommands &&
                                 ref.watch(controlXYZController
                                     .select((value) => !value.motorsOff))
@@ -1585,6 +1586,65 @@ class M117Message extends ConsumerWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class _ButtonWithRunningIndicator extends HookConsumerWidget {
+  const _ButtonWithRunningIndicator({
+    Key? key,
+    required this.child,
+    required this.onPressed,
+  })  : label = null,
+        super(key: key);
+
+  const _ButtonWithRunningIndicator.icon({
+    Key? key,
+    required Icon icon,
+    required this.label,
+    required this.onPressed,
+  })  : child = icon,
+        super(key: key);
+
+  final Icon child;
+  final Widget? label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var animCtrler = useAnimationController(
+        duration: const Duration(seconds: 1),
+        lowerBound: 0.5,
+        upperBound: 1,
+        initialValue: 1);
+    if (onPressed == null) {
+      animCtrler.repeat(reverse: true);
+    } else {
+      animCtrler.stop();
+    }
+
+    Widget ico;
+
+    if (onPressed == null) {
+      ico = ScaleTransition(
+        scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+        child: child,
+      );
+    } else {
+      ico = child;
+    }
+
+    if (label == null) {
+      return ElevatedButton(
+        onPressed: onPressed,
+        child: ico,
+      );
+    }
+
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: ico,
+      label: label!,
     );
   }
 }
