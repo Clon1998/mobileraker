@@ -78,37 +78,54 @@ AsyncValue<ClientState> _jsonRpcState(
 
 @riverpod
 JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
-  logger.wtf('CREATING jrpcClient Provider');
-  ref.onDispose(() => logger.wtf('Disposed jrpcClient'));
+  logger.wtf('CREATING jrpcClient Provider ref:${identityHashCode(ref)}');
   var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
   if (machine == null) {
     throw MobilerakerException(
         'Machine with UUID "$machineUUID" was not found!');
   }
-  logger.wtf('Fetching local Client');
+  logger.wtf('Fetching local Client ref:${identityHashCode(ref)}');
   JsonRpcClient localClient =
       ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.local));
-  logger.wtf('Done fetching local Client - ${identityHashCode(localClient)}');
+  logger.wtf(
+      'Done fetching local Client ref:${identityHashCode(ref)} - ${identityHashCode(localClient)}');
+
+  OctoEverywhere? octoEverywhere = machine.octoEverywhere;
+  if (octoEverywhere == null) {
+    return localClient;
+  }
+
+  // This section needs to be run if the local client provider was already present
+  if (localClient.curState == ClientState.error) {
+    logger.i(
+        'Local client already is errored? Returning remote one... ref:${identityHashCode(ref)}');
+    return ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
+  }
+
+  // Here we register a listner that can wait for the loal client to switch to remote one!
   ref.listen<AsyncValue<ClientState>>(
       _jsonRpcStateProvider(machineUUID, ClientType.local),
       (previous, AsyncValue<ClientState> next) {
     next.whenData(
       (d) async {
         if (d == ClientState.error) {
-          logger.wtf('Local client failed... trying remote one');
+          logger.wtf(
+              'Local client failed... trying remote one ref:${identityHashCode(ref)}');
 
-          OctoEverywhere? octoEverywhere = machine.octoEverywhere;
           if (octoEverywhere == null) {
-            logger.i('No remote client configured... cant do handover!');
+            logger.i(
+                'No remote client configured... cant do handover! ref:${identityHashCode(ref)}');
             return;
           }
+          logger.i('Returning remote client... ref:${identityHashCode(ref)}');
           ref.state =
               ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
         }
       },
     );
-  }, fireImmediately: true);
-  logger.wtf('Returning localClient-${identityHashCode(localClient)}');
+  });
+  logger.wtf(
+      'Returning local client! ref:${identityHashCode(ref)} localClient-${identityHashCode(localClient)}');
   return localClient;
 }
 
