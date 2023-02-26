@@ -25,8 +25,8 @@ class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
     @JsonKey(name: 'initial_WHITE') @Default(0) double initialWhite,
   }) = _ConfigNeopixel;
 
-  factory ConfigNeopixel.fromJson(Map<String, dynamic> json) =>
-      _$ConfigNeopixelFromJson(json);
+  factory ConfigNeopixel.fromJson(String name, Map<String, dynamic> json) =>
+      _$ConfigNeopixelFromJson({...json, 'name': name});
 
   @override
   bool get isAddressable => true;
