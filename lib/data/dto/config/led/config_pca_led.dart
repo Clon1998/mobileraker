@@ -18,8 +18,9 @@ class ConfigPcaLed extends ConfigLed with _$ConfigPcaLed {
     @JsonKey(name: 'initial_WHITE') @Default(0) double initialWhite,
   }) = _ConfigPcaLed;
 
-  factory ConfigPcaLed.fromJson(Map<String, dynamic> json) =>
-      _$ConfigPcaLedFromJson(json);
+  factory ConfigPcaLed.fromJson(String name, Map<String, dynamic> json) {
+    return _$ConfigPcaLedFromJson({...json, 'name': name});
+  }
 
   @override
   bool get hasWhite => true;

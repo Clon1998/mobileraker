@@ -20,8 +20,8 @@ class ConfigDotstar extends ConfigLed with _$ConfigDotstar {
     @JsonKey(name: 'initial_BLUE') @Default(0) double initialBlue,
   }) = _ConfigDotstar;
 
-  factory ConfigDotstar.fromJson(Map<String, dynamic> json) =>
-      _$ConfigDotstarFromJson(json);
+  factory ConfigDotstar.fromJson(String name, Map<String, dynamic> json) =>
+      _$ConfigDotstarFromJson({...json, 'name': name});
 
   @override
   bool get isAddressable => true;

@@ -1,5 +1,6 @@
 //TODO Decide regarding null values or not!
 import 'package:flutter/foundation.dart';
+import 'package:mobileraker/data/dto/config/config_file_entry_enum.dart';
 import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
 import 'package:mobileraker/data/dto/config/led/config_dotstar.dart';
 import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
@@ -36,9 +37,14 @@ class ConfigFile {
       configHeaterBed = ConfigHeaterBed.parse(rawConfig['heater_bed']);
     }
 
-    for (var key in rawConfig.keys) {
-      if (key.startsWith('extruder')) {
-        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
+    for (String key in rawConfig.keys) {
+      List<String> split = key.split(" ");
+      String object = split[0].toLowerCase();
+      String objectName = (split.length > 1) ? split.skip(1).join(" ") : object;
+
+      Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
+
+      if (object == ConfigFileEntry.extruder.name) {
         if (jsonChild.containsKey('shared_heater')) {
           String sharedHeater = jsonChild['shared_heater'];
           Map<String, dynamic> sharedHeaterConfig =
@@ -47,48 +53,25 @@ class ConfigFile {
               .removeWhere((key, value) => jsonChild.containsKey(key));
           jsonChild.addAll(sharedHeaterConfig);
         }
-        extruders[key] = ConfigExtruder.parse(key, jsonChild);
-      } else if (key.startsWith('output')) {
-        List<String> split = key.split(" ");
-        String name = split.length > 1 ? split.skip(1).join(" ") : split[0];
-        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
-        outputs[name] = ConfigOutput.parse(name, jsonChild);
-      } else if (key.startsWith('stepper')) {
+        extruders[object] = ConfigExtruder.parse(object, jsonChild);
+      } else if (object == ConfigFileEntry.output.name) {
+        outputs[objectName] = ConfigOutput.parse(objectName, jsonChild);
+      } else if (object.startsWith(ConfigFileEntry.stepper.name)) {
         List<String> split = key.split("_");
         String name = split.length > 1 ? split.skip(1).join("_") : split[0];
-        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
         steppers[name] = ConfigStepper.parse(name, jsonChild);
-      } else if (key.startsWith('gcode_macro')) {
-        List<String> split = key.split(" ");
-        String name = split.skip(1).join(" ").toLowerCase();
-        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
-        gcodeMacros[name] = ConfigGcodeMacro.parse(name, jsonChild);
-      } else if (key.startsWith('dotstar')) {
-        List<String> split = key.split(" ");
-        String name = split.length > 1 ? split.skip(1).join(" ") : split[0];
-        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
-        jsonChild['name'] = name;
-        leds[name] = ConfigDotstar.fromJson(jsonChild);
-      } else if (key.startsWith('neopixel')) {
-        List<String> split = key.split(" ");
-        String name = split.length > 1 ? split.skip(1).join(" ") : split[0];
-        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
-        jsonChild['name'] = name;
-        leds[name] = ConfigNeopixel.fromJson(jsonChild);
-      } else if (key.startsWith('led')) {
+      } else if (object == ConfigFileEntry.gcode_macro.name) {
+        gcodeMacros[objectName] = ConfigGcodeMacro.parse(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.dotstar.name) {
+        leds[objectName] = ConfigDotstar.fromJson(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.neopixel.name) {
+        leds[objectName] = ConfigNeopixel.fromJson(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.led.name) {
+        leds[objectName] = ConfigDumbLed.fromJson(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.pca9533.name ||
+          object == ConfigFileEntry.pca9632.name) {
         //pca9533 and pcapca9632
-        List<String> split = key.split(" ");
-        String name = split.length > 1 ? split.skip(1).join(" ") : split[0];
-        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
-        jsonChild['name'] = name;
-        leds[name] = ConfigDumbLed.fromJson(jsonChild);
-      } else if (key.startsWith('pca9')) {
-        //pca9533 and pcapca9632
-        List<String> split = key.split(" ");
-        String name = split.length > 1 ? split.skip(1).join(" ") : split[0];
-        Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
-        jsonChild['name'] = name;
-        leds[name] = ConfigPcaLed.fromJson(jsonChild);
+        leds[objectName] = ConfigPcaLed.fromJson(objectName, jsonChild);
       }
     }
     //ToDo parse the config for e.g. EXTRUDERS (Temp settings), ...

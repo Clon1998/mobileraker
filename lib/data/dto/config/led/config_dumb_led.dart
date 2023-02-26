@@ -22,8 +22,9 @@ class ConfigDumbLed extends ConfigLed with _$ConfigDumbLed {
     @JsonKey(name: 'initial_WHITE') @Default(0) double initialWhite,
   }) = _ConfigDumbLed;
 
-  factory ConfigDumbLed.fromJson(Map<String, dynamic> json) =>
-      _$ConfigDumbLedFromJson(json);
+  factory ConfigDumbLed.fromJson(String name, Map<String, dynamic> json) {
+    return _$ConfigDumbLedFromJson({...json, 'name': name});
+  }
 
   @override
   bool get isSingleColor {
