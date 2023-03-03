@@ -24,7 +24,9 @@ class ConsolePage extends ConsumerWidget {
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
-        actions: const [EmergencyStopBtn()],
+        actions: const [
+          EmergencyStopBtn(),
+        ],
       ),
       drawer: const NavigationDrawerWidget(),
       body: const ConnectionStateView(
@@ -43,9 +45,10 @@ class _ConsoleBody extends HookConsumerWidget {
     var focusNode = useFocusNode();
 
     var klippyCanReceiveCommands = ref
-        .watch(klipperSelectedProvider)
-        .valueOrFullNull
-        ?.klippyCanReceiveCommands ?? false;
+            .watch(klipperSelectedProvider)
+            .valueOrFullNull
+            ?.klippyCanReceiveCommands ??
+        false;
 
     var theme = Theme.of(context);
     return Container(
@@ -183,9 +186,10 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
         calculateSuggestedMacros(consoleInput, history, available);
     if (suggestions.isEmpty) return const SizedBox.shrink();
     var canSend = ref
-        .watch(klipperSelectedProvider)
-        .valueOrFullNull
-        ?.klippyCanReceiveCommands ?? false;
+            .watch(klipperSelectedProvider)
+            .valueOrFullNull
+            ?.klippyCanReceiveCommands ??
+        false;
     return SizedBox(
       height: 33,
       child: ChipTheme(
@@ -241,9 +245,10 @@ class _Console extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var canSend = ref
-        .watch(klipperSelectedProvider)
-        .valueOrFullNull
-        ?.klippyCanReceiveCommands?? false;
+            .watch(klipperSelectedProvider)
+            .valueOrFullNull
+            ?.klippyCanReceiveCommands ??
+        false;
     return ref.watch(consoleListControllerProvider).when(
         data: (entries) {
           if (entries.isEmpty) {

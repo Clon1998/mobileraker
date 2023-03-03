@@ -54,6 +54,7 @@ class ConnectionStateController extends StateNotifier<ClientState> {
         var selMachine = ref.read(selectedMachineProvider).valueOrFullNull;
 
         if (selMachine != null) {
+          logger.i('Refreshing selectedPrinter...');
           ref.refresh(jrpcClientProvider(selMachine.uuid));
         }
 

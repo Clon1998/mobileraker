@@ -43,15 +43,15 @@ JsonRpcClient _jsonRpcClient(
   // });
 
   ref.onDispose(() {
-    logger.e('_jsonRpcClient - disposed - ${identityHashCode(jsonRpcClient)}');
+    logger.e('_jsonRpcClient($type) - disposed - ${identityHashCode(jsonRpcClient)}');
   });
   ref.onAddListener(() {
     logger.wtf(
-        '_jsonRpcClient-Listner added! - ${identityHashCode(jsonRpcClient)}');
+        '_jsonRpcClient($type)-Listner added! - ${identityHashCode(jsonRpcClient)}');
   });
   ref.onRemoveListener(() {
     logger.wtf(
-        '_jsonRpcClient-Listner removed! - ${identityHashCode(jsonRpcClient)}');
+        '_jsonRpcClient($type)-Listner removed! - ${identityHashCode(jsonRpcClient)}');
   });
   return jsonRpcClient..openChannel();
 }
@@ -90,7 +90,7 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
     ..ensureConnection();
 
   logger.wtf(
-      'Done fetching local Client ref:${identityHashCode(ref)} - ${identityHashCode(localClient)}');
+      'Done fetching local Client ref:${identityHashCode(ref)} -localClient: ${identityHashCode(localClient)}');
 
   OctoEverywhere? octoEverywhere = machine.octoEverywhere;
   if (octoEverywhere == null) {
@@ -105,7 +105,8 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
   }
 
   // Here we register a listner that can wait for the loal client to switch to remote one!
-  ref.listen<AsyncValue<ClientState>>(
+  late ProviderSubscription sub;
+  sub = ref.listen<AsyncValue<ClientState>>(
       _jsonRpcStateProvider(machineUUID, ClientType.local),
       (previous, AsyncValue<ClientState> next) {
     next.whenData(
@@ -119,9 +120,12 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
                 'No remote client configured... cant do handover! ref:${identityHashCode(ref)}');
             return;
           }
-          logger.i('Returning remote client... ref:${identityHashCode(ref)}');
+          var remoteClinet = ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
+
+
+          logger.i('Returning remote client... ref:${identityHashCode(ref)}, remoteclient:${identityHashCode(remoteClinet)}');
           ref.state =
-              ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
+              remoteClinet;
         }
       },
     );
