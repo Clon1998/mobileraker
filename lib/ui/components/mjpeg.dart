@@ -14,18 +14,32 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'mjpeg.g.dart';
 
 typedef StreamConnectedBuilder = Widget Function(
     BuildContext context, Widget imageTransformed);
 
+final _mjpegConfigProvider = Provider.autoDispose<MjpegConfig>(
+    (ref) => throw UnimplementedError(),
+    name: 'mjpegConfigProvider');
+
+@riverpod
+_MjpegManager _mjpegManager(_MjpegManagerRef ref) {
+  var mjpegConfig = ref.watch(_mjpegConfigProvider);
+
+  var manager = (mjpegConfig.mode == WebCamMode.ADAPTIVE_STREAM)
+      ? _AdaptiveMjpegManager(mjpegConfig)
+      : _DefaultMjpegManager(mjpegConfig);
+  ref.onDispose(manager.dispose);
+  return manager;
+}
+
 class Mjpeg extends ConsumerWidget {
-  Mjpeg({
+  const Mjpeg({
     Key? key,
-    required String feedUri,
-    Duration timeout = const Duration(seconds: 5),
-    Map<String, String> headers = const {},
-    int targetFps = 10,
-    required WebCamMode camMode,
+    required this.config,
     this.stackChild = const [],
     this.transform,
     this.fit,
@@ -33,8 +47,7 @@ class Mjpeg extends ConsumerWidget {
     this.height,
     this.showFps = false,
     this.imageBuilder,
-  })  : config = MjpegConfig(feedUri, timeout, headers, targetFps, camMode),
-        super(key: key);
+  }) : super(key: key);
 
   final List<Widget> stackChild;
   final Matrix4? transform;
@@ -47,76 +60,115 @@ class Mjpeg extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(_mjpegViewControllerProvider(config)
-            .selectAs((data) => true)) // just wait for data to be ready!
-        .when(
-            data: (data) {
-              Widget img = _TransformedImage(
-                config: config,
-                transform: transform,
-                fit: fit,
-                width: width,
-                height: height,
-              );
-              return EaseIn(
-                child: Stack(
-                  children: [
-                    (imageBuilder == null) ? img : imageBuilder!(context, img),
-                    if (showFps) _FPSDisplay(config: config),
-                    ...stackChild!
-                  ],
-                ),
-              );
-            },
-            error: (e, s) => Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline),
-                    const SizedBox(
-                      height: 30,
-                    ),
-                    Text(e.toString(),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Theme.of(context).errorColor)),
-                    TextButton.icon(
-                        onPressed: ref
-                            .read(_mjpegViewControllerProvider(config).notifier)
-                            .onRetryPressed,
-                        icon: const Icon(Icons.restart_alt_outlined),
-                        label: const Text(
-                                'components.connection_watcher.reconnect')
-                            .tr())
-                  ],
-                ),
-            loading: () => Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SpinKitDancingSquare(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    FadingText(
-                        tr('components.connection_watcher.trying_connect'))
-                  ],
-                ));
+    return ProviderScope(
+      overrides: [
+        _mjpegConfigProvider.overrideWithValue(config),
+        _mjpegControllerProvider,
+        _mjpegManagerProvider
+      ],
+      child: _Mjpeg(
+        stackChild: stackChild,
+        showFps: showFps,
+        transform: transform,
+        fit: fit,
+        width: width,
+        height: height,
+        imageBuilder: imageBuilder,
+      ),
+    );
+  }
+}
+
+class _Mjpeg extends ConsumerWidget {
+  const _Mjpeg({
+    Key? key,
+    required this.stackChild,
+    required this.showFps,
+    this.transform,
+    this.fit,
+    this.width,
+    this.height,
+    this.imageBuilder,
+  }) : super(key: key);
+
+  final List<Widget> stackChild;
+  final Matrix4? transform;
+  final BoxFit? fit;
+  final double? width;
+  final double? height;
+  final bool showFps;
+  final StreamConnectedBuilder? imageBuilder;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    bool isLoading =
+        ref.watch(_mjpegControllerProvider.select((value) => value.isLoading));
+    bool hasError =
+        ref.watch(_mjpegControllerProvider.select((value) => value.hasError));
+
+    if (hasError) {
+      var state = ref.read(_mjpegControllerProvider);
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline),
+          const SizedBox(
+            height: 30,
+          ),
+          Text(state.error.toString(),
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Theme.of(context).errorColor)),
+          TextButton.icon(
+              onPressed:
+                  ref.read(_mjpegControllerProvider.notifier).onRetryPressed,
+              icon: const Icon(Icons.restart_alt_outlined),
+              label: const Text('components.connection_watcher.reconnect').tr())
+        ],
+      );
+    }
+
+    if (isLoading) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SpinKitDancingSquare(
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          const SizedBox(
+            height: 15,
+          ),
+          FadingText(tr('components.connection_watcher.trying_connect'))
+        ],
+      );
+    }
+
+    Widget img = _TransformedImage(
+      transform: transform,
+      fit: fit,
+      width: width,
+      height: height,
+    );
+    return EaseIn(
+      child: Stack(
+        children: [
+          (imageBuilder == null) ? img : imageBuilder!(context, img),
+          if (showFps) const _FPSDisplay(),
+          ...stackChild
+        ],
+      ),
+    );
   }
 }
 
 class _FPSDisplay extends ConsumerWidget {
   const _FPSDisplay({
     Key? key,
-    required this.config,
   }) : super(key: key);
-  final MjpegConfig config;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref
-        .watch(
-            _mjpegViewControllerProvider(config).selectAs((data) => data.fps))
+        .watch(_mjpegControllerProvider.selectAs((data) => data.fps))
         .maybeWhen(
             data: (fps) {
               var themeData = Theme.of(context);
@@ -145,14 +197,12 @@ class _FPSDisplay extends ConsumerWidget {
 class _TransformedImage extends ConsumerWidget {
   const _TransformedImage({
     Key? key,
-    required this.config,
     this.transform,
     this.fit,
     this.width,
     this.height,
   }) : super(key: key);
 
-  final MjpegConfig config;
   final Matrix4? transform;
   final BoxFit? fit;
   final double? width;
@@ -161,8 +211,7 @@ class _TransformedImage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref
-        .watch(
-            _mjpegViewControllerProvider(config).selectAs((data) => data.image))
+        .watch(_mjpegControllerProvider.selectAs((data) => data.image))
         .maybeWhen(
             data: (image) {
               Widget img = Image(
@@ -185,47 +234,46 @@ class _TransformedImage extends ConsumerWidget {
   }
 }
 
-final _mjpegViewControllerProvider = StateNotifierProvider.autoDispose
-    .family<_MjpegController, AsyncValue<MjpegState>, MjpegConfig>(
-        (ref, config) => _MjpegController(config));
-
-class _MjpegController extends StateNotifier<AsyncValue<MjpegState>>
-    with WidgetsBindingObserver {
-  _MjpegController(this.config)
-      : _manager = config.mode == WebCamMode.STREAM
-            ? _DefaultStreamManager(config)
-            : _AdaptiveStreamManager(config),
-        super(const AsyncValue.loading()) {
+@riverpod
+// 4. extend like this
+class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
+  _MjpegController() {
     WidgetsBinding.instance.addObserver(this);
-    _jpegSub = _manager.jpegStream.listen(onImageData, onError: onImageDataError);
-    // move the manager to an isolate maybe?
-    _manager.start();
   }
 
-  final MjpegConfig config;
-
-  final _StreamManager _manager;
-  late final StreamSubscription _jpegSub;
+  StreamSubscription? _jpegSub;
 
   double fps = 0;
-
   int _frameCnt = 0;
   DateTime? _start;
 
+  @override
+  AsyncValue<MjpegState> build() {
+    var mjpegManager = ref.watch(_mjpegManagerProvider);
+
+    _jpegSub =
+        mjpegManager.jpegStream.listen(onImageData, onError: onImageDataError);
+
+    mjpegManager.start();
+    // 6. return a value (or do nothing if the return type is void)
+    ref.onDispose(dispose);
+    return const AsyncValue.loading();
+  }
+
   onRetryPressed() {
     state = const AsyncValue.loading();
-    _manager.start();
+    ref.watch(_mjpegManagerProvider).start();
   }
 
   @override
   didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _manager.start();
+        ref.watch(_mjpegManagerProvider).start();
         break;
 
       case AppLifecycleState.paused:
-        _manager.stop();
+        ref.watch(_mjpegManagerProvider).stop();
         break;
       default:
       // Do Nothing
@@ -253,17 +301,15 @@ class _MjpegController extends StateNotifier<AsyncValue<MjpegState>>
     state = AsyncValue.error(err, s);
   }
 
-  @override
   dispose() {
-    super.dispose();
-    _manager.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    _jpegSub.cancel();
+    _jpegSub?.cancel();
   }
 }
 
+@immutable
 class MjpegState {
-  MjpegState(this.image, this.fps);
+  const MjpegState(this.image, this.fps);
 
   final MemoryImage image;
   final double fps;
@@ -271,12 +317,17 @@ class MjpegState {
 
 @immutable
 class MjpegConfig {
-  const MjpegConfig(
-      this.feedUri, this.timeout, this.headers, this.targetFps, this.mode);
+  const MjpegConfig({
+    required this.feedUri,
+    this.httpHeader = const {},
+    required this.mode,
+    this.targetFps = 10,
+    this.timeout = const Duration(seconds: 5),
+  });
 
   final String feedUri;
   final Duration timeout;
-  final Map<String, String> headers;
+  final Map<String, String> httpHeader;
   final int targetFps;
   final WebCamMode mode;
 
@@ -287,7 +338,7 @@ class MjpegConfig {
           runtimeType == other.runtimeType &&
           feedUri == other.feedUri &&
           timeout == other.timeout &&
-          mapEquals(headers, other.headers) &&
+          mapEquals(httpHeader, other.httpHeader) &&
           targetFps == other.targetFps &&
           mode == other.mode;
 
@@ -295,14 +346,14 @@ class MjpegConfig {
   int get hashCode =>
       feedUri.hashCode ^
       timeout.hashCode ^
-      headers.hashCode ^
+      httpHeader.hashCode ^
       targetFps.hashCode ^
       mode.hashCode;
 }
 
 // feedUri, timeout, headers, targetFps, camMode
 
-abstract class _StreamManager {
+abstract class _MjpegManager {
   start();
 
   stop();
@@ -313,11 +364,11 @@ abstract class _StreamManager {
 }
 
 /// This Manager is for the normal MJPEG!
-class _DefaultStreamManager implements _StreamManager {
-  _DefaultStreamManager(MjpegConfig config)
+class _DefaultMjpegManager implements _MjpegManager {
+  _DefaultMjpegManager(MjpegConfig config)
       : _uri = Uri.parse(config.feedUri),
         _timeout = config.timeout,
-        headers = config.headers;
+        headers = config.httpHeader;
 
   // Jpeg Magic Nubmers: https://www.file-recovery.com/jpg-signature-format.htm
   static const _TRIGGER = 0xFF;
@@ -436,10 +487,10 @@ class _DefaultStreamManager implements _StreamManager {
 }
 
 /// Manager for an Adaptive MJPEG, using snapshots/images of the MJPEG provider!
-class _AdaptiveStreamManager implements _StreamManager {
-  _AdaptiveStreamManager(MjpegConfig config)
+class _AdaptiveMjpegManager implements _MjpegManager {
+  _AdaptiveMjpegManager(MjpegConfig config)
       : _uri = Uri.parse(config.feedUri),
-        headers = config.headers,
+        headers = config.httpHeader,
         _timeout = config.timeout,
         targetFps = config.targetFps;
 

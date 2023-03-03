@@ -42,10 +42,11 @@ class SinglePrinterCard extends ConsumerWidget {
             Center(
                 child: Mjpeg(
               key: ValueKey(webcamSetting.uuid),
-              feedUri: webcamSetting.url,
-              targetFps: webcamSetting.targetFps,
               transform: webcamSetting.transformMatrix,
-              camMode: webcamSetting.mode,
+              config: MjpegConfig(
+                  feedUri: webcamSetting.url,
+                  targetFps: webcamSetting.targetFps,
+                  mode: webcamSetting.mode),
               imageBuilder: _imageBuilder,
               stackChild: [
                 Positioned.fill(
@@ -55,7 +56,7 @@ class SinglePrinterCard extends ConsumerWidget {
                       color: Colors.white,
                       icon: const Icon(Icons.aspect_ratio),
                       tooltip:
-                      tr('pages.dashboard.general.cam_card.fullscreen'),
+                          tr('pages.dashboard.general.cam_card.fullscreen'),
                       onPressed: singlePrinterCardController.onFullScreenTap,
                     ),
                   ),

@@ -364,9 +364,6 @@ class CamCard extends ConsumerWidget {
     Map<String, String> headers = {};
     if (clientType == ClientType.octo) {
       Uri machineUri = Uri.parse(machine.wsUrl);
-      logger.e('${machineUri.host}');
-      logger.e('${camUri.host}');
-
       if (machineUri.host == camUri.host) {
         var octoEverywhere = machine.octoEverywhere!;
         camUri = camUri.replace(scheme: 'https', host: octoEverywhere.uri.host);
@@ -405,12 +402,13 @@ class CamCard extends ConsumerWidget {
                 child: Mjpeg(
               key: ValueKey(selectedCam),
               imageBuilder: _imageBuilder,
-              targetFps: selectedCam.targetFps,
-              feedUri: camUri.toString(),
+              config: MjpegConfig(
+                  feedUri: camUri.toString(),
+                  targetFps: selectedCam.targetFps,
+                  mode: selectedCam.mode,
+                  httpHeader: headers),
               transform: selectedCam.transformMatrix,
-              camMode: selectedCam.mode,
               showFps: true,
-              headers: headers,
               stackChild: [
                 Positioned.fill(
                   child: Align(

@@ -65,14 +65,16 @@ class _FullCamView extends ConsumerWidget {
             minScale: 1,
             maxScale: 10,
             child: Mjpeg(
-                key: ValueKey(selectedCam.url),
-                feedUri: camUri.toString(),
-                headers: headers,
-                targetFps: selectedCam.targetFps,
-                showFps: true,
-                transform: selectedCam.transformMatrix,
-                camMode: selectedCam.mode,
-                stackChild: [const StackContent()])),
+              key: ValueKey(selectedCam.url),
+              config: MjpegConfig(
+                  feedUri: camUri.toString(),
+                  httpHeader: headers,
+                  targetFps: selectedCam.targetFps,
+                  mode: selectedCam.mode),
+              showFps: true,
+              transform: selectedCam.transformMatrix,
+              stackChild: const [StackContent()],
+            )),
         if (machine.cams.length > 1)
           Align(
             alignment: Alignment.bottomCenter,
