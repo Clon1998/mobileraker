@@ -32,6 +32,8 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'setting_service.dart';
+
 final machineServiceProvider = Provider.autoDispose<MachineService>((ref) {
   ref.keepAlive();
   return MachineService(ref);

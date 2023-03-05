@@ -7,7 +7,9 @@ import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
+import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -40,9 +42,11 @@ class JsonRpcClientBuilder {
     var octoUri = Uri.parse(octoEverywhere.url);
 
     return JsonRpcClientBuilder()
-      ..uri = localWsUir.replace(scheme: 'wss', host: octoUri.host)
-      ..basicAuthUser = octoEverywhere.authBasicHttpUser
-      ..basicAuthPassword = octoEverywhere.authBasicHttpPassword
+      ..uri = localWsUir.replace(
+          scheme: 'wss',
+          host: octoUri.host,
+          userInfo:
+              '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
       ..clientType = ClientType.octo;
   }
 
@@ -59,17 +63,11 @@ class JsonRpcClientBuilder {
   Uri? uri;
   bool trustSelfSignedCertificate = false;
   Duration timeout = const Duration(seconds: 3);
-  String? basicAuthUser;
-  String? basicAuthPassword;
 
   JsonRpcClient build() {
     assert(uri != null, 'Provided URI was null');
 
     Map<String, dynamic> headers = {};
-    if (basicAuthUser != null && basicAuthPassword != null) {
-      headers[HttpHeaders.authorizationHeader] =
-          'Basic ${base64.encode(utf8.encode('$basicAuthUser:$basicAuthPassword'))}';
-    }
     if (apiKey != null) {
       headers['X-Api-Key'] = apiKey;
     }
@@ -112,17 +110,6 @@ class JsonRpcClient {
 
   bool get hasError => errorReason != null;
 
-  bool get requiresAPIKey {
-    if (errorReason != null) {
-      if (errorReason is WebSocketException) {
-        return (errorReason as WebSocketException)
-            .message
-            .contains('was not upgraded to websocket');
-      }
-    }
-
-    return false;
-  }
 
   bool _disposed = false;
 
@@ -231,12 +218,12 @@ class JsonRpcClient {
     curState = ClientState.connecting;
     _resetChannel();
     try {
-      HttpClient httpClient = HttpClient();
-      if (trustSelfSignedCertificate) {
-        // only allow self signed certificates!
-        httpClient.badCertificateCallback =
-            (cert, host, port) => cert.issuer == cert.subject;
+      if (clientType == ClientType.local) {
+        await Future.delayed(Duration(seconds: 5));
+        throw Exception("Teeeest");
       }
+
+      HttpClient httpClient = _constructHttpClient();
 
       WebSocket socket = await WebSocket.connect(
         uri.toString(),
@@ -269,6 +256,16 @@ class JsonRpcClient {
       _onChannelError(e);
       return false;
     }
+  }
+
+  HttpClient _constructHttpClient() {
+    HttpClient httpClient = HttpClient();
+    if (trustSelfSignedCertificate) {
+      // only allow self signed certificates!
+      httpClient.badCertificateCallback =
+          (cert, host, port) => cert.issuer == cert.subject;
+    }
+    return httpClient;
   }
 
   Map<String, dynamic> _constructJsonRPCMessage(String method,
@@ -369,7 +366,32 @@ class JsonRpcClient {
     openChannel();
   }
 
-  _onChannelError(error) {
+  _onChannelError(error) async {
+    // Here we figure out exactly what is the problem!
+    var httpUri = uri.replace(
+      scheme: uri.isScheme("wss") ? "https" : "http",
+    );
+    var httpClient = _constructHttpClient();
+    try {
+      logger.w('Sending to $httpUri');
+      var request = await httpClient.openUrl("GET", httpUri);
+
+      if (uri.userInfo != null && uri.userInfo.isNotEmpty) {
+        // If the URL contains user information use that for basic
+        // authorization.
+        String auth = base64Encode(utf8.encode(uri.userInfo));
+        request.headers.set(HttpHeaders.authorizationHeader, "Basic $auth");
+      }
+      HttpClientResponse response = await request.close();
+      logger.wtf('Got Response: ${response.statusCode}');
+      verifyHttpResponseCodes(response.statusCode, clientType);
+      openChannel();// If no exception was thrown, we just try again!
+    } catch (e) {
+      _updateError(e);
+    }
+  }
+
+  _updateError(error) {
     if (_disposed) return;
     logger.e('[$uri${identityHashCode(this)}] WS-Stream error: $error');
     errorReason = error;

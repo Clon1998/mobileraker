@@ -142,7 +142,13 @@ class KlippyService {
       await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]);
     } on JRpcError catch (e, s) {
       logger.w('Error while fetching inital KlippyObject: ${e.message}');
-      _current = _current.copyWith(klippyConnected: false, klippyState: KlipperState.error, klippyStateMessage: e.message);
+
+      _current = _current.copyWith(
+          klippyConnected: false,
+          klippyState: (e.message == 'Unauthorized')
+              ? KlipperState.unauthorized
+              : KlipperState.error,
+          klippyStateMessage: e.message);
     }
   }
 

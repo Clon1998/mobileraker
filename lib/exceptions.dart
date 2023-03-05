@@ -32,9 +32,23 @@ class OctoEverywhereException extends MobilerakerException {
       {super.parentException, super.parentStack})
       : super(message);
 
+
   @override
   String toString() {
     return 'OctoEverywhereException{$message, parentException: $parentException, parentStack: $parentStack}';
+  }
+}
+
+class OctoEverywhereHttpException extends OctoEverywhereException {
+  const OctoEverywhereHttpException(String message, this.statusCode,
+      {super.parentException, super.parentStack})
+      : super(message);
+
+  final int statusCode;
+
+  @override
+  String toString() {
+    return 'OctoEverywhereHttpException{$message, $statusCode, parentException: $parentException, parentStack: $parentStack}';
   }
 }
 

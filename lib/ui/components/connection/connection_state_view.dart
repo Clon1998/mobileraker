@@ -14,6 +14,7 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
 import 'package:mobileraker/ui/components/power_api_panel.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConnectionStateView extends ConsumerWidget {
@@ -253,6 +254,32 @@ class KlippyState extends ConsumerWidget {
                 ],
               ),
             );
+          case KlipperState.unauthorized:
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.gpp_bad,
+                    size: 70,
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  const Text(
+                    'It seems like you configured trusted clients for Moonraker. Please add the API key in the printers settings!\n',
+                    textAlign: TextAlign.center,
+                  ),
+                  TextButton(
+                      onPressed: ref
+                          .read(connectionStateControllerProvider.notifier)
+                          .onEditPrinter,
+                      child:
+                          Text('components.nav_drawer.printer_settings'.tr()))
+                ],
+              ),
+            );
+
           case KlipperState.ready:
           default:
             return onConnected;

@@ -369,7 +369,8 @@
     "shutdown": "Shutdown",
     "starting": "Starting",
     "disconnected": "Disconnected",
-    "error": "Error"
+    "error": "Error",
+    "unauthorized": "Unauthorized"
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",

@@ -3,7 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
@@ -36,10 +39,10 @@ class ConnectionStateController extends StateNotifier<ClientState> {
   String get clientErrorMessage {
     var jsonRpcClient = ref.read(jrpcClientSelectedProvider);
     Exception? errorReason = jsonRpcClient.errorReason;
-    if (jsonRpcClient.requiresAPIKey) {
-      return 'It seems like you configured trusted clients for moonraker. Please add the API key in the printers settings!';
-    } else if (errorReason is TimeoutException) {
+    if (errorReason is TimeoutException) {
       return 'A timeout occurred while trying to connect to the machine! Ensure the machine can be reached from your current network...';
+    } else if (errorReason is OctoEverywhereException) {
+      return 'OctoEverywhere returned: ${errorReason.message}';
     } else if (errorReason != null) {
       return errorReason.toString();
     } else {
@@ -74,5 +77,14 @@ class ConnectionStateController extends StateNotifier<ClientState> {
 
   onRestartMCUPressed() {
     ref.read(klipperServiceSelectedProvider).restartMCUs();
+  }
+
+  onEditPrinter() async {
+    Machine? machine = await ref.read(selectedMachineProvider.future);
+    if (machine != null) {
+      ref
+          .read(goRouterProvider)
+          .pushNamed(AppRoute.printerEdit.name, extra: machine);
+    }
   }
 }

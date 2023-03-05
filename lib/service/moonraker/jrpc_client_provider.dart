@@ -94,16 +94,18 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
 
   OctoEverywhere? octoEverywhere = machine.octoEverywhere;
   if (octoEverywhere == null) {
+    logger.i(
+        'No remote client configured... cant do handover! ref:${identityHashCode(ref)}');
     return localClient;
   }
-
+  logger.wtf("#1");
   // This section needs to be run if the local client provider was already present
   if (localClient.curState == ClientState.error) {
     logger.i(
         'Local client already is errored? Returning remote one... ref:${identityHashCode(ref)}');
     return ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
   }
-
+  logger.wtf("#2");
   // Here we register a listner that can wait for the loal client to switch to remote one!
   late ProviderSubscription sub;
   sub = ref.listen<AsyncValue<ClientState>>(
@@ -115,11 +117,6 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
           logger.wtf(
               'Local client failed... trying remote one ref:${identityHashCode(ref)}');
 
-          if (octoEverywhere == null) {
-            logger.i(
-                'No remote client configured... cant do handover! ref:${identityHashCode(ref)}');
-            return;
-          }
           var remoteClinet = ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
 
 

@@ -8,7 +8,8 @@ enum KlipperState {
   error('klipper_state.error', Colors.red),
   shutdown('klipper_state.shutdown'),
   startup('klipper_state.starting'),
-  disconnected('klipper_state.disconnected');
+  disconnected('klipper_state.disconnected'),
+  unauthorized('klipper_state.unauthorized');
 
   const KlipperState(this.name, [this.color = Colors.orange]);
 

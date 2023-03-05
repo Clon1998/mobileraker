@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/exceptions.dart';
 import 'package:stringr/stringr.dart';
 
 String urlToWebsocketUrl(String enteredURL) {
@@ -68,4 +70,65 @@ FormFieldValidator<T> notContains<T>(
 int hashAllNullable(Iterable<dynamic>? list) {
   if (list == null) return null.hashCode;
   return Object.hashAll(list);
+}
+
+verifyHttpResponseCodes(int statusCode,
+    [ClientType clientType = ClientType.local]) {
+  if (clientType == ClientType.octo) {
+    _verifyOctoHttpResponseCodes(statusCode);
+  } else {
+    _verifyLocalHttpResponseCodes(statusCode);
+  }
+}
+
+_verifyOctoHttpResponseCodes(int statusCode) {
+  switch (statusCode) {
+    case 200:
+      return;
+    case 400:
+      throw const OctoEverywhereHttpException(
+          'Internal App error while trying too fetch info. No AppToken was found!',
+          400);
+    case 600:
+      throw const OctoEverywhereHttpException(
+          'Unknown Error - Something went wrong, try again later.', 600);
+    case 601:
+      throw const OctoEverywhereHttpException(
+          'Printer is Not Connected To OctoEverywhere', 601);
+    case 602:
+      throw const OctoEverywhereHttpException(
+          'OctoEverywhere\'s Connection to Klipper Timed Out.', 602);
+    case 603:
+      throw const OctoEverywhereHttpException('App Connection Not Found', 603);
+    case 604:
+      throw const OctoEverywhereHttpException(
+          'App Connection Revoked/Expired', 604);
+    case 605:
+      throw const OctoEverywhereHttpException(
+          'App Connection Owner\'s Account Is No Longer a Supporter.', 605);
+    case 606:
+      throw const OctoEverywhereHttpException(
+          'Invalid App Connection Credentials', 606);
+    case 607:
+      throw const OctoEverywhereHttpException(
+          'File Download Limit Exceeded', 607);
+    case 608:
+      throw const OctoEverywhereHttpException(
+          'File Upload Limit Exceeded', 608);
+    case 609:
+      throw const OctoEverywhereHttpException(
+          'Webcam Back to Back Limit Exceeded', 609);
+    default:
+      throw MobilerakerException(
+          'Unknown Error - Response from octoeverywhere could not be parsed. StatusCode $statusCode');
+  }
+}
+
+_verifyLocalHttpResponseCodes(int statusCode) {
+  switch (statusCode) {
+    case 200:
+      return;
+    default:
+      throw MobilerakerException('Unknown Error - StatusCode $statusCode');
+  }
 }
