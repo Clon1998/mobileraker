@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -65,9 +66,9 @@ class KlippyService {
   KlippyService(this.ref, this.ownerUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)) {
     ref.onDispose(dispose);
-    logger.e('Crated klipperServiceProvider. $ownerUUID - ${identityHashCode(_jRpcClient)} ');
+    logger.e(
+        'Crated klipperServiceProvider. $ownerUUID - ${identityHashCode(_jRpcClient)} ');
 
-    
     _jRpcClient.addMethodListener(_onNotifyKlippyReady, "notify_klippy_ready");
     _jRpcClient.addMethodListener(
         _onNotifyKlippyShutdown, "notify_klippy_shutdown");
@@ -78,8 +79,7 @@ class KlippyService {
       var data = next as AsyncValue<ClientState>;
       switch (data.valueOrNull) {
         case ClientState.connected:
-          _fetchServerInfo();
-          _fetchPrinterInfo();
+          _onJrpcConnected();
           break;
         case ClientState.disconnected:
         case ClientState.error:
@@ -137,21 +137,28 @@ class KlippyService {
     _jRpcClient.sendJsonRpcWithCallback("printer.emergency_stop");
   }
 
-  _fetchServerInfo() {
+  _onJrpcConnected() async {
+    try {
+      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]);
+    } on JRpcError catch (e, s) {
+      logger.w('Error while fetching inital KlippyObject: ${e.message}');
+      _current = _current.copyWith(klippyConnected: false, klippyState: KlipperState.error, klippyStateMessage: e.message);
+    }
+  }
+
+  Future<void> _fetchServerInfo() async {
     logger.i('>>>Fetching Server.Info');
-    _jRpcClient.sendJsonRpcWithCallback("server.info",
-        onReceive: _parseServerInfo);
+    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod("server.info");
+    _parseServerInfo(rpcResponse.result);
   }
 
-  _fetchPrinterInfo() {
+  Future<void> _fetchPrinterInfo() async {
     logger.i(">>>Fetching Printer.Info");
-    _jRpcClient.sendJsonRpcWithCallback("printer.info",
-        onReceive: _parsePrinterInfo);
+    RpcResponse response = await _jRpcClient.sendJRpcMethod("printer.info");
+    _parsePrinterInfo(response.result);
   }
 
-  _parseServerInfo(response, {err}) {
-    if (err != null) return;
-    var result = response['result'];
+  _parseServerInfo(Map<String, dynamic> result) {
     logger.i('<<<Received Server.Info');
     logger
         .v('ServerInfo: ${const JsonEncoder.withIndent('  ').convert(result)}');
@@ -177,9 +184,7 @@ class KlippyService {
     _current = klipperInstance;
   }
 
-  _parsePrinterInfo(response, {err}) {
-    if (err != null) return;
-    var result = response['result'];
+  _parsePrinterInfo(Map<String, dynamic> result) {
     logger.i('<<<Received Printer.Info');
     logger.v(
         'PrinterInfo: ${const JsonEncoder.withIndent('  ').convert(result)}');
