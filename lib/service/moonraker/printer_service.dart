@@ -6,7 +6,6 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
-import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
@@ -17,7 +16,6 @@ import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/controller_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/heater_fan.dart';
-import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/gcode_move.dart';
@@ -41,7 +39,6 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:stringr/stringr.dart';
@@ -57,6 +54,13 @@ final printerServiceProvider = Provider.autoDispose
 
 final printerProvider = StreamProvider.autoDispose.family<Printer, String>(
     name: 'printerProvider', (ref, machineUUID) async* {
+  ref.onAddListener(() {
+    logger.wtf('printerProvider($machineUUID).${identityHashCode(ref)} - Listener ADDED');
+  });
+
+  ref.onRemoveListener(() {
+    logger.wtf('printerProvider($machineUUID).${identityHashCode(ref)} - Listener REMOVED');
+  });
   ref.keepAlive();
   yield* ref.watch(printerServiceProvider(machineUUID)).printerStream;
 });
@@ -78,6 +82,14 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
         sc.close();
       }
     });
+    ref.onAddListener(() {
+      logger.wtf('printerSelectedProvider(${machine.uuid}).${identityHashCode(ref)} - Listener ADDED');
+    });
+
+    ref.onRemoveListener(() {
+      logger.wtf('printerSelectedProvider(${machine.uuid}).${identityHashCode(ref)} - Listener REMOVED');
+    });
+
     ref.listen<AsyncValue<Printer>>(printerProvider(machine.uuid),
         (previous, next) {
       next.when(

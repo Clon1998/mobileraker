@@ -218,10 +218,10 @@ class JsonRpcClient {
     curState = ClientState.connecting;
     _resetChannel();
     try {
-      if (clientType == ClientType.local) {
-        await Future.delayed(Duration(seconds: 5));
-        throw Exception("Teeeest");
-      }
+      // if (clientType == ClientType.local) {
+      //   await Future.delayed(Duration(seconds: 15));
+      //   throw Exception("Teeeest");
+      // }
 
       HttpClient httpClient = _constructHttpClient();
 
