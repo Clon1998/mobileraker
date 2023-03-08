@@ -51,7 +51,9 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
 
     // late ProviderSubscription sub;
     ClientType clientType = ref
-        .read(jrpcClientSelectedProvider.select((value) => value.clientType));
+        .read(jrpcClientTypeProvider(selMachine.uuid));
+
+    logger.i('Refreshing $clientType was PULL to REFRESH');
 
     if (clientType == ClientType.octo) {
       await ref.refresh(machineProvider(selMachine.uuid).future);

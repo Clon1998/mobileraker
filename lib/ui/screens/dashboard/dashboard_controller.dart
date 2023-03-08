@@ -27,10 +27,9 @@ final machinePrinterKlippySettingsProvider =
   }
 
 
-
+  var klippy = ref.watchAsSubject(klipperProvider(selMachine.uuid));
   var printer = ref.watchAsSubject(printerProvider(selMachine.uuid));
   var machineSettings = ref.watchAsSubject(selectedMachineSettingsProvider);
-  var klippy = ref.watchAsSubject(klipperProvider(selMachine.uuid));
   var clientType = ref.watch(jrpcClientTypeProvider(selMachine.uuid));
 
   yield* Rx.combineLatest3(

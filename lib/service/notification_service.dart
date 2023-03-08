@@ -377,6 +377,7 @@ class NotificationService {
   }
 
   Future<void> _processPrinterUpdate(Machine machine, Printer printer) async {
+    logger.wtf('_processPrinterUpdate.${machine.uuid}');
     var state = await _updatePrintStatusNotification(
         machine, printer.print.state, printer.print.filename, false);
 
