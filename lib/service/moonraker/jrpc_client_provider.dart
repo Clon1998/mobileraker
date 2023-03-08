@@ -43,7 +43,8 @@ JsonRpcClient _jsonRpcClient(
   // });
 
   ref.onDispose(() {
-    logger.e('_jsonRpcClient($type) - disposed - ${identityHashCode(jsonRpcClient)}');
+    logger.e(
+        '_jsonRpcClient($type) - disposed - ${identityHashCode(jsonRpcClient)}');
   });
   ref.onAddListener(() {
     logger.wtf(
@@ -57,7 +58,7 @@ JsonRpcClient _jsonRpcClient(
 }
 
 @riverpod
-AsyncValue<ClientState> _jsonRpcState(
+Stream<ClientState> _jsonRpcState(
     _JsonRpcStateRef ref, String machineUUID, ClientType type) {
   JsonRpcClient activeClient =
       ref.watch(_jsonRpcClientProvider(machineUUID, type));
@@ -69,11 +70,7 @@ AsyncValue<ClientState> _jsonRpcState(
         '_jsonRpcStateProvider.$machineUUID disposed ${identityHashCode(activeClient)}');
   });
 
-  var streamSubscription = activeClient.stateStream.listen((event) {
-    ref.state = AsyncValue.data(event);
-  }, onError: (e, s) => ref.state = AsyncValue.error(e, s));
-  ref.onDispose(() => streamSubscription.cancel());
-  return const AsyncValue<ClientState>.loading();
+  return activeClient.stateStream;
 }
 
 @riverpod
@@ -117,12 +114,12 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
           logger.wtf(
               'Local client failed... trying remote one ref:${identityHashCode(ref)}');
 
-          var remoteClinet = ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
+          var remoteClinet =
+              ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
 
-
-          logger.i('Returning remote client... ref:${identityHashCode(ref)}, remoteclient:${identityHashCode(remoteClinet)}');
-          ref.state =
-              remoteClinet;
+          logger.i(
+              'Returning remote client... ref:${identityHashCode(ref)}, remoteclient:${identityHashCode(remoteClinet)}');
+          ref.state = remoteClinet;
         }
       },
     );
@@ -132,9 +129,9 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
   return localClient;
 }
 
-final jrpcClientStateProvider = StreamProvider.autoDispose
-    .family<ClientState, String>(name: 'jrpcClientStateProvider',
-        (ref, machineUUID) async* {
+@riverpod
+Stream<ClientState> jrpcClientState(
+    JrpcClientStateRef ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
   logger.wtf('jrpcClientStateProvider CREATED');
@@ -163,8 +160,8 @@ final jrpcClientStateProvider = StreamProvider.autoDispose
       sc.close();
     }
   });
-  yield* sc.stream;
-});
+  return sc.stream;
+}
 
 @riverpod
 ClientType jrpcClientType(JrpcClientTypeRef ref, String machineUUID) {
@@ -188,17 +185,18 @@ ClientType jrpcClientType(JrpcClientTypeRef ref, String machineUUID) {
 //       return jrpcFallbackService.stateStream;
 //     });
 
-final jrpcClientSelectedProvider = Provider.autoDispose<JsonRpcClient>(
-    name: 'jrpcClientSelectedProvider', (ref) {
+
+@riverpod
+JsonRpcClient jrpcClientSelected(JrpcClientSelectedRef ref) {
   var machine = ref.watch(selectedMachineProvider).value;
   if (machine == null) {
     throw const MobilerakerException('Machine was null!');
   }
   return ref.watch(jrpcClientProvider(machine.uuid));
-});
+}
 
-final jrpcClientStateSelectedProvider = StreamProvider.autoDispose<ClientState>(
-    name: 'jrpcClientStateSelectedProvider', (ref) async* {
+@riverpod
+Stream<ClientState> jrpcClientStateSelected(JrpcClientStateSelectedRef ref) async* {
   try {
     Machine machine = await ref.watchWhereNotNull(selectedMachineProvider);
     StreamController<ClientState> sc = StreamController<ClientState>();
@@ -209,17 +207,17 @@ final jrpcClientStateSelectedProvider = StreamProvider.autoDispose<ClientState>(
     });
 
     ref.listen<AsyncValue<ClientState>>(jrpcClientStateProvider(machine.uuid),
-        (previous, next) {
-      next.when(
-          data: (data) => sc.add(data),
-          error: (err, st) => sc.addError(err, st),
-          loading: () {
-            if (previous != null) ref.invalidateSelf();
-          });
-    }, fireImmediately: true);
+            (previous, next) {
+          next.when(
+              data: (data) => sc.add(data),
+              error: (err, st) => sc.addError(err, st),
+              loading: () {
+                if (previous != null) ref.invalidateSelf();
+              });
+        }, fireImmediately: true);
 
     yield* sc.stream;
-  } on StateError catch (e, s) {
+  } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!
   }
-});
+}

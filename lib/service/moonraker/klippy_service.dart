@@ -10,31 +10,32 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final klipperServiceProvider = Provider.autoDispose
-    .family<KlippyService, String>(name: 'klipperServiceProvider',
-        (ref, machineUUID) {
-  ref.keepAlive();
+part 'klippy_service.g.dart';
 
+@riverpod
+KlippyService klipperService(KlipperServiceRef ref, String machineUUID) {
   ref.onDispose(() => logger.e('Dispo klipperServiceProvider'));
   return KlippyService(ref, machineUUID);
-});
+}
 
-final klipperProvider = StreamProvider.autoDispose
-    .family<KlipperInstance, String>(name: 'klipperProvider',
-        (ref, machineUUID) {
-  ref.keepAlive();
+@riverpod
+Stream<KlipperInstance> klipper(KlipperRef ref, String machineUUID) {
   return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
-});
+}
 
-final klipperServiceSelectedProvider = Provider.autoDispose<KlippyService>(
-    name: 'klipperServiceSelectedProvider', (ref) {
+@riverpod
+KlippyService klipperServiceSelected(
+    KlipperServiceSelectedRef ref) {
+  ref.onDispose(() => logger.e('Dispo klipperServiceProvider'));
   return ref.watch(klipperServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-});
-// StreamProvider<KlipperInstance>
-final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
-    name: 'klipperSelectedProvider', (ref) async* {
+}
+
+@riverpod
+Stream<KlipperInstance> klipperSelected(
+    KlipperSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
     StreamController<KlipperInstance> sc = StreamController<KlipperInstance>();
@@ -54,10 +55,10 @@ final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
     }, fireImmediately: true);
 
     yield* sc.stream;
-  } on StateError catch (e, s) {
+  } on StateError catch (_) {
     // Just catch it. It is expected that the future/where might not complete!
   }
-});
+}
 
 /// Service managing klippy-server stuff
 class KlippyService {

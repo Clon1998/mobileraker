@@ -11,13 +11,14 @@ import 'package:mobileraker/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/util/misc.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final appConnectionServiceProvider =
-    Provider.autoDispose<AppConnectionService>((ref) {
-  ref.keepAlive();
+part 'app_connection_service.g.dart';
 
+@Riverpod()
+AppConnectionService appConnectionService(AppConnectionServiceRef ref) {
   return AppConnectionService(ref);
-});
+}
 
 class AppConnectionService {
   AppConnectionService(AutoDisposeRef ref) {
@@ -68,5 +69,4 @@ class AppConnectionService {
     verifyHttpResponseCodes(response.statusCode, ClientType.octo);
     return AppConnectionInfoResponse.fromJson(jsonDecode(response.body));
   }
-
 }

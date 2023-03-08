@@ -41,35 +41,42 @@ import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 import 'package:vector_math/vector_math.dart';
 
-final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
-final printerServiceProvider = Provider.autoDispose
-    .family<PrinterService, String>(name: 'printerServiceProvider',
-        (ref, machineUUID) {
-  ref.keepAlive();
-  return PrinterService(ref, machineUUID);
-});
+part 'printer_service.g.dart';
 
-final printerProvider = StreamProvider.autoDispose.family<Printer, String>(
-    name: 'printerProvider', (ref, machineUUID) async* {
+final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
+
+@riverpod
+PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
+  return PrinterService(ref, machineUUID);
+}
+
+@riverpod
+Stream<Printer> printer(PrinterRef ref, String machineUUID) async* {
+  var printerService = ref.watch(printerServiceProvider(machineUUID));
+  logger.wtf(
+      'printerProvider.${identityHashCode(ref)} printerService:${identityHashCode(printerService)}, jrpc: ${printerService.jrpcHC}');
   ref.onAddListener(() {
-    logger.wtf('printerProvider($machineUUID).${identityHashCode(ref)} - Listener ADDED');
+    logger.wtf(
+        'printerProvider($machineUUID).${identityHashCode(ref)} - Listener ADDED');
   });
 
   ref.onRemoveListener(() {
-    logger.wtf('printerProvider($machineUUID).${identityHashCode(ref)} - Listener REMOVED');
+    logger.wtf(
+        'printerProvider($machineUUID).${identityHashCode(ref)} - Listener REMOVED');
   });
-  ref.keepAlive();
-  yield* ref.watch(printerServiceProvider(machineUUID)).printerStream;
-});
+  yield* printerService.printerStream;
+}
 
-final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(
-    name: 'printerServiceSelectedProvider', (ref) {
+
+@riverpod
+PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
   return ref.watch(printerServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-});
+}
 
 final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
     name: 'printerSelectedProvider', (ref) async* {
@@ -83,11 +90,13 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
       }
     });
     ref.onAddListener(() {
-      logger.wtf('printerSelectedProvider(${machine.uuid}).${identityHashCode(ref)} - Listener ADDED');
+      logger.wtf(
+          'printerSelectedProvider(${machine.uuid}).${identityHashCode(ref)} - Listener ADDED');
     });
 
     ref.onRemoveListener(() {
-      logger.wtf('printerSelectedProvider(${machine.uuid}).${identityHashCode(ref)} - Listener REMOVED');
+      logger.wtf(
+          'printerSelectedProvider(${machine.uuid}).${identityHashCode(ref)} - Listener REMOVED');
     });
 
     ref.listen<AsyncValue<Printer>>(printerProvider(machine.uuid),
@@ -101,7 +110,7 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
     }, fireImmediately: true);
 
     yield* sc.stream;
-  } on StateError catch (e, s) {
+  } on StateError catch (_) {
     // Just catch it. It is expected that the future/where might not complete!
   }
 });
@@ -151,6 +160,8 @@ class PrinterService {
   final StreamController<Printer> _printerStreamCtler = StreamController();
 
   Stream<Printer> get printerStream => _printerStreamCtler.stream;
+
+  int get jrpcHC => identityHashCode(_jRpcClient);
 
   /// This map defines how different printerObjects will be parsed
   /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
@@ -285,7 +296,6 @@ class PrinterService {
 
   Future<bool> quadGantryLevel() {
     return gCode('QUAD_GANTRY_LEVEL');
-
   }
 
   Future<bool> m84() {

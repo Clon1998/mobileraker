@@ -7,21 +7,23 @@ import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final announcementServiceProvider = Provider.autoDispose
-    .family<AnnouncementService, String>((ref, machineUUID) {
-  ref.keepAlive();
+part 'announcement_service.g.dart';
 
+@riverpod
+AnnouncementService announcementService(
+    AnnouncementServiceRef ref, String machineUUID) {
   return AnnouncementService(ref, machineUUID);
-},name: 'announcementServiceProvider');
+}
 
-final announcementProvider = StreamProvider.autoDispose
-    .family<List<AnnouncementEntry>, String>((ref, machineUUID) {
-  ref.keepAlive();
+@riverpod
+Stream<List<AnnouncementEntry>> announcement(
+    AnnouncementRef ref, String machineUUID) {
   return ref
       .watch(announcementServiceProvider(machineUUID))
       .announcementNotificationStream;
-});
+}
 
 /// The AnnouncementService handles different notifications/announcements from feed api.
 /// For more information check out
@@ -55,8 +57,7 @@ class AnnouncementService {
           'server.announcements.list',
           params: {'include_dismissed': includeDismissed});
 
-      List<Map<String, dynamic>> entries =
-          rpcResponse.result['entries'];
+      List<Map<String, dynamic>> entries = rpcResponse.result['entries'];
 
       return _parseAnnouncementsList(entries);
     } on JRpcError catch (e) {

@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:file/memory.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
@@ -14,14 +13,18 @@ import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'file_service.g.dart';
+
+//TODO: Move the dto/data classes to the correct folder
 enum FileRoot { gcodes, config, config_examples, docs }
 
 enum FileAction {
@@ -59,41 +62,56 @@ class FolderContentWrapper {
       folderPath.hashCode ^ folders.hashIterable ^ files.hashIterable;
 }
 
-final fileServiceProvider =
-    Provider.autoDispose.family<FileService, String>((ref, machineUUID) {
-  ref.keepAlive();
+@riverpod
+FileService fileService(FileServiceRef ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
-  var machine = Hive.box<Machine>('printers').get(machineUUID);
+  var machine = ref.watch(machineProvider(machineUUID)).value;
   if (machine == null) {
     throw MobilerakerException(
         'Machine with UUID "$machineUUID" was not found!');
   }
   return FileService(ref, jsonRpcClient, machine.httpUrl, machineUUID);
-}, name: 'fileServiceProvider');
+}
 
-final fileNotificationsProvider = StreamProvider.autoDispose
-    .family<FileApiResponse, String>((ref, machineUUID) {
-  ref.keepAlive();
+@riverpod
+Stream<FileApiResponse> fileNotifications(
+    FileNotificationsRef ref, String machineUUID) {
   return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
-});
+}
 
-final fileServiceSelectedProvider = Provider.autoDispose<FileService>((ref) {
+@riverpod
+FileService fileServiceSelected(FileServiceSelectedRef ref) {
   return ref.watch(fileServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-}, name: 'fileServiceSelectedProvider');
+}
 
-final fileNotificationsSelectedProvider =
-    StreamProvider.autoDispose<FileApiResponse>((ref) async* {
+@riverpod
+Stream<FileApiResponse> fileNotificationsSelected(
+    FileNotificationsSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(fileNotificationsProvider(machine.uuid).future);
-    yield* ref.watch(fileNotificationsProvider(machine.uuid).stream);
-  } on StateError catch (e, s) {
+    StreamController<FileApiResponse> sc = StreamController<FileApiResponse>();
+    ref.onDispose(() {
+      if (!sc.isClosed) {
+        sc.close();
+      }
+    });
+    ref.listen<AsyncValue<FileApiResponse>>(
+        fileNotificationsProvider(machine.uuid), (previous, next) {
+      next.when(
+          data: (data) => sc.add(data),
+          error: (err, st) => sc.addError(err, st),
+          loading: () {
+            if (previous != null) ref.invalidateSelf();
+          });
+    }, fireImmediately: true);
+
+    yield* sc.stream;
+  } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!
   }
-});
+}
 
 /// The FileService handles all file changes of the different roots of moonraker
 /// For more information check out
