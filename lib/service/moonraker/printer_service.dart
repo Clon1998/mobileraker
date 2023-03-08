@@ -55,20 +55,11 @@ PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
 }
 
 @riverpod
-Stream<Printer> printer(PrinterRef ref, String machineUUID) async* {
+Stream<Printer> printer(PrinterRef ref, String machineUUID) {
   var printerService = ref.watch(printerServiceProvider(machineUUID));
   logger.wtf(
       'printerProvider.${identityHashCode(ref)} printerService:${identityHashCode(printerService)}, jrpc: ${printerService.jrpcHC}');
-  ref.onAddListener(() {
-    logger.wtf(
-        'printerProvider($machineUUID).${identityHashCode(ref)} - Listener ADDED');
-  });
-
-  ref.onRemoveListener(() {
-    logger.wtf(
-        'printerProvider($machineUUID).${identityHashCode(ref)} - Listener REMOVED');
-  });
-  yield* printerService.printerStream;
+  return printerService.printerStream;
 }
 
 
@@ -78,8 +69,9 @@ PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 }
 
-final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
-    name: 'printerSelectedProvider', (ref) async* {
+
+@riverpod
+Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
@@ -89,31 +81,22 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
         sc.close();
       }
     });
-    ref.onAddListener(() {
-      logger.wtf(
-          'printerSelectedProvider(${machine.uuid}).${identityHashCode(ref)} - Listener ADDED');
-    });
-
-    ref.onRemoveListener(() {
-      logger.wtf(
-          'printerSelectedProvider(${machine.uuid}).${identityHashCode(ref)} - Listener REMOVED');
-    });
-
     ref.listen<AsyncValue<Printer>>(printerProvider(machine.uuid),
-        (previous, next) {
-      next.when(
-          data: (data) => sc.add(data),
-          error: (err, st) => sc.addError(err, st),
-          loading: () {
-            if (previous != null) ref.invalidateSelf();
-          });
-    }, fireImmediately: true);
+            (previous, next) {
+          next.when(
+              data: (data) => sc.add(data),
+              error: (err, st) => sc.addError(err, st),
+              loading: () {
+                if (previous != null) ref.invalidateSelf();
+              });
+        }, fireImmediately: true);
 
     yield* sc.stream;
   } on StateError catch (_) {
     // Just catch it. It is expected that the future/where might not complete!
   }
-});
+}
+
 
 class PrinterService {
   PrinterService(AutoDisposeRef ref, this.ownerUUID)
