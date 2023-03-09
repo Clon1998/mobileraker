@@ -10,7 +10,7 @@ late final MemoryOutput memoryOutput;
 const String logFile = 'mobileraker.log';
 
 void setupLogger() {
-  Logger.level = Level.info;
+  Logger.level = Level.debug;
   memoryOutput = MemoryOutput(bufferSize: 200, secondOutput: ConsoleOutput());
   logger = Logger(
     printer: PrettyPrinter(methodCount: 0, noBoxingByDefault: true),

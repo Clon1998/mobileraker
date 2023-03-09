@@ -6,11 +6,8 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
-import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/util/misc.dart';
-import 'package:uuid/uuid.dart';
 import 'package:web_socket_channel/io.dart';
 
 enum ClientState { disconnected, connecting, connected, error }
@@ -107,7 +104,6 @@ class JsonRpcClient {
   Exception? errorReason;
 
   bool get hasError => errorReason != null;
-
 
   bool _disposed = false;
 
@@ -365,6 +361,7 @@ class JsonRpcClient {
   }
 
   _onChannelError(error) async {
+    logger.w('Got channel error $error');
     // Here we figure out exactly what is the problem!
     var httpUri = uri.replace(
       scheme: uri.isScheme("wss") ? "https" : "http",
@@ -374,16 +371,17 @@ class JsonRpcClient {
       logger.w('Sending to $httpUri');
       var request = await httpClient.openUrl("GET", httpUri);
 
-      if (uri.userInfo != null && uri.userInfo.isNotEmpty) {
+      if (uri.userInfo.isNotEmpty) {
         // If the URL contains user information use that for basic
         // authorization.
         String auth = base64Encode(utf8.encode(uri.userInfo));
         request.headers.set(HttpHeaders.authorizationHeader, "Basic $auth");
       }
-      HttpClientResponse response = await request.close();
+      HttpClientResponse response =
+          await request.close().timeout(const Duration(seconds: 5));
       logger.wtf('Got Response: ${response.statusCode}');
       verifyHttpResponseCodes(response.statusCode, clientType);
-      openChannel();// If no exception was thrown, we just try again!
+      openChannel(); // If no exception was thrown, we just try again!
     } catch (e) {
       _updateError(e);
     }
@@ -397,8 +395,6 @@ class JsonRpcClient {
   }
 
   dispose() {
-    logger
-        .w('JSON_RPC_DISPOSED+${identityHashCode(this)} - $clientType - $uri');
     _disposed = true;
     _channelSub?.cancel();
     _requestsBlocking.forEach((key, value) => value.completeError(Future.error(
