@@ -59,10 +59,10 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
         ),
         body: MobileScanner(
             controller: cameraController,
-            onDetect: (barcode, args) {
+            onDetect: (barcode) {
               if (hasBacorde.value) return;
               hasBacorde.value = true;
-              Navigator.of(context).pop(barcode.rawValue);
+              Navigator.of(context).pop(barcode.barcodes.first);
             }));
   }
 

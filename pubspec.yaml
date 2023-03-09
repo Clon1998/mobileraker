@@ -38,8 +38,8 @@ dependencies:
   #architecture
   freezed_annotation: ^2.1.0
   flutter_hooks: ^0.18.0
-  hooks_riverpod: ^2.3.0
-  riverpod_annotation: ^2.0.0
+  hooks_riverpod: ^2.3.1
+  riverpod_annotation: ^2.0.1
 
   #routing
   go_router: 5.0.3
@@ -107,7 +107,7 @@ dependencies:
   fl_chart: ^0.55.2
   flutter_slidable: ^2.0.0
   code_text_field: ^1.0.2
-  mobile_scanner: ^2.0.0
+  mobile_scanner: ^3.0.0
   touchable: ^1.0.2
 
 
