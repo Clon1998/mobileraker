@@ -96,7 +96,7 @@ dependencies:
   pull_to_refresh_flutter3: ^2.0.1
   animated_bottom_navigation_bar: ^1.2.0
   animations: ^2.0.5
-  flip_card: ^0.6.0
+  flip_card: ^0.7.0
   flutter_breadcrumb: ^1.0.1
   cached_network_image: ^3.2.0
   shimmer: ^2.0.0
