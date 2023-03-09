@@ -92,9 +92,7 @@ class JsonRpcClient {
     this.clientType = ClientType.local,
   })  : timeout = timeout ?? const Duration(seconds: 3),
         assert(['ws', 'wss'].contains(uri.scheme),
-            'Scheme of provided URI must be WS or WSS!') {
-    logger.w('Created client, ${identityHashCode(this)} - $clientType - $uri');
-  }
+            'Scheme of provided URI must be WS or WSS!');
 
   final ClientType clientType;
 

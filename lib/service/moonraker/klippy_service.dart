@@ -16,7 +16,6 @@ part 'klippy_service.g.dart';
 
 @riverpod
 KlippyService klipperService(KlipperServiceRef ref, String machineUUID) {
-  ref.onDispose(() => logger.e('Dispo klipperServiceProvider'));
   return KlippyService(ref, machineUUID);
 }
 
@@ -28,7 +27,6 @@ Stream<KlipperInstance> klipper(KlipperRef ref, String machineUUID) {
 @riverpod
 KlippyService klipperServiceSelected(
     KlipperServiceSelectedRef ref) {
-  ref.onDispose(() => logger.e('Dispo klipperServiceProvider'));
   return ref.watch(klipperServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 }
@@ -67,8 +65,6 @@ class KlippyService {
   KlippyService(this.ref, this.ownerUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)) {
     ref.onDispose(dispose);
-    logger.e(
-        'Crated klipperServiceProvider. $ownerUUID - ${identityHashCode(_jRpcClient)} ');
 
     _jRpcClient.addMethodListener(_onNotifyKlippyReady, "notify_klippy_ready");
     _jRpcClient.addMethodListener(
@@ -140,8 +136,17 @@ class KlippyService {
 
   _onJrpcConnected() async {
     try {
-      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]);
+      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]).timeout(const Duration(seconds: 5));
     } on JRpcError catch (e, s) {
+      logger.w('Error while fetching inital KlippyObject: ${e.message}');
+
+      _current = _current.copyWith(
+          klippyConnected: false,
+          klippyState: (e.message == 'Unauthorized')
+              ? KlipperState.unauthorized
+              : KlipperState.error,
+          klippyStateMessage: e.message);
+    } on TimeoutException catch (e) {
       logger.w('Error while fetching inital KlippyObject: ${e.message}');
 
       _current = _current.copyWith(

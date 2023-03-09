@@ -57,8 +57,6 @@ PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
 @riverpod
 Stream<Printer> printer(PrinterRef ref, String machineUUID) {
   var printerService = ref.watch(printerServiceProvider(machineUUID));
-  logger.wtf(
-      'printerProvider.${identityHashCode(ref)} printerService:${identityHashCode(printerService)}, jrpc: ${printerService.jrpcHC}');
   return printerService.printerStream;
 }
 
@@ -104,8 +102,6 @@ class PrinterService {
         _machineService = ref.watch(machineServiceProvider),
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
-    logger.wtf(
-        'Creating PrinterService.$ownerUUID with Jrpc: ${identityHashCode(_jRpcClient)}');
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
@@ -143,8 +139,6 @@ class PrinterService {
   final StreamController<Printer> _printerStreamCtler = StreamController();
 
   Stream<Printer> get printerStream => _printerStreamCtler.stream;
-
-  int get jrpcHC => identityHashCode(_jRpcClient);
 
   /// This map defines how different printerObjects will be parsed
   /// For multi-word printer objects (e.g. outputs, temperature_fan...) use the prefix value
@@ -1239,7 +1233,6 @@ class PrinterService {
   }
 
   dispose() {
-    logger.e('PrinterService.$ownerUUID Dispo ${identityHashCode(this)}');
     _jRpcClient.removeMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
 
