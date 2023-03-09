@@ -94,7 +94,7 @@ dependencies:
   progress_indicators: ^1.0.0
   #  pull_to_refresh: ^2.0.0
   pull_to_refresh_flutter3: ^2.0.1
-  animated_bottom_navigation_bar: ^1.1.0
+  animated_bottom_navigation_bar: ^1.2.0
   animations: ^2.0.5
   flip_card: ^0.6.0
   flutter_breadcrumb: ^1.0.1
