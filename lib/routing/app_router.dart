@@ -56,6 +56,7 @@ final initialRouteProvider = FutureProvider.autoDispose<String>((ref) async {
 final goRouterProvider = Provider.autoDispose<GoRouter>((ref) {
   ref.keepAlive();
   return GoRouter(
+
     initialLocation: ref.watch(initialRouteProvider).valueOrFullNull!,
     debugLogDiagnostics: false,
     observers: [

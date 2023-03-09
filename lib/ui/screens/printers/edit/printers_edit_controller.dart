@@ -45,11 +45,10 @@ class PrinterEditPageController extends StateNotifier<void> {
   final MachineService _machineService;
   final SnackBarService _snackBarService;
 
-  openQrScanner() async {
-    var qr = await ref
-        .read(goRouterProvider)
-        .navigator!
+  openQrScanner(BuildContext context) async {
+    var qr = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
+    logger.wtf('QR $qr');
     if (qr != null) {
       ref
           .read(editPrinterformKeyProvider)
@@ -231,7 +230,7 @@ class PrinterEditPageController extends StateNotifier<void> {
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
         title: 'Unlink ${machine.name}?',
         body:
-        "Are you sure you want to unlink the printer ${machine.name} from OctoEverywhere?",
+            "Are you sure you want to unlink the printer ${machine.name} from OctoEverywhere?",
         confirmBtn: 'Unlink',
         confirmBtnColor: Colors.red);
 
@@ -243,7 +242,6 @@ class PrinterEditPageController extends StateNotifier<void> {
           message: '${machine.name} unlinked from OctoEverywhere!'));
       ref.read(goRouterProvider).pop();
     }
-
   }
 
   linkWithOctoeverywhere() async {

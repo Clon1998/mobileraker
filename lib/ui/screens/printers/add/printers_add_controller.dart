@@ -96,10 +96,8 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
     }
   }
 
-  openQrScanner() async {
-    var qr = await ref
-        .read(goRouterProvider)
-        .navigator!
+  openQrScanner(BuildContext context) async {
+    var qr = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr != null) {
       ref

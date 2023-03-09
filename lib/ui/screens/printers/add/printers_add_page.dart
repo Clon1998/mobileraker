@@ -55,9 +55,9 @@ class PrinterAddPage extends ConsumerWidget {
                           'pages.printer_edit.general.moonraker_api_key'.tr(),
                       suffix: IconButton(
                         icon: const Icon(Icons.qr_code_sharp),
-                        onPressed: ref
+                        onPressed: () => ref
                             .watch(printerAddViewController.notifier)
-                            .openQrScanner,
+                            .openQrScanner(context),
                       ),
                       helperText:
                           'pages.printer_edit.general.moonraker_api_desc'.tr(),
