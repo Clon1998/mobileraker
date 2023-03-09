@@ -103,7 +103,7 @@ dependencies:
   reorderables: ^0.6.0
   flutter_speed_dial: ^6.0.0
   dots_indicator: ^2.0.0
-  webview_flutter: ^3.0.2
+  webview_flutter: ^4.0.6
   fl_chart: ^0.55.2
   flutter_slidable: ^2.0.0
   code_text_field: ^1.0.2
