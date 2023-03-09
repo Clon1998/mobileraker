@@ -66,7 +66,7 @@ dependencies:
   #theme
   cupertino_icons: ^1.0.2
   flex_color_scheme: ^6.0.1
-  google_fonts: ^3.0.1
+  google_fonts: ^4.0.3
 
   #notification
   awesome_notifications: ^0.7.1
