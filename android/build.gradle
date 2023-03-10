@@ -1,9 +1,8 @@
 buildscript {
-    ext.kotlin_version = '1.8.10'
+    ext.kotlin_version = '1.6.10'
     ext.minSdkVersion   = 25                // or latest
     ext.compileSdkVersion   = 33                // or latest
     ext.targetSdkVersion    = 33                // or latest
-    ext.appCompatVersion    = '1.6.1'           // or latest
 
     repositories {
         google()
@@ -11,7 +10,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath 'com.android.tools.build:gradle:7.1.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:4.3.15'
     }
