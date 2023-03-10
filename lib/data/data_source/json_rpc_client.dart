@@ -222,7 +222,7 @@ class JsonRpcClient {
         uri.toString(),
         headers: headers,
         customClient: httpClient,
-      )
+      ).timeout(Duration(seconds: timeout.inSeconds+2))
         ..pingInterval = timeout;
 
       if (_disposed) {
