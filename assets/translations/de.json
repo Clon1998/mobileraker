@@ -304,6 +304,7 @@
     "connection_watcher": {
       "reconnect": "Neu verbinden",
       "trying_connect": "Versuche zu verbinden ...",
+      "trying_connect_remote": "Versuche zu verbinden, nutze remote Client ...",
       "server_starting": "Der Server startet ..."
     }
   },

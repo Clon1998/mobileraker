@@ -7,14 +7,15 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
 import 'package:mobileraker/ui/components/power_api_panel.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConnectionStateView extends ConsumerWidget {
@@ -79,6 +80,8 @@ class WebSocketState extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ClientState connectionState = ref.watch(connectionStateControllerProvider);
+    ClientType clientType = ref.watch(jrpcClientSelectedProvider.select((value) => value.clientType));
+
     useOnAppLifecycleStateChange(ref
         .watch(connectionStateControllerProvider.notifier)
         .onChangeAppLifecycleState);
@@ -111,16 +114,24 @@ class WebSocketState extends HookConsumerWidget {
         );
       case ClientState.connecting:
         return Center(
+          key: ValueKey(clientType),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SpinKitPulse(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
+              if (clientType == ClientType.local)
+                SpinKitPulse(
+                  size: 100,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              if (clientType == ClientType.octo)
+                SpinKitPouringHourGlassRefined(
+                  size: 100,
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
               const SizedBox(
                 height: 30,
               ),
-              FadingText(tr('components.connection_watcher.trying_connect')),
+              FadingText(tr(clientType == ClientType.local?'components.connection_watcher.trying_connect':'components.connection_watcher.trying_connect_remote')),
             ],
           ),
         );

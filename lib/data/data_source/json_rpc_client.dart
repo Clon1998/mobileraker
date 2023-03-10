@@ -158,7 +158,6 @@ class JsonRpcClient {
     if (curState != ClientState.connected &&
         curState != ClientState.connecting) {
       logger.i('[$uri] WS not connected! connecting...');
-
       return openChannel();
     }
     return true;
@@ -223,7 +222,7 @@ class JsonRpcClient {
         uri.toString(),
         headers: headers,
         customClient: httpClient,
-      ).timeout(timeout)
+      )
         ..pingInterval = timeout;
 
       if (_disposed) {
@@ -254,6 +253,7 @@ class JsonRpcClient {
 
   HttpClient _constructHttpClient() {
     HttpClient httpClient = HttpClient();
+    httpClient.connectionTimeout = timeout;
     if (trustSelfSignedCertificate) {
       // only allow self signed certificates!
       httpClient.badCertificateCallback =
@@ -362,13 +362,17 @@ class JsonRpcClient {
 
   _onChannelError(error) async {
     logger.w('Got channel error $error');
+    if (error is! WebSocketException) {
+      _updateError(error);
+      return;
+    }
     // Here we figure out exactly what is the problem!
     var httpUri = uri.replace(
       scheme: uri.isScheme("wss") ? "https" : "http",
     );
     var httpClient = _constructHttpClient();
     try {
-      logger.w('Sending to $httpUri');
+      logger.w('Sending GET to $httpUri to determine error reason');
       var request = await httpClient.openUrl("GET", httpUri);
 
       if (uri.userInfo.isNotEmpty) {
@@ -377,8 +381,7 @@ class JsonRpcClient {
         String auth = base64Encode(utf8.encode(uri.userInfo));
         request.headers.set(HttpHeaders.authorizationHeader, "Basic $auth");
       }
-      HttpClientResponse response =
-          await request.close().timeout(const Duration(seconds: 5));
+      HttpClientResponse response = await request.close();
       logger.wtf('Got Response: ${response.statusCode}');
       verifyHttpResponseCodes(response.statusCode, clientType);
       openChannel(); // If no exception was thrown, we just try again!

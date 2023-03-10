@@ -311,7 +311,8 @@
     },
     "connection_watcher": {
       "reconnect": "Reconnect",
-      "trying_connect": "Trying to connect ...",
+      "trying_connect": "Trying to connect...",
+      "trying_connect_remote": "Trying to connect using remote client...",
       "server_starting": "Server is starting..."
     }
   },
