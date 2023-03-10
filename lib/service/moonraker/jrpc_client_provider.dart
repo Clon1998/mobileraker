@@ -23,7 +23,6 @@ JsonRpcClient _jsonRpcClient(
     throw ArgumentError('Provided machine. $machineUUID, was null?');
   }
 
-  logger.wtf('_jsonRpcClient for family: ${machine.hashCode}');
   JsonRpcClient jsonRpcClient;
   if (type == ClientType.local) {
     jsonRpcClient = JsonRpcClientBuilder.fromMachine(machine).build();
@@ -42,18 +41,6 @@ JsonRpcClient _jsonRpcClient(
   //   ref.invalidate(_jsonRpcStateProvider(machineUUID));
   // });
 
-  ref.onDispose(() {
-    logger.e(
-        '_jsonRpcClient($type) - disposed - ${identityHashCode(jsonRpcClient)}');
-  });
-  ref.onAddListener(() {
-    logger.wtf(
-        '_jsonRpcClient($type)-Listner added! - ${identityHashCode(jsonRpcClient)}');
-  });
-  ref.onRemoveListener(() {
-    logger.wtf(
-        '_jsonRpcClient($type)-Listner removed! - ${identityHashCode(jsonRpcClient)}');
-  });
   return jsonRpcClient..openChannel();
 }
 
@@ -63,31 +50,19 @@ Stream<ClientState> _jsonRpcState(
   JsonRpcClient activeClient =
       ref.watch(_jsonRpcClientProvider(machineUUID, type));
 
-  logger.w(
-      '_jsonRpcStateProvider.$machineUUID created ${identityHashCode(activeClient)}');
-  ref.onDispose(() {
-    logger.w(
-        '_jsonRpcStateProvider.$machineUUID disposed ${identityHashCode(activeClient)}');
-  });
-
   return activeClient.stateStream;
 }
 
 @riverpod
 JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
-  logger.wtf('CREATING jrpcClient Provider ref:${identityHashCode(ref)}');
   var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
   if (machine == null) {
     throw MobilerakerException(
         'Machine with UUID "$machineUUID" was not found!');
   }
-  logger.wtf('Fetching local Client ref:${identityHashCode(ref)}');
   JsonRpcClient localClient = ref
       .watch(_jsonRpcClientProvider(machineUUID, ClientType.local))
     ..ensureConnection();
-
-  logger.wtf(
-      'Done fetching local Client ref:${identityHashCode(ref)} -localClient: ${identityHashCode(localClient)}');
 
   OctoEverywhere? octoEverywhere = machine.octoEverywhere;
   if (octoEverywhere == null) {
@@ -95,14 +70,12 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
         'No remote client configured... cant do handover! ref:${identityHashCode(ref)}');
     return localClient;
   }
-  logger.wtf("#1");
   // This section needs to be run if the local client provider was already present
   if (localClient.curState == ClientState.error) {
     logger.i(
         'Local client already is errored? Returning remote one... ref:${identityHashCode(ref)}');
     return ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
   }
-  logger.wtf("#2");
   // Here we register a listner that can wait for the loal client to switch to remote one!
   late ProviderSubscription sub;
   sub = ref.listen<AsyncValue<ClientState>>(
@@ -111,8 +84,6 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
     next.whenData(
       (d) async {
         if (d == ClientState.error) {
-          logger.wtf(
-              'Local client failed... trying remote one ref:${identityHashCode(ref)}');
 
           var remoteClinet =
               ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
@@ -124,8 +95,6 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
       },
     );
   });
-  logger.wtf(
-      'Returning local client! ref:${identityHashCode(ref)} localClient-${identityHashCode(localClient)}');
   return localClient;
 }
 
@@ -134,9 +103,6 @@ Stream<ClientState> jrpcClientState(
     JrpcClientStateRef ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
-  logger.wtf('jrpcClientStateProvider CREATED');
-
-  ref.onDispose(() => logger.wtf('jrpcClientStateProvider DISPOSED'));
 
   StreamController<ClientState> sc = StreamController<ClientState>();
 
