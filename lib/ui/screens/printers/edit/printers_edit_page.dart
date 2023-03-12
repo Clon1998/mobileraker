@@ -14,6 +14,7 @@ import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -107,6 +108,8 @@ class PrinterSettingScrollView extends ConsumerWidget {
             children: <Widget>[
               _SectionHeader(title: 'pages.setting.general.title'.tr()),
               FormBuilderTextField(
+                enableInteractiveSelection: true,
+                keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   labelText: 'pages.printer_edit.general.displayname'.tr(),
                 ),
@@ -114,8 +117,10 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 initialValue: machine.name,
                 validator: FormBuilderValidators.compose(
                     [FormBuilderValidators.required()]),
+                contextMenuBuilder: defaultContextMenuBuilder,
               ),
               FormBuilderTextField(
+                keyboardType: TextInputType.url,
                 decoration: InputDecoration(
                   labelText: 'pages.printer_edit.general.printer_addr'.tr(),
                   hintText: 'pages.printer_edit.general.full_url'.tr(),
@@ -129,8 +134,10 @@ class PrinterSettingScrollView extends ConsumerWidget {
                       requireProtocol: true,
                       requireTld: false)
                 ]),
+                contextMenuBuilder: defaultContextMenuBuilder,
               ),
               FormBuilderTextField(
+                keyboardType: TextInputType.url,
                 decoration: InputDecoration(
                   labelText: 'pages.printer_edit.general.ws_addr'.tr(),
                   hintText: 'pages.printer_edit.general.full_url'.tr(),
@@ -142,8 +149,10 @@ class PrinterSettingScrollView extends ConsumerWidget {
                   FormBuilderValidators.url(
                       protocols: ['ws', 'wss'], requireProtocol: true)
                 ]),
+                contextMenuBuilder: defaultContextMenuBuilder,
               ),
               FormBuilderTextField(
+                keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                     labelText:
                         'pages.printer_edit.general.moonraker_api_key'.tr(),
@@ -158,6 +167,7 @@ class PrinterSettingScrollView extends ConsumerWidget {
                     helperMaxLines: 3),
                 name: 'printerApiKey',
                 initialValue: machine.apiKey,
+                contextMenuBuilder: defaultContextMenuBuilder,
               ),
               FormBuilderCheckbox(
                 name: 'trustSelfSigned',
@@ -261,6 +271,7 @@ class _WebCamItem extends HookConsumerWidget {
             ),
             children: [
           FormBuilderTextField(
+            keyboardType: TextInputType.text,
             decoration: InputDecoration(
               labelText: 'pages.printer_edit.general.displayname'.tr(),
               suffix: IconButton(
@@ -278,8 +289,10 @@ class _WebCamItem extends HookConsumerWidget {
                 : 'pages.printer_edit.cams.new_cam'.tr()),
             validator: FormBuilderValidators.compose(
                 [FormBuilderValidators.required()]),
+            contextMenuBuilder: defaultContextMenuBuilder,
           ),
           FormBuilderTextField(
+            keyboardType: TextInputType.url,
             decoration: InputDecoration(
                 labelText: 'pages.printer_edit.cams.webcam_addr'.tr(),
                 helperText:
@@ -291,6 +304,7 @@ class _WebCamItem extends HookConsumerWidget {
               FormBuilderValidators.url(
                   protocols: ['http', 'https'], requireProtocol: true)
             ]),
+            contextMenuBuilder: defaultContextMenuBuilder,
           ),
           FormBuilderDropdown(
             name: '${cam.uuid}-mode',
@@ -767,6 +781,7 @@ class _MacroGroup extends HookConsumerWidget {
             children: [
           if (canEditName)
             FormBuilderTextField(
+              keyboardType: TextInputType.text,
               decoration: InputDecoration(
                   labelText: 'pages.printer_edit.general.displayname'.tr(),
                   suffix: IconButton(
@@ -787,6 +802,7 @@ class _MacroGroup extends HookConsumerWidget {
                 FormBuilderValidators.notEqual('Default',
                     errorText: 'Group can not be named Default')
               ]),
+              contextMenuBuilder: defaultContextMenuBuilder,
             ),
           const SizedBox(
             height: 8,
@@ -902,6 +918,7 @@ class _TempPresetItem extends HookConsumerWidget {
             ),
             children: [
           FormBuilderTextField(
+            keyboardType: TextInputType.text,
             decoration: InputDecoration(
                 labelText: 'pages.printer_edit.general.displayname'.tr(),
                 suffix: IconButton(

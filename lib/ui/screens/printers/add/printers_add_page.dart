@@ -7,6 +7,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
@@ -40,6 +41,7 @@ class PrinterAddPage extends ConsumerWidget {
               children: <Widget>[
                 _SectionHeader(title: 'pages.setting.general.title'.tr()),
                 FormBuilderTextField(
+                  keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     labelText: 'pages.printer_edit.general.displayname'.tr(),
                   ),
@@ -47,9 +49,11 @@ class PrinterAddPage extends ConsumerWidget {
                   initialValue: 'My Printer',
                   validator: FormBuilderValidators.compose(
                       [FormBuilderValidators.required()]),
+                  contextMenuBuilder: defaultContextMenuBuilder,
                 ),
                 const WSInput(),
                 FormBuilderTextField(
+                  keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                       labelText:
                           'pages.printer_edit.general.moonraker_api_key'.tr(),
@@ -63,6 +67,7 @@ class PrinterAddPage extends ConsumerWidget {
                           'pages.printer_edit.general.moonraker_api_desc'.tr(),
                       helperMaxLines: 3),
                   name: 'printerApiKey',
+                  contextMenuBuilder: defaultContextMenuBuilder,
                 ),
                 const Divider(),
                 _SectionHeader(title: 'pages.printer_add.misc'.tr()),
@@ -191,6 +196,7 @@ class WSInput extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var wsUrl = useState('');
     return FormBuilderTextField(
+      keyboardType: TextInputType.url,
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.general.printer_addr'.tr(),
           hintText: 'pages.printer_add.printer_add_helper'.tr(),
@@ -223,6 +229,7 @@ class WSInput extends HookConsumerWidget {
         FormBuilderValidators.required(),
         FormBuilderValidators.url(protocols: ['ws', 'wss', 'http', 'https'])
       ]),
+      contextMenuBuilder: defaultContextMenuBuilder,
     );
   }
 }
