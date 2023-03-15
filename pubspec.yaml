@@ -38,8 +38,8 @@ dependencies:
   #architecture
   freezed_annotation: ^2.1.0
   flutter_hooks: ^0.18.0
-  hooks_riverpod: ^2.3.1
-  riverpod_annotation: ^2.0.1
+  hooks_riverpod: ^2.3.2
+  riverpod_annotation: ^2.0.2
 
   #routing
   go_router: ^6.2.0
@@ -124,9 +124,9 @@ dev_dependencies:
   freezed: ^2.2.1
   mockito: ^5.3.2
   json_serializable: ^6.4.1
-  riverpod_generator: ^2.1.2
+  riverpod_generator: ^2.1.4
   # riverpod_lint makes it easier to work with Riverpod
-  riverpod_lint: ^1.1.3
+  riverpod_lint: ^1.1.6
   # import custom_lint too as riverpod_lint depends on it
   custom_lint: ^0.3.2
 
