@@ -1,6 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
@@ -20,6 +19,9 @@ import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'app_router.g.dart';
 
 enum AppRoute {
   dashBoard,
@@ -37,7 +39,8 @@ enum AppRoute {
   dev
 }
 
-final initialRouteProvider = FutureProvider.autoDispose<String>((ref) async {
+@riverpod
+Future<String> initialRoute(InitialRouteRef ref) async {
   ref.keepAlive();
   SettingService settingService = ref.watch(settingServiceProvider);
 
@@ -51,12 +54,12 @@ final initialRouteProvider = FutureProvider.autoDispose<String>((ref) async {
     return '/overview';
   }
   return '/';
-});
+}
 
-final goRouterProvider = Provider.autoDispose<GoRouter>((ref) {
+@riverpod
+GoRouter goRouter(GoRouterRef ref) {
   ref.keepAlive();
   return GoRouter(
-
     initialLocation: ref.watch(initialRouteProvider).valueOrFullNull!,
     debugLogDiagnostics: false,
     observers: [
@@ -182,4 +185,4 @@ final goRouterProvider = Provider.autoDispose<GoRouter>((ref) {
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),
   );
-}, dependencies: [initialRouteProvider]);
+}

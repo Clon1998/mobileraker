@@ -5,15 +5,19 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final selectedMachineServiceProvider = Provider((ref) {
+part 'selected_machine_service.g.dart';
+
+@riverpod
+SelectedMachineService selectedMachineService(SelectedMachineServiceRef ref) {
   return SelectedMachineService(ref);
-}, name: 'selectedMachineServiceProvider');
+}
 
-final selectedMachineProvider =
-    StreamProvider<Machine?>(name: 'selectedMachineProvider', (ref) {
+@riverpod
+Stream<Machine?> selectedMachine(SelectedMachineRef ref) {
   return ref.watch(selectedMachineServiceProvider).selectedMachine;
-});
+}
 
 /// Service handling currently selected machine!
 class SelectedMachineService {

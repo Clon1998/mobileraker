@@ -6,9 +6,14 @@ import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final configFileProvider =
-Provider.autoDispose<RemoteFile>((ref) => throw UnimplementedError());
+part 'config_file_details_controller.g.dart';
+
+
+
+@riverpod
+RemoteFile configFile(ConfigFileRef ref) => throw UnimplementedError();
 
 final configFileDetailsControllerProvider = StateNotifierProvider.autoDispose<
     ConfigFileDetailsController,

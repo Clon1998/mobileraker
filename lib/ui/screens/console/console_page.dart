@@ -274,7 +274,7 @@ class _Console extends ConsumerWidget {
                     color: themeData.colorScheme.onBackground),
                 idleText: tr('components.pull_to_refresh.pull_up_idle'),
               ),
-              controller: ref.watch(consoleRefreshController),
+              controller: ref.watch(consoleRefreshControllerProvider),
               onRefresh: () => ref.refresh(consoleListControllerProvider),
               child: ListView.builder(
                   reverse: true,

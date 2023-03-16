@@ -1,6 +1,9 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final analyticsProvider = Provider<FirebaseAnalytics>((ref) {
+part 'analytics.g.dart';
+
+@Riverpod(keepAlive: true)
+FirebaseAnalytics analytics(AnalyticsRef ref) {
   return FirebaseAnalytics.instance;
-});
+}

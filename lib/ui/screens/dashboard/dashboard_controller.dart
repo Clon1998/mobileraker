@@ -5,27 +5,28 @@ import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+
+part 'dashboard_controller.g.dart';
 
 final pageControllerProvider = Provider.autoDispose<PageController>((ref) {
   return PageController();
 });
 
-final machinePrinterKlippySettingsProvider =
-    StreamProvider.autoDispose<PrinterKlippySettingsMachineWrapper>(
-        name: 'machinePrinterKlippySettingsProvider', (ref) async* {
+@riverpod
+Stream<PrinterKlippySettingsMachineWrapper> machinePrinterKlippySettings(
+    MachinePrinterKlippySettingsRef ref) async* {
   var selMachine = await ref.watch(selectedMachineProvider.future);
-  if (selMachine == null){
+  if (selMachine == null) {
     return;
   }
-
 
   var klippy = ref.watchAsSubject(klipperProvider(selMachine.uuid));
   var printer = ref.watchAsSubject(printerProvider(selMachine.uuid));
@@ -43,7 +44,7 @@ final machinePrinterKlippySettingsProvider =
               settings: c,
               machine: selMachine,
               clientType: clientType));
-});
+}
 
 class PrinterKlippySettingsMachineWrapper {
   const PrinterKlippySettingsMachineWrapper(

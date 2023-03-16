@@ -1,14 +1,18 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'machine_settings_repository.dart';
 
-final machineSettingsRepositoryProvider =
-    Provider.autoDispose.family<MachineSettingsRepository, String>((ref, machineUUID) {
+part 'machine_settings_moonraker_repository.g.dart';
+
+@riverpod
+MachineSettingsRepository machineSettingsRepository(
+    MachineSettingsRepositoryRef ref, String machineUUID) {
   return MachineSettingsMoonrakerRepository(
       ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
-});
+}
 
 class MachineSettingsMoonrakerRepository implements MachineSettingsRepository {
   MachineSettingsMoonrakerRepository(this._databaseService);

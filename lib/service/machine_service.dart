@@ -30,40 +30,38 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'setting_service.dart';
 
-final machineServiceProvider = Provider.autoDispose<MachineService>((ref) {
+part 'machine_service.g.dart';
+
+@riverpod
+MachineService machineService(MachineServiceRef ref) {
   ref.keepAlive();
   return MachineService(ref);
-}, name: 'machineServiceProvider');
+}
 
-final machineProvider =
-    FutureProvider.autoDispose.family<Machine?, String>((ref, uuid) async {
-  var repo = ref.watch(machineRepositoryProvider);
+@riverpod
+Future<Machine?> machine(MachineRef ref, String uuid) async {
   ref.keepAlive();
-
   ref.onDispose(() => logger.e('machineProvider disposed $uuid'));
+
   logger.e('machineProvider creation STARTED $uuid');
-  var future = await repo.get(uuid: uuid);
+  var future = await ref.watch(machineRepositoryProvider).get(uuid: uuid);
   logger.e('machineProvider creation DONE $uuid');
-
   return future;
-}, name: 'machineProvider');
+}
 
-final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>((ref) {
+@riverpod
+Future<List<Machine>> allMachines(AllMachinesRef ref) async {
   return ref.watch(machineServiceProvider).fetchAll();
-}, name: 'allMachinesProvider');
+}
 
-final selectedMachineSettingsProvider =
-    FutureProvider.autoDispose<MachineSettings>((ref) async {
-  //TODO: This leaks and is not that eefficient!
-  var machine = await ref
-      .watch(selectedMachineProvider.future)
-      .asStream()
-      .whereNotNull()
-      .first;
+@riverpod
+Future<MachineSettings> selectedMachineSettings(
+    SelectedMachineSettingsRef ref) async {
+  var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
   await ref.watchWhere<KlipperInstance>(
       klipperSelectedProvider, (c) => c.klippyState == KlipperState.ready);
@@ -71,7 +69,7 @@ final selectedMachineSettingsProvider =
       await ref.watch(machineServiceProvider).fetchSettings(machine);
   ref.keepAlive();
   return fetchSettings;
-}, name: 'selectedMachineSettingsProvider');
+}
 
 /// Service handling the management of a machine
 class MachineService {

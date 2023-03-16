@@ -1,5 +1,7 @@
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'setting_service.g.dart';
 
 const String emsKey = 'ems_setting';
 const String showBabyAlwaysKey = 'always_babystepping_setting';
@@ -16,7 +18,10 @@ const String requestedNotifyPermission = 'reqNotifyPerm';
 const String selectedFileSortKey = 'selFileSrt';
 const String recentColorsKey = 'selectedColors';
 
-final settingServiceProvider = Provider((ref) => SettingService());
+@riverpod
+SettingService settingService(SettingServiceRef ref) {
+  return SettingService();
+}
 
 /// Settings related to the App!
 class SettingService {

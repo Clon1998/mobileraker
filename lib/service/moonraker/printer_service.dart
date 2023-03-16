@@ -57,16 +57,21 @@ PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
 @riverpod
 Stream<Printer> printer(PrinterRef ref, String machineUUID) {
   var printerService = ref.watch(printerServiceProvider(machineUUID));
+  ref.onDispose(() {
+    logger.w('-DISPOSED $machineUUID. PRINTER Stream');
+  });
   return printerService.printerStream;
 }
 
-
 @riverpod
 PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
+  ref.onDispose(() {
+    logger.w('-DISPOSED printerServiceSelected');
+  });
+
   return ref.watch(printerServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 }
-
 
 @riverpod
 Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
@@ -75,26 +80,26 @@ Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
 
     StreamController<Printer> sc = StreamController<Printer>();
     ref.onDispose(() {
+      logger.w('-DISPOSED printerSelected');
       if (!sc.isClosed) {
         sc.close();
       }
     });
     ref.listen<AsyncValue<Printer>>(printerProvider(machine.uuid),
-            (previous, next) {
-          next.when(
-              data: (data) => sc.add(data),
-              error: (err, st) => sc.addError(err, st),
-              loading: () {
-                if (previous != null) ref.invalidateSelf();
-              });
-        }, fireImmediately: true);
+        (previous, next) {
+      next.when(
+          data: (data) => sc.add(data),
+          error: (err, st) => sc.addError(err, st),
+          loading: () {
+            if (previous != null) ref.invalidateSelf();
+          });
+    }, fireImmediately: true);
 
     yield* sc.stream;
   } on StateError catch (_) {
     // Just catch it. It is expected that the future/where might not complete!
   }
 }
-
 
 class PrinterService {
   PrinterService(AutoDisposeRef ref, this.ownerUUID)

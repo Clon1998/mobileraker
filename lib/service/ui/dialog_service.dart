@@ -13,8 +13,13 @@ import 'package:mobileraker/ui/components/dialog/logger_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/macro_params/macro_params_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final dialogServiceProvider = Provider((ref) => DialogService(ref));
+part 'dialog_service.g.dart';
+
+@Riverpod(keepAlive: true)
+DialogService dialogService(DialogServiceRef ref) => DialogService(ref);
+
 
 enum DialogType {
   info,
@@ -35,7 +40,7 @@ typedef DialogCompleter = Function(DialogResponse);
 class DialogService {
   DialogService(this.ref);
 
-  final Ref ref;
+  final DialogServiceRef ref;
 
   final Map<DialogType, Widget Function(DialogRequest, DialogCompleter)>
       availableDialogs = {

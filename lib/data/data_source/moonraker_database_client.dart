@@ -4,13 +4,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'json_rpc_client.dart';
 
-final moonrakerDatabaseClientProvider = Provider.autoDispose
-    .family<MoonrakerDatabaseClient, String>(
-        (ref, machineUUID) => MoonrakerDatabaseClient(ref, machineUUID),
-        name: 'moonrakerDatabaseClientProvider');
+part 'moonraker_database_client.g.dart';
+
+@riverpod
+MoonrakerDatabaseClient moonrakerDatabaseClient(
+        MoonrakerDatabaseClientRef ref, String machineUUID) =>
+    MoonrakerDatabaseClient(ref, machineUUID);
 
 /// The DatabaseService handles interacts with moonrakers database!
 class MoonrakerDatabaseClient {
@@ -48,7 +51,7 @@ class MoonrakerDatabaseClient {
       RpcResponse blockingResponse = await _jsonRpcClient
           .sendJRpcMethod("server.database.get_item", params: params);
 
-        return blockingResponse.result['value'];
+      return blockingResponse.result['value'];
     } on JRpcError catch (e, s) {
       logger.w("Could not retrieve key: $key", e, StackTrace.current);
     }
@@ -65,14 +68,13 @@ class MoonrakerDatabaseClient {
           "server.database.post_item",
           params: {"namespace": namespace, "key": key, "value": value});
 
-        dynamic resultValue = blockingResponse.result['value'];
-        if (resultValue is List) return resultValue.cast<T>();
-        if (resultValue is T) {
-          return resultValue;
-        } else {
-          return resultValue;
-        }
-
+      dynamic resultValue = blockingResponse.result['value'];
+      if (resultValue is List) return resultValue.cast<T>();
+      if (resultValue is T) {
+        return resultValue;
+      } else {
+        return resultValue;
+      }
     } on JRpcError catch (e) {
       logger.e('Error while adding to Moonraker-DB: $e', e);
     }
@@ -88,7 +90,7 @@ class MoonrakerDatabaseClient {
           "server.database.delete_item",
           params: {"namespace": namespace, "key": key});
 
-        return blockingResponse.result['value'];
+      return blockingResponse.result['value'];
     } on JRpcError catch (e) {
       logger.e('Error while deleting item: $e', e);
     }

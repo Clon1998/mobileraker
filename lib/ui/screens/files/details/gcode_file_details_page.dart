@@ -17,8 +17,10 @@ class GCodeFileDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-      overrides: [gcodeProvider.overrideWithValue(gcodeFile)
-      ,gcodeFileDetailsControllerProvider],
+      overrides: [
+        gcodeProvider.overrideWithValue(gcodeFile),
+        gCodeFileDetailsControllerProvider
+      ],
       child: const _GCodeFileDetailPage(),
     );
   }
@@ -98,8 +100,7 @@ class _GCodeFileDetailPage extends ConsumerWidget {
                               const Icon(Icons.insert_drive_file),
                           errorWidget: (context, url, error) => Column(
                             children: [
-                              const Expanded(
-                                  child: Icon(Icons.file_present)),
+                              const Expanded(child: Icon(Icons.file_present)),
                               Container(
                                   width: double.infinity,
                                   padding: const EdgeInsets.symmetric(
@@ -275,7 +276,7 @@ class Fab extends ConsumerWidget {
       backgroundColor: (canStartPrint) ? null : Theme.of(context).disabledColor,
       onPressed: (canStartPrint)
           ? ref
-              .watch(gcodeFileDetailsControllerProvider.notifier)
+              .watch(gCodeFileDetailsControllerProvider.notifier)
               .onStartPrintTap
           : null,
       icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
@@ -295,7 +296,7 @@ class PreHeatBtn extends ConsumerWidget {
       onPressed: ref.watch(gcodeProvider).firstLayerTempBed != null &&
               ref.watch(canStartPrintProvider)
           ? ref
-              .watch(gcodeFileDetailsControllerProvider.notifier)
+              .watch(gCodeFileDetailsControllerProvider.notifier)
               .onPreHeatPrinterTap
           : null,
       icon: const Icon(

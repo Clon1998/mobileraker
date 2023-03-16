@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'bottom_sheet_service.g.dart';
 
 enum SheetType { nonPrintingMenu }
 
-final bottomSheetServiceProvider = Provider((ref) => BottomSheetService(ref));
+@riverpod
+BottomSheetService bottomSheetService(BottomSheetServiceRef ref) => BottomSheetService(ref);
 
 class BottomSheetService {
   BottomSheetService(this.ref);

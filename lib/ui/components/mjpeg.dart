@@ -21,9 +21,8 @@ part 'mjpeg.g.dart';
 typedef StreamConnectedBuilder = Widget Function(
     BuildContext context, Widget imageTransformed);
 
-final _mjpegConfigProvider = Provider.autoDispose<MjpegConfig>(
-    (ref) => throw UnimplementedError(),
-    name: 'mjpegConfigProvider');
+@riverpod
+MjpegConfig _mjpegConfig(_MjpegConfigRef ref) => throw UnimplementedError();
 
 @riverpod
 _MjpegManager _mjpegManager(_MjpegManagerRef ref) {
