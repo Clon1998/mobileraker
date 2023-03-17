@@ -160,8 +160,7 @@ class NotificationService {
         onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
         onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
         licenseKeys: [AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
-
-    await _notifyFCM.requestFirebaseAppToken();
+    await fetchCurrentFcmToken();
   }
 
   Future<void> updatePrintStateOnce() async {
@@ -209,7 +208,8 @@ class NotificationService {
     return prog - prog % m;
   }
 
-  Future<String> fetchCurrentFcmToken() {
+  Future<String> fetchCurrentFcmToken() async {
+    await _notifyFCM.isFirebaseAvailable;
     return _notifyFCM.requestFirebaseAppToken();
   }
 
@@ -359,8 +359,7 @@ class NotificationService {
   }
 
   void _setupFCMOnPrinterOnceConnected(Machine machine) async {
-    String fcmToken = await _notifyFCM
-        .requestFirebaseAppToken(); // TODO: Extract to seperate provider
+    String fcmToken = await fetchCurrentFcmToken();// TODO: Extract to seperate provider
     logger.i('Device\'s FCM token: $fcmToken');
 
     // Wait until connected

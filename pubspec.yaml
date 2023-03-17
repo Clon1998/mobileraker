@@ -31,9 +31,9 @@ dependencies:
   http: ^0.13.4
 
   #firebase
-  firebase_core: ^2.8.0
-  firebase_analytics: ^10.1.6
-  firebase_app_check: ^0.1.1+14
+  firebase_core: <2.8.0
+  firebase_analytics: ^10.0.3
+  firebase_app_check: ^0.1.1+2
 
   #architecture
   freezed_annotation: ^2.1.0
