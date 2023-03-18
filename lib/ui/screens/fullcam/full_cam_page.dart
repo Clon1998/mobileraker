@@ -23,10 +23,10 @@ class FullCamPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(selectedCamIndexProvider.notifier).state = initialCam;
     return ProviderScope(
       overrides: [
         camMachineProvider.overrideWithValue(machine),
+        selectedCamIndexProvider.overrideWith((ref) => initialCam)
       ],
       child: const _FullCamView(),
     );
