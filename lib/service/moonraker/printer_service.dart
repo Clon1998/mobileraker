@@ -56,11 +56,8 @@ PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
 
 @riverpod
 Stream<Printer> printer(PrinterRef ref, String machineUUID) {
-  var printerService = ref.watch(printerServiceProvider(machineUUID));
-  ref.onDispose(() {
-    logger.w('-DISPOSED $machineUUID. PRINTER Stream');
-  });
-  return printerService.printerStream;
+  ref.keepAlive();
+  return ref.watch(printerServiceProvider(machineUUID)).printerStream;
 }
 
 @riverpod
