@@ -45,6 +45,7 @@ class Mjpeg extends ConsumerWidget {
     this.width,
     this.height,
     this.showFps = false,
+    this.landscape = true,
     this.imageBuilder,
   }) : super(key: key);
 
@@ -53,12 +54,14 @@ class Mjpeg extends ConsumerWidget {
   final BoxFit? fit;
   final double? width;
   final double? height;
+  final bool landscape; // True -> Landscape, False -> Portrait mode
   final bool showFps;
   final StreamConnectedBuilder? imageBuilder;
   final MjpegConfig config;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    logger.wtf('asdasdasd $landscape');
     return ProviderScope(
       overrides: [
         _mjpegConfigProvider.overrideWithValue(config),
@@ -68,6 +71,7 @@ class Mjpeg extends ConsumerWidget {
       child: _Mjpeg(
         stackChild: stackChild,
         showFps: showFps,
+        landscape: landscape,
         transform: transform,
         fit: fit,
         width: width,
@@ -83,6 +87,7 @@ class _Mjpeg extends ConsumerWidget {
     Key? key,
     required this.stackChild,
     required this.showFps,
+    required this.landscape,
     this.transform,
     this.fit,
     this.width,
@@ -96,6 +101,7 @@ class _Mjpeg extends ConsumerWidget {
   final double? width;
   final double? height;
   final bool showFps;
+  final bool landscape;
   final StreamConnectedBuilder? imageBuilder;
 
   @override
@@ -143,6 +149,7 @@ class _Mjpeg extends ConsumerWidget {
 
     Widget img = _TransformedImage(
       transform: transform,
+      landscape: landscape,
       fit: fit,
       width: width,
       height: height,
@@ -196,12 +203,14 @@ class _FPSDisplay extends ConsumerWidget {
 class _TransformedImage extends ConsumerWidget {
   const _TransformedImage({
     Key? key,
+    this.landscape = true,
     this.transform,
     this.fit,
     this.width,
     this.height,
   }) : super(key: key);
 
+  final bool landscape;
   final Matrix4? transform;
   final BoxFit? fit;
   final double? width;
@@ -227,7 +236,12 @@ class _TransformedImage extends ConsumerWidget {
                   child: img,
                 );
               }
-              return img;
+              if (landscape) return img;
+
+              return RotatedBox(
+                quarterTurns: 1,
+                child: img,
+              );
             },
             orElse: () => const SizedBox.shrink());
   }

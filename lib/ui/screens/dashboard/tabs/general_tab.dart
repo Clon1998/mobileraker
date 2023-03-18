@@ -19,6 +19,7 @@ import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/logger.dart';
@@ -407,6 +408,7 @@ class CamCard extends ConsumerWidget {
                   targetFps: selectedCam.targetFps,
                   mode: selectedCam.mode,
                   httpHeader: headers),
+              landscape: selectedCam.rotate == WebCamRotation.landscape,
               transform: selectedCam.transformMatrix,
               showFps: true,
               stackChild: [

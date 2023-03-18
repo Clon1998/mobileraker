@@ -10,6 +10,7 @@ import 'package:mobileraker/data/dto/config/config_extruder.dart';
 import 'package:mobileraker/data/dto/config/config_heater_bed.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
@@ -340,6 +341,21 @@ class _WebCamItem extends HookConsumerWidget {
               keyboardType: const TextInputType.numberWithOptions(
                   signed: false, decimal: false),
             ),
+          FormBuilderDropdown(
+            decoration: InputDecoration(
+              labelText: 'pages.printer_edit.cams.cam_rotate.label'.tr(),
+            ),
+            name: '${cam.uuid}-rotate',
+            initialValue: cam.rotate,
+            items:
+              WebCamRotation.values.map((e) =>
+                  DropdownMenuItem(
+                    value: e,
+                    child:
+                    Text('pages.printer_edit.cams.cam_rotate.${e.name}').tr(),
+                  )
+              ).toList(growable: false)
+          ),
           FormBuilderSwitch(
             title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
             decoration: const InputDecoration(border: InputBorder.none),
@@ -423,123 +439,120 @@ class RemoteSettings extends ConsumerWidget {
         ...ref.watch(remoteMachineSettingProvider).when(
             data: (machineSettings) {
               return [
-                  _SectionHeader(
-                      title: 'pages.printer_edit.motion_system.title'.tr()),
-                  FormBuilderSwitch(
-                    name: 'invertX',
-                    initialValue: machineSettings.inverts[0],
+                _SectionHeader(
+                    title: 'pages.printer_edit.motion_system.title'.tr()),
+                FormBuilderSwitch(
+                  name: 'invertX',
+                  initialValue: machineSettings.inverts[0],
+                  title: const Text('pages.printer_edit.motion_system.invert_x')
+                      .tr(),
+                  decoration: const InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'invertY',
+                  initialValue: machineSettings.inverts[1],
+                  title: const Text('pages.printer_edit.motion_system.invert_y')
+                      .tr(),
+                  decoration: const InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'invertZ',
+                  initialValue: machineSettings.inverts[2],
+                  title: const Text('pages.printer_edit.motion_system.invert_z')
+                      .tr(),
+                  decoration: const InputDecoration(
+                      border: InputBorder.none, isCollapsed: true),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderTextField(
+                  name: 'speedXY',
+                  initialValue: machineSettings.speedXY.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText:
+                          'pages.printer_edit.motion_system.speed_xy'.tr(),
+                      suffixText: 'mm/s',
+                      isDense: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1)
+                  ]),
+                ),
+                FormBuilderTextField(
+                  name: 'speedZ',
+                  initialValue: machineSettings.speedZ.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText:
+                          'pages.printer_edit.motion_system.speed_z'.tr(),
+                      suffixText: 'mm/s',
+                      isDense: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1)
+                  ]),
+                ),
+                const MoveStepSegmentInput(),
+                const BabyStepSegmentInput(),
+                const Divider(),
+                _SectionHeader(
+                    title: 'pages.printer_edit.extruders.title'.tr()),
+                FormBuilderTextField(
+                  name: 'extrudeSpeed',
+                  initialValue: machineSettings.extrudeFeedrate.toString(),
+                  valueTransformer: (text) =>
+                      (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                      labelText: 'pages.printer_edit.extruders.feedrate'.tr(),
+                      suffixText: 'mm/s',
+                      isDense: true),
+                  keyboardType: const TextInputType.numberWithOptions(
+                      signed: false, decimal: false),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1)
+                  ]),
+                ),
+                const ExtruderStepSegmentInput(),
+                const Divider(),
+                _SectionHeaderWithAction(
+                    title: 'pages.dashboard.control.macro_card.title'.tr(),
+                    action: TextButton.icon(
+                      onPressed: isSaving
+                          ? null
+                          : ref
+                              .read(macroGroupListControllerProvider.notifier)
+                              .addNewMacroGroup,
+                      label: const Text('general.add').tr(),
+                      icon: const Icon(Icons.source_outlined),
+                    )),
+                const MacroGroupList(),
+                const Divider(),
+                _SectionHeaderWithAction(
                     title:
-                        const Text('pages.printer_edit.motion_system.invert_x')
-                            .tr(),
-                    decoration: const InputDecoration(
-                        border: InputBorder.none, isCollapsed: true),
-                    activeColor: themeData.colorScheme.primary,
-                  ),
-                  FormBuilderSwitch(
-                    name: 'invertY',
-                    initialValue: machineSettings.inverts[1],
-                    title:
-                        const Text('pages.printer_edit.motion_system.invert_y')
-                            .tr(),
-                    decoration: const InputDecoration(
-                        border: InputBorder.none, isCollapsed: true),
-                    activeColor: themeData.colorScheme.primary,
-                  ),
-                  FormBuilderSwitch(
-                    name: 'invertZ',
-                    initialValue: machineSettings.inverts[2],
-                    title:
-                        const Text('pages.printer_edit.motion_system.invert_z')
-                            .tr(),
-                    decoration: const InputDecoration(
-                        border: InputBorder.none, isCollapsed: true),
-                    activeColor: themeData.colorScheme.primary,
-                  ),
-                  FormBuilderTextField(
-                    name: 'speedXY',
-                    initialValue: machineSettings.speedXY.toString(),
-                    valueTransformer: (text) =>
-                        (text != null) ? int.tryParse(text) : 0,
-                    decoration: InputDecoration(
-                        labelText:
-                            'pages.printer_edit.motion_system.speed_xy'.tr(),
-                        suffixText: 'mm/s',
-                        isDense: true),
-                    keyboardType: const TextInputType.numberWithOptions(
-                        signed: false, decimal: false),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(),
-                      FormBuilderValidators.min(1)
-                    ]),
-                  ),
-                  FormBuilderTextField(
-                    name: 'speedZ',
-                    initialValue: machineSettings.speedZ.toString(),
-                    valueTransformer: (text) =>
-                        (text != null) ? int.tryParse(text) : 0,
-                    decoration: InputDecoration(
-                        labelText:
-                            'pages.printer_edit.motion_system.speed_z'.tr(),
-                        suffixText: 'mm/s',
-                        isDense: true),
-                    keyboardType: const TextInputType.numberWithOptions(
-                        signed: false, decimal: false),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(),
-                      FormBuilderValidators.min(1)
-                    ]),
-                  ),
-                  const MoveStepSegmentInput(),
-                  const BabyStepSegmentInput(),
-                  const Divider(),
-                  _SectionHeader(
-                      title: 'pages.printer_edit.extruders.title'.tr()),
-                  FormBuilderTextField(
-                    name: 'extrudeSpeed',
-                    initialValue: machineSettings.extrudeFeedrate.toString(),
-                    valueTransformer: (text) =>
-                        (text != null) ? int.tryParse(text) : 0,
-                    decoration: InputDecoration(
-                        labelText: 'pages.printer_edit.extruders.feedrate'.tr(),
-                        suffixText: 'mm/s',
-                        isDense: true),
-                    keyboardType: const TextInputType.numberWithOptions(
-                        signed: false, decimal: false),
-                    validator: FormBuilderValidators.compose([
-                      FormBuilderValidators.required(),
-                      FormBuilderValidators.min(1)
-                    ]),
-                  ),
-                  const ExtruderStepSegmentInput(),
-                  const Divider(),
-                  _SectionHeaderWithAction(
-                      title: 'pages.dashboard.control.macro_card.title'.tr(),
-                      action: TextButton.icon(
-                        onPressed: isSaving
-                            ? null
-                            : ref
-                                .read(macroGroupListControllerProvider.notifier)
-                                .addNewMacroGroup,
-                        label: const Text('general.add').tr(),
-                        icon: const Icon(Icons.source_outlined),
-                      )),
-                  const MacroGroupList(),
-                  const Divider(),
-                  _SectionHeaderWithAction(
-                      title:
-                          'pages.dashboard.general.temp_card.temp_presets'.tr(),
-                      action: TextButton.icon(
-                        onPressed: isSaving
-                            ? null
-                            : ref
-                                .watch(temperaturePresetListControllerProvider
-                                    .notifier)
-                                .addNewTemperaturePreset,
-                        label: const Text('general.add').tr(),
-                        icon: const Icon(FlutterIcons.thermometer_lines_mco),
-                      )),
-                  const TemperaturePresetList(),
-                ];
+                        'pages.dashboard.general.temp_card.temp_presets'.tr(),
+                    action: TextButton.icon(
+                      onPressed: isSaving
+                          ? null
+                          : ref
+                              .watch(temperaturePresetListControllerProvider
+                                  .notifier)
+                              .addNewTemperaturePreset,
+                      label: const Text('general.add').tr(),
+                      icon: const Icon(FlutterIcons.thermometer_lines_mco),
+                    )),
+                const TemperaturePresetList(),
+              ];
             },
             error: (e, s) => [
                   ListTile(
@@ -592,12 +605,9 @@ class MoveStepSegmentInput extends ConsumerWidget {
           .watch(moveStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
           .toList(growable: false),
-      onAdd: isSaving
-          ? null
-          : ref.read(moveStepStateProvider.notifier).onAdd,
-      onSelected: isSaving
-          ? null
-          : ref.read(moveStepStateProvider.notifier).onSelected,
+      onAdd: isSaving ? null : ref.read(moveStepStateProvider.notifier).onAdd,
+      onSelected:
+          isSaving ? null : ref.read(moveStepStateProvider.notifier).onSelected,
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(),
         FormBuilderValidators.numeric(),
@@ -626,12 +636,9 @@ class BabyStepSegmentInput extends ConsumerWidget {
           .watch(babyStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
           .toList(growable: false),
-      onAdd: isSaving
-          ? null
-          : ref.read(babyStepStateProvider.notifier).onAdd,
-      onSelected: isSaving
-          ? null
-          : ref.read(babyStepStateProvider.notifier).onSelected,
+      onAdd: isSaving ? null : ref.read(babyStepStateProvider.notifier).onAdd,
+      onSelected:
+          isSaving ? null : ref.read(babyStepStateProvider.notifier).onSelected,
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(),
         FormBuilderValidators.numeric(),
@@ -659,9 +666,8 @@ class ExtruderStepSegmentInput extends ConsumerWidget {
           .watch(extruderStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
           .toList(growable: false),
-      onAdd: isSaving
-          ? null
-          : ref.read(extruderStepStateProvider.notifier).onAdd,
+      onAdd:
+          isSaving ? null : ref.read(extruderStepStateProvider.notifier).onAdd,
       onSelected: isSaving
           ? null
           : ref.read(extruderStepStateProvider.notifier).onSelected,

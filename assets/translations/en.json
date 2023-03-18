@@ -256,7 +256,13 @@
         "default_addr": "Default Address",
         "flip_vertical": "Flip vertical",
         "flip_horizontal": "Flip horizontal",
-        "cam_mode": "Cam Mode"
+        "cam_mode": "Cam Mode",
+        "cam_mofde": "Cam fasff",
+        "cam_rotate": {
+          "label": "Rotate",
+          "landscape": "Landscape",
+          "portrait": "Portrait"
+        }
       },
       "macros": {
         "new_macro_grp": "New Macro - Group",

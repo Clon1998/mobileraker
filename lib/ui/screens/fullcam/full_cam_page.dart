@@ -6,6 +6,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
@@ -72,6 +73,7 @@ class _FullCamView extends ConsumerWidget {
                   targetFps: selectedCam.targetFps,
                   mode: selectedCam.mode),
               showFps: true,
+              landscape: selectedCam.rotate == WebCamRotation.landscape,
               transform: selectedCam.transformMatrix,
               stackChild: const [StackContent()],
             )),

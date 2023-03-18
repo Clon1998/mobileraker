@@ -83,6 +83,7 @@ class PrinterEditPageController extends StateNotifier<void> {
       var fV = formBuilderState.value['${cam.uuid}-camFV'];
       var tFps = formBuilderState.value['${cam.uuid}-tFps'];
       var mode = formBuilderState.value['${cam.uuid}-mode'];
+      var rotate = formBuilderState.value['${cam.uuid}-rotate'];
       if (name != null) cam.name = name;
       if (url != null) cam.url = url;
       if (fH != null) cam.flipHorizontal = fH;
@@ -91,6 +92,7 @@ class PrinterEditPageController extends StateNotifier<void> {
         cam.targetFps = tFps;
       }
       if (mode != null) cam.mode = mode;
+      if (rotate != null) cam.rotate = rotate;
     }
     machine.cams = cams;
 
