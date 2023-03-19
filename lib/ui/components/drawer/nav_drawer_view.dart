@@ -98,7 +98,8 @@ class NavigationDrawerWidget extends ConsumerWidget {
                             const String url =
                                 'https://github.com/Clon1998/mobileraker';
                             if (await canLaunchUrlString(url)) {
-                              await launchUrlString(url);
+                              await launchUrlString(url,
+                                  mode: LaunchMode.externalApplication);
                             } else {
                               throw 'Could not launch $url';
                             }
