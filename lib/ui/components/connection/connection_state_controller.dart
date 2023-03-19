@@ -11,6 +11,7 @@ import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final connectionStateControllerProvider =
     StateNotifierProvider.autoDispose<ConnectionStateController, ClientState>(
@@ -50,6 +51,16 @@ class ConnectionStateController extends StateNotifier<ClientState> {
     }
   }
 
+  bool get errorIsOctoSupportedExpired {
+    var jsonRpcClient = ref.read(jrpcClientSelectedProvider);
+    Exception? errorReason = jsonRpcClient.errorReason;
+    if (errorReason is! OctoEverywhereHttpException) {
+      return false;
+    }
+
+    return errorReason.statusCode == 605;
+  }
+
   onChangeAppLifecycleState(_, AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
@@ -85,6 +96,16 @@ class ConnectionStateController extends StateNotifier<ClientState> {
       ref
           .read(goRouterProvider)
           .pushNamed(AppRoute.printerEdit.name, extra: machine);
+    }
+  }
+
+  onGoToOE() async {
+    var oeURI = Uri.parse(
+        'https://octoeverywhere.com/appportal/v1/nosupporterperks?moonraker=true&appid=mobileraker');
+    if (await canLaunchUrl(oeURI)) {
+      await launchUrl(oeURI, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $oeURI';
     }
   }
 }

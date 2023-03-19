@@ -80,11 +80,14 @@ class WebSocketState extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ClientState connectionState = ref.watch(connectionStateControllerProvider);
-    ClientType clientType = ref.watch(jrpcClientSelectedProvider.select((value) => value.clientType));
+    ClientType clientType = ref
+        .watch(jrpcClientSelectedProvider.select((value) => value.clientType));
 
     useOnAppLifecycleStateChange(ref
         .watch(connectionStateControllerProvider.notifier)
         .onChangeAppLifecycleState);
+    var connectionStateController =
+        ref.read(connectionStateControllerProvider.notifier);
     switch (connectionState) {
       case ClientState.connected:
         return KlippyState(
@@ -103,9 +106,7 @@ class WebSocketState extends HookConsumerWidget {
               ),
               const Text('@:klipper_state.disconnected !').tr(),
               TextButton.icon(
-                  onPressed: ref
-                      .read(connectionStateControllerProvider.notifier)
-                      .onRetryPressed,
+                  onPressed: connectionStateController.onRetryPressed,
                   icon: const Icon(Icons.restart_alt_outlined),
                   label: const Text('components.connection_watcher.reconnect')
                       .tr())
@@ -131,7 +132,9 @@ class WebSocketState extends HookConsumerWidget {
               const SizedBox(
                 height: 30,
               ),
-              FadingText(tr(clientType == ClientType.local?'components.connection_watcher.trying_connect':'components.connection_watcher.trying_connect_remote')),
+              FadingText(tr(clientType == ClientType.local
+                  ? 'components.connection_watcher.trying_connect'
+                  : 'components.connection_watcher.trying_connect_remote')),
             ],
           ),
         );
@@ -152,18 +155,22 @@ class WebSocketState extends HookConsumerWidget {
                 height: 20,
               ),
               Text(
-                ref
-                    .read(connectionStateControllerProvider.notifier)
-                    .clientErrorMessage,
+                connectionStateController.clientErrorMessage,
                 textAlign: TextAlign.center,
               ),
-              TextButton.icon(
-                  onPressed: ref
-                      .read(connectionStateControllerProvider.notifier)
-                      .onRetryPressed,
-                  icon: const Icon(Icons.restart_alt_outlined),
-                  label: const Text('components.connection_watcher.reconnect')
-                      .tr())
+              if (!connectionStateController.errorIsOctoSupportedExpired)
+                TextButton.icon(
+                    onPressed: connectionStateController.onRetryPressed,
+                    icon: const Icon(Icons.restart_alt_outlined),
+                    label: const Text('components.connection_watcher.reconnect')
+                        .tr()),
+              if (connectionStateController.errorIsOctoSupportedExpired)
+                TextButton.icon(
+                    onPressed: connectionStateController.onGoToOE,
+                    icon: const Icon(Icons.open_in_browser),
+                    label:
+                        const Text('components.connection_watcher.more_details')
+                            .tr()),
             ],
           ),
         );
