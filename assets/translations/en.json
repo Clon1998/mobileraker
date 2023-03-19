@@ -16,6 +16,7 @@
     "shutdown": "Shutdown",
     "firmware": "Firmware",
     "fetching": "Fetching",
+    "loading": "Loading",
     "unknown": "Unknown",
     "disabled": "Disabled",
     "confirm": "Confirm",
