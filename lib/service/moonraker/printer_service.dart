@@ -62,10 +62,6 @@ Stream<Printer> printer(PrinterRef ref, String machineUUID) {
 
 @riverpod
 PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
-  ref.onDispose(() {
-    logger.w('-DISPOSED printerServiceSelected');
-  });
-
   return ref.watch(printerServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 }

@@ -61,7 +61,6 @@ class Mjpeg extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.wtf('asdasdasd $landscape');
     return ProviderScope(
       overrides: [
         _mjpegConfigProvider.overrideWithValue(config),
