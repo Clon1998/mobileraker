@@ -130,7 +130,20 @@ class _MakrdownViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var theme = Theme.of(context);
+
+    var base = MarkdownStyleSheet(
+      codeblockDecoration: ,
+        blockquote: theme.textTheme.labelMedium
+            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        blockquoteDecoration: BoxDecoration(
+            color: theme.colorScheme.surfaceVariant.withOpacity(0.8),
+            border: Border(
+                left: BorderSide(
+                    width: 3.0, color: theme.colorScheme.secondary))));
+
     return Markdown(
+      styleSheet: MarkdownStyleSheet.fromTheme(theme).merge(base),
       data: data,
       onTapLink: (text, href, title) {
         if (href != null) {
