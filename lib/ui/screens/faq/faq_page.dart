@@ -6,11 +6,11 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 part 'faq_page.g.dart';
 
@@ -132,8 +132,11 @@ class _MakrdownViewer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Markdown(
       data: data,
-      onTapLink: (text, href, title) =>
-          logger.wtf('$text to $href, $title pressed'),
+      onTapLink: (text, href, title) {
+        if (href != null) {
+          launchUrlString(href, mode: LaunchMode.externalApplication);
+        }
+      },
     );
   }
 }
