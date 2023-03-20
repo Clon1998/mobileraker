@@ -11,5 +11,18 @@ There exist multiple options to access your printer from everywhere. Among these
 - VPN
 - [Octoeverywhere](https://octoeverywhere.com/)
 >The fastest, easiest, and suggested option is Octoeverywhere.
-> 
-> 
+
+
+<details>
+  <summary> 📫 How to setup Push Notifications?</summary>
+Mobileraker supports native push notifications for both Android and iOS. In order to setup it you will need to execute the following commands on your RaspberryPI/Linux OS:
+
+```shell
+cd ~/
+git clone https://github.com/Clon1998/mobileraker_companion.git
+cd mobileraker_companion
+./scripts/install-mobileraker-companion.sh
+```
+
+Find out more at the official GitHub page of [mobileraker_companion]([https://octoeverywhere.com/](https://github.com/Clon1998/mobileraker_companion).
+</details>
