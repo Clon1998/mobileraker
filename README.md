@@ -65,12 +65,12 @@ In order to use remote notifications be sure to follow the setup guide to instal
 ## Planed features
 
 - [x] Support for multiple printers
-- [ ] Multiple colors/themes and dark mode
+- [X] Multiple colors/themes and dark mode
   - [x] Dark mode
 - [x] Notifications (Might need an klipper addon?)
   - [x] Print done
   - [x] Print progress
-  - [ ] Klipper errors
+  - [X] Klipper errors
 - [x] Overview page
   - [x] Refactor current layout with multiple and clearer menu-tabs
   - [ ] Add temperature graphs
@@ -81,11 +81,13 @@ In order to use remote notifications be sure to follow the setup guide to instal
   - [ ] Upload stls
   - [ ] Stl preview
   - [ ] Stl viewer
-- [ ] Config page
+- [X] Config page
 - [ ] Print-statistics/history page
-- [ ] Klipper power control feature
+- [X] Klipper power control feature
 
 ## Environment Setup
+> **Note**   
+> This is only required if you plan to contribute to this project
 
 1. Ensure you have [flutter](https://docs.flutter.dev/get-started/install "Flutter installation instructions") and [flutterfire](https://firebase.google.com/docs/flutter/setup?platform=android#install-cli-tools "Firebase Flutter Command Line tools installation instructions") installed on your machine
 2. Import the project into your IDE
