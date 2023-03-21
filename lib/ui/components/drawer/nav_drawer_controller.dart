@@ -1,16 +1,16 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+part 'nav_drawer_controller.g.dart';
 
-final navDrawerControllerProvider =
-    StateNotifierProvider.autoDispose<NavDrawerController, bool>(
-        (ref) => NavDrawerController(ref));
-
-class NavDrawerController extends StateNotifier<bool> {
-  NavDrawerController(this.ref) : super(false);
-  final Ref ref;
-  toggleManagePrintersExpanded() {
-    state = !state;
+@riverpod
+class NavDrawerController extends _$NavDrawerController {
+  @override
+  bool build() {
+    return false;
   }
+
+  toggleManagePrintersExpanded() => state = !state;
 
   navigateTo(String route, {dynamic arguments}) {
     var goRouter = ref.read(goRouterProvider);
@@ -24,6 +24,7 @@ class NavDrawerController extends StateNotifier<bool> {
     goRouter.push(route, extra: arguments);
   }
 }
+
 
 //
 // class NavDrawerViewModel extends FutureViewModel<List<Machine>> {

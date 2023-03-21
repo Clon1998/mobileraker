@@ -9,7 +9,7 @@ import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/theme_service.dart';
-import 'package:mobileraker/ui/components/drawer/nav_drawer_viewmodel.dart';
+import 'package:mobileraker/ui/components/drawer/nav_drawer_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';

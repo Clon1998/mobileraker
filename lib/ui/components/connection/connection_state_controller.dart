@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/exceptions.dart';
@@ -11,14 +10,15 @@ import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-final connectionStateControllerProvider =
-    StateNotifierProvider.autoDispose<ConnectionStateController, ClientState>(
-        (ref) => ConnectionStateController(ref));
+part 'connection_state_controller.g.dart';
 
-class ConnectionStateController extends StateNotifier<ClientState> {
-  ConnectionStateController(this.ref) : super(ClientState.disconnected) {
+@riverpod
+class ConnectionStateController extends _$ConnectionStateController {
+  @override
+  ClientState build() {
     ref.listen<AsyncValue<ClientState>>(jrpcClientStateSelectedProvider,
         (previous, next) {
       if (next.isRefreshing) {
@@ -29,9 +29,9 @@ class ConnectionStateController extends StateNotifier<ClientState> {
         });
       }
     }, fireImmediately: true);
-  }
 
-  final AutoDisposeRef ref;
+    return ClientState.disconnected;
+  }
 
   onRetryPressed() {
     ref.read(jrpcClientSelectedProvider).openChannel();
