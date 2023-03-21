@@ -133,7 +133,6 @@ class _MakrdownViewer extends StatelessWidget {
     var theme = Theme.of(context);
 
     var base = MarkdownStyleSheet(
-      codeblockDecoration: ,
         blockquote: theme.textTheme.labelMedium
             ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         blockquoteDecoration: BoxDecoration(
