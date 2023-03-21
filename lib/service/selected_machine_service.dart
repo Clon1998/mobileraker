@@ -16,6 +16,7 @@ SelectedMachineService selectedMachineService(SelectedMachineServiceRef ref) {
 
 @riverpod
 Stream<Machine?> selectedMachine(SelectedMachineRef ref) {
+  ref.keepAlive();
   return ref.watch(selectedMachineServiceProvider).selectedMachine;
 }
 
