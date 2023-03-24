@@ -33,8 +33,8 @@ Future<void> main() async {
   setupLicenseRegistry();
   final container = ProviderContainer(
       observers: [
-        // if (kDebugMode)
-        // const RiverPodLogger(),
+        if (kDebugMode)
+        const RiverPodLogger(),
       ],
       );
 

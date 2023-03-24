@@ -33,4 +33,14 @@ void main() {
 
     expect(configNeopixel, isNotNull);
   });
+
+  test('Test user configfile!', () {
+    final configFile =
+    File('test_resources/marshalling/config_file.json');
+    var configFileJson = jsonDecode(configFile.readAsStringSync());
+
+    var config = ConfigFile.parse(configFileJson['settings']);
+
+    expect(config, isNotNull);
+  });
 }
