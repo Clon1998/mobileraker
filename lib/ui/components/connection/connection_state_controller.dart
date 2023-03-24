@@ -18,20 +18,8 @@ part 'connection_state_controller.g.dart';
 @riverpod
 class ConnectionStateController extends _$ConnectionStateController {
   @override
-  ClientState build() {
-    ref.listen<AsyncValue<ClientState>>(jrpcClientStateSelectedProvider,
-        (previous, next) {
-      if (next.isRefreshing) {
-        state = ClientState.connecting;
-      } else {
-        next.whenData((value) {
-          state = value;
-        });
-      }
-    }, fireImmediately: true);
-
-    return ClientState.disconnected;
-  }
+  Future<ClientState> build() async =>
+      ref.watch(jrpcClientStateSelectedProvider.future);
 
   onRetryPressed() {
     ref.read(jrpcClientSelectedProvider).openChannel();

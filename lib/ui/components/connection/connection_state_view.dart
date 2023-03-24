@@ -79,7 +79,8 @@ class WebSocketState extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ClientState connectionState = ref.watch(connectionStateControllerProvider);
+    AsyncValue<ClientState> connectionState =
+        ref.watch(connectionStateControllerProvider);
     ClientType clientType = ref
         .watch(jrpcClientSelectedProvider.select((value) => value.clientType));
 
@@ -88,93 +89,102 @@ class WebSocketState extends HookConsumerWidget {
         .onChangeAppLifecycleState);
     var connectionStateController =
         ref.read(connectionStateControllerProvider.notifier);
-    switch (connectionState) {
-      case ClientState.connected:
-        return KlippyState(
-          onConnected: onConnected,
-        );
 
-      case ClientState.disconnected:
-        return Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.warning_amber_outlined,
-                  size: 50, color: Theme.of(context).colorScheme.error),
-              const SizedBox(
-                height: 30,
+    return AsyncValueWidget(
+      value: connectionState,
+      data: (ClientState clientState) {
+        switch (clientState) {
+          case ClientState.connected:
+            logger.w('--NIW: $clientType connectaed');
+            return KlippyState(
+              onConnected: onConnected,
+            );
+
+          case ClientState.disconnected:
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.warning_amber_outlined,
+                      size: 50, color: Theme.of(context).colorScheme.error),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  const Text('@:klipper_state.disconnected !').tr(),
+                  TextButton.icon(
+                      onPressed: connectionStateController.onRetryPressed,
+                      icon: const Icon(Icons.restart_alt_outlined),
+                      label:
+                          const Text('components.connection_watcher.reconnect')
+                              .tr())
+                ],
               ),
-              const Text('@:klipper_state.disconnected !').tr(),
-              TextButton.icon(
-                  onPressed: connectionStateController.onRetryPressed,
-                  icon: const Icon(Icons.restart_alt_outlined),
-                  label: const Text('components.connection_watcher.reconnect')
-                      .tr())
-            ],
-          ),
-        );
-      case ClientState.connecting:
-        return Center(
-          key: ValueKey(clientType),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (clientType == ClientType.local)
-                SpinKitPulse(
-                  size: 100,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              if (clientType == ClientType.octo)
-                SpinKitPouringHourGlassRefined(
-                  size: 100,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              const SizedBox(
-                height: 30,
+            );
+          case ClientState.connecting:
+            return Center(
+              key: ValueKey(clientType),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (clientType == ClientType.local)
+                    SpinKitPulse(
+                      size: 100,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  if (clientType == ClientType.octo)
+                    SpinKitPouringHourGlassRefined(
+                      size: 100,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  FadingText(tr(clientType == ClientType.local
+                      ? 'components.connection_watcher.trying_connect'
+                      : 'components.connection_watcher.trying_connect_remote')),
+                ],
               ),
-              FadingText(tr(clientType == ClientType.local
-                  ? 'components.connection_watcher.trying_connect'
-                  : 'components.connection_watcher.trying_connect_remote')),
-            ],
-          ),
-        );
-      case ClientState.error:
-      default:
-        return Container(
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(22),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.warning_amber_outlined,
-                size: 50,
-                color: Theme.of(context).colorScheme.error,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Text(
-                connectionStateController.clientErrorMessage,
-                textAlign: TextAlign.center,
-              ),
-              if (!connectionStateController.errorIsOctoSupportedExpired)
-                TextButton.icon(
-                    onPressed: connectionStateController.onRetryPressed,
-                    icon: const Icon(Icons.restart_alt_outlined),
-                    label: const Text('components.connection_watcher.reconnect')
-                        .tr()),
-              if (connectionStateController.errorIsOctoSupportedExpired)
-                TextButton.icon(
-                    onPressed: connectionStateController.onGoToOE,
-                    icon: const Icon(Icons.open_in_browser),
-                    label:
-                        const Text('components.connection_watcher.more_details')
+            );
+          case ClientState.error:
+          default:
+            return Container(
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(22),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.warning_amber_outlined,
+                    size: 50,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    connectionStateController.clientErrorMessage,
+                    textAlign: TextAlign.center,
+                  ),
+                  if (!connectionStateController.errorIsOctoSupportedExpired)
+                    TextButton.icon(
+                        onPressed: connectionStateController.onRetryPressed,
+                        icon: const Icon(Icons.restart_alt_outlined),
+                        label: const Text(
+                                'components.connection_watcher.reconnect')
                             .tr()),
-            ],
-          ),
-        );
-    }
+                  if (connectionStateController.errorIsOctoSupportedExpired)
+                    TextButton.icon(
+                        onPressed: connectionStateController.onGoToOE,
+                        icon: const Icon(Icons.open_in_browser),
+                        label: const Text(
+                                'components.connection_watcher.more_details')
+                            .tr()),
+                ],
+              ),
+            );
+        }
+      },
+    );
   }
 }
 
@@ -188,8 +198,10 @@ class KlippyState extends ConsumerWidget {
       return onConnected;
     }
 
+    var watch = ref.watch(klipperSelectedProvider);
+    logger.wtf('--GOt ${watch.valueOrNull?.klippyState}, isReloading ${watch.isReloading},isRefreshing ${watch.isRefreshing}, isLoading ${watch.isLoading},');
     return AsyncValueWidget<KlipperInstance>(
-      value: ref.watch(klipperSelectedProvider),
+      value: watch,
       data: (data) {
         switch (data.klippyState) {
           case KlipperState.disconnected:

@@ -9,6 +9,7 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -34,6 +35,10 @@ KlippyService klipperServiceSelected(
 @riverpod
 Stream<KlipperInstance> klipperSelected(
     KlipperSelectedRef ref) async* {
+  ref.listenSelf((previous, next) {
+
+    logger.wtf('-- B: $previous -> $next');
+  });
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
     StreamController<KlipperInstance> sc = StreamController<KlipperInstance>();
@@ -74,12 +79,14 @@ class KlippyService {
 
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       var data = next as AsyncValue<ClientState>;
-      switch (data.valueOrNull) {
+      logger.wtf('-- Is Refreshing $data');
+      switch (data.valueOrFullNull) {
         case ClientState.connected:
           _onJrpcConnected();
           break;
         case ClientState.disconnected:
         case ClientState.error:
+          logger.e('ääää $data');
           _current = _current.copyWith(
               klippyConnected: false, klippyState: KlipperState.error);
           break;
