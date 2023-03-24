@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:uuid/uuid.dart';
 
 import 'webcam_mode.dart';
@@ -24,6 +25,8 @@ class WebcamSetting {
   int targetFps = 15;
   @HiveField(6, defaultValue: WebCamMode.ADAPTIVE_STREAM)
   WebCamMode mode = WebCamMode.ADAPTIVE_STREAM;
+  @HiveField(7, defaultValue: WebCamRotation.landscape)
+  WebCamRotation rotate = WebCamRotation.landscape;
 
   WebcamSetting(this.name, this.url);
 
@@ -49,7 +52,7 @@ class WebcamSetting {
 
   @override
   String toString() {
-    return 'WebcamSetting{name: $name, uuid: $uuid, url: $url, flipHorizontal: $flipHorizontal, flipVertical: $flipVertical, targetFps: $targetFps, mode: $mode}';
+    return 'WebcamSetting{name: $name, uuid: $uuid, url: $url, flipHorizontal: $flipHorizontal, flipVertical: $flipVertical, targetFps: $targetFps, mode: $mode, rotate:$rotate}';
   }
 
   @override
@@ -63,7 +66,8 @@ class WebcamSetting {
           flipHorizontal == other.flipHorizontal &&
           flipVertical == other.flipVertical &&
           targetFps == other.targetFps &&
-          mode == other.mode;
+          mode == other.mode &&
+          rotate == other.rotate;
 
   @override
   int get hashCode =>
@@ -73,5 +77,6 @@ class WebcamSetting {
       flipHorizontal.hashCode ^
       flipVertical.hashCode ^
       targetFps.hashCode ^
-      mode.hashCode;
+      mode.hashCode ^
+      rotate.hashCode;
 }

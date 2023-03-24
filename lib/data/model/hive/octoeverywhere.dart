@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -46,6 +48,11 @@ class OctoEverywhere extends HiveObject {
         appConnectionId = appPortalResult.appConnectionID,
         url = appPortalResult.url;
 
+  Uri get uri => Uri.parse(url);
+
+  String get basicAuthorizationHeader =>
+      'Basic ${base64.encode(utf8.encode('$authBasicHttpUser:$authBasicHttpPassword'))}';
+
   @override
   Future<void> save() async {
     lastModified = DateTime.now();
@@ -56,5 +63,33 @@ class OctoEverywhere extends HiveObject {
   Future<void> delete() async {
     await super.delete();
     return;
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OctoEverywhere &&
+          runtimeType == other.runtimeType &&
+          appApiToken == other.appApiToken &&
+          authBasicHttpPassword == other.authBasicHttpPassword &&
+          authBasicHttpUser == other.authBasicHttpUser &&
+          authBearerToken == other.authBearerToken &&
+          appConnectionId == other.appConnectionId &&
+          url == other.url &&
+          lastModified == other.lastModified;
+
+  @override
+  int get hashCode =>
+      appApiToken.hashCode ^
+      authBasicHttpPassword.hashCode ^
+      authBasicHttpUser.hashCode ^
+      authBearerToken.hashCode ^
+      appConnectionId.hashCode ^
+      url.hashCode ^
+      lastModified.hashCode;
+
+  @override
+  String toString() {
+    return 'OctoEverywhere{appApiToken: $appApiToken, authBasicHttpPassword: XXX, authBasicHttpUser: XXX, authBearerToken: XXX, appConnectionId: $appConnectionId, url: $url, lastModified: $lastModified}';
   }
 }

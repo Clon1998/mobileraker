@@ -1,6 +1,5 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
@@ -9,6 +8,7 @@ import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
+import 'package:mobileraker/ui/screens/faq/faq_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/files_page.dart';
@@ -20,6 +20,9 @@ import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'app_router.g.dart';
 
 enum AppRoute {
   dashBoard,
@@ -34,10 +37,12 @@ enum AppRoute {
   imprint,
   gcodeDetail,
   configDetail,
-  dev
+  dev,
+  faq
 }
 
-final initialRouteProvider = FutureProvider.autoDispose<String>((ref) async {
+@riverpod
+Future<String> initialRoute(InitialRouteRef ref) async {
   ref.keepAlive();
   SettingService settingService = ref.watch(settingServiceProvider);
 
@@ -51,9 +56,10 @@ final initialRouteProvider = FutureProvider.autoDispose<String>((ref) async {
     return '/overview';
   }
   return '/';
-});
+}
 
-final goRouterProvider = Provider.autoDispose<GoRouter>((ref) {
+@riverpod
+GoRouter goRouter(GoRouterRef ref) {
   ref.keepAlive();
   return GoRouter(
     initialLocation: ref.watch(initialRouteProvider).valueOrFullNull!,
@@ -143,10 +149,10 @@ final goRouterProvider = Provider.autoDispose<GoRouter>((ref) {
         name: AppRoute.console.name,
         builder: (context, state) => const ConsolePage(),
       ),
-      // GoRoute(
-      //     path: '/dev',
-      //     name: AppRoute.dev.name,
-      //     builder: (context, state) => const MyTestHomeScreen())
+      GoRoute(
+          path: '/faq',
+          name: AppRoute.faq.name,
+          builder: (context, state) => const FaqPage())
       // GoRoute(
       //   path: 'cart',
       //   name: AppRoute.cart.name,
@@ -181,4 +187,4 @@ final goRouterProvider = Provider.autoDispose<GoRouter>((ref) {
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),
   );
-}, dependencies: [initialRouteProvider]);
+}

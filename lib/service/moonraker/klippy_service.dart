@@ -4,35 +4,41 @@ import 'dart:convert';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final klipperServiceProvider = Provider.autoDispose
-    .family<KlippyService, String>(name: 'klipperServiceProvider',
-        (ref, machineUUID) {
-  ref.keepAlive();
+part 'klippy_service.g.dart';
 
+@riverpod
+KlippyService klipperService(KlipperServiceRef ref, String machineUUID) {
   return KlippyService(ref, machineUUID);
-});
+}
 
-final klipperProvider = StreamProvider.autoDispose
-    .family<KlipperInstance, String>(name: 'klipperProvider',
-        (ref, machineUUID) {
-  ref.keepAlive();
+@riverpod
+Stream<KlipperInstance> klipper(KlipperRef ref, String machineUUID) {
   return ref.watch(klipperServiceProvider(machineUUID)).klipperStream;
-});
+}
 
-final klipperServiceSelectedProvider = Provider.autoDispose<KlippyService>(
-    name: 'klipperServiceSelectedProvider', (ref) {
+@riverpod
+KlippyService klipperServiceSelected(
+    KlipperServiceSelectedRef ref) {
   return ref.watch(klipperServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-});
-// StreamProvider<KlipperInstance>
-final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
-    name: 'klipperSelectedProvider', (ref) async* {
+}
+
+@riverpod
+Stream<KlipperInstance> klipperSelected(
+    KlipperSelectedRef ref) async* {
+  ref.listenSelf((previous, next) {
+
+    logger.wtf('-- B: $previous -> $next');
+  });
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
     StreamController<KlipperInstance> sc = StreamController<KlipperInstance>();
@@ -52,10 +58,10 @@ final klipperSelectedProvider = StreamProvider.autoDispose<KlipperInstance>(
     }, fireImmediately: true);
 
     yield* sc.stream;
-  } on StateError catch (e, s) {
+  } on StateError catch (_) {
     // Just catch it. It is expected that the future/where might not complete!
   }
-});
+}
 
 /// Service managing klippy-server stuff
 class KlippyService {
@@ -73,13 +79,14 @@ class KlippyService {
 
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       var data = next as AsyncValue<ClientState>;
-      switch (data.valueOrNull) {
+      logger.wtf('-- Is Refreshing $data');
+      switch (data.valueOrFullNull) {
         case ClientState.connected:
-          _fetchServerInfo();
-          _fetchPrinterInfo();
+          _onJrpcConnected();
           break;
         case ClientState.disconnected:
         case ClientState.error:
+          logger.e('ääää $data');
           _current = _current.copyWith(
               klippyConnected: false, klippyState: KlipperState.error);
           break;
@@ -134,21 +141,43 @@ class KlippyService {
     _jRpcClient.sendJsonRpcWithCallback("printer.emergency_stop");
   }
 
-  _fetchServerInfo() {
+  _onJrpcConnected() async {
+    try {
+      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]).timeout(const Duration(seconds: 5));
+    } on JRpcError catch (e, s) {
+      logger.w('Error while fetching inital KlippyObject: ${e.message}');
+
+      _current = _current.copyWith(
+          klippyConnected: false,
+          klippyState: (e.message == 'Unauthorized')
+              ? KlipperState.unauthorized
+              : KlipperState.error,
+          klippyStateMessage: e.message);
+    } on TimeoutException catch (e) {
+      logger.w('Error while fetching inital KlippyObject: ${e.message}');
+
+      _current = _current.copyWith(
+          klippyConnected: false,
+          klippyState: (e.message == 'Unauthorized')
+              ? KlipperState.unauthorized
+              : KlipperState.error,
+          klippyStateMessage: e.message);
+    }
+  }
+
+  Future<void> _fetchServerInfo() async {
     logger.i('>>>Fetching Server.Info');
-    _jRpcClient.sendJsonRpcWithCallback("server.info",
-        onReceive: _parseServerInfo);
+    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod("server.info");
+    _parseServerInfo(rpcResponse.result);
   }
 
-  _fetchPrinterInfo() {
+  Future<void> _fetchPrinterInfo() async {
     logger.i(">>>Fetching Printer.Info");
-    _jRpcClient.sendJsonRpcWithCallback("printer.info",
-        onReceive: _parsePrinterInfo);
+    RpcResponse response = await _jRpcClient.sendJRpcMethod("printer.info");
+    _parsePrinterInfo(response.result);
   }
 
-  _parseServerInfo(response, {err}) {
-    if (err != null) return;
-    var result = response['result'];
+  _parseServerInfo(Map<String, dynamic> result) {
     logger.i('<<<Received Server.Info');
     logger
         .v('ServerInfo: ${const JsonEncoder.withIndent('  ').convert(result)}');
@@ -174,9 +203,7 @@ class KlippyService {
     _current = klipperInstance;
   }
 
-  _parsePrinterInfo(response, {err}) {
-    if (err != null) return;
-    var result = response['result'];
+  _parsePrinterInfo(Map<String, dynamic> result) {
     logger.i('<<<Received Printer.Info');
     logger.v(
         'PrinterInfo: ${const JsonEncoder.withIndent('  ').convert(result)}');

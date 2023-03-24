@@ -10,37 +10,57 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final powerServiceProvider =
-    Provider.autoDispose.family<PowerService, String>((ref, machineUUID) {
-  ref.keepAlive();
+part 'power_service.g.dart';
+
+@riverpod
+PowerService powerService(PowerServiceRef ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
   return PowerService(ref, jsonRpcClient, machineUUID);
-});
+}
 
-final powerDevicesProvider = StreamProvider.autoDispose
-    .family<List<PowerDevice>, String>((ref, machineUUID) {
-  ref.keepAlive();
+@riverpod
+Stream<List<PowerDevice>> powerDevices(
+    PowerDevicesRef ref, String machineUUID) {
+  var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
   return ref.watch(powerServiceProvider(machineUUID)).devices;
-});
+}
 
-final powerServiceSelectedProvider = Provider.autoDispose<PowerService>((ref) {
+@riverpod
+PowerService powerServiceSelected(PowerServiceSelectedRef ref) {
   return ref.watch(powerServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-});
+}
 
-final powerDevicesSelectedProvider =
-    StreamProvider.autoDispose<List<PowerDevice>>((ref) async* {
+@riverpod
+Stream<List<PowerDevice>> powerDevicesSelected(
+    PowerDevicesSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    // ToDo: Remove woraround once StreamProvider.stream is fixed!
-    yield await ref.read(powerDevicesProvider(machine.uuid).future);
-    yield* ref.watch(powerDevicesProvider(machine.uuid).stream);
-  } on StateError catch (e, s) {
+    StreamController<List<PowerDevice>> sc =
+        StreamController<List<PowerDevice>>();
+    ref.onDispose(() {
+      if (!sc.isClosed) {
+        sc.close();
+      }
+    });
+    ref.listen<AsyncValue<List<PowerDevice>>>(
+        powerDevicesProvider(machine.uuid), (previous, next) {
+      next.when(
+          data: (data) => sc.add(data),
+          error: (err, st) => sc.addError(err, st),
+          loading: () {
+            if (previous != null) ref.invalidateSelf();
+          });
+    }, fireImmediately: true);
+
+    yield* sc.stream;
+  } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!
   }
-});
+}
 
 /// The PowerService handels interactions with Moonraker's Power API
 /// For more information check out
@@ -80,9 +100,8 @@ class PowerService {
       RpcResponse rpcResponse =
           await _jRpcClient.sendJRpcMethod('machine.device_power.devices');
       logger.i('Fetching [power] devices!');
-      List<Map<String, dynamic>> devices = rpcResponse.result
-              ['devices']
-          .cast<Map<String, dynamic>>();
+      List<Map<String, dynamic>> devices =
+          rpcResponse.result['devices'].cast<Map<String, dynamic>>();
       return List.generate(
           devices.length, (index) => PowerDevice.fromJson(devices[index]),
           growable: false);

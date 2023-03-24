@@ -2,19 +2,23 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
-final themeServiceProvider = Provider((ref) => ThemeService(ref));
+part 'theme_service.g.dart';
 
-final activeThemeProvider = StreamProvider<ThemeModel>(
-    (ref) => ref.watch(themeServiceProvider).themesStream);
+@riverpod
+ThemeService themeService(ThemeServiceRef ref) => ThemeService(ref);
+
+@riverpod
+Stream<ThemeModel> activeTheme(ActiveThemeRef ref) =>
+    ref.watch(themeServiceProvider).themesStream;
 
 class ThemeService {
-  ThemeService(Ref ref)
+  ThemeService(ThemeServiceRef ref)
       : themePacks = ref.watch(themePackProvider),
         _settingService = ref.watch(settingServiceProvider) {
     assert(themePacks.isNotEmpty, 'No ThemePacks provided!');

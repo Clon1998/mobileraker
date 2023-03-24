@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
@@ -16,6 +19,7 @@ import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/logger.dart';
@@ -28,6 +32,7 @@ import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/graph_card_with_button.dart';
 import 'package:mobileraker/ui/components/homed_axis_chip.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
+import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
@@ -57,11 +62,17 @@ class GeneralTab extends ConsumerWidget {
                   .select((data) => data.value!.machine.cams.isNotEmpty));
               var printState = ref.watch(generalTabViewControllerProvider
                   .select((data) => data.value!.printerData.print.state));
+              var clientType = ref.watch(generalTabViewControllerProvider
+                  .select((data) => data.value!.clientType));
+
+              var dismissedRemoteInfo = ref.watch(dismissiedRemoteInfoProvider);
+
               return PullToRefreshPrinter(
                 child: ListView(
                   key: const PageStorageKey('gTab'),
                   padding: const EdgeInsets.only(bottom: 20),
                   children: [
+                    if (clientType != ClientType.local) const RemoteIndicator(),
                     const PrintCard(),
                     const TemperatureCard(),
                     if (showCams) const CamCard(),
@@ -128,6 +139,47 @@ class _FetchingData extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class RemoteIndicator extends ConsumerWidget {
+  const RemoteIndicator({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return AnimatedSwitcher(
+        duration: kThemeAnimationDuration,
+        switchInCurve: Curves.easeInCubic,
+        switchOutCurve: Curves.easeOutCubic,
+        transitionBuilder: (child, anim) => SizeTransition(
+              sizeFactor: anim,
+              child: FadeTransition(
+                opacity: anim,
+                child: child,
+              ),
+            ),
+        child: (ref.watch(dismissiedRemoteInfoProvider))
+            ? const SizedBox.shrink()
+            : Card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      contentPadding:
+                          const EdgeInsets.only(top: 3, left: 16, right: 16),
+                      leading: const OctoIndicator(),
+                      title: Text('Using remote connection!'),
+                      trailing: IconButton(
+                          onPressed: () => ref
+                              .read(dismissiedRemoteInfoProvider.notifier)
+                              .state = true,
+                          icon: const Icon(Icons.close)),
+                    ),
+                  ],
+                ),
+              ));
   }
 }
 
@@ -303,9 +355,25 @@ class CamCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     const double minWebCamHeight = 280;
-    List<WebcamSetting> webcams = ref.watch(generalTabViewControllerProvider
-        .select((value) => value.value!.machine.cams));
+    var machine = ref.watch(generalTabViewControllerProvider
+        .select((value) => value.value!.machine));
     WebcamSetting selectedCam = ref.watch(camCardControllerProvider);
+    var clientType = ref.watch(generalTabViewControllerProvider
+        .select((value) => value.value!.clientType));
+
+    Uri camUri = Uri.parse(selectedCam.url);
+    Map<String, String> headers = {};
+    if (clientType == ClientType.octo) {
+      Uri machineUri = Uri.parse(machine.wsUrl);
+      if (machineUri.host == camUri.host) {
+        var octoEverywhere = machine.octoEverywhere!;
+        camUri = camUri.replace(scheme: 'https', host: octoEverywhere.uri.host);
+
+        headers[HttpHeaders.authorizationHeader] =
+            octoEverywhere.basicAuthorizationHeader;
+      }
+    }
+    var webcams = machine.cams;
     return Card(
       child: Column(
         children: [
@@ -335,24 +403,39 @@ class CamCard extends ConsumerWidget {
                 child: Mjpeg(
               key: ValueKey(selectedCam),
               imageBuilder: _imageBuilder,
-              targetFps: selectedCam.targetFps,
-              feedUri: selectedCam.url,
+              config: MjpegConfig(
+                  feedUri: camUri.toString(),
+                  targetFps: selectedCam.targetFps,
+                  mode: selectedCam.mode,
+                  httpHeader: headers),
+              landscape: selectedCam.rotate == WebCamRotation.landscape,
               transform: selectedCam.transformMatrix,
-              camMode: selectedCam.mode,
               showFps: true,
-              stackChild: Positioned.fill(
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: IconButton(
-                    color: Colors.white,
-                    icon: const Icon(Icons.aspect_ratio),
-                    tooltip: 'pages.dashboard.general.cam_card.fullscreen'.tr(),
-                    onPressed: ref
-                        .read(camCardControllerProvider.notifier)
-                        .onFullScreenTap,
+              stackChild: [
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: IconButton(
+                      color: Colors.white,
+                      icon: const Icon(Icons.aspect_ratio),
+                      tooltip:
+                          'pages.dashboard.general.cam_card.fullscreen'.tr(),
+                      onPressed: ref
+                          .read(camCardControllerProvider.notifier)
+                          .onFullScreenTap,
+                    ),
                   ),
                 ),
-              ),
+                if (clientType != ClientType.local)
+                  const Positioned.fill(
+                      child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: OctoIndicator(),
+                    ),
+                  )),
+              ],
             )),
           ),
         ],
@@ -853,7 +936,7 @@ class _TemperaturePresetCard extends StatelessWidget {
   }
 }
 
-class _ControlXYZCard extends ConsumerWidget {
+class _ControlXYZCard extends HookConsumerWidget {
   static const marginForBtns = EdgeInsets.all(10);
 
   const _ControlXYZCard({
@@ -864,6 +947,7 @@ class _ControlXYZCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
+    var iconThemeData = IconTheme.of(context);
 
     return Card(
       child: Column(
@@ -922,8 +1006,11 @@ class _ControlXYZCard extends ConsumerWidget {
                                 message:
                                     'pages.dashboard.general.move_card.home_xy_tooltip'
                                         .tr(),
-                                child: ElevatedButton(
-                                    onPressed: klippyCanReceiveCommands
+                                child: _ButtonWithRunningIndicator(
+                                    onPressed: klippyCanReceiveCommands &&
+                                            ref.watch(
+                                                controlXYZController.select(
+                                                    (value) => !value.homing))
                                         ? () => ref
                                             .read(controlXYZController.notifier)
                                             .onHomeAxisBtn(
@@ -988,8 +1075,10 @@ class _ControlXYZCard extends ConsumerWidget {
                             message:
                                 'pages.dashboard.general.move_card.home_z_tooltip'
                                     .tr(),
-                            child: ElevatedButton(
-                                onPressed: klippyCanReceiveCommands
+                            child: _ButtonWithRunningIndicator(
+                                onPressed: klippyCanReceiveCommands &&
+                                        ref.watch(controlXYZController
+                                            .select((value) => !value.homing))
                                     ? () => ref
                                         .read(controlXYZController.notifier)
                                         .onHomeAxisBtn({PrinterAxis.Z})
@@ -1028,8 +1117,10 @@ class _ControlXYZCard extends ConsumerWidget {
                       message:
                           'pages.dashboard.general.move_card.home_all_tooltip'
                               .tr(),
-                      child: ElevatedButton.icon(
-                        onPressed: klippyCanReceiveCommands
+                      child: _ButtonWithRunningIndicator.icon(
+                        onPressed: klippyCanReceiveCommands &&
+                                ref.watch(controlXYZController
+                                    .select((value) => !value.homing))
                             ? () => ref
                                     .read(controlXYZController.notifier)
                                     .onHomeAxisBtn({
@@ -1053,8 +1144,10 @@ class _ControlXYZCard extends ConsumerWidget {
                       Tooltip(
                         message: 'pages.dashboard.general.move_card.qgl_tooltip'
                             .tr(),
-                        child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands
+                        child: _ButtonWithRunningIndicator.icon(
+                          onPressed: klippyCanReceiveCommands &&
+                                  ref.watch(controlXYZController
+                                      .select((value) => !value.qgl))
                               ? ref
                                   .read(controlXYZController.notifier)
                                   .onQuadGantry
@@ -1075,8 +1168,10 @@ class _ControlXYZCard extends ConsumerWidget {
                         message:
                             'pages.dashboard.general.move_card.mesh_tooltip'
                                 .tr(),
-                        child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands
+                        child: _ButtonWithRunningIndicator.icon(
+                          onPressed: klippyCanReceiveCommands &&
+                                  ref.watch(controlXYZController
+                                      .select((value) => !value.mesh))
                               ? ref
                                   .read(controlXYZController.notifier)
                                   .onBedMesh
@@ -1098,7 +1193,9 @@ class _ControlXYZCard extends ConsumerWidget {
                         message: 'pages.dashboard.general.move_card.stc_tooltip'
                             .tr(),
                         child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands
+                          onPressed: klippyCanReceiveCommands &&
+                                  ref.watch(controlXYZController
+                                      .select((value) => !value.screwTilt))
                               ? ref
                                   .read(controlXYZController.notifier)
                                   .onScrewTiltCalc
@@ -1119,8 +1216,10 @@ class _ControlXYZCard extends ConsumerWidget {
                         message:
                             'pages.dashboard.general.move_card.ztilt_tooltip'
                                 .tr(),
-                        child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands
+                        child: _ButtonWithRunningIndicator.icon(
+                          onPressed: klippyCanReceiveCommands &&
+                                  ref.watch(controlXYZController
+                                      .select((value) => !value.zTilt))
                               ? ref
                                   .read(controlXYZController.notifier)
                                   .onZTiltAdjust
@@ -1136,8 +1235,10 @@ class _ControlXYZCard extends ConsumerWidget {
                     Tooltip(
                       message:
                           'pages.dashboard.general.move_card.m84_tooltip'.tr(),
-                      child: ElevatedButton.icon(
-                        onPressed: klippyCanReceiveCommands
+                      child: _ButtonWithRunningIndicator.icon(
+                        onPressed: klippyCanReceiveCommands &&
+                                ref.watch(controlXYZController
+                                    .select((value) => !value.motorsOff))
                             ? ref.read(controlXYZController.notifier).onMotorOff
                             : null,
                         icon: const Icon(Icons.near_me_disabled),
@@ -1155,7 +1256,8 @@ class _ControlXYZCard extends ConsumerWidget {
                     Text(
                         '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]'),
                     RangeSelector(
-                        selectedIndex: ref.watch(controlXYZController),
+                        selectedIndex: ref.watch(controlXYZController
+                            .select((value) => value.index)),
                         onSelected: ref
                             .read(controlXYZController.notifier)
                             .onSelectedAxisStepSizeChanged,
@@ -1484,6 +1586,65 @@ class M117Message extends ConsumerWidget {
           )
         ],
       ),
+    );
+  }
+}
+
+class _ButtonWithRunningIndicator extends HookConsumerWidget {
+  const _ButtonWithRunningIndicator({
+    Key? key,
+    required this.child,
+    required this.onPressed,
+  })  : label = null,
+        super(key: key);
+
+  const _ButtonWithRunningIndicator.icon({
+    Key? key,
+    required Icon icon,
+    required this.label,
+    required this.onPressed,
+  })  : child = icon,
+        super(key: key);
+
+  final Icon child;
+  final Widget? label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var animCtrler = useAnimationController(
+        duration: const Duration(seconds: 1),
+        lowerBound: 0.5,
+        upperBound: 1,
+        initialValue: 1);
+    if (onPressed == null) {
+      animCtrler.repeat(reverse: true);
+    } else {
+      animCtrler.stop();
+    }
+
+    Widget ico;
+
+    if (onPressed == null) {
+      ico = ScaleTransition(
+        scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+        child: child,
+      );
+    } else {
+      ico = child;
+    }
+
+    if (label == null) {
+      return ElevatedButton(
+        onPressed: onPressed,
+        child: ico,
+      );
+    }
+
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: ico,
+      label: label!,
     );
   }
 }

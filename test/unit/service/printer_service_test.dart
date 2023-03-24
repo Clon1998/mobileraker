@@ -8,6 +8,7 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -22,7 +23,7 @@ import 'printer_service_test.mocks.dart';
 @GenerateMocks([JsonRpcClient, MachineService, SnackBarService, DialogService])
 void main() {
   String uuid = "test";
-
+  setUpAll(() => setupLogger());
   test('Test without exclude object', () {
     var mockRpc = MockJsonRpcClient();
 
@@ -112,6 +113,7 @@ void main() {
     var printerService = container.read(printerServiceProvider(uuid));
   });
 
+
   test('Test with valid initialization', () async {
     var mockRpc = MockJsonRpcClient();
 
@@ -121,6 +123,11 @@ void main() {
     // MethodListener, for gcode responses updates
     when(mockRpc.addMethodListener(any, 'notify_gcode_response'))
         .thenReturn(null);
+
+    when(mockRpc.removeMethodListener(any, 'notify_status_update'))
+        .thenReturn(true);
+    when(mockRpc.removeMethodListener(any, 'notify_gcode_response'))
+        .thenReturn(true);
 
     var mockSnackBarService = MockSnackBarService();
     var mockMachineService = MockMachineService();
@@ -187,4 +194,8 @@ void main() {
       'objects': ['toolhead']
     }));
   });
+
+
+
+
 }

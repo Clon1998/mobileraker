@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -8,11 +7,15 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final gcodeProvider =
-    Provider.autoDispose<GCodeFile>((ref) => throw UnimplementedError());
+part 'gcode_file_details_controller.g.dart';
 
-final canStartPrintProvider = Provider.autoDispose<bool>((ref) {
+@riverpod
+GCodeFile gcode(GcodeRef ref) => throw UnimplementedError();
+
+@riverpod
+bool canStartPrint(CanStartPrintRef ref) {
   var canPrint = ref.watch(printerSelectedProvider.select((value) => {
         PrintState.complete,
         PrintState.error,
@@ -23,22 +26,21 @@ final canStartPrintProvider = Provider.autoDispose<bool>((ref) {
       (value) => value.valueOrFullNull?.klippyCanReceiveCommands == true));
 
   return canPrint && klippyCanReceiveCommands;
-}, name:'canStartPrintProvider');
+}
 
-final gcodeFileDetailsControllerProvider =
-    StateNotifierProvider.autoDispose<GCodeFileDetailsController, void>(
-        (ref) => GCodeFileDetailsController(ref));
+@riverpod
+class GCodeFileDetailsController extends _$GCodeFileDetailsController {
+  @override
+  void build() {
+    return;
+  }
 
-class GCodeFileDetailsController extends StateNotifier<void> {
-  GCodeFileDetailsController(this.ref)
-      : _printerService = ref.watch(printerServiceSelectedProvider),
-        _dialogService = ref.watch(dialogServiceProvider),
-        _snackBarService = ref.watch(snackBarServiceProvider),
-        super(null);
-  final AutoDisposeRef ref;
-  final PrinterService _printerService;
-  final DialogService _dialogService;
-  final SnackBarService _snackBarService;
+  PrinterService get _printerService =>
+      ref.read(printerServiceSelectedProvider);
+
+  DialogService get _dialogService => ref.read(dialogServiceProvider);
+
+  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
 
   onStartPrintTap() {
     _printerService.startPrintFile(ref.read(gcodeProvider));

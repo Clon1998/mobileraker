@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -59,10 +60,10 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
         ),
         body: MobileScanner(
             controller: cameraController,
-            onDetect: (barcode, args) {
+            onDetect: (barcode) {
               if (hasBacorde.value) return;
               hasBacorde.value = true;
-              Navigator.of(context).pop(barcode.rawValue);
+              context.pop(barcode.barcodes.first);
             }));
   }
 

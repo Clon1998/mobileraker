@@ -2,6 +2,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response.dart';
+import 'package:mobileraker/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
@@ -9,9 +11,11 @@ import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
+import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
@@ -22,7 +26,7 @@ final editPrinterformKeyProvider =
 
 final isSavingProvider = StateProvider.autoDispose<bool>((ref) {
   return false;
-}, name:'isSavingProvider');
+}, name: 'isSavingProvider');
 
 final currentlyEditing = Provider.autoDispose<Machine>(
     name: 'currentlyEditing', (ref) => throw UnimplementedError());
@@ -32,15 +36,19 @@ final printerEditControllerProvider =
         (ref) => PrinterEditPageController(ref));
 
 class PrinterEditPageController extends StateNotifier<void> {
-  PrinterEditPageController(this.ref) : super(null);
+  PrinterEditPageController(this.ref)
+      : _machineService = ref.watch(machineServiceProvider),
+        _snackBarService = ref.watch(snackBarServiceProvider),
+        super(null);
 
   final AutoDisposeRef ref;
+  final MachineService _machineService;
+  final SnackBarService _snackBarService;
 
-  openQrScanner() async {
-    var qr = await ref
-        .read(goRouterProvider)
-        .navigator!
+  openQrScanner(BuildContext context) async {
+    var qr = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
+    logger.wtf('QR $qr');
     if (qr != null) {
       ref
           .read(editPrinterformKeyProvider)
@@ -75,6 +83,7 @@ class PrinterEditPageController extends StateNotifier<void> {
       var fV = formBuilderState.value['${cam.uuid}-camFV'];
       var tFps = formBuilderState.value['${cam.uuid}-tFps'];
       var mode = formBuilderState.value['${cam.uuid}-mode'];
+      var rotate = formBuilderState.value['${cam.uuid}-rotate'];
       if (name != null) cam.name = name;
       if (url != null) cam.url = url;
       if (fH != null) cam.flipHorizontal = fH;
@@ -83,6 +92,7 @@ class PrinterEditPageController extends StateNotifier<void> {
         cam.targetFps = tFps;
       }
       if (mode != null) cam.mode = mode;
+      if (rotate != null) cam.rotate = rotate;
     }
     machine.cams = cams;
 
@@ -215,6 +225,49 @@ class PrinterEditPageController extends StateNotifier<void> {
       // tempPresets.addAll(result.presets);
     }
   }
+
+  unlinkOctoeverwhere() async {
+    var machine = ref.read(currentlyEditing);
+
+    var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
+        title: 'Unlink ${machine.name}?',
+        body:
+            "Are you sure you want to unlink the printer ${machine.name} from OctoEverywhere?",
+        confirmBtn: 'Unlink',
+        confirmBtnColor: Colors.red);
+
+    if (dialogResponse?.confirmed == true) {
+      machine.octoEverywhere = null;
+      await ref.read(machineServiceProvider).updateMachine(machine);
+      _snackBarService.show(SnackBarConfig(
+          title: 'Success!',
+          message: '${machine.name} unlinked from OctoEverywhere!'));
+      ref.read(goRouterProvider).pop();
+    }
+  }
+
+  linkWithOctoeverywhere() async {
+    var machine = ref.read(currentlyEditing);
+
+    try {
+      var result = await _machineService.linkMachineWithOctoeverywhere(machine);
+
+      await ref.read(machineServiceProvider).updateMachine(result);
+      _snackBarService.show(SnackBarConfig(
+          title: 'Success!',
+          message: '${result.name} linked to OctoEverywhere!'));
+      ref.read(goRouterProvider).pop();
+    } on OctoEverywhereException catch (e, s) {
+      logger.e(
+          'Error while trying to Link machine with UUID ${machine.uuid} to Octo',
+          e,
+          s);
+      _snackBarService.show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: 'OctoEverywhere-Error:',
+          message: e.message));
+    }
+  }
 }
 
 final importMachines = FutureProvider.autoDispose(
@@ -224,7 +277,7 @@ final remoteMachineSettingProvider =
     FutureProvider.autoDispose<MachineSettings>((ref) async {
   var machine = ref.watch(currentlyEditing);
   return ref.watch(machineServiceProvider).fetchSettings(machine);
-}, name:'remoteMachineSettingProvider');
+}, name: 'remoteMachineSettingProvider');
 
 final webcamListControllerProvider = StateNotifierProvider.autoDispose<
     WebcamListController, List<WebcamSetting>>((ref) {

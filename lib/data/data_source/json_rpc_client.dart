@@ -6,11 +6,13 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:web_socket_channel/io.dart';
 
 enum ClientState { disconnected, connecting, connected, error }
+
+enum ClientType { local, octo }
 
 typedef RpcCallback = Function(Map<String, dynamic> response,
     {Map<String, dynamic>? err});
@@ -31,56 +33,65 @@ class JRpcError implements Exception {
 class JsonRpcClientBuilder {
   JsonRpcClientBuilder();
 
-  factory JsonRpcClientBuilder.fromOcto(OctoEverywhere octoEverywhere) {
+  factory JsonRpcClientBuilder.fromOcto(Machine machine) {
+    var octoEverywhere = machine.octoEverywhere!;
+    var localWsUir = Uri.parse(machine.wsUrl);
+    var octoUri = Uri.parse(octoEverywhere.url);
+
     return JsonRpcClientBuilder()
-      ..uri = Uri.parse(octoEverywhere.url).replace(scheme: 'wss')
-      ..basicAuthUser = octoEverywhere.authBasicHttpUser
-      ..basicAuthPassword = octoEverywhere.authBasicHttpPassword;
+      ..uri = localWsUir.replace(
+          scheme: 'wss',
+          host: octoUri.host,
+          userInfo:
+              '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
+      ..clientType = ClientType.octo;
   }
 
   factory JsonRpcClientBuilder.fromMachine(Machine machine) {
     return JsonRpcClientBuilder()
       ..uri = Uri.parse(machine.wsUrl)
       ..apiKey = machine.apiKey
-      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate;
+      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
+      ..clientType = ClientType.local;
   }
 
+  ClientType clientType = ClientType.local;
   String? apiKey;
   Uri? uri;
   bool trustSelfSignedCertificate = false;
   Duration timeout = const Duration(seconds: 3);
-  String? basicAuthUser;
-  String? basicAuthPassword;
 
   JsonRpcClient build() {
     assert(uri != null, 'Provided URI was null');
 
     Map<String, dynamic> headers = {};
-    if (basicAuthUser != null && basicAuthPassword != null) {
-      headers[HttpHeaders.authorizationHeader] =
-          'Basic ${base64.encode(utf8.encode('$basicAuthUser:$basicAuthPassword'))}';
-    }
     if (apiKey != null) {
       headers['X-Api-Key'] = apiKey;
     }
 
     return JsonRpcClient(
-        uri: uri!,
-        timeout: timeout,
-        trustSelfSignedCertificate: trustSelfSignedCertificate,
-        headers: headers);
+      uri: uri!,
+      timeout: timeout,
+      trustSelfSignedCertificate: trustSelfSignedCertificate,
+      headers: headers,
+      clientType: clientType,
+    );
   }
 }
 
+// await Future.delayed(Duration(seconds: 5));
 class JsonRpcClient {
-  JsonRpcClient(
-      {required this.uri,
-      Duration? timeout,
-      this.trustSelfSignedCertificate = false,
-      this.headers = const {}})
-      : timeout = timeout ?? const Duration(seconds: 3),
+  JsonRpcClient({
+    required this.uri,
+    Duration? timeout,
+    this.trustSelfSignedCertificate = false,
+    this.headers = const {},
+    this.clientType = ClientType.local,
+  })  : timeout = timeout ?? const Duration(seconds: 3),
         assert(['ws', 'wss'].contains(uri.scheme),
             'Scheme of provided URI must be WS or WSS!');
+
+  final ClientType clientType;
 
   final Uri uri;
 
@@ -93,18 +104,6 @@ class JsonRpcClient {
   Exception? errorReason;
 
   bool get hasError => errorReason != null;
-
-  bool get requiresAPIKey {
-    if (errorReason != null) {
-      if (errorReason is WebSocketException) {
-        return (errorReason as WebSocketException)
-            .message
-            .contains('was not upgraded to websocket');
-      }
-    }
-
-    return false;
-  }
 
   bool _disposed = false;
 
@@ -137,7 +136,7 @@ class JsonRpcClient {
 
   set curState(ClientState newState) {
     if (curState == newState) return;
-    logger.i('[$uri] $curState ➝ $newState');
+    logger.i('[${identityHashCode(this)}-$uri] $curState ➝ $newState');
     if (!_stateStream.isClosed) _stateStream.add(newState);
     _curState = newState;
   }
@@ -159,7 +158,6 @@ class JsonRpcClient {
     if (curState != ClientState.connected &&
         curState != ClientState.connecting) {
       logger.i('[$uri] WS not connected! connecting...');
-
       return openChannel();
     }
     return true;
@@ -198,8 +196,10 @@ class JsonRpcClient {
   bool removeMethodListener(Function(Map<String, dynamic> rawMessage) callback,
       [String? method]) {
     if (method != null) {
-      return _methodListeners.values
-          .where((element) => element.contains(callback))
+      var foundListeners = _methodListeners.values
+          .where((element) => element.contains(callback));
+      if (foundListeners.isEmpty) return true;
+      return foundListeners
           .map((element) => element.remove(callback))
           .reduce((value, element) => value || element);
     }
@@ -207,22 +207,22 @@ class JsonRpcClient {
   }
 
   Future<bool> _tryConnect() async {
-    logger.i('Trying to connect to $uri');
+    logger.i('[${identityHashCode(this)}]Trying to connect to $uri');
     curState = ClientState.connecting;
     _resetChannel();
     try {
-      HttpClient httpClient = HttpClient();
-      if (trustSelfSignedCertificate) {
-        // only allow self signed certificates!
-        httpClient.badCertificateCallback =
-            (cert, host, port) => cert.issuer == cert.subject;
-      }
+      // if (clientType == ClientType.local) {
+      //   await Future.delayed(Duration(seconds: 15));
+      //   throw Exception("Teeeest");
+      // }
+
+      HttpClient httpClient = _constructHttpClient();
 
       WebSocket socket = await WebSocket.connect(
         uri.toString(),
         headers: headers,
         customClient: httpClient,
-      ).timeout(timeout)
+      ).timeout(Duration(seconds: timeout.inSeconds+2))
         ..pingInterval = timeout;
 
       if (_disposed) {
@@ -239,7 +239,8 @@ class JsonRpcClient {
       _channelSub = ioChannel.stream.listen(
         _onChannelMessage,
         onError: _onChannelError,
-        onDone: _onChannelClosesNormal,
+        onDone: () =>
+            _onChannelClosesNormal(socket.closeCode, socket.closeReason),
       );
 
       curState = ClientState.connected;
@@ -248,6 +249,17 @@ class JsonRpcClient {
       _onChannelError(e);
       return false;
     }
+  }
+
+  HttpClient _constructHttpClient() {
+    HttpClient httpClient = HttpClient();
+    httpClient.connectionTimeout = timeout;
+    if (trustSelfSignedCertificate) {
+      // only allow self signed certificates!
+      httpClient.badCertificateCallback =
+          (cert, host, port) => cert.issuer == cert.subject;
+    }
+    return httpClient;
   }
 
   Map<String, dynamic> _constructJsonRPCMessage(String method,
@@ -317,6 +329,12 @@ class JsonRpcClient {
         completer.completeError(
             JRpcError(err['code'], err['message']), StackTrace.current);
       } else {
+        if (response['result'] == 'ok') {
+          response = {
+            ...response,
+            'result': <String, dynamic>{}
+          }; // do some trickery here because the gcode response (Why idk) returns `result:ok` instead of an empty map/wrapped in a map..
+        }
         completer.complete(RpcResponse.fromJson(response));
       }
     } else {
@@ -324,29 +342,62 @@ class JsonRpcClient {
     }
   }
 
-  _onChannelClosesNormal() {
+  _onChannelClosesNormal(int? closeCode, String? closeReason) {
     if (_disposed) {
-      logger.i('[$uri] WS-Stream Subscription is DONE!');
+      logger
+          .i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
       return;
     }
+
+    logger.i(
+        '[$uri${identityHashCode(this)}] WS-Stream closed normal! Code: $closeCode, Reason: $closeReason');
+
     ClientState t = curState;
     if (t != ClientState.error) {
       t = ClientState.disconnected;
     }
     if (!_stateStream.isClosed) curState = t;
     openChannel();
-    logger.i('[$uri] WS-Stream closed normal!');
   }
 
-  _onChannelError(error) {
+  _onChannelError(error) async {
+    logger.w('Got channel error $error');
+    if (error is! WebSocketException) {
+      _updateError(error);
+      return;
+    }
+    // Here we figure out exactly what is the problem!
+    var httpUri = uri.replace(
+      scheme: uri.isScheme("wss") ? "https" : "http",
+    );
+    var httpClient = _constructHttpClient();
+    try {
+      logger.w('Sending GET to $httpUri to determine error reason');
+      var request = await httpClient.openUrl("GET", httpUri);
+
+      if (uri.userInfo.isNotEmpty) {
+        // If the URL contains user information use that for basic
+        // authorization.
+        String auth = base64Encode(utf8.encode(uri.userInfo));
+        request.headers.set(HttpHeaders.authorizationHeader, "Basic $auth");
+      }
+      HttpClientResponse response = await request.close();
+      logger.wtf('Got Response: ${response.statusCode}');
+      verifyHttpResponseCodes(response.statusCode, clientType);
+      openChannel(); // If no exception was thrown, we just try again!
+    } catch (e) {
+      _updateError(e);
+    }
+  }
+
+  _updateError(error) {
     if (_disposed) return;
-    logger.e('[$uri] WS-Stream error: $error');
+    logger.e('[$uri${identityHashCode(this)}] WS-Stream error: $error');
     errorReason = error;
     curState = ClientState.error;
   }
 
   dispose() {
-    logger.e('JSON_RPC_DISPOSED+${identityHashCode(this)}');
     _disposed = true;
     _channelSub?.cancel();
     _requestsBlocking.forEach((key, value) => value.completeError(Future.error(
@@ -356,4 +407,41 @@ class JsonRpcClient {
     _resetChannel();
     _stateStream.close();
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is JsonRpcClient &&
+          runtimeType == other.runtimeType &&
+          clientType == other.clientType &&
+          uri == other.uri &&
+          timeout == other.timeout &&
+          trustSelfSignedCertificate == other.trustSelfSignedCertificate &&
+          mapEquals(headers, other.headers) &&
+          errorReason == other.errorReason &&
+          _disposed == other._disposed &&
+          _channel == other._channel &&
+          _channelSub == other._channelSub &&
+          _stateStream == other._stateStream &&
+          mapEquals(_methodListeners, other._methodListeners) &&
+          mapEquals(_requests, other._requests) &&
+          mapEquals(_requestsBlocking, other._requestsBlocking) &&
+          _curState == other._curState;
+
+  @override
+  int get hashCode =>
+      clientType.hashCode ^
+      uri.hashCode ^
+      timeout.hashCode ^
+      trustSelfSignedCertificate.hashCode ^
+      headers.hashCode ^
+      errorReason.hashCode ^
+      _disposed.hashCode ^
+      _channel.hashCode ^
+      _channelSub.hashCode ^
+      _stateStream.hashCode ^
+      _methodListeners.hashCode ^
+      _requests.hashCode ^
+      _requestsBlocking.hashCode ^
+      _curState.hashCode;
 }

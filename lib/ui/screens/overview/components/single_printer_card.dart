@@ -5,6 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/wrapper/riverpod_machine_wrapper.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -42,30 +43,29 @@ class SinglePrinterCard extends ConsumerWidget {
             Center(
                 child: Mjpeg(
               key: ValueKey(webcamSetting.uuid),
-              feedUri: webcamSetting.url,
-              targetFps: webcamSetting.targetFps,
               transform: webcamSetting.transformMatrix,
-              camMode: webcamSetting.mode,
+              landscape: webcamSetting.rotate == WebCamRotation.landscape,
+              config: MjpegConfig(
+                  feedUri: webcamSetting.url,
+                  targetFps: webcamSetting.targetFps,
+                  mode: webcamSetting.mode),
               imageBuilder: _imageBuilder,
-              stackChild: Positioned.fill(
-                  child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: IconButton(
-                        color: Colors.white,
-                        icon: const Icon(Icons.aspect_ratio),
-                        tooltip:
-                            tr('pages.dashboard.general.cam_card.fullscreen'),
-                        onPressed: singlePrinterCardController.onFullScreenTap,
-                      ),
+              stackChild: [
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: IconButton(
+                      color: Colors.white,
+                      icon: const Icon(Icons.aspect_ratio),
+                      tooltip:
+                          tr('pages.dashboard.general.cam_card.fullscreen'),
+                      onPressed: singlePrinterCardController.onFullScreenTap,
                     ),
                   ),
-                  if (printState == PrintState.printing)
-                    _PrintProgressBar(_machine)
-                ],
-              )),
+                ),
+                if (printState == PrintState.printing)
+                  _PrintProgressBar(_machine)
+              ],
             )),
           ListTile(
             onTap: singlePrinterCardController.onTapTile,

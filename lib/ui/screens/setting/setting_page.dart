@@ -10,6 +10,7 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/theme_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
@@ -113,7 +114,8 @@ class SettingPage extends ConsumerWidget {
                             const String url =
                                 'https://github.com/Clon1998/mobileraker_companion';
                             if (await canLaunchUrlString(url)) {
-                              await launchUrlString(url);
+                              await launchUrlString(url,
+                                  mode: LaunchMode.externalApplication);
                             } else {
                               throw 'Could not launch $url';
                             }
@@ -124,6 +126,18 @@ class SettingPage extends ConsumerWidget {
               ),
               const Divider(),
               const VersionText(),
+              TextButton(
+                style: TextButton.styleFrom(
+                    minimumSize: Size.zero, // Set this
+                    padding: EdgeInsets.zero,
+                    textStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary)),
+                child: Text('Debug-Logs'),
+                onPressed: () {
+                  var dialogService = ref.read(dialogServiceProvider);
+                  dialogService.show(DialogRequest(type: DialogType.logging));
+                },
+              ),
               TextButton(
                 style: TextButton.styleFrom(
                     minimumSize: Size.zero, // Set this

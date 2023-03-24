@@ -14,6 +14,7 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
+import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
@@ -113,6 +114,10 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
       return SwitchPrinterAppBar(
           title: tr('pages.files.title'),
           actions: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
+            ),
             const FileSortModeSelector(),
             IconButton(
               icon: const Icon(Icons.search),

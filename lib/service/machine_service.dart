@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/data/model/moonraker_db/device_fcm_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
@@ -24,56 +27,63 @@ import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final machineServiceProvider = Provider.autoDispose<MachineService>((ref) {
+import 'setting_service.dart';
+
+part 'machine_service.g.dart';
+
+@riverpod
+MachineService machineService(MachineServiceRef ref) {
   ref.keepAlive();
   return MachineService(ref);
-}, name: 'machineServiceProvider');
+}
 
-final machineProvider =
-    FutureProvider.autoDispose.family<Machine?, String>((ref, uuid) {
-  var repo = ref.watch(machineRepositoryProvider);
+@riverpod
+Future<Machine?> machine(MachineRef ref, String uuid) async {
   ref.keepAlive();
-  return repo.get(uuid: uuid);
-}, name: 'machineProvider');
+  ref.onDispose(() => logger.e('machineProvider disposed $uuid'));
 
-final allMachinesProvider = FutureProvider.autoDispose<List<Machine>>((ref) {
+  logger.e('machineProvider creation STARTED $uuid');
+  var future = await ref.watch(machineRepositoryProvider).get(uuid: uuid);
+  logger.e('machineProvider creation DONE $uuid');
+  return future;
+}
+
+@riverpod
+Future<List<Machine>> allMachines(AllMachinesRef ref) async {
   return ref.watch(machineServiceProvider).fetchAll();
-}, name: 'allMachinesProvider');
+}
 
-final selectedMachineSettingsProvider =
-    FutureProvider.autoDispose<MachineSettings>((ref) async {
-  //TODO: This leaks and is not that eefficient!
-  var machine = await ref
-      .watch(selectedMachineProvider.future)
-      .asStream()
-      .whereNotNull()
-      .first;
+@riverpod
+Future<MachineSettings> selectedMachineSettings(
+    SelectedMachineSettingsRef ref) async {
+  var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-  await ref.watchWhere<ClientState>(
-      jrpcClientStateSelectedProvider, (c) => c == ClientState.connected);
-
+  await ref.watchWhere<KlipperInstance>(
+      klipperSelectedProvider, (c) => c.klippyState == KlipperState.ready);
   var fetchSettings =
       await ref.watch(machineServiceProvider).fetchSettings(machine);
   ref.keepAlive();
   return fetchSettings;
-}, name: 'selectedMachineSettingsProvider');
+}
 
 /// Service handling the management of a machine
 class MachineService {
   MachineService(this.ref)
       : _machineRepo = ref.watch(machineRepositoryProvider),
         _selectedMachineService = ref.watch(selectedMachineServiceProvider),
-        _settingService = ref.watch(settingServiceProvider);
+        _settingService = ref.watch(settingServiceProvider),
+        _appConnectionService = ref.watch(appConnectionServiceProvider);
 
   final AutoDisposeRef ref;
   final MachineHiveRepository _machineRepo;
   final SelectedMachineService _selectedMachineService;
   final SettingService _settingService;
+  final AppConnectionService _appConnectionService;
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
@@ -287,5 +297,24 @@ class MachineService {
     await ref
         .read(machineSettingsRepositoryProvider(machine.uuid))
         .update(machineSettings);
+  }
+
+  Future<Machine> linkMachineWithOctoeverywhere(Machine machineToLink) async {
+    MoonrakerDatabaseClient moonrakerDatabaseClient =
+        ref.read(moonrakerDatabaseClientProvider(machineToLink.uuid));
+    String? octoPrinterId;
+    try {
+      octoPrinterId = await moonrakerDatabaseClient
+          .getDatabaseItem('octoeverywhere', key: 'public.printerId');
+    } on WebSocketException catch (e, s) {
+      logger.w(
+          'Rpc Client was not connected, could not fetch octo.printerId. User can select by himself!');
+    }
+
+    var appPortalResult =
+        await _appConnectionService.linkAppWithOcto(printerId: octoPrinterId);
+
+    return machineToLink
+      ..octoEverywhere = OctoEverywhere.fromDto(appPortalResult);
   }
 }

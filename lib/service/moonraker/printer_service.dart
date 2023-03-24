@@ -6,7 +6,6 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
-import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
@@ -17,7 +16,6 @@ import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/controller_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/heater_fan.dart';
-import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/gcode_move.dart';
@@ -41,39 +39,41 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 import 'package:vector_math/vector_math.dart';
 
+part 'printer_service.g.dart';
+
 final Set<String> skipGCodes = {'PAUSE', 'RESUME', 'CANCEL_PRINT'};
-final printerServiceProvider = Provider.autoDispose
-    .family<PrinterService, String>(name: 'printerServiceProvider',
-        (ref, machineUUID) {
-  ref.keepAlive();
+
+@riverpod
+PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
   return PrinterService(ref, machineUUID);
-});
+}
 
-final printerProvider = StreamProvider.autoDispose.family<Printer, String>(
-    name: 'printerProvider', (ref, machineUUID) async* {
+@riverpod
+Stream<Printer> printer(PrinterRef ref, String machineUUID) {
   ref.keepAlive();
-  yield* ref.watch(printerServiceProvider(machineUUID)).printerStream;
-});
+  return ref.watch(printerServiceProvider(machineUUID)).printerStream;
+}
 
-final printerServiceSelectedProvider = Provider.autoDispose<PrinterService>(
-    name: 'printerServiceSelectedProvider', (ref) {
+@riverpod
+PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
   return ref.watch(printerServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-});
+}
 
-final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
-    name: 'printerSelectedProvider', (ref) async* {
+@riverpod
+Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
     StreamController<Printer> sc = StreamController<Printer>();
     ref.onDispose(() {
+      logger.w('-DISPOSED printerSelected');
       if (!sc.isClosed) {
         sc.close();
       }
@@ -89,10 +89,10 @@ final printerSelectedProvider = StreamProvider.autoDispose<Printer>(
     }, fireImmediately: true);
 
     yield* sc.stream;
-  } on StateError catch (e, s) {
+  } on StateError catch (_) {
     // Just catch it. It is expected that the future/where might not complete!
   }
-});
+}
 
 class PrinterService {
   PrinterService(AutoDisposeRef ref, this.ownerUUID)
@@ -177,7 +177,10 @@ class PrinterService {
 
   set current(Printer nI) {
     if (_printerStreamCtler.isClosed) {
-      logger.w('Tried to set current Printer on an old printerService? ${identityHashCode(this)}',null, StackTrace.current);
+      logger.w(
+          'Tried to set current Printer on an old printerService? ${identityHashCode(this)}',
+          null,
+          StackTrace.current);
       return;
     }
     _current = nI;
@@ -255,7 +258,7 @@ class PrinterService {
     gCode('M83\nG1 E$length F${feedRate * 60}');
   }
 
-  homePrintHead(Set<PrinterAxis> axis) {
+  Future<bool> homePrintHead(Set<PrinterAxis> axis) {
     if (axis.contains(PrinterAxis.E)) {
       throw const FormatException('E axis cant be homed');
     }
@@ -263,23 +266,23 @@ class PrinterService {
     if (axis.length < 3) {
       gcode += axis.map(EnumToString.convertToString).join(' ');
     }
-    gCode(gcode);
+    return gCode(gcode);
   }
 
-  quadGantryLevel() {
-    gCode('QUAD_GANTRY_LEVEL');
+  Future<bool> quadGantryLevel() {
+    return gCode('QUAD_GANTRY_LEVEL');
   }
 
-  m84() {
-    gCode('M84');
+  Future<bool> m84() {
+    return gCode('M84');
   }
 
-  zTiltAdjust() {
-    gCode('Z_TILT_ADJUST');
+  Future<bool> zTiltAdjust() {
+    return gCode('Z_TILT_ADJUST');
   }
 
-  screwsTiltCalculate() {
-    gCode('SCREWS_TILT_CALCULATE');
+  Future<bool> screwsTiltCalculate() {
+    return gCode('SCREWS_TILT_CALCULATE');
   }
 
   m117([String? msg]) {
@@ -302,9 +305,29 @@ class PrinterService {
     gCode('SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}');
   }
 
-  gCode(String script) {
-    _jRpcClient.sendJsonRpcWithCallback('printer.gcode.script',
-        params: {'script': script});
+  Future<bool> gCode(String script,
+      {bool throwOnError = false, bool showSnackOnErr = true}) async {
+    try {
+      await _jRpcClient
+          .sendJRpcMethod('printer.gcode.script', params: {'script': script});
+      logger.i('GCode "$script" executed successfully!');
+      return true;
+    } on JRpcError catch (e, s) {
+      var gCodeException = GCodeException.fromJrpcError(e, parentStack: s);
+      logger.i('GCode execution failed: ${gCodeException.message}');
+
+      if (showSnackOnErr) {
+        _snackBarService.show(SnackBarConfig(
+            type: SnackbarType.warning,
+            title: 'GCode-Error',
+            message: gCodeException.message));
+      }
+
+      if (throwOnError) {
+        throw gCodeException;
+      }
+      return false;
+    }
   }
 
   gCodeMacro(String macro) {
@@ -1208,7 +1231,6 @@ class PrinterService {
   }
 
   dispose() {
-    logger.e('PrinterService.$ownerUUID Dispo ${identityHashCode(this)}');
     _jRpcClient.removeMethodListener(
         _onStatusUpdateHandler, 'notify_status_update');
 

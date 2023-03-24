@@ -1,10 +1,14 @@
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'machine_repository.dart';
+part 'machine_hive_repository.g.dart';
 
-final machineRepositoryProvider = Provider((ref) => MachineHiveRepository(),name:'machineRepositoryProvider');
+@Riverpod(keepAlive: true)
+MachineHiveRepository machineRepository(MachineRepositoryRef ref) => MachineHiveRepository();
+
 
 class MachineHiveRepository implements MachineRepository {
   MachineHiveRepository() : _boxMachines = Hive.box<Machine>('printers');

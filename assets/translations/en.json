@@ -16,6 +16,7 @@
     "shutdown": "Shutdown",
     "firmware": "Firmware",
     "fetching": "Fetching",
+    "loading": "Loading",
     "unknown": "Unknown",
     "disabled": "Disabled",
     "confirm": "Confirm",
@@ -256,7 +257,13 @@
         "default_addr": "Default Address",
         "flip_vertical": "Flip vertical",
         "flip_horizontal": "Flip horizontal",
-        "cam_mode": "Cam Mode"
+        "cam_mode": "Cam Mode",
+        "cam_mofde": "Cam fasff",
+        "cam_rotate": {
+          "label": "Rotate",
+          "landscape": "Landscape",
+          "portrait": "Portrait"
+        }
       },
       "macros": {
         "new_macro_grp": "New Macro - Group",
@@ -297,6 +304,12 @@
       "fetching_machines": "@:general.fetching machines...",
       "no_entries": "No machines found",
       "add_machine": "Add Machine"
+    },
+    "faq": {
+      "title": "FAQ",
+      "loading": "@:general.loading FAQ...",
+      "error":"An error occurred while trying to fetch FAQ",
+      "open_in_browser": "Open @:pages.faq.title in Browser"
     }
   },
   "components": {
@@ -311,8 +324,10 @@
     },
     "connection_watcher": {
       "reconnect": "Reconnect",
-      "trying_connect": "Trying to connect ...",
-      "server_starting": "Server is starting..."
+      "trying_connect": "Trying to connect...",
+      "trying_connect_remote": "Trying to connect using remote client...",
+      "server_starting": "Server is starting...",
+      "more_details": "More Details"
     }
   },
   "dialogs": {
@@ -369,7 +384,8 @@
     "shutdown": "Shutdown",
     "starting": "Starting",
     "disconnected": "Disconnected",
-    "error": "Error"
+    "error": "Error",
+    "unauthorized": "Unauthorized"
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",

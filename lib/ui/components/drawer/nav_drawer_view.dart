@@ -9,9 +9,10 @@ import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/theme_service.dart';
-import 'package:mobileraker/ui/components/drawer/nav_drawer_viewmodel.dart';
+import 'package:mobileraker/ui/components/drawer/nav_drawer_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:stringr/stringr.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 const double baseIconSize = 20;
@@ -59,6 +60,11 @@ class NavigationDrawerWidget extends ConsumerWidget {
                     icon: Icons.file_present,
                     routeName: '/files',
                   ),
+                  _DrawerItem(
+                    text: tr('pages.faq.title'),
+                    icon: Icons.help,
+                    routeName: '/faq',
+                  ),
                   const Divider(),
                   _DrawerItem(
                     text: 'pages.setting.title'.tr(),
@@ -98,7 +104,8 @@ class NavigationDrawerWidget extends ConsumerWidget {
                             const String url =
                                 'https://github.com/Clon1998/mobileraker';
                             if (await canLaunchUrlString(url)) {
-                              await launchUrlString(url);
+                              await launchUrlString(url,
+                                  mode: LaunchMode.externalApplication);
                             } else {
                               throw 'Could not launch $url';
                             }

@@ -11,6 +11,7 @@ import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/data/model/hive/temperature_preset.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -69,6 +70,10 @@ setupBoxes() async {
   var octoAdapater = OctoEverywhereAdapter();
   if (!Hive.isAdapterRegistered(octoAdapater.typeId)) {
     Hive.registerAdapter(octoAdapater);
+  }
+  var webCamRotationAdapter = WebCamRotationAdapter();
+  if (!Hive.isAdapterRegistered(webCamRotationAdapter.typeId)) {
+    Hive.registerAdapter(webCamRotationAdapter);
   }
   // Hive.deleteBoxFromDisk('printers');
 

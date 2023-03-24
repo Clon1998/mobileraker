@@ -1,16 +1,18 @@
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/model/moonraker_db/device_fcm_settings.dart';
 import 'package:mobileraker/data/repository/fcm_settings_repository.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final fcmSettingsRepositoryProvider = Provider.autoDispose
-    .family<FcmSettingsRepository, String>((ref, machineUUID) {
+part 'fcm_settings_repository_impl.g.dart';
+
+@riverpod
+FcmSettingsRepository fcmSettingsRepository(
+    FcmSettingsRepositoryRef ref, String machineUUID) {
   return FcmSettingsRepositoryImpl(
       ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
-},name:'fcmSettingsRepositoryProvider');
+}
 
-class FcmSettingsRepositoryImpl
-    extends FcmSettingsRepository {
+class FcmSettingsRepositoryImpl extends FcmSettingsRepository {
   FcmSettingsRepositoryImpl(this._databaseService);
 
   final MoonrakerDatabaseClient _databaseService;

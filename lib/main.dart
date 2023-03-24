@@ -16,12 +16,14 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import 'app_setup.dart';
 import 'firebase_options.dart';
+import 'logger.dart';
 
 Future<void> main() async {
-  Logger.level = Level.info;
+  setupLogger();
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
   WidgetsFlutterBinding.ensureInitialized();
   await setupBoxes();
+
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate();
@@ -30,10 +32,10 @@ Future<void> main() async {
 
   setupLicenseRegistry();
   final container = ProviderContainer(
-      // observers: [
-      //   if (kDebugMode)
-      //   const RiverPodLogger(),
-      // ],
+      observers: [
+        if (kDebugMode)
+        const RiverPodLogger(),
+      ],
       );
 
   await container.read(analyticsProvider).logAppOpen();

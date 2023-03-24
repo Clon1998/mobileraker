@@ -7,10 +7,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
+import 'package:mobileraker/ui/components/machine_state_indicator.dart';
+import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/console/console_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -24,7 +26,11 @@ class ConsolePage extends ConsumerWidget {
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
-        actions: const [EmergencyStopBtn()],
+        actions: [
+          MachineStateIndicator(
+              ref.watch(selectedMachineProvider).valueOrFullNull),
+          const EmergencyStopBtn(),
+        ],
       ),
       drawer: const NavigationDrawerWidget(),
       body: const ConnectionStateView(
@@ -43,9 +49,10 @@ class _ConsoleBody extends HookConsumerWidget {
     var focusNode = useFocusNode();
 
     var klippyCanReceiveCommands = ref
-        .watch(klipperSelectedProvider)
-        .valueOrFullNull
-        ?.klippyCanReceiveCommands ?? false;
+            .watch(klipperSelectedProvider)
+            .valueOrFullNull
+            ?.klippyCanReceiveCommands ??
+        false;
 
     var theme = Theme.of(context);
     return Container(
@@ -183,9 +190,10 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
         calculateSuggestedMacros(consoleInput, history, available);
     if (suggestions.isEmpty) return const SizedBox.shrink();
     var canSend = ref
-        .watch(klipperSelectedProvider)
-        .valueOrFullNull
-        ?.klippyCanReceiveCommands ?? false;
+            .watch(klipperSelectedProvider)
+            .valueOrFullNull
+            ?.klippyCanReceiveCommands ??
+        false;
     return SizedBox(
       height: 33,
       child: ChipTheme(
@@ -241,9 +249,10 @@ class _Console extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var canSend = ref
-        .watch(klipperSelectedProvider)
-        .valueOrFullNull
-        ?.klippyCanReceiveCommands?? false;
+            .watch(klipperSelectedProvider)
+            .valueOrFullNull
+            ?.klippyCanReceiveCommands ??
+        false;
     return ref.watch(consoleListControllerProvider).when(
         data: (entries) {
           if (entries.isEmpty) {
@@ -265,7 +274,7 @@ class _Console extends ConsumerWidget {
                     color: themeData.colorScheme.onBackground),
                 idleText: tr('components.pull_to_refresh.pull_up_idle'),
               ),
-              controller: ref.watch(consoleRefreshController),
+              controller: ref.watch(consoleRefreshControllerProvider),
               onRefresh: () => ref.refresh(consoleListControllerProvider),
               child: ListView.builder(
                   reverse: true,

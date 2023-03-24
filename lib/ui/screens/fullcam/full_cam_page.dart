@@ -1,11 +1,17 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
+import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
 import 'package:stringr/stringr.dart';
 
@@ -18,10 +24,10 @@ class FullCamPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(selectedCamIndexProvider.notifier).state = initialCam;
     return ProviderScope(
       overrides: [
         camMachineProvider.overrideWithValue(machine),
+        selectedCamIndexProvider.overrideWith((ref) => initialCam)
       ],
       child: const _FullCamView(),
     );
@@ -34,8 +40,24 @@ class _FullCamView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(camMachineProvider);
+    var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
     var index = ref.watch(selectedCamIndexProvider);
     var selectedCam = machine.cams[index];
+
+    Uri camUri = Uri.parse(selectedCam.url);
+    Map<String, String> headers = {};
+    if (clientType == ClientType.octo) {
+      Uri machineUri = Uri.parse(machine.wsUrl);
+      if (machineUri.host == camUri.host) {
+        var octoEverywhere = machine.octoEverywhere!;
+
+        camUri = camUri.replace(scheme: 'https', host: octoEverywhere.uri.host);
+
+        headers[HttpHeaders.authorizationHeader] =
+            octoEverywhere.basicAuthorizationHeader;
+        ;
+      }
+    }
 
     return Scaffold(
       body: Stack(alignment: Alignment.center, children: [
@@ -44,13 +66,17 @@ class _FullCamView extends ConsumerWidget {
             minScale: 1,
             maxScale: 10,
             child: Mjpeg(
-                key: ValueKey(selectedCam.url),
-                feedUri: selectedCam.url,
-                targetFps: selectedCam.targetFps,
-                showFps: true,
-                transform: selectedCam.transformMatrix,
-                camMode: selectedCam.mode,
-                stackChild: const StackContent())),
+              key: ValueKey(selectedCam.url),
+              config: MjpegConfig(
+                  feedUri: camUri.toString(),
+                  httpHeader: headers,
+                  targetFps: selectedCam.targetFps,
+                  mode: selectedCam.mode),
+              showFps: true,
+              landscape: selectedCam.rotate == WebCamRotation.landscape,
+              transform: selectedCam.transformMatrix,
+              stackChild: const [StackContent()],
+            )),
         if (machine.cams.length > 1)
           Align(
             alignment: Alignment.bottomCenter,
@@ -73,6 +99,14 @@ class _FullCamView extends ConsumerWidget {
             onPressed: () => Navigator.of(context).pop(),
           ),
         ),
+        if (clientType != ClientType.local)
+          const Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: EdgeInsets.all(12.0),
+              child: OctoIndicator(),
+            ),
+          ),
       ]),
     );
   }

@@ -2,6 +2,7 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
+import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:uuid/uuid.dart';
 
@@ -36,6 +37,8 @@ class Machine extends HiveObject {
   DateTime? lastModified;
   @HiveField(19, defaultValue: false)
   bool trustUntrustedCertificate;
+  @HiveField(20)
+  OctoEverywhere? octoEverywhere;
 
   PrintState? get lastPrintState =>
       EnumToString.fromString(PrintState.values, _lastPrintState ?? '');
@@ -49,15 +52,16 @@ class Machine extends HiveObject {
 
   String get printProgressChannelKey => '$uuid-progressUpdates';
 
-  Machine({
-    required this.name,
-    required this.wsUrl,
-    required this.httpUrl,
-    this.apiKey,
-    this.temperaturePresets = const [],
-    this.cams = const [],
-    this.trustUntrustedCertificate = false
-  });
+  Machine(
+      {required this.name,
+      required this.wsUrl,
+      required this.httpUrl,
+      this.apiKey,
+      this.temperaturePresets = const [],
+      this.cams = const [],
+      this.trustUntrustedCertificate = false,
+      this.octoEverywhere
+      });
 
   @override
   Future<void> save() async {
@@ -81,12 +85,13 @@ class Machine extends HiveObject {
           uuid == other.uuid &&
           listEquals(cams, other.cams) &&
           apiKey == other.apiKey &&
-          listEquals(temperaturePresets, other.temperaturePresets)&&
+          listEquals(temperaturePresets, other.temperaturePresets) &&
           httpUrl == other.httpUrl &&
           lastPrintProgress == other.lastPrintProgress &&
           _lastPrintState == other._lastPrintState &&
           fcmIdentifier == other.fcmIdentifier &&
-          lastModified == other.lastModified;
+          lastModified == other.lastModified &&
+          octoEverywhere == other.octoEverywhere;
 
   @override
   int get hashCode =>
@@ -100,7 +105,8 @@ class Machine extends HiveObject {
       lastPrintProgress.hashCode ^
       _lastPrintState.hashCode ^
       fcmIdentifier.hashCode ^
-      lastModified.hashCode;
+      lastModified.hashCode ^
+      octoEverywhere.hashCode;
 
   @override
   String toString() {

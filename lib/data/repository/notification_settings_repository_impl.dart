@@ -4,18 +4,21 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/moonraker_db/notification_settings.dart';
 import 'package:mobileraker/data/repository/notification_settings_repository.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final notificationSettingsRepositoryProvider = Provider.autoDispose
-    .family<NotificationSettingsRepository, String>((ref, machineUUID) {
-  return NotificationSettingsRepositoryImpl(ref, machineUUID);
-}, name: 'notificationSettingsRepositoryProvider');
+part 'notification_settings_repository_impl.g.dart';
 
-final notificationSettingsRepositorySelectedProvider =
-    Provider.autoDispose<NotificationSettingsRepository>(
-        name: 'notificationSettingsRepositorySelectedProvider', (ref) {
+@riverpod
+NotificationSettingsRepository notificationSettingsRepository(
+        NotificationSettingsRepositoryRef ref, String machineUUID) =>
+    NotificationSettingsRepositoryImpl(ref, machineUUID);
+
+@riverpod
+NotificationSettingsRepository notificationSettingsRepositorySelected(
+    NotificationSettingsRepositorySelectedRef ref) {
   return ref.watch(notificationSettingsRepositoryProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
-});
+}
 
 class NotificationSettingsRepositoryImpl
     extends NotificationSettingsRepository {

@@ -186,7 +186,7 @@ class _DashboardBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref
         // We use selectAs null since we want to prevent rebuilding this widget to often!
-        .watch(printerSelectedProvider.selectAs((value) => true))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((data) => true))
         .when<Widget>(
           data: (d) => PageView(
             key: const PageStorageKey<String>('dashboardPages'),

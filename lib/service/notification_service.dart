@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:io' show Platform;
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
@@ -10,14 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/license.dart';
 import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';
@@ -161,8 +160,7 @@ class NotificationService {
         onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
         onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
         licenseKeys: [AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
-
-    await _notifyFCM.requestFirebaseAppToken();
+    await fetchCurrentFcmToken();
   }
 
   Future<void> updatePrintStateOnce() async {
@@ -210,7 +208,8 @@ class NotificationService {
     return prog - prog % m;
   }
 
-  Future<String> fetchCurrentFcmToken() {
+  Future<String> fetchCurrentFcmToken() async {
+    await _notifyFCM.isFirebaseAvailable;
     return _notifyFCM.requestFirebaseAppToken();
   }
 
@@ -221,8 +220,6 @@ class NotificationService {
     }
     _setupFCMOnPrinterOnceConnected(setting);
     registerLocalMessageHandling(setting);
-    logger.i(
-        "Added notifications channels and stream-listener for UUID=${setting.uuid}");
   }
 
   void onMachineRemoved(String uuid) {
@@ -362,13 +359,14 @@ class NotificationService {
   }
 
   void _setupFCMOnPrinterOnceConnected(Machine machine) async {
-    String fcmToken = await _notifyFCM
-        .requestFirebaseAppToken(); // TODO: Extract to seperate provider
+    String fcmToken = await fetchCurrentFcmToken();// TODO: Extract to seperate provider
     logger.i('Device\'s FCM token: $fcmToken');
 
     // Wait until connected
-    await ref.watchWhere<ClientState>(jrpcClientStateProvider(machine.uuid),
-        (c) => c == ClientState.connected);
+    await ref.watchWhere<KlipperInstance>(
+        klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready);
+
+
     logger.i('Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
     try {
       await _machineService.updateMachineFcmConfig(machine, fcmToken);
@@ -378,6 +376,7 @@ class NotificationService {
   }
 
   Future<void> _processPrinterUpdate(Machine machine, Printer printer) async {
+    logger.wtf('_processPrinterUpdate.${machine.uuid}');
     var state = await _updatePrintStatusNotification(
         machine, printer.print.state, printer.print.filename, false);
 

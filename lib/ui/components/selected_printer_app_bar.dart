@@ -40,7 +40,7 @@ class SwitchPrinterAppBar extends HookConsumerWidget
   Widget build(BuildContext context, WidgetRef ref) {
     var selectedMachine = ref.watch(selectedMachineProvider).valueOrFullNull;
     return AppBar(
-
+      centerTitle: false,
       title: GestureDetector(
         onHorizontalDragEnd: ref
             .watch(selectedPrinterAppBarController.notifier)
