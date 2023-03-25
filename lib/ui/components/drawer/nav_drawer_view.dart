@@ -206,7 +206,7 @@ class _NavHeader extends ConsumerWidget {
                                         machine.httpUrl),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: themeData.textTheme.subtitle2
+                                style: themeData.textTheme.titleSmall
                                     ?.copyWith(color: onBackground),
                               ),
                             ],

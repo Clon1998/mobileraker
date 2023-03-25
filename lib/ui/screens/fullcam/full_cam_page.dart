@@ -132,11 +132,17 @@ class StackContent extends ConsumerWidget {
                   tr('pages.dashboard.general.temp_preset_card.h_temp', args: [
                 '${extruder.temperature.toStringAsFixed(1)}${target > 0 ? '/${target.toStringAsFixed(1)}' : ''}'
               ]);
-              var bedTarget = d.heaterBed.target;
-              var bedText =
-                  tr('pages.dashboard.general.temp_preset_card.b_temp', args: [
-                '${d.heaterBed.temperature.toStringAsFixed(1)}${bedTarget > 0 ? '/${bedTarget.toStringAsFixed(1)}' : ''}'
-              ]);
+              String info = nozzleText;
+
+              if (d.heaterBed != null) {
+                var bedTarget = d.heaterBed!.target;
+                var bedText = tr(
+                    'pages.dashboard.general.temp_preset_card.b_temp',
+                    args: [
+                      '${d.heaterBed!.temperature.toStringAsFixed(1)}${bedTarget > 0 ? '/${bedTarget.toStringAsFixed(1)}' : ''}'
+                    ]);
+                info = '$info\n$bedText';
+              }
 
               return [
                 Positioned.fill(
@@ -145,7 +151,7 @@ class StackContent extends ConsumerWidget {
                     child: Container(
                         margin: const EdgeInsets.only(top: 5, left: 2),
                         child: Text(
-                          '$nozzleText\n$bedText',
+                          info,
                           style: Theme.of(context)
                               .textTheme
                               .bodySmall

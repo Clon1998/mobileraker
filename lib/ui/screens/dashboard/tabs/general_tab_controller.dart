@@ -13,6 +13,7 @@ import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
+import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
@@ -81,14 +82,19 @@ class GeneralTabViewController
     }
   }
 
-  adjustNozzleAndBed(int extruderTemp, int bedTemp) {
+  adjustNozzleAndBed(int extruderTemp, int? bedTemp) {
     var printerService = ref.read(printerServiceSelectedProvider);
     printerService.setTemperature('extruder', extruderTemp);
-    printerService.setTemperature('heater_bed', bedTemp);
+    if (bedTemp != null) {
+      printerService.setTemperature('heater_bed', bedTemp);
+    }
     flipTemperatureCard();
   }
 
   editHeatedBed() {
+    if (state.value!.printerData.heaterBed == null){
+      throw ArgumentError('Heater bed is null');
+    }
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
@@ -100,7 +106,7 @@ class GeneralTabViewController
             cancelBtn: tr('general.cancel'),
             confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
-                current: state.value!.printerData.heaterBed.target.round(),
+                current: state.value!.printerData.heaterBed!.target.round(),
                 min: 0,
                 max: state
                         .value!.printerData.configFile.configHeaterBed?.maxTemp

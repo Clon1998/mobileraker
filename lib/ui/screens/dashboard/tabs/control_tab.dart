@@ -268,7 +268,7 @@ class _FanCard extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: Theme.of(context).textTheme.caption,
+                      style: Theme.of(context).textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -693,7 +693,7 @@ class _PinTile extends ConsumerWidget {
                 children: [
                   Text(
                     beautifiedName,
-                    style: textTheme.caption,
+                    style: textTheme.bodySmall,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -722,7 +722,7 @@ class _PinTile extends ConsumerWidget {
               children: [
                 Text(
                   beautifiedName,
-                  style: textTheme.caption,
+                  style: textTheme.bodySmall,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -859,7 +859,7 @@ class _Led extends ConsumerWidget {
                   children: [
                     Text(
                       beautifiedName,
-                      style: textTheme.caption,
+                      style: textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
