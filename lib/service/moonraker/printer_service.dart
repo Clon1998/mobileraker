@@ -212,8 +212,13 @@ class PrinterService {
       _printerStreamCtler.addError(MobilerakerException(
           'Could not fetch printer...',
           parentException: e,
-          parentStack: s));
+          parentStack: s), s);
+    } on Exception catch (e,s) {
+      logger.e('Unexpected exception thrown during refresh $ownerUUID...', e, s);
+      _showExceptionSnackbar(e, s);
+      _printerStreamCtler.addError(e,s);
     }
+
   }
 
   resumePrint() {
