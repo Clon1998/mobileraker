@@ -317,8 +317,8 @@ class PropertyTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
-    var subtitleTheme = textTheme.bodyText2
-        ?.copyWith(fontSize: 13, color: textTheme.caption?.color);
+    var subtitleTheme = textTheme.bodyMedium
+        ?.copyWith(fontSize: 13, color: textTheme.bodySmall?.color);
     return Padding(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 10),
       child: Column(

@@ -35,10 +35,6 @@ KlippyService klipperServiceSelected(
 @riverpod
 Stream<KlipperInstance> klipperSelected(
     KlipperSelectedRef ref) async* {
-  ref.listenSelf((previous, next) {
-
-    logger.wtf('-- B: $previous -> $next');
-  });
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
     StreamController<KlipperInstance> sc = StreamController<KlipperInstance>();
@@ -79,7 +75,6 @@ class KlippyService {
 
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       var data = next as AsyncValue<ClientState>;
-      logger.wtf('-- Is Refreshing $data');
       switch (data.valueOrFullNull) {
         case ClientState.connected:
           _onJrpcConnected();

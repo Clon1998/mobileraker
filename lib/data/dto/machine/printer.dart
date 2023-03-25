@@ -61,7 +61,6 @@ class PrinterBuilder {
 
   Printer build() {
     if (toolhead == null ||
-        heaterBed == null ||
         printFan == null ||
         gCodeMove == null ||
         motionReport == null ||
@@ -74,7 +73,7 @@ class PrinterBuilder {
     var printer = Printer(
         toolhead: toolhead!,
         extruders: extruders,
-        heaterBed: heaterBed!,
+        heaterBed: heaterBed,
         printFan: printFan!,
         gCodeMove: gCodeMove!,
         motionReport: motionReport!,
@@ -100,7 +99,7 @@ class Printer with _$Printer {
   const factory Printer({
     required Toolhead toolhead,
     required List<Extruder> extruders,
-    required HeaterBed heaterBed,
+    required HeaterBed? heaterBed,
     required PrintFan printFan,
     required GCodeMove gCodeMove,
     required MotionReport motionReport,

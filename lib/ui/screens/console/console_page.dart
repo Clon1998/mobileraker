@@ -80,7 +80,7 @@ class _ConsoleBody extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
               child: Text(
                 'GCode Console',
-                style: theme.textTheme.subtitle1
+                style: theme.textTheme.titleMedium
                     ?.copyWith(color: theme.colorScheme.onPrimary),
               ),
             ),
@@ -238,7 +238,7 @@ class _Console extends ConsumerWidget {
         textStyle = theme.textTheme.bodyText1!;
         break;
       case ListTileStyle.list:
-        textStyle = theme.textTheme.subtitle1!;
+        textStyle = theme.textTheme.titleMedium!;
         break;
     }
 

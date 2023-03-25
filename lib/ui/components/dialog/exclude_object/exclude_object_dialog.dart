@@ -292,7 +292,7 @@ class ExcludeObjectPainter extends CustomPainter {
   void drawNoDataText(Canvas canvas, double maxX, double maxY) {
     TextSpan span = TextSpan(
       text: 'dialogs.exclude_object.no_visualization'.tr(),
-      style: Theme.of(context).textTheme.headline4,
+      style: Theme.of(context).textTheme.headlineMedium,
     );
     TextPainter tp = TextPainter(
         text: span,

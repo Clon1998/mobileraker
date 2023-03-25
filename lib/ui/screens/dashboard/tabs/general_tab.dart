@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
@@ -278,8 +277,8 @@ class PrintCard extends ConsumerWidget {
                             .tr(),
                         Text(
                           excludeObject.currentObject ?? 'general.none'.tr(),
-                          style: themeData.textTheme.bodyText2?.copyWith(
-                              color: themeData.textTheme.caption?.color),
+                          style: themeData.textTheme.bodyMedium?.copyWith(
+                              color: themeData.textTheme.bodySmall?.color),
                         ),
                       ],
                     ),
@@ -468,6 +467,55 @@ class TemperatureCard extends ConsumerWidget {
   }
 }
 
+class _TemperatureCardTitle extends ConsumerWidget {
+  const _TemperatureCardTitle({Key? key, required this.title})
+      : super(key: key);
+
+  final Widget? title;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ListTile(
+      leading: Icon(
+        FlutterIcons.fire_alt_faw5s,
+        color: ref.watch(generalTabViewControllerProvider.select((data) =>
+                data.value!.printerData.extruder.target +
+                    (data.value!.printerData.heaterBed?.target ?? 0) >
+                0))
+            ? Colors.deepOrange
+            : null,
+      ),
+      title: title,
+      trailing: TextButton(
+        onPressed: ref
+            .read(generalTabViewControllerProvider.notifier)
+            .flipTemperatureCard,
+        child: const Text('pages.dashboard.general.temp_card.presets_btn').tr(),
+      ),
+    );
+  }
+}
+
+class _Presets extends ConsumerWidget {
+  const _Presets({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => Card(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              _TemperatureCardTitle(
+                  title: const Text(
+                          'pages.dashboard.general.temp_card.temp_presets')
+                      .tr()),
+              const _TemperaturePresetsHorizontalScroll()
+            ],
+          ),
+        ),
+      );
+}
+
 class _Heaters extends ConsumerWidget {
   const _Heaters({
     Key? key,
@@ -480,27 +528,9 @@ class _Heaters extends ConsumerWidget {
         padding: const EdgeInsets.only(bottom: 8.0),
         child: Column(
           children: [
-            ListTile(
-              leading: Icon(
-                FlutterIcons.fire_alt_faw5s,
-                color: ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.value!.printerData.extruder.target +
-                                data.value!.printerData.heaterBed.target >
-                            0))
-                    ? Colors.deepOrange
-                    : null,
-              ),
-              title: const Text('pages.dashboard.general.temp_card.title').tr(),
-              trailing: TextButton(
-                onPressed: ref
-                    .read(generalTabViewControllerProvider.notifier)
-                    .flipTemperatureCard,
-                child:
-                    const Text('pages.dashboard.general.temp_card.presets_btn')
-                        .tr(),
-              ),
-            ),
+            _TemperatureCardTitle(
+                title:
+                    const Text('pages.dashboard.general.temp_card.title').tr()),
             const _HeatersHorizontalScroll(),
           ],
         ),
@@ -514,6 +544,9 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    bool hasHeaterBed = ref.watch(generalTabViewControllerProvider
+        .select((data) => data.value!.printerData.heaterBed != null));
+
     int extruderCnt = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.printerData.extruderCount));
 
@@ -536,7 +569,7 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
       pageStorageKey: "temps",
       children: [
         ...List.generate(extruderCnt, (index) => _ExtruderCard(extNum: index)),
-        const _HeatedBedCard(),
+        if (hasHeaterBed) const _HeatedBedCard(),
         ...List.generate(
             sensorsCnt,
             (index) => _SensorCard(
@@ -601,6 +634,12 @@ class _HeatedBedCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var heaterBed = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.printerData.heaterBed));
+
+    if (heaterBed == null) {
+      logger.w('Tried to build a _HeatedBedCard while heater bed is null!');
+      return const SizedBox.shrink();
+    }
+
     var spots = useState(<FlSpot>[]);
 
     var temperatureHistory = heaterBed.temperatureHistory;
@@ -656,12 +695,12 @@ class _SensorCard extends HookConsumerWidget {
           children: [
             Text(
               beautifiedNamed,
-              style: Theme.of(context).textTheme.caption,
+              style: Theme.of(context).textTheme.bodySmall,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text('${temperatureSensor.temperature.toStringAsFixed(1)} °C',
-                style: Theme.of(context).textTheme.headline6),
+                style: Theme.of(context).textTheme.titleLarge),
             Text(
               '${temperatureSensor.measuredMaxTemp.toStringAsFixed(1)} °C max',
             ),
@@ -728,12 +767,12 @@ class _HeaterCard extends StatelessWidget {
                   children: [
                     Text(
                       name,
-                      style: innerTheme.textTheme.caption,
+                      style: innerTheme.textTheme.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text('${current.toStringAsFixed(1)} °C',
-                        style: innerTheme.textTheme.headline6),
+                        style: innerTheme.textTheme.titleLarge),
                     Text(targetTemp),
                   ],
                 ),
@@ -791,12 +830,12 @@ class _TemperatureFanCard extends HookConsumerWidget {
               children: [
                 Text(
                   beautifiedNamed,
-                  style: Theme.of(context).textTheme.caption,
+                  style: Theme.of(context).textTheme.bodySmall,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text('${temperatureFan.temperature.toStringAsFixed(1)} °C',
-                    style: Theme.of(context).textTheme.headline6),
+                    style: Theme.of(context).textTheme.titleLarge),
                 Text(
                   'pages.dashboard.general.temp_card.heater_on'
                       .tr(args: [temperatureFan.target.toStringAsFixed(1)]),
@@ -816,44 +855,6 @@ class _TemperatureFanCard extends HookConsumerWidget {
   }
 }
 
-class _Presets extends ConsumerWidget {
-  const _Presets({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) => Card(
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: Column(
-            children: [
-              ListTile(
-                leading: Icon(
-                  FlutterIcons.fire_alt_faw5s,
-                  color: ref.watch(generalTabViewControllerProvider.select(
-                          (data) =>
-                              data.value!.printerData.extruder.target +
-                                  data.value!.printerData.heaterBed.target >
-                              0))
-                      ? Colors.deepOrange
-                      : null,
-                ),
-                title:
-                    const Text('pages.dashboard.general.temp_card.temp_presets')
-                        .tr(),
-                trailing: TextButton(
-                  onPressed: ref
-                      .read(generalTabViewControllerProvider.notifier)
-                      .flipTemperatureCard,
-                  child: const Text('pages.dashboard.general.temp_card.sensors')
-                      .tr(),
-                ),
-              ),
-              const _TemperaturePresetsHorizontalScroll()
-            ],
-          ),
-        ),
-      );
-}
-
 class _TemperaturePresetsHorizontalScroll extends ConsumerWidget {
   const _TemperaturePresetsHorizontalScroll({Key? key}) : super(key: key);
 
@@ -861,14 +862,17 @@ class _TemperaturePresetsHorizontalScroll extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommand = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
+    var hasPrintBed = ref.watch(generalTabViewControllerProvider
+        .select((data) => data.value!.printerData.heaterBed != null));
+
     var coolOf = _TemperaturePresetCard(
       presetName: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
       extruderTemp: 0,
-      bedTemp: 0,
+      bedTemp: hasPrintBed ? 0 : null,
       onTap: klippyCanReceiveCommand
           ? () => ref
               .read(generalTabViewControllerProvider.notifier)
-              .adjustNozzleAndBed(0, 0)
+              .adjustNozzleAndBed(0, hasPrintBed ? 0 : null)
           : null,
     );
 
@@ -880,7 +884,7 @@ class _TemperaturePresetsHorizontalScroll extends ConsumerWidget {
       return _TemperaturePresetCard(
         presetName: preset.name,
         extruderTemp: preset.extruderTemp,
-        bedTemp: preset.bedTemp,
+        bedTemp: hasPrintBed ? preset.bedTemp : null,
         onTap: klippyCanReceiveCommand
             ? () => ref
                 .read(generalTabViewControllerProvider.notifier)
@@ -898,11 +902,6 @@ class _TemperaturePresetsHorizontalScroll extends ConsumerWidget {
 }
 
 class _TemperaturePresetCard extends StatelessWidget {
-  final String presetName;
-  final int extruderTemp;
-  final int bedTemp;
-  final VoidCallback? onTap;
-
   const _TemperaturePresetCard(
       {Key? key,
       required this.presetName,
@@ -910,6 +909,11 @@ class _TemperaturePresetCard extends StatelessWidget {
       required this.bedTemp,
       required this.onTap})
       : super(key: key);
+
+  final String presetName;
+  final int extruderTemp;
+  final int? bedTemp;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -921,15 +925,16 @@ class _TemperaturePresetCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(presetName,
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis),
               Text('pages.dashboard.general.temp_preset_card.h_temp',
-                      style: Theme.of(context).textTheme.caption)
+                      style: Theme.of(context).textTheme.bodySmall)
                   .tr(args: [extruderTemp.toString()]),
-              Text('pages.dashboard.general.temp_preset_card.b_temp',
-                      style: Theme.of(context).textTheme.caption)
-                  .tr(args: [bedTemp.toString()]),
+              if (bedTemp != null)
+                Text('pages.dashboard.general.temp_preset_card.b_temp',
+                        style: Theme.of(context).textTheme.bodySmall)
+                    .tr(args: [bedTemp.toString()]),
             ],
           );
         });

@@ -82,7 +82,7 @@ class _PowerDeviceCard extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(beautifyName(powerDevice.name),
-                  style: Theme.of(context).textTheme.caption),
+                  style: Theme.of(context).textTheme.bodySmall),
               Text(powerDevice.status.name.capitalize,
                   style: Theme.of(context).textTheme.headlineSmall),
             ],

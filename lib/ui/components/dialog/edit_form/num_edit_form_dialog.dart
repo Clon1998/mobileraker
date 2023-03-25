@@ -103,7 +103,7 @@ class _FormEditDialog extends HookConsumerWidget {
                             .switchToOtherVariant
                         : null,
                     color: isValid.value
-                        ? themeData.textTheme.caption?.color
+                        ? themeData.textTheme.bodySmall?.color
                         : themeData.disabledColor,
                     iconSize: 18,
                     icon: AnimatedSwitcher(

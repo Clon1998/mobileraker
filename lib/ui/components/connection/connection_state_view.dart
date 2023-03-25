@@ -95,7 +95,6 @@ class WebSocketState extends HookConsumerWidget {
       data: (ClientState clientState) {
         switch (clientState) {
           case ClientState.connected:
-            logger.w('--NIW: $clientType connectaed');
             return KlippyState(
               onConnected: onConnected,
             );
@@ -199,7 +198,6 @@ class KlippyState extends ConsumerWidget {
     }
 
     var watch = ref.watch(klipperSelectedProvider);
-    logger.wtf('--GOt ${watch.valueOrNull?.klippyState}, isReloading ${watch.isReloading},isRefreshing ${watch.isRefreshing}, isLoading ${watch.isLoading},');
     return AsyncValueWidget<KlipperInstance>(
       value: watch,
       data: (data) {

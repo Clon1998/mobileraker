@@ -92,10 +92,11 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
             controller: textCtler,
             autofocus: true,
             cursorColor: onBackground,
-            style: themeData.textTheme.headline6?.copyWith(color: onBackground),
+            style:
+                themeData.textTheme.titleLarge?.copyWith(color: onBackground),
             decoration: InputDecoration(
               hintText: '${tr('pages.files.search_files')}...',
-              hintStyle: themeData.textTheme.headline6
+              hintStyle: themeData.textTheme.titleLarge
                   ?.copyWith(color: onBackground.withOpacity(0.4)),
               border: InputBorder.none,
               suffixIcon: textCtler.text.isEmpty
@@ -116,7 +117,8 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
           actions: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
+              child: MachineStateIndicator(
+                  ref.watch(selectedMachineProvider).valueOrFullNull),
             ),
             const FileSortModeSelector(),
             IconButton(
@@ -306,7 +308,7 @@ class _BreadCrumb extends ConsumerWidget {
                   return BreadCrumbItem(
                       content: Text(
                         p.toUpperCase(),
-                        style: theme.textTheme.subtitle1
+                        style: theme.textTheme.titleMedium
                             ?.copyWith(color: theme.colorScheme.onPrimary),
                       ),
                       onTap: () => ref
@@ -317,7 +319,7 @@ class _BreadCrumb extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: Text(
                     '/',
-                    style: theme.textTheme.subtitle1
+                    style: theme.textTheme.titleMedium
                         ?.copyWith(color: theme.colorScheme.onPrimary),
                   ),
                 ),
@@ -392,7 +394,9 @@ class GCodeFileItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     String? lastPrinted = gCode.lastPrintDate != null
-        ? DateFormat.yMd(context.deviceLocale.languageCode).add_jm().format(gCode.lastPrintDate!)
+        ? DateFormat.yMd(context.deviceLocale.languageCode)
+            .add_jm()
+            .format(gCode.lastPrintDate!)
         : null;
 
     return _Slideable(
@@ -408,7 +412,9 @@ class GCodeFileItem extends ConsumerWidget {
                   gCode, ref.watch(selectedMachineProvider).valueOrFullNull),
             )),
         title: Text(gCode.name),
-        subtitle:  Text((lastPrinted != null)?'${tr('pages.files.last_printed')}: $lastPrinted':tr('pages.files.not_printed')),
+        subtitle: Text((lastPrinted != null)
+            ? '${tr('pages.files.last_printed')}: $lastPrinted'
+            : tr('pages.files.not_printed')),
         onTap: () =>
             ref.read(filesListControllerProvider.notifier).onFileTapped(gCode),
       ),
