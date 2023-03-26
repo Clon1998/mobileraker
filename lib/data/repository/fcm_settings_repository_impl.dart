@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/model/moonraker_db/device_fcm_settings.dart';
 import 'package:mobileraker/data/repository/fcm_settings_repository.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'fcm_settings_repository_impl.g.dart';
@@ -18,6 +21,15 @@ class FcmSettingsRepositoryImpl extends FcmSettingsRepository {
   final MoonrakerDatabaseClient _databaseService;
 
   @override
+  Future<Map<String, DeviceFcmSettings>> all() async {
+    Map<String, dynamic> json =
+        await _databaseService.getDatabaseItem('mobileraker', key: 'fcm');
+
+    return json
+        .map((key, value) => MapEntry(key, DeviceFcmSettings.fromJson(value)));
+  }
+
+  @override
   Future<DeviceFcmSettings?> get(String machineId) async {
     var json = await _databaseService.getDatabaseItem('mobileraker',
         key: 'fcm.$machineId');
@@ -32,4 +44,8 @@ class FcmSettingsRepositoryImpl extends FcmSettingsRepository {
     await _databaseService.addDatabaseItem(
         'mobileraker', 'fcm.$machineId', fcmSettings);
   }
+
+  @override
+  Future<void> delete(String machineId) async => await _databaseService
+      .deleteDatabaseItem('mobileraker', 'fcm.$machineId');
 }

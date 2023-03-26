@@ -192,6 +192,22 @@ class MachineService {
     FcmSettingsRepository fcmRepo =
         ref.read(fcmSettingsRepositoryProvider(machine.uuid));
 
+    // Remove DeviceFcmSettings if the device does not has the machineUUID anymore!
+    var allDeviceSettings = await fcmRepo.all();
+    var allMachineUUIDs = (await fetchAll()).map((e) => e.uuid);
+    //Filter all entries out that dont have the same FCMTOKEN
+    allDeviceSettings
+        .removeWhere((key, value) => value.fcmToken != deviceFcmToken);
+    // Remove all entries where a machine exist for
+    allDeviceSettings
+        .removeWhere((key, value) => allMachineUUIDs.contains(key));
+
+    // Clear all of the DeviceFcmSettings that are left
+    for (String uuid in allDeviceSettings.keys) {
+      logger.w('Found an old DeviceFcmSettings entry with uuid $uuid that is not present anymore!');
+      fcmRepo.delete(uuid);
+    }
+
     DeviceFcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
 
     int progressModeInt =
