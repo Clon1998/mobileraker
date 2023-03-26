@@ -4,6 +4,7 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,10 +21,10 @@ import 'logger.dart';
 
 Future<void> main() async {
   setupLogger();
+
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
   WidgetsFlutterBinding.ensureInitialized();
   await setupBoxes();
-
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate();

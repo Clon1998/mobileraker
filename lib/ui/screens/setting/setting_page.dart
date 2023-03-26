@@ -104,11 +104,24 @@ class SettingPage extends ConsumerWidget {
                     .colorScheme
                     .primary,
               ),
+              FormBuilderSwitch(
+                name: 'lcFullCam',
+                title: const Text('pages.setting.general.lcFullCam').tr(),
+                onChanged: (b) =>
+                    settingService.writeBool(landscapeFullWebCam, b ?? false),
+                initialValue: ref.watch(boolSetting(landscapeFullWebCam)),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
+                activeColor: Theme.of(context).colorScheme.primary,
+              ),
               _SectionHeader(title: 'pages.setting.notification.title'.tr()),
               const NotificationPermissionWarning(),
               const NotificationFirebaseWarning(),
               const _ProgressNotificationSettingField(),
               const _StateNotificationSettingField(),
+
               const Divider(),
               RichText(
                 text: TextSpan(

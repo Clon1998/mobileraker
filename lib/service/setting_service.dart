@@ -17,6 +17,7 @@ const String activeStateNotifyMode = 'activeStateNotMode';
 const String requestedNotifyPermission = 'reqNotifyPerm';
 const String selectedFileSortKey = 'selFileSrt';
 const String recentColorsKey = 'selectedColors';
+const String landscapeFullWebCam = 'lcFullCam';
 
 @riverpod
 SettingService settingService(SettingServiceRef ref) {
