@@ -20,7 +20,7 @@ class StackTraceDialog extends StatelessWidget {
           children: <Widget>[
             Text(
               request.title!,
-              style: Theme.of(context).textTheme.headline5,
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
             Expanded(
               child: SingleChildScrollView(

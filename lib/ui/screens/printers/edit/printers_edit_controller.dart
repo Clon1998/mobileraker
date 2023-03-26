@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -19,6 +21,8 @@ import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
+import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
+import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 
 final editPrinterformKeyProvider =
@@ -282,12 +286,16 @@ final remoteMachineSettingProvider =
 final webcamListControllerProvider = StateNotifierProvider.autoDispose<
     WebcamListController, List<WebcamSetting>>((ref) {
   var machine = ref.watch(currentlyEditing);
-  return WebcamListController(machine);
+  return WebcamListController(ref, machine);
 });
 
 class WebcamListController extends StateNotifier<List<WebcamSetting>> {
-  WebcamListController(this.machine) : super(machine.cams);
+  WebcamListController(
+    this.ref,
+    this.machine,
+  ) : super(machine.cams);
   final Machine machine;
+  final Ref ref;
 
   onWebCamReorder(int oldIndex, int newIndex) {
     if (oldIndex < newIndex) {
@@ -310,6 +318,33 @@ class WebcamListController extends StateNotifier<List<WebcamSetting>> {
     var list = state.toList();
     list.remove(webcamSetting);
     state = List.unmodifiable(list);
+  }
+
+  previewWebcam(WebcamSetting cam) {
+    var formBuilderState = ref.read(editPrinterformKeyProvider).currentState!;
+    formBuilderState.save();
+
+    var cfg = MjpegConfig(
+      feedUri: formBuilderState.getRawValue('${cam.uuid}-camUrl'),
+      mode: formBuilderState.getRawValue('${cam.uuid}-mode'),
+    );
+    var transform = Matrix4.identity();
+    if (formBuilderState.getRawValue('${cam.uuid}-camFV')) {
+      transform.rotateY(pi);
+    }
+
+    if (formBuilderState.getRawValue('${cam.uuid}-camFH')) {
+      transform.rotateX(pi);
+    }
+
+    ref.read(dialogServiceProvider).show(DialogRequest(
+          type: DialogType.webcamPreview,
+          data: WebcamPreviewDialogArguments(
+            config: cfg,
+            transform: transform,
+            rotation: formBuilderState.getRawValue('${cam.uuid}-rotate'),
+          ),
+        ));
   }
 }
 

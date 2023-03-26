@@ -114,6 +114,7 @@ class _Mjpeg extends ConsumerWidget {
       var state = ref.read(_mjpegControllerProvider);
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.error_outline),
           const SizedBox(
@@ -134,6 +135,7 @@ class _Mjpeg extends ConsumerWidget {
     if (isLoading) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           SpinKitDancingSquare(
             color: Theme.of(context).colorScheme.secondary,

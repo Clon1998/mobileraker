@@ -22,7 +22,8 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "close": "Close",
-    "edit": "Edit"
+    "edit": "Edit",
+    "preview": "Preview"
   },
   "pages": {
     "dashboard": {
@@ -192,6 +193,7 @@
         "num_edit": "Use keyboard for number input",
         "start_with_overview": "Show @:pages.overview.title by default",
         "use_offset_pos": "Show coordinates with offset applied.",
+        "lcFullCam": "Fullscreen Webcam in Landscape",
         "language": "Language",
         "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its "
       },

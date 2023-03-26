@@ -16,6 +16,7 @@ import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
+import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -342,20 +343,19 @@ class _WebCamItem extends HookConsumerWidget {
                   signed: false, decimal: false),
             ),
           FormBuilderDropdown(
-            decoration: InputDecoration(
-              labelText: 'pages.printer_edit.cams.cam_rotate.label'.tr(),
-            ),
-            name: '${cam.uuid}-rotate',
-            initialValue: cam.rotate,
-            items:
-              WebCamRotation.values.map((e) =>
-                  DropdownMenuItem(
-                    value: e,
-                    child:
-                    Text('pages.printer_edit.cams.cam_rotate.${e.name}').tr(),
-                  )
-              ).toList(growable: false)
-          ),
+              decoration: InputDecoration(
+                labelText: 'pages.printer_edit.cams.cam_rotate.label'.tr(),
+              ),
+              name: '${cam.uuid}-rotate',
+              initialValue: cam.rotate,
+              items: WebCamRotation.values
+                  .map((e) => DropdownMenuItem(
+                        value: e,
+                        child:
+                            Text('pages.printer_edit.cams.cam_rotate.${e.name}')
+                                .tr(),
+                      ))
+                  .toList(growable: false)),
           FormBuilderSwitch(
             title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
             decoration: const InputDecoration(border: InputBorder.none),
@@ -372,6 +372,10 @@ class _WebCamItem extends HookConsumerWidget {
             name: '${cam.uuid}-camFH',
             activeColor: Theme.of(context).colorScheme.primary,
           ),
+          FullWidthButton(
+            onPressed: () => ref.read(webcamListControllerProvider.notifier).previewWebcam(cam),
+            child: const Text('general.preview').tr(),
+          )
         ]));
   }
 }

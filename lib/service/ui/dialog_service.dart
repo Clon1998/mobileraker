@@ -13,6 +13,7 @@ import 'package:mobileraker/ui/components/dialog/logger_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/macro_params/macro_params_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'dialog_service.g.dart';
@@ -32,7 +33,8 @@ enum DialogType {
   renameFile,
   gcodeParams,
   ledRGBW,
-  logging
+  logging,
+  webcamPreview
 }
 
 typedef DialogCompleter = Function(DialogResponse);
@@ -63,6 +65,7 @@ class DialogService {
         MacroParamsDialog(request: r, completer: c),
     DialogType.ledRGBW: (r,c) => LedRGBWDialog(request: r, completer: c,),
     DialogType.logging: (r,c) => LoggerDialog(request: r, completer: c),
+    DialogType.webcamPreview: (r,c) => WebcamPreviewDialog(request: r, completer: c)
   };
 
   Future<DialogResponse?> showConfirm({
