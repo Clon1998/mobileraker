@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 
-import 'num_edit_form_viewmodel.dart';
+import 'num_edit_form_controller.dart';
 
 class NumEditFormDialog extends ConsumerWidget {
   final DialogRequest request;
