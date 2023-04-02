@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 
 final selectedPrinterAppBarController =
@@ -45,6 +46,9 @@ class SwitchPrinterAppBar extends HookConsumerWidget
         onHorizontalDragEnd: ref
             .watch(selectedPrinterAppBarController.notifier)
             .onHorizontalDragEnd,
+        onTap: () => ref
+            .read(dialogServiceProvider)
+            .show(DialogRequest(type: DialogType.activeMachine)),
         child: Text(
           '${selectedMachine?.name ?? 'Printer'} - $title',
           overflow: TextOverflow.fade,

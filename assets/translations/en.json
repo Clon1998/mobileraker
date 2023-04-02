@@ -381,6 +381,12 @@
     },
     "rgbw": {
       "recent_colors": "Recent Colors"
+    },
+    "select_machine": {
+      "title": "Select Machine",
+      "active_machine" : "Active Machine: {}",
+      "hint": "Tap on a machine to set it as active."
+
     }
   },
   "klipper_state": {
