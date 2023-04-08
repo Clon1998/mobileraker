@@ -261,7 +261,6 @@ class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
   @override
   AsyncValue<MjpegState> build() {
     var mjpegManager = ref.watch(_mjpegManagerProvider);
-
     _jpegSub =
         mjpegManager.jpegStream.listen(onImageData, onError: onImageDataError);
 

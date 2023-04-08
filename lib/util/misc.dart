@@ -48,11 +48,10 @@ String beautifyName(String name) {
   return name.replaceAll("_", " ").titleCase();
 }
 
-FormFieldValidator<T> notContains<T>(
-  BuildContext context,
-  List<T> blockList, {
-  String? errorText,
-}) {
+FormFieldValidator<T> notContains<T>(BuildContext context,
+    List<T> blockList, {
+      String? errorText,
+    }) {
   return (T? valueCandidate) {
     if (valueCandidate != null) {
       assert(valueCandidate is! List &&
@@ -135,6 +134,10 @@ _verifyLocalHttpResponseCodes(int statusCode) {
 
 substituteProtocols(Uri wsUri,
     [String protocol = 'http', String secureProtocol = 'https']) {
+  if ([protocol, secureProtocol].contains(wsUri.scheme.toLowerCase())) {
+    return wsUri;
+  }
+
   if (!['ws', 'wss'].contains(wsUri.scheme.toLowerCase())) {
     throw ArgumentError('Provided uri is not a WS-Uri. Given: ${wsUri.scheme}');
   }

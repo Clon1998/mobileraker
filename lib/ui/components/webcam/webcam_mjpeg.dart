@@ -4,6 +4,7 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/enums/webcam_service_type.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
@@ -35,24 +36,55 @@ class WebcamMjpeg extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
-
     var octoEverywhere = machine.octoEverywhere;
-    Uri baseUri = clientType == ClientType.local
-        ? Uri.parse(machine.wsUrl)
-        : octoEverywhere!.uri.replace(
-            userInfo:
-                '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
+    var machineUri = Uri.parse(machine.wsUrl);
 
-    Uri streamUrl = webcamInfo.streamUrl;
-    if (!streamUrl.isAbsolute) {
-      streamUrl = substituteProtocols(baseUri.resolveUri(streamUrl));
+    Uri streamUrl;
+    Uri snapshotUrl;
+
+    var camStreamUrl = webcamInfo.streamUrl;
+    var camSnapshotUrl = webcamInfo.snapshotUrl;
+
+    if (clientType == ClientType.local) {
+      streamUrl = camStreamUrl.isAbsolute
+          ? camStreamUrl
+          : substituteProtocols(machineUri.resolveUri(camStreamUrl));
+      snapshotUrl = camSnapshotUrl.isAbsolute
+          ? camSnapshotUrl
+          : substituteProtocols(machineUri.resolveUri(camSnapshotUrl));
+    } else {
+      var baseUri = octoEverywhere!.uri.replace(
+          userInfo:
+              '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
+
+      if (camStreamUrl.isAbsolute) {
+        if (camStreamUrl.host.toLowerCase() == machineUri.host.toLowerCase()) {
+          streamUrl = baseUri.replace(
+              path: camStreamUrl.path, query: camStreamUrl.query);
+        } else {
+          streamUrl = camStreamUrl;
+        }
+      } else {
+        streamUrl = substituteProtocols(baseUri.resolveUri(camStreamUrl));
+      }
+
+      if (camSnapshotUrl.isAbsolute) {
+        if (camSnapshotUrl.host.toLowerCase() ==
+            machineUri.host.toLowerCase()) {
+          snapshotUrl = baseUri.replace(
+              path: camSnapshotUrl.path, query: camSnapshotUrl.query);
+        } else {
+          snapshotUrl = camSnapshotUrl;
+        }
+      } else {
+        snapshotUrl = substituteProtocols(baseUri.resolveUri(camSnapshotUrl));
+      }
     }
 
-    Uri snapshotUrl = webcamInfo.snapshotUrl;
-    if (!snapshotUrl.isAbsolute) {
-      snapshotUrl = substituteProtocols(baseUri.resolveUri(snapshotUrl));
-    }
-
+    logger.wtf('rawStre : ${camStreamUrl}');
+    logger.wtf('rawSnap : ${camSnapshotUrl}');
+    logger.wtf('Streamer : ${streamUrl}');
+    logger.wtf('snapshot : ${snapshotUrl}');
     return Mjpeg(
       key: ValueKey(webcamInfo.uuid + machine.uuid),
       imageBuilder: imageBuilder,

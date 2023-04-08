@@ -4,6 +4,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/enums/webcam_service_type.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
@@ -115,34 +116,6 @@ class _CamCardData extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var activeCam = data.activeCam;
-    var octoEverywhere = data.machine.octoEverywhere;
-    Uri baseUri = data.clientType == ClientType.local
-        ? Uri.parse(data.machine.wsUrl)
-        : octoEverywhere!.uri.replace(
-            userInfo:
-                '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
-
-    Uri streamUrl = activeCam.streamUrl;
-    if (!streamUrl.isAbsolute) {
-      streamUrl = substituteProtocols(baseUri.resolveUri(streamUrl));
-    }
-
-    Uri snapshotUrl = activeCam.snapshotUrl;
-    if (!snapshotUrl.isAbsolute) {
-      snapshotUrl = substituteProtocols(baseUri.resolveUri(snapshotUrl));
-    }
-
-    // Map<String, String> headers = {};
-    // if (data.clientType == ClientType.octo) {
-    //   Uri machineUri = Uri.parse(machine.wsUrl);
-    //   if (machineUri.host == camUri.host) {
-    //     var octoEverywhere = machine.octoEverywhere!;
-    //     camUri = camUri.replace(scheme: 'https', host: octoEverywhere.uri.host);
-    //
-    //     headers[HttpHeaders.authorizationHeader] =
-    //         octoEverywhere.basicAuthorizationHeader;
-    //   }
-    // }
 
     switch (activeCam.service) {
       case WebcamServiceType.mjpegStreamer:
