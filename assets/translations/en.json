@@ -23,7 +23,10 @@
     "cancel": "Cancel",
     "close": "Close",
     "edit": "Edit",
-    "preview": "Preview"
+    "preview": "Preview",
+    "retry": "Retry",
+    "supported": "Supported",
+    "unsupported": "Unsupported"
   },
   "pages": {
     "dashboard": {
@@ -220,6 +223,10 @@
       "fetching_additional_settings": "@:general.fetching additional settings from network...",
       "could_not_fetch_additional": "Could not fetch additional settings!",
       "fetch_error_hint": "Ensure the machine is reachable, and Mobileraker is connected to it.",
+      "store_error": {
+        "title": "Saving failed!",
+        "message": "Some fields contain invalid values!\nPlease make sure all fields are valid."
+      },
       "general": {
         "displayname": "Displayname",
         "printer_addr": "Printer - Address",
@@ -257,18 +264,14 @@
         "target_fps": "Target FPS",
         "new_cam": "New Webcam",
         "no_webcams": "No Webcams added!",
-        "webcam_addr": "Webcam - Address",
-        "default_addr": "Default Address",
+        "stream_url": "Stream URL",
+        "snapshot_url": "Snapshot URL",
+        "default_url": "Default URL",
         "flip_vertical": "Flip vertical",
         "flip_horizontal": "Flip horizontal",
         "cam_mode": "Cam Mode",
-        "cam_mofde": "Cam fasff",
-        "cam_rotate": {
-          "label": "Rotate",
-          "landscape": "Landscape",
-          "portrait": "Portrait"
-        }
-      },
+        "cam_rotate": "Rotation"
+        },
       "macros": {
         "new_macro_grp": "New Macro - Group",
         "no_macros_available": "No Macros available!",

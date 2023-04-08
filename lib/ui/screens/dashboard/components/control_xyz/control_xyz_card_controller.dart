@@ -1,36 +1,33 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'control_xyz_controller.freezed.dart';
+part 'control_xyz_card_controller.freezed.dart';
+
+part 'control_xyz_card_controller.g.dart';
 
 @freezed
 class ControlXYZState with _$ControlXYZState {
-  const factory ControlXYZState({
-    @Default(0) int index,
-    @Default(false) bool homing,
-    @Default(false) bool qgl,
-    @Default(false) bool mesh,
-    @Default(false) bool motorsOff,
-    @Default(false) bool zTilt,
-    @Default(false) bool screwTilt
-  }) = _ControlXYZState;
+  const factory ControlXYZState(
+      {@Default(0) int index,
+      @Default(false) bool homing,
+      @Default(false) bool qgl,
+      @Default(false) bool mesh,
+      @Default(false) bool motorsOff,
+      @Default(false) bool zTilt,
+      @Default(false) bool screwTilt}) = _ControlXYZState;
 }
 
-final controlXYZController =
-    StateNotifierProvider.autoDispose<ControlXYZController, ControlXYZState>((ref) {
-  ref.keepAlive();
-  return ControlXYZController(ref);
-});
-
-class ControlXYZController extends StateNotifier<ControlXYZState> {
-  ControlXYZController(this.ref) : super(const ControlXYZState());
-
-  Ref ref;
+@riverpod
+class ControlXYZCardController extends _$ControlXYZCardController {
+  @override
+  ControlXYZState build() {
+    return const ControlXYZState();
+  }
 
   onSelectedAxisStepSizeChanged(int index) {
     state = state.copyWith(index: index);
@@ -66,38 +63,48 @@ class ControlXYZController extends StateNotifier<ControlXYZState> {
   }
 
   onHomeAxisBtn(Set<PrinterAxis> axis) async {
-    state = state.copyWith(homing:true);
+    state = state.copyWith(homing: true);
     await ref.read(printerServiceSelectedProvider).homePrintHead(axis);
-    state = state.copyWith(homing:false);
+    state = state.copyWith(homing: false);
   }
 
   onQuadGantry() async {
-    state = state.copyWith(qgl:true);
+    state = state.copyWith(qgl: true);
     await ref.read(printerServiceSelectedProvider).quadGantryLevel();
-    state = state.copyWith(qgl:false);
+    state = state.copyWith(qgl: false);
   }
 
   onBedMesh() async {
-    state = state.copyWith(mesh:true);
+    state = state.copyWith(mesh: true);
     await ref.read(printerServiceSelectedProvider).bedMeshLevel();
-    state = state.copyWith(mesh:false);
+    state = state.copyWith(mesh: false);
   }
 
   onMotorOff() async {
-    state = state.copyWith(motorsOff:true);
+    state = state.copyWith(motorsOff: true);
     await ref.read(printerServiceSelectedProvider).m84();
-    state = state.copyWith(motorsOff:false);
+    state = state.copyWith(motorsOff: false);
   }
 
   onZTiltAdjust() async {
-    state = state.copyWith(zTilt:true);
+    state = state.copyWith(zTilt: true);
     await ref.read(printerServiceSelectedProvider).zTiltAdjust();
-    state = state.copyWith(zTilt:false);
+    state = state.copyWith(zTilt: false);
   }
 
   onScrewTiltCalc() async {
-    state = state.copyWith(screwTilt:true);
+    state = state.copyWith(screwTilt: true);
     await ref.read(printerServiceSelectedProvider).screwsTiltCalculate();
-    state = state.copyWith(screwTilt:false);
+    state = state.copyWith(screwTilt: false);
+  }
+
+  reset() {
+    state = state.copyWith(
+        screwTilt: false,
+        zTilt: false,
+        motorsOff: false,
+        mesh: false,
+        qgl: false,
+        homing: false);
   }
 }

@@ -132,3 +132,13 @@ _verifyLocalHttpResponseCodes(int statusCode) {
       throw MobilerakerException('Unknown Error - StatusCode $statusCode');
   }
 }
+
+substituteProtocols(Uri wsUri,
+    [String protocol = 'http', String secureProtocol = 'https']) {
+  if (!['ws', 'wss'].contains(wsUri.scheme.toLowerCase())) {
+    throw ArgumentError('Provided uri is not a WS-Uri. Given: ${wsUri.scheme}');
+  }
+
+  return wsUri.replace(
+      scheme: wsUri.isScheme('wss') ? secureProtocol : protocol);
+}

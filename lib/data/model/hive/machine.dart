@@ -3,11 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:uuid/uuid.dart';
 
 import 'temperature_preset.dart';
-import 'webcam_setting.dart';
 
 part 'machine.g.dart';
 
@@ -19,8 +17,9 @@ class Machine extends HiveObject {
   String wsUrl;
   @HiveField(2)
   String uuid = const Uuid().v4();
-  @HiveField(3, defaultValue: [])
-  List<WebcamSetting> cams;
+
+  // @HiveField(3, defaultValue: [])
+  // List<WebcamSetting> cams;
   @HiveField(4)
   String? apiKey;
   @HiveField(5, defaultValue: [])
@@ -58,10 +57,8 @@ class Machine extends HiveObject {
       required this.httpUrl,
       this.apiKey,
       this.temperaturePresets = const [],
-      this.cams = const [],
       this.trustUntrustedCertificate = false,
-      this.octoEverywhere
-      });
+      this.octoEverywhere});
 
   @override
   Future<void> save() async {
@@ -83,7 +80,6 @@ class Machine extends HiveObject {
           name == other.name &&
           wsUrl == other.wsUrl &&
           uuid == other.uuid &&
-          listEquals(cams, other.cams) &&
           apiKey == other.apiKey &&
           listEquals(temperaturePresets, other.temperaturePresets) &&
           httpUrl == other.httpUrl &&
@@ -98,7 +94,6 @@ class Machine extends HiveObject {
       name.hashCode ^
       wsUrl.hashCode ^
       uuid.hashCode ^
-      cams.hashIterable ^
       apiKey.hashCode ^
       temperaturePresets.hashCode ^
       httpUrl.hashCode ^
@@ -110,6 +105,6 @@ class Machine extends HiveObject {
 
   @override
   String toString() {
-    return 'Machine{name: $name, wsUrl: $wsUrl, uuid: $uuid, cams: $cams, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUrl: $httpUrl, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
+    return 'Machine{name: $name, wsUrl: $wsUrl, uuid: $uuid, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUrl: $httpUrl, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
   }
 }

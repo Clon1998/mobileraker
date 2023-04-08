@@ -58,7 +58,7 @@ Future<String> initialRoute(InitialRouteRef ref) async {
   return '/';
 }
 
-@riverpod
+@Riverpod(dependencies: [initialRoute])
 GoRouter goRouter(GoRouterRef ref) {
   ref.keepAlive();
   return GoRouter(

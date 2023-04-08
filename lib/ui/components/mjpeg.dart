@@ -9,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart';
-import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
@@ -21,6 +20,8 @@ part 'mjpeg.g.dart';
 typedef StreamConnectedBuilder = Widget Function(
     BuildContext context, Widget imageTransformed);
 
+enum MjpegMode { stream, adaptiveStream }
+
 @riverpod
 MjpegConfig _mjpegConfig(_MjpegConfigRef ref) => throw UnimplementedError();
 
@@ -28,7 +29,7 @@ MjpegConfig _mjpegConfig(_MjpegConfigRef ref) => throw UnimplementedError();
 _MjpegManager _mjpegManager(_MjpegManagerRef ref) {
   var mjpegConfig = ref.watch(_mjpegConfigProvider);
 
-  var manager = (mjpegConfig.mode == WebCamMode.ADAPTIVE_STREAM)
+  var manager = (mjpegConfig.mode == MjpegMode.adaptiveStream)
       ? _AdaptiveMjpegManager(mjpegConfig)
       : _DefaultMjpegManager(mjpegConfig);
   ref.onDispose(manager.dispose);
@@ -40,21 +41,17 @@ class Mjpeg extends ConsumerWidget {
     Key? key,
     required this.config,
     this.stackChild = const [],
-    this.transform,
     this.fit,
     this.width,
     this.height,
     this.showFps = false,
-    this.landscape = true,
     this.imageBuilder,
   }) : super(key: key);
 
   final List<Widget> stackChild;
-  final Matrix4? transform;
   final BoxFit? fit;
   final double? width;
   final double? height;
-  final bool landscape; // True -> Landscape, False -> Portrait mode
   final bool showFps;
   final StreamConnectedBuilder? imageBuilder;
   final MjpegConfig config;
@@ -70,8 +67,8 @@ class Mjpeg extends ConsumerWidget {
       child: _Mjpeg(
         stackChild: stackChild,
         showFps: showFps,
-        landscape: landscape,
-        transform: transform,
+        rotation: config.rotation,
+        transform: config.transformation,
         fit: fit,
         width: width,
         height: height,
@@ -86,7 +83,7 @@ class _Mjpeg extends ConsumerWidget {
     Key? key,
     required this.stackChild,
     required this.showFps,
-    required this.landscape,
+    required this.rotation,
     this.transform,
     this.fit,
     this.width,
@@ -100,7 +97,7 @@ class _Mjpeg extends ConsumerWidget {
   final double? width;
   final double? height;
   final bool showFps;
-  final bool landscape;
+  final int rotation;
   final StreamConnectedBuilder? imageBuilder;
 
   @override
@@ -122,7 +119,7 @@ class _Mjpeg extends ConsumerWidget {
           ),
           Text(state.error.toString(),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).errorColor)),
+              style: TextStyle(color: Theme.of(context).colorScheme.error)),
           TextButton.icon(
               onPressed:
                   ref.read(_mjpegControllerProvider.notifier).onRetryPressed,
@@ -150,7 +147,7 @@ class _Mjpeg extends ConsumerWidget {
 
     Widget img = _TransformedImage(
       transform: transform,
-      landscape: landscape,
+      rotation: rotation,
       fit: fit,
       width: width,
       height: height,
@@ -204,14 +201,14 @@ class _FPSDisplay extends ConsumerWidget {
 class _TransformedImage extends ConsumerWidget {
   const _TransformedImage({
     Key? key,
-    this.landscape = true,
+    this.rotation = 0,
     this.transform,
     this.fit,
     this.width,
     this.height,
   }) : super(key: key);
 
-  final bool landscape;
+  final int rotation;
   final Matrix4? transform;
   final BoxFit? fit;
   final double? width;
@@ -237,10 +234,10 @@ class _TransformedImage extends ConsumerWidget {
                   child: img,
                 );
               }
-              if (landscape) return img;
+              if (rotation == 0) return img;
 
               return RotatedBox(
-                quarterTurns: 1,
+                quarterTurns: 1 * rotation ~/ 90,
                 child: img,
               );
             },
@@ -331,37 +328,48 @@ class MjpegState {
 
 @immutable
 class MjpegConfig {
-  const MjpegConfig({
-    required this.feedUri,
-    this.httpHeader = const {},
-    required this.mode,
-    this.targetFps = 10,
-    this.timeout = const Duration(seconds: 5),
-  });
+  const MjpegConfig(
+      {required this.streamUri,
+      required this.snapshotUri,
+      this.httpHeader = const {},
+      required this.mode,
+      this.targetFps = 10,
+      this.timeout = const Duration(seconds: 5),
+      this.rotation = 0,
+      this.transformation});
 
-  final String feedUri;
+  final Uri streamUri;
+  final Uri? snapshotUri;
   final Duration timeout;
   final Map<String, String> httpHeader;
   final int targetFps;
-  final WebCamMode mode;
+  final MjpegMode mode;
+  final int rotation;
+  final Matrix4? transformation;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MjpegConfig &&
           runtimeType == other.runtimeType &&
-          feedUri == other.feedUri &&
+          streamUri == other.streamUri &&
+          snapshotUri == other.snapshotUri &&
           timeout == other.timeout &&
           mapEquals(httpHeader, other.httpHeader) &&
           targetFps == other.targetFps &&
+          rotation == other.rotation &&
+          transformation == other.transformation &&
           mode == other.mode;
 
   @override
   int get hashCode =>
-      feedUri.hashCode ^
+      streamUri.hashCode ^
+      snapshotUri.hashCode ^
       timeout.hashCode ^
       httpHeader.hashCode ^
       targetFps.hashCode ^
+      rotation.hashCode ^
+      transformation.hashCode ^
       mode.hashCode;
 }
 
@@ -380,7 +388,7 @@ abstract class _MjpegManager {
 /// This Manager is for the normal MJPEG!
 class _DefaultMjpegManager implements _MjpegManager {
   _DefaultMjpegManager(MjpegConfig config)
-      : _uri = Uri.parse(config.feedUri),
+      : _uri = config.streamUri,
         _timeout = config.timeout,
         headers = config.httpHeader;
 
@@ -503,7 +511,10 @@ class _DefaultMjpegManager implements _MjpegManager {
 /// Manager for an Adaptive MJPEG, using snapshots/images of the MJPEG provider!
 class _AdaptiveMjpegManager implements _MjpegManager {
   _AdaptiveMjpegManager(MjpegConfig config)
-      : _uri = Uri.parse(config.feedUri),
+      : _uri = config.snapshotUri ??
+            config.streamUri.replace(
+              queryParameters: {'action': 'snapshot'},
+            ),
         headers = config.httpHeader,
         _timeout = config.timeout,
         targetFps = config.targetFps;
@@ -555,7 +566,7 @@ class _AdaptiveMjpegManager implements _MjpegManager {
       Response response = await _httpClient
           .get(
               _uri.replace(queryParameters: {
-                'action': 'snapshot',
+                ..._uri.queryParameters,
                 'cacheBust': lastRefresh.millisecondsSinceEpoch.toString()
               }),
               headers: headers)

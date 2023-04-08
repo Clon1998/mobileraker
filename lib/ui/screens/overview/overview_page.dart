@@ -6,7 +6,7 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
-import 'package:mobileraker/ui/screens/overview/components/single_printer_card.dart';
+import 'package:mobileraker/ui/screens/overview/components/printer_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class OverviewPage extends StatelessWidget {

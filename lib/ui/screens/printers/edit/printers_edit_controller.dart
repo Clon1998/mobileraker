@@ -1,53 +1,57 @@
-import 'dart:math';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response.dart';
-import 'package:mobileraker/data/dto/octoeverywhere/app_portal_result.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
+import 'package:mobileraker/data/enums/webcam_service_type.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/webcam_mode.dart';
-import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
+import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:mobileraker/service/moonraker/webcam_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
-import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
+import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final editPrinterformKeyProvider =
-    Provider.autoDispose((ref) => GlobalKey<FormBuilderState>());
+part 'printers_edit_controller.g.dart';
 
-final isSavingProvider = StateProvider.autoDispose<bool>((ref) {
-  return false;
-}, name: 'isSavingProvider');
+@riverpod
+GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef ref) =>
+    GlobalKey<FormBuilderState>();
 
-final currentlyEditing = Provider.autoDispose<Machine>(
-    name: 'currentlyEditing', (ref) => throw UnimplementedError());
+@Riverpod(dependencies: [])
+Machine currentlyEditing(CurrentlyEditingRef ref) => throw UnimplementedError();
 
-final printerEditControllerProvider =
-    StateNotifierProvider.autoDispose<PrinterEditPageController, void>(
-        (ref) => PrinterEditPageController(ref));
+@Riverpod(dependencies: [currentlyEditing])
+Future<MachineSettings> machineRemoteSettings(
+    MachineRemoteSettingsRef ref) async {
+  var machine = ref.watch(currentlyEditingProvider);
+  return ref.watch(machineServiceProvider).fetchSettings(machine);
+}
 
-class PrinterEditPageController extends StateNotifier<void> {
-  PrinterEditPageController(this.ref)
-      : _machineService = ref.watch(machineServiceProvider),
-        _snackBarService = ref.watch(snackBarServiceProvider),
-        super(null);
+@riverpod
+class PrinterEditController extends _$PrinterEditController {
+  MachineService get _machineService => ref.read(machineServiceProvider);
 
-  final AutoDisposeRef ref;
-  final MachineService _machineService;
-  final SnackBarService _snackBarService;
+  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
+
+  Machine get machine => ref.read(currentlyEditingProvider);
+
+  @override
+  bool build() {
+    return false;
+  }
 
   openQrScanner(BuildContext context) async {
     var qr = await Navigator.of(context)
@@ -55,7 +59,7 @@ class PrinterEditPageController extends StateNotifier<void> {
     logger.wtf('QR $qr');
     if (qr != null) {
       ref
-          .read(editPrinterformKeyProvider)
+          .read(editPrinterFormKeyProvider)
           .currentState
           ?.fields['printerApiKey']
           ?.didChange(qr);
@@ -63,59 +67,83 @@ class PrinterEditPageController extends StateNotifier<void> {
   }
 
   saveForm() async {
-    var formBuilderState = ref.read(editPrinterformKeyProvider).currentState!;
-    if (!formBuilderState.saveAndValidate()) {
-      logger.w('Could not save state!');
-      return;
-    }
-    ref.read(isSavingProvider.notifier).state = true;
-    formBuilderState.save();
-    var machine = ref.read(currentlyEditing);
-
-    machine.name = formBuilderState.value['printerName'];
-    machine.apiKey = formBuilderState.value['printerApiKey'];
-    machine.httpUrl = formBuilderState.value['printerUrl'];
-    machine.wsUrl = formBuilderState.value['wsUrl'];
-    machine.trustUntrustedCertificate =
-        formBuilderState.value['trustSelfSigned'];
-
-    var cams = ref.read(webcamListControllerProvider);
-    for (var cam in cams) {
-      var name = formBuilderState.value['${cam.uuid}-camName'];
-      var url = formBuilderState.value['${cam.uuid}-camUrl'];
-      var fH = formBuilderState.value['${cam.uuid}-camFH'];
-      var fV = formBuilderState.value['${cam.uuid}-camFV'];
-      var tFps = formBuilderState.value['${cam.uuid}-tFps'];
-      var mode = formBuilderState.value['${cam.uuid}-mode'];
-      var rotate = formBuilderState.value['${cam.uuid}-rotate'];
-      if (name != null) cam.name = name;
-      if (url != null) cam.url = url;
-      if (fH != null) cam.flipHorizontal = fH;
-      if (fV != null) cam.flipVertical = fV;
-      if (fV != null && mode == WebCamMode.ADAPTIVE_STREAM && tFps != null) {
-        cam.targetFps = tFps;
+    try {
+      var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
+      if (!formBuilderState.saveAndValidate()) {
+        ref.read(snackBarServiceProvider).show(SnackBarConfig(
+              type: SnackbarType.warning,
+              title: 'pages.printer_edit.store_error.title'.tr(),
+              message: 'pages.printer_edit.store_error.message'.tr(),
+              duration: const Duration(seconds: 10),
+            ));
+        logger.w('Could not save state!');
+        return;
       }
-      if (mode != null) cam.mode = mode;
-      if (rotate != null) cam.rotate = rotate;
-    }
-    machine.cams = cams;
+      state = true;
+      var hasConnection =
+          ref.read(jrpcClientStateProvider(machine.uuid)).valueOrNull ==
+              ClientState.connected;
 
+      Map<String, dynamic> storedValues =
+          Map.unmodifiable(formBuilderState.value);
+
+      await _saveMachine(storedValues);
+      if (!hasConnection) {
+        return; // If machine was not connected, no need to store remote data hence it was not shown in the first place!
+      }
+
+      var jrpcState = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
+          (c) => c == ClientState.connected || c == ClientState.error);
+
+      if (jrpcState == ClientState.error) {
+        throw const MobilerakerException(
+            'Unable to store remote settings, machine is not connected!');
+      }
+      logger.i('Can store remoteSettings, machine is connected!');
+
+      await _saveWebcamInfos(storedValues);
+
+      await _saveMachineRemoteSettings(storedValues);
+
+      ref.read(goRouterProvider).pop();
+    } on Error catch (e, s) {
+      state = false;
+      logger.e('Error while trying to save printer data', e, s);
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: 'Error',
+          message: 'An error occured while trying to save the machine data!',
+          duration: const Duration(seconds: 30),
+          mainButtonTitle: 'Details',
+          closeOnMainButtonTapped: true,
+          onMainButtonTapped: () {
+            ref.read(dialogServiceProvider).show(DialogRequest(
+                type: DialogType.stacktrace,
+                title: 'Machine saving Error',
+                body: 'Exception:\n $e\n\n$s'));
+          }));
+      ;
+    }
+  }
+
+  Future<void> _saveMachineRemoteSettings(
+      Map<String, dynamic> storedValues) async {
     AsyncValue<MachineSettings> remoteSettings =
-        ref.read(remoteMachineSettingProvider);
+        ref.read(machineRemoteSettingsProvider);
     if (remoteSettings.hasValue && !remoteSettings.hasError) {
       List<bool> inverts = [
-        formBuilderState.value['invertX'],
-        formBuilderState.value['invertY'],
-        formBuilderState.value['invertZ']
+        storedValues['invertX'],
+        storedValues['invertY'],
+        storedValues['invertZ']
       ];
-      var speedXY = formBuilderState.value['speedXY'];
-      var speedZ = formBuilderState.value['speedZ'];
-      var extrudeSpeed = formBuilderState.value['extrudeSpeed'];
+      var speedXY = storedValues['speedXY'];
+      var speedZ = storedValues['speedZ'];
+      var extrudeSpeed = storedValues['extrudeSpeed'];
 
       List<MacroGroup> macroGroups = [];
       for (var grp in ref.read(macroGroupListControllerProvider)) {
         List<GCodeMacro> read = ref.read(macroGroupControllerProvder(grp));
-        var name = formBuilderState.value['${grp.uuid}-macroName'];
+        var name = storedValues['${grp.uuid}-macroName'];
         macroGroups.add(grp.copyWith(name: name, macros: read));
       }
 
@@ -123,10 +151,9 @@ class PrinterEditPageController extends StateNotifier<void> {
           ref.read(temperaturePresetListControllerProvider);
 
       for (var preset in presets) {
-        var name = formBuilderState.value['${preset.uuid}-presetName'];
-        int? extruderTemp =
-            formBuilderState.value['${preset.uuid}-extruderTemp'];
-        int? bedTemp = formBuilderState.value['${preset.uuid}-bedTemp'];
+        var name = storedValues['${preset.uuid}-presetName'];
+        int? extruderTemp = storedValues['${preset.uuid}-extruderTemp'];
+        int? bedTemp = storedValues['${preset.uuid}-bedTemp'];
 
         preset
           ..name = name
@@ -154,14 +181,33 @@ class PrinterEditPageController extends StateNotifier<void> {
               speedXY: speedXY,
               speedZ: speedZ));
     }
+  }
 
+  Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
+    machine.name = storedValues['printerName'];
+    machine.apiKey = storedValues['printerApiKey'];
+    machine.httpUrl = storedValues['printerUrl'];
+    machine.wsUrl = storedValues['wsUrl'];
+    machine.trustUntrustedCertificate = storedValues['trustSelfSigned'];
     await ref.read(machineServiceProvider).updateMachine(machine);
-    ref.read(goRouterProvider).pop();
+  }
+
+  Future<void> _saveWebcamInfos(Map<String, dynamic> storedValues) async {
+    AsyncValue<List<WebcamInfo>> cams = ref.read(webcamListControllerProvider);
+    if (cams.hasValue && !cams.hasError) {
+      var camsToStore = <WebcamInfo>[];
+      for (var cam in cams.value!) {
+        WebcamInfo modifiedCam =
+            _applyWebcamFieldsToWebcam(storedValues, cam.copyWith());
+        camsToStore.add(modifiedCam);
+      }
+      await ref
+          .read(webcamServiceProvider(machine.uuid))
+          .addOrModifyWebcamInfoInBulk(camsToStore);
+    }
   }
 
   deleteIt() async {
-    var machine = ref.read(currentlyEditing);
-
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
         title: 'Delete ${machine.name}?',
         body:
@@ -179,14 +225,15 @@ class PrinterEditPageController extends StateNotifier<void> {
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type: DialogType.importSettings, data: ref.read(currentlyEditing)))
+            type: DialogType.importSettings,
+            data: ref.read(currentlyEditingProvider)))
         .then(onImportSettingsReturns);
   }
 
   onImportSettingsReturns(DialogResponse? response) {
     if (response != null && response.confirmed) {
-      FormBuilderState currentState =
-          ref.read(editPrinterformKeyProvider).currentState!;
+      FormBuilderState formState =
+          ref.read(editPrinterFormKeyProvider).currentState!;
       ImportSettingsDialogViewResults result = response.data;
       ImportMachineSettingsDto importDto = result.source;
       MachineSettings settings = importDto.machineSettings;
@@ -225,14 +272,12 @@ class PrinterEditPageController extends StateNotifier<void> {
             break;
         }
       }
-      currentState.patchValue(patchingValues);
+      formState.patchValue(patchingValues);
       // tempPresets.addAll(result.presets);
     }
   }
 
   unlinkOctoeverwhere() async {
-    var machine = ref.read(currentlyEditing);
-
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
         title: 'Unlink ${machine.name}?',
         body:
@@ -251,8 +296,6 @@ class PrinterEditPageController extends StateNotifier<void> {
   }
 
   linkWithOctoeverywhere() async {
-    var machine = ref.read(currentlyEditing);
-
     try {
       var result = await _machineService.linkMachineWithOctoeverywhere(machine);
 
@@ -274,75 +317,55 @@ class PrinterEditPageController extends StateNotifier<void> {
   }
 }
 
-final importMachines = FutureProvider.autoDispose(
-    (ref) => ref.watch(machineServiceProvider).fetchAll());
+@Riverpod(dependencies: [currentlyEditing, jrpcClientState])
+class WebcamListController extends _$WebcamListController {
+  Machine get machine => ref.read(currentlyEditingProvider);
 
-final remoteMachineSettingProvider =
-    FutureProvider.autoDispose<MachineSettings>((ref) async {
-  var machine = ref.watch(currentlyEditing);
-  return ref.watch(machineServiceProvider).fetchSettings(machine);
-}, name: 'remoteMachineSettingProvider');
-
-final webcamListControllerProvider = StateNotifierProvider.autoDispose<
-    WebcamListController, List<WebcamSetting>>((ref) {
-  var machine = ref.watch(currentlyEditing);
-  return WebcamListController(ref, machine);
-});
-
-class WebcamListController extends StateNotifier<List<WebcamSetting>> {
-  WebcamListController(
-    this.ref,
-    this.machine,
-  ) : super(machine.cams);
-  final Machine machine;
-  final Ref ref;
+  @override
+  FutureOr<List<WebcamInfo>> build() async {
+    await ref.watchWhere(jrpcClientStateProvider(machine.uuid),
+        (c) => c == ClientState.connected);
+    return ref.watch(allWebcamInfosProvider(machine.uuid).future);
+  }
 
   onWebCamReorder(int oldIndex, int newIndex) {
+    if (!state.hasValue) return;
+
     if (oldIndex < newIndex) {
       newIndex -= 1;
     }
-    var cams = state.toList();
-    WebcamSetting tmp = cams.removeAt(oldIndex);
+    List<WebcamInfo> cams = state.value!.toList();
+    WebcamInfo tmp = cams.removeAt(oldIndex);
     cams.insert(newIndex, tmp);
-    state = List.unmodifiable(cams);
+    state = AsyncValue.data(List.unmodifiable(cams));
   }
 
   addNewWebCam() {
-    WebcamSetting cam = WebcamSetting('New Webcam',
-        'http://${Uri.parse(machine.wsUrl).host}/webcam/?action=stream');
+    if (!state.hasValue) return;
 
-    state = List.unmodifiable([...state, cam]);
+    state = AsyncValue.data(
+        List.unmodifiable([...state.value!, WebcamInfo.mjpegDefault()]));
   }
 
-  removeWebcam(WebcamSetting webcamSetting) {
-    var list = state.toList();
-    list.remove(webcamSetting);
-    state = List.unmodifiable(list);
+  removeWebcam(WebcamInfo webcamInfo) {
+    if (!state.hasValue) return;
+    var list = state.value!.toList();
+    list.remove(webcamInfo);
+    state = AsyncValue.data(List.unmodifiable(list));
   }
 
-  previewWebcam(WebcamSetting cam) {
-    var formBuilderState = ref.read(editPrinterformKeyProvider).currentState!;
+  previewWebcam(WebcamInfo cam) {
+    if (!state.hasValue) return;
+    var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
     formBuilderState.save();
-
-    var cfg = MjpegConfig(
-      feedUri: formBuilderState.getRawValue('${cam.uuid}-camUrl'),
-      mode: formBuilderState.getRawValue('${cam.uuid}-mode'),
-    );
-    var transform = Matrix4.identity();
-    if (formBuilderState.getRawValue('${cam.uuid}-camFV')) {
-      transform.rotateY(pi);
-    }
-
-    if (formBuilderState.getRawValue('${cam.uuid}-camFH')) {
-      transform.rotateX(pi);
-    }
+    var tmpCam =
+        _applyWebcamFieldsToWebcam(formBuilderState.value, cam.copyWith());
 
     ref.read(dialogServiceProvider).show(DialogRequest(
           type: DialogType.webcamPreview,
           data: WebcamPreviewDialogArguments(
-            config: cfg,
-            transform: transform,
-            rotation: formBuilderState.getRawValue('${cam.uuid}-rotate'),
+            webcamInfo: tmpCam,
+            machine: ref.read(currentlyEditingProvider),
           ),
         ));
   }
@@ -352,14 +375,14 @@ final moveStepStateProvider =
     StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>(
         (ref) {
   return IntStepSegmentController(
-      ref.watch(remoteMachineSettingProvider).value!.moveSteps);
+      ref.watch(machineRemoteSettingsProvider).value!.moveSteps);
 });
 
 final extruderStepStateProvider =
     StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>(
         (ref) {
   return IntStepSegmentController(
-      ref.watch(remoteMachineSettingProvider).value!.extrudeSteps);
+      ref.watch(machineRemoteSettingsProvider).value!.extrudeSteps);
 });
 
 class IntStepSegmentController extends StateNotifier<List<int>> {
@@ -392,7 +415,7 @@ class IntStepSegmentController extends StateNotifier<List<int>> {
 final babyStepStateProvider = StateNotifierProvider.autoDispose<
     DoubleStepSegmentController, List<double>>((ref) {
   return DoubleStepSegmentController(
-      ref.watch(remoteMachineSettingProvider).value!.babySteps);
+      ref.watch(machineRemoteSettingsProvider).value!.babySteps);
 });
 
 class DoubleStepSegmentController extends StateNotifier<List<double>> {
@@ -425,7 +448,7 @@ class DoubleStepSegmentController extends StateNotifier<List<double>> {
 final macroGroupListControllerProvider = StateNotifierProvider.autoDispose<
     MacroGroupListController, List<MacroGroup>>((ref) {
   return MacroGroupListController(
-      ref, ref.watch(remoteMachineSettingProvider).value!.macroGroups);
+      ref, ref.watch(machineRemoteSettingsProvider).value!.macroGroups);
 });
 
 class MacroGroupListController extends StateNotifier<List<MacroGroup>> {
@@ -571,7 +594,7 @@ final temperaturePresetListControllerProvider =
     StateNotifierProvider.autoDispose<TemperaturePresetListController,
         List<TemperaturePreset>>((ref) {
   return TemperaturePresetListController(
-      ref.watch(remoteMachineSettingProvider).value!.temperaturePresets);
+      ref.watch(machineRemoteSettingsProvider).value!.temperaturePresets);
 });
 
 class TemperaturePresetListController
@@ -599,4 +622,30 @@ class TemperaturePresetListController
     list.remove(preset);
     state = List.unmodifiable(list);
   }
+}
+
+WebcamInfo _applyWebcamFieldsToWebcam(
+    Map<String, dynamic> storedValues, WebcamInfo cam) {
+  var name = storedValues['${cam.uuid}-camName'];
+  var streamUrl = storedValues['${cam.uuid}-streamUrl'];
+  var snapshotUrl = storedValues['${cam.uuid}-snapshotUrl'];
+  var fH = storedValues['${cam.uuid}-camFH'];
+  var fV = storedValues['${cam.uuid}-camFV'];
+  var tFps = storedValues['${cam.uuid}-tFps'];
+  var service = storedValues['${cam.uuid}-service'];
+  var rotate = storedValues['${cam.uuid}-rotate'];
+
+  if (name != null) cam.name = name;
+  if (snapshotUrl != null) cam.snapshotUrl = Uri.parse(snapshotUrl);
+  if (streamUrl != null) cam.streamUrl = Uri.parse(streamUrl);
+  if (fH != null) cam.flipHorizontal = fH;
+  if (fV != null) cam.flipVertical = fV;
+  if (fV != null &&
+      service == WebcamServiceType.mjpegStreamerAdaptive &&
+      tFps != null) {
+    cam.targetFps = tFps;
+  }
+  if (service != null) cam.service = service;
+  if (rotate != null) cam.rotation = rotate;
+  return cam;
 }

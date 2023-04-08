@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class PullToRefreshPrinter extends ConsumerStatefulWidget {
@@ -41,17 +41,23 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
   }
 
   onRefresh() async {
-    Machine? selMachine = await ref.read(selectedMachineProvider.future);
+    final Machine? selMachine;
+    try {
+      ref.invalidate(controlXYZCardControllerProvider);
 
-    if (selMachine == null) {
+      selMachine = await ref.read(selectedMachineProvider.future);
+
+      if (selMachine == null) {
+        refreshController.refreshFailed();
+        return;
+      }
+    } catch (_) {
       refreshController.refreshFailed();
       return;
     }
 
-
     // late ProviderSubscription sub;
-    ClientType clientType = ref
-        .read(jrpcClientTypeProvider(selMachine.uuid));
+    ClientType clientType = ref.read(jrpcClientTypeProvider(selMachine.uuid));
 
     logger.i('Refreshing $clientType was PULL to REFRESH');
 
@@ -65,20 +71,6 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
       await ref.refresh(printerProvider(selMachine.uuid).future);
       refreshController.refreshCompleted();
     }
-
-    // sub = ref.listenManual<AsyncValue<Printer>>(printerSelectedProvider,
-    //     (_, next) {
-    //   next.whenData((value) {
-    //     if (value != old) {
-    //       refreshController.refreshCompleted();
-    //       logger.i("Refreshing printer COMPLETE");
-    //       sub.close();
-    //     } else {
-    //       logger.e('Expected not the same !');
-    //     }
-    //   });
-    // });
-    // printerService.refreshPrinter();
   }
 
   @override

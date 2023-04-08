@@ -4,7 +4,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/logger.dart';
 
 class AsyncValueWidget<T> extends StatelessWidget {
-  const AsyncValueWidget({Key? key, required this.value, required this.data})
+  const AsyncValueWidget(
+      {Key? key,
+      required this.value,
+      required this.data,
+      this.skipLoadingOnRefresh = false,
+      this.skipLoadingOnReload = false})
       : super(key: key);
 
   // input async value
@@ -13,15 +18,18 @@ class AsyncValueWidget<T> extends StatelessWidget {
   // output builder function
   final Widget Function(T) data;
 
+  final bool skipLoadingOnRefresh;
+  final bool skipLoadingOnReload;
+
   @override
   Widget build(BuildContext context) {
     return value.when(
-      skipLoadingOnRefresh: false,
-      skipLoadingOnReload: false,
+      skipLoadingOnRefresh: this.skipLoadingOnRefresh,
+      skipLoadingOnReload: this.skipLoadingOnReload,
       data: data,
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
-        logger.e('Error in Widget',e, StackTrace.current);
+        logger.e('Error in Widget', e, StackTrace.current);
         throw e;
       },
     );

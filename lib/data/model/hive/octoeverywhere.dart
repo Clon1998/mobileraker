@@ -1,16 +1,7 @@
 import 'dart:convert';
 
-import 'package:enum_to_string/enum_to_string.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response.dart';
 import 'package:mobileraker/data/dto/octoeverywhere/app_portal_result.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
-import 'package:uuid/uuid.dart';
-
-import 'temperature_preset.dart';
-import 'webcam_setting.dart';
 
 part 'octoeverywhere.g.dart';
 

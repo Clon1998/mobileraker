@@ -8,20 +8,20 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/config/config_extruder.dart';
 import 'package:mobileraker/data/dto/config/config_heater_bed.dart';
+import 'package:mobileraker/data/enums/webcam_service_type.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/webcam_mode.dart';
-import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
-import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
+import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
-import 'package:stringr/stringr.dart';
 
 import 'printers_edit_controller.dart';
 
@@ -33,9 +33,9 @@ class PrinterEditPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
       overrides: [
-        currentlyEditing.overrideWithValue(machine),
+        currentlyEditingProvider.overrideWithValue(machine),
         printerEditControllerProvider,
-        remoteMachineSettingProvider,
+        machineRemoteSettingsProvider,
         webcamListControllerProvider,
         macroGroupListControllerProvider,
         temperaturePresetListControllerProvider,
@@ -51,8 +51,8 @@ class PrinterEditPage extends ConsumerWidget {
 class _PrinterEdit extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var canShowImport = ref.watch(
-        importMachines.select((value) => (value.valueOrNull?.length ?? 0) > 1));
+    var canShowImport = ref.watch(allMachinesProvider
+        .select((value) => (value.valueOrNull?.length ?? 0) > 1));
 
     return Scaffold(
       appBar: AppBar(
@@ -60,7 +60,7 @@ class _PrinterEdit extends ConsumerWidget {
           'pages.printer_edit.title',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-        ).tr(args: [ref.watch(currentlyEditing).name]),
+        ).tr(args: [ref.watch(currentlyEditingProvider).name]),
         actions: [
           if (canShowImport)
             IconButton(
@@ -75,7 +75,7 @@ class _PrinterEdit extends ConsumerWidget {
             ),
         ],
       ),
-      floatingActionButton: ref.watch(isSavingProvider)
+      floatingActionButton: ref.watch(printerEditControllerProvider)
           ? const FloatingActionButton(
               onPressed: null, child: CircularProgressIndicator())
           : FloatingActionButton(
@@ -95,14 +95,14 @@ class PrinterSettingScrollView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(currentlyEditing);
+    var machine = ref.watch(currentlyEditingProvider);
 
-    var isSaving = ref.watch(isSavingProvider);
+    var isSaving = ref.watch(printerEditControllerProvider);
     return SingleChildScrollView(
       child: FormBuilder(
         enabled: !isSaving,
         autoFocusOnValidationFailure: true,
-        key: ref.watch(editPrinterformKeyProvider),
+        key: ref.watch(editPrinterFormKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -193,19 +193,6 @@ class PrinterSettingScrollView extends ConsumerWidget {
                       .unlinkOctoeverwhere,
                 ),
               const Divider(),
-              _SectionHeaderWithAction(
-                  title: 'pages.dashboard.general.cam_card.webcam'.tr(),
-                  action: TextButton.icon(
-                    onPressed: isSaving
-                        ? null
-                        : ref
-                            .read(webcamListControllerProvider.notifier)
-                            .addNewWebCam,
-                    label: const Text('general.add').tr(),
-                    icon: const Icon(FlutterIcons.webcam_mco),
-                  )),
-              const WebcamList(),
-              const Divider(),
               const RemoteSettings()
             ],
           ),
@@ -220,35 +207,47 @@ class WebcamList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    List<WebcamSetting> cams = ref.watch(webcamListControllerProvider);
+    var cams = ref.watch(webcamListControllerProvider);
 
-    if (cams.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: const Text('pages.printer_edit.cams.no_webcams').tr(),
-      );
-    }
+    return cams.when(
+        data: (data) {
+          if (data.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: const Text('pages.printer_edit.cams.no_webcams').tr(),
+            );
+          }
 
-    return ReorderableListView(
-        buildDefaultDragHandles: false,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        onReorder:
-            ref.read(webcamListControllerProvider.notifier).onWebCamReorder,
-        onReorderStart: (i) => FocusScope.of(context).unfocus(),
-        children: List.generate(cams.length, (index) {
-          WebcamSetting cam = cams[index];
-          return _WebCamItem(
-            key: ValueKey(cam.uuid),
-            cam: cam,
-            idx: index,
-          );
-        }));
+          return ReorderableListView(
+              buildDefaultDragHandles: false,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              onReorder: ref
+                  .read(webcamListControllerProvider.notifier)
+                  .onWebCamReorder,
+              onReorderStart: (i) => FocusScope.of(context).unfocus(),
+              children: List.generate(data.length, (index) {
+                WebcamInfo cam = data[index];
+                return _WebCamItem(
+                  key: ValueKey(cam.uuid),
+                  cam: cam,
+                  idx: index,
+                );
+              }));
+        },
+        error: (e, s) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text('Error while loadign webcam: $e'),
+            ),
+        loading: () => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: const Text('general.fetching').tr(),
+            ));
   }
 }
 
 class _WebCamItem extends HookConsumerWidget {
-  final WebcamSetting cam;
+  final WebcamInfo cam;
   final int idx;
 
   const _WebCamItem({
@@ -260,7 +259,8 @@ class _WebCamItem extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var camName = useState(cam.name);
-    var selMode = useState(cam.mode);
+    var serviceType = useState(cam.service);
+    var themeData = Theme.of(context);
     return Card(
         child: ExpansionTile(
             maintainState: true,
@@ -278,7 +278,7 @@ class _WebCamItem extends HookConsumerWidget {
               labelText: 'pages.printer_edit.general.displayname'.tr(),
               suffix: IconButton(
                   icon: const Icon(Icons.delete),
-                  onPressed: ref.watch(isSavingProvider)
+                  onPressed: ref.watch(printerEditControllerProvider)
                       ? null
                       : () => ref
                           .read(webcamListControllerProvider.notifier)
@@ -296,35 +296,44 @@ class _WebCamItem extends HookConsumerWidget {
           FormBuilderTextField(
             keyboardType: TextInputType.url,
             decoration: InputDecoration(
-                labelText: 'pages.printer_edit.cams.webcam_addr'.tr(),
+                labelText: 'pages.printer_edit.cams.stream_url'.tr(),
                 helperText:
-                    '${tr('pages.printer_edit.cams.default_addr')}: http://<URL>/webcam/?action=stream'),
-            name: '${cam.uuid}-camUrl',
-            initialValue: cam.url,
+                    '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=stream'),
+            name: '${cam.uuid}-streamUrl',
+            initialValue: cam.streamUrl.toString(),
+            validator: FormBuilderValidators.compose(
+                [FormBuilderValidators.required()]),
+            contextMenuBuilder: defaultContextMenuBuilder,
+          ),
+          FormBuilderTextField(
+            keyboardType: TextInputType.url,
+            decoration: InputDecoration(
+                labelText: 'pages.printer_edit.cams.snapshot_url'.tr(),
+                helperText:
+                    '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=snapshot'),
+            name: '${cam.uuid}-snapshotUrl',
+            initialValue: cam.snapshotUrl.toString(),
             validator: FormBuilderValidators.compose([
               FormBuilderValidators.required(),
-              FormBuilderValidators.url(
-                  protocols: ['http', 'https'], requireProtocol: true)
             ]),
             contextMenuBuilder: defaultContextMenuBuilder,
           ),
           FormBuilderDropdown(
-            name: '${cam.uuid}-mode',
-            initialValue: cam.mode,
-            items: WebCamMode.values
-                .map((mode) => DropdownMenuItem<WebCamMode>(
-                    value: mode,
-                    child: Text(mode.name
-                        .toLowerCase()
-                        .replaceAll("_", " ")
-                        .titleCase())))
+            name: '${cam.uuid}-service',
+            initialValue: cam.service,
+            items: WebcamServiceType.values
+                .map((serviceType) => DropdownMenuItem<WebcamServiceType>(
+                    enabled: serviceType.supported,
+                    value: serviceType,
+                    child: Text(
+                        '${beautifyName(serviceType.name)} ${serviceType.supported ? '' : '(${tr('general.unsupported')})'}')))
                 .toList(),
             decoration: InputDecoration(
               labelText: 'pages.printer_edit.cams.cam_mode'.tr(),
             ),
-            onChanged: (WebCamMode? v) => selMode.value = v!,
+            onChanged: (WebcamServiceType? v) => serviceType.value = v!,
           ),
-          if (selMode.value == WebCamMode.ADAPTIVE_STREAM)
+          if (serviceType.value == WebcamServiceType.mjpegStreamerAdaptive)
             FormBuilderTextField(
               decoration: InputDecoration(
                 labelText: 'pages.printer_edit.cams.target_fps'.tr(),
@@ -337,23 +346,22 @@ class _WebCamItem extends HookConsumerWidget {
                 FormBuilderValidators.numeric(),
                 FormBuilderValidators.required()
               ]),
-              valueTransformer: (String? text) =>
-                  text == null ? 0 : num.tryParse(text),
+              valueTransformer: (String? text) {
+                return text == null ? 0 : int.tryParse(text);
+              },
               keyboardType: const TextInputType.numberWithOptions(
                   signed: false, decimal: false),
             ),
           FormBuilderDropdown(
               decoration: InputDecoration(
-                labelText: 'pages.printer_edit.cams.cam_rotate.label'.tr(),
+                labelText: 'pages.printer_edit.cams.cam_rotate'.tr(),
               ),
               name: '${cam.uuid}-rotate',
-              initialValue: cam.rotate,
-              items: WebCamRotation.values
+              initialValue: cam.rotation,
+              items: [0, 90, 180, 270]
                   .map((e) => DropdownMenuItem(
                         value: e,
-                        child:
-                            Text('pages.printer_edit.cams.cam_rotate.${e.name}')
-                                .tr(),
+                        child: Text('$e°'),
                       ))
                   .toList(growable: false)),
           FormBuilderSwitch(
@@ -362,7 +370,7 @@ class _WebCamItem extends HookConsumerWidget {
             secondary: const Icon(FlutterIcons.swap_vertical_mco),
             initialValue: cam.flipVertical,
             name: '${cam.uuid}-camFV',
-            activeColor: Theme.of(context).colorScheme.primary,
+            activeColor: themeData.colorScheme.primary,
           ),
           FormBuilderSwitch(
             title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
@@ -370,11 +378,18 @@ class _WebCamItem extends HookConsumerWidget {
             secondary: const Icon(FlutterIcons.swap_horizontal_mco),
             initialValue: cam.flipHorizontal,
             name: '${cam.uuid}-camFH',
-            activeColor: Theme.of(context).colorScheme.primary,
+            activeColor: themeData.colorScheme.primary,
           ),
           FullWidthButton(
-            onPressed: () => ref.read(webcamListControllerProvider.notifier).previewWebcam(cam),
-            child: const Text('general.preview').tr(),
+            onPressed: serviceType.value.supported
+                ? () => (ref
+                    .read(webcamListControllerProvider.notifier)
+                    .previewWebcam(cam))
+                : null,
+            child: Text('general.preview'.tr() +
+                (serviceType.value.supported
+                    ? ''
+                    : ' (${tr('general.unsupported')})')),
           )
         ]));
   }
@@ -436,13 +451,26 @@ class RemoteSettings extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var isSaving = ref.watch(isSavingProvider);
+    var isSaving = ref.watch(printerEditControllerProvider);
 
     return Column(
       children: [
-        ...ref.watch(remoteMachineSettingProvider).when(
+        ...ref.watch(machineRemoteSettingsProvider).when(
             data: (machineSettings) {
               return [
+                _SectionHeaderWithAction(
+                    title: 'pages.dashboard.general.cam_card.webcam'.tr(),
+                    action: TextButton.icon(
+                      onPressed: isSaving
+                          ? null
+                          : ref
+                              .read(webcamListControllerProvider.notifier)
+                              .addNewWebCam,
+                      label: const Text('general.add').tr(),
+                      icon: const Icon(FlutterIcons.webcam_mco),
+                    )),
+                const WebcamList(),
+                const Divider(),
                 _SectionHeader(
                     title: 'pages.printer_edit.motion_system.title'.tr()),
                 FormBuilderSwitch(
@@ -600,7 +628,7 @@ class MoveStepSegmentInput extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isSaving = ref.watch(isSavingProvider);
+    var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.motion_system.steps_move'.tr(),
@@ -631,7 +659,7 @@ class BabyStepSegmentInput extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isSaving = ref.watch(isSavingProvider);
+    var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.motion_system.steps_baby'.tr(),
@@ -661,7 +689,7 @@ class ExtruderStepSegmentInput extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isSaving = ref.watch(isSavingProvider);
+    var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.extruders.steps_extrude'.tr(),
@@ -740,7 +768,7 @@ class _MacroGroup extends HookConsumerWidget {
     var dragging = ref.watch(
         macroGroupDragginControllerProvider.select((value) => value != null));
 
-    var isSaving = ref.watch(isSavingProvider);
+    var isSaving = ref.watch(printerEditControllerProvider);
     return Card(
         child: ExpansionTile(
             maintainState: true,
@@ -868,7 +896,7 @@ class TemperaturePresetList extends ConsumerWidget {
         child: const Text('pages.printer_edit.presets.no_presets').tr(),
       );
     }
-    var machine = ref.watch(currentlyEditing);
+    var machine = ref.watch(currentlyEditingProvider);
     return ReorderableListView(
       buildDefaultDragHandles: false,
       physics: const NeverScrollableScrollPhysics(),
@@ -933,7 +961,7 @@ class _TempPresetItem extends HookConsumerWidget {
                 labelText: 'pages.printer_edit.general.displayname'.tr(),
                 suffix: IconButton(
                   icon: const Icon(Icons.delete),
-                  onPressed: ref.watch(isSavingProvider)
+                  onPressed: ref.watch(printerEditControllerProvider)
                       ? null
                       : () => ref
                           .read(

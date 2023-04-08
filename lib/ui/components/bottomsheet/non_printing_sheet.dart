@@ -98,7 +98,7 @@ class NonPrintingBottomSheet extends ConsumerWidget {
 }
 
 class FullWidthButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   final Widget child;
 

@@ -4,19 +4,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/gcode_macro.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/macro_group.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/data/model/hive/temperature_preset.dart';
-import 'package:mobileraker/data/model/hive/webcam_mode.dart';
-import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
-import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:riverpod/src/framework.dart';
 
 import 'logger.dart';
 
@@ -38,14 +35,20 @@ setupBoxes() async {
 
   final keyMaterial = base64Url.decode(key!);
 
+  // Ignore old/deperecates types!
+  // 2 - WebcamSetting
+  // 6 - WebCamMode
+  // 9 - WebCamRotation
+  Hive.ignoreTypeId(2);// WebcamSetting
+  Hive.ignoreTypeId(6);// WebCamMode
+  Hive.ignoreTypeId(9);// WebCamRotation
+
+
   var machineAdapter = MachineAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
     Hive.registerAdapter(machineAdapter);
   }
-  var webcamSettingAdapter = WebcamSettingAdapter();
-  if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId)) {
-    Hive.registerAdapter(webcamSettingAdapter);
-  }
+
   var temperaturePresetAdapter = TemperaturePresetAdapter();
   if (!Hive.isAdapterRegistered(temperaturePresetAdapter.typeId)) {
     Hive.registerAdapter(temperaturePresetAdapter);
@@ -58,10 +61,7 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(macroAdapter.typeId)) {
     Hive.registerAdapter(macroAdapter);
   }
-  var webCamModeAdapter = WebCamModeAdapter();
-  if (!Hive.isAdapterRegistered(webCamModeAdapter.typeId)) {
-    Hive.registerAdapter(webCamModeAdapter);
-  }
+
   var progressNotifModeAdapter = ProgressNotificationModeAdapter();
   if (!Hive.isAdapterRegistered(progressNotifModeAdapter.typeId)) {
     Hive.registerAdapter(progressNotifModeAdapter);
@@ -71,10 +71,7 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(octoAdapater.typeId)) {
     Hive.registerAdapter(octoAdapater);
   }
-  var webCamRotationAdapter = WebCamRotationAdapter();
-  if (!Hive.isAdapterRegistered(webCamRotationAdapter.typeId)) {
-    Hive.registerAdapter(webCamRotationAdapter);
-  }
+
   // Hive.deleteBoxFromDisk('printers');
 
   try {

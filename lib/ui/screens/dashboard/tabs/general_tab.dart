@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -15,32 +14,27 @@ import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
-import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
-import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
-import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/graph_card_with_button.dart';
-import 'package:mobileraker/ui/components/homed_axis_chip.dart';
-import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/control_xyz_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
-import 'package:mobileraker/util/time_util.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
@@ -57,8 +51,6 @@ class GeneralTab extends ConsumerWidget {
             loading: () => const AsyncValue.loading())))
         .when(
             data: (data) {
-              var showCams = ref.watch(generalTabViewControllerProvider
-                  .select((data) => data.value!.machine.cams.isNotEmpty));
               var printState = ref.watch(generalTabViewControllerProvider
                   .select((data) => data.value!.printerData.print.state));
               var clientType = ref.watch(generalTabViewControllerProvider
@@ -74,9 +66,9 @@ class GeneralTab extends ConsumerWidget {
                     if (clientType != ClientType.local) const RemoteIndicator(),
                     const PrintCard(),
                     const TemperatureCard(),
-                    if (showCams) const CamCard(),
+                    const CamCard(),
                     if (printState != PrintState.printing)
-                      const _ControlXYZCard(),
+                      const ControlXYZCard(),
                     if (ref
                             .watch(settingServiceProvider)
                             .readBool(showBabyAlwaysKey) ||
@@ -293,7 +285,7 @@ class PrintCard extends ConsumerWidget {
               thickness: 1,
               height: 0,
             ),
-            const MoveTable()
+            const ToolheadInfoTable()
           ],
         ],
       ),
@@ -343,109 +335,6 @@ class PrintCard extends ConsumerWidget {
       default:
         return null;
     }
-  }
-}
-
-class CamCard extends ConsumerWidget {
-  const CamCard({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    const double minWebCamHeight = 280;
-    var machine = ref.watch(generalTabViewControllerProvider
-        .select((value) => value.value!.machine));
-    WebcamSetting selectedCam = ref.watch(camCardControllerProvider);
-    var clientType = ref.watch(generalTabViewControllerProvider
-        .select((value) => value.value!.clientType));
-
-    Uri camUri = Uri.parse(selectedCam.url);
-    Map<String, String> headers = {};
-    if (clientType == ClientType.octo) {
-      Uri machineUri = Uri.parse(machine.wsUrl);
-      if (machineUri.host == camUri.host) {
-        var octoEverywhere = machine.octoEverywhere!;
-        camUri = camUri.replace(scheme: 'https', host: octoEverywhere.uri.host);
-
-        headers[HttpHeaders.authorizationHeader] =
-            octoEverywhere.basicAuthorizationHeader;
-      }
-    }
-    var webcams = machine.cams;
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            leading: const Icon(
-              FlutterIcons.webcam_mco,
-            ),
-            title: const Text('pages.dashboard.general.cam_card.webcam').tr(),
-            trailing: (webcams.length > 1)
-                ? DropdownButton(
-                    value: selectedCam,
-                    onChanged: ref
-                        .read(camCardControllerProvider.notifier)
-                        .onSelectedChange,
-                    items: webcams.map((e) {
-                      return DropdownMenuItem(
-                        value: e,
-                        child: Text(e.name),
-                      );
-                    }).toList())
-                : null,
-          ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-            constraints: const BoxConstraints(minHeight: minWebCamHeight),
-            child: Center(
-                child: Mjpeg(
-              key: ValueKey(selectedCam),
-              imageBuilder: _imageBuilder,
-              config: MjpegConfig(
-                  feedUri: camUri.toString(),
-                  targetFps: selectedCam.targetFps,
-                  mode: selectedCam.mode,
-                  httpHeader: headers),
-              landscape: selectedCam.rotate == WebCamRotation.landscape,
-              transform: selectedCam.transformMatrix,
-              showFps: true,
-              stackChild: [
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.aspect_ratio),
-                      tooltip:
-                          'pages.dashboard.general.cam_card.fullscreen'.tr(),
-                      onPressed: ref
-                          .read(camCardControllerProvider.notifier)
-                          .onFullScreenTap,
-                    ),
-                  ),
-                ),
-                if (clientType != ClientType.local)
-                  const Positioned.fill(
-                      child: Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: OctoIndicator(),
-                    ),
-                  )),
-              ],
-            )),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _imageBuilder(BuildContext context, Widget imageTransformed) {
-    return ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(5)),
-        child: imageTransformed);
   }
 }
 
@@ -941,349 +830,6 @@ class _TemperaturePresetCard extends StatelessWidget {
   }
 }
 
-class _ControlXYZCard extends HookConsumerWidget {
-  static const marginForBtns = EdgeInsets.all(10);
-
-  const _ControlXYZCard({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
-    var iconThemeData = IconTheme.of(context);
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(FlutterIcons.axis_arrow_mco),
-            title: const Text('pages.dashboard.general.move_card.title').tr(),
-            trailing: const HomedAxisChip(),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: ElevatedButton(
-                                  onPressed: klippyCanReceiveCommands
-                                      ? () => ref
-                                          .read(controlXYZController.notifier)
-                                          .onMoveBtn(PrinterAxis.Y)
-                                      : null,
-                                  child: const Icon(FlutterIcons.upsquare_ant)),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: ElevatedButton(
-                                  onPressed: klippyCanReceiveCommands
-                                      ? () => ref
-                                          .read(controlXYZController.notifier)
-                                          .onMoveBtn(PrinterAxis.X, false)
-                                      : null,
-                                  child:
-                                      const Icon(FlutterIcons.leftsquare_ant)),
-                            ),
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: Tooltip(
-                                message:
-                                    'pages.dashboard.general.move_card.home_xy_tooltip'
-                                        .tr(),
-                                child: _ButtonWithRunningIndicator(
-                                    onPressed: klippyCanReceiveCommands &&
-                                            ref.watch(
-                                                controlXYZController.select(
-                                                    (value) => !value.homing))
-                                        ? () => ref
-                                            .read(controlXYZController.notifier)
-                                            .onHomeAxisBtn(
-                                                {PrinterAxis.X, PrinterAxis.Y})
-                                        : null,
-                                    child: const Icon(Icons.home)),
-                              ),
-                            ),
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: ElevatedButton(
-                                  onPressed: klippyCanReceiveCommands
-                                      ? () => ref
-                                          .read(controlXYZController.notifier)
-                                          .onMoveBtn(PrinterAxis.X)
-                                      : null,
-                                  child:
-                                      const Icon(FlutterIcons.rightsquare_ant)),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: ElevatedButton(
-                                onPressed: klippyCanReceiveCommands
-                                    ? () => ref
-                                        .read(controlXYZController.notifier)
-                                        .onMoveBtn(PrinterAxis.Y, false)
-                                    : null,
-                                child: const Icon(FlutterIcons.downsquare_ant),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Container(
-                          margin: marginForBtns,
-                          height: 40,
-                          width: 40,
-                          child: ElevatedButton(
-                              onPressed: klippyCanReceiveCommands
-                                  ? () => ref
-                                      .read(controlXYZController.notifier)
-                                      .onMoveBtn(PrinterAxis.Z)
-                                  : null,
-                              child: const Icon(FlutterIcons.upsquare_ant)),
-                        ),
-                        Container(
-                          margin: marginForBtns,
-                          height: 40,
-                          width: 40,
-                          child: Tooltip(
-                            message:
-                                'pages.dashboard.general.move_card.home_z_tooltip'
-                                    .tr(),
-                            child: _ButtonWithRunningIndicator(
-                                onPressed: klippyCanReceiveCommands &&
-                                        ref.watch(controlXYZController
-                                            .select((value) => !value.homing))
-                                    ? () => ref
-                                        .read(controlXYZController.notifier)
-                                        .onHomeAxisBtn({PrinterAxis.Z})
-                                    : null,
-                                child: const Icon(Icons.home)),
-                          ),
-                        ),
-                        Container(
-                          margin: marginForBtns,
-                          height: 40,
-                          width: 40,
-                          child: ElevatedButton(
-                              onPressed: klippyCanReceiveCommands
-                                  ? () => ref
-                                      .read(controlXYZController.notifier)
-                                      .onMoveBtn(PrinterAxis.Z, false)
-                                  : null,
-                              child: const Icon(FlutterIcons.downsquare_ant)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.0),
-                  child: MoveTable(
-                    rowsToShow: [MoveTable.POS_ROW],
-                  ),
-                ),
-                Wrap(
-                  runSpacing: 4,
-                  spacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    Tooltip(
-                      message:
-                          'pages.dashboard.general.move_card.home_all_tooltip'
-                              .tr(),
-                      child: _ButtonWithRunningIndicator.icon(
-                        onPressed: klippyCanReceiveCommands &&
-                                ref.watch(controlXYZController
-                                    .select((value) => !value.homing))
-                            ? () => ref
-                                    .read(controlXYZController.notifier)
-                                    .onHomeAxisBtn({
-                                  PrinterAxis.X,
-                                  PrinterAxis.Y,
-                                  PrinterAxis.Z
-                                })
-                            : null,
-                        icon: const Icon(Icons.home),
-                        label: Text(
-                            'pages.dashboard.general.move_card.home_all_btn'
-                                .tr()
-                                .toUpperCase()),
-                      ),
-                    ),
-                    if (ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.valueOrNull?.printerData.configFile
-                                .hasQuadGantry ==
-                            true)))
-                      Tooltip(
-                        message: 'pages.dashboard.general.move_card.qgl_tooltip'
-                            .tr(),
-                        child: _ButtonWithRunningIndicator.icon(
-                          onPressed: klippyCanReceiveCommands &&
-                                  ref.watch(controlXYZController
-                                      .select((value) => !value.qgl))
-                              ? ref
-                                  .read(controlXYZController.notifier)
-                                  .onQuadGantry
-                              : null,
-                          icon: const Icon(FlutterIcons.quadcopter_mco),
-                          label: Text(
-                              'pages.dashboard.general.move_card.qgl_btn'
-                                  .tr()
-                                  .toUpperCase()),
-                        ),
-                      ),
-                    if (ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.valueOrNull?.printerData.configFile
-                                .hasBedMesh ==
-                            true)))
-                      Tooltip(
-                        message:
-                            'pages.dashboard.general.move_card.mesh_tooltip'
-                                .tr(),
-                        child: _ButtonWithRunningIndicator.icon(
-                          onPressed: klippyCanReceiveCommands &&
-                                  ref.watch(controlXYZController
-                                      .select((value) => !value.mesh))
-                              ? ref
-                                  .read(controlXYZController.notifier)
-                                  .onBedMesh
-                              : null,
-                          icon: const Icon(FlutterIcons.map_marker_path_mco),
-                          label: Text(
-                              'pages.dashboard.general.move_card.mesh_btn'
-                                  .tr()
-                                  .toUpperCase()),
-                          // color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                    if (ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.valueOrNull?.printerData.configFile
-                                .hasScrewTiltAdjust ==
-                            true)))
-                      Tooltip(
-                        message: 'pages.dashboard.general.move_card.stc_tooltip'
-                            .tr(),
-                        child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands &&
-                                  ref.watch(controlXYZController
-                                      .select((value) => !value.screwTilt))
-                              ? ref
-                                  .read(controlXYZController.notifier)
-                                  .onScrewTiltCalc
-                              : null,
-                          icon: const Icon(
-                              FlutterIcons.screw_machine_flat_top_mco),
-                          label: Text(
-                              'pages.dashboard.general.move_card.stc_btn'
-                                  .tr()
-                                  .toUpperCase()),
-                        ),
-                      ),
-                    if (ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.valueOrNull?.printerData.configFile.hasZTilt ==
-                            true)))
-                      Tooltip(
-                        message:
-                            'pages.dashboard.general.move_card.ztilt_tooltip'
-                                .tr(),
-                        child: _ButtonWithRunningIndicator.icon(
-                          onPressed: klippyCanReceiveCommands &&
-                                  ref.watch(controlXYZController
-                                      .select((value) => !value.zTilt))
-                              ? ref
-                                  .read(controlXYZController.notifier)
-                                  .onZTiltAdjust
-                              : null,
-                          icon:
-                              const Icon(FlutterIcons.unfold_less_vertical_mco),
-                          label: Text(
-                              'pages.dashboard.general.move_card.ztilt_btn'
-                                  .tr()
-                                  .toUpperCase()),
-                        ),
-                      ),
-                    Tooltip(
-                      message:
-                          'pages.dashboard.general.move_card.m84_tooltip'.tr(),
-                      child: _ButtonWithRunningIndicator.icon(
-                        onPressed: klippyCanReceiveCommands &&
-                                ref.watch(controlXYZController
-                                    .select((value) => !value.motorsOff))
-                            ? ref.read(controlXYZController.notifier).onMotorOff
-                            : null,
-                        icon: const Icon(Icons.near_me_disabled),
-                        label: const Text(
-                                'pages.dashboard.general.move_card.m84_btn')
-                            .tr(),
-                      ),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                        '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]'),
-                    RangeSelector(
-                        selectedIndex: ref.watch(controlXYZController
-                            .select((value) => value.index)),
-                        onSelected: ref
-                            .read(controlXYZController.notifier)
-                            .onSelectedAxisStepSizeChanged,
-                        values: ref
-                            .watch(
-                                generalTabViewControllerProvider.select((data) {
-                              return data.valueOrNull!.settings.moveSteps;
-                            }))
-                            .map((e) => e.toString())
-                            .toList())
-                  ],
-                )
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 //
 class _BabySteppingCard extends ConsumerWidget {
   const _BabySteppingCard({
@@ -1375,182 +921,6 @@ class _BabySteppingCard extends ConsumerWidget {
   }
 }
 
-class MoveTable extends ConsumerWidget {
-  static const String POS_ROW = "p";
-  static const String MOV_ROW = "m";
-
-  final List<String> rowsToShow;
-
-  const MoveTable({Key? key, this.rowsToShow = const [POS_ROW, MOV_ROW]})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return AsyncValueWidget(
-      // dont ask me why but this.selectAs prevents rebuild on the exact same value...
-      value: ref.watch(moveTableStateProvider.selectAs((data) => data)),
-      data: (MoveTableState moveTableState) {
-        var position =
-            ref.watch(settingServiceProvider).readBool(useOffsetPosKey)
-                ? moveTableState.postion
-                : moveTableState.livePosition;
-        return Table(
-          border: TableBorder(
-              horizontalInside: BorderSide(
-                  width: 1,
-                  color: Theme.of(context).dividerColor,
-                  style: BorderStyle.solid)),
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          columnWidths: const {
-            0: FractionColumnWidth(.1),
-          },
-          children: [
-            if (rowsToShow.contains(POS_ROW))
-              TableRow(children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Icon(FlutterIcons.axis_arrow_mco),
-                ),
-                Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text('X'),
-                        Text(position[0].toStringAsFixed(2)),
-                      ],
-                    )),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text('Y'),
-                      Text(position[1].toStringAsFixed(2)),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text('Z'),
-                      Text(position[2].toStringAsFixed(2)),
-                    ],
-                  ),
-                ),
-              ]),
-            if (rowsToShow.contains(MOV_ROW) &&
-                moveTableState.printingOrPaused) ...[
-              TableRow(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(FlutterIcons.layers_fea),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text('pages.dashboard.general.print_card.speed')
-                            .tr(),
-                        Text('${moveTableState.mmSpeed} mm/s'),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text('pages.dashboard.general.print_card.layer')
-                            .tr(),
-                        Text(
-                            '${moveTableState.currentLayer}/${moveTableState.maxLayers}'),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text('pages.dashboard.general.print_card.elapsed')
-                            .tr(),
-                        Text(secondsToDurationText(
-                            moveTableState.totalDuration)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              TableRow(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(FlutterIcons.printer_3d_mco),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text('pages.dashboard.general.print_card.flow')
-                            .tr(),
-                        Text('${moveTableState.currentFlow ?? 0} mm³/s'),
-                      ],
-                    ),
-                  ),
-                  Tooltip(
-                    textAlign: TextAlign.center,
-                    message: tr(
-                        'pages.dashboard.general.print_card.filament_used',
-                        args: [
-                          moveTableState.usedFilamentPerc.toStringAsFixed(0),
-                          moveTableState.usedFilament?.toStringAsFixed(1) ??
-                              '0',
-                          moveTableState.totalFilament?.toStringAsFixed(1) ??
-                              '-'
-                        ]),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Text(
-                                  'pages.dashboard.general.print_card.filament')
-                              .tr(),
-                          Text(
-                              '${moveTableState.usedFilament?.toStringAsFixed(1) ?? 0} m'),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Text('pages.dashboard.general.print_card.eta')
-                            .tr(),
-                        Text((moveTableState.eta != null)
-                            ? DateFormat.Hm().format(moveTableState.eta!)
-                            : '--:--'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ]
-          ],
-        );
-      },
-    );
-  }
-}
-
 class M117Message extends ConsumerWidget {
   const M117Message({
     Key? key,
@@ -1591,65 +961,6 @@ class M117Message extends ConsumerWidget {
           )
         ],
       ),
-    );
-  }
-}
-
-class _ButtonWithRunningIndicator extends HookConsumerWidget {
-  const _ButtonWithRunningIndicator({
-    Key? key,
-    required this.child,
-    required this.onPressed,
-  })  : label = null,
-        super(key: key);
-
-  const _ButtonWithRunningIndicator.icon({
-    Key? key,
-    required Icon icon,
-    required this.label,
-    required this.onPressed,
-  })  : child = icon,
-        super(key: key);
-
-  final Icon child;
-  final Widget? label;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var animCtrler = useAnimationController(
-        duration: const Duration(seconds: 1),
-        lowerBound: 0.5,
-        upperBound: 1,
-        initialValue: 1);
-    if (onPressed == null) {
-      animCtrler.repeat(reverse: true);
-    } else {
-      animCtrler.stop();
-    }
-
-    Widget ico;
-
-    if (onPressed == null) {
-      ico = ScaleTransition(
-        scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
-        child: child,
-      );
-    } else {
-      ico = child;
-    }
-
-    if (label == null) {
-      return ElevatedButton(
-        onPressed: onPressed,
-        child: ico,
-      );
-    }
-
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: ico,
-      label: label!,
     );
   }
 }

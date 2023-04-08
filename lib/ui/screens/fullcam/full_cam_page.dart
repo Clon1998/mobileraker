@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,50 +5,42 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
+import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/moonraker/webcam_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
-import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
+import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
-import 'package:stringr/stringr.dart';
+import 'package:mobileraker/util/misc.dart';
 
-class FullCamPage extends ConsumerStatefulWidget {
+class FullCamPage extends ConsumerWidget {
   final Machine machine;
-  final int initialCam;
+  final WebcamInfo initialCam;
 
   const FullCamPage(this.machine, this.initialCam, {Key? key})
       : super(key: key);
 
   @override
-  ConsumerState<FullCamPage> createState() => _FullCamPageState();
-}
-
-class _FullCamPageState extends ConsumerState<FullCamPage> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     WidgetsFlutterBinding.ensureInitialized();
-    if (ref.watch(settingServiceProvider).readBool(landscapeFullWebCam, false)) {
+    if (ref
+        .watch(settingServiceProvider)
+        .readBool(landscapeFullWebCam, false)) {
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     }
 
     return ProviderScope(
       overrides: [
-        camMachineProvider.overrideWithValue(widget.machine),
-        selectedCamIndexProvider.overrideWith((ref) => widget.initialCam)
+        fullCamMachineProvider.overrideWithValue(machine),
+        initialCamProvider.overrideWithValue(initialCam),
+        fullCamPageControllerProvider
       ],
       child: const _FullCamView(),
     );
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    WidgetsFlutterBinding.ensureInitialized();
-    SystemChrome.setPreferredOrientations([]);
   }
 }
 
@@ -59,25 +49,9 @@ class _FullCamView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(camMachineProvider);
+    var machine = ref.watch(fullCamMachineProvider);
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
-    var index = ref.watch(selectedCamIndexProvider);
-    var selectedCam = machine.cams[index];
-
-    Uri camUri = Uri.parse(selectedCam.url);
-    Map<String, String> headers = {};
-    if (clientType == ClientType.octo) {
-      Uri machineUri = Uri.parse(machine.wsUrl);
-      if (machineUri.host == camUri.host) {
-        var octoEverywhere = machine.octoEverywhere!;
-
-        camUri = camUri.replace(scheme: 'https', host: octoEverywhere.uri.host);
-
-        headers[HttpHeaders.authorizationHeader] =
-            octoEverywhere.basicAuthorizationHeader;
-        ;
-      }
-    }
+    var selectedCam = ref.watch(fullCamPageControllerProvider);
 
     return Scaffold(
       body: Stack(alignment: Alignment.center, children: [
@@ -85,32 +59,14 @@ class _FullCamView extends ConsumerWidget {
             constrained: true,
             minScale: 1,
             maxScale: 10,
-            child: Mjpeg(
-              key: ValueKey(selectedCam.url),
-              config: MjpegConfig(
-                  feedUri: camUri.toString(),
-                  httpHeader: headers,
-                  targetFps: selectedCam.targetFps,
-                  mode: selectedCam.mode),
+            child: WebcamMjpeg(
+              webcamInfo: selectedCam,
+              machine: machine,
               showFps: true,
-              landscape: selectedCam.rotate == WebCamRotation.landscape,
-              transform: selectedCam.transformMatrix,
+              showRemoteIndicator: false,
               stackChild: const [StackContent()],
             )),
-        if (machine.cams.length > 1)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: DropdownButton<int>(
-                value: index,
-                onChanged: (s) =>
-                    ref.read(selectedCamIndexProvider.notifier).state = s!,
-                items: machine.cams.mapIndex((e, i) {
-                  return DropdownMenuItem(
-                    value: i,
-                    child: Text(e.name),
-                  );
-                }).toList()),
-          ),
+        const _CamSelector(),
         Align(
           alignment: Alignment.bottomRight,
           child: IconButton(
@@ -137,7 +93,7 @@ class StackContent extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(camMachineProvider);
+    var machine = ref.watch(fullCamMachineProvider);
     var printer = ref.watch(printerProvider(machine.uuid));
 
     return Positioned.fill(
@@ -190,6 +146,36 @@ class StackContent extends ConsumerWidget {
               ];
             }),
       ),
+    );
+  }
+}
+
+class _CamSelector extends ConsumerWidget {
+  const _CamSelector({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var machine = ref.watch(fullCamMachineProvider);
+
+    var webcams =
+        ref.watch(filteredWebcamInfosProvider(machine.uuid)).valueOrNull ?? [];
+
+    if (webcams.isEmpty) return const SizedBox.shrink();
+
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: DropdownButton<WebcamInfo>(
+          value: ref.watch(fullCamPageControllerProvider),
+          onChanged:
+              ref.watch(fullCamPageControllerProvider.notifier).selectCam,
+          items: webcams
+              .map((c) => DropdownMenuItem(
+                    value: c,
+                    child: Text(beautifyName(c.name)),
+                  ))
+              .toList()),
     );
   }
 }

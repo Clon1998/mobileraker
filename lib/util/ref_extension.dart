@@ -204,4 +204,36 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
     }, fireImmediately: true);
     return completer.future;
   }
+
+  Future<T> readWhere<T>(
+      ProviderListenable<AsyncValue<T>> provider, bool Function(T) whereCb) {
+    final completer = Completer<T>();
+    onDispose(() {
+      if (!completer.isCompleted) {
+        completer.completeError(
+            StateError('provider disposed before `where` could complete'));
+      }
+    });
+    late ProviderSubscription sub;
+    sub = listen<AsyncValue<T>>(provider, (prev, next) {
+      if (next.isRefreshing) return;
+      if (completer.isCompleted) {
+        sub.close();
+        return;
+      }
+      next.when(
+          data: (d) {
+            if (whereCb(d)) {
+              completer.complete(d);
+              sub.close();
+            }
+          },
+          error: (e, s) {
+            completer.completeError(e, s);
+            sub.close();
+          },
+          loading: () => null);
+    }, fireImmediately: true);
+    return completer.future;
+  }
 }

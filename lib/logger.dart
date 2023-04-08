@@ -33,6 +33,8 @@ class RiverPodLogger extends ProviderObserver {
 
   @override
   void didDisposeProvider(ProviderBase provider, ProviderContainer container) {
+    if(['toolheadInfoProvider'].contains(provider.name)) return;
+
     var familiy = provider.argument?.toString() ?? '';
     logger.wtf(
         'RiverPod::DISPOSED:${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy');
@@ -61,7 +63,8 @@ class RiverPodLogger extends ProviderObserver {
       '_jsonRpcClientProvider',
       'jrpcClientProvider',
       'machineProvider',
-      '_jsonRpcStateProvider'
+      '_jsonRpcStateProvider',
+
     ].contains(provider.name)) return;
 
     var familiy = provider.argument?.toString() ?? '';
