@@ -1179,7 +1179,7 @@ class _SliderOrTextInput extends HookWidget {
               },
               textAlign: TextAlign.end,
               keyboardType:
-                  TextInputType.numberWithOptions(signed: Platform.isIOS),
+                  TextInputType.numberWithOptions(),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))
               ],
