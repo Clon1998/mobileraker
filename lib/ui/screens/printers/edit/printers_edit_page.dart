@@ -267,10 +267,11 @@ class _WebCamItem extends HookConsumerWidget {
             tilePadding: const EdgeInsets.symmetric(horizontal: 10),
             childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
             title: Text(camName.value),
-            leading: ReorderableDragStartListener(
-              index: idx,
-              child: const Icon(Icons.drag_handle),
-            ),
+            // TODO Add webcam reorder again?
+            // leading: ReorderableDragStartListener(
+            //   index: idx,
+            //   child: const Icon(Icons.drag_handle),
+            // ),
             children: [
           FormBuilderTextField(
             keyboardType: TextInputType.text,

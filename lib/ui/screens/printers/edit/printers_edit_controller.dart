@@ -194,16 +194,21 @@ class PrinterEditController extends _$PrinterEditController {
 
   Future<void> _saveWebcamInfos(Map<String, dynamic> storedValues) async {
     AsyncValue<List<WebcamInfo>> cams = ref.read(webcamListControllerProvider);
+    List<WebcamInfo> camsToDelete =
+        ref.read(webcamListControllerProvider.notifier).camsToDelete;
+
     if (cams.hasValue && !cams.hasError) {
       var camsToStore = <WebcamInfo>[];
+
       for (var cam in cams.value!) {
         WebcamInfo modifiedCam =
             _applyWebcamFieldsToWebcam(storedValues, cam.copyWith());
         camsToStore.add(modifiedCam);
       }
-      await ref
-          .read(webcamServiceProvider(machine.uuid))
-          .addOrModifyWebcamInfoInBulk(camsToStore);
+      var webcamService = ref.read(webcamServiceProvider(machine.uuid));
+      await webcamService.addOrModifyWebcamInfoInBulk(camsToStore);
+      await webcamService.deleteWebcamInfoInBulk(camsToDelete);
+      await ref.refresh(allWebcamInfosProvider(machine.uuid).future);
     }
   }
 
@@ -320,6 +325,7 @@ class PrinterEditController extends _$PrinterEditController {
 @Riverpod(dependencies: [currentlyEditing, jrpcClientState])
 class WebcamListController extends _$WebcamListController {
   Machine get machine => ref.read(currentlyEditingProvider);
+  final List<WebcamInfo> camsToDelete = [];
 
   @override
   FutureOr<List<WebcamInfo>> build() async {
@@ -349,6 +355,8 @@ class WebcamListController extends _$WebcamListController {
 
   removeWebcam(WebcamInfo webcamInfo) {
     if (!state.hasValue) return;
+    camsToDelete.add(webcamInfo);
+
     var list = state.value!.toList();
     list.remove(webcamInfo);
     state = AsyncValue.data(List.unmodifiable(list));

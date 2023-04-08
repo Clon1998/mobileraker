@@ -54,10 +54,12 @@ Future<WebcamInfo> webcamInfo(
 /// For more information check out
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#webcam-apis
 class WebcamService {
-  WebcamService(AutoDisposeRef ref, String machineUUID)
+  WebcamService(this.ref, this.machineUUID)
       : _webcamInfoRepository =
             ref.watch(webcamInfoRepositoryProvider(machineUUID));
 
+  final String machineUUID;
+  final AutoDisposeRef ref;
   final WebcamInfoRepository _webcamInfoRepository;
 
   Future<List<WebcamInfo>> listWebcamInfos() async {
@@ -99,39 +101,35 @@ class WebcamService {
   Future<void> addOrModifyWebcamInfo(WebcamInfo cam) async {
     logger.i('ADD/MODIFY Webcam "${cam.name}" request...');
     try {
-      return await _webcamInfoRepository.addOrUpdate(cam);
+      await _webcamInfoRepository.addOrUpdate(cam);
+      ref.invalidate(webcamInfoProvider(machineUUID, cam.uuid));
     } on Exception catch (e) {
       throw MobilerakerException(
-          'Unable to add/updat webcam info for ${cam.uuid}',
+          'Unable to add/update webcam info for ${cam.uuid}',
+          parentException: e);
+    }
+  }
+
+  Future<List<WebcamInfo>> deleteWebcamInfoInBulk(List<WebcamInfo> cams) {
+    logger.i('BULK REMOVE Webcams "${cams.length}" request...');
+    try {
+      return Future.wait(cams.map((e) => deleteWebcamInfo(e)));
+    } on Exception catch (e) {
+      throw MobilerakerException(
+          'Error while trying to add or modify webcams in bulk!',
           parentException: e);
     }
   }
 
   Future<WebcamInfo> deleteWebcamInfo(WebcamInfo cam) async {
     logger.i('DELETE Webcam "${cam.name}" request...');
-    throw UnimplementedError();
-    //
-    // if (cam.source != 'database') {
-    //   throw MobilerakerException(
-    //       'Can not delete webcams with source ${cam.source}');
-    // }
-    //
-    // try {
-    //   RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
-    //       'server.webcams.delete_item',
-    //       params: {'name': cam.name});
-    //
-    //   Map<String, dynamic> camJson = rpcResponse.result['webcam'];
-    //   logger.i('Deleted webcam "${cam.name}": $camJson');
-    //
-    //   return WebcamInfo.fromJson(camJson);
-    // } on JRpcError catch (e) {
-    //   throw MobilerakerException('Unable to delete webcam ${cam.name}',
-    //       parentException: e);
-    // }
+    try {
+      return await _webcamInfoRepository.remove(cam.uuid);
+    } on Exception catch (e) {
+      throw MobilerakerException('Unable to delete webcam info for ${cam.uuid}',
+          parentException: e);
+    }
   }
-
-// Todo Test a webcam, I dont think I need that tbh!
 }
 
 // Note this is the impl. based on the Webcam API. However this API is useless.
