@@ -18,6 +18,8 @@ import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 
+// part 'general_tab_controller.g.dart';
+
 final flipCardControllerProvider =
     Provider<FlipCardController>((ref) => FlipCardController());
 
