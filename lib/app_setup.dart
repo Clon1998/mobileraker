@@ -11,6 +11,9 @@ import 'package:mobileraker/data/model/hive/macro_group.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/data/model/hive/temperature_preset.dart';
+import 'package:mobileraker/data/model/hive/webcam_mode.dart';
+import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
+import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -39,9 +42,9 @@ setupBoxes() async {
   // 2 - WebcamSetting
   // 6 - WebCamMode
   // 9 - WebCamRotation
-  Hive.ignoreTypeId(2);// WebcamSetting
-  Hive.ignoreTypeId(6);// WebCamMode
-  Hive.ignoreTypeId(9);// WebCamRotation
+  // Hive.ignoreTypeId(2);// WebcamSetting
+  // Hive.ignoreTypeId(6);// WebCamMode
+  // Hive.ignoreTypeId(9);// WebCamRotation
 
 
   var machineAdapter = MachineAdapter();
@@ -72,6 +75,19 @@ setupBoxes() async {
     Hive.registerAdapter(octoAdapater);
   }
 
+  // TODO: Remove adapters and enable ignoreType again! after x months!
+  final wModeAdapater =  WebCamModeAdapter();
+  if (!Hive.isAdapterRegistered(wModeAdapater.typeId)) {
+    Hive.registerAdapter(wModeAdapater);
+  }
+  var webCamRotationAdapter = WebCamRotationAdapter();
+  if (!Hive.isAdapterRegistered(webCamRotationAdapter.typeId)) {
+    Hive.registerAdapter(webCamRotationAdapter);
+  }
+  var webcamSettingAdapter = WebcamSettingAdapter();
+  if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId)) {
+    Hive.registerAdapter(webcamSettingAdapter);
+  }
   // Hive.deleteBoxFromDisk('printers');
 
   try {
