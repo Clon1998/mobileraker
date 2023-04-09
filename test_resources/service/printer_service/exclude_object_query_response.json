@@ -1,0 +1,1816 @@
+{
+  "jsonrpc": "2.0",
+  "result": {
+    "status": {
+      "virtual_sdcard": {
+        "progress": 0.25020522928295635,
+        "file_position": 1654691,
+        "is_active": true,
+        "file_path": "/home/pi/gcode_files/2KG_BAR_HOLDER_002_DESSICANT_0.4mm_PLA_3h29m.gcode",
+        "file_size": 6613335
+      },
+      "print_stats": {
+        "print_duration": 5060.512997853999,
+        "total_duration": 5455.7586660629995,
+        "filament_used": 24225.869169998314,
+        "filename": "2KG_BAR_HOLDER_002_DESSICANT_0.4mm_PLA_3h29m.gcode",
+        "state": "printing",
+        "message": ""
+      },
+      "controller_fan controller_fan": {
+        "speed": 0.6,
+        "rpm": null
+      },
+      "heater_fan toolhead_cooling_fan": {
+        "speed": 1.0,
+        "rpm": null
+      },
+      "fan": {
+        "speed": 1.0,
+        "rpm": null
+      },
+      "temperature_sensor raspberry_pi": {
+        "measured_min_temp": 31.64,
+        "measured_max_temp": 49.66,
+        "temperature": 38.95
+      },
+      "configfile": {
+        "save_config_pending_items": {
+          "bed_mesh ratos": {
+            "tension": "0.2",
+            "min_x": "20.0",
+            "min_y": "20.0",
+            "y_count": "7",
+            "mesh_y_pps": "2",
+            "x_count": "7",
+            "points": "\n  0.035625, 0.124062, 0.198750, 0.176250, 0.125000, 0.082812, 0.029375\n  -0.020938, 0.060625, 0.146562, 0.140312, 0.110312, 0.071562, -0.019375\n  -0.095938, 0.015312, 0.106875, 0.066562, 0.031875, 0.026875, -0.066250\n  -0.202500, -0.081875, 0.024375, 0.012187, -0.018750, -0.072500, -0.125625\n  -0.179063, -0.083750, 0.021562, 0.022187, -0.040938, -0.088750, -0.140625\n  -0.184688, -0.099688, 0.019687, 0.010000, -0.025313, -0.091250, -0.121875\n  -0.166563, -0.081250, 0.012187, 0.027812, 0.005937, 0.006562, -0.116250",
+            "algo": "bicubic",
+            "mesh_x_pps": "2",
+            "version": "1",
+            "max_x": "365.0",
+            "max_y": "359.96"
+          }
+        },
+        "warnings": [
+        ],
+        "config": {
+          "respond": {
+          },
+          "force_move": {
+            "enable_force_move": "True"
+          },
+          "gcode_shell_command change_hostname": {
+            "command": "/home/pi/klipper_config/config/scripts/change-hostname.sh",
+            "timeout": "10."
+          },
+          "gcode_shell_command generate_belt_tension_graph": {
+            "command": "/home/pi/klipper_config/config/scripts/generate-belt-tension-graph.sh",
+            "verbose": "True",
+            "timeout": "90."
+          },
+          "gcode_shell_command compile_binaries": {
+            "command": "/home/pi/klipper_config/config/scripts/compile-binaries.sh",
+            "timeout": "600."
+          },
+          "gcode_macro _START_PRINT_AFTER_HEATING_BED": {
+            "gcode": "\n{% if printer[\"gcode_macro RatOS\"].preheat_extruder|lower == 'true' %}\nM117 Pre-heating extruder...\nM104 S150\nTEMPERATURE_WAIT SENSOR=extruder MINIMUM=150\n{% endif %}\nM117 Adjusting for tilt...\nZ_TILT_ADJUST\nM117 Rehoming after tilt adjustment...\nG28 Z"
+          },
+          "pause_resume": {
+          },
+          "resonance_tester": {
+            "probe_points": "\n200,200,20",
+            "accel_chip": "adxl345"
+          },
+          "gcode_macro _END_PRINT_PARK": {
+            "gcode": "\n_PARK LOCATION={printer[\"gcode_macro RatOS\"].end_print_park_in} X={printer[\"gcode_macro RatOS\"].end_print_park_x}"
+          },
+          "safe_z_home": {
+            "speed": "135",
+            "home_xy_position": "200,200",
+            "z_hop": "12"
+          },
+          "gcode_macro M600": {
+            "gcode": "\nPAUSE\nUNLOAD_FILAMENT\nM117 Please load new filament and resume\nRESPOND MSG=\"Please load new filament and resume\"",
+            "description": "Executes a color change by pausing the printer an unloading the filament."
+          },
+          "gcode_macro MAYBE_HOME": {
+            "gcode": "\n{% if printer[\"gcode_macro MAYBE_HOME\"].is_kinematic_position_overriden|lower == 'true' %}\nRESPOND MSG=\"SET_CENTER_KINEMATIC_POSITION has been abused. Homing all axes. Please refrain from using SET_CENTER_KINEMATIC_POSITION outside of debugging purposes.\"\nG28\nSET_GCODE_VARIABLE MACRO=MAYBE_HOME VARIABLE=is_kinematic_position_overriden VALUE=False\n{% else %}\n{% set axes = '' %}\n{% set isHomed = true %}\n{% set axesToHome = '' %}\n{% if params.X is defined %}\n{% set axes = axes ~ 'X ' %}\n{% if 'x' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'X ' %}\n{% endif %}\n{% endif %}\n{% if params.Y is defined %}\n{% set axes = axes ~ 'Y ' %}\n{% if 'y' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'Y ' %}\n{% endif %}\n{% endif %}\n{% if params.Z is defined %}\n{% set axes = axes ~ 'Z ' %}\n{% if 'z' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'Z ' %}\n{% endif %}\n{% endif %}\n{% if params.X is not defined and params.Y is not defined and params.Z is not defined %}\n{% set axes = '' %}\n{% if 'x' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'X ' %}\n{% endif %}\n{% if 'y' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'Y ' %}\n{% endif %}\n{% if 'z' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'Z ' %}\n{% endif %}\n{% endif %}\n{% if isHomed is false %}\nM117 Homing {axesToHome}\nRESPOND MSG=\"Homing {axesToHome}\"\nG28 {axesToHome}\n{% else %}\nRESPOND MSG=\"All requested axes already homed, skipping..\"\n{% endif %}\n{% endif %}",
+            "description": "Only home unhomed axis",
+            "variable_is_kinematic_position_overriden": "False"
+          },
+          "tmc2209 stepper_z": {
+            "driver_hstrt": "6",
+            "driver_toff": "3",
+            "driver_hend": "0",
+            "interpolate": "False",
+            "stealthchop_threshold": "0",
+            "driver_tbl": "2",
+            "run_current": "1.6",
+            "uart_pin": "z0_uart_pin"
+          },
+          "temperature_sensor Octopus": {
+            "min_temp": "0",
+            "sensor_type": "temperature_mcu",
+            "max_temp": "100"
+          },
+          "gcode_macro PRIME_LINE": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=prime_line_state\n{% set speed = printer[\"gcode_macro RatOS\"].macro_travel_speed|float * 60 %}\nG90\nM82\nM117 Priming nozzle with prime line..\nRESPOND MSG=\"Priming nozzle with prime line..\"\nG1 Z5 F3000\nG1 X{printer.toolhead.axis_minimum.x + 5} Y{printer.toolhead.axis_minimum.y + 10} F{speed}\nG1 Z0.3 F3000\nG92 E0\nG1 Y{printer.toolhead.axis_minimum.y + 80} E16 F1200\nG1 Y{printer.toolhead.axis_minimum.y + 100} F{speed}\nRESTORE_GCODE_STATE NAME=prime_line_state",
+            "description": "Prints a primeline, used internally, if configured, as part of the START_PRINT macro."
+          },
+          "adxl345": {
+            "cs_pin": "adxl345_cs_pin",
+            "spi_bus": "spi3"
+          },
+          "gcode_macro END_PRINT": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=end_print_state\n_END_PRINT_BEFORE_HEATERS_OFF\nTURN_OFF_HEATERS\n_END_PRINT_AFTER_HEATERS_OFF\n_END_PRINT_PARK\n{% if printer[\"gcode_macro RatOS\"].skew_profile is defined %}\nSET_SKEW CLEAR=1\n{% endif %}\nM84\nM107\nM117 Done :)\nRESPOND MSG=\"Done :)\"\nRESTORE_GCODE_STATE NAME=end_print_state",
+            "description": "End print procedure, use this in your Slicer."
+          },
+          "z_tilt": {
+            "retries": "10",
+            "horizontal_move_z": "12",
+            "z_positions": "\n0,0\n200,400\n400,0",
+            "retry_tolerance": "0.02",
+            "points": "\n60,60\n235,370\n360,60",
+            "speed": "300"
+          },
+          "gcode_macro _START_PRINT_PARK": {
+            "gcode": "\n{% set z = printer[\"gcode_macro RatOS\"].start_print_park_z_height|float %}\n_PARK LOCATION={printer[\"gcode_macro RatOS\"].start_print_park_in} X={printer[\"gcode_macro RatOS\"].start_print_park_x}\nG0 Z{z} F6000"
+          },
+          "heater_bed": {
+            "control": "pid",
+            "pid_kp": "63.871",
+            "sensor_pin": "heater_bed_sensor_pin",
+            "heater_pin": "heater_bed_heating_pin",
+            "sensor_type": "Generic 3950",
+            "pid_kd": "797.585",
+            "pwm_cycle_time": "0.02",
+            "pid_ki": "1.279",
+            "min_temp": "0",
+            "max_temp": "120"
+          },
+          "virtual_sdcard": {
+            "path": "~/gcode_files"
+          },
+          "tmc2209 extruder": {
+            "uart_pin": "e_uart_pin",
+            "stealthchop_threshold": "0",
+            "interpolate": "False",
+            "run_current": "0.5"
+          },
+          "tmc2209 stepper_y": {
+            "driver_hstrt": "6",
+            "driver_toff": "3",
+            "driver_hend": "0",
+            "interpolate": "False",
+            "stealthchop_threshold": "0",
+            "driver_tbl": "2",
+            "run_current": "1.6",
+            "uart_pin": "y_uart_pin"
+          },
+          "gcode_macro MEASURE_COREXY_BELT_TENSION": {
+            "gcode": "\nTEST_RESONANCES AXIS=1,1  OUTPUT=raw_data NAME=belt-tension-upper\nTEST_RESONANCES AXIS=1,-1 OUTPUT=raw_data NAME=belt-tension-lower\nRUN_SHELL_COMMAND CMD=generate_belt_tension_graph",
+            "description": "Generates resonance graph used to ensure belts are equally tensioned."
+          },
+          "stepper_z": {
+            "endstop_pin": "probe:z_virtual_endstop",
+            "rotation_distance": "4",
+            "step_pin": "z0_step_pin",
+            "position_min": "-5",
+            "microsteps": "64",
+            "homing_speed": "10",
+            "dir_pin": "!z0_dir_pin",
+            "position_max": "400",
+            "enable_pin": "!z0_enable_pin"
+          },
+          "skew_correction": {
+          },
+          "stepper_x": {
+            "homing_retract_dist": "5.0",
+            "position_endstop": "0",
+            "endstop_pin": "x_endstop_pin",
+            "rotation_distance": "40",
+            "step_pin": "x_step_pin",
+            "homing_speed": "50",
+            "microsteps": "64",
+            "dir_pin": "x_dir_pin",
+            "position_max": "400",
+            "enable_pin": "!x_enable_pin"
+          },
+          "input_shaper": {
+            "shaper_freq_x": "69.6",
+            "shaper_freq_y": "44.2",
+            "shaper_type_x": "zv",
+            "shaper_type_y": "mzv"
+          },
+          "gcode_macro LOAD_FILAMENT": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=load_state\nG91\n{% if params.TEMP is defined or printer.extruder.can_extrude|lower == 'false' %}\nM117 Heating...\nM104 S{params.TEMP|default(220, true)}\nTEMPERATURE_WAIT SENSOR=extruder MINIMUM={params.TEMP|default(220, true)}\n{% endif %}\nM117 Loading filament...\nG0 E100 F600\nG4 P1000\nG0 E40 F100\nM400e\nM117 Filament loaded!\nRESPOND MSG=\"Filament loaded!\"\nRESTORE_GCODE_STATE NAME=load_state",
+            "description": "Loads new filament. Note: be careful with PETG, make sure you inspect the tip of your filament before loading to avoid jams."
+          },
+          "gcode_macro PRIME_BLOB": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=prime_blob_state\nM117 Priming nozzle with prime blob..\nRESPOND MSG=\"Priming nozzle with prime blob..\"\n{% set speed = printer[\"gcode_macro RatOS\"].macro_travel_speed|float * 60 %}\nG90\nM83\nG1 Z5 F3000\nG1 X{printer.toolhead.axis_minimum.x + 5} Y{printer.toolhead.axis_minimum.y + 10} Z0.5 F{speed}\nG1 F60 E20\nM106 S102\nG1 Z5 F100 E5\nG1 F200 Y{printer.toolhead.axis_minimum.y + 25} E1\nG1 F200 Y{printer.toolhead.axis_minimum.y + 30} Z3.8 E0.5\nG1 F200 Y{printer.toolhead.axis_minimum.y + 35} Z2.6 E0.5\nG1 F200 Y{printer.toolhead.axis_minimum.y + 40} Z1.4 E0.5\nG1 F200 Y{printer.toolhead.axis_minimum.y + 45} Z0.2 E0.5\nM106 S0\nG1 F200 Y{printer.toolhead.axis_minimum.y +50} Z0.2 E0.6\nG1 F{speed} Y{printer.toolhead.axis_minimum.y + 100}\nRESTORE_GCODE_STATE NAME=prime_blob_state",
+            "description": "Prints a primeblob, used internally, if configured, as part of the START_PRINT macro. Slower than PRIME_LINE but much more effective."
+          },
+          "controller_fan controller_fan": {
+            "max_power": "0.6",
+            "pin": "fan_controller_board_pin"
+          },
+          "bed_mesh ratos": {
+            "tension": "0.2",
+            "min_x": "20.0",
+            "min_y": "20.0",
+            "y_count": "7",
+            "mesh_y_pps": "2",
+            "x_count": "7",
+            "version": "1",
+            "algo": "bicubic",
+            "mesh_x_pps": "2",
+            "max_y": "359.96",
+            "max_x": "365.0",
+            "points": "\n-0.004375, 0.129375, 0.197812, 0.172500, 0.117187, 0.050000, -0.039063\n-0.069063, 0.050625, 0.153125, 0.141562, 0.113750, 0.066875, -0.079375\n-0.140000, 0.015000, 0.099062, 0.072187, 0.027500, -0.012500, -0.121563\n-0.249063, -0.105938, -0.008438, -0.002188, -0.027500, -0.113125, -0.193125\n-0.212188, -0.104063, 0.026875, 0.022500, -0.055938, -0.135313, -0.225000\n-0.286875, -0.169688, -0.017188, -0.016250, -0.060000, -0.132188, -0.224063\n-0.226563, -0.138438, -0.010313, 0.013437, -0.059375, -0.126875, -0.269063"
+          },
+          "gcode_macro GENERATE_SHAPER_GRAPHS": {
+            "gcode": "\n{% if params.AXIS is defined %}\n{% if params.AXIS|lower == 'x' %}\nMAYBE_HOME\nTEST_RESONANCES AXIS=X\nRUN_SHELL_COMMAND CMD=generate_shaper_graph_x\nRESPOND MSG=\"Input shaper graph generated for the X axis. You'll find it in the input_shaper folder in the machine tab!\"\n{% elif params.AXIS|lower == 'y' %}\nMAYBE_HOME\nTEST_RESONANCES AXIS=Y\nRUN_SHELL_COMMAND CMD=generate_shaper_graph_y\nRESPOND MSG=\"Input shaper graph generated for the Y axis. You'll find it in the input_shaper folder in the machine tab!\"\n{% else %}\n{action_raise_error(\"Unknown axis specified. Expected X or Y.\")}\n{% endif %}\n{% else %}\nMAYBE_HOME\nTEST_RESONANCES AXIS=X\nTEST_RESONANCES AXIS=Y\nRUN_SHELL_COMMAND CMD=generate_shaper_graph_x\nRUN_SHELL_COMMAND CMD=generate_shaper_graph_y\nRESPOND MSG=\"Input shaper graphs generated for X and Y. You'll find them in the input_shaper folder in the machine tab!\"\n{% endif %}",
+            "description": "Genarates input shaper resonances graphs for analysis. Uses the AXIS parameter for if you only want to do one axis at a time, (eg. GENERATE_SHAPER_GRAPHS AXIS=X)"
+          },
+          "tmc2209 stepper_z1": {
+            "driver_hstrt": "6",
+            "driver_toff": "3",
+            "driver_hend": "0",
+            "interpolate": "False",
+            "stealthchop_threshold": "0",
+            "driver_tbl": "2",
+            "run_current": "1.6",
+            "uart_pin": "z1_uart_pin"
+          },
+          "gcode_macro START_PRINT": {
+            "gcode": "\nCLEAR_PAUSE\nSAVE_GCODE_STATE NAME=start_print_state\nG21\nG90\nM82\nMAYBE_HOME\nM117 Heating bed...\nRESPOND MSG=\"Heating bed...\"\nM190 S{params.BED_TEMP|default(printer.heater_bed.target, true) }\n_START_PRINT_AFTER_HEATING_BED\n_START_PRINT_BED_MESH\nM104 S{params.EXTRUDER_TEMP|default(printer.extruder.target, true) }\n_START_PRINT_PARK\nM117 Heating Extruder...\nRESPOND MSG=\"Heating Extruder...\"\nM109 S{params.EXTRUDER_TEMP|default(printer.extruder.target, true) }\n_START_PRINT_AFTER_HEATING_EXTRUDER\nM117 Printing...\nRESPOND MSG=\"Printing...\"\nRESTORE_GCODE_STATE NAME=start_print_state\n{% if printer[\"gcode_macro RatOS\"].relative_extrusion|lower == 'true' %}\nM83\n{% else %}\nM82\n{% endif %}\nG92 E0",
+            "description": "Start print procedure, use this in your Slicer."
+          },
+          "tmc2209 stepper_z2": {
+            "driver_hstrt": "6",
+            "driver_toff": "3",
+            "driver_hend": "0",
+            "interpolate": "False",
+            "stealthchop_threshold": "0",
+            "driver_tbl": "2",
+            "run_current": "1.6",
+            "uart_pin": "z2_uart_pin"
+          },
+          "gcode_macro SET_CENTER_KINEMATIC_POSITION": {
+            "gcode": "\nRESPOND MSG=\"WARNING: ONLY USE SET_CENTER_KINEMATIC_POSITION FOR DEBUGGING PURPOSES. YOU'RE OVERRIDING THE INTERNAL POSITIONING STATE OF THE PRINTER. PROCEED WITH CAUTION AND DO A PROPER G28 WHEN DONE.\"\nSET_GCODE_VARIABLE MACRO=MAYBE_HOME VARIABLE=is_kinematic_position_overriden VALUE=True\nSET_KINEMATIC_POSITION X={printer.toolhead.axis_maximum.x / 2} Y={printer.toolhead.axis_maximum.y / 2} Z={printer.toolhead.axis_maximum.z / 2}",
+            "description": "FOR DEBUGGING PURPOSES ONLY. Sets the internal printer kinematic state to the center of all axes regardless of actual physical position."
+          },
+          "gcode_macro COMPILE_FIRMWARE": {
+            "gcode": "\nRESPOND MSG=\"Compiling binaries.. This can take up to 10 minutes. Please do not turn off your Raspberry Pi!\"\nRUN_SHELL_COMMAND CMD=compile_binaries\nRESPOND MSG=\"Firmware binaries compiled successfully! You can find them in the firmware_binaries folder in the machine tab!\"",
+            "description": "Compiles firmware with currently installed klipper version for all supported RatOS boards. Note: this may take up to 10 minutes."
+          },
+          "temperature_sensor raspberry_pi": {
+            "sensor_type": "temperature_host"
+          },
+          "printer": {
+            "square_corner_velocity": "5",
+            "max_accel": "15000",
+            "max_z_accel": "150",
+            "max_velocity": "1000",
+            "max_z_velocity": "20",
+            "kinematics": "corexy",
+            "max_accel_to_decel": "7500"
+          },
+          "firmware_retraction": {
+            "unretract_extra_length": "0",
+            "retract_length": "0.5",
+            "unretract_speed": "40",
+            "retract_speed": "40"
+          },
+          "gcode_macro RESUME": {
+            "rename_existing": "RESUME_BASE",
+            "description": "Resumes the print if the printer is paused.",
+            "gcode": "\n{% set E = printer[\"gcode_macro PAUSE\"].extrude|float %}\n{% if printer.extruder.can_extrude|lower == 'true' %}\nG91\nG1 E{E} F2100\nG90\n{% else %}\n{action_respond_info(\"Extruder not hot enough\")}\n{% endif %}\nRESTORE_GCODE_STATE NAME=PAUSE_state MOVE=1\nRESUME_BASE"
+          },
+          "gcode_macro PAUSE": {
+            "rename_existing": "PAUSE_BASE",
+            "description": "Pauses the printer",
+            "variable_extrude": "1.5",
+            "gcode": "\nSAVE_GCODE_STATE NAME=PAUSE_state\n{% set E = printer[\"gcode_macro PAUSE\"].extrude|float %}\n{% set speed = printer[\"gcode_macro RatOS\"].macro_travel_speed|float * 60 %}\n{% set max_z = printer.toolhead.axis_maximum.z|float %}\n{% set act_z = printer.toolhead.position.z|float %}\n{% if act_z < (max_z - 2.0) %}\n{% set z_safe = 2.0 %}\n{% else %}\n{% set z_safe = max_z - act_z %}\n{% endif %}\nPAUSE_BASE\nG91\n{% if printer.extruder.can_extrude|lower == 'true' %}\nG1 E-{E} F2100\n{% else %}\n{action_respond_info(\"Extruder not hot enough\")}\n{% endif %}\n{% if \"xyz\" in printer.toolhead.homed_axes %}\nG1 Z{z_safe} F900\n_PARK LOCATION={printer[\"gcode_macro RatOS\"].pause_print_park_in} X={printer[\"gcode_macro RatOS\"].pause_print_park_x}\n{% else %}\n{action_respond_info(\"Printer not homed\")}\n{% endif %}"
+          },
+          "bltouch": {
+            "sensor_pin": "^bltouch_sensor_pin",
+            "sample_retract_dist": "10",
+            "control_pin": "bltouch_control_pin",
+            "z_offset": "3.100",
+            "y_offset": "-21.0",
+            "x_offset": "-27.0",
+            "pin_up_reports_not_triggered": "True",
+            "pin_move_time": "0.675",
+            "pin_up_touch_mode_reports_triggered": "True",
+            "speed": "7"
+          },
+          "idle_timeout": {
+            "gcode": "\n{% if printer.webhooks.state|lower == 'ready' %}\n{% if printer.pause_resume.is_paused|lower == 'false' %}\nM117 Idle timeout reached\nTURN_OFF_HEATERS\nM84\n{% endif %}\n{% endif %}",
+            "timeout": "7200"
+          },
+          "gcode_macro _PARK": {
+            "gcode": "\n{% set speed = printer[\"gcode_macro RatOS\"].macro_travel_speed|float * 60 %}\n{% if params.X != '' %}\n{% if params.X|float >= printer.toolhead.axis_minimum.x + 5 and params.X|float <= printer.toolhead.axis_maximum.x - 5 %}\n{% set safe_x = params.X|float %}\n{% else %}\n{action_respond_info('The requested X co-ordinate is outside the defined axis bounds - using defaults')}\n{% set safe_x = printer.toolhead.axis_maximum.x / 2 %}\n{% endif %}\n{% else %}\n{% set safe_x = printer.toolhead.axis_maximum.x / 2 %}\n{% endif %}\n{% if params.LOCATION|default('back')|lower == 'back' %}\n{% set y = printer.toolhead.axis_maximum.y - 5 %}\n{% elif params.LOCATION|lower == 'front' %}\n{% set y = printer.toolhead.axis_minimum.y + 5 %}\n{% elif params.LOCATION|lower == 'center' %}\n{% set y = printer.toolhead.axis_maximum.y / 2 %}\n{% endif %}\nG90\nG0 X{safe_x} Y{y} F{speed}"
+          },
+          "fan": {
+            "shutdown_speed": "1.0",
+            "pin": "fan_part_cooling_pin"
+          },
+          "gcode_macro RatOS": {
+            "variable_relative_extrusion": "False",
+            "variable_nozzle_priming": "False",
+            "description": "RatOS variable storage macro, will echo variables to the console when run.",
+            "variable_pause_print_park_in": "\"back\"",
+            "gcode": "\nECHO_RATOS_VARS",
+            "variable_start_print_park_z_height": "50",
+            "variable_calibrate_bed_mesh": "True",
+            "variable_macro_travel_speed": "300",
+            "variable_start_print_park_in": "\"back\"",
+            "variable_preheat_extruder": "True",
+            "variable_end_print_park_in": "\"back\""
+          },
+          "stepper_z2": {
+            "step_pin": "z2_step_pin",
+            "rotation_distance": "4",
+            "microsteps": "64",
+            "dir_pin": "!z2_dir_pin",
+            "enable_pin": "!z2_enable_pin"
+          },
+          "mcu": {
+            "baud": "250000",
+            "serial": "/dev/btt-octopus-11"
+          },
+          "stepper_z1": {
+            "step_pin": "z1_step_pin",
+            "rotation_distance": "4",
+            "microsteps": "64",
+            "dir_pin": "!z1_dir_pin",
+            "enable_pin": "!z1_enable_pin"
+          },
+          "filament_motion_sensor encoder_sensor": {
+            "detection_length": "7",
+            "switch_pin": "PG10",
+            "pause_on_runout": "True",
+            "extruder": "extruder"
+          },
+          "gcode_macro _END_PRINT_BEFORE_HEATERS_OFF": {
+            "gcode": "\nRESPOND MSG=\"Cleaning up...\""
+          },
+          "gcode_shell_command generate_shaper_graph_y": {
+            "command": "/home/pi/klipper_config/config/scripts/generate-shaper-graph-y.sh",
+            "verbose": "True",
+            "timeout": "60."
+          },
+          "gcode_shell_command generate_shaper_graph_x": {
+            "command": "/home/pi/klipper_config/config/scripts/generate-shaper-graph-x.sh",
+            "verbose": "True",
+            "timeout": "60."
+          },
+          "gcode_macro _END_PRINT_AFTER_HEATERS_OFF": {
+            "gcode": "\n{% set max_z = printer.toolhead.axis_maximum.z|float %}\n{% set act_z = printer.toolhead.position.z|float %}\n{% if act_z < (max_z - 2.0) %}\n{% set z_safe = 2.0 %}\n{% else %}\n{% set z_safe = max_z - act_z %}\n{% endif %}\nG91\nG1 E-2 F3600\nG0 Z{z_safe} F3600\nG1 E-2 F3600"
+          },
+          "gcode_macro CHANGE_HOSTNAME": {
+            "gcode": "\n{% if params.HOSTNAME is not defined %}\nRESPOND MSG='You have to specify a new hostname with the HOSTNAME parameter. Ex: CHANGE_HOSTNAME HOSTNAME=\"MY_NEW_HOSTNAME\"'\nRESPOND MSG=\"Please note: RFCs mandate that a hostname's labels may contain only the ASCII letters 'a' through 'z' (case-insensitive), the digits '0' through '9', and the hyphen. Hostname labels cannot begin or end with a hyphen. No other symbols, punctuation characters, or blank spaces are permitted.\"\n{% else %}\nRUN_SHELL_COMMAND CMD=change_hostname PARAMS={params.HOSTNAME}\n{% endif %}",
+            "description": "Change the hostname of your Raspberry Pi."
+          },
+          "bed_mesh": {
+            "horizontal_move_z": "5",
+            "algorithm": "bicubic",
+            "mesh_pps": "2,2",
+            "mesh_min": "20,20",
+            "mesh_max": "365,360",
+            "fade_start": "1.0",
+            "bicubic_tension": ".2",
+            "fade_end": "10.0",
+            "probe_count": "7,7",
+            "speed": "300"
+          },
+          "gcode_macro ECHO_RATOS_VARS": {
+            "gcode": "\n{% for var, value in printer[\"gcode_macro RatOS\"].items() %}\n{action_respond_info(var ~ \": \" ~ value)}\n{% endfor %}",
+            "description": "Echo RatOS variables to the console."
+          },
+          "display_status": {
+          },
+          "tmc2209 stepper_x": {
+            "driver_hstrt": "6",
+            "driver_toff": "3",
+            "driver_hend": "0",
+            "interpolate": "False",
+            "stealthchop_threshold": "0",
+            "driver_tbl": "2",
+            "run_current": "1.6",
+            "uart_pin": "x_uart_pin"
+          },
+          "heater_fan toolhead_cooling_fan": {
+            "fan_speed": "1",
+            "pin": "fan_toolhead_cooling_pin"
+          },
+          "gcode_macro _START_PRINT_AFTER_HEATING_EXTRUDER": {
+            "gcode": "\n{% if printer[\"gcode_macro RatOS\"].nozzle_priming|lower == 'primeline' %}\nPRIME_LINE\n{% endif %}\n{% if printer[\"gcode_macro RatOS\"].nozzle_priming|lower == 'primeblob' %}\nPRIME_BLOB\n{% endif %}\n{% if printer[\"gcode_macro RatOS\"].skew_profile is defined %}\nSKEW_PROFILE LOAD={printer[\"gcode_macro RatOS\"].skew_profile}\n{% endif %}"
+          },
+          "gcode_macro CANCEL_PRINT": {
+            "rename_existing": "CANCEL_PRINT_BASE",
+            "description": "Cancels the printer",
+            "gcode": "\nEND_PRINT\nTURN_OFF_HEATERS\nCLEAR_PAUSE\nCANCEL_PRINT_BASE"
+          },
+          "gcode_macro _START_PRINT_BED_MESH": {
+            "gcode": "\n{% if printer[\"gcode_macro RatOS\"].calibrate_bed_mesh|lower == 'true' %}\nBED_MESH_CALIBRATE PROFILE=ratos\n{% endif %}\nBED_MESH_PROFILE LOAD=ratos"
+          },
+          "gcode_macro UNLOAD_FILAMENT": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=unload_state\nG91\n{% if params.TEMP is defined or printer.extruder.can_extrude|lower == 'false' %}\nM117 Heating...\nM104 S{params.TEMP|default(220, true)}\nTEMPERATURE_WAIT SENSOR=extruder MINIMUM={params.TEMP|default(220, true)}\n{% endif %}\nM117 Unloading filament...\nG0 E-5 F3600\nG4 P3000\nG0 E5 F3600\nG0 E-15 F3600\nG0 E-130 F300\nM117 Filament unloaded!\nRESPOND MSG=\"Filament unloaded! Please inspect the tip of the filament before reloading.\"\nRESTORE_GCODE_STATE NAME=unload_state",
+            "description": "Unloads the filament. Note: be careful with PETG, make sure you inspect the tip of your filament before reloading to avoid jams."
+          },
+          "board_pins octopus_11_tmc2209": {
+            "aliases": "\ny_step_pin=PF13,   y_dir_pin=PF12,   y_enable_pin=PF14,   y_uart_pin=PC4,   x_diag_pin=PG6,   x_endstop_pin=PG6,\nx_step_pin=PG0,   x_dir_pin=PG1,   x_enable_pin=PF15,   x_uart_pin=PD11,   y_diag_pin=PG9,   y_endstop_pin=PG9,\nz2_step_pin=PC13,  z2_dir_pin=PF0,  z2_enable_pin=PF1,  z2_uart_pin=PE4,  z0_diag_pin=null,\nz1_step_pin=PE2,  z1_dir_pin=PE3,  z1_enable_pin=PD4,  z1_uart_pin=PE1,  z1_diag_pin=null,\nz0_step_pin=PE6,  z0_dir_pin=PA14,  z0_enable_pin=PE0,  z0_uart_pin=PD3,  z2_diag_pin=null,\ne_step_pin=PG4,   e_dir_pin=PC1,   e_enable_pin=PA0,   e_uart_pin=PC7,   e_diag_pin=null,   e_heater_pin=PA2,  e_sensor_pin=PF4,\nadxl345_cs_pin=PA15,\nbltouch_sensor_pin=PB7,  bltouch_control_pin=PB6,\nprobe_pin=PB7,\nfan_part_cooling_pin=PA8,\nfan_toolhead_cooling_pin=PE5,\nfan_controller_board_pin=PD12,\nheater_bed_heating_pin=PA1,\nheater_bed_sensor_pin=PF3,\nEXP1_1=PE8, EXP1_3=PE9, EXP1_5=PE12, EXP1_7=PE14, EXP1_9=<GND>,\nEXP1_2=PE7, EXP1_4=PE10, EXP1_6=PE13, EXP1_8=PE15, EXP1_10=<5V>,\nEXP2_1=PA6, EXP2_3=PB1, EXP2_5=PB2, EXP2_7=PC15,  EXP2_9=<GND>,\nEXP2_2=PA5, EXP2_4=PA4, EXP2_6=PA7, EXP2_8=<RST>, EXP2_10=PC5,"
+          },
+          "stepper_y": {
+            "homing_positive_dir": "true",
+            "homing_retract_dist": "5.0",
+            "position_endstop": "400",
+            "endstop_pin": "y_endstop_pin",
+            "rotation_distance": "40",
+            "step_pin": "y_step_pin",
+            "homing_speed": "50",
+            "microsteps": "64",
+            "dir_pin": "y_dir_pin",
+            "position_max": "400",
+            "enable_pin": "!y_enable_pin"
+          },
+          "extruder": {
+            "control": "pid",
+            "rtd_nominal_r": "1000",
+            "max_extrude_only_velocity": "60",
+            "max_extrude_only_distance": "200",
+            "sensor_type": "MAX31865",
+            "min_temp": "0",
+            "enable_pin": "!e_enable_pin",
+            "pressure_advance": "0.03",
+            "min_extrude_temp": "170",
+            "dir_pin": "e_dir_pin",
+            "spi_software_mosi_pin": "PA7",
+            "pid_kp": "30.365",
+            "spi_software_miso_pin": "PA6",
+            "spi_software_sclk_pin": "PA5",
+            "heater_pin": "e_heater_pin",
+            "rtd_reference_r": "4300",
+            "pid_kd": "110.453",
+            "pid_ki": "2.087",
+            "filament_diameter": "1.750",
+            "rtd_num_of_wires": "2",
+            "rtd_use_50hz_filter": "True",
+            "sensor_pin": "PF2",
+            "nozzle_diameter": "0.8",
+            "rotation_distance": "8",
+            "step_pin": "e_step_pin",
+            "microsteps": "64",
+            "spi_speed": "4000000",
+            "max_temp": "400"
+          }
+        },
+        "settings": {
+          "tmc2209 extruder": {
+            "driver_tbl": 2,
+            "driver_pwm_ofs": 36,
+            "driver_hstrt": 5,
+            "driver_toff": 3,
+            "sense_resistor": 0.11,
+            "uart_address": 0,
+            "driver_hend": 0,
+            "driver_pwm_reg": 8,
+            "driver_iholddelay": 8,
+            "interpolate": false,
+            "uart_pin": "e_uart_pin",
+            "driver_pwm_autoscale": true,
+            "driver_pwm_autograd": true,
+            "driver_pwm_grad": 14,
+            "run_current": 0.5,
+            "driver_sgthrs": 0,
+            "stealthchop_threshold": 0.0,
+            "hold_current": 2.0,
+            "driver_tpowerdown": 20,
+            "driver_pwm_lim": 12,
+            "driver_pwm_freq": 1
+          },
+          "respond": {
+            "default_prefix": "echo:",
+            "default_type": "echo"
+          },
+          "gcode_shell_command change_hostname": {
+            "command": "/home/pi/klipper_config/config/scripts/change-hostname.sh",
+            "verbose": true,
+            "timeout": 10.0
+          },
+          "gcode_macro _end_print_after_heaters_off": {
+            "gcode": "\n{% set max_z = printer.toolhead.axis_maximum.z|float %}\n{% set act_z = printer.toolhead.position.z|float %}\n{% if act_z < (max_z - 2.0) %}\n{% set z_safe = 2.0 %}\n{% else %}\n{% set z_safe = max_z - act_z %}\n{% endif %}\nG91\nG1 E-2 F3600\nG0 Z{z_safe} F3600\nG1 E-2 F3600",
+            "description": "G-Code macro"
+          },
+          "gcode_shell_command compile_binaries": {
+            "command": "/home/pi/klipper_config/config/scripts/compile-binaries.sh",
+            "verbose": true,
+            "timeout": 600.0
+          },
+          "force_move": {
+            "enable_force_move": true
+          },
+          "pause_resume": {
+            "recover_velocity": 50.0
+          },
+          "resonance_tester": {
+            "min_freq": 5.0,
+            "probe_points": [
+              [
+                200.0,
+                200.0,
+                20.0
+              ]
+            ],
+            "move_speed": 50.0,
+            "hz_per_sec": 1.0,
+            "max_freq": 133.33333333333334,
+            "accel_per_hz": 75.0,
+            "accel_chip": "adxl345"
+          },
+          "gcode_macro end_print": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=end_print_state\n_END_PRINT_BEFORE_HEATERS_OFF\nTURN_OFF_HEATERS\n_END_PRINT_AFTER_HEATERS_OFF\n_END_PRINT_PARK\n{% if printer[\"gcode_macro RatOS\"].skew_profile is defined %}\nSET_SKEW CLEAR=1\n{% endif %}\nM84\nM107\nM117 Done :)\nRESPOND MSG=\"Done :)\"\nRESTORE_GCODE_STATE NAME=end_print_state",
+            "description": "End print procedure, use this in your Slicer."
+          },
+          "safe_z_home": {
+            "z_hop_speed": 15.0,
+            "move_to_previous": false,
+            "speed": 135.0,
+            "home_xy_position": [
+              200.0,
+              200.0
+            ],
+            "z_hop": 12.0
+          },
+          "tmc2209 stepper_z": {
+            "driver_pwm_ofs": 36,
+            "driver_hstrt": 6,
+            "driver_toff": 3,
+            "sense_resistor": 0.11,
+            "driver_pwm_autoscale": true,
+            "uart_address": 0,
+            "driver_pwm_reg": 8,
+            "driver_iholddelay": 8,
+            "interpolate": false,
+            "stealthchop_threshold": 0.0,
+            "driver_pwm_freq": 1,
+            "driver_tbl": 2,
+            "driver_pwm_autograd": true,
+            "driver_pwm_grad": 14,
+            "run_current": 1.6,
+            "driver_hend": 0,
+            "uart_pin": "z0_uart_pin",
+            "hold_current": 2.0,
+            "driver_tpowerdown": 20,
+            "driver_pwm_lim": 12,
+            "driver_sgthrs": 0
+          },
+          "heater_fan toolhead_cooling_fan": {
+            "heater": [
+              "extruder"
+            ],
+            "cycle_time": 0.01,
+            "pin": "fan_toolhead_cooling_pin",
+            "off_below": 0.0,
+            "heater_temp": 50.0,
+            "shutdown_speed": 1.0,
+            "fan_speed": 1.0,
+            "max_power": 1.0,
+            "kick_start_time": 0.1,
+            "hardware_pwm": false
+          },
+          "gcode_macro load_filament": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=load_state\nG91\n{% if params.TEMP is defined or printer.extruder.can_extrude|lower == 'false' %}\nM117 Heating...\nM104 S{params.TEMP|default(220, true)}\nTEMPERATURE_WAIT SENSOR=extruder MINIMUM={params.TEMP|default(220, true)}\n{% endif %}\nM117 Loading filament...\nG0 E100 F600\nG4 P1000\nG0 E40 F100\nM400e\nM117 Filament loaded!\nRESPOND MSG=\"Filament loaded!\"\nRESTORE_GCODE_STATE NAME=load_state",
+            "description": "Loads new filament. Note: be careful with PETG, make sure you inspect the tip of your filament before loading to avoid jams."
+          },
+          "gcode_macro measure_corexy_belt_tension": {
+            "gcode": "\nTEST_RESONANCES AXIS=1,1  OUTPUT=raw_data NAME=belt-tension-upper\nTEST_RESONANCES AXIS=1,-1 OUTPUT=raw_data NAME=belt-tension-lower\nRUN_SHELL_COMMAND CMD=generate_belt_tension_graph",
+            "description": "Generates resonance graph used to ensure belts are equally tensioned."
+          },
+          "gcode_macro _end_print_park": {
+            "gcode": "\n_PARK LOCATION={printer[\"gcode_macro RatOS\"].end_print_park_in} X={printer[\"gcode_macro RatOS\"].end_print_park_x}",
+            "description": "G-Code macro"
+          },
+          "z_tilt": {
+            "retries": 10,
+            "horizontal_move_z": 12.0,
+            "z_positions": [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                200.0,
+                400.0
+              ],
+              [
+                400.0,
+                0.0
+              ]
+            ],
+            "retry_tolerance": 0.02,
+            "points": [
+              [
+                60.0,
+                60.0
+              ],
+              [
+                235.0,
+                370.0
+              ],
+              [
+                360.0,
+                60.0
+              ]
+            ],
+            "speed": 300.0
+          },
+          "gcode_macro _start_print_park": {
+            "gcode": "\n{% set z = printer[\"gcode_macro RatOS\"].start_print_park_z_height|float %}\n_PARK LOCATION={printer[\"gcode_macro RatOS\"].start_print_park_in} X={printer[\"gcode_macro RatOS\"].start_print_park_x}\nG0 Z{z} F6000",
+            "description": "G-Code macro"
+          },
+          "heater_bed": {
+            "control": "pid",
+            "pid_kp": 63.871,
+            "pullup_resistor": 4700.0,
+            "sensor_pin": "heater_bed_sensor_pin",
+            "heater_pin": "heater_bed_heating_pin",
+            "max_power": 1.0,
+            "min_extrude_temp": 170.0,
+            "sensor_type": "Generic 3950",
+            "inline_resistor": 0.0,
+            "pid_kd": 797.585,
+            "pwm_cycle_time": 0.02,
+            "pid_ki": 1.279,
+            "min_temp": 0.0,
+            "max_temp": 120.0,
+            "smooth_time": 1.0
+          },
+          "virtual_sdcard": {
+            "path": "~/gcode_files",
+            "on_error_gcode": ""
+          },
+          "tmc2209 stepper_y": {
+            "driver_pwm_ofs": 36,
+            "driver_pwm_autoscale": true,
+            "driver_toff": 3,
+            "sense_resistor": 0.11,
+            "driver_hend": 0,
+            "uart_address": 0,
+            "driver_pwm_reg": 8,
+            "driver_iholddelay": 8,
+            "interpolate": false,
+            "uart_pin": "y_uart_pin",
+            "driver_hstrt": 6,
+            "driver_tbl": 2,
+            "driver_pwm_autograd": true,
+            "driver_pwm_grad": 14,
+            "run_current": 1.6,
+            "driver_sgthrs": 0,
+            "stealthchop_threshold": 0.0,
+            "hold_current": 2.0,
+            "driver_tpowerdown": 20,
+            "driver_pwm_lim": 12,
+            "driver_pwm_freq": 1
+          },
+          "verify_heater extruder": {
+            "max_error": 120.0,
+            "check_gain_time": 20.0,
+            "hysteresis": 5.0,
+            "heating_gain": 2.0
+          },
+          "gcode_macro change_hostname": {
+            "gcode": "\n{% if params.HOSTNAME is not defined %}\nRESPOND MSG='You have to specify a new hostname with the HOSTNAME parameter. Ex: CHANGE_HOSTNAME HOSTNAME=\"MY_NEW_HOSTNAME\"'\nRESPOND MSG=\"Please note: RFCs mandate that a hostname's labels may contain only the ASCII letters 'a' through 'z' (case-insensitive), the digits '0' through '9', and the hyphen. Hostname labels cannot begin or end with a hyphen. No other symbols, punctuation characters, or blank spaces are permitted.\"\n{% else %}\nRUN_SHELL_COMMAND CMD=change_hostname PARAMS={params.HOSTNAME}\n{% endif %}",
+            "description": "Change the hostname of your Raspberry Pi."
+          },
+          "stepper_z": {
+            "homing_positive_dir": false,
+            "homing_retract_dist": 5.0,
+            "full_steps_per_rotation": 200,
+            "endstop_pin": "probe:z_virtual_endstop",
+            "rotation_distance": 4.0,
+            "gear_ratio": [
+            ],
+            "second_homing_speed": 5.0,
+            "step_pin": "z0_step_pin",
+            "position_min": -5.0,
+            "microsteps": 64,
+            "homing_speed": 10.0,
+            "position_max": 400.0,
+            "dir_pin": "!z0_dir_pin",
+            "homing_retract_speed": 10.0,
+            "enable_pin": "!z0_enable_pin"
+          },
+          "stepper_y": {
+            "homing_positive_dir": true,
+            "homing_retract_dist": 5.0,
+            "position_endstop": 400.0,
+            "full_steps_per_rotation": 200,
+            "endstop_pin": "y_endstop_pin",
+            "rotation_distance": 40.0,
+            "gear_ratio": [
+            ],
+            "second_homing_speed": 25.0,
+            "step_pin": "y_step_pin",
+            "homing_speed": 50.0,
+            "microsteps": 64,
+            "position_min": 0.0,
+            "dir_pin": "y_dir_pin",
+            "position_max": 400.0,
+            "homing_retract_speed": 50.0,
+            "enable_pin": "!y_enable_pin"
+          },
+          "stepper_x": {
+            "homing_positive_dir": false,
+            "homing_retract_dist": 5.0,
+            "position_endstop": 0.0,
+            "full_steps_per_rotation": 200,
+            "endstop_pin": "x_endstop_pin",
+            "rotation_distance": 40.0,
+            "gear_ratio": [
+            ],
+            "second_homing_speed": 25.0,
+            "step_pin": "x_step_pin",
+            "position_min": 0.0,
+            "microsteps": 64,
+            "homing_speed": 50.0,
+            "position_max": 400.0,
+            "dir_pin": "x_dir_pin",
+            "homing_retract_speed": 50.0,
+            "enable_pin": "!x_enable_pin"
+          },
+          "input_shaper": {
+            "damping_ratio_x": 0.1,
+            "damping_ratio_y": 0.1,
+            "shaper_type_x": "zv",
+            "shaper_type_y": "mzv",
+            "shaper_freq_x": 69.6,
+            "shaper_freq_y": 44.2,
+            "shaper_type": "mzv"
+          },
+          "gcode_macro m600": {
+            "gcode": "\nPAUSE\nUNLOAD_FILAMENT\nM117 Please load new filament and resume\nRESPOND MSG=\"Please load new filament and resume\"",
+            "description": "Executes a color change by pausing the printer an unloading the filament."
+          },
+          "gcode_macro maybe_home": {
+            "gcode": "\n{% if printer[\"gcode_macro MAYBE_HOME\"].is_kinematic_position_overriden|lower == 'true' %}\nRESPOND MSG=\"SET_CENTER_KINEMATIC_POSITION has been abused. Homing all axes. Please refrain from using SET_CENTER_KINEMATIC_POSITION outside of debugging purposes.\"\nG28\nSET_GCODE_VARIABLE MACRO=MAYBE_HOME VARIABLE=is_kinematic_position_overriden VALUE=False\n{% else %}\n{% set axes = '' %}\n{% set isHomed = true %}\n{% set axesToHome = '' %}\n{% if params.X is defined %}\n{% set axes = axes ~ 'X ' %}\n{% if 'x' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'X ' %}\n{% endif %}\n{% endif %}\n{% if params.Y is defined %}\n{% set axes = axes ~ 'Y ' %}\n{% if 'y' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'Y ' %}\n{% endif %}\n{% endif %}\n{% if params.Z is defined %}\n{% set axes = axes ~ 'Z ' %}\n{% if 'z' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'Z ' %}\n{% endif %}\n{% endif %}\n{% if params.X is not defined and params.Y is not defined and params.Z is not defined %}\n{% set axes = '' %}\n{% if 'x' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'X ' %}\n{% endif %}\n{% if 'y' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'Y ' %}\n{% endif %}\n{% if 'z' not in printer.toolhead.homed_axes %}\n{% set isHomed = false %}\n{% set axesToHome = axesToHome ~ 'Z ' %}\n{% endif %}\n{% endif %}\n{% if isHomed is false %}\nM117 Homing {axesToHome}\nRESPOND MSG=\"Homing {axesToHome}\"\nG28 {axesToHome}\n{% else %}\nRESPOND MSG=\"All requested axes already homed, skipping..\"\n{% endif %}\n{% endif %}",
+            "description": "Only home unhomed axis",
+            "variable_is_kinematic_position_overriden": "False"
+          },
+          "controller_fan controller_fan": {
+            "heater": [
+              "extruder"
+            ],
+            "cycle_time": 0.01,
+            "pin": "fan_controller_board_pin",
+            "off_below": 0.0,
+            "idle_speed": 1.0,
+            "fan_speed": 1.0,
+            "shutdown_speed": 0.0,
+            "idle_timeout": 30,
+            "max_power": 0.6,
+            "kick_start_time": 0.1,
+            "hardware_pwm": false
+          },
+          "bed_mesh ratos": {
+            "tension": 0.2,
+            "min_x": 20.0,
+            "version": 1,
+            "y_count": 7,
+            "mesh_y_pps": 2,
+            "min_y": 20.0,
+            "x_count": 7,
+            "points": [
+              [
+                -0.004375,
+                0.129375,
+                0.197812,
+                0.1725,
+                0.117187,
+                0.05,
+                -0.039063
+              ],
+              [
+                -0.069063,
+                0.050625,
+                0.153125,
+                0.141562,
+                0.11375,
+                0.066875,
+                -0.079375
+              ],
+              [
+                -0.14,
+                0.015,
+                0.099062,
+                0.072187,
+                0.0275,
+                -0.0125,
+                -0.121563
+              ],
+              [
+                -0.249063,
+                -0.105938,
+                -0.008438,
+                -0.002188,
+                -0.0275,
+                -0.113125,
+                -0.193125
+              ],
+              [
+                -0.212188,
+                -0.104063,
+                0.026875,
+                0.0225,
+                -0.055938,
+                -0.135313,
+                -0.225
+              ],
+              [
+                -0.286875,
+                -0.169688,
+                -0.017188,
+                -0.01625,
+                -0.06,
+                -0.132188,
+                -0.224063
+              ],
+              [
+                -0.226563,
+                -0.138438,
+                -0.010313,
+                0.013437,
+                -0.059375,
+                -0.126875,
+                -0.269063
+              ]
+            ],
+            "algo": "bicubic",
+            "mesh_x_pps": 2,
+            "max_x": 365.0,
+            "max_y": 359.96
+          },
+          "gcode_macro _start_print_bed_mesh": {
+            "gcode": "\n{% if printer[\"gcode_macro RatOS\"].calibrate_bed_mesh|lower == 'true' %}\nBED_MESH_CALIBRATE PROFILE=ratos\n{% endif %}\nBED_MESH_PROFILE LOAD=ratos",
+            "description": "G-Code macro"
+          },
+          "gcode_macro ratos": {
+            "variable_relative_extrusion": "False",
+            "variable_nozzle_priming": "False",
+            "description": "RatOS variable storage macro, will echo variables to the console when run.",
+            "variable_pause_print_park_in": "\"back\"",
+            "gcode": "\nECHO_RATOS_VARS",
+            "variable_start_print_park_z_height": "50",
+            "variable_calibrate_bed_mesh": "True",
+            "variable_macro_travel_speed": "300",
+            "variable_start_print_park_in": "\"back\"",
+            "variable_preheat_extruder": "True",
+            "variable_end_print_park_in": "\"back\""
+          },
+          "tmc2209 stepper_z1": {
+            "driver_tbl": 2,
+            "driver_pwm_ofs": 36,
+            "driver_hstrt": 6,
+            "driver_toff": 3,
+            "sense_resistor": 0.11,
+            "driver_hend": 0,
+            "uart_address": 0,
+            "driver_pwm_reg": 8,
+            "driver_iholddelay": 8,
+            "interpolate": false,
+            "stealthchop_threshold": 0.0,
+            "driver_pwm_autoscale": true,
+            "driver_pwm_autograd": true,
+            "driver_pwm_grad": 14,
+            "run_current": 1.6,
+            "driver_sgthrs": 0,
+            "uart_pin": "z1_uart_pin",
+            "hold_current": 2.0,
+            "driver_tpowerdown": 20,
+            "driver_pwm_lim": 12,
+            "driver_pwm_freq": 1
+          },
+          "tmc2209 stepper_z2": {
+            "driver_tbl": 2,
+            "driver_pwm_ofs": 36,
+            "driver_hstrt": 6,
+            "driver_toff": 3,
+            "sense_resistor": 0.11,
+            "uart_address": 0,
+            "driver_hend": 0,
+            "driver_pwm_reg": 8,
+            "driver_iholddelay": 8,
+            "interpolate": false,
+            "uart_pin": "z2_uart_pin",
+            "driver_pwm_autoscale": true,
+            "driver_pwm_autograd": true,
+            "driver_pwm_grad": 14,
+            "run_current": 1.6,
+            "driver_sgthrs": 0,
+            "stealthchop_threshold": 0.0,
+            "hold_current": 2.0,
+            "driver_tpowerdown": 20,
+            "driver_pwm_lim": 12,
+            "driver_pwm_freq": 1
+          },
+          "mcu": {
+            "baud": 250000,
+            "serial": "/dev/btt-octopus-11",
+            "max_stepper_error": 2.5e-05
+          },
+          "gcode_macro _start_print_after_heating_extruder": {
+            "gcode": "\n{% if printer[\"gcode_macro RatOS\"].nozzle_priming|lower == 'primeline' %}\nPRIME_LINE\n{% endif %}\n{% if printer[\"gcode_macro RatOS\"].nozzle_priming|lower == 'primeblob' %}\nPRIME_BLOB\n{% endif %}\n{% if printer[\"gcode_macro RatOS\"].skew_profile is defined %}\nSKEW_PROFILE LOAD={printer[\"gcode_macro RatOS\"].skew_profile}\n{% endif %}",
+            "description": "G-Code macro"
+          },
+          "temperature_sensor raspberry_pi": {
+            "min_temp": -273.15,
+            "sensor_type": "temperature_host",
+            "sensor_path": "/sys/class/thermal/thermal_zone0/temp",
+            "max_temp": 99999999.9
+          },
+          "gcode_macro unload_filament": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=unload_state\nG91\n{% if params.TEMP is defined or printer.extruder.can_extrude|lower == 'false' %}\nM117 Heating...\nM104 S{params.TEMP|default(220, true)}\nTEMPERATURE_WAIT SENSOR=extruder MINIMUM={params.TEMP|default(220, true)}\n{% endif %}\nM117 Unloading filament...\nG0 E-5 F3600\nG4 P3000\nG0 E5 F3600\nG0 E-15 F3600\nG0 E-130 F300\nM117 Filament unloaded!\nRESPOND MSG=\"Filament unloaded! Please inspect the tip of the filament before reloading.\"\nRESTORE_GCODE_STATE NAME=unload_state",
+            "description": "Unloads the filament. Note: be careful with PETG, make sure you inspect the tip of your filament before reloading to avoid jams."
+          },
+          "printer": {
+            "square_corner_velocity": 5.0,
+            "move_flush_time": 0.05,
+            "max_accel": 15000.0,
+            "buffer_time_start": 0.25,
+            "buffer_time_low": 1.0,
+            "max_z_accel": 150.0,
+            "max_velocity": 1000.0,
+            "max_z_velocity": 20.0,
+            "kinematics": "corexy",
+            "max_accel_to_decel": 7500.0,
+            "buffer_time_high": 2.0
+          },
+          "firmware_retraction": {
+            "retract_length": 0.5,
+            "unretract_extra_length": 0.0,
+            "unretract_speed": 40.0,
+            "retract_speed": 40.0
+          },
+          "gcode_macro resume": {
+            "gcode": "\n{% set E = printer[\"gcode_macro PAUSE\"].extrude|float %}\n{% if printer.extruder.can_extrude|lower == 'true' %}\nG91\nG1 E{E} F2100\nG90\n{% else %}\n{action_respond_info(\"Extruder not hot enough\")}\n{% endif %}\nRESTORE_GCODE_STATE NAME=PAUSE_state MOVE=1\nRESUME_BASE",
+            "description": "Resumes the print if the printer is paused.",
+            "rename_existing": "RESUME_BASE"
+          },
+          "gcode_macro echo_ratos_vars": {
+            "gcode": "\n{% for var, value in printer[\"gcode_macro RatOS\"].items() %}\n{action_respond_info(var ~ \": \" ~ value)}\n{% endfor %}",
+            "description": "Echo RatOS variables to the console."
+          },
+          "verify_heater heater_bed": {
+            "max_error": 120.0,
+            "check_gain_time": 60.0,
+            "heating_gain": 2.0,
+            "hysteresis": 5.0
+          },
+          "board_pins octopus_11_tmc2209": {
+            "mcu": [
+              "mcu"
+            ],
+            "aliases": [
+              [
+                "y_step_pin",
+                "PF13"
+              ],
+              [
+                "y_dir_pin",
+                "PF12"
+              ],
+              [
+                "y_enable_pin",
+                "PF14"
+              ],
+              [
+                "y_uart_pin",
+                "PC4"
+              ],
+              [
+                "x_diag_pin",
+                "PG6"
+              ],
+              [
+                "x_endstop_pin",
+                "PG6"
+              ],
+              [
+                "x_step_pin",
+                "PG0"
+              ],
+              [
+                "x_dir_pin",
+                "PG1"
+              ],
+              [
+                "x_enable_pin",
+                "PF15"
+              ],
+              [
+                "x_uart_pin",
+                "PD11"
+              ],
+              [
+                "y_diag_pin",
+                "PG9"
+              ],
+              [
+                "y_endstop_pin",
+                "PG9"
+              ],
+              [
+                "z2_step_pin",
+                "PC13"
+              ],
+              [
+                "z2_dir_pin",
+                "PF0"
+              ],
+              [
+                "z2_enable_pin",
+                "PF1"
+              ],
+              [
+                "z2_uart_pin",
+                "PE4"
+              ],
+              [
+                "z0_diag_pin",
+                "null"
+              ],
+              [
+                "z1_step_pin",
+                "PE2"
+              ],
+              [
+                "z1_dir_pin",
+                "PE3"
+              ],
+              [
+                "z1_enable_pin",
+                "PD4"
+              ],
+              [
+                "z1_uart_pin",
+                "PE1"
+              ],
+              [
+                "z1_diag_pin",
+                "null"
+              ],
+              [
+                "z0_step_pin",
+                "PE6"
+              ],
+              [
+                "z0_dir_pin",
+                "PA14"
+              ],
+              [
+                "z0_enable_pin",
+                "PE0"
+              ],
+              [
+                "z0_uart_pin",
+                "PD3"
+              ],
+              [
+                "z2_diag_pin",
+                "null"
+              ],
+              [
+                "e_step_pin",
+                "PG4"
+              ],
+              [
+                "e_dir_pin",
+                "PC1"
+              ],
+              [
+                "e_enable_pin",
+                "PA0"
+              ],
+              [
+                "e_uart_pin",
+                "PC7"
+              ],
+              [
+                "e_diag_pin",
+                "null"
+              ],
+              [
+                "e_heater_pin",
+                "PA2"
+              ],
+              [
+                "e_sensor_pin",
+                "PF4"
+              ],
+              [
+                "adxl345_cs_pin",
+                "PA15"
+              ],
+              [
+                "bltouch_sensor_pin",
+                "PB7"
+              ],
+              [
+                "bltouch_control_pin",
+                "PB6"
+              ],
+              [
+                "probe_pin",
+                "PB7"
+              ],
+              [
+                "fan_part_cooling_pin",
+                "PA8"
+              ],
+              [
+                "fan_toolhead_cooling_pin",
+                "PE5"
+              ],
+              [
+                "fan_controller_board_pin",
+                "PD12"
+              ],
+              [
+                "heater_bed_heating_pin",
+                "PA1"
+              ],
+              [
+                "heater_bed_sensor_pin",
+                "PF3"
+              ],
+              [
+                "EXP1_1",
+                "PE8"
+              ],
+              [
+                "EXP1_3",
+                "PE9"
+              ],
+              [
+                "EXP1_5",
+                "PE12"
+              ],
+              [
+                "EXP1_7",
+                "PE14"
+              ],
+              [
+                "EXP1_9",
+                "<GND>"
+              ],
+              [
+                "EXP1_2",
+                "PE7"
+              ],
+              [
+                "EXP1_4",
+                "PE10"
+              ],
+              [
+                "EXP1_6",
+                "PE13"
+              ],
+              [
+                "EXP1_8",
+                "PE15"
+              ],
+              [
+                "EXP1_10",
+                "<5V>"
+              ],
+              [
+                "EXP2_1",
+                "PA6"
+              ],
+              [
+                "EXP2_3",
+                "PB1"
+              ],
+              [
+                "EXP2_5",
+                "PB2"
+              ],
+              [
+                "EXP2_7",
+                "PC15"
+              ],
+              [
+                "EXP2_9",
+                "<GND>"
+              ],
+              [
+                "EXP2_2",
+                "PA5"
+              ],
+              [
+                "EXP2_4",
+                "PA4"
+              ],
+              [
+                "EXP2_6",
+                "PA7"
+              ],
+              [
+                "EXP2_8",
+                "<RST>"
+              ],
+              [
+                "EXP2_10",
+                "PC5"
+              ]
+            ]
+          },
+          "idle_timeout": {
+            "gcode": "\n{% if printer.webhooks.state|lower == 'ready' %}\n{% if printer.pause_resume.is_paused|lower == 'false' %}\nM117 Idle timeout reached\nTURN_OFF_HEATERS\nM84\n{% endif %}\n{% endif %}",
+            "timeout": 7200.0
+          },
+          "gcode_macro prime_line": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=prime_line_state\n{% set speed = printer[\"gcode_macro RatOS\"].macro_travel_speed|float * 60 %}\nG90\nM82\nM117 Priming nozzle with prime line..\nRESPOND MSG=\"Priming nozzle with prime line..\"\nG1 Z5 F3000\nG1 X{printer.toolhead.axis_minimum.x + 5} Y{printer.toolhead.axis_minimum.y + 10} F{speed}\nG1 Z0.3 F3000\nG92 E0\nG1 Y{printer.toolhead.axis_minimum.y + 80} E16 F1200\nG1 Y{printer.toolhead.axis_minimum.y + 100} F{speed}\nRESTORE_GCODE_STATE NAME=prime_line_state",
+            "description": "Prints a primeline, used internally, if configured, as part of the START_PRINT macro."
+          },
+          "fan": {
+            "cycle_time": 0.01,
+            "pin": "fan_part_cooling_pin",
+            "off_below": 0.0,
+            "shutdown_speed": 1.0,
+            "max_power": 1.0,
+            "kick_start_time": 0.1,
+            "hardware_pwm": false
+          },
+          "stepper_z2": {
+            "full_steps_per_rotation": 200,
+            "rotation_distance": 4.0,
+            "gear_ratio": [
+            ],
+            "step_pin": "z2_step_pin",
+            "microsteps": 64,
+            "dir_pin": "!z2_dir_pin",
+            "enable_pin": "!z2_enable_pin"
+          },
+          "tmc2209 stepper_x": {
+            "driver_pwm_ofs": 36,
+            "driver_iholddelay": 8,
+            "driver_hstrt": 6,
+            "driver_toff": 3,
+            "sense_resistor": 0.11,
+            "driver_pwm_autoscale": true,
+            "driver_hend": 0,
+            "driver_pwm_reg": 8,
+            "driver_sgthrs": 0,
+            "interpolate": false,
+            "uart_pin": "x_uart_pin",
+            "driver_tbl": 2,
+            "driver_pwm_autograd": true,
+            "driver_pwm_grad": 14,
+            "run_current": 1.6,
+            "uart_address": 0,
+            "stealthchop_threshold": 0.0,
+            "hold_current": 2.0,
+            "driver_tpowerdown": 20,
+            "driver_pwm_lim": 12,
+            "driver_pwm_freq": 1
+          },
+          "stepper_z1": {
+            "full_steps_per_rotation": 200,
+            "rotation_distance": 4.0,
+            "gear_ratio": [
+            ],
+            "step_pin": "z1_step_pin",
+            "microsteps": 64,
+            "dir_pin": "!z1_dir_pin",
+            "enable_pin": "!z1_enable_pin"
+          },
+          "filament_motion_sensor encoder_sensor": {
+            "detection_length": 7.0,
+            "switch_pin": "PG10",
+            "event_delay": 3.0,
+            "runout_gcode": "",
+            "pause_on_runout": true,
+            "pause_delay": 0.5,
+            "extruder": "extruder"
+          },
+          "gcode_macro _end_print_before_heaters_off": {
+            "gcode": "\nRESPOND MSG=\"Cleaning up...\"",
+            "description": "G-Code macro"
+          },
+          "gcode_shell_command generate_shaper_graph_y": {
+            "command": "/home/pi/klipper_config/config/scripts/generate-shaper-graph-y.sh",
+            "verbose": true,
+            "timeout": 60.0
+          },
+          "gcode_shell_command generate_shaper_graph_x": {
+            "command": "/home/pi/klipper_config/config/scripts/generate-shaper-graph-x.sh",
+            "verbose": true,
+            "timeout": 60.0
+          },
+          "gcode_macro prime_blob": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=prime_blob_state\nM117 Priming nozzle with prime blob..\nRESPOND MSG=\"Priming nozzle with prime blob..\"\n{% set speed = printer[\"gcode_macro RatOS\"].macro_travel_speed|float * 60 %}\nG90\nM83\nG1 Z5 F3000\nG1 X{printer.toolhead.axis_minimum.x + 5} Y{printer.toolhead.axis_minimum.y + 10} Z0.5 F{speed}\nG1 F60 E20\nM106 S102\nG1 Z5 F100 E5\nG1 F200 Y{printer.toolhead.axis_minimum.y + 25} E1\nG1 F200 Y{printer.toolhead.axis_minimum.y + 30} Z3.8 E0.5\nG1 F200 Y{printer.toolhead.axis_minimum.y + 35} Z2.6 E0.5\nG1 F200 Y{printer.toolhead.axis_minimum.y + 40} Z1.4 E0.5\nG1 F200 Y{printer.toolhead.axis_minimum.y + 45} Z0.2 E0.5\nM106 S0\nG1 F200 Y{printer.toolhead.axis_minimum.y +50} Z0.2 E0.6\nG1 F{speed} Y{printer.toolhead.axis_minimum.y + 100}\nRESTORE_GCODE_STATE NAME=prime_blob_state",
+            "description": "Prints a primeblob, used internally, if configured, as part of the START_PRINT macro. Slower than PRIME_LINE but much more effective."
+          },
+          "bed_mesh": {
+            "horizontal_move_z": 5.0,
+            "mesh_pps": [
+              2,
+              2
+            ],
+            "algorithm": "bicubic",
+            "mesh_max": [
+              365.0,
+              360.0
+            ],
+            "fade_start": 1.0,
+            "bicubic_tension": 0.2,
+            "fade_end": 10.0,
+            "mesh_min": [
+              20.0,
+              20.0
+            ],
+            "split_delta_z": 0.025,
+            "probe_count": [
+              7,
+              7
+            ],
+            "speed": 300.0,
+            "move_check_distance": 5.0
+          },
+          "gcode_macro set_center_kinematic_position": {
+            "gcode": "\nRESPOND MSG=\"WARNING: ONLY USE SET_CENTER_KINEMATIC_POSITION FOR DEBUGGING PURPOSES. YOU'RE OVERRIDING THE INTERNAL POSITIONING STATE OF THE PRINTER. PROCEED WITH CAUTION AND DO A PROPER G28 WHEN DONE.\"\nSET_GCODE_VARIABLE MACRO=MAYBE_HOME VARIABLE=is_kinematic_position_overriden VALUE=True\nSET_KINEMATIC_POSITION X={printer.toolhead.axis_maximum.x / 2} Y={printer.toolhead.axis_maximum.y / 2} Z={printer.toolhead.axis_maximum.z / 2}",
+            "description": "FOR DEBUGGING PURPOSES ONLY. Sets the internal printer kinematic state to the center of all axes regardless of actual physical position."
+          },
+          "gcode_shell_command generate_belt_tension_graph": {
+            "command": "/home/pi/klipper_config/config/scripts/generate-belt-tension-graph.sh",
+            "verbose": true,
+            "timeout": 90.0
+          },
+          "gcode_macro cancel_print": {
+            "gcode": "\nEND_PRINT\nTURN_OFF_HEATERS\nCLEAR_PAUSE\nCANCEL_PRINT_BASE",
+            "description": "Cancels the printer",
+            "rename_existing": "CANCEL_PRINT_BASE"
+          },
+          "gcode_macro pause": {
+            "gcode": "\nSAVE_GCODE_STATE NAME=PAUSE_state\n{% set E = printer[\"gcode_macro PAUSE\"].extrude|float %}\n{% set speed = printer[\"gcode_macro RatOS\"].macro_travel_speed|float * 60 %}\n{% set max_z = printer.toolhead.axis_maximum.z|float %}\n{% set act_z = printer.toolhead.position.z|float %}\n{% if act_z < (max_z - 2.0) %}\n{% set z_safe = 2.0 %}\n{% else %}\n{% set z_safe = max_z - act_z %}\n{% endif %}\nPAUSE_BASE\nG91\n{% if printer.extruder.can_extrude|lower == 'true' %}\nG1 E-{E} F2100\n{% else %}\n{action_respond_info(\"Extruder not hot enough\")}\n{% endif %}\n{% if \"xyz\" in printer.toolhead.homed_axes %}\nG1 Z{z_safe} F900\n_PARK LOCATION={printer[\"gcode_macro RatOS\"].pause_print_park_in} X={printer[\"gcode_macro RatOS\"].pause_print_park_x}\n{% else %}\n{action_respond_info(\"Printer not homed\")}\n{% endif %}",
+            "description": "Pauses the printer",
+            "variable_extrude": "1.5",
+            "rename_existing": "PAUSE_BASE"
+          },
+          "temperature_sensor octopus": {
+            "min_temp": 0.0,
+            "sensor_type": "temperature_mcu",
+            "sensor_mcu": "mcu",
+            "max_temp": 100.0
+          },
+          "gcode_macro _park": {
+            "gcode": "\n{% set speed = printer[\"gcode_macro RatOS\"].macro_travel_speed|float * 60 %}\n{% if params.X != '' %}\n{% if params.X|float >= printer.toolhead.axis_minimum.x + 5 and params.X|float <= printer.toolhead.axis_maximum.x - 5 %}\n{% set safe_x = params.X|float %}\n{% else %}\n{action_respond_info('The requested X co-ordinate is outside the defined axis bounds - using defaults')}\n{% set safe_x = printer.toolhead.axis_maximum.x / 2 %}\n{% endif %}\n{% else %}\n{% set safe_x = printer.toolhead.axis_maximum.x / 2 %}\n{% endif %}\n{% if params.LOCATION|default('back')|lower == 'back' %}\n{% set y = printer.toolhead.axis_maximum.y - 5 %}\n{% elif params.LOCATION|lower == 'front' %}\n{% set y = printer.toolhead.axis_minimum.y + 5 %}\n{% elif params.LOCATION|lower == 'center' %}\n{% set y = printer.toolhead.axis_maximum.y / 2 %}\n{% endif %}\nG90\nG0 X{safe_x} Y{y} F{speed}",
+            "description": "G-Code macro"
+          },
+          "gcode_macro _start_print_after_heating_bed": {
+            "gcode": "\n{% if printer[\"gcode_macro RatOS\"].preheat_extruder|lower == 'true' %}\nM117 Pre-heating extruder...\nM104 S150\nTEMPERATURE_WAIT SENSOR=extruder MINIMUM=150\n{% endif %}\nM117 Adjusting for tilt...\nZ_TILT_ADJUST\nM117 Rehoming after tilt adjustment...\nG28 Z",
+            "description": "G-Code macro"
+          },
+          "gcode_macro generate_shaper_graphs": {
+            "gcode": "\n{% if params.AXIS is defined %}\n{% if params.AXIS|lower == 'x' %}\nMAYBE_HOME\nTEST_RESONANCES AXIS=X\nRUN_SHELL_COMMAND CMD=generate_shaper_graph_x\nRESPOND MSG=\"Input shaper graph generated for the X axis. You'll find it in the input_shaper folder in the machine tab!\"\n{% elif params.AXIS|lower == 'y' %}\nMAYBE_HOME\nTEST_RESONANCES AXIS=Y\nRUN_SHELL_COMMAND CMD=generate_shaper_graph_y\nRESPOND MSG=\"Input shaper graph generated for the Y axis. You'll find it in the input_shaper folder in the machine tab!\"\n{% else %}\n{action_raise_error(\"Unknown axis specified. Expected X or Y.\")}\n{% endif %}\n{% else %}\nMAYBE_HOME\nTEST_RESONANCES AXIS=X\nTEST_RESONANCES AXIS=Y\nRUN_SHELL_COMMAND CMD=generate_shaper_graph_x\nRUN_SHELL_COMMAND CMD=generate_shaper_graph_y\nRESPOND MSG=\"Input shaper graphs generated for X and Y. You'll find them in the input_shaper folder in the machine tab!\"\n{% endif %}",
+            "description": "Genarates input shaper resonances graphs for analysis. Uses the AXIS parameter for if you only want to do one axis at a time, (eg. GENERATE_SHAPER_GRAPHS AXIS=X)"
+          },
+          "adxl345": {
+            "axes_map": [
+              "x",
+              "y",
+              "z"
+            ],
+            "cs_pin": "adxl345_cs_pin",
+            "rate": 3200,
+            "spi_speed": 5000000,
+            "spi_bus": "spi3"
+          },
+          "gcode_macro start_print": {
+            "gcode": "\nCLEAR_PAUSE\nSAVE_GCODE_STATE NAME=start_print_state\nG21\nG90\nM82\nMAYBE_HOME\nM117 Heating bed...\nRESPOND MSG=\"Heating bed...\"\nM190 S{params.BED_TEMP|default(printer.heater_bed.target, true) }\n_START_PRINT_AFTER_HEATING_BED\n_START_PRINT_BED_MESH\nM104 S{params.EXTRUDER_TEMP|default(printer.extruder.target, true) }\n_START_PRINT_PARK\nM117 Heating Extruder...\nRESPOND MSG=\"Heating Extruder...\"\nM109 S{params.EXTRUDER_TEMP|default(printer.extruder.target, true) }\n_START_PRINT_AFTER_HEATING_EXTRUDER\nM117 Printing...\nRESPOND MSG=\"Printing...\"\nRESTORE_GCODE_STATE NAME=start_print_state\n{% if printer[\"gcode_macro RatOS\"].relative_extrusion|lower == 'true' %}\nM83\n{% else %}\nM82\n{% endif %}\nG92 E0",
+            "description": "Start print procedure, use this in your Slicer."
+          },
+          "bltouch": {
+            "samples_tolerance_retries": 0,
+            "sensor_pin": "^bltouch_sensor_pin",
+            "x_offset": -27.0,
+            "sample_retract_dist": 10.0,
+            "samples_result": "average",
+            "samples_tolerance": 0.1,
+            "control_pin": "bltouch_control_pin",
+            "lift_speed": 7.0,
+            "y_offset": -21.0,
+            "samples": 1,
+            "pin_up_reports_not_triggered": true,
+            "pin_move_time": 0.675,
+            "probe_with_touch_mode": false,
+            "pin_up_touch_mode_reports_triggered": true,
+            "stow_on_each_sample": true,
+            "speed": 7.0,
+            "z_offset": 3.1
+          },
+          "gcode_macro compile_firmware": {
+            "gcode": "\nRESPOND MSG=\"Compiling binaries.. This can take up to 10 minutes. Please do not turn off your Raspberry Pi!\"\nRUN_SHELL_COMMAND CMD=compile_binaries\nRESPOND MSG=\"Firmware binaries compiled successfully! You can find them in the firmware_binaries folder in the machine tab!\"",
+            "description": "Compiles firmware with currently installed klipper version for all supported RatOS boards. Note: this may take up to 10 minutes."
+          },
+          "extruder": {
+            "control": "pid",
+            "rtd_nominal_r": 1000.0,
+            "max_extrude_only_velocity": 60.0,
+            "rotation_distance": 8.0,
+            "gear_ratio": [
+            ],
+            "max_extrude_only_distance": 200.0,
+            "sensor_type": "MAX31865",
+            "min_temp": 0.0,
+            "enable_pin": "!e_enable_pin",
+            "pressure_advance": 0.03,
+            "min_extrude_temp": 170.0,
+            "max_extrude_cross_section": 2.5600000000000005,
+            "pwm_cycle_time": 0.1,
+            "dir_pin": "e_dir_pin",
+            "spi_software_mosi_pin": "PA7",
+            "pid_kp": 30.365,
+            "instantaneous_corner_velocity": 1.0,
+            "spi_software_miso_pin": "PA6",
+            "spi_software_sclk_pin": "PA5",
+            "full_steps_per_rotation": 200,
+            "heater_pin": "e_heater_pin",
+            "rtd_reference_r": 4300.0,
+            "smooth_time": 1.0,
+            "pid_ki": 2.087,
+            "filament_diameter": 1.75,
+            "rtd_num_of_wires": 2,
+            "rtd_use_50hz_filter": true,
+            "sensor_pin": "PF2",
+            "nozzle_diameter": 0.8,
+            "pid_kd": 110.453,
+            "pressure_advance_smooth_time": 0.04,
+            "step_pin": "e_step_pin",
+            "max_power": 1.0,
+            "microsteps": 64,
+            "spi_speed": 4000000,
+            "max_extrude_only_accel": 15964.864822148658,
+            "max_temp": 400.0
+          }
+        },
+        "save_config_pending": true
+      },
+      "toolhead": {
+        "square_corner_velocity": 5.0,
+        "max_accel": 3000.0,
+        "homed_axes": "xyz",
+        "estimated_print_time": 13625.140103138889,
+        "max_velocity": 1000.0,
+        "print_time": 13627.537557129337,
+        "max_accel_to_decel": 7500.0,
+        "axis_minimum": [
+          0.0,
+          0.0,
+          -5.0,
+          0.0
+        ],
+        "stalls": 0,
+        "axis_maximum": [
+          400.0,
+          400.0,
+          400.0,
+          0.0
+        ],
+        "position": [
+          118.256,
+          192.776,
+          14.2,
+          32913.613569998284
+        ],
+        "extruder": "extruder"
+      },
+      "gcode_move": {
+        "homing_origin": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "speed_factor": 1.0,
+        "gcode_position": [
+          118.256,
+          192.776,
+          14.2,
+          2.2970100000020466
+        ],
+        "absolute_extrude": true,
+        "absolute_coordinates": true,
+        "position": [
+          118.256,
+          192.776,
+          14.2,
+          32913.613569998284
+        ],
+        "speed": 3272.8888,
+        "extrude_factor": 1.0
+      },
+      "heater_bed": {
+        "temperature": 60.28,
+        "power": 0.0,
+        "target": 60.0
+      },
+      "temperature_sensor Octopus": {
+        "measured_min_temp": 29.69,
+        "measured_max_temp": 38.27,
+        "temperature": 35.12
+      },
+      "extruder": {
+        "pressure_advance": 0.05,
+        "target": 225.0,
+        "power": 0.6824677288038439,
+        "can_extrude": true,
+        "smooth_time": 0.04,
+        "temperature": 225.39
+      },
+      "display_status": {
+        "progress": 0.0,
+        "message": "WELL ON.."
+      },
+      "motion_report": {
+        "live_position": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "steppers": [
+          "extruder",
+          "stepper_x",
+          "stepper_y",
+          "stepper_z",
+          "stepper_z1",
+          "stepper_z2",
+          "stepper_z3"
+        ],
+        "live_velocity": 0.0,
+        "live_extruder_velocity": 0.0,
+        "trapq": [
+          "extruder",
+          "toolhead"
+        ]
+      },
+      "exclude_object": {
+        "objects": [
+          {
+            "name": "BODY-2.STL_ID_0_COPY_0",
+            "center": [
+              125,
+              105
+            ],
+            "polygon": [
+              [
+                74.9772,
+                96.085
+              ],
+              [
+                102.192,
+                85.1634
+              ],
+              [
+                102.714,
+                85.0411
+              ],
+              [
+                103.249,
+                85
+              ],
+              [
+                148.292,
+                85
+              ],
+              [
+                148.826,
+                85.0411
+              ],
+              [
+                149.349,
+                85.1634
+              ],
+              [
+                149.846,
+                85.3641
+              ],
+              [
+                175.023,
+                97.3141
+              ],
+              [
+                175.023,
+                101
+              ],
+              [
+                174.993,
+                101.491
+              ],
+              [
+                174.974,
+                101.626
+              ],
+              [
+                174.902,
+                101.975
+              ],
+              [
+                174.827,
+                102.236
+              ],
+              [
+                174.753,
+                102.444
+              ],
+              [
+                174.587,
+                102.816
+              ],
+              [
+                174.547,
+                102.891
+              ],
+              [
+                174.259,
+                103.351
+              ],
+              [
+                174.188,
+                103.446
+              ],
+              [
+                173.851,
+                103.828
+              ],
+              [
+                173.781,
+                103.897
+              ],
+              [
+                173.374,
+                104.236
+              ],
+              [
+                173.31,
+                104.282
+              ],
+              [
+                172.839,
+                104.564
+              ],
+              [
+                172.786,
+                104.59
+              ],
+              [
+                131.747,
+                124.81
+              ],
+              [
+                131.278,
+                124.952
+              ],
+              [
+                130.79,
+                125
+              ],
+              [
+                119.313,
+                125
+              ],
+              [
+                118.098,
+                124.958
+              ],
+              [
+                116.889,
+                124.831
+              ],
+              [
+                115.692,
+                124.621
+              ],
+              [
+                114.512,
+                124.329
+              ],
+              [
+                113.356,
+                123.955
+              ],
+              [
+                112.228,
+                123.502
+              ],
+              [
+                111.134,
+                122.971
+              ],
+              [
+                79.0261,
+                106.609
+              ],
+              [
+                78.3738,
+                106.263
+              ],
+              [
+                78.294,
+                106.214
+              ],
+              [
+                77.712,
+                105.812
+              ],
+              [
+                77.6139,
+                105.735
+              ],
+              [
+                77.106,
+                105.288
+              ],
+              [
+                76.9954,
+                105.179
+              ],
+              [
+                76.5638,
+                104.699
+              ],
+              [
+                76.4473,
+                104.553
+              ],
+              [
+                76.0924,
+                104.052
+              ],
+              [
+                75.9772,
+                103.867
+              ],
+              [
+                75.7669,
+                103.491
+              ],
+              [
+                75.698,
+                103.355
+              ],
+              [
+                75.568,
+                103.076
+              ],
+              [
+                75.3858,
+                102.618
+              ],
+              [
+                75.2418,
+                102.166
+              ],
+              [
+                75.1598,
+                101.85
+              ],
+              [
+                75.1259,
+                101.697
+              ],
+              [
+                75.0436,
+                101.219
+              ],
+              [
+                75.023,
+                101.061
+              ],
+              [
+                74.9936,
+                100.734
+              ],
+              [
+                74.9772,
+                100.261
+              ],
+              [
+                74.9772,
+                96.085
+              ]
+            ]
+          }
+        ],
+        "excluded_objects": [],
+        "current_object": null
+      }
+    },
+    "eventtime": 13618.064633216
+  },
+  "id": 8668
+}

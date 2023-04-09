@@ -1,10 +1,10 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/machine/display_status.dart';
 import 'package:mobileraker/data/dto/machine/leds/led.dart';
 import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/exceptions.dart';
 
-import '../config/config_file.dart';
 import 'exclude_object.dart';
 import 'extruder.dart';
 import 'fans/named_fan.dart';

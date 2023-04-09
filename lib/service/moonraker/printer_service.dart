@@ -209,16 +209,16 @@ class PrinterService {
     } on JRpcError catch (e, s) {
       logger.e('Unable to refresh Printer $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
-      _printerStreamCtler.addError(MobilerakerException(
-          'Could not fetch printer...',
-          parentException: e,
-          parentStack: s), s);
-    } on Exception catch (e,s) {
-      logger.e('Unexpected exception thrown during refresh $ownerUUID...', e, s);
+      _printerStreamCtler.addError(
+          MobilerakerException('Could not fetch printer...',
+              parentException: e, parentStack: s),
+          s);
+    } on Exception catch (e, s) {
+      logger.e(
+          'Unexpected exception thrown during refresh $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
-      _printerStreamCtler.addError(e,s);
+      _printerStreamCtler.addError(e, s);
     }
-
   }
 
   resumePrint() {
@@ -1086,7 +1086,8 @@ class PrinterService {
           List<dynamic> centerFromMsg = e['center'];
           center = centerFromMsg.isEmpty
               ? Vector2.zero()
-              : Vector2.array(centerFromMsg.cast<double>());
+              : Vector2.array(
+                  centerFromMsg.cast<num>().map((e) => e.toDouble()).toList());
         } else {
           center = Vector2.zero();
         }
@@ -1094,7 +1095,8 @@ class PrinterService {
           List<dynamic> polys = e['polygon'];
           polygons = polys.map((e) {
             List<dynamic> list = e as List<dynamic>;
-            return Vector2.array(list.cast<double>());
+            return Vector2.array(
+                list.cast<num>().map((e) => e.toDouble()).toList());
           }).toList(growable: false);
         } else {
           polygons = [];
