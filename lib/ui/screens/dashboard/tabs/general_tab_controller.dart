@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/dto/config/fan/config_temperature_fan.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
@@ -139,6 +140,9 @@ class GeneralTabViewController
   }
 
   editTemperatureFan(TemperatureFan temperatureFan) {
+    var configFan =
+        state.value?.printerData.configFile.fans[temperatureFan.name];
+
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
@@ -151,8 +155,8 @@ class GeneralTabViewController
             confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
               current: temperatureFan.target.round(),
-              min: 0,
-              max: 100,
+              min:  (configFan != null && configFan is ConfigTemperatureFan)? configFan.minTemp : 0,
+              max: (configFan != null && configFan is ConfigTemperatureFan)? configFan.maxTemp : 100,
             )))
         .then((value) {
       if (value == null || !value.confirmed || value.data == null) return;

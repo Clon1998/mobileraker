@@ -27,8 +27,8 @@ class ConfigControllerFan extends ConfigFan with _$ConfigControllerFan {
     @JsonKey(name: 'fan_speed') @Default(1) double fanSpeed,
     @JsonKey(name: 'idle_timeout') @Default(30) int idleTimeout,
     @JsonKey(name: 'idle_speed') @Default(1.0) double idleSpeed,
-    required String heater,
-    required String stepper,
+    @Default([]) List<String> heater,
+    @Default([]) List<String> stepper,
 
   }) = _ConfigControllerFan;
 

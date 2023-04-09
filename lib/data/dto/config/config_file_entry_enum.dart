@@ -7,7 +7,14 @@ enum ConfigFileEntry {
   neopixel,
   led,
   pca9533,
-  pca9632;
+  pca9632,
+  fan,
+  heater_fan,
+  controller_fan,
+  temperature_fan,
+  fan_generic;
+
+
 
   const ConfigFileEntry();
 }

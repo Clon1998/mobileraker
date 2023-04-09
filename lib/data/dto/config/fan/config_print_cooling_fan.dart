@@ -25,9 +25,8 @@ class ConfigPrintCoolingFan extends ConfigFan with _$ConfigPrintCoolingFan {
     @JsonKey(name: 'enable_pin') String? enablePin,
   }) = _ConfigPrintCoolingFan;
 
-  factory ConfigPrintCoolingFan.fromJson(
-          String name, Map<String, dynamic> json) =>
-      _$ConfigPrintCoolingFanFromJson({...json, 'name': name});
+  factory ConfigPrintCoolingFan.fromJson(Map<String, dynamic> json) =>
+      _$ConfigPrintCoolingFanFromJson({...json});
 
   @override
   String get name => 'Print cooling fan';

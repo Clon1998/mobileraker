@@ -26,7 +26,7 @@ class ConfigHeaterFan extends ConfigFan with _$ConfigHeaterFan {
     @JsonKey(name: 'enable_pin') String? enablePin,
     @JsonKey(name: 'heater_temp') @Default(50) double heaterTemp,
     @JsonKey(name: 'fan_speed') @Default(1) double fanSpeed,
-    required String heater,
+    required List<String> heater,
   }) = _ConfigHeaterFan;
 
   factory ConfigHeaterFan.fromJson(String name, Map<String, dynamic> json) =>

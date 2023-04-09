@@ -38,6 +38,8 @@ class Machine extends HiveObject {
   bool trustUntrustedCertificate;
   @HiveField(20)
   OctoEverywhere? octoEverywhere;
+  @HiveField(21, defaultValue: [])
+  List<String> camOrdering;
 
   PrintState? get lastPrintState =>
       EnumToString.fromString(PrintState.values, _lastPrintState ?? '');
@@ -58,7 +60,8 @@ class Machine extends HiveObject {
       this.apiKey,
       this.temperaturePresets = const [],
       this.trustUntrustedCertificate = false,
-      this.octoEverywhere});
+      this.octoEverywhere,
+      this.camOrdering = const []});
 
   @override
   Future<void> save() async {

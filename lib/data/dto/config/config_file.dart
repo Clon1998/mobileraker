@@ -2,11 +2,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/config/config_file_entry_enum.dart';
 import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
+import 'package:mobileraker/data/dto/config/fan/config_controller_fan.dart';
+import 'package:mobileraker/data/dto/config/fan/config_fan.dart';
+import 'package:mobileraker/data/dto/config/fan/config_generic_fan.dart';
+import 'package:mobileraker/data/dto/config/fan/config_heater_fan.dart';
+import 'package:mobileraker/data/dto/config/fan/config_print_cooling_fan.dart';
+import 'package:mobileraker/data/dto/config/fan/config_temperature_fan.dart';
 import 'package:mobileraker/data/dto/config/led/config_dotstar.dart';
 import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_neopixel.dart';
 import 'package:mobileraker/data/dto/config/led/config_pca_led.dart';
+import 'package:mobileraker/logger.dart';
 
 import 'config_extruder.dart';
 import 'config_heater_bed.dart';
@@ -17,11 +24,13 @@ import 'config_stepper.dart';
 class ConfigFile {
   ConfigPrinter? configPrinter;
   ConfigHeaterBed? configHeaterBed;
+  ConfigPrintCoolingFan? configPrintCoolingFan;
   Map<String, ConfigExtruder> extruders = {};
   Map<String, ConfigOutput> outputs = {};
   Map<String, ConfigStepper> steppers = {};
   Map<String, ConfigGcodeMacro> gcodeMacros = {};
   Map<String, ConfigLed> leds = {};
+  Map<String, ConfigFan> fans = {};
 
   ConfigFile();
 
@@ -72,6 +81,16 @@ class ConfigFile {
           object == ConfigFileEntry.pca9632.name) {
         //pca9533 and pcapca9632
         leds[objectName] = ConfigPcaLed.fromJson(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.fan.name) {
+        configPrintCoolingFan = ConfigPrintCoolingFan.fromJson(jsonChild);
+      } else if (object == ConfigFileEntry.heater_fan.name) {
+        fans[objectName] = ConfigHeaterFan.fromJson(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.controller_fan.name) {
+        fans[objectName] = ConfigControllerFan.fromJson(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.temperature_fan.name) {
+        fans[objectName] = ConfigTemperatureFan.fromJson(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.fan_generic.name) {
+        fans[objectName] = ConfigGenericFan.fromJson(objectName, jsonChild);
       }
     }
     //ToDo parse the config for e.g. EXTRUDERS (Temp settings), ...
