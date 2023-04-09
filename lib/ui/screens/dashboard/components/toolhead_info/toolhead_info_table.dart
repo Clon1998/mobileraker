@@ -22,7 +22,7 @@ class ToolheadInfoTable extends ConsumerWidget {
 
     return AnimatedSwitcher(
         switchInCurve: Curves.easeInOutBack,
-        duration: const Duration(milliseconds: 700),
+        duration: kThemeAnimationDuration,
         transitionBuilder: (child, anim) => SizeTransition(
             sizeFactor: anim,
             child: FadeTransition(

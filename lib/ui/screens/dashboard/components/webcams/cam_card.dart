@@ -33,7 +33,7 @@ class CamCard extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
             child: AnimatedSwitcher(
               switchInCurve: Curves.easeInOutBack,
-              duration: const Duration(milliseconds: 700),
+              duration: const Duration(milliseconds: 400),
               transitionBuilder: (child, anim) => SizeTransition(
                   sizeFactor: anim,
                   child: FadeTransition(
