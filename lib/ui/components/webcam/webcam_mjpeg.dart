@@ -81,10 +81,6 @@ class WebcamMjpeg extends ConsumerWidget {
       }
     }
 
-    logger.wtf('rawStre : ${camStreamUrl}');
-    logger.wtf('rawSnap : ${camSnapshotUrl}');
-    logger.wtf('Streamer : ${streamUrl}');
-    logger.wtf('snapshot : ${snapshotUrl}');
     return Mjpeg(
       key: ValueKey(webcamInfo.uuid + machine.uuid),
       imageBuilder: imageBuilder,
