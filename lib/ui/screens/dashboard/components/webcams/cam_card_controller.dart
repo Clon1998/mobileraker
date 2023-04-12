@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -29,6 +30,21 @@ class CamCardState with _$CamCardState {
 class CamCardController extends _$CamCardController {
   @override
   FutureOr<CamCardState> build() async {
+    var aliveLink = ref.keepAlive();
+    Timer? timer;
+    ref.onCancel(() {
+      // start a 30 second timer
+      timer = Timer(const Duration(seconds: 30), () {
+        // dispose on timeout
+        aliveLink.close();
+      });
+    });
+    // If the provider is listened again after it was paused, cancel the timer
+    ref.onResume(() {
+      timer?.cancel();
+    });
+    ref.onDispose(() => timer?.cancel);
+
     Machine machine = (await ref.watch(selectedMachineProvider.future))!;
     var filteredCams =
         await ref.watch(filteredWebcamInfosProvider(machine.uuid).future);
