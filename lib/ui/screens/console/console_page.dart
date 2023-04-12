@@ -55,85 +55,87 @@ class _ConsoleBody extends HookConsumerWidget {
         false;
 
     var theme = Theme.of(context);
-    return Container(
-      margin: const EdgeInsets.all(4.0),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
-        boxShadow: [
-          if (theme.brightness == Brightness.light)
-            BoxShadow(
-              color: theme.colorScheme.shadow,
-              offset: const Offset(0.0, 4.0), //(x,y)
-              blurRadius: 1.0,
-            ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-              child: Text(
-                'GCode Console',
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(color: theme.colorScheme.onPrimary),
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(4.0),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
+          boxShadow: [
+            if (theme.brightness == Brightness.light)
+              BoxShadow(
+                color: theme.colorScheme.shadow,
+                offset: const Offset(0.0, 4.0), //(x,y)
+                blurRadius: 1.0,
+              ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                child: Text(
+                  'GCode Console',
+                  style: theme.textTheme.titleMedium
+                      ?.copyWith(color: theme.colorScheme.onPrimary),
+                ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: _Console(
-              onCommandTap: (s) => consoleTextEditor.text = s,
+            Expanded(
+              flex: 1,
+              child: _Console(
+                onCommandTap: (s) => consoleTextEditor.text = s,
+              ),
             ),
-          ),
-          const Divider(),
-          GCodeSuggestionBar(
-            onMacroTap: (s) => consoleTextEditor.text = s,
-            consoleInputNotifier: consoleTextEditor,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            child: RawKeyboardListener(
-              focusNode: focusNode,
-              onKey: klippyCanReceiveCommands
-                  ? (event) {
-                      if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                        ref
-                            .read(consoleListControllerProvider.notifier)
-                            .onCommandSubmit(consoleTextEditor.text);
-                        consoleTextEditor.clear();
+            const Divider(),
+            GCodeSuggestionBar(
+              onMacroTap: (s) => consoleTextEditor.text = s,
+              consoleInputNotifier: consoleTextEditor,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: RawKeyboardListener(
+                focusNode: focusNode,
+                onKey: klippyCanReceiveCommands
+                    ? (event) {
+                        if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+                          ref
+                              .read(consoleListControllerProvider.notifier)
+                              .onCommandSubmit(consoleTextEditor.text);
+                          consoleTextEditor.clear();
+                        }
                       }
-                    }
-                  : null,
-              child: TextField(
-                enableSuggestions: false,
-                autocorrect: false,
-                controller: consoleTextEditor,
-                enabled: klippyCanReceiveCommands,
-                decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: klippyCanReceiveCommands
-                          ? () {
-                              ref
-                                  .read(consoleListControllerProvider.notifier)
-                                  .onCommandSubmit(consoleTextEditor.text);
-                              consoleTextEditor.clear();
-                            }
-                          : null,
-                    ),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10)),
-                    hintText: tr('pages.console.command_input.hint')),
+                    : null,
+                child: TextField(
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  controller: consoleTextEditor,
+                  enabled: klippyCanReceiveCommands,
+                  decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.send),
+                        onPressed: klippyCanReceiveCommands
+                            ? () {
+                                ref
+                                    .read(consoleListControllerProvider.notifier)
+                                    .onCommandSubmit(consoleTextEditor.text);
+                                consoleTextEditor.clear();
+                              }
+                            : null,
+                      ),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      hintText: tr('pages.console.command_input.hint')),
+                ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }
