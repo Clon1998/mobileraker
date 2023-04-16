@@ -203,6 +203,8 @@
         "state_helper": "States that issue a state changed notification",
         "no_permission_title": "No Notification Permission!",
         "no_permission_desc": "Can not display notifications.\nRequest permission by clicking!",
+        "no_firebase_title": "Can not display notifications",
+        "no_firebase_desc": "Mobileraker can not deliver any notifications to the device.\nIt seems like your device is missing Google Play services or blocks Firebase connection!",
         "ios_notifications_title": "IOS Notification Delivery",
         "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!"
       },

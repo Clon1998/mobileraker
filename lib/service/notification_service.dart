@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -72,9 +73,11 @@ class NotificationService {
 
     _hiveStreamListener = setupHiveBoxListener();
     await initializeNotificationListeners();
-    await initializeRemoteMessaging();
+    if (await isFirebaseAvailable()) {
+      await initializeRemoteMessaging();
 
-    allMachines.forEach(_setupFCMOnPrinterOnceConnected);
+      allMachines.forEach(_setupFCMOnPrinterOnceConnected);
+    }
   }
 
   Future<bool> initialRequestPermission() async {
@@ -209,7 +212,6 @@ class NotificationService {
   }
 
   Future<String> fetchCurrentFcmToken() async {
-    await _notifyFCM.isFirebaseAvailable;
     return _notifyFCM.requestFirebaseAppToken();
   }
 
@@ -359,15 +361,16 @@ class NotificationService {
   }
 
   void _setupFCMOnPrinterOnceConnected(Machine machine) async {
-    String fcmToken = await fetchCurrentFcmToken();// TODO: Extract to seperate provider
+    String fcmToken =
+        await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
     logger.i('Device\'s FCM token: $fcmToken');
 
     // Wait until connected
-    await ref.watchWhere<KlipperInstance>(
-        klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready);
+    await ref.watchWhere<KlipperInstance>(klipperProvider(machine.uuid),
+        (c) => c.klippyState == KlipperState.ready);
 
-
-    logger.i('Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
+    logger.i(
+        'Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
     try {
       await _machineService.updateMachineFcmConfig(machine, fcmToken);
     } catch (e, s) {
@@ -493,6 +496,15 @@ class NotificationService {
             notificationLayout: NotificationLayout.ProgressBar,
             locked: true,
             progress: progressPerc));
+  }
+
+  Future<bool> isFirebaseAvailable() async {
+    try {
+      return await _notifyFCM.isFirebaseAvailable;
+    } on PlatformException catch (e) {
+      logger.w('Firebase is not available for FCM...', e);
+      return false;
+    }
   }
 
   dispose() {

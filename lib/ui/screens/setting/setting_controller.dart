@@ -9,6 +9,9 @@ import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'setting_controller.g.dart';
 
 final settingPageFormKey = Provider.autoDispose<GlobalKey<FormBuilderState>>(
     (ref) => GlobalKey<FormBuilderState>());
@@ -27,7 +30,7 @@ final notificationPermissionControllerProvider =
 class NotificationPermissionController extends StateNotifier<bool> {
   NotificationPermissionController(AutoDisposeRef ref)
       : notificationService = ref.watch(notificationServiceProvider),
-        super(false) {
+        super(true) {
     evaluatePermission();
   }
 
@@ -114,4 +117,14 @@ class NotificationStateSettingController
           machine: machine, printStates: state);
     }
   }
+}
+
+@riverpod
+bool notificationFirebaseAvailable(NotificationFirebaseAvailableRef ref) {
+  var notificationService = ref.watch(notificationServiceProvider);
+  notificationService.isFirebaseAvailable().then((value) async {
+    await Future.delayed(const Duration(milliseconds: 320));
+    return ref.state = value;
+  });
+  return true;
 }
