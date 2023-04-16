@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +22,8 @@ class SettingPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var settingService = ref.watch(settingServiceProvider);
-
     var themeData = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('pages.setting.title').tr(),
@@ -104,9 +103,9 @@ class SettingPage extends ConsumerWidget {
               ),
               _SectionHeader(title: 'pages.setting.notification.title'.tr()),
               const NotificationPermissionWarning(),
+              const NotificationFirebaseWarning(),
               const _ProgressNotificationSettingField(),
               const _StateNotificationSettingField(),
-
               const Divider(),
               RichText(
                 text: TextSpan(
@@ -115,8 +114,8 @@ class SettingPage extends ConsumerWidget {
                     children: [
                       TextSpan(
                         text: '\nOfficial GitHub ',
-                        style: TextStyle(
-                            color: themeData.colorScheme.secondary),
+                        style:
+                            TextStyle(color: themeData.colorScheme.secondary),
                         children: const [
                           WidgetSpan(
                             child: Icon(FlutterIcons.github_alt_faw, size: 18),
@@ -143,8 +142,8 @@ class SettingPage extends ConsumerWidget {
                 style: TextButton.styleFrom(
                     minimumSize: Size.zero, // Set this
                     padding: EdgeInsets.zero,
-                    textStyle: themeData.textTheme.bodySmall?.copyWith(
-                        color: themeData.colorScheme.secondary)),
+                    textStyle: themeData.textTheme.bodySmall
+                        ?.copyWith(color: themeData.colorScheme.secondary)),
                 child: Text('Debug-Logs'),
                 onPressed: () {
                   var dialogService = ref.read(dialogServiceProvider);
@@ -155,8 +154,8 @@ class SettingPage extends ConsumerWidget {
                 style: TextButton.styleFrom(
                     minimumSize: Size.zero, // Set this
                     padding: EdgeInsets.zero,
-                    textStyle: themeData.textTheme.bodySmall?.copyWith(
-                        color: themeData.colorScheme.secondary)),
+                    textStyle: themeData.textTheme.bodySmall
+                        ?.copyWith(color: themeData.colorScheme.secondary)),
                 child: Text(
                     MaterialLocalizations.of(context).viewLicensesButtonLabel),
                 onPressed: () {
@@ -404,32 +403,84 @@ class NotificationPermissionWarning extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(notificationPermissionControllerProvider)) {
-      return const SizedBox.shrink();
-    }
-
     var themeData = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: ListTile(
-        tileColor: themeData.colorScheme.errorContainer,
-        textColor: themeData.colorScheme.onErrorContainer,
-        iconColor: themeData.colorScheme.onErrorContainer,
-        onTap: ref
-            .watch(notificationPermissionControllerProvider.notifier)
-            .requestPermission,
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(15))),
-        leading: const Icon(
-          Icons.notifications_off_outlined,
-          size: 40,
+    return AnimatedSwitcher(
+      transitionBuilder: (child, anim) => SizeTransition(
+        sizeFactor: anim,
+        child: FadeTransition(
+          opacity: anim,
+          child: child,
         ),
-        title: const Text(
-          'pages.setting.notification.no_permission_title',
-        ).tr(),
-        subtitle:
-            const Text('pages.setting.notification.no_permission_desc').tr(),
       ),
+      duration: kThemeAnimationDuration,
+      child: (ref.watch(notificationPermissionControllerProvider))
+          ? const SizedBox.shrink()
+          : Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: ListTile(
+                tileColor: themeData.colorScheme.errorContainer,
+                textColor: themeData.colorScheme.onErrorContainer,
+                iconColor: themeData.colorScheme.onErrorContainer,
+                onTap: ref
+                    .watch(notificationPermissionControllerProvider.notifier)
+                    .requestPermission,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                leading: const Icon(
+                  Icons.notifications_off_outlined,
+                  size: 40,
+                ),
+                title: const Text(
+                  'pages.setting.notification.no_permission_title',
+                ).tr(),
+                subtitle:
+                    const Text('pages.setting.notification.no_permission_desc')
+                        .tr(),
+              ),
+            ),
+    );
+  }
+}
+
+class NotificationFirebaseWarning extends ConsumerWidget {
+  const NotificationFirebaseWarning({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
+
+    return AnimatedSwitcher(
+      transitionBuilder: (child, anim) => SizeTransition(
+        sizeFactor: anim,
+        child: FadeTransition(
+          opacity: anim,
+          child: child,
+        ),
+      ),
+      duration: kThemeAnimationDuration,
+      child: (ref.watch(notificationFirebaseAvailableProvider))
+          ? const SizedBox.shrink()
+          : Padding(
+              key: UniqueKey(),
+              padding: const EdgeInsets.only(top: 16),
+              child: ListTile(
+                tileColor: themeData.colorScheme.errorContainer,
+                textColor: themeData.colorScheme.onErrorContainer,
+                iconColor: themeData.colorScheme.onErrorContainer,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                leading: const Icon(
+                  FlutterIcons.notifications_paused_mdi,
+                  size: 40,
+                ),
+                title: const Text(
+                  'pages.setting.notification.no_firebase_title',
+                ).tr(),
+                subtitle:
+                    const Text('pages.setting.notification.no_firebase_desc')
+                        .tr(),
+              ),
+            ),
     );
   }
 }
