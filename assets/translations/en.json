@@ -317,6 +317,9 @@
       "loading": "@:general.loading FAQ...",
       "error":"An error occurred while trying to fetch FAQ",
       "open_in_browser": "Open @:pages.faq.title in Browser"
+    },
+    "paywall": {
+      "title": "Support the Dev!"
     }
   },
   "components": {

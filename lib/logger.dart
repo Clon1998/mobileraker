@@ -13,7 +13,7 @@ void setupLogger() {
   Logger.level = Level.info;
   memoryOutput = MemoryOutput(bufferSize: 200, secondOutput: ConsoleOutput());
   logger = Logger(
-    printer: PrettyPrinter(methodCount: 0, noBoxingByDefault: true),
+    printer: PrettyPrinter(methodCount: 0, noBoxingByDefault: true, colors: !Platform.isIOS),
     output: memoryOutput,
     filter: ProductionFilter(),
   );

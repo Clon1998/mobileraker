@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -17,6 +18,7 @@ import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'logger.dart';
 
@@ -45,7 +47,6 @@ setupBoxes() async {
   // Hive.ignoreTypeId(2);// WebcamSetting
   // Hive.ignoreTypeId(6);// WebCamMode
   // Hive.ignoreTypeId(9);// WebCamRotation
-
 
   var machineAdapter = MachineAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
@@ -76,7 +77,7 @@ setupBoxes() async {
   }
 
   // TODO: Remove adapters and enable ignoreType again! after x months!
-  final wModeAdapater =  WebCamModeAdapter();
+  final wModeAdapater = WebCamModeAdapter();
   if (!Hive.isAdapterRegistered(wModeAdapater.typeId)) {
     Hive.registerAdapter(wModeAdapater);
   }
@@ -109,14 +110,22 @@ Future<List<Box>> openBoxes(Uint8List keyMaterial) {
         encryptionCipher: HiveAesCipher(keyMaterial))
   ]);
 }
-// ToDo: Requires Cat/Purchas API
-// Future<void> setupCat() async {
-//   if (kReleaseMode) return;
-//   if (kDebugMode) await Purchases.setDebugLogsEnabled(true);
-//   if (Platform.isAndroid) {
-//     return Purchases.setup('goog_uzbmaMIthLRzhDyQpPsmvOXbaCK');
-//   }
-// }
+
+Future<void> setupCat() async {
+  if (kReleaseMode) return;
+
+  if (kDebugMode) await Purchases.setLogLevel(LogLevel.info);
+
+  PurchasesConfiguration configuration;
+  if (Platform.isAndroid) {
+    configuration = PurchasesConfiguration('goog_uzbmaMIthLRzhDyQpPsmvOXbaCK');
+  } else if (Platform.isIOS) {
+    configuration = PurchasesConfiguration('appl_RsarzvMWCvAavWUevgRSXXLDeTL');
+  } else {
+    throw StateError('Unsupported device type!');
+  }
+  await Purchases.configure(configuration);
+}
 
 setupLicenseRegistry() {
   LicenseRegistry.addLicense(() async* {

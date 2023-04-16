@@ -1,5 +1,6 @@
 // Generic AsyncValueWidget to work with values of type T
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/logger.dart';
 
@@ -30,7 +31,21 @@ class AsyncValueWidget<T> extends StatelessWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) {
         logger.e('Error in Widget', e, StackTrace.current);
-        throw e;
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(FlutterIcons.bug_faw5s, size: 99),
+              const SizedBox(
+                height: 22,
+              ),
+              Text(
+                'Error:\n$e',
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
       },
     );
   }

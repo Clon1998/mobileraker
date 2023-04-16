@@ -14,6 +14,7 @@ import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dar
 import 'package:mobileraker/ui/screens/files/files_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/overview/overview_page.dart';
+import 'package:mobileraker/ui/screens/paywall/paywall_page.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
 import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
@@ -38,7 +39,8 @@ enum AppRoute {
   gcodeDetail,
   configDetail,
   dev,
-  faq
+  faq,
+  supportDev
 }
 
 @riverpod
@@ -152,7 +154,11 @@ GoRouter goRouter(GoRouterRef ref) {
       GoRoute(
           path: '/faq',
           name: AppRoute.faq.name,
-          builder: (context, state) => const FaqPage())
+          builder: (context, state) => const FaqPage()),
+      GoRoute(
+          path: '/paywall',
+          name: AppRoute.supportDev.name,
+          builder: (context, state) => const PaywallPage()),
       // GoRoute(
       //   path: 'cart',
       //   name: AppRoute.cart.name,

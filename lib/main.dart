@@ -25,6 +25,7 @@ Future<void> main() async {
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
   WidgetsFlutterBinding.ensureInitialized();
   await setupBoxes();
+  await setupCat();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate();
@@ -38,6 +39,7 @@ Future<void> main() async {
         const RiverPodLogger(),
       ],
       );
+
 
   await container.read(analyticsProvider).logAppOpen();
 

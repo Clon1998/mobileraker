@@ -1,5 +1,4 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -12,7 +11,6 @@ import 'package:mobileraker/service/theme_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
-import 'package:stringr/stringr.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 const double baseIconSize = 20;
@@ -71,12 +69,11 @@ class NavigationDrawerWidget extends ConsumerWidget {
                     icon: Icons.engineering_outlined,
                     routeName: '/setting',
                   ),
-                  if (kDebugMode)
-                    const _DrawerItem(
-                      text: 'Support the Dev!',
-                      icon: Icons.perm_identity,
-                      routeName: '/dev',
-                    ),
+                  const _DrawerItem(
+                    text: 'Support the Dev!',
+                    icon: FlutterIcons.hand_holding_heart_faw5s,
+                    routeName: '/paywall',
+                  ),
                 ],
               ),
             ),
