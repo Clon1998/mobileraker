@@ -1,4 +1,4 @@
-# Mobileraker
+# Mobileraker - An open source mobile app for klipper
 
 ![GitHub](https://img.shields.io/github/license/Clon1998/mobileraker?style=for-the-badge)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/clon1998/mobileraker?style=for-the-badge)
@@ -6,20 +6,41 @@
 
 ![GitHub Repo stars](https://img.shields.io/github/stars/Clon1998/mobileraker?style=for-the-badge)
 ![GitHub all releases](https://img.shields.io/github/downloads/clon1998/mobileraker/total?style=for-the-badge)
-![Custom badge](https://img.shields.io/endpoint?color=%235fd102&style=for-the-badge&url=https%3A%2F%2Fplayshields.herokuapp.com%2Fplay%3Fi%3Dcom.mobileraker.android%26l%3DAndroid%26m%3D%24installs)
+
+[//]: # (![Custom badge]&#40;https://img.shields.io/endpoint?color=%235fd102&style=for-the-badge&url=https%3A%2F%2Fplayshields.herokuapp.com%2Fplay%3Fi%3Dcom.mobileraker.android%26l%3DAndroid%26m%3D%24installs&#41;)
 
 ---
 
-## Get Mobileraker now
+## Table of Content
+
+1. [Download the app](#get-mobileraker-now)
+2. [General](#general)
+3. [Support the Dev](#support-me)
+4. [Push-Notificats](#push-notifications--remote-notification)
+5. [Dev-Setup](#environment-setup)
+
+---
+
+## Get Mobileraker now!
+
+> **Note**  
+> Keep in mind, Mobileraker is **free** and **open source**. However, if you like the app and want to **support** the
+> development for it and cover some of the costs feel free to support via **donations**, through **app store ratings**,
+> or
+> by **starring** the project on GitHub!
 
 [!["PlayStore"](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.mobileraker.android)
 [!["AppStore"](https://img.shields.io/badge/App_Store-0D96F6?style=for-the-badge&logo=app-store&logoColor=white)](https://apps.apple.com/us/app/mobileraker/id1581451248)
+[!["GitHub"](https://img.shields.io/badge/GitHub-4078c0?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Clon1998/mobileraker/releases/latest)
 
 ---
 
-🏷️ Mobileraker works as a simple UI for Klipper on the phone. Connect it to an existing moonraker installation and control the printer.
+## General
 
-🧰  With Mobileraker, the user has access to critical machine commands:
+🏷️ Mobileraker works as a simple UI for Klipper on the phone. Connect it to an existing moonraker installation and
+control the printer.
+
+🧰 With Mobileraker, the user has access to critical machine commands:
 
 - Pause, Resume, Stop a print job
 - Monitor the print progress
@@ -31,68 +52,55 @@
 - Send GCode Macros
 - Emergency Stop the machine
 
-🛠️  Additionally, Mobileraker enables the user to monitor the machine via an integrated webcam viewer with support for multiple cams, interact with the machine through the GCode console and browse the available GCode files to start a new print job.
-Mobileraker also offers comfort features like remote push notifications about the progress of a print job, temperature presets.
+🛠️ Additionally, Mobileraker enables the user to monitor the machine via an integrated webcam viewer with support for
+multiple cams, interact with the machine through the GCode console and browse the available GCode files to start a new
+print job.
+Mobileraker also offers comfort features like remote push notifications about the progress of a print job, temperature
+presets.
 
-✨  One more thing ...
+✨ One more thing ...
 Mobileraker can manage multiple machines!
 
-✍🏻  Some final words from the project owner:
+✍🏻 Some final words from the project owner:
 Hi,
-My name is Patrick Schmidt, and I am the developer of Mobileraker. Mobileraker started as a small side project with the intention to be able to control My 3D printer via My phone. After posting some screenshots of the app to the 3D printing community, the public interest in Mobileraker grew, and I published it to the app stores.
-As I am only able to work on Mobileraker in my free time, I am always thankful for support and feedback. Either via lovely messages of people enjoying Mobileraker, good reviews in the store or through donations. I hope you enjoy Mobileraker and happy printing 🙏!
+My name is Patrick Schmidt, and I am the developer of Mobileraker. Mobileraker started as a small side project with the
+intention to be able to control My 3D printer via My phone. After posting some screenshots of the app to the 3D printing
+community, the public interest in Mobileraker grew, and I published it to the app stores.
+As I am only able to work on Mobileraker in my free time, I am always thankful for support and feedback. Either via
+lovely messages of people enjoying Mobileraker, good reviews in the store or through donations. I hope you enjoy
+Mobileraker and happy printing 🙏!
 
 ## Support me
 
-Want to support me?
+Want to say thank you? Want to help covering some of the costs of mobileraker?  
+Feel free to donate any amount of ☕️/🍕.
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/PadS)
 
 ## Push Notifications / Remote Notification
+>**Note**  
+> Android's progress notification (Shown in the Impression Images) is not supported anymore, due to a change in a 3rd party [library](https://pub.dev/packages/awesome_notifications). As soon as this library offers support for this kind of notification again, I will revisit the implementation (Feel free to contribute).
 
-In order to use remote notifications be sure to follow the setup guide to install [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion) for Klipper/Moonraker.
+Mobileraker allows users to enable push notifications, which are also delivered if your phone is not in the same network as your klipperized 3D printer. To allow Mobileraker to send push notifications to your phone, please install and configure the [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion). You can learn more about it by visiting the [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion) GitHub project to learn more.
 
-## App Screenshots
+## App Impressions
 
-|                    Dashboard - Dash                     |                   Dashboard - Controls                    |
-|:-------------------------------------------------------:|:---------------------------------------------------------:|
-| ![Floating Style](misc/images/dashboard_screenshot.png) | ![Grounded Style](misc/images/dashboard2_screenshot.png)  |
-|              Overview - Multiple Printers               |                      GCode - Console                      |
-| ![Floating Style](misc/images/overview_screenshot.png)  |   ![Grounded Style](misc/images/console_screenshot.png)   |
-|                   GCode File Browser                    |                    GCode File Details                     |
-|   ![Floating Style](misc/images/files_screenshot.png)   | ![Grounded Style](misc/images/file_detail_screenshot.png) |
+<img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 0.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 1.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 2.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 3.png" width="23%"></img>
+<img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 4.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 5.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 6.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 7.png" width="23%"></img>
 
-## Planed features
-
-- [x] Support for multiple printers
-- [X] Multiple colors/themes and dark mode
-  - [x] Dark mode
-- [x] Notifications (Might need an klipper addon?)
-  - [x] Print done
-  - [x] Print progress
-  - [X] Klipper errors
-- [x] Overview page
-  - [x] Refactor current layout with multiple and clearer menu-tabs
-  - [ ] Add temperature graphs
-  - [x] Add a console
-  - [ ] Add mesh selection
-  - [ ] Add query endstops
-- [ ] Files(STL) page
-  - [ ] Upload stls
-  - [ ] Stl preview
-  - [ ] Stl viewer
-- [X] Config page
-- [ ] Print-statistics/history page
-- [X] Klipper power control feature
 
 ## Environment Setup
-> **Note**   
-> This is only required if you plan to contribute to this project
 
-1. Ensure you have [flutter](https://docs.flutter.dev/get-started/install "Flutter installation instructions") and [flutterfire](https://firebase.google.com/docs/flutter/setup?platform=android#install-cli-tools "Firebase Flutter Command Line tools installation instructions") installed on your machine
+> **Warning**   
+> This is only required if you plan to contribute to this project or want to build the app locally
+
+1. Ensure you have [flutter](https://docs.flutter.dev/get-started/install "Flutter installation instructions")
+   and [flutterfire](https://firebase.google.com/docs/flutter/setup?platform=android#install-cli-tools "Firebase Flutter Command Line tools installation instructions")
+   installed on your machine
 2. Import the project into your IDE
 3. Run `flutter pub get` then `flutter packages pub run build_runner build` to generate required files
-4. Create `lib\license.dart` with `const AWESOME_FCM_LICENSE_ANDROID = ""; const AWESOME_FCM_LICENSE_IOS = "";` as the content of the file
+4. Create `lib\license.dart` with `const AWESOME_FCM_LICENSE_ANDROID = ""; const AWESOME_FCM_LICENSE_IOS = "";` as the
+   content of the file
 5. Run `flutterfire configure` for your firebase project, targeting android and ios platforms
 
 ---
