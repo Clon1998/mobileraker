@@ -16,8 +16,9 @@
 1. [Download the app](#get-mobileraker-now)
 2. [General](#general)
 3. [Support the Dev](#support-me)
-4. [Push-Notificats](#push-notifications--remote-notification)
-5. [Dev-Setup](#environment-setup)
+4. [Push-Notifications](#push-notifications--remote-notification)
+5. [App Screenshots](#app-impressions)
+6. [Dev-Setup](#environment-setup)
 
 ---
 
