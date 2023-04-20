@@ -111,22 +111,6 @@ Future<List<Box>> openBoxes(Uint8List keyMaterial) {
   ]);
 }
 
-Future<void> setupCat() async {
-  if (kReleaseMode) return;
-
-  if (kDebugMode) await Purchases.setLogLevel(LogLevel.info);
-
-  PurchasesConfiguration configuration;
-  if (Platform.isAndroid) {
-    configuration = PurchasesConfiguration('goog_uzbmaMIthLRzhDyQpPsmvOXbaCK');
-  } else if (Platform.isIOS) {
-    configuration = PurchasesConfiguration('appl_RsarzvMWCvAavWUevgRSXXLDeTL');
-  } else {
-    throw StateError('Unsupported device type!');
-  }
-  await Purchases.configure(configuration);
-}
-
 setupLicenseRegistry() {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('google_fonts/OFL.txt');

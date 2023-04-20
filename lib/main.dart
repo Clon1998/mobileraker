@@ -12,6 +12,7 @@ import 'package:logger/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/notification_service.dart';
+import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
@@ -25,7 +26,6 @@ Future<void> main() async {
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
   WidgetsFlutterBinding.ensureInitialized();
   await setupBoxes();
-  await setupCat();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate();
@@ -48,6 +48,7 @@ Future<void> main() async {
   await initializeAvailableMachines(container);
 
   await container.read(notificationServiceProvider).initialize();
+  await container.read(paymentServiceProvider).initialize();
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }

@@ -1,15 +1,18 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
+
 part 'snackbar_service.g.dart';
+
 enum SnackbarType { error, warning, info }
 
 @riverpod
 SnackBarService snackBarService(SnackBarServiceRef ref) => SnackBarService(ref);
-
 
 class SnackBarService {
   const SnackBarService(this.ref);
@@ -115,5 +118,32 @@ class SnackBarConfig {
       this.message,
       this.mainButtonTitle,
       this.onMainButtonTapped,
-      this.closeOnMainButtonTapped=false});
+      this.closeOnMainButtonTapped = false});
+
+  factory SnackBarConfig.stacktraceDialog({
+    required DialogService dialogService,
+    required Object exception,
+    required StackTrace stack,
+    String snackTitle = 'Error',
+    String? snackMessage,
+    String? dialogTitle,
+    String? dialogExceptionPrefix,
+  }) {
+    return SnackBarConfig(
+        type: SnackbarType.error,
+        title: snackTitle,
+        message: snackMessage ?? exception.toString(),
+        duration: const Duration(seconds: 30),
+        mainButtonTitle: tr('general.details'),
+        closeOnMainButtonTapped: true,
+        onMainButtonTapped: () {
+          var prefix =
+              (dialogExceptionPrefix != null) ? '$dialogExceptionPrefix\n' : '';
+
+          dialogService.show(DialogRequest(
+              type: DialogType.stacktrace,
+              title: dialogTitle ?? snackTitle,
+              body: '${prefix}Exception:\n $exception\n\n$stack'));
+        });
+  }
 }

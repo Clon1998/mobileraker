@@ -1194,19 +1194,14 @@ class PrinterService {
   }
 
   void _showExceptionSnackbar(Object e, StackTrace s) {
-    _snackBarService.show(SnackBarConfig(
-        type: SnackbarType.error,
-        title: 'Refresh Printer Error',
-        message: 'Could not parse: $e',
-        duration: const Duration(seconds: 30),
-        mainButtonTitle: 'Details',
-        closeOnMainButtonTapped: true,
-        onMainButtonTapped: () {
-          _dialogService.show(DialogRequest(
-              type: DialogType.stacktrace,
-              title: 'Refresh Printer Error',
-              body: 'Exception:\n $e\n\n$s'));
-        }));
+
+    _snackBarService.show(SnackBarConfig.stacktraceDialog(
+      dialogService: _dialogService,
+      exception: e,
+      stack: s,
+      snackTitle: 'Refresh Printer Error',
+      snackMessage: 'Could not parse: $e',
+    ));
   }
 
   void _showParsingExceptionSnackbar(

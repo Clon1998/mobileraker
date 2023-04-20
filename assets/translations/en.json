@@ -26,7 +26,8 @@
     "preview": "Preview",
     "retry": "Retry",
     "supported": "Supported",
-    "unsupported": "Unsupported"
+    "unsupported": "Unsupported",
+    "details": "Details"
   },
   "pages": {
     "dashboard": {
