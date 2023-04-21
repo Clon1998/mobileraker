@@ -60,16 +60,31 @@ class PrinterBuilder {
   Map<String, Led> leds = {};
 
   Printer build() {
-    if (toolhead == null ||
-        printFan == null ||
-        gCodeMove == null ||
-        motionReport == null ||
-        displayStatus == null ||
-        print == null ||
-        configFile == null ||
-        virtualSdCard == null) {
-      throw const MobilerakerException('Missing field');
+    if (toolhead == null) {
+      throw const MobilerakerException('Missing field: toolhead');
     }
+    if (printFan == null) {
+      throw const MobilerakerException('Missing field: printFan');
+    }
+    if (gCodeMove == null) {
+      throw const MobilerakerException('Missing field: gCodeMove');
+    }
+    if (motionReport == null) {
+      throw const MobilerakerException('Missing field: motionReport');
+    }
+    if (displayStatus == null) {
+      throw const MobilerakerException('Missing field: displayStatus');
+    }
+    if (print == null) {
+      throw const MobilerakerException('Missing field: print');
+    }
+    if (configFile == null) {
+      throw const MobilerakerException('Missing field: configFile');
+    }
+    if (virtualSdCard == null) {
+      throw const MobilerakerException('Missing field: virtualSdCard');
+    }
+
     var printer = Printer(
         toolhead: toolhead!,
         extruders: extruders,
