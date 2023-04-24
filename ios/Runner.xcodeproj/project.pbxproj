@@ -16,7 +16,7 @@
 		BA97EC76BC7BAC9D92ED2A0B /* Pods_MobilerakerServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 644C962C21918C5A86B49C1B /* Pods_MobilerakerServiceExtension.framework */; };
 		CD103161286E1E8900848161 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CD103160286E1E8900848161 /* GoogleService-Info.plist */; };
 		CD3BBCBF28EE04CD0071331C /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD3BBCBE28EE04CD0071331C /* NotificationService.swift */; };
-		CD3BBCC328EE04CD0071331C /* MobilerakerServiceExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CD3BBCBC28EE04CD0071331C /* MobilerakerServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CD3BBCC328EE04CD0071331C /* MobilerakerServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CD3BBCBC28EE04CD0071331C /* MobilerakerServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		EB8FF16108BE47D3DA3C53EC /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D6F2F48B767FDC75E23C818 /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -41,15 +41,15 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CD3BBCC428EE04CD0071331C /* Embed App Extensions */ = {
+		CD3BBCC428EE04CD0071331C /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				CD3BBCC328EE04CD0071331C /* MobilerakerServiceExtension.appex in Embed App Extensions */,
+				CD3BBCC328EE04CD0071331C /* MobilerakerServiceExtension.appex in Embed Foundation Extensions */,
 			);
-			name = "Embed App Extensions";
+			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -200,7 +200,7 @@
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				58115B874116BA05AA1905C4 /* [CP] Embed Pods Frameworks */,
-				CD3BBCC428EE04CD0071331C /* Embed App Extensions */,
+				CD3BBCC428EE04CD0071331C /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -236,6 +236,7 @@
 		97C146E61CF9000F007C117D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1340;
 				LastUpgradeCheck = 1300;
 				ORGANIZATIONNAME = "";
@@ -455,6 +456,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -541,6 +543,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -596,6 +599,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;

@@ -30,7 +30,6 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await FirebaseAppCheck.instance.activate();
   await EasyLocalization.ensureInitialized();
-  // await setupCat(); // ToDO
 
   setupLicenseRegistry();
   final container = ProviderContainer(
