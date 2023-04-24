@@ -69,7 +69,7 @@ class PrinterEditController extends _$PrinterEditController {
   saveForm() async {
     try {
       var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
-      if (!formBuilderState.saveAndValidate()) {
+      if (!formBuilderState.saveAndValidate(autoScrollWhenFocusOnInvalid: true)) {
         ref.read(snackBarServiceProvider).show(SnackBarConfig(
               type: SnackbarType.warning,
               title: 'pages.printer_edit.store_error.title'.tr(),

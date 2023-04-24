@@ -32,8 +32,8 @@ dependencies:
 
   #firebase
   firebase_core: <2.8.0
-  firebase_analytics: ^10.0.3
-  firebase_app_check: ^0.1.1+2
+  firebase_analytics: ^10.1.5
+  firebase_app_check: 0.1.1+12
 
   #architecture
   freezed_annotation: ^2.1.0
@@ -65,7 +65,7 @@ dependencies:
 
   #theme
   cupertino_icons: ^1.0.2
-  flex_color_scheme: ^6.0.1
+  flex_color_scheme: ^7.0.4
   google_fonts: ^4.0.3
 
   #notification
@@ -73,7 +73,7 @@ dependencies:
   awesome_notifications_fcm: ^0.7.1
 
   #form
-  flutter_form_builder: ^7.0.0
+  flutter_form_builder: ^8.0.0
   form_builder_validators: ^8.1.1
 
   #tranlation
@@ -104,8 +104,8 @@ dependencies:
   flutter_speed_dial: ^6.0.0
   dots_indicator: ^2.0.0
   webview_flutter: ^4.0.6
-  fl_chart: ^0.61.0
-  flutter_slidable: ^2.0.0
+  fl_chart: ^0.62.0
+  flutter_slidable: ^3.0.0
   code_text_field: ^1.0.2
   mobile_scanner: ^3.0.0
   touchable: ^1.0.2

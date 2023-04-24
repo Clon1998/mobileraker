@@ -101,7 +101,6 @@ class PrinterSettingScrollView extends ConsumerWidget {
     return SingleChildScrollView(
       child: FormBuilder(
         enabled: !isSaving,
-        autoFocusOnValidationFailure: true,
         key: ref.watch(editPrinterFormKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
