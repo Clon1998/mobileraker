@@ -9,7 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
@@ -232,12 +232,14 @@ class _FilesBody extends ConsumerWidget {
                                             .files[index - lenFolders];
                                         if (file is GCodeFile) {
                                           return GCodeFileItem(
-                                            gCode: file,
                                             key: ValueKey(file),
+                                            gCode: file,
                                           );
                                         } else {
                                           return FileItem(
-                                              file: file, key: ValueKey(file));
+                                            file: file,
+                                            key: ValueKey(file),
+                                          );
                                         }
                                       }
                                     }),
@@ -408,8 +410,8 @@ class GCodeFileItem extends ConsumerWidget {
             height: 64,
             child: Hero(
               tag: 'gCodeImage-${gCode.hashCode}',
-              child: buildLeading(
-                  gCode, ref.watch(selectedMachineProvider).valueOrFullNull),
+              child: buildLeading(gCode, ref.watch(previewImageUriProvider),
+                  ref.watch(previewImageHttpHeaderProvider)),
             )),
         title: Text(gCode.name),
         subtitle: Text((lastPrinted != null)
@@ -421,8 +423,8 @@ class GCodeFileItem extends ConsumerWidget {
     );
   }
 
-  Widget buildLeading(GCodeFile gCodeFile, Machine? machine) {
-    String? printerUrl = machine?.httpUrl;
+  Widget buildLeading(
+      GCodeFile gCodeFile, Uri? printerUrl, Map<String, String> headers) {
     if (printerUrl != null && gCodeFile.bigImagePath != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0),
@@ -447,8 +449,13 @@ class GCodeFileItem extends ConsumerWidget {
           ),
           imageUrl:
               '$printerUrl/server/files/${gCode.parentPath}/${gCode.bigImagePath}',
+          httpHeaders: headers,
           placeholder: (context, url) => const Icon(Icons.insert_drive_file),
-          errorWidget: (context, url, error) => const Icon(Icons.error),
+          errorWidget: (context, url, error) {
+            logger.w(url);
+            logger.e(error);
+            return const Icon(Icons.error);
+          },
         ),
       );
     } else {

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -10,17 +12,54 @@ import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
-import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_controller.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/path_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'files_controller.g.dart';
+
+@riverpod
+Uri? previewImageUri(PreviewImageUriRef ref) {
+  var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
+  var clientType = (machine != null)
+      ? ref.watch(jrpcClientTypeProvider(machine.uuid))
+      : ClientType.local;
+  if (machine != null) {
+    if (clientType == ClientType.local) {
+      return Uri.tryParse(machine.httpUrl);
+    } else {
+      var octoEverywhere = machine.octoEverywhere;
+      return octoEverywhere!.uri;
+    }
+  }
+  return null;
+}
+
+@riverpod
+Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
+  var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
+  Map<String, String> headers = {};
+  var clientType = (machine != null)
+      ? ref.watch(jrpcClientTypeProvider(machine.uuid))
+      : ClientType.local;
+  if (machine != null) {
+    if (clientType == ClientType.octo) {
+      var octoEverywhere = machine.octoEverywhere;
+      var auth = base64Encode(utf8.encode(
+          '${octoEverywhere!.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'));
+      headers[HttpHeaders.authorizationHeader] = 'Basic $auth';
+    }
+  }
+  return headers;
+}
 
 final filePageProvider = StateProvider.autoDispose<int>((ref) => 0);
 
