@@ -19,6 +19,7 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -53,14 +54,38 @@ class FolderContentWrapper with _$FolderContentWrapper {
 }
 
 @riverpod
-FileService fileService(FileServiceRef ref, String machineUUID) {
+FileService _fileServicee(
+    _FileServiceeRef ref, String machineUUID, ClientType type) {
+  var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
-  var machine = ref.watch(machineProvider(machineUUID)).value;
+
   if (machine == null) {
-    throw MobilerakerException(
-        'Machine with UUID "$machineUUID" was not found!');
+    throw ArgumentError('Provided machine. $machineUUID, was null?');
   }
-  return FileService(ref, jsonRpcClient, machine.httpUrl, machineUUID);
+  if (type == ClientType.local) {
+    return FileService(ref, jsonRpcClient, Uri.parse(machine.httpUrl));
+  } else if (type == ClientType.octo) {
+    var octoEverywhere = machine.octoEverywhere;
+    if (octoEverywhere == null) {
+      throw ArgumentError(
+          'The provided machine,$machineUUID does not offer OctoEverywhere');
+    }
+    return FileService(
+        ref,
+        jsonRpcClient,
+        octoEverywhere.uri.replace(
+            userInfo:
+                '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'));
+  } else {
+    throw ArgumentError('Unknown Client type $type');
+  }
+}
+
+@riverpod
+FileService fileService(FileServiceRef ref, String machineUUID) {
+  var clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
+
+  return ref.watch(_fileServiceeProvider(machineUUID, clientType));
 }
 
 @riverpod
@@ -108,16 +133,13 @@ Stream<FileApiResponse> fileNotificationsSelected(
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  String ownerUuid;
-
-  FileService(
-      AutoDisposeRef ref, this._jRpcClient, this.httpUrl, this.ownerUuid) {
+  FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUri) {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(
         _onFileListChanged, "notify_filelist_changed");
   }
 
-  final String httpUrl;
+  final Uri httpUri;
   final MemoryFileSystem _fileSystem = MemoryFileSystem();
 
   final StreamController<FileApiResponse> _fileActionStreamCtrler =
@@ -204,7 +226,7 @@ class FileService {
   // Throws TimeOut exception, if file download took to long!
   Future<File> downloadFile(String filePath, [Duration? timeout]) async {
     timeout ??= const Duration(seconds: 15);
-    Uri uri = Uri.parse('$httpUrl/server/files/$filePath');
+    Uri uri = httpUri.replace(path: 'server/files/$filePath');
     logger.i('Trying download of $uri');
     try {
       HttpClientRequest clientRequest =
@@ -225,8 +247,7 @@ class FileService {
       return file;
     } on TimeoutException catch (e) {
       logger.w('Timeout reached while trying to download file: $filePath', e);
-      throw const MobilerakerException(
-          'Timeout while trying to download File');
+      throw const MobilerakerException('Timeout while trying to download File');
     }
   }
 
@@ -236,7 +257,8 @@ class FileService {
     List<String> fileSplit = filePath.split('/');
     String root = fileSplit.removeAt(0);
 
-    Uri uri = Uri.parse('$httpUrl/server/files/upload');
+    Uri uri = httpUri.replace(path: 'server/files/upload');
+    ;
     logger.i('Trying upload of $filePath');
     http.MultipartRequest multipartRequest = http.MultipartRequest('POST', uri)
       ..files.add(http.MultipartFile.fromString('file', content,
