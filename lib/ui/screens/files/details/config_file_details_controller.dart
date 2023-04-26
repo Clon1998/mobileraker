@@ -1,16 +1,20 @@
+import 'dart:async';
 import 'dart:io';
 
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/exceptions.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'config_file_details_controller.freezed.dart';
+
 part 'config_file_details_controller.g.dart';
-
-
 
 @riverpod
 RemoteFile configFile(ConfigFileRef ref) => throw UnimplementedError();
@@ -24,12 +28,8 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
       : fileService = ref.watch(fileServiceSelectedProvider),
         klippyService = ref.watch(klipperServiceSelectedProvider),
         snackBarService = ref.watch(snackBarServiceProvider),
-        super(
-
-  const ConfigDetailPageState()
-
-  ) {
-  _init();
+        super(const ConfigDetailPageState()) {
+    _init();
   }
 
   final AutoDisposeRef ref;
@@ -38,13 +38,17 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   final SnackBarService snackBarService;
 
   _init() async {
-    var downloadFile = await fileService
-        .downloadFile(ref
-        .read(configFileProvider)
-        .absolutPath);
-    var content = await downloadFile.readAsString();
-    if (mounted) {
-      state = state.copyWith(config: AsyncValue.data(content));
+    try {
+      var downloadFile = await fileService
+          .downloadFile(ref.read(configFileProvider).absolutPath);
+      var content = await downloadFile.readAsString();
+      if (mounted) {
+        state = state.copyWith(config: AsyncValue.data(content));
+      }
+    } on MobilerakerException catch (e, s) {
+      if (mounted) {
+        state = state.copyWith(config: AsyncValue.error(e, s));
+      }
     }
   }
 
@@ -52,16 +56,13 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
     state = state.copyWith(isUploading: true);
     try {
       await fileService.uploadAsFile(
-          ref
-              .read(configFileProvider)
-              .absolutPath, code);
+          ref.read(configFileProvider).absolutPath, code);
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
       snackBarService.show(SnackBarConfig(
           type: SnackbarType.error,
           title: 'Http-Error',
-          message: 'Could not save File:.\n${e.message}'
-      ));
+          message: 'Could not save File:.\n${e.message}'));
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);
@@ -74,17 +75,14 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
 
     try {
       await fileService.uploadAsFile(
-          ref
-              .read(configFileProvider)
-              .absolutPath, code);
+          ref.read(configFileProvider).absolutPath, code);
       klippyService.restartMCUs();
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
       snackBarService.show(SnackBarConfig(
           type: SnackbarType.error,
           title: 'Http-Error',
-          message: 'Could not save File:.\n${e.message}'
-      ));
+          message: 'Could not save File:.\n${e.message}'));
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);
@@ -93,22 +91,10 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   }
 }
 
-class ConfigDetailPageState {
-  const ConfigDetailPageState({
-    this.config = const AsyncValue.loading(),
-    this.isUploading = false,
-  });
-
-  final AsyncValue<String> config;
-  final bool isUploading;
-
-  ConfigDetailPageState copyWith({
-    AsyncValue<String>? config,
-    bool? isUploading,
-  }) {
-    return ConfigDetailPageState(
-      config: config ?? this.config,
-      isUploading: isUploading ?? this.isUploading,
-    );
-  }
+@freezed
+class ConfigDetailPageState with _$ConfigDetailPageState {
+  const factory ConfigDetailPageState({
+    @Default(AsyncValue.loading()) AsyncValue<String> config,
+    @Default(false) bool isUploading,
+  }) = _ConfigDetailPageState;
 }

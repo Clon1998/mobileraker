@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:file/memory.dart';
 import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
@@ -18,9 +19,10 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'file_service.freezed.dart';
 
 part 'file_service.g.dart';
 
@@ -41,25 +43,13 @@ enum FileAction {
 typedef FileListChangedListener = Function(
     Map<String, dynamic> item, Map<String, dynamic>? srcItem);
 
-class FolderContentWrapper {
-  FolderContentWrapper(this.folderPath, this.folders, this.files);
-
-  final String folderPath;
-  final List<Folder> folders;
-  final List<RemoteFile> files;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FolderContentWrapper &&
-          runtimeType == other.runtimeType &&
-          folderPath == other.folderPath &&
-          listEquals(folders, other.folders) &&
-          listEquals(files, other.files);
-
-  @override
-  int get hashCode =>
-      folderPath.hashCode ^ folders.hashIterable ^ files.hashIterable;
+@freezed
+class FolderContentWrapper with _$FolderContentWrapper {
+  const factory FolderContentWrapper(
+    String folderPath, [
+    @Default([]) List<Folder> folders,
+    @Default([]) List<RemoteFile> files,
+  ]) = _FolderContentWrapper;
 }
 
 @riverpod
@@ -211,23 +201,33 @@ class FileService {
     return FileApiResponse.fromJson(rpcResponse.result);
   }
 
-  Future<File> downloadFile(String filePath) async {
+  // Throws TimeOut exception, if file download took to long!
+  Future<File> downloadFile(String filePath, [Duration? timeout]) async {
+    timeout ??= const Duration(seconds: 15);
     Uri uri = Uri.parse('$httpUrl/server/files/$filePath');
     logger.i('Trying download of $uri');
-    HttpClientRequest clientRequest = await HttpClient().getUrl(uri);
-    HttpClientResponse clientResponse = await clientRequest.close();
+    try {
+      HttpClientRequest clientRequest =
+          await HttpClient().getUrl(uri).timeout(timeout);
+      HttpClientResponse clientResponse =
+          await clientRequest.close().timeout(timeout);
 
-    final File file = _fileSystem.file(filePath)..createSync(recursive: true);
-    IOSink writer = file.openWrite();
-    await clientResponse.pipe(writer);
-    // clientResponse.contentLength;
-    // await clientResponse.map((s) {
-    //   received += s.length;
-    //   print("${(received / length) * 100} %");
-    //   return s;
-    // }).pipe(sink);
-    await writer.close();
-    return file;
+      final File file = _fileSystem.file(filePath)..createSync(recursive: true);
+      IOSink writer = file.openWrite();
+      await clientResponse.pipe(writer);
+      // clientResponse.contentLength;
+      // await clientResponse.map((s) {
+      //   received += s.length;
+      //   print("${(received / length) * 100} %");
+      //   return s;
+      // }).pipe(sink);
+      await writer.close();
+      return file;
+    } on TimeoutException catch (e) {
+      logger.w('Timeout reached while trying to download file: $filePath', e);
+      throw const MobilerakerException(
+          'Timeout while trying to download File');
+    }
   }
 
   Future<FileApiResponse> uploadAsFile(String filePath, String content) async {
