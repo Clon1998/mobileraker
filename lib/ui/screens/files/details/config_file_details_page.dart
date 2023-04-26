@@ -9,8 +9,8 @@ import 'package:highlight/languages/properties.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -81,12 +81,35 @@ class _Editor extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData themeData = Theme.of(context);
-
+    var textStyleOnError = TextStyle(color: themeData.colorScheme.onErrorContainer);
     return ref
         .watch(
             configFileDetailsControllerProvider.select((value) => value.config))
-        .maybeWhen(
-            orElse: () => Center(
+        .when(
+            error: (e, _) => ErrorCard(
+                    child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        FlutterIcons.issue_opened_oct,
+                        color: themeData.colorScheme.onErrorContainer,
+                      ),
+                      title: Text('Error while loading file!',
+                          style: textStyleOnError),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                      ),
+                      child: Text(
+                        e.toString(),
+                        style: textStyleOnError,
+                      ),
+                    ),
+                  ],
+                )),
+            loading: () => Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -125,33 +148,33 @@ class _Fab extends ConsumerWidget {
     return SpeedDial(
       icon: FlutterIcons.save_mdi,
       activeIcon: Icons.close,
-      children: uploading?[]:[
-        SpeedDialChild(
-          child: const Icon(Icons.save),
-          backgroundColor: themeData.colorScheme.primaryContainer,
-          label: 'Save',
-          onTap: () => ref
-              .read(configFileDetailsControllerProvider.notifier)
-              .onSaveTapped(codeController.value.text),
-        ),
-        if (!{PrintState.paused, PrintState.printing}.contains(ref.watch(
-            printerSelectedProvider
-                .select((value) => value.valueOrFullNull?.print.state))))
-          SpeedDialChild(
-            child: const Icon(Icons.restart_alt),
-            backgroundColor: themeData.colorScheme.primary,
-            label: 'Save & Restart',
-            onTap: () => ref
-                .read(configFileDetailsControllerProvider.notifier)
-                .onSaveAndRestartTapped(codeController.value.text),
-          ),
-      ],
+      children: uploading
+          ? []
+          : [
+              SpeedDialChild(
+                child: const Icon(Icons.save),
+                backgroundColor: themeData.colorScheme.primaryContainer,
+                label: 'Save',
+                onTap: () => ref
+                    .read(configFileDetailsControllerProvider.notifier)
+                    .onSaveTapped(codeController.value.text),
+              ),
+              if (!{PrintState.paused, PrintState.printing}.contains(ref.watch(
+                  printerSelectedProvider
+                      .select((value) => value.valueOrFullNull?.print.state))))
+                SpeedDialChild(
+                  child: const Icon(Icons.restart_alt),
+                  backgroundColor: themeData.colorScheme.primary,
+                  label: 'Save & Restart',
+                  onTap: () => ref
+                      .read(configFileDetailsControllerProvider.notifier)
+                      .onSaveAndRestartTapped(codeController.value.text),
+                ),
+            ],
       spacing: 5,
       overlayOpacity: 0.5,
-      backgroundColor: uploading? themeData.disabledColor:null,
-      child: uploading
-          ? const CircularProgressIndicator()
-          : null,
+      backgroundColor: uploading ? themeData.disabledColor : null,
+      child: uploading ? const CircularProgressIndicator() : null,
     );
   }
 }
