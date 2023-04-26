@@ -52,10 +52,7 @@ Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
       : ClientType.local;
   if (machine != null) {
     if (clientType == ClientType.octo) {
-      var octoEverywhere = machine.octoEverywhere;
-      var auth = base64Encode(utf8.encode(
-          '${octoEverywhere!.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'));
-      headers[HttpHeaders.authorizationHeader] = 'Basic $auth';
+      headers[HttpHeaders.authorizationHeader] = machine.octoEverywhere!.basicAuthorizationHeader;
     }
   }
   return headers;
