@@ -8,6 +8,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -42,58 +43,52 @@ class _PaywallPage extends ConsumerWidget {
             if (e.code == "3") {
               var themeData = Theme.of(context);
               var textStyleOnError =
-                  TextStyle(color: themeData.colorScheme.onError);
-              return Center(
-                child: Card(
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(40.0),
-                  ),
-                  color: themeData.colorScheme.error,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        leading: Icon(
-                          FlutterIcons.issue_opened_oct,
-                          color: themeData.colorScheme.onError,
-                        ),
-                        title: (Platform.isAndroid)
-                            ? Text(
-                                'GooglePlay unavailable',
-                                style: textStyleOnError,
-                              )
-                            : Text('AppStore unavailable',
-                                style: textStyleOnError),
+                  TextStyle(color: themeData.colorScheme.onErrorContainer);
+              return ErrorCard(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        FlutterIcons.issue_opened_oct,
+                        color: themeData.colorScheme.onError,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                        ),
-                        child: RichText(
-                            strutStyle:
-                                StrutStyle.fromTextStyle(textStyleOnError),
-                            text: TextSpan(
-                                text:
-                                    'To support the project, a properly configured ${(Platform.isAndroid) ? 'Google' : 'Apple'}-Account is required!',
-                                children: const [
-                                  TextSpan(
-                                    text:
-                                        'However, you can support the project by either rating it in the app stores, providing feedback via Github, or make donations.\nYou can find out more on the Github page of Mobileraker.',
-                                  )
-                                ])),
+                      title: (Platform.isAndroid)
+                          ? Text(
+                              'GooglePlay unavailable',
+                              style: textStyleOnError,
+                            )
+                          : Text('AppStore unavailable',
+                              style: textStyleOnError),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
                       ),
-                      ElevatedButton.icon(
-                        icon: const Icon(FlutterIcons.github_faw5d),
-                        onPressed: ref
-                            .read(paywallPageControllerProvider.notifier)
-                            .openGithub,
-                        label: const Text('GitHub'),
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      )
-                    ],
-                  ),
+                      child: RichText(
+                          strutStyle:
+                              StrutStyle.fromTextStyle(textStyleOnError),
+                          text: TextSpan(
+                              text:
+                                  'To support the project, a properly configured ${(Platform.isAndroid) ? 'Google' : 'Apple'}-Account is required!',
+                              children: const [
+                                TextSpan(
+                                  text:
+                                      'However, you can support the project by either rating it in the app stores, providing feedback via Github, or make donations.\nYou can find out more on the Github page of Mobileraker.',
+                                )
+                              ])),
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(FlutterIcons.github_faw5d),
+                      onPressed: ref
+                          .read(paywallPageControllerProvider.notifier)
+                          .openGithub,
+                      label: const Text('GitHub'),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    )
+                  ],
                 ),
               );
             }
