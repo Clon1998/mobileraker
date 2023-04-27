@@ -138,10 +138,10 @@ class _NavHeader extends ConsumerWidget {
         : themePack.brandingIconDark;
     var background = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.primary
-        : themeData.colorScheme.surfaceVariant;
+        : themeData.colorScheme.primaryContainer;
     var onBackground = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.onPrimary
-        : themeData.colorScheme.onSurfaceVariant;
+        : themeData.colorScheme.onPrimaryContainer;
 
     var neverNullMachineAsyncData = ref
         .watch(selectedMachineProvider)

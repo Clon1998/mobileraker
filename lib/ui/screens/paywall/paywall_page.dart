@@ -51,7 +51,7 @@ class _PaywallPage extends ConsumerWidget {
                     ListTile(
                       leading: Icon(
                         FlutterIcons.issue_opened_oct,
-                        color: themeData.colorScheme.onError,
+                        color: themeData.colorScheme.onErrorContainer,
                       ),
                       title: (Platform.isAndroid)
                           ? Text(
@@ -66,17 +66,16 @@ class _PaywallPage extends ConsumerWidget {
                         horizontal: 10,
                       ),
                       child: RichText(
-                          strutStyle:
-                              StrutStyle.fromTextStyle(textStyleOnError),
                           text: TextSpan(
+                              style: textStyleOnError,
                               text:
                                   'To support the project, a properly configured ${(Platform.isAndroid) ? 'Google' : 'Apple'}-Account is required!',
                               children: const [
-                                TextSpan(
-                                  text:
-                                      'However, you can support the project by either rating it in the app stores, providing feedback via Github, or make donations.\nYou can find out more on the Github page of Mobileraker.',
-                                )
-                              ])),
+                            TextSpan(
+                              text:
+                                  'However, you can support the project by either rating it in the app stores, providing feedback via Github, or make donations.\nYou can find out more on the Github page of Mobileraker.',
+                            )
+                          ])),
                     ),
                     ElevatedButton.icon(
                       icon: const Icon(FlutterIcons.github_faw5d),
@@ -165,13 +164,17 @@ class _PaywallOfferings extends ConsumerWidget {
     return Column(
       children: [
         ...userEnt.map((e) => Text('Active Sub: $e')),
-        if (ref.watch(customerInfoProvider.selectAs((data) => data.managementURL != null)).valueOrNull == true)
-        ElevatedButton.icon(
-            icon: const Icon(Icons.subscriptions_outlined),
-            label: const Text('Manage Subscriptions'),
-            onPressed: () => ref
-                .read(paywallPageControllerProvider.notifier)
-                .openManagement()),
+        if (ref
+                .watch(customerInfoProvider
+                    .selectAs((data) => data.managementURL != null))
+                .valueOrNull ==
+            true)
+          ElevatedButton.icon(
+              icon: const Icon(Icons.subscriptions_outlined),
+              label: const Text('Manage Subscriptions'),
+              onPressed: () => ref
+                  .read(paywallPageControllerProvider.notifier)
+                  .openManagement()),
         const Text(
           'cccc',
         ),
