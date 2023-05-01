@@ -20,7 +20,7 @@ class PaywallPageController extends _$PaywallPageController {
       }
       return null;
     } on PlatformException catch (e, s) {
-      logger.e('Error while trying to fetch offerings from revenue cat!');
+      logger.e('Error while trying to fetch offerings from revenue cat!',e,s);
       return Future.error(e, s);
     }
   }
