@@ -10,6 +10,7 @@ import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
@@ -19,6 +20,7 @@ import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/gcode_file_extension.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -424,8 +426,10 @@ class GCodeFileItem extends ConsumerWidget {
   }
 
   Widget buildLeading(
-      GCodeFile gCodeFile, Uri? printerUrl, Map<String, String> headers) {
-    if (printerUrl != null && gCodeFile.bigImagePath != null) {
+      GCodeFile gCodeFile, Uri? machineUri, Map<String, String> headers) {
+    var bigImageUri = gCodeFile.constructBigImageUri(machineUri);
+
+    if (bigImageUri != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0),
         child: CachedNetworkImage(
@@ -447,8 +451,7 @@ class GCodeFileItem extends ConsumerWidget {
               ],
             ),
           ),
-          imageUrl:
-              '$printerUrl/server/files/${gCode.parentPath}/${gCode.bigImagePath}',
+          imageUrl: bigImageUri.toString(),
           httpHeaders: headers,
           placeholder: (context, url) => const Icon(Icons.insert_drive_file),
           errorWidget: (context, url, error) {

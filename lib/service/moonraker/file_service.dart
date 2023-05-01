@@ -54,6 +54,38 @@ class FolderContentWrapper with _$FolderContentWrapper {
 }
 
 @riverpod
+Uri? previewImageUri(PreviewImageUriRef ref) {
+  var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
+  var clientType = (machine != null)
+      ? ref.watch(jrpcClientTypeProvider(machine.uuid))
+      : ClientType.local;
+  if (machine != null) {
+    if (clientType == ClientType.local) {
+      return Uri.tryParse(machine.httpUrl);
+    } else {
+      var octoEverywhere = machine.octoEverywhere;
+      return octoEverywhere!.uri;
+    }
+  }
+  return null;
+}
+
+@riverpod
+Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
+  var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
+  Map<String, String> headers = {};
+  var clientType = (machine != null)
+      ? ref.watch(jrpcClientTypeProvider(machine.uuid))
+      : ClientType.local;
+  if (machine != null) {
+    if (clientType == ClientType.octo) {
+      headers[HttpHeaders.authorizationHeader] = machine.octoEverywhere!.basicAuthorizationHeader;
+    }
+  }
+  return headers;
+}
+
+@riverpod
 FileService _fileServicee(
     _FileServiceeRef ref, String machineUUID, ClientType type) {
   var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
