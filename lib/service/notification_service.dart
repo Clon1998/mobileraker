@@ -58,25 +58,32 @@ class NotificationService {
   StreamSubscription<BoxEvent>? _hiveStreamListener;
 
   Future<void> initialize() async {
-    List<Machine> allMachines = await _machineService.fetchAll();
+    try {
+      List<Machine> allMachines = await _machineService.fetchAll();
 
-    await initializeNotificationChannels(allMachines);
+      await initializeNotificationChannels(allMachines);
 
-    await initialRequestPermission();
+      await initialRequestPermission();
 
-    // ToDo: Add listener to token update to clear fcm.cfg!
+      // ToDo: Add listener to token update to clear fcm.cfg!
 
-    // ToDo: Implement local notification handling again!
-    for (Machine setting in allMachines) {
-      registerLocalMessageHandling(setting);
-    }
+      // ToDo: Implement local notification handling again!
+      for (Machine setting in allMachines) {
+        registerLocalMessageHandling(setting);
+      }
 
-    _hiveStreamListener = setupHiveBoxListener();
-    await initializeNotificationListeners();
-    if (await isFirebaseAvailable()) {
-      await initializeRemoteMessaging();
+      _hiveStreamListener = setupHiveBoxListener();
+      await initializeNotificationListeners();
+      if (await isFirebaseAvailable()) {
+        await initializeRemoteMessaging();
 
-      allMachines.forEach(_setupFCMOnPrinterOnceConnected);
+        allMachines.forEach(_setupFCMOnPrinterOnceConnected);
+      }
+    } catch (e, s) {
+      logger.w(
+          'Error encountered while trying to setup the Notification Service.',
+          e,
+          s);
     }
   }
 
