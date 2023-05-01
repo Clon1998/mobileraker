@@ -24,40 +24,6 @@ import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/path_utils.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'files_controller.g.dart';
-
-@riverpod
-Uri? previewImageUri(PreviewImageUriRef ref) {
-  var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
-  var clientType = (machine != null)
-      ? ref.watch(jrpcClientTypeProvider(machine.uuid))
-      : ClientType.local;
-  if (machine != null) {
-    if (clientType == ClientType.local) {
-      return Uri.tryParse(machine.httpUrl);
-    } else {
-      var octoEverywhere = machine.octoEverywhere;
-      return octoEverywhere!.uri;
-    }
-  }
-  return null;
-}
-
-@riverpod
-Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
-  var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
-  Map<String, String> headers = {};
-  var clientType = (machine != null)
-      ? ref.watch(jrpcClientTypeProvider(machine.uuid))
-      : ClientType.local;
-  if (machine != null) {
-    if (clientType == ClientType.octo) {
-      headers[HttpHeaders.authorizationHeader] = machine.octoEverywhere!.basicAuthorizationHeader;
-    }
-  }
-  return headers;
-}
-
 final filePageProvider = StateProvider.autoDispose<int>((ref) => 0);
 
 final isSearchingProvider = StateProvider.autoDispose<bool>((ref) => false);
