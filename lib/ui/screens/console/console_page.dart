@@ -262,7 +262,7 @@ class _Console extends ConsumerWidget {
                 leading: const Icon(Icons.browser_not_supported_sharp),
                 title: const Text('pages.console.no_entries').tr());
           }
-
+          var now = DateTime.now();
           return SmartRefresher(
               header: ClassicHeader(
                 textStyle: TextStyle(color: themeData.colorScheme.onBackground),
@@ -285,15 +285,22 @@ class _Console extends ConsumerWidget {
                     int correctedIndex = entries.length - 1 - index;
                     ConsoleEntry entry = entries[correctedIndex];
 
+                    DateFormat dateFormat = DateFormat.Hms();
+                    if (now.difference(entry.timestamp).inDays != 0) {
+                      dateFormat.addPattern('MMMd', ', ');
+                    }
+
+
                     if (entry.type == ConsoleEntryType.COMMAND) {
                       return ListTile(
+                        dense: true,
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 8),
                         title: Text(entry.message,
                             style: _commandTextStyle(
                                 themeData, ListTileTheme.of(context))),
                         subtitle:
-                            Text(DateFormat.Hms().format(entry.timestamp)),
+                            Text(dateFormat.format(entry.timestamp)),
                         onTap:
                             canSend ? () => onCommandTap(entry.message) : null,
                       );
@@ -302,7 +309,7 @@ class _Console extends ConsumerWidget {
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                       title: Text(entry.message),
-                      subtitle: Text(DateFormat.Hms().format(entry.timestamp)),
+                      subtitle: Text(dateFormat.format(entry.timestamp)),
                     );
                   }));
         },
