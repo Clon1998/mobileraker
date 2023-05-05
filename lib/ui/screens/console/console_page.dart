@@ -15,6 +15,7 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/console/console_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/text_editing_controller_extension.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
@@ -89,12 +90,12 @@ class _ConsoleBody extends HookConsumerWidget {
             Expanded(
               flex: 1,
               child: _Console(
-                onCommandTap: (s) => consoleTextEditor.text = s,
+                onCommandTap: (s) => consoleTextEditor.textAndMoveCursor = s,
               ),
             ),
             const Divider(),
             GCodeSuggestionBar(
-              onMacroTap: (s) => consoleTextEditor.text = s,
+              onMacroTap: (s) => consoleTextEditor.textAndMoveCursor = s,
               consoleInputNotifier: consoleTextEditor,
             ),
             Padding(
