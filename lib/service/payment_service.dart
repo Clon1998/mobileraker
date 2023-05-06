@@ -47,7 +47,7 @@ class PaymentService {
   final PaymentServiceRef ref;
 
   Future<void> initialize() async {
-    if (kReleaseMode) return;
+    // if (kReleaseMode) return;
 
     if (kDebugMode) await Purchases.setLogLevel(LogLevel.info);
 
