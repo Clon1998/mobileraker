@@ -347,8 +347,10 @@ class ControlXYZCard extends HookConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text(
-                        '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]'),
+                    Flexible(
+                      child: Text(
+                          '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',),
+                    ),
                     RangeSelector(
                         selectedIndex: ref.watch(
                             controlXYZCardControllerProvider
