@@ -18,14 +18,12 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 2.3.0+145
 
 environment:
-  sdk: ">=2.17.6 <3.0.0"
-  flutter: ">=2.0.0"
+  sdk: '>=2.19.6 <3.0.0'
 
 
 dependencies:
   flutter:
     sdk: flutter
-
 
   web_socket_channel: ^2.1.0
   http: ^0.13.4
@@ -68,6 +66,7 @@ dependencies:
   flex_color_scheme: ^7.0.4
   google_fonts: ^4.0.3
 
+
   #notification
   awesome_notifications: ^0.7.1
   awesome_notifications_fcm: ^0.7.1
@@ -109,8 +108,8 @@ dependencies:
   code_text_field: ^1.0.2
   mobile_scanner: ^3.0.0
   touchable: ^1.0.2
-  markdown_widget: ^2.1.0
   flutter_markdown: ^0.6.14
+  flutter_svg: ^2.0.5
 
 
 #  ditredi: ^1.0.3
@@ -131,15 +130,22 @@ dev_dependencies:
   riverpod_lint: ^1.1.6
   # import custom_lint too as riverpod_lint depends on it
   custom_lint: ^0.3.2
+  flutter_native_splash: ^2.2.19
+  flutter_launcher_icons: ^0.13.1
+
 
 flutter_icons:
   android: true
   ios: true
+  min_sdk_android: 25
   image_path: "assets/icon/mr_rec.png"
   #image_path_ios: "assets/icon/mr_rec.png"
   adaptive_icon_background: "#2A2A2A"
   adaptive_icon_foreground: "assets/icon/ic_launcher_foreground.png"
   remove_alpha_ios: true
+  macos:
+    generate: true
+    image_path: "assets/icon/mr_rec.png"
 
 flutter_native_splash:
 
@@ -154,7 +160,7 @@ flutter_native_splash:
   # of your splash screen to a solid color.  Use background_image to set the background of your
   # splash screen to a png image.  This is useful for gradients. The image will be stretch to the
   # size of the app. Only one parameter can be used, color and background_image cannot both be set.
-  color: "#2A2A2A"
+  color: "#f7f7f7"
   #background_image: "assets/background.png"
 
   # Optional parameters are listed below.  To enable a parameter, uncomment the line by removing
@@ -177,7 +183,7 @@ flutter_native_splash:
   # parameters from above. If the image_dark parameter is specified, color_dark or
   # background_image_dark must be specified.  color_dark and background_image_dark cannot both be
   # set.
-  #color_dark: "#042a49"
+  color_dark: "#2A2A2A"
   #background_image_dark: "assets/dark-background.png"
   #image_dark: assets/splash-invert.png
   #branding_dark: assets/dart_dark.png
@@ -268,6 +274,7 @@ flutter:
     - assets/images/
     - assets/icon/
     - assets/translations/
+    - assets/vector/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
@@ -161,68 +162,143 @@ class _PaywallOfferings extends ConsumerWidget {
       userEnt.add(element.productIdentifier);
     });
 
-    return Column(
-      children: [
-        ...userEnt.map((e) => Text('Active Sub: $e')),
-        if (ref
-                .watch(customerInfoProvider
-                    .selectAs((data) => data.managementURL != null))
-                .valueOrNull ==
-            true)
-          ElevatedButton.icon(
-              icon: const Icon(Icons.subscriptions_outlined),
-              label: const Text('Manage Subscriptions'),
-              onPressed: () => ref
-                  .read(paywallPageControllerProvider.notifier)
-                  .openManagement()),
-        const Text(
-          'cccc',
-        ),
-        if (offering != null)
-          ListView.builder(
-            itemCount: offering!.availablePackages.length,
-            itemBuilder: (BuildContext context, int index) {
-              var myProductList = offering!.availablePackages;
-              var themeData = Theme.of(context);
+    var textTheme = Theme.of(context).textTheme;
 
-              var package = myProductList[index];
-              var storeProduct = package.storeProduct;
-              return Card(
-                child: ListTile(
-                    tileColor: themeData.colorScheme.surfaceVariant,
-                    textColor: themeData.colorScheme.onSurfaceVariant,
-                    onTap: () {
-                      ref
-                          .read(paywallPageControllerProvider.notifier)
-                          .makePurchase(package);
-                      // try {
-                      //   CustomerInfo customerInfo =
-                      //   await Purchases.purchasePackage(
-                      //       myProductList[index]);
-                      //   appData.entitlementIsActive = customerInfo
-                      //       .entitlements.all[entitlementID].isActive;
-                      // } catch (e) {
-                      //   print(e);
-                      // }
-                      //
-                      // setState(() {});
-                      // Navigator.pop(context);
-                    },
-                    title: Text(
-                      storeProduct.title + "(${storeProduct.identifier})",
-                    ),
-                    subtitle: Text(
-                      storeProduct.description,
-                    ),
-                    trailing: Text(
-                      storeProduct.priceString,
-                    )),
-              );
-            },
-            shrinkWrap: true,
-            physics: const ClampingScrollPhysics(),
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          ...userEnt.map((e) => Text('Active Sub: $e')),
+          if (ref
+                  .watch(customerInfoProvider
+                      .selectAs((data) => data.managementURL != null))
+                  .valueOrNull ==
+              true)
+            ElevatedButton.icon(
+                icon: const Icon(Icons.subscriptions_outlined),
+                label: const Text('Manage Subscriptions'),
+                onPressed: () => ref
+                    .read(paywallPageControllerProvider.notifier)
+                    .openManagement()),
+          Text(
+            'Become a Mobileraker Supporter!',
+            textAlign: TextAlign.center,
+            style:
+                textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
           ),
-      ],
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SvgPicture.asset(
+                'assets/vector/undraw_pair_programming_re_or4x.svg',
+              ),
+            ),
+          ),
+          Text('''
+Mobileraker aims to provide a fast and reliable mobile UI for Klipper, driven by the spirit of RepRap, that open-source software and hardware can make a positive impact.
+As Mobileraker is developed by a single developer and offered for free, it relies on community funding to cover both operational and development costs. 
+    ''', textAlign: TextAlign.center, style: textTheme.bodySmall),
+          Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Choose Supporter Tier:',
+                style: textTheme.displaySmall
+                    ?.copyWith(fontSize: 20, fontWeight: FontWeight.w900),
+              )),
+          if (offering != null)
+            Expanded(
+              child: ListView.builder(
+                itemCount: offering!.availablePackages.length * 2,
+                itemBuilder: (BuildContext context, int index) {
+                  var myProductList = offering!.availablePackages;
+
+                  var package =
+                      myProductList[index % offering!.availablePackages.length];
+                  return _SupporterTierCard(package: package);
+                },
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+              ),
+            ),
+        ],
+      ),
     );
+  }
+}
+
+class _SupporterTierCard extends ConsumerWidget {
+  const _SupporterTierCard({
+    super.key,
+    required this.package,
+  });
+
+  final Package package;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var storeProduct = package.storeProduct;
+    var themeData = Theme.of(context);
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: themeData.colorScheme.primaryContainer),
+      child: DefaultTextStyle(
+        style: themeData.textTheme.labelLarge!
+            .copyWith(color: themeData.colorScheme.onPrimaryContainer),
+        child: Row(
+          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    storeProduct.title + "(${storeProduct.identifier})",
+                  ),
+                  Text(
+                    storeProduct.description + 'Desc',
+                  )
+                ],
+              ),
+            ),
+            Text(
+              storeProduct.priceString,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    ListTile(
+        textColor: themeData.colorScheme.onSurfaceVariant,
+        onTap: () {
+          ref
+              .read(paywallPageControllerProvider.notifier)
+              .makePurchase(package);
+          // try {
+          //   CustomerInfo customerInfo =
+          //   await Purchases.purchasePackage(
+          //       myProductList[index]);
+          //   appData.entitlementIsActive = customerInfo
+          //       .entitlements.all[entitlementID].isActive;
+          // } catch (e) {
+          //   print(e);
+          // }
+          //
+          // setState(() {});
+          // Navigator.pop(context);
+        },
+        title: Text(
+          storeProduct.title + "(${storeProduct.identifier})",
+        ),
+        subtitle: Text(
+          storeProduct.description,
+        ),
+        trailing: Text(
+          storeProduct.priceString,
+        ));
   }
 }
