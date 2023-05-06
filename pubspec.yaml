@@ -29,6 +29,8 @@ dependencies:
   http: ^0.13.4
 
   #firebase
+  # thats a workaround, remove in a coulple of weeks!
+  firebase_core_platform_interface: 4.6.0
   firebase_core: <2.8.0
   firebase_analytics: ^10.1.5
   firebase_app_check: 0.1.1+12
@@ -79,7 +81,7 @@ dependencies:
   easy_localization: ^3.0.0
 
   #purchases
-  purchases_flutter: ^4.11.1
+  purchases_flutter: ^4.12.0
 
   #rating
   rate_my_app: ^1.1.4
