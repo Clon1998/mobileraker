@@ -25,13 +25,6 @@ class FullCamPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    WidgetsFlutterBinding.ensureInitialized();
-    if (ref
-        .watch(settingServiceProvider)
-        .readBool(landscapeFullWebCam, false)) {
-      SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    }
 
     return ProviderScope(
       overrides: [

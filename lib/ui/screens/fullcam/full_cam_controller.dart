@@ -1,5 +1,7 @@
+import 'package:flutter/services.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
+import 'package:mobileraker/service/setting_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'full_cam_controller.g.dart';
@@ -10,10 +12,23 @@ Machine fullCamMachine(FullCamMachineRef ref) => throw UnimplementedError();
 @Riverpod(dependencies: [])
 WebcamInfo initialCam(InitialCamRef ref) => throw UnimplementedError();
 
-@Riverpod(dependencies: [fullCamMachine, initialCam])
+@Riverpod(dependencies: [fullCamMachine, initialCam, settingService])
 class FullCamPageController extends _$FullCamPageController {
   @override
   WebcamInfo build() {
+    var rotateCam =
+        ref.watch(settingServiceProvider).readBool(landscapeFullWebCam, false);
+    if (rotateCam) {
+      SystemChrome.setPreferredOrientations(
+          [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    }
+
+    ref.onDispose(() {
+      if (rotateCam) {
+        SystemChrome.setPreferredOrientations([]);
+      }
+    });
+
     return ref.watch(initialCamProvider);
   }
 
