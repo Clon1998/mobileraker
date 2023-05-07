@@ -62,6 +62,7 @@ class PaymentService {
       throw StateError('Unsupported device type!');
     }
     await Purchases.configure(configuration);
+
   }
 
   Future<Offerings> getOfferings() {
@@ -88,10 +89,10 @@ class PaymentService {
             message: errorCode.name.capitalize));
       } else {
         logger.w('User canceled purchase!');
-        ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.warning,
-            title: 'Canceled',
-            message: 'Subscription request canceled'));
+        // ref.read(snackBarServiceProvider).show(SnackBarConfig(
+        //     type: SnackbarType.warning,
+        //     title: 'Canceled',
+        //     message: 'Subscription request canceled'));
       }
     }
   }

@@ -164,6 +164,7 @@ class _PaywallOfferings extends ConsumerWidget {
 
     var textTheme = Theme.of(context).textTheme;
 
+    var itemCount = offering!.availablePackages.length;
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -200,21 +201,28 @@ As Mobileraker is developed by a single developer and offered for free, it relie
     ''', textAlign: TextAlign.center, style: textTheme.bodySmall),
           Align(
               alignment: Alignment.centerLeft,
-              child: Text(
-                'Choose Supporter Tier:',
-                style: textTheme.displaySmall
-                    ?.copyWith(fontSize: 20, fontWeight: FontWeight.w900),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'Choose Supporter Tier:',
+                  style: textTheme.displaySmall
+                      ?.copyWith(fontSize: 20, fontWeight: FontWeight.w900),
+                ),
               )),
           if (offering != null)
             Expanded(
               child: ListView.builder(
-                itemCount: offering!.availablePackages.length * 2,
+                itemCount: itemCount,
                 itemBuilder: (BuildContext context, int index) {
                   var myProductList = offering!.availablePackages;
 
-                  var package =
-                      myProductList[index % offering!.availablePackages.length];
-                  return _SupporterTierCard(package: package);
+                  var package = myProductList[index];
+                  return Padding(
+                    padding: EdgeInsets.only(
+                        top: (index == 0) ? 0 : 4,
+                        bottom: (index == itemCount - 1) ? 0 : 4),
+                    child: _SupporterTierCard(package: package),
+                  );
                 },
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
@@ -239,35 +247,43 @@ class _SupporterTierCard extends ConsumerWidget {
     var storeProduct = package.storeProduct;
     var themeData = Theme.of(context);
 
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          color: themeData.colorScheme.primaryContainer),
-      child: DefaultTextStyle(
-        style: themeData.textTheme.labelLarge!
-            .copyWith(color: themeData.colorScheme.onPrimaryContainer),
-        child: Row(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    storeProduct.title + "(${storeProduct.identifier})",
+    var borderRadius = BorderRadius.circular(16);
+    return DefaultTextStyle(
+      style: themeData.textTheme.labelLarge!
+          .copyWith(color: themeData.colorScheme.onPrimaryContainer),
+      child: Ink(
+        decoration: BoxDecoration(
+            borderRadius: borderRadius,
+            color: themeData.colorScheme.primaryContainer),
+        child: InkWell(
+          onTap: () => ref
+              .read(paywallPageControllerProvider.notifier)
+              .makePurchase(package),
+          borderRadius: borderRadius,
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Row(
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        storeProduct.title + "(${storeProduct.identifier})",
+                      ),
+                      Text(
+                        storeProduct.description + 'Desc',
+                      )
+                    ],
                   ),
-                  Text(
-                    storeProduct.description + 'Desc',
-                  )
-                ],
-              ),
+                ),
+                Text(
+                  storeProduct.priceString,
+                ),
+              ],
             ),
-            Text(
-              storeProduct.priceString,
-            ),
-          ],
+          ),
         ),
       ),
     );
