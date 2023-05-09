@@ -50,6 +50,6 @@ class PrinterCardController extends _$PrinterCardController {
 
   onFullScreenTap() {
     _goRouter.pushNamed(AppRoute.fullCam.name,
-        extra: {'machine': machine, 'selectedCam': state});
+        extra: {'machine': machine, 'selectedCam': state.value!});
   }
 }
