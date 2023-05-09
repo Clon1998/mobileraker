@@ -6,7 +6,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
-import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_controller.dart';
 import 'package:mobileraker/util/extensions/gcode_file_extension.dart';
 import 'package:mobileraker/util/time_util.dart';
@@ -35,7 +34,8 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var animCtrler = useAnimationController(duration: const Duration(milliseconds: 400));
+    var animCtrler =
+        useAnimationController(duration: const Duration(milliseconds: 400));
     animCtrler.forward();
     var gcodeFile = ref.watch(gcodeProvider);
 
@@ -63,22 +63,26 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                   Hero(
                     transitionOnUserGestures: true,
                     tag: 'gCodeImage-${gcodeFile.hashCode}',
-                    child: (bigImageUri != null)
-                        ? CachedNetworkImage(
-                            imageUrl: bigImageUri.toString(),
-                            httpHeaders:
-                                ref.watch(previewImageHttpHeaderProvider),
-                            imageBuilder: (context, imageProvider) => Image(
-                              image: imageProvider,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
-                            placeholder: (context, url) =>
-                                const Icon(Icons.insert_drive_file),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.file_present),
-                          )
-                        : const Icon(Icons.insert_drive_file),
+                    child: IconTheme(
+                      data: IconThemeData(
+                          color: Theme.of(context).colorScheme.onPrimary),
+                      child: (bigImageUri != null)
+                          ? CachedNetworkImage(
+                              imageUrl: bigImageUri.toString(),
+                              httpHeaders:
+                                  ref.watch(previewImageHttpHeaderProvider),
+                              imageBuilder: (context, imageProvider) => Image(
+                                image: imageProvider,
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                              ),
+                              placeholder: (context, url) =>
+                                  const Icon(Icons.insert_drive_file),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.file_present),
+                            )
+                          : const Icon(Icons.insert_drive_file),
+                    ),
                   ),
                   Align(
                     alignment: Alignment.bottomCenter,
@@ -116,111 +120,110 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
             );
           }),
           SliverToBoxAdapter(
-            child: SafeArea(
-              minimum: const EdgeInsets.only(bottom: 80),
-              child: Column(children: [
-                Card(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      ListTile(
-                        leading: const Icon(
-                            FlutterIcons.printer_3d_nozzle_outline_mco),
-                        title: const Text('pages.setting.general.title').tr(),
-                      ),
-                      const Divider(),
-                      PropertyTile(
-                          title: 'pages.files.details.general_card.path'.tr(),
-                          subtitle: gcodeFile.absolutPath),
-                      PropertyTile(
-                        title: 'pages.files.details.general_card.last_mod'.tr(),
-                        subtitle: DateFormat.yMMMd()
-                            .add_Hm()
-                            .format(gcodeFile.modifiedDate),
-                      ),
-                      PropertyTile(
-                        title: 'pages.files.details.general_card.last_printed'
-                            .tr(),
-                        subtitle: (gcodeFile.printStartTime != null)
-                            ? DateFormat.yMMMd()
-                                .add_Hm()
-                                .format(gcodeFile.lastPrintDate!)
-                            : 'pages.files.details.general_card.no_data'.tr(),
-                      ),
-                    ],
-                  ),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      leading: const Icon(
+                          FlutterIcons.printer_3d_nozzle_outline_mco),
+                      title: const Text('pages.setting.general.title').tr(),
+                    ),
+                    const Divider(),
+                    PropertyTile(
+                        title: 'pages.files.details.general_card.path'.tr(),
+                        subtitle: gcodeFile.absolutPath),
+                    PropertyTile(
+                      title: 'pages.files.details.general_card.last_mod'.tr(),
+                      subtitle: DateFormat.yMMMd()
+                          .add_Hm()
+                          .format(gcodeFile.modifiedDate),
+                    ),
+                    PropertyTile(
+                      title:
+                          'pages.files.details.general_card.last_printed'.tr(),
+                      subtitle: (gcodeFile.printStartTime != null)
+                          ? DateFormat.yMMMd()
+                              .add_Hm()
+                              .format(gcodeFile.lastPrintDate!)
+                          : 'pages.files.details.general_card.no_data'.tr(),
+                    ),
+                  ],
                 ),
-                Card(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      ListTile(
-                        leading: const Icon(FlutterIcons.tags_ant),
-                        title: const Text('pages.files.details.meta_card.title')
-                            .tr(),
-                      ),
-                      const Divider(),
-                      PropertyTile(
-                        title: 'pages.files.details.meta_card.filament'.tr(),
-                        subtitle:
-                            '${tr('pages.files.details.meta_card.filament_type')}: ${gcodeFile.filamentType ?? tr('general.unknown')}\n'
-                            '${tr('pages.files.details.meta_card.filament_name')}: ${gcodeFile.filamentName ?? tr('general.unknown')}',
-                      ),
-                      PropertyTile(
-                        title:
-                            'pages.files.details.meta_card.est_print_time'.tr(),
-                        subtitle:
-                            '${secondsToDurationText(gcodeFile.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(gcodeFile)}',
-                      ),
-                      PropertyTile(
-                        title: 'pages.files.details.meta_card.slicer'.tr(),
-                        subtitle: formatSlicerAndVersion(gcodeFile),
-                      ),
-                      PropertyTile(
-                        title: 'pages.files.details.meta_card.nozzle_diameter'
-                            .tr(),
-                        subtitle: '${gcodeFile.nozzleDiameter} mm',
-                      ),
-                      PropertyTile(
-                        title:
-                            'pages.files.details.meta_card.layer_higher'.tr(),
-                        subtitle:
-                            '${tr('pages.files.details.meta_card.first_layer')}: ${gcodeFile.firstLayerHeight?.toStringAsFixed(2) ?? '?'} mm\n'
-                            '${tr('pages.files.details.meta_card.others')}: ${gcodeFile.layerHeight?.toStringAsFixed(2) ?? '?'} mm',
-                      ),
-                      PropertyTile(
-                        title: 'pages.files.details.meta_card.first_layer_temps'
-                            .tr(),
-                        subtitle:
-                            'pages.files.details.meta_card.first_layer_temps_value'
-                                .tr(args: [
-                          gcodeFile.firstLayerTempExtruder
-                                  ?.toStringAsFixed(0) ??
-                              'general.unknown'.tr(),
-                          gcodeFile.firstLayerTempBed?.toStringAsFixed(0) ??
-                              'general.unknown'.tr()
-                        ]),
-                      ),
-                    ],
-                  ),
+              ),
+              Card(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ListTile(
+                      leading: const Icon(FlutterIcons.tags_ant),
+                      title: const Text('pages.files.details.meta_card.title')
+                          .tr(),
+                    ),
+                    const Divider(),
+                    PropertyTile(
+                      title: 'pages.files.details.meta_card.filament'.tr(),
+                      subtitle:
+                          '${tr('pages.files.details.meta_card.filament_type')}: ${gcodeFile.filamentType ?? tr('general.unknown')}\n'
+                          '${tr('pages.files.details.meta_card.filament_name')}: ${gcodeFile.filamentName ?? tr('general.unknown')}',
+                    ),
+                    PropertyTile(
+                      title:
+                          'pages.files.details.meta_card.est_print_time'.tr(),
+                      subtitle:
+                          '${secondsToDurationText(gcodeFile.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(gcodeFile)}',
+                    ),
+                    PropertyTile(
+                      title: 'pages.files.details.meta_card.slicer'.tr(),
+                      subtitle: formatSlicerAndVersion(gcodeFile),
+                    ),
+                    PropertyTile(
+                      title:
+                          'pages.files.details.meta_card.nozzle_diameter'.tr(),
+                      subtitle: '${gcodeFile.nozzleDiameter} mm',
+                    ),
+                    PropertyTile(
+                      title: 'pages.files.details.meta_card.layer_higher'.tr(),
+                      subtitle:
+                          '${tr('pages.files.details.meta_card.first_layer')}: ${gcodeFile.firstLayerHeight?.toStringAsFixed(2) ?? '?'} mm\n'
+                          '${tr('pages.files.details.meta_card.others')}: ${gcodeFile.layerHeight?.toStringAsFixed(2) ?? '?'} mm',
+                    ),
+                    PropertyTile(
+                      title: 'pages.files.details.meta_card.first_layer_temps'
+                          .tr(),
+                      subtitle:
+                          'pages.files.details.meta_card.first_layer_temps_value'
+                              .tr(args: [
+                        gcodeFile.firstLayerTempExtruder?.toStringAsFixed(0) ??
+                            'general.unknown'.tr(),
+                        gcodeFile.firstLayerTempBed?.toStringAsFixed(0) ??
+                            'general.unknown'.tr()
+                      ]),
+                    ),
+                  ],
                 ),
-                // Card(
-                //   child: Column(
-                //     mainAxisSize: MainAxisSize.min,
-                //     children: <Widget>[
-                //       ListTile(
-                //         leading: Icon(FlutterIcons.chart_bar_mco),
-                //         title: Text('pages.files.details.stat_card.title').tr(),
-                //       ),
-                //       Divider(),
-                //       Placeholder(
-                //
-                //       )
-                //     ],
-                //   ),
-                // ),
-              ]),
-            ),
+              ),
+              // Card(
+              //   child: Column(
+              //     mainAxisSize: MainAxisSize.min,
+              //     children: <Widget>[
+              //       ListTile(
+              //         leading: Icon(FlutterIcons.chart_bar_mco),
+              //         title: Text('pages.files.details.stat_card.title').tr(),
+              //       ),
+              //       Divider(),
+              //       Placeholder(
+              //
+              //       )
+              //     ],
+              //   ),
+              // ),
+              const SizedBox(
+                height: 80,
+              )
+              // Safe Area was not working, added a top padding
+            ]),
           )
         ],
       ),
