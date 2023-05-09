@@ -25,7 +25,6 @@ class FullCamPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
     return ProviderScope(
       overrides: [
         fullCamMachineProvider.overrideWithValue(machine),
@@ -155,7 +154,7 @@ class _CamSelector extends ConsumerWidget {
     var webcams =
         ref.watch(filteredWebcamInfosProvider(machine.uuid)).valueOrNull ?? [];
 
-    if (webcams.isEmpty) return const SizedBox.shrink();
+    if (webcams.length <= 1) return const SizedBox.shrink();
 
     return Align(
       alignment: Alignment.bottomCenter,
