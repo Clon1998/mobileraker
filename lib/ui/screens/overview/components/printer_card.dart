@@ -4,13 +4,12 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/enums/webcam_service_type.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
-import 'package:mobileraker/ui/components/mjpeg.dart';
+import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
 import 'package:mobileraker/ui/screens/overview/components/printer_card_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -141,21 +140,11 @@ class _Cam extends ConsumerWidget {
           )),
       child: (webcamInfo == null)
           ? const SizedBox.shrink()
-          : Center(
-              child: Mjpeg(
+          : WebcamMjpeg(
               key: ValueKey(machine.uuid + webcamInfo.uuid),
-              config: MjpegConfig(
-                streamUri: webcamInfo.streamUrl,
-                snapshotUri: webcamInfo.snapshotUrl,
-                targetFps: webcamInfo.targetFps,
-                transformation: webcamInfo.transformMatrix,
-                rotation: webcamInfo.rotation,
-                mode: (webcamInfo.service ==
-                        WebcamServiceType.mjpegStreamerAdaptive)
-                    ? MjpegMode.adaptiveStream
-                    : MjpegMode.stream,
-              ),
-              imageBuilder: _imageBuilder,
+              webcamInfo: webcamInfo,
+              machine: machine,
+              showRemoteIndicator: false,
               stackChild: [
                 Positioned.fill(
                   child: Align(
@@ -173,7 +162,7 @@ class _Cam extends ConsumerWidget {
                 ),
                 if (printState == PrintState.printing) const _PrintProgressBar()
               ],
-            )),
+            ),
     );
   }
 
