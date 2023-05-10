@@ -316,7 +316,7 @@
   },
   "components": {
     "pull_to_refresh": {
-      "pull_up_idle": "Trascina in basso per aggiornare"
+      "pull_up_idle": "Trascina verso l'alto per aggiornare"
     },
     "nav_drawer": {
       "printer_settings": "Impostazioni Stampante",
