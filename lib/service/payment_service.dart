@@ -69,10 +69,10 @@ class PaymentService {
     return Purchases.getOfferings();
   }
 
-  purchasePackage(Package packageToBuy) async {
+  purchasePackage(Package packageToBuy, [UpgradeInfo? upgradeInfo]) async {
     try {
       logger.i('Trying to buy ${packageToBuy.storeProduct.identifier}');
-      await Purchases.purchasePackage(packageToBuy);
+      await Purchases.purchasePackage(packageToBuy, upgradeInfo: upgradeInfo);
       var customerInfo = await ref.refresh(customerInfoProvider.future);
       logger.i('Successful bought package... $customerInfo');
       ref.read(snackBarServiceProvider).show(SnackBarConfig(

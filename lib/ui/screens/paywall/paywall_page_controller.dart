@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/logger.dart';
@@ -47,7 +49,16 @@ class PaywallPageController extends _$PaywallPageController {
   makePurchase(Package packageToBuy) async {
     // state = const AsyncLoading();
     state = state.copyWith(makingPurchase: true);
-    await ref.read(paymentServiceProvider).purchasePackage(packageToBuy);
+
+    // TODO Android upgrade/downgrade
+    // if (Platform.isAndroid) {
+    //   CustomerInfo customerInfo = await ref.read(customerInfoProvider.future);
+    //   customerInfo.entitlements.active)
+    //   UpgradeInfo()
+    // }
+
+
+    await ref.read(paymentServiceProvider).purchasePackage(packageToBuy, );
     state = state.copyWith(makingPurchase: false);
   }
 

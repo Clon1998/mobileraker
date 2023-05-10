@@ -141,6 +141,10 @@ ThemePack _mobilerakerPack() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
+          tabBarTheme: FlexSubThemes.tabBarTheme(
+              colorScheme: light.colorScheme,
+              indicatorColor: light.colorScheme.onPrimary,
+              indicatorWeight: 2),
           inputDecorationTheme:
               light.inputDecorationTheme.copyWith(filled: false),
           cardTheme: light.cardTheme.copyWith(elevation: 3),

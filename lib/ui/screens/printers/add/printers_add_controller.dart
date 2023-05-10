@@ -1,9 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response.dart';
@@ -18,9 +16,19 @@ import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/util/misc.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-final formAddKeyProvider = Provider.autoDispose<GlobalKey<FormBuilderState>>(
-    name: 'formAddKeyProvider', (ref) => GlobalKey<FormBuilderState>());
+part 'printers_add_controller.g.dart';
+
+@riverpod
+GlobalKey<FormBuilderState> simpleFormKey(SimpleFormKeyRef ref) {
+  return GlobalKey<FormBuilderState>();
+}
+
+@riverpod
+GlobalKey<FormBuilderState> advancedFormKey(AdvancedFormKeyRef ref) {
+  return GlobalKey<FormBuilderState>();
+}
 
 final printerAddViewController = StateNotifierProvider.autoDispose<
         PrinterAddViewController, AsyncValue<ClientState>>(
@@ -37,7 +45,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   final SnackBarService _snackBarService;
 
   onFormConfirm() async {
-    var formState = ref.read(formAddKeyProvider).currentState!;
+    var formState = ref.read(simpleFormKeyProvider).currentState!;
     if (formState.saveAndValidate()) {
       var printerName = formState.value['printerName'];
       var printerAPIKey = formState.value['printerApiKey'];
@@ -58,7 +66,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   }
 
   onTestConnectionTap() async {
-    var formState = ref.read(formAddKeyProvider).currentState!;
+    var formState = ref.read(simpleFormKeyProvider).currentState!;
 
     logger.e('onTestConnectionTap');
 
@@ -101,7 +109,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
         .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr != null) {
       ref
-          .read(formAddKeyProvider)
+          .read(simpleFormKeyProvider)
           .currentState
           ?.fields['printerApiKey']
           ?.didChange(qr);

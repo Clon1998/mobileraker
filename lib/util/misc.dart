@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/exceptions.dart';
@@ -48,10 +51,11 @@ String beautifyName(String name) {
   return name.replaceAll("_", " ").titleCase();
 }
 
-FormFieldValidator<T> notContains<T>(BuildContext context,
-    List<T> blockList, {
-      String? errorText,
-    }) {
+FormFieldValidator<T> notContains<T>(
+  BuildContext context,
+  List<T> blockList, {
+  String? errorText,
+}) {
   return (T? valueCandidate) {
     if (valueCandidate != null) {
       assert(valueCandidate is! List &&
@@ -144,4 +148,8 @@ substituteProtocols(Uri wsUri,
 
   return wsUri.replace(
       scheme: wsUri.isScheme('wss') ? secureProtocol : protocol);
+}
+
+String storeName() {
+  return tr((Platform.isAndroid) ? 'general.google_play' : 'general.ios_store');
 }

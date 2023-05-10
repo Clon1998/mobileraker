@@ -27,7 +27,9 @@
     "retry": "Retry",
     "supported": "Supported",
     "unsupported": "Unsupported",
-    "details": "Details"
+    "details": "Details",
+    "google_play" : "GooglePlay",
+    "ios_store": "AppStore"
   },
   "pages": {
     "dashboard": {
@@ -320,7 +322,8 @@
       "open_in_browser": "Open @:pages.faq.title in Browser"
     },
     "paywall": {
-      "title": "Support the Dev!"
+      "title": "Support the Dev!",
+      "calling_store" : "Trying to reach store"
     }
   },
   "components": {
