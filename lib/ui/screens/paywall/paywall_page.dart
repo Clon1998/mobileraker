@@ -7,6 +7,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:loader_overlay/loader_overlay.dart';
 import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
@@ -25,7 +26,24 @@ class PaywallPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('pages.paywall.title').tr()),
       drawer: const NavigationDrawerWidget(),
-      body: const _PaywallPage(),
+      body: LoaderOverlay(
+          useDefaultLoading: false,
+          overlayWidget: Center(
+              child: Column(
+            key: UniqueKey(),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SpinKitFadingCube(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              FadingText(tr('pages.paywall.calling_store')),
+              // Text("Fetching printer ...")
+            ],
+          )),
+          child: const _PaywallPage()),
     );
   }
 }
@@ -37,108 +55,120 @@ class _PaywallPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(paywallPageControllerProvider).when(
-        data: (data) => _PaywallOfferings(offering: data),
-        error: (e, s) {
-          if (e is PlatformException) {
-            if (e.code == "3") {
-              var themeData = Theme.of(context);
-              var textStyleOnError =
-                  TextStyle(color: themeData.colorScheme.onErrorContainer);
-              return ErrorCard(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        FlutterIcons.issue_opened_oct,
-                        color: themeData.colorScheme.onErrorContainer,
-                      ),
-                      title: (Platform.isAndroid)
-                          ? Text(
-                              'GooglePlay unavailable',
-                              style: textStyleOnError,
-                            )
-                          : Text('AppStore unavailable',
-                              style: textStyleOnError),
+    ref.listen(
+        paywallPageControllerProvider.select((value) => value.makingPurchase),
+        (previous, next) {
+      if (next) {
+        context.loaderOverlay.show();
+      } else {
+        context.loaderOverlay.hide();
+      }
+    });
+
+    return ref
+        .watch(paywallPageControllerProvider.select((value) => value.offering))
+        .when(
+            data: (data) => _PaywallOfferings(offering: data),
+            error: (e, s) {
+              if (e is PlatformException) {
+                if (e.code == "3") {
+                  var themeData = Theme.of(context);
+                  var textStyleOnError =
+                      TextStyle(color: themeData.colorScheme.onErrorContainer);
+                  return ErrorCard(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: Icon(
+                            FlutterIcons.issue_opened_oct,
+                            color: themeData.colorScheme.onErrorContainer,
+                          ),
+                          title: (Platform.isAndroid)
+                              ? Text(
+                                  'GooglePlay unavailable',
+                                  style: textStyleOnError,
+                                )
+                              : Text('AppStore unavailable',
+                                  style: textStyleOnError),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                          ),
+                          child: RichText(
+                              text: TextSpan(
+                                  style: textStyleOnError,
+                                  text:
+                                      'To support the project, a properly configured ${(Platform.isAndroid) ? 'Google' : 'Apple'}-Account is required!',
+                                  children: const [
+                                TextSpan(
+                                  text:
+                                      'However, you can support the project by either rating it in the app stores, providing feedback via Github, or make donations.\nYou can find out more on the Github page of Mobileraker.',
+                                )
+                              ])),
+                        ),
+                        ElevatedButton.icon(
+                          icon: const Icon(FlutterIcons.github_faw5d),
+                          onPressed: ref
+                              .read(paywallPageControllerProvider.notifier)
+                              .openGithub,
+                          label: const Text('GitHub'),
+                        ),
+                        const SizedBox(
+                          height: 8,
+                        )
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                      ),
-                      child: RichText(
-                          text: TextSpan(
-                              style: textStyleOnError,
-                              text:
-                                  'To support the project, a properly configured ${(Platform.isAndroid) ? 'Google' : 'Apple'}-Account is required!',
-                              children: const [
-                            TextSpan(
-                              text:
-                                  'However, you can support the project by either rating it in the app stores, providing feedback via Github, or make donations.\nYou can find out more on the Github page of Mobileraker.',
-                            )
-                          ])),
+                  );
+                }
+              }
+              return Center(
+                child: Card(
+                  shape: ContinuousRectangleBorder(
+                    borderRadius: BorderRadius.circular(40.0),
+                  ),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        ListTile(
+                          leading: Icon(
+                            FlutterIcons.issue_opened_oct,
+                          ),
+                          title: Text('Can not fetch supporter tiers!'),
+                        ),
+                        Text(
+                          'Sorry...\nIt seems like there was a problem while trying to load the different Supported tiers!\nPlease try again later!',
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(
+                          height: 8,
+                        )
+                      ],
                     ),
-                    ElevatedButton.icon(
-                      icon: const Icon(FlutterIcons.github_faw5d),
-                      onPressed: ref
-                          .read(paywallPageControllerProvider.notifier)
-                          .openGithub,
-                      label: const Text('GitHub'),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    )
-                  ],
+                  ),
                 ),
               );
-            }
-          }
-          return Center(
-            child: Card(
-              shape: ContinuousRectangleBorder(
-                borderRadius: BorderRadius.circular(40.0),
-              ),
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    ListTile(
-                      leading: Icon(
-                        FlutterIcons.issue_opened_oct,
+            },
+            loading: () => Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SpinKitPumpingHeart(
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 66,
                       ),
-                      title: Text('Can not fetch supporter tiers!'),
-                    ),
-                    Text(
-                      'Sorry...\nIt seems like there was a problem while trying to load the different Supported tiers!\nPlease try again later!',
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(
-                      height: 8,
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-        loading: () => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SpinKitPumpingHeart(
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 66,
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      FadingText('Loading supporter Tiers')
+                    ],
                   ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  FadingText('Loading supporter Tiers')
-                ],
-              ),
-            ));
+                ));
   }
 }
 
@@ -199,6 +229,10 @@ class _PaywallOfferings extends ConsumerWidget {
 Mobileraker aims to provide a fast and reliable mobile UI for Klipper, driven by the spirit of RepRap, that open-source software and hardware can make a positive impact.
 As Mobileraker is developed by a single developer and offered for free, it relies on community funding to cover both operational and development costs. 
     ''', textAlign: TextAlign.center, style: textTheme.bodySmall),
+          Text('''
+Mobileraker aims to provide a fast and reliable mobile UI for Klipper, driven by the spirit of RepRap, that open-source software and hardware can make a positive impact.
+As Mobileraker is developed by a single developer and offered for free, it relies on community funding to cover both operational and development costs. 
+    ''', textAlign: TextAlign.center, style: textTheme.bodySmall),
           Align(
               alignment: Alignment.centerLeft,
               child: Padding(
@@ -211,21 +245,23 @@ As Mobileraker is developed by a single developer and offered for free, it relie
               )),
           if (offering != null)
             Expanded(
-              child: ListView.builder(
-                itemCount: itemCount,
-                itemBuilder: (BuildContext context, int index) {
-                  var myProductList = offering!.availablePackages;
+              child: Material(
+                child: ListView.builder(
+                  itemCount: itemCount,
+                  itemBuilder: (BuildContext context, int index) {
+                    var myProductList = offering!.availablePackages;
 
-                  var package = myProductList[index];
-                  return Padding(
-                    padding: EdgeInsets.only(
-                        top: (index == 0) ? 0 : 4,
-                        bottom: (index == itemCount - 1) ? 0 : 4),
-                    child: _SupporterTierCard(package: package),
-                  );
-                },
-                shrinkWrap: true,
-                physics: const ClampingScrollPhysics(),
+                    var package = myProductList[index];
+                    return Padding(
+                      padding: EdgeInsets.only(
+                          top: (index == 0) ? 0 : 4,
+                          bottom: (index == itemCount - 1) ? 0 : 4),
+                      child: _SupporterTierCard(package: package),
+                    );
+                  },
+                  shrinkWrap: true,
+                  physics: const ClampingScrollPhysics(),
+                ),
               ),
             ),
         ],
@@ -288,33 +324,23 @@ class _SupporterTierCard extends ConsumerWidget {
       ),
     );
 
-    ListTile(
-        textColor: themeData.colorScheme.onSurfaceVariant,
-        onTap: () {
-          ref
-              .read(paywallPageControllerProvider.notifier)
-              .makePurchase(package);
-          // try {
-          //   CustomerInfo customerInfo =
-          //   await Purchases.purchasePackage(
-          //       myProductList[index]);
-          //   appData.entitlementIsActive = customerInfo
-          //       .entitlements.all[entitlementID].isActive;
-          // } catch (e) {
-          //   print(e);
-          // }
-          //
-          // setState(() {});
-          // Navigator.pop(context);
-        },
-        title: Text(
-          storeProduct.title + "(${storeProduct.identifier})",
-        ),
-        subtitle: Text(
-          storeProduct.description,
-        ),
-        trailing: Text(
-          storeProduct.priceString,
-        ));
+    // return ListTile(
+    //     shape: RoundedRectangleBorder(borderRadius: borderRadius),
+    //     tileColor: themeData.colorScheme.surfaceVariant,
+    //     textColor: themeData.colorScheme.onSurfaceVariant,
+    //     onTap: () {
+    //       ref
+    //           .read(paywallPageControllerProvider.notifier)
+    //           .makePurchase(package);
+    //     },
+    //     title: Text(
+    //       storeProduct.title + "(${storeProduct.identifier})",
+    //     ),
+    //     subtitle: Text(
+    //       storeProduct.description,
+    //     ),
+    //     trailing: Text(
+    //       storeProduct.priceString,
+    //     ));
   }
 }
