@@ -1,0 +1,1153 @@
+{
+  "general": {
+    "pause": "Pausa",
+    "resume": "Riprendi",
+    "connected": "Connesso",
+    "off": "Off",
+    "on": "On",
+    "none": "NESSUNO",
+    "add": "Aggiungi",
+    "create": "Crea",
+    "rename": "Rinomina",
+    "remove": "Rimuovi",
+    "set": "Imposta",
+    "use": "Utilizza",
+    "restart": "Riavvia",
+    "shutdown": "Spegni",
+    "firmware": "Firmware",
+    "fetching": "Recupera",
+    "loading": "Caricamento",
+    "unknown": "Sconosciuto",
+    "disabled": "Disabilitato",
+    "confirm": "Conferma",
+    "cancel": "Annulla",
+    "close": "Chiudi",
+    "edit": "Modifica"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Pannello di Controllo",
+      "ems_btn": "Stop-Emergenza",
+      "server_status": {
+        "unavailable": "Nessun Server disponibile",
+        "available": "Lo stato del Server è {} e Klippy è {}"
+      },
+      "fetching_printer": "@:general.fetching stampante...",
+      "general": {
+        "print_card": {
+          "reset": "Ripristina",
+          "printing_for": "Stampa in corso: {}",
+          "speed": "Velocità",
+          "layer": "Strato",
+          "eta": "ETA",
+          "current_object": "Oggetto corrente",
+          "elapsed": "Trascorso",
+          "flow": "Flusso",
+          "filament": "Filamento",
+          "filament_used": "Usato {} % del Filamento, che è {} m dei {} m previsti."
+        },
+        "cam_card": {
+          "webcam": "Webcam",
+          "fullscreen": "Schermo intero"
+        },
+        "temp_card": {
+          "title": "Controllo Temperature",
+          "presets_btn": "Presets",
+          "hotend": "Hotend",
+          "bed": "Piatto",
+          "temp_presets": "Preset Temperature",
+          "sensors": "Sensori",
+          "heater_on": "{} °C obbiettivo",
+          "btn_thermistor": "Sensore"
+        },
+        "temp_preset_card": {
+          "cooloff": "Raffredda",
+          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
+          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+        },
+        "move_card": {
+          "title": "Muovi Assi",
+          "home_xy_tooltip": "Home assi X e Y",
+          "home_z_tooltip": "Home asse Z",
+          "home_all_tooltip": "Home tutti gli assi",
+          "home_all_btn": "Tutti",
+          "qgl_tooltip": "Run Quad-Gantry leveling",
+          "qgl_btn": "QGL",
+          "mesh_tooltip": "Avvia calibrazuone Bed-Mesh",
+          "mesh_btn": "Mesh",
+          "m84_tooltip": "Disabilita Motori",
+          "m84_btn": "M84",
+          "step_size": "Dimensioni Step",
+          "stc_tooltip": "Avvia calcolo Inclinazione-Viti",
+          "stc_btn": "STC",
+          "ztilt_tooltip": "Avvia calibrazuone Inclinazione-Z",
+          "ztilt_btn": "zTilt"
+        },
+        "baby_step_card": {
+          "title": "Babystepping Asse-Z"
+        },
+        "restart_klipper": "Riavvia Klipper",
+        "restart_mcu": "Riavvia MCU"
+      },
+      "control": {
+        "fan_card": {
+          "title": {
+            "zero": "Ventola",
+            "one": "Ventola",
+            "other": "Ventole"
+          },
+          "part_fan": "Part Fan",
+          "static_fan_btn": "Ventola"
+        },
+        "extrude_card": {
+          "title": "Estrusore",
+          "extrude": "Estrudi",
+          "retract": "Ritrai",
+          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude lunghezza",
+          "cold_extrude_error": "Estrusore non ha ancora raggiunto min_extrude_temp di {}°C!"
+        },
+        "macro_card": {
+          "title": "Gcode - Macros"
+        },
+        "pin_card": {
+          "title": {
+            "zero": "Output Pin",
+            "one": "Output Pin",
+            "two": "Output Pins",
+            "other": "Output Pins"
+          },
+          "pin_btn": "Pin"
+        },
+        "power_card": {
+          "title": "Pannello Alimentazioni",
+          "pin_btn": "Pin"
+        },
+        "multipl_card": {
+          "title": "Moltiplicatori",
+          "flow": "Flusso",
+          "press_adv": "Pressure Advance",
+          "smooth_time": "Smooth Time"
+        },
+        "limit_card": {
+          "title": "Limiti",
+          "velocity": "Velocità",
+          "accel": "Accelerazione",
+          "sq_corn_vel": "Square Corner Velocity",
+          "accel_to_decel": "Accel to Decel"
+        }
+      }
+    },
+    "files": {
+      "title": "Files",
+      "search_files": "Ricerca files",
+      "clear_search": "Cancella Ricerca",
+      "name": "Nome",
+      "last_mod": "Ultima Modifica",
+      "last_printed": "Ultima Stampa",
+      "not_printed": "Non Stampato",
+      "fetching_files": "@:general.fetching Files...",
+      "no_files_found": "Nessun file trovato!",
+      "details": {
+        "preheat": "Preriscalda",
+        "print": "Stampa",
+        "general_card": {
+          "path": "Percorso",
+          "last_mod": "Ultima Modifica",
+          "last_printed": "Ultima Stampa",
+          "no_data": "Nessun Dato"
+        },
+        "meta_card": {
+          "title": "GCode Meta Data",
+          "filament": "Filamento",
+          "filament_type": "Tipo Filamento",
+          "filament_name": "Nome Filamento",
+          "est_print_time": "Tempo di Stampa Stimato",
+          "slicer": "Slicer utilizzato",
+          "nozzle_diameter": "Diametro Ugello",
+          "layer_higher": "Altezza Strato",
+          "first_layer": "Primo Strato",
+          "others": "Altri",
+          "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperature",
+          "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
+        },
+        "stat_card": {
+          "title": "Statistiche"
+        },
+        "preheat_dialog": {
+          "title": "@:pages.files.details.preheat ?",
+          "body": "Obbiettivo Temperature\nEstrusore: {}°C\nPiatto: {}°C"
+        },
+        "preheat_snackbar": {
+          "title": "Preriscaldamento Avviato",
+          "body": "Estrusore: {}°C\nPiatto: {}°C"
+        }
+      }
+    },
+    "setting": {
+      "title": "App - Impostazioni",
+      "general": {
+        "title": "Generale",
+        "ems_confirm": "Conferma Stop-Emergenza",
+        "always_baby": "Mostra opzioni Babystepping",
+        "num_edit": "Utilizza la tastiera per l'inserimento dei numeri",
+        "start_with_overview": "Mostra @:pages.overview.title predefiniti",
+        "use_offset_pos": "Mostra le coordinate con l'offset applicato.",
+        "language": "Lingua",
+        "companion": "Vuoi ricevere una notifica remota?\nScopri come configurare Mobileraker's Companion"
+      },
+      "notification": {
+        "title": "Notifiche",
+        "progress_label": "Notifica di Avanzamento",
+        "progress_helper": "Aggiorna l'intervallo della notifica di avanzamento di stampa",
+        "state_label": "Notifica sullo Stato",
+        "state_helper": "States that issue a state changed notification",
+        "no_permission_title": "Nessun Autorizzazione di Notifica!",
+        "no_permission_desc": "Impossibile visualizzare le notifiche.\nRichiedi il permesso cliccando!",
+        "no_firebase_title": "Impossibile visualizzare le notifiche",
+        "no_firebase_desc": "Mobileraker non è in grado di inviare alcuna notifica al dispositivo.\nSembra che sul tuo dispositivo manchino i servizi Google Play o che blocchi la connessione Firebase!",
+        "ios_notifications_title": "Consegna delle notifiche IOS",
+        "ios_notifications_desc": "Le notifiche richiedono che mobileraker sia aperto almeno una volta e sia in background.\nAlcune notifiche potrebbero essere bloccate dal sistema operativo!"
+      },
+      "imprint": "Privacy/Impressum"
+    },
+    "printer_edit": {
+      "title": "Modifica {}",
+      "import_settings": "Importa Impostazioni",
+      "remove_printer": "Rimuovi Stampante",
+      "no_values_found": "Nessun valore Trovato!",
+      "fetching_additional_settings": "@:general.fetching impostazioni aggiuntive dalla rete...",
+      "could_not_fetch_additional": "Impossibile recuperare impostazioni aggiuntive!",
+      "fetch_error_hint": "Assicurati che la macchina sia raggiungibile e che Mobileraker sia connesso.",
+      "general": {
+        "displayname": "Nome da visualizzare",
+        "printer_addr": "Stampante - Indirizzo",
+        "ws_addr": "Websocket - Indirizzo",
+        "moonraker_api_key": "Moonraker - API Key",
+        "moonraker_api_desc": "Necessario solo se utilizzi client fidati. FluiddPI lo impone!",
+        "full_url": "URL Completo",
+        "self_signed": "Fidati dei Certificati Autofirmati"
+      },
+      "motion_system": {
+        "title": "Sistema di movimento",
+        "invert_x": "Inverti - Asse X",
+        "invert_x_short": "Inverti X",
+        "invert_y": "Inverti - Asse Y",
+        "invert_y_short": "Inverti Y",
+        "invert_z": "Inverti - Asse Z",
+        "invert_z_short": "Inverti Z",
+        "speed_xy": "Velocità - Assi X/Y",
+        "speed_xy_short": "Speed X/Y",
+        "speed_z": "Velocità - Asse Z",
+        "speed_z_short": "Velocità Z",
+        "steps_move": "Muovi step",
+        "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+        "steps_baby": "Babystepping Z-steps",
+        "steps_baby_short": "Baby Steps"
+      },
+      "extruders": {
+        "title": "Estrusore/i",
+        "feedrate": "Velocità Avanzamento Estrusore",
+        "feedrate_short": "Velocità di Avanzamento",
+        "steps_extrude": "Estrudi step",
+        "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+      },
+      "cams": {
+        "target_fps": "Obbiettivo FPS",
+        "new_cam": "Nuova Webcam",
+        "no_webcams": "Nessuna Webcam aggiunta!",
+        "webcam_addr": "Webcam - Indirizzo",
+        "default_addr": "Indirizzo Predefinito",
+        "flip_vertical": "Capovolgi Verticalmente",
+        "flip_horizontal": "Capovolgi Orizzontalmente",
+        "cam_mode": "Modalità Videocamera",
+        "cam_mofde": "Fasff Videocamera",
+        "cam_rotate": {
+          "label": "Ruota",
+          "landscape": "Orizzintale",
+          "portrait": "Verticale"
+        }
+      },
+      "macros": {
+        "new_macro_grp": "Nuova Macro - Gruppo",
+        "no_macros_available": "Nessuna Macro disponibile!",
+        "no_macros_found": "Nessuna Macro trovata!",
+        "macros_to_default": {
+          "one": "Una macro spostata nel gruppo predefinito!",
+          "two": "Due macro spostate nel gruppo predefinito!",
+          "other": "Spostate {} macro nel gruppo predefinito!"
+        }
+      },
+      "presets": {
+        "no_presets": "Nessun Preset aggiunto!",
+        "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperatura",
+        "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperatura",
+        "new_preset": "Nuovo Preset"
+      }
+    },
+    "printer_add": {
+      "title": "Aggiungi Nuovo Printer",
+      "printer_add_helper": "Host, IP, o URL completo",
+      "resulting_ws_url": "Risultato WebSocket-URL: {}",
+      "misc": "Misc",
+      "test_ws": "Testare la connessione websocket",
+      "result_ws_test": "Risultato: {}",
+      "run_test_btn": "Test"
+    },
+    "console": {
+      "title": "Console",
+      "no_entries": "Nessun comando trovato nella cache",
+      "fetching_console": "@:general.fetching voci di console...",
+      "command_input": {
+        "hint": "Inserisci comando"
+      }
+    },
+    "overview": {
+      "title": "Panoramica",
+      "fetching_machines": "@:general.fetching macchine...",
+      "no_entries": "Nessuna macchina trovata",
+      "add_machine": "Aggiungi Macchina"
+    },
+    "faq": {
+      "title": "FAQ",
+      "loading": "@:general.loading FAQ...",
+      "error":"Si è verificato un errore durante il tentativo di recuperare le FAQ",
+      "open_in_browser": "Apri @:pages.faq.title nel Browser"
+    }
+  },
+  "components": {
+    "pull_to_refresh": {
+      "pull_up_idle": "Trascina in basso per aggiornare"
+    },
+    "nav_drawer": {
+      "printer_settings": "Impostazioni Stampante",
+      "manage_printers": "Gestisci stampanti",
+      "fetching_printers": "@:general.fetching stampanti...",
+      "footer": "Realizzato con ❤️ da Patrick Schmidt\nDai un occhiata al progetto"
+    },
+    "connection_watcher": {
+      "reconnect": "Riconnetti",
+      "trying_connect": "Tentativo di connessione...",
+      "trying_connect_remote": "Tentativo di connessione tramite client remoto...",
+      "server_starting": "Avvio Server...",
+      "more_details": "Più dettagli"
+    }
+  },
+  "dialogs": {
+    "rate_my_app": {
+      "title": "Valutare Mobileraker?",
+      "message": "Se ti piace Mobileraker e vuoi supportare lo sviluppo open source, considera la possibilità di valutare Mobileraker!"
+    },
+    "import_setting": {
+      "fetching": "Recupero delle fonti...",
+      "fetching_error_title": "Impossibile recuperare le impostazioni!",
+      "fetching_error_sub": "Assicurarsi che le altre macchine siano collegate.",
+      "select_source": "Seleziona Origine"
+    },
+    "create_folder": {
+      "title": "Crea Cartella",
+      "label": "Nome Cartella"
+    },
+    "delete_folder": {
+      "title": "Sei Sicuro?",
+      "description": "Verranno rimossi anche tutti i file contenuti nella cartella!\n\nConferma l'eliminazione della cartella '/{}'."
+    },
+    "rename_folder": {
+      "title": "Rinomina Cartella",
+      "label": "Nome Cartella"
+    },
+    "delete_file": {
+      "description": "Conferma l'eliminazione del file '{}'."
+    },
+    "rename_file": {
+      "title": "Rinomina File",
+      "label": "Nome File"
+    },
+    "exclude_object": {
+      "title": "Escludi Oggetto dalla Stampa",
+      "label": "Oggetto da Escludere",
+      "confirm_tile_title": "Sei Sicuro?",
+      "confirm_tile_subtitle": "Questa operazione non può essere annullata!",
+      "exclude": "Escludi",
+      "no_visualization": "Nessun dato di visualizzazione disponibile!"
+    },
+    "ws_input_help": {
+      "title": "Aiuto per l'inserimento dell'URL",
+      "body": "Puoi inserire un IP, URL o URI completo nella tua interfaccia web o direttamente nell'istanza websocket fornita da moonraker.\n\nEsempi validi:"
+    },
+    "gcode_params": {
+      "hint": "Suggerimento: puoi anche premere a lungo se desideri inviare la macro con i valori predefiniti!"
+    },
+    "rgbw": {
+      "recent_colors": "Colori Recenti"
+    }
+  },
+  "klipper_state": {
+    "ready": "Pronto",
+    "shutdown": "Spegni",
+    "starting": "Avvio",
+    "disconnected": "Disconnesso",
+    "error": "Errore",
+    "unauthorized": "Non Autorizzato"
+  },
+  "notifications": {
+    "channel_printer_grp": "Stampante {}",
+    "channels": {
+      "status": {
+        "name": "Aggiornamenti Stato Stampante - {}",
+        "desc": "Notifiche relative allo stato della stampa.",
+        "title": "Lo stato di stampa di {} è cambiato!",
+        "body_printing": "Avviata la stampa del file: \"{}\"",
+        "body_paused": "Stampa in pausa del file: \"{}\"",
+        "body_complete": "Stampa completata: \"{}\"",
+        "body_error": "Errore durante la stampa del file: \"{}\""
+      },
+      "progress": {
+        "name": "Aggiornamenti Stato Stampante - {}",
+        "desc": "Notifiche relative allo stato della stampa.",
+        "title": "Avanzamento stampa di {}"
+      }
+    }
+  },
+  "languages": {
+    "languageCode": {
+      "ab": {
+        "name": "Abkhaz",
+        "nativeName": "аҧсуа"
+      },
+      "aa": {
+        "name": "Afar",
+        "nativeName": "Afaraf"
+      },
+      "af": {
+        "name": "Afrikaans",
+        "nativeName": "Afrikaans"
+      },
+      "ak": {
+        "name": "Akan",
+        "nativeName": "Akan"
+      },
+      "sq": {
+        "name": "Albanian",
+        "nativeName": "Shqip"
+      },
+      "am": {
+        "name": "Amharic",
+        "nativeName": "አማርኛ"
+      },
+      "ar": {
+        "name": "Arabic",
+        "nativeName": "العربية"
+      },
+      "an": {
+        "name": "Aragonese",
+        "nativeName": "Aragonés"
+      },
+      "hy": {
+        "name": "Armenian",
+        "nativeName": "Հայերեն"
+      },
+      "as": {
+        "name": "Assamese",
+        "nativeName": "অসমীয়া"
+      },
+      "av": {
+        "name": "Avaric",
+        "nativeName": "авар мацӀ, магӀарул мацӀ"
+      },
+      "ae": {
+        "name": "Avestan",
+        "nativeName": "avesta"
+      },
+      "ay": {
+        "name": "Aymara",
+        "nativeName": "aymar aru"
+      },
+      "az": {
+        "name": "Azerbaijani",
+        "nativeName": "azərbaycan dili"
+      },
+      "bm": {
+        "name": "Bambara",
+        "nativeName": "bamanankan"
+      },
+      "ba": {
+        "name": "Bashkir",
+        "nativeName": "башҡорт теле"
+      },
+      "eu": {
+        "name": "Basque",
+        "nativeName": "euskara, euskera"
+      },
+      "be": {
+        "name": "Belarusian",
+        "nativeName": "Беларуская"
+      },
+      "bn": {
+        "name": "Bengali",
+        "nativeName": "বাংলা"
+      },
+      "bh": {
+        "name": "Bihari",
+        "nativeName": "भोजपुरी"
+      },
+      "bi": {
+        "name": "Bislama",
+        "nativeName": "Bislama"
+      },
+      "bs": {
+        "name": "Bosnian",
+        "nativeName": "bosanski jezik"
+      },
+      "br": {
+        "name": "Breton",
+        "nativeName": "brezhoneg"
+      },
+      "bg": {
+        "name": "Bulgarian",
+        "nativeName": "български език"
+      },
+      "my": {
+        "name": "Burmese",
+        "nativeName": "ဗမာစာ"
+      },
+      "ca": {
+        "name": "Catalan; Valencian",
+        "nativeName": "Català"
+      },
+      "ch": {
+        "name": "Chamorro",
+        "nativeName": "Chamoru"
+      },
+      "ce": {
+        "name": "Chechen",
+        "nativeName": "нохчийн мотт"
+      },
+      "ny": {
+        "name": "Chichewa; Chewa; Nyanja",
+        "nativeName": "chiCheŵa, chinyanja"
+      },
+      "zh": {
+        "name": "Chinese",
+        "nativeName": "中文"
+      },
+      "cv": {
+        "name": "Chuvash",
+        "nativeName": "чӑваш чӗлхи"
+      },
+      "kw": {
+        "name": "Cornish",
+        "nativeName": "Kernewek"
+      },
+      "co": {
+        "name": "Corsican",
+        "nativeName": "corsu, lingua corsa"
+      },
+      "cr": {
+        "name": "Cree",
+        "nativeName": "ᓀᐦᐃᔭᐍᐏᐣ"
+      },
+      "hr": {
+        "name": "Croatian",
+        "nativeName": "hrvatski"
+      },
+      "cs": {
+        "name": "Czech",
+        "nativeName": "česky, čeština"
+      },
+      "da": {
+        "name": "Danish",
+        "nativeName": "dansk"
+      },
+      "dv": {
+        "name": "Divehi; Dhivehi; Maldivian;",
+        "nativeName": "ދިވެހި"
+      },
+      "nl": {
+        "name": "Dutch",
+        "nativeName": "Nederlands, Vlaams"
+      },
+      "en": {
+        "name": "English",
+        "nativeName": "English"
+      },
+      "eo": {
+        "name": "Esperanto",
+        "nativeName": "Esperanto"
+      },
+      "et": {
+        "name": "Estonian",
+        "nativeName": "eesti, eesti keel"
+      },
+      "ee": {
+        "name": "Ewe",
+        "nativeName": "Eʋegbe"
+      },
+      "fo": {
+        "name": "Faroese",
+        "nativeName": "føroyskt"
+      },
+      "fj": {
+        "name": "Fijian",
+        "nativeName": "vosa Vakaviti"
+      },
+      "fi": {
+        "name": "Finnish",
+        "nativeName": "suomi, suomen kieli"
+      },
+      "fr": {
+        "name": "French",
+        "nativeName": "français, langue française"
+      },
+      "ff": {
+        "name": "Fula; Fulah; Pulaar; Pular",
+        "nativeName": "Fulfulde, Pulaar, Pular"
+      },
+      "gl": {
+        "name": "Galician",
+        "nativeName": "Galego"
+      },
+      "ka": {
+        "name": "Georgian",
+        "nativeName": "ქართული"
+      },
+      "de": {
+        "name": "German",
+        "nativeName": "Deutsch"
+      },
+      "el": {
+        "name": "Greek, Modern",
+        "nativeName": "Ελληνικά"
+      },
+      "gn": {
+        "name": "Guaraní",
+        "nativeName": "Avañeẽ"
+      },
+      "gu": {
+        "name": "Gujarati",
+        "nativeName": "ગુજરાતી"
+      },
+      "ht": {
+        "name": "Haitian; Haitian Creole",
+        "nativeName": "Kreyòl ayisyen"
+      },
+      "ha": {
+        "name": "Hausa",
+        "nativeName": "Hausa, هَوُسَ"
+      },
+      "he": {
+        "name": "Hebrew (modern)",
+        "nativeName": "עברית"
+      },
+      "hz": {
+        "name": "Herero",
+        "nativeName": "Otjiherero"
+      },
+      "hi": {
+        "name": "Hindi",
+        "nativeName": "हिन्दी, हिंदी"
+      },
+      "ho": {
+        "name": "Hiri Motu",
+        "nativeName": "Hiri Motu"
+      },
+      "hu": {
+        "name": "Hungarian",
+        "nativeName": "Magyar"
+      },
+      "ia": {
+        "name": "Interlingua",
+        "nativeName": "Interlingua"
+      },
+      "id": {
+        "name": "Indonesian",
+        "nativeName": "Bahasa Indonesia"
+      },
+      "ie": {
+        "name": "Interlingue",
+        "nativeName": "Originally called Occidental; then Interlingue after WWII"
+      },
+      "ga": {
+        "name": "Irish",
+        "nativeName": "Gaeilge"
+      },
+      "ig": {
+        "name": "Igbo",
+        "nativeName": "Asụsụ Igbo"
+      },
+      "ik": {
+        "name": "Inupiaq",
+        "nativeName": "Iñupiaq, Iñupiatun"
+      },
+      "io": {
+        "name": "Ido",
+        "nativeName": "Ido"
+      },
+      "is": {
+        "name": "Icelandic",
+        "nativeName": "Íslenska"
+      },
+      "it": {
+        "name": "Italian",
+        "nativeName": "Italiano"
+      },
+      "iu": {
+        "name": "Inuktitut",
+        "nativeName": "ᐃᓄᒃᑎᑐᑦ"
+      },
+      "ja": {
+        "name": "Japanese",
+        "nativeName": "日本語 (にほんご／にっぽんご)"
+      },
+      "jv": {
+        "name": "Javanese",
+        "nativeName": "basa Jawa"
+      },
+      "kl": {
+        "name": "Kalaallisut, Greenlandic",
+        "nativeName": "kalaallisut, kalaallit oqaasii"
+      },
+      "kn": {
+        "name": "Kannada",
+        "nativeName": "ಕನ್ನಡ"
+      },
+      "kr": {
+        "name": "Kanuri",
+        "nativeName": "Kanuri"
+      },
+      "ks": {
+        "name": "Kashmiri",
+        "nativeName": "कश्मीरी, كشميري‎"
+      },
+      "kk": {
+        "name": "Kazakh",
+        "nativeName": "Қазақ тілі"
+      },
+      "km": {
+        "name": "Khmer",
+        "nativeName": "ភាសាខ្មែរ"
+      },
+      "ki": {
+        "name": "Kikuyu, Gikuyu",
+        "nativeName": "Gĩkũyũ"
+      },
+      "rw": {
+        "name": "Kinyarwanda",
+        "nativeName": "Ikinyarwanda"
+      },
+      "ky": {
+        "name": "Kirghiz, Kyrgyz",
+        "nativeName": "кыргыз тили"
+      },
+      "kv": {
+        "name": "Komi",
+        "nativeName": "коми кыв"
+      },
+      "kg": {
+        "name": "Kongo",
+        "nativeName": "KiKongo"
+      },
+      "ko": {
+        "name": "Korean",
+        "nativeName": "한국어 (韓國語), 조선말 (朝鮮語)"
+      },
+      "ku": {
+        "name": "Kurdish",
+        "nativeName": "Kurdî, كوردی‎"
+      },
+      "kj": {
+        "name": "Kwanyama, Kuanyama",
+        "nativeName": "Kuanyama"
+      },
+      "la": {
+        "name": "Latin",
+        "nativeName": "latine, lingua latina"
+      },
+      "lb": {
+        "name": "Luxembourgish, Letzeburgesch",
+        "nativeName": "Lëtzebuergesch"
+      },
+      "lg": {
+        "name": "Luganda",
+        "nativeName": "Luganda"
+      },
+      "li": {
+        "name": "Limburgish, Limburgan, Limburger",
+        "nativeName": "Limburgs"
+      },
+      "ln": {
+        "name": "Lingala",
+        "nativeName": "Lingála"
+      },
+      "lo": {
+        "name": "Lao",
+        "nativeName": "ພາສາລາວ"
+      },
+      "lt": {
+        "name": "Lithuanian",
+        "nativeName": "lietuvių kalba"
+      },
+      "lu": {
+        "name": "Luba-Katanga",
+        "nativeName": ""
+      },
+      "lv": {
+        "name": "Latvian",
+        "nativeName": "latviešu valoda"
+      },
+      "gv": {
+        "name": "Manx",
+        "nativeName": "Gaelg, Gailck"
+      },
+      "mk": {
+        "name": "Macedonian",
+        "nativeName": "македонски јазик"
+      },
+      "mg": {
+        "name": "Malagasy",
+        "nativeName": "Malagasy fiteny"
+      },
+      "ms": {
+        "name": "Malay",
+        "nativeName": "bahasa Melayu, بهاس ملايو‎"
+      },
+      "ml": {
+        "name": "Malayalam",
+        "nativeName": "മലയാളം"
+      },
+      "mt": {
+        "name": "Maltese",
+        "nativeName": "Malti"
+      },
+      "mi": {
+        "name": "Māori",
+        "nativeName": "te reo Māori"
+      },
+      "mr": {
+        "name": "Marathi (Marāṭhī)",
+        "nativeName": "मराठी"
+      },
+      "mh": {
+        "name": "Marshallese",
+        "nativeName": "Kajin M̧ajeļ"
+      },
+      "mn": {
+        "name": "Mongolian",
+        "nativeName": "монгол"
+      },
+      "na": {
+        "name": "Nauru",
+        "nativeName": "Ekakairũ Naoero"
+      },
+      "nv": {
+        "name": "Navajo, Navaho",
+        "nativeName": "Diné bizaad, Dinékʼehǰí"
+      },
+      "nb": {
+        "name": "Norwegian Bokmål",
+        "nativeName": "Norsk bokmål"
+      },
+      "nd": {
+        "name": "North Ndebele",
+        "nativeName": "isiNdebele"
+      },
+      "ne": {
+        "name": "Nepali",
+        "nativeName": "नेपाली"
+      },
+      "ng": {
+        "name": "Ndonga",
+        "nativeName": "Owambo"
+      },
+      "nn": {
+        "name": "Norwegian Nynorsk",
+        "nativeName": "Norsk nynorsk"
+      },
+      "no": {
+        "name": "Norwegian",
+        "nativeName": "Norsk"
+      },
+      "ii": {
+        "name": "Nuosu",
+        "nativeName": "ꆈꌠ꒿ Nuosuhxop"
+      },
+      "nr": {
+        "name": "South Ndebele",
+        "nativeName": "isiNdebele"
+      },
+      "oc": {
+        "name": "Occitan",
+        "nativeName": "Occitan"
+      },
+      "oj": {
+        "name": "Ojibwe, Ojibwa",
+        "nativeName": "ᐊᓂᔑᓈᐯᒧᐎᓐ"
+      },
+      "cu": {
+        "name": "Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic",
+        "nativeName": "ѩзыкъ словѣньскъ"
+      },
+      "om": {
+        "name": "Oromo",
+        "nativeName": "Afaan Oromoo"
+      },
+      "or": {
+        "name": "Oriya",
+        "nativeName": "ଓଡ଼ିଆ"
+      },
+      "os": {
+        "name": "Ossetian, Ossetic",
+        "nativeName": "ирон æвзаг"
+      },
+      "pa": {
+        "name": "Panjabi, Punjabi",
+        "nativeName": "ਪੰਜਾਬੀ, پنجابی‎"
+      },
+      "pi": {
+        "name": "Pāli",
+        "nativeName": "पाऴि"
+      },
+      "fa": {
+        "name": "Persian",
+        "nativeName": "فارسی"
+      },
+      "pl": {
+        "name": "Polish",
+        "nativeName": "polski"
+      },
+      "ps": {
+        "name": "Pashto, Pushto",
+        "nativeName": "پښتو"
+      },
+      "pt": {
+        "name": "Portuguese",
+        "nativeName": "Português"
+      },
+      "qu": {
+        "name": "Quechua",
+        "nativeName": "Runa Simi, Kichwa"
+      },
+      "rm": {
+        "name": "Romansh",
+        "nativeName": "rumantsch grischun"
+      },
+      "rn": {
+        "name": "Kirundi",
+        "nativeName": "kiRundi"
+      },
+      "ro": {
+        "name": "Romanian, Moldavian, Moldovan",
+        "nativeName": "română"
+      },
+      "ru": {
+        "name": "Russian",
+        "nativeName": "русский язык"
+      },
+      "sa": {
+        "name": "Sanskrit (Saṁskṛta)",
+        "nativeName": "संस्कृतम्"
+      },
+      "sc": {
+        "name": "Sardinian",
+        "nativeName": "sardu"
+      },
+      "sd": {
+        "name": "Sindhi",
+        "nativeName": "सिन्धी, سنڌي، سندھی‎"
+      },
+      "se": {
+        "name": "Northern Sami",
+        "nativeName": "Davvisámegiella"
+      },
+      "sm": {
+        "name": "Samoan",
+        "nativeName": "gagana faa Samoa"
+      },
+      "sg": {
+        "name": "Sango",
+        "nativeName": "yângâ tî sängö"
+      },
+      "sr": {
+        "name": "Serbian",
+        "nativeName": "српски језик"
+      },
+      "gd": {
+        "name": "Scottish Gaelic; Gaelic",
+        "nativeName": "Gàidhlig"
+      },
+      "sn": {
+        "name": "Shona",
+        "nativeName": "chiShona"
+      },
+      "si": {
+        "name": "Sinhala, Sinhalese",
+        "nativeName": "සිංහල"
+      },
+      "sk": {
+        "name": "Slovak",
+        "nativeName": "slovenčina"
+      },
+      "sl": {
+        "name": "Slovene",
+        "nativeName": "slovenščina"
+      },
+      "so": {
+        "name": "Somali",
+        "nativeName": "Soomaaliga, af Soomaali"
+      },
+      "st": {
+        "name": "Southern Sotho",
+        "nativeName": "Sesotho"
+      },
+      "es": {
+        "name": "Spanish; Castilian",
+        "nativeName": "español, castellano"
+      },
+      "su": {
+        "name": "Sundanese",
+        "nativeName": "Basa Sunda"
+      },
+      "sw": {
+        "name": "Swahili",
+        "nativeName": "Kiswahili"
+      },
+      "ss": {
+        "name": "Swati",
+        "nativeName": "SiSwati"
+      },
+      "sv": {
+        "name": "Swedish",
+        "nativeName": "svenska"
+      },
+      "ta": {
+        "name": "Tamil",
+        "nativeName": "தமிழ்"
+      },
+      "te": {
+        "name": "Telugu",
+        "nativeName": "తెలుగు"
+      },
+      "tg": {
+        "name": "Tajik",
+        "nativeName": "тоҷикӣ, toğikī, تاجیکی‎"
+      },
+      "th": {
+        "name": "Thai",
+        "nativeName": "ไทย"
+      },
+      "ti": {
+        "name": "Tigrinya",
+        "nativeName": "ትግርኛ"
+      },
+      "bo": {
+        "name": "Tibetan Standard, Tibetan, Central",
+        "nativeName": "བོད་ཡིག"
+      },
+      "tk": {
+        "name": "Turkmen",
+        "nativeName": "Türkmen, Түркмен"
+      },
+      "tl": {
+        "name": "Tagalog",
+        "nativeName": "Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔"
+      },
+      "tn": {
+        "name": "Tswana",
+        "nativeName": "Setswana"
+      },
+      "to": {
+        "name": "Tonga (Tonga Islands)",
+        "nativeName": "faka Tonga"
+      },
+      "tr": {
+        "name": "Turkish",
+        "nativeName": "Türkçe"
+      },
+      "ts": {
+        "name": "Tsonga",
+        "nativeName": "Xitsonga"
+      },
+      "tt": {
+        "name": "Tatar",
+        "nativeName": "татарча, tatarça, تاتارچا‎"
+      },
+      "tw": {
+        "name": "Twi",
+        "nativeName": "Twi"
+      },
+      "ty": {
+        "name": "Tahitian",
+        "nativeName": "Reo Tahiti"
+      },
+      "ug": {
+        "name": "Uighur, Uyghur",
+        "nativeName": "Uyƣurqə, ئۇيغۇرچە‎"
+      },
+      "uk": {
+        "name": "Ukrainian",
+        "nativeName": "українська"
+      },
+      "ur": {
+        "name": "Urdu",
+        "nativeName": "اردو"
+      },
+      "uz": {
+        "name": "Uzbek",
+        "nativeName": "zbek, Ўзбек, أۇزبېك‎"
+      },
+      "ve": {
+        "name": "Venda",
+        "nativeName": "Tshivenḓa"
+      },
+      "vi": {
+        "name": "Vietnamese",
+        "nativeName": "Tiếng Việt"
+      },
+      "vo": {
+        "name": "Volapük",
+        "nativeName": "Volapük"
+      },
+      "wa": {
+        "name": "Walloon",
+        "nativeName": "Walon"
+      },
+      "cy": {
+        "name": "Welsh",
+        "nativeName": "Cymraeg"
+      },
+      "wo": {
+        "name": "Wolof",
+        "nativeName": "Wollof"
+      },
+      "fy": {
+        "name": "Western Frisian",
+        "nativeName": "Frysk"
+      },
+      "xh": {
+        "name": "Xhosa",
+        "nativeName": "isiXhosa"
+      },
+      "yi": {
+        "name": "Yiddish",
+        "nativeName": "ייִדיש"
+      },
+      "yo": {
+        "name": "Yoruba",
+        "nativeName": "Yorùbá"
+      },
+      "za": {
+        "name": "Zhuang, Chuang",
+        "nativeName": "Saɯ cueŋƅ, Saw cuengh"
+      }
+    },
+    "countryCode": {
+      "CN": {
+        "name": "Simplified",
+        "nativeName": "简体"
+      },
+      "HK": {
+        "name": "Traditional",
+        "nativeName": "繁體"
+      }
+    }
+  }
+}
