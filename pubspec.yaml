@@ -19,7 +19,7 @@ version: 2.3.0+145
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
-
+  flutter: '3.7.2'
 
 dependencies:
   flutter:
@@ -103,7 +103,7 @@ dependencies:
   shimmer: ^2.0.0
   reorderables: ^0.6.0
   flutter_speed_dial: ^6.0.0
-  dots_indicator: ^2.0.0
+  dots_indicator: 2.1.2
   webview_flutter: ^4.0.6
   fl_chart: ^0.62.0
   flutter_slidable: ^3.0.0
@@ -113,6 +113,7 @@ dependencies:
   flutter_markdown: ^0.6.14
   flutter_svg: ^2.0.5
   loader_overlay: ^2.2.0
+  flutter_whatsnew: ^1.0.5+2
 
 
 #  ditredi: ^1.0.3
