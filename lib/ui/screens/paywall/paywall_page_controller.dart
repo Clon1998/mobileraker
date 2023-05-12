@@ -49,16 +49,19 @@ class PaywallPageController extends _$PaywallPageController {
   makePurchase(Package packageToBuy) async {
     // state = const AsyncLoading();
     state = state.copyWith(makingPurchase: true);
+    CustomerInfo customerInfo = await ref.read(customerInfoProvider.future);
 
-    // TODO Android upgrade/downgrade
-    // if (Platform.isAndroid) {
-    //   CustomerInfo customerInfo = await ref.read(customerInfoProvider.future);
-    //   customerInfo.entitlements.active)
-    //   UpgradeInfo()
-    // }
+    UpgradeInfo? upgradeInfo;
+    if (Platform.isAndroid && customerInfo.activeSubscriptions.isNotEmpty) {
+      EntitlementInfo activeEnt = customerInfo.entitlements.active.values.first;
+      if (activeEnt.willRenew) {
+        upgradeInfo = UpgradeInfo(customerInfo.activeSubscriptions.first);
+      }
+    }
 
-
-    await ref.read(paymentServiceProvider).purchasePackage(packageToBuy, );
+    await ref
+        .read(paymentServiceProvider)
+        .purchasePackage(packageToBuy, upgradeInfo);
     state = state.copyWith(makingPurchase: false);
   }
 

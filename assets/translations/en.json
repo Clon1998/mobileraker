@@ -28,8 +28,10 @@
     "supported": "Supported",
     "unsupported": "Unsupported",
     "details": "Details",
-    "google_play" : "GooglePlay",
-    "ios_store": "AppStore"
+    "google_play": "GooglePlay",
+    "ios_store": "AppStore",
+    "active": "Active",
+    "canceled": "Canceled"
   },
   "pages": {
     "dashboard": {
@@ -274,7 +276,7 @@
         "flip_horizontal": "Flip horizontal",
         "cam_mode": "Cam Mode",
         "cam_rotate": "Rotation"
-        },
+      },
       "macros": {
         "new_macro_grp": "New Macro - Group",
         "no_macros_available": "No Macros available!",
@@ -318,12 +320,26 @@
     "faq": {
       "title": "FAQ",
       "loading": "@:general.loading FAQ...",
-      "error":"An error occurred while trying to fetch FAQ",
+      "error": "An error occurred while trying to fetch FAQ",
       "open_in_browser": "Open @:pages.faq.title in Browser"
     },
     "paywall": {
       "title": "Support the Dev!",
-      "calling_store" : "Trying to reach store"
+      "calling_store": "Processing request...",
+      "manage_view": {
+        "title": "Thanks for your Support!",
+        "list_title": "Change Supporter Tier:",
+        "store_btn": "Manage Subscription in {}"
+      },
+      "subscribe_view": {
+        "title": "Become a Mobileraker Supporter!",
+        "info": "Mobileraker aims to provide a fast and reliable mobile UI for Klipper, driven by the spirit of RepRap, that open-source software and hardware can make a positive impact.\nAs Mobileraker is developed by a single developer and offered for free, it relies on community funding to cover both operational and development costs.",
+        "list_title": "Choose Supporter Tier:"
+      },
+      "supporter_tier_list": {
+        "error_title": "Error while loading Supporter Tiers!",
+        "error_body": "Sorry, an unexpected error occurred. Could not load the SupporterTiers. Please retry later!"
+      }
     }
   },
   "components": {
@@ -394,9 +410,8 @@
     },
     "select_machine": {
       "title": "Select Machine",
-      "active_machine" : "Active Machine: {}",
+      "active_machine": "Active Machine: {}",
       "hint": "Tap on a machine to set it as active."
-
     }
   },
   "klipper_state": {

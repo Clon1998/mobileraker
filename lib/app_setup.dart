@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +17,6 @@ import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 
 import 'logger.dart';
 
