@@ -167,7 +167,7 @@ class SettingPage extends ConsumerWidget {
                       context: context,
                       applicationVersion: version,
                       applicationLegalese:
-                          'MIT License\n\nCopyright (c) 2021 Patrick Schmidt',
+                          'MIT License\n\nCopyright (c) 2023 Patrick Schmidt',
                       applicationIcon: const Center(
                         child: Image(
                             height: 80,
