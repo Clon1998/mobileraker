@@ -312,7 +312,7 @@ class _BreadCrumb extends ConsumerWidget {
                   return BreadCrumbItem(
                       content: Text(
                         p.toUpperCase(),
-                        style: theme.textTheme.titleMedium
+                        style: theme.textTheme.titleSmall
                             ?.copyWith(color: theme.colorScheme.onPrimary),
                       ),
                       onTap: () => ref
@@ -323,21 +323,24 @@ class _BreadCrumb extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: Text(
                     '/',
-                    style: theme.textTheme.titleMedium
+                    style: theme.textTheme.titleSmall
                         ?.copyWith(color: theme.colorScheme.onPrimary),
                   ),
                 ),
               ),
             ),
-            IconButton(
+            Padding(
               padding: const EdgeInsets.only(left: 4),
-              constraints: const BoxConstraints(),
-              iconSize: 20,
-              color: theme.colorScheme.onPrimary,
-              icon: const Icon(Icons.create_new_folder_outlined),
-              onPressed: ref
-                  .watch(filesListControllerProvider.notifier)
-                  .onCreateDirTapped,
+              child: InkWell(
+                onTap: ref
+                    .watch(filesListControllerProvider.notifier)
+                    .onCreateDirTapped,
+                child: Icon(
+                  Icons.create_new_folder_outlined,
+                  color: theme.colorScheme.onPrimary,
+                  size: 20,
+                ),
+              ),
             )
           ],
         ),

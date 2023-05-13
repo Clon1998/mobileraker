@@ -14,19 +14,32 @@ class HomedAxisChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int homedAxisCnt = ref.watch(machinePrinterKlippySettingsProvider.selectAs(
-        (value) =>
-            value.printerData.toolhead.homedAxes.length)).valueOrFullNull!;
+    int homedAxisCnt = ref
+        .watch(machinePrinterKlippySettingsProvider
+            .selectAs((value) => value.printerData.toolhead.homedAxes.length))
+        .valueOrFullNull!;
+
+    var themeData = Theme.of(context);
 
     return Chip(
-      avatar: Icon(
+      avatar: const Icon(
         FlutterIcons.shield_home_mco,
-        color: Theme.of(context).chipTheme.deleteIconColor,
+        // color: Colors.white,
         size: 20,
       ),
-      label: Text(_homedChipTitle(ref.read(machinePrinterKlippySettingsProvider).valueOrFullNull!.printerData.toolhead.homedAxes)),
-      backgroundColor:
-          (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
+      // shape: StadiumBorder(side: BorderSide(color: Colors.limeAccent)),
+      side: BorderSide(
+          color: (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
+          width: 3),
+      // shape: ContinuousRectangleBorder(side: BorderSide(width: 1),),
+      label: Text(_homedChipTitle(ref
+          .read(machinePrinterKlippySettingsProvider)
+          .valueOrFullNull!
+          .printerData
+          .toolhead
+          .homedAxes)),
+      // backgroundColor:
+      //     (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
     );
   }
 

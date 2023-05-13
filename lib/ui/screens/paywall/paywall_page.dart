@@ -310,6 +310,7 @@ class _SupporterTierOfferingList extends ConsumerWidget {
     var itemCount = availablePackages!.length;
 
     return Material(
+      color: Colors.transparent,
       child: ListView.builder(
         itemCount: itemCount,
         itemBuilder: (BuildContext context, int index) {

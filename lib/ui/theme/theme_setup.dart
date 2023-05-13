@@ -343,10 +343,111 @@ ThemePack _ratRigPack() {
       brandingIcon: const AssetImage('assets/images/rr_icon_green.png'));
 }
 
+
+ThemePack _mobilerakerSupporterPack() {
+  var light = FlexThemeData.light(
+    colors: const FlexSchemeColor(
+      primary: Color(0xff00928e),
+      secondary: Color(0xff8593c0),
+      tertiary: Color(0xff895fb8),
+    ),
+    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+    blendLevel: 1,
+    appBarStyle: FlexAppBarStyle.scaffoldBackground,
+    appBarElevation: 4.0,
+    bottomAppBarElevation: 1.5,
+    keyColors: const FlexKeyColors(
+      useSecondary: true,
+      keepPrimary: true,
+      keepSecondary: true,
+    ),
+    // visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: true,
+    // To use the playground font, add GoogleFonts package and uncomment
+    // fontFamily: GoogleFonts.notoSans().fontFamily,
+  );
+
+  var dark = FlexThemeData.dark(
+    colors: const FlexSchemeColor(
+      primary: Color(0xff00928e),
+      secondary: Color(0xff8593c0),
+      tertiary: Color(0xff895fb8),
+    ),
+    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+    blendLevel: 4,
+    appBarStyle: FlexAppBarStyle.scaffoldBackground,
+    appBarElevation: 4.0,
+    bottomAppBarElevation: 1.5,
+    keyColors: const FlexKeyColors(
+      useSecondary: true,
+      keepPrimary: true,
+      // keepSecondary: true,
+    ),
+    // visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: true,
+    // To use the playground font, add GoogleFonts package and uncomment
+    // fontFamily: GoogleFonts.notoSans().fontFamily,
+  );
+
+  return ThemePack(
+      name: 'Mobileraker Supporter',
+      lightTheme: light.copyWith(
+          elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
+              colorScheme: light.colorScheme,
+              radius: 5,
+              padding: const EdgeInsets.all(8)),
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: light.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onPrimary,
+            unselectedLabelSchemeColor: SchemeColor.onPrimary,
+            selectedIconSchemeColor: SchemeColor.onPrimary,
+            unselectedIconSchemeColor: SchemeColor.onPrimary,
+            backgroundSchemeColor: SchemeColor.primary,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          floatingActionButtonTheme: FlexSubThemes.floatingActionButtonTheme(colorScheme: light.colorScheme, alwaysCircular: true),
+          // tabBarTheme: FlexSubThemes.tabBarTheme(
+          //     colorScheme: light.colorScheme,
+          //     indicatorColor: light.colorScheme.onPrimary,
+          //     indicatorWeight: 2),
+          // inputDecorationTheme:
+          // light.inputDecorationTheme.copyWith(filled: false),
+          // cardTheme: light.cardTheme.copyWith(elevation: 3),
+          bottomSheetTheme: light.bottomSheetTheme
+              .copyWith(modalBackgroundColor: light.colorScheme.background),
+          extensions: [CustomColors.light]),
+      darkTheme: dark.copyWith(
+          elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
+              colorScheme: dark.colorScheme,
+              radius: 5,
+              padding: const EdgeInsets.all(8)),
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: dark.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onBackground,
+            unselectedLabelSchemeColor: SchemeColor.onBackground,
+            selectedIconSchemeColor: SchemeColor.onBackground,
+            unselectedIconSchemeColor: SchemeColor.onBackground,
+            backgroundSchemeColor: SchemeColor.background,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          floatingActionButtonTheme: FlexSubThemes.floatingActionButtonTheme(colorScheme: light.colorScheme, alwaysCircular: true),
+          inputDecorationTheme:
+          dark.inputDecorationTheme.copyWith(filled: false),
+          bottomSheetTheme: dark.bottomSheetTheme
+              .copyWith(modalBackgroundColor: dark.colorScheme.background),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3),
+          extensions: [CustomColors.dark]),
+      brandingIcon: const AssetImage('assets/icon/mr_logo.png'));
+}
+
+
 final themePackProvider = Provider((ref) {
   return [
     _mobilerakerPack(),
     _voronPack(),
     _ratRigPack(),
+    _mobilerakerSupporterPack(),
   ];
 });
