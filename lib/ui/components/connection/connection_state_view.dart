@@ -7,7 +7,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -15,6 +14,7 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
+import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
@@ -28,48 +28,55 @@ class ConnectionStateView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(selectedMachineProvider);
-    if (machine.isRefreshing) {
-      return const Center(child: CircularProgressIndicator());
-    }
 
-    return machine.valueOrNull != null
-        ? WebSocketState(
-            onConnected: onConnected,
-          )
-        : Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.info_outline),
-                const SizedBox(
-                  height: 30,
-                ),
-                RichText(
-                  text: TextSpan(
-                    text: 'You will have to ',
-                    style: DefaultTextStyle.of(context).style,
-                    children: <TextSpan>[
-                      TextSpan(
-                          text: 'add',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                              decoration: TextDecoration.underline),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              ref
-                                  .read(goRouterProvider)
-                                  .pushNamed(AppRoute.printerAdd.name);
-                            }),
-                      const TextSpan(
-                        text: ' a printer first!',
+    return machine.when(
+        data: (machine) {
+          return machine != null
+              ? WebSocketState(
+                  onConnected: onConnected,
+                )
+              : Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.info_outline),
+                      const SizedBox(
+                        height: 30,
                       ),
+                      RichText(
+                        text: TextSpan(
+                          text: 'You will have to ',
+                          style: DefaultTextStyle.of(context).style,
+                          children: <TextSpan>[
+                            TextSpan(
+                                text: 'add',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    decoration: TextDecoration.underline),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    ref
+                                        .read(goRouterProvider)
+                                        .pushNamed(AppRoute.printerAdd.name);
+                                  }),
+                            const TextSpan(
+                              text: ' a printer first!',
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   ),
-                )
-              ],
+                );
+        },
+        error: (e, _) => ErrorCard(
+              title: Text('Error selecting active machine'),
+              body: Text(e.toString()),
             ),
-          );
+        loading: () => const Center(child: CircularProgressIndicator()),
+        skipLoadingOnRefresh: false);
   }
 }
 
