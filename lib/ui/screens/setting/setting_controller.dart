@@ -10,6 +10,7 @@ import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 part 'setting_controller.g.dart';
 
@@ -138,4 +139,21 @@ bool notificationFirebaseAvailable(NotificationFirebaseAvailableRef ref) {
     return ref.state = value;
   });
   return true;
+}
+
+@riverpod
+class SettingPageController extends _$SettingPageController {
+  @override
+  void build() {
+    return;
+  }
+
+  openCompanion() async {
+    const String url = 'https://github.com/Clon1998/mobileraker_companion#companion---installation';
+    if (await canLaunchUrlString(url)) {
+      await launchUrlString(url, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 }

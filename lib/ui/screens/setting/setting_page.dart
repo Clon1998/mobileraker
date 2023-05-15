@@ -14,7 +14,6 @@ import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -29,7 +28,7 @@ class SettingPage extends ConsumerWidget {
         title: const Text('pages.setting.title').tr(),
       ),
       body: FormBuilder(
-        key: ref.watch(settingPageFormKey),
+        key: ref.watch(settingPageFormKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -43,7 +42,7 @@ class SettingPage extends ConsumerWidget {
                 name: 'emsConfirmation',
                 title: const Text('pages.setting.general.ems_confirm').tr(),
                 onChanged: (b) => settingService.writeBool(emsKey, b ?? false),
-                initialValue: ref.watch(boolSetting(emsKey)),
+                initialValue: ref.watch(boolSettingProvider(emsKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -53,7 +52,7 @@ class SettingPage extends ConsumerWidget {
                 title: const Text('pages.setting.general.always_baby').tr(),
                 onChanged: (b) =>
                     settingService.writeBool(showBabyAlwaysKey, b ?? false),
-                initialValue: ref.watch(boolSetting(showBabyAlwaysKey)),
+                initialValue: ref.watch(boolSettingProvider(showBabyAlwaysKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -63,7 +62,8 @@ class SettingPage extends ConsumerWidget {
                 title: const Text('pages.setting.general.num_edit').tr(),
                 onChanged: (b) =>
                     settingService.writeBool(useTextInputForNumKey, b ?? false),
-                initialValue: ref.watch(boolSetting(useTextInputForNumKey)),
+                initialValue:
+                    ref.watch(boolSettingProvider(useTextInputForNumKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -74,7 +74,8 @@ class SettingPage extends ConsumerWidget {
                     .tr(),
                 onChanged: (b) =>
                     settingService.writeBool(startWithOverviewKey, b ?? false),
-                initialValue: ref.watch(boolSetting(startWithOverviewKey)),
+                initialValue:
+                    ref.watch(boolSettingProvider(startWithOverviewKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -84,7 +85,7 @@ class SettingPage extends ConsumerWidget {
                 title: const Text('pages.setting.general.use_offset_pos').tr(),
                 onChanged: (b) =>
                     settingService.writeBool(useOffsetPosKey, b ?? false),
-                initialValue: ref.watch(boolSetting(useOffsetPosKey)),
+                initialValue: ref.watch(boolSettingProvider(useOffsetPosKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -94,48 +95,15 @@ class SettingPage extends ConsumerWidget {
                 title: const Text('pages.setting.general.lcFullCam').tr(),
                 onChanged: (b) =>
                     settingService.writeBool(landscapeFullWebCam, b ?? false),
-                initialValue: ref.watch(boolSetting(landscapeFullWebCam)),
+                initialValue:
+                    ref.watch(boolSettingProvider(landscapeFullWebCam)),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,
                 ),
                 activeColor: themeData.colorScheme.primary,
               ),
-              _SectionHeader(title: 'pages.setting.notification.title'.tr()),
-              const NotificationPermissionWarning(),
-              const NotificationFirebaseWarning(),
-              const _ProgressNotificationSettingField(),
-              const _StateNotificationSettingField(),
-              const Divider(),
-              RichText(
-                text: TextSpan(
-                    style: themeData.textTheme.bodySmall,
-                    text: tr('pages.setting.general.companion'),
-                    children: [
-                      TextSpan(
-                        text: '\nOfficial GitHub ',
-                        style:
-                            TextStyle(color: themeData.colorScheme.secondary),
-                        children: const [
-                          WidgetSpan(
-                            child: Icon(FlutterIcons.github_alt_faw, size: 18),
-                          ),
-                        ],
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () async {
-                            const String url =
-                                'https://github.com/Clon1998/mobileraker_companion';
-                            if (await canLaunchUrlString(url)) {
-                              await launchUrlString(url,
-                                  mode: LaunchMode.externalApplication);
-                            } else {
-                              throw 'Could not launch $url';
-                            }
-                          },
-                      ),
-                    ]),
-                textAlign: TextAlign.center,
-              ),
+              const _NotificationSection(),
               const Divider(),
               const VersionText(),
               TextButton(
@@ -144,7 +112,7 @@ class SettingPage extends ConsumerWidget {
                     padding: EdgeInsets.zero,
                     textStyle: themeData.textTheme.bodySmall
                         ?.copyWith(color: themeData.colorScheme.secondary)),
-                child: Text('Debug-Logs'),
+                child: const Text('Debug-Logs'),
                 onPressed: () {
                   var dialogService = ref.read(dialogServiceProvider);
                   dialogService.show(DialogRequest(type: DialogType.logging));
@@ -182,6 +150,52 @@ class SettingPage extends ConsumerWidget {
         ),
       ),
       drawer: const NavigationDrawerWidget(),
+    );
+  }
+}
+
+class _NotificationSection extends ConsumerWidget {
+  const _NotificationSection({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
+
+    return Column(
+      children: [
+        _SectionHeader(title: 'pages.setting.notification.title'.tr()),
+        const CompanionMissingWarning(),
+        const NotificationPermissionWarning(),
+        const NotificationFirebaseWarning(),
+        const _ProgressNotificationSettingField(),
+        const _StateNotificationSettingField(),
+        TextButton(
+            onPressed: () => null, child: Text('Reset delivery devices')),
+        const Divider(),
+        RichText(
+          text: TextSpan(
+              style: themeData.textTheme.bodySmall,
+              text: tr('pages.setting.general.companion'),
+              children: [
+                TextSpan(
+                  text: '\nOfficial GitHub ',
+                  style: TextStyle(color: themeData.colorScheme.secondary),
+                  children: const [
+                    WidgetSpan(
+                      child: Icon(FlutterIcons.github_alt_faw, size: 18),
+                    ),
+                  ],
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = ref
+                        .read(settingPageControllerProvider.notifier)
+                        .openCompanion,
+                ),
+              ]),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
@@ -479,6 +493,58 @@ class NotificationFirebaseWarning extends ConsumerWidget {
                 subtitle:
                     const Text('pages.setting.notification.no_firebase_desc')
                         .tr(),
+              ),
+            ),
+    );
+  }
+}
+
+class CompanionMissingWarning extends ConsumerWidget {
+  const CompanionMissingWarning({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var machinesWithoutCompanion = ref.watch(machinesWithoutCompanionProvider);
+
+    var machineNames =
+        (machinesWithoutCompanion.valueOrFullNull ?? []).map((e) => e.name);
+
+    var themeData = Theme.of(context);
+    return AnimatedSwitcher(
+      transitionBuilder: (child, anim) => SizeTransition(
+        sizeFactor: anim,
+        child: FadeTransition(
+          opacity: anim,
+          child: child,
+        ),
+      ),
+      duration: kThemeAnimationDuration,
+      child: (machineNames.isEmpty)
+          ? const SizedBox.shrink()
+          : Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: ListTile(
+
+                onTap: ref
+                    .read(settingPageControllerProvider.notifier)
+                    .openCompanion,
+                tileColor: themeData.colorScheme.errorContainer,
+                textColor: themeData.colorScheme.onErrorContainer,
+                iconColor: themeData.colorScheme.onErrorContainer,
+                // onTap: ref
+                //     .watch(notificationPermissionControllerProvider.notifier)
+                //     .requestPermission,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                leading: const Icon(
+                  FlutterIcons.uninstall_ent,
+                  size: 40,
+                ),
+                title: const Text(
+                  'pages.setting.notification.missing_companion_title',
+                ).tr(),
+                subtitle: Text(
+                    'pages.setting.notification.missing_companion_body').tr(args: [machineNames.join(', ')]),
               ),
             ),
     );

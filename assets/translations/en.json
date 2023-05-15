@@ -216,7 +216,9 @@
         "no_firebase_title": "Can not display notifications",
         "no_firebase_desc": "Mobileraker can not deliver any notifications to the device.\nIt seems like your device is missing Google Play services or blocks Firebase connection!",
         "ios_notifications_title": "IOS Notification Delivery",
-        "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!"
+        "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!",
+        "missing_companion_title": "Companion not found!",
+        "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\nTap to learn more!"
       },
       "imprint": "Privacy/Impressum"
     },
