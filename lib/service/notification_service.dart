@@ -22,24 +22,27 @@ import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';
 import 'package:mobileraker/util/ref_extension.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'machine_service.dart';
 
-final awesomeNotificationProvider = Provider<AwesomeNotifications>(
-    (ref) => AwesomeNotifications(),
-    name: 'awesomeNotificationProvider');
+part 'notification_service.g.dart';
 
-final awesomeNotificationFcmProvider = Provider<AwesomeNotificationsFcm>(
-    (ref) => AwesomeNotificationsFcm(),
-    name: 'awesomeNotificationFcmProvider');
+@riverpod
+AwesomeNotifications awesomeNotification(AwesomeNotificationRef ref) =>
+    AwesomeNotifications();
 
-final notificationServiceProvider =
-    Provider.autoDispose<NotificationService>((ref) {
-  ref.keepAlive();
+@riverpod
+AwesomeNotificationsFcm awesomeNotificationFcm(AwesomeNotificationFcmRef ref) =>
+    AwesomeNotificationsFcm();
+
+@riverpod
+NotificationService notificationService(NotificationServiceRef ref) {
   var notificationService = NotificationService(ref);
   ref.onDispose(notificationService.dispose);
+  ref.keepAlive();
   return notificationService;
-}, name: 'notificationServiceProvider');
+}
 
 class NotificationService {
   NotificationService(this.ref)
@@ -370,15 +373,14 @@ class NotificationService {
   void _setupFCMOnPrinterOnceConnected(Machine machine) async {
     String fcmToken =
         await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
-    logger.i('Device\'s FCM token: $fcmToken');
-
-    // Wait until connected
-    await ref.watchWhere<KlipperInstance>(klipperProvider(machine.uuid),
-        (c) => c.klippyState == KlipperState.ready);
-
-    logger.i(
-        'Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
+    logger
+        .i('${machine.name}(${machine.wsUrl})  Device\'s FCM token: $fcmToken');
     try {
+      // Wait until connected
+      await ref.readWhere<KlipperInstance>(klipperProvider(machine.uuid),
+          (c) => c.klippyState == KlipperState.ready);
+      logger.i(
+          'Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
       await _machineService.updateMachineFcmConfig(machine, fcmToken);
     } catch (e, s) {
       logger.w('Could not setupFCM on ${machine.name}(${machine.wsUrl})', e, s);
@@ -515,6 +517,7 @@ class NotificationService {
   }
 
   dispose() {
+    logger.e('NEVER DISPOSE THIS SERVICE!');
     _hiveStreamListener?.cancel();
     for (var element in _printerStreamMap.values) {
       element.close();
