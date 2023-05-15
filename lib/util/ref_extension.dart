@@ -156,4 +156,12 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
     completer.future.whenComplete(() => sub.close());
     return completer.future;
   }
+
+  /// Helper method to externally keep a provider alive without the need to watch it!
+  ProviderSubscription<T> keepAliveExternally<T>(
+      ProviderListenable<T> provider) {
+    var providerSubscription = listen(provider, (_, __) {});
+    onDispose(() => providerSubscription.close());
+    return providerSubscription;
+  }
 }
