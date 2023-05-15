@@ -1,90 +1,7 @@
 import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-// extension MobilerakerRef on Ref {
-//   // Future<T> watchUntil<T>(AlwaysAliveProviderListenable<AsyncValue<T>> provider,
-//   //     bool Function(T) whereCb) {
-//   //   final completer = Completer<T>();
-//   //   onDispose(() {
-//   //     if (!completer.isCompleted) {
-//   //       completer.completeError(
-//   //           StateError('provider disposed before `where` could complete'));
-//   //     }
-//   //   });
-//   //
-//   //   late ProviderSubscription sub;
-//   //   sub = listen<AsyncValue<T>>(provider, (prev, next) {
-//   //     if (next.isRefreshing) return;
-//   //     next.when(
-//   //         data: (d) {
-//   //           if (whereCb(d)) {
-//   //             completer.complete(d);
-//   //             sub.close();
-//   //           }
-//   //         },
-//   //         error: (e, s) {
-//   //           completer.completeError(e, s);
-//   //           sub.close();
-//   //         },
-//   //         loading: () => null);
-//   //   }, fireImmediately: true);
-//   //   return completer.future;
-//   // }
-//
-//   // // Watches/Listens to the provided provider until the given whereCb is met!
-//   // Future<T> watchWhere<T>(AlwaysAliveProviderListenable<AsyncValue<T>> provider,
-//   //     bool Function(T) whereCb) {
-//   //   final completer = Completer<T>();
-//   //   onDispose(() {
-//   //     if (!completer.isCompleted) {
-//   //       completer.completeError(
-//   //           StateError('provider disposed before `where` could complete'));
-//   //     }
-//   //   });
-//   //
-//   //   listen<AsyncValue<T>>(provider, (prev, next) {
-//   //     if (next.isRefreshing) return;
-//   //     if (completer.isCompleted) {
-//   //       invalidateSelf();
-//   //       return;
-//   //     }
-//   //     next.when(
-//   //         data: (d) {
-//   //           if (whereCb(d)) {
-//   //             completer.complete(d);
-//   //           }
-//   //         },
-//   //         error: (e, s) {
-//   //           completer.completeError(e, s);
-//   //         },
-//   //         loading: () => null);
-//   //   }, fireImmediately: true);
-//   //   return completer.future;
-//   // }
-//
-//
-//   //
-//   // Stream<T> watchAsSubject<T>(AlwaysAliveProviderBase<AsyncValue<T>> provider) {
-//   //   final ctrler = StreamController<T>();
-//   //   onDispose(() {
-//   //     ctrler.close();
-//   //   });
-//   //
-//   //   listen<AsyncValue<T>>(provider, (prev, next) {
-//   //     if (next.isRefreshing) return;
-//   //     next.when(
-//   //         data: (d) {
-//   //           ctrler.add(d);
-//   //         },
-//   //         error: (e, s) {
-//   //           ctrler.addError(e, s);
-//   //         },
-//   //         loading: () => null);
-//   //   }, fireImmediately: true);
-//   //   return ctrler.stream;
-//   // }
-// }
+import 'package:mobileraker/logger.dart';
 
 extension MobilerakerAutoDispose on AutoDisposeRef {
   // Future<T> watchUntil<T>(ProviderListenable<AsyncValue<T>> provider,
@@ -144,7 +61,9 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
     return ctrler.stream;
   }
 
-  // Watches/Listens to the provided provider until the given whereCb is met!
+  /// Watches/Listens to the provided provider until the given whereCb is met!
+  /// Similar to WATCH, only use this directly in a build method. Since it will trigger provider rebuilds!
+  /// If you need to wait outside of a provider/builder use [readWhere]
   Future<T> watchWhere<T>(
       ProviderListenable<AsyncValue<T>> provider, bool Function(T) whereCb) {
     final completer = Completer<T>();
@@ -154,17 +73,18 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
             StateError('provider disposed before `where` could complete'));
       }
     });
-
     listen<AsyncValue<T>>(provider, (prev, next) {
       if (next.isRefreshing) return;
-      if (completer.isCompleted) {
-        invalidateSelf();
-        return;
-      }
       next.when(
           data: (d) {
             if (whereCb(d)) {
-              completer.complete(d);
+              if (completer.isCompleted) {
+                // ToDo:Reduce log level after investigating effect of it
+                logger.w('watchWhere just forces owner to invalidate! Ref:$this');
+                invalidateSelf();
+              } else {
+                completer.complete(d);
+              }
             }
           },
           error: (e, s) {
@@ -187,14 +107,16 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
 
     listen<AsyncValue<T?>>(provider, (prev, next) {
       if (next.isRefreshing) return;
-      if (completer.isCompleted) {
-        invalidateSelf();
-        return;
-      }
+
       next.when(
           data: (d) {
             if (d != null) {
-              completer.complete(d);
+              if (completer.isCompleted) {
+                invalidateSelf();
+                logger.w('watchWhereNotNull just forces owner to invalidate! Ref: $this');
+              } else {
+                completer.complete(d);
+              }
             }
           },
           error: (e, s) {
@@ -214,26 +136,24 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
             StateError('provider disposed before `where` could complete'));
       }
     });
-    late ProviderSubscription sub;
-    sub = listen<AsyncValue<T>>(provider, (prev, next) {
+
+    ProviderSubscription sub = listen<AsyncValue<T>>(provider, (prev, next) {
       if (next.isRefreshing) return;
       if (completer.isCompleted) {
-        sub.close();
         return;
       }
       next.when(
           data: (d) {
             if (whereCb(d)) {
               completer.complete(d);
-              sub.close();
             }
           },
           error: (e, s) {
             completer.completeError(e, s);
-            sub.close();
           },
           loading: () => null);
     }, fireImmediately: true);
+    completer.future.whenComplete(() => sub.close());
     return completer.future;
   }
 }
