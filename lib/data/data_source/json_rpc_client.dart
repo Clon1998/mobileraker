@@ -223,7 +223,7 @@ class JsonRpcClient {
         uri.toString(),
         headers: headers,
         customClient: httpClient,
-      ).timeout(Duration(seconds: timeout.inSeconds+2))
+      ).timeout(Duration(seconds: timeout.inSeconds + 2))
         ..pingInterval = timeout;
 
       if (_disposed) {
@@ -398,12 +398,33 @@ class JsonRpcClient {
     curState = ClientState.error;
   }
 
-  dispose() {
+  dispose() async {
     _disposed = true;
-    _channelSub?.cancel();
+
+    if (_requestsBlocking.isNotEmpty) {
+      logger.i(
+          '$uri${identityHashCode(this)}] Found hanging requests, waiting for them before completly disposing client');
+      try {
+        await Future.wait(_requestsBlocking.values.map((e) => e.future))
+            .timeout(const Duration(seconds: 30));
+      } on TimeoutException catch (_) {
+        logger.i(
+            '$uri${identityHashCode(this)}] Was unable to complete all hanging JRPC requests after 30sec...');
+      } on JRpcError catch(_) {
+        // Just catch the JRPC errors that might be returned in the futures to prevent async gap errors...
+        // These errors should be handled in the respective caller!
+      } finally {
+        logger.i(
+            '$uri${identityHashCode(this)}] All hanging requests finished!');
+      }
+
+    }
+
+
     _requestsBlocking.forEach((key, value) => value.completeError(Future.error(
         'Websocket is closing, request id=$key never got an response!')));
     _methodListeners.clear();
+    _channelSub?.cancel();
 
     _resetChannel();
     _stateStream.close();
