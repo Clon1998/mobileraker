@@ -18,7 +18,7 @@ class PrinterAddPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TabController tabController = useTabController(initialLength: 2);
+    // TabController tabController = useTabController(initialLength: 2);
     return Scaffold(
       appBar: AppBar(
         title: const Text('pages.printer_add.title').tr(),
@@ -29,20 +29,21 @@ class PrinterAddPage extends HookConsumerWidget {
               tooltip: 'pages.printer_add.title'.tr(),
               icon: const Icon(Icons.save_outlined))
         ],
-        bottom: TabBar(
-            controller: tabController, tabs: const [
-          Tab(
-            text: 'Simple',
-          ),
-          Tab(
-            text: 'Advanced',
-          ),
-        ]),
+        // bottom: TabBar(
+        //     controller: tabController, tabs: const [
+        //   Tab(
+        //     text: 'Simple',
+        //   ),
+        //   Tab(
+        //     text: 'Advanced',
+        //   ),
+        // ]),
       ),
-      body: TabBarView(
-        controller: tabController,
-        children: const [SimpleForm(), AdvancedForm()],
-      ),
+      body: const SimpleForm(),
+      // body: TabBarView(
+      //   controller: tabController,
+      //   children: const [SimpleForm(), AdvancedForm()],
+      // ),
     );
   }
 }
@@ -56,7 +57,7 @@ class SimpleForm extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return FormBuilder(
       key: ref.watch(simpleFormKeyProvider),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // autovalidateMode: AutovalidateMode.onUserInteraction,
       child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -128,84 +129,84 @@ class SimpleForm extends ConsumerWidget {
 
 
 
-class AdvancedForm extends ConsumerWidget {
-  const AdvancedForm({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return FormBuilder(
-      key: ref.watch(advancedFormKeyProvider),
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            children: <Widget>[
-              _SectionHeader(title: 'pages.setting.general.title'.tr()),
-              FormBuilderTextField(
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                  labelText: 'pages.printer_edit.general.displayname'.tr(),
-                ),
-                name: 'printerName',
-                initialValue: 'My Printer',
-                validator: FormBuilderValidators.compose(
-                    [FormBuilderValidators.required()]),
-                contextMenuBuilder: defaultContextMenuBuilder,
-              ),
-              const WSInput(),
-              FormBuilderTextField(
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                    labelText:
-                    'pages.printer_edit.general.moonraker_api_key'.tr(),
-                    suffix: IconButton(
-                      icon: const Icon(Icons.qr_code_sharp),
-                      onPressed: () => ref
-                          .watch(printerAddViewController.notifier)
-                          .openQrScanner(context),
-                    ),
-                    helperText:
-                    'pages.printer_edit.general.moonraker_api_desc'.tr(),
-                    helperMaxLines: 3),
-                name: 'printerApiKey',
-                contextMenuBuilder: defaultContextMenuBuilder,
-              ),
-              const Divider(),
-              _SectionHeader(title: 'pages.printer_add.misc'.tr()),
-              FormBuilderCheckbox(
-                name: 'trustSelfSigned',
-                initialValue: false,
-                title:
-                const Text('pages.printer_edit.general.self_signed').tr(),
-                controlAffinity: ListTileControlAffinity.trailing,
-              ),
-              InputDecorator(
-                decoration: InputDecoration(
-                  labelText: 'pages.printer_add.test_ws'.tr(),
-                  border: InputBorder.none,
-                  errorText: ref.watch(printerAddViewController.select(
-                          (value) =>
-                      value.hasError ? value.error.toString() : null)),
-                  errorMaxLines: 3,
-                ),
-                child: const TestConnection(),
-              ),
-              OctoEveryWhereBtn(
-                title: 'Add using OctoEverywhere',
-                onPressed: ref
-                    .read(printerAddViewController.notifier)
-                    .addUsingOctoeverywhere,
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class AdvancedForm extends ConsumerWidget {
+//   const AdvancedForm({
+//     Key? key,
+//   }) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     return FormBuilder(
+//       key: ref.watch(advancedFormKeyProvider),
+//       autovalidateMode: AutovalidateMode.onUserInteraction,
+//       child: SingleChildScrollView(
+//         child: Padding(
+//           padding: const EdgeInsets.all(10.0),
+//           child: Column(
+//             children: <Widget>[
+//               _SectionHeader(title: 'pages.setting.general.title'.tr()),
+//               FormBuilderTextField(
+//                 keyboardType: TextInputType.text,
+//                 decoration: InputDecoration(
+//                   labelText: 'pages.printer_edit.general.displayname'.tr(),
+//                 ),
+//                 name: 'printerName',
+//                 initialValue: 'My Printer',
+//                 validator: FormBuilderValidators.compose(
+//                     [FormBuilderValidators.required()]),
+//                 contextMenuBuilder: defaultContextMenuBuilder,
+//               ),
+//               const WSInput(),
+//               FormBuilderTextField(
+//                 keyboardType: TextInputType.text,
+//                 decoration: InputDecoration(
+//                     labelText:
+//                     'pages.printer_edit.general.moonraker_api_key'.tr(),
+//                     suffix: IconButton(
+//                       icon: const Icon(Icons.qr_code_sharp),
+//                       onPressed: () => ref
+//                           .watch(printerAddViewController.notifier)
+//                           .openQrScanner(context),
+//                     ),
+//                     helperText:
+//                     'pages.printer_edit.general.moonraker_api_desc'.tr(),
+//                     helperMaxLines: 3),
+//                 name: 'printerApiKey',
+//                 contextMenuBuilder: defaultContextMenuBuilder,
+//               ),
+//               const Divider(),
+//               _SectionHeader(title: 'pages.printer_add.misc'.tr()),
+//               FormBuilderCheckbox(
+//                 name: 'trustSelfSigned',
+//                 initialValue: false,
+//                 title:
+//                 const Text('pages.printer_edit.general.self_signed').tr(),
+//                 controlAffinity: ListTileControlAffinity.trailing,
+//               ),
+//               InputDecorator(
+//                 decoration: InputDecoration(
+//                   labelText: 'pages.printer_add.test_ws'.tr(),
+//                   border: InputBorder.none,
+//                   errorText: ref.watch(printerAddViewController.select(
+//                           (value) =>
+//                       value.hasError ? value.error.toString() : null)),
+//                   errorMaxLines: 3,
+//                 ),
+//                 child: const TestConnection(),
+//               ),
+//               OctoEveryWhereBtn(
+//                 title: 'Add using OctoEverywhere',
+//                 onPressed: ref
+//                     .read(printerAddViewController.notifier)
+//                     .addUsingOctoeverywhere,
+//               )
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 class TestConnection extends ConsumerWidget {
   const TestConnection({
@@ -300,6 +301,7 @@ class WSInput extends HookConsumerWidget {
     var wsUrl = useState('');
     return FormBuilderTextField(
       keyboardType: TextInputType.url,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.general.printer_addr'.tr(),
           hintText: 'pages.printer_add.printer_add_helper'.tr(),

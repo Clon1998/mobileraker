@@ -13,15 +13,26 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'setting_controller.g.dart';
 
-final settingPageFormKey = Provider.autoDispose<GlobalKey<FormBuilderState>>(
-    (ref) => GlobalKey<FormBuilderState>());
+@riverpod
+GlobalKey<FormBuilderState> settingPageFormKey(SettingPageFormKeyRef ref) =>
+    GlobalKey<FormBuilderState>();
 
-final versionInfoProvider = FutureProvider.autoDispose<PackageInfo>(
-    (ref) => PackageInfo.fromPlatform());
+@riverpod
+Future<PackageInfo> versionInfo(VersionInfoRef ref) async {
+  return PackageInfo.fromPlatform();
+}
 
-final boolSetting = Provider.autoDispose.family<bool, String>((ref, key) {
-  return ref.watch(settingServiceProvider).readBool(key);
-});
+@riverpod
+bool boolSetting(BoolSettingRef ref, String key) =>
+    ref.watch(settingServiceProvider).readBool(key);
+
+@riverpod
+Future<List<Machine>> machinesWithoutCompanion(
+    MachinesWithoutCompanionRef ref) {
+  var machineService = ref.watch(machineServiceProvider);
+
+  return machineService.fetchMachinesWithoutCompanion();
+}
 
 final notificationPermissionControllerProvider =
     StateNotifierProvider.autoDispose<NotificationPermissionController, bool>(
