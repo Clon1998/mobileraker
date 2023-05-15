@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
+import 'package:mobileraker/data/dto/fcm/companion_meta.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
@@ -20,6 +22,7 @@ import 'package:mobileraker/data/repository/fcm_settings_repository_impl.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/data/repository/notification_settings_repository_impl.dart';
+import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/moonraker/announcement_service.dart';
@@ -188,84 +191,149 @@ class MachineService {
     }
 
      */
+    // Use this as a workaround to keep the repo active until method is done!
+    var providerSubscription =
+        ref.keepAliveExternally(fcmSettingsRepositoryProvider(machine.uuid));
+    try {
+      FcmSettingsRepository fcmRepo =
+          ref.read(fcmSettingsRepositoryProvider(machine.uuid));
 
-    FcmSettingsRepository fcmRepo =
-        ref.read(fcmSettingsRepositoryProvider(machine.uuid));
+      // Remove DeviceFcmSettings if the device does not has the machineUUID anymore!
+      var allDeviceSettings = await fcmRepo.all();
+      var allMachineUUIDs = (await fetchAll()).map((e) => e.uuid);
+      //Filter all entries out that dont have the same FCMTOKEN
+      allDeviceSettings
+          .removeWhere((key, value) => value.fcmToken != deviceFcmToken);
+      // Remove all entries where a machine exist for
+      allDeviceSettings
+          .removeWhere((key, value) => allMachineUUIDs.contains(key));
 
-    // Remove DeviceFcmSettings if the device does not has the machineUUID anymore!
-    var allDeviceSettings = await fcmRepo.all();
-    var allMachineUUIDs = (await fetchAll()).map((e) => e.uuid);
-    //Filter all entries out that dont have the same FCMTOKEN
-    allDeviceSettings
-        .removeWhere((key, value) => value.fcmToken != deviceFcmToken);
-    // Remove all entries where a machine exist for
-    allDeviceSettings
-        .removeWhere((key, value) => allMachineUUIDs.contains(key));
+      // Clear all of the DeviceFcmSettings that are left
+      for (String uuid in allDeviceSettings.keys) {
+        logger.w(
+            'Found an old DeviceFcmSettings entry with uuid $uuid that is not present anymore!');
+        fcmRepo.delete(uuid);
+      }
 
-    // Clear all of the DeviceFcmSettings that are left
-    for (String uuid in allDeviceSettings.keys) {
-      logger.w('Found an old DeviceFcmSettings entry with uuid $uuid that is not present anymore!');
-      fcmRepo.delete(uuid);
+      DeviceFcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
+
+      int progressModeInt =
+          _settingService.readInt(selectedProgressNotifyMode, -1);
+      var progressMode = (progressModeInt < 0)
+          ? ProgressNotificationMode.TWENTY_FIVE
+          : ProgressNotificationMode.values[progressModeInt];
+
+      var states = _settingService
+          .read(activeStateNotifyMode, 'standby,printing,paused,complete,error')
+          .split(',')
+          .toSet();
+
+      if (fcmCfg == null) {
+        fcmCfg = DeviceFcmSettings.fallback(deviceFcmToken, machine.name);
+        fcmCfg.settings =
+            NotificationSettings(progress: progressMode.value, states: states);
+        logger.i('Registered FCM Token in MoonrakerDB: $fcmCfg');
+
+        await fcmRepo.update(machine.uuid, fcmCfg);
+      } else if (fcmCfg.machineName != machine.name ||
+          fcmCfg.fcmToken != deviceFcmToken ||
+          fcmCfg.settings.progress != progressMode.value ||
+          !setEquals(fcmCfg.settings.states, states)) {
+        fcmCfg.machineName = machine.name;
+        fcmCfg.fcmToken = deviceFcmToken;
+        fcmCfg.settings = fcmCfg.settings
+            .copyWith(progress: progressMode.value, states: states);
+        logger.i('Updating fcmCfgs');
+        await fcmRepo.update(machine.uuid, fcmCfg);
+      }
+
+      logger.i('Current FCMConfig in MoonrakerDB: $fcmCfg');
+    } finally {
+      providerSubscription.close();
+      logger.w('Sucka for ${machine.name}');
     }
-
-    DeviceFcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
-
-    int progressModeInt =
-        _settingService.readInt(selectedProgressNotifyMode, -1);
-    var progressMode = (progressModeInt < 0)
-        ? ProgressNotificationMode.TWENTY_FIVE
-        : ProgressNotificationMode.values[progressModeInt];
-
-    var states = _settingService
-        .read(activeStateNotifyMode, 'standby,printing,paused,complete,error')
-        .split(',')
-        .toSet();
-
-    if (fcmCfg == null) {
-      fcmCfg = DeviceFcmSettings.fallback(deviceFcmToken, machine.name);
-      fcmCfg.settings =
-          NotificationSettings(progress: progressMode.value, states: states);
-      logger.i('Registered FCM Token in MoonrakerDB: $fcmCfg');
-
-      await fcmRepo.update(machine.uuid, fcmCfg);
-    } else if (fcmCfg.machineName != machine.name ||
-        fcmCfg.fcmToken != deviceFcmToken ||
-        fcmCfg.settings.progress != progressMode.value ||
-        !setEquals(fcmCfg.settings.states, states)) {
-      fcmCfg.machineName = machine.name;
-      fcmCfg.fcmToken = deviceFcmToken;
-      fcmCfg.settings = fcmCfg.settings
-          .copyWith(progress: progressMode.value, states: states);
-      logger.i('Updating fcmCfgs');
-      await fcmRepo.update(machine.uuid, fcmCfg);
-    }
-
-    logger.i('Current FCMConfig in MoonrakerDB: $fcmCfg');
   }
 
   Future<void> updateMachineFcmNotificationConfig(
       {required Machine machine,
       ProgressNotificationMode? mode,
       Set<PrintState>? printStates}) async {
-    var notificationSettingsRepository =
-        ref.read(notificationSettingsRepositoryProvider(machine.uuid));
+    var keepAliveExternally = ref.keepAliveExternally(
+        notificationSettingsRepositoryProvider(machine.uuid));
+    try {
+      var notificationSettingsRepository =
+          ref.read(notificationSettingsRepositoryProvider(machine.uuid));
 
-    var rpcClient = ref.read(jrpcClientProvider(machine.uuid));
-    var connected = await rpcClient.ensureConnection();
-    if (!connected) {
+      logger.i(
+          'Updating FCM Config for machine ${machine.name} (${machine.uuid})');
+
+      var connectionResult = await ref.readWhere(
+          jrpcClientStateProvider(machine.uuid),
+          (state) => ![ClientState.connecting, ClientState.disconnected]
+              .contains(state));
+      if (connectionResult != ClientState.connected) {
+        logger.w(
+            '[${machine.name}@${machine.wsUrl}]Unable to propagate new notification settings because JRPC was not connected!');
+        return;
+      }
+
+      List<Future> updateReq = [];
+      if (mode != null) {
+        var future = notificationSettingsRepository.updateProgressSettings(
+            machine.uuid, mode.value);
+        updateReq.add(future);
+      }
+      if (printStates != null) {
+        var future = notificationSettingsRepository.updateStateSettings(
+            machine.uuid, printStates);
+        updateReq.add(future);
+      }
+      if (updateReq.isNotEmpty)
+      await Future.wait(updateReq);
+      logger.i('[${machine.name}@${machine.wsUrl}] Propagated new notifcation settings');
+    } finally {
+      keepAliveExternally.close();
+    }
+  }
+
+  Future<CompanionMetaData?> fetchCompanionMetaData(Machine machine) async {
+    var machineUUID = machine.uuid;
+
+    var connectionResult = await ref.readWhere(
+        jrpcClientStateProvider(machine.uuid),
+        (state) => ![ClientState.connecting, ClientState.disconnected]
+            .contains(state));
+    if (connectionResult != ClientState.connected) {
       logger.w(
           '[${machine.name}@${machine.wsUrl}]Unable to propagate new notification settings because JRPC was not connected!');
-      return;
+      throw const MobilerakerException('Machine not connected');
     }
 
-    if (mode != null) {
-      notificationSettingsRepository.updateProgressSettings(
-          machine.uuid, mode.value);
+    var databaseClient = ref.read(moonrakerDatabaseClientProvider(machineUUID));
+    Map<String, dynamic>? databaseItem =
+        await databaseClient.getDatabaseItem('mobileraker', key: 'fcm.client');
+
+    if (databaseItem == null) {
+      return null;
     }
-    if (printStates != null) {
-      notificationSettingsRepository.updateStateSettings(
-          machine.uuid, printStates);
+
+    return CompanionMetaData.fromJson(databaseItem);
+  }
+
+  Future<List<Machine>> fetchMachinesWithoutCompanion() async {
+    List<Machine> allMachines = await fetchAll();
+    List<Machine> noCompanion = [];
+    for (var machine in allMachines) {
+      try {
+        var meta = await fetchCompanionMetaData(machine);
+        if (meta == null) noCompanion.add(machine);
+      } catch (e) {
+        logger.w(
+            'Error while trying to fetch CompanionMeta for machine ${machine.name} (${machine.uuid})',
+            e);
+      }
     }
+    return noCompanion;
   }
 
   Future<int> indexOfMachine(Machine setting) async {
