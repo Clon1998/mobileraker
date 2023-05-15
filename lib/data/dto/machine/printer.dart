@@ -63,9 +63,7 @@ class PrinterBuilder {
     if (toolhead == null) {
       throw const MobilerakerException('Missing field: toolhead');
     }
-    if (printFan == null) {
-      throw const MobilerakerException('Missing field: printFan');
-    }
+
     if (gCodeMove == null) {
       throw const MobilerakerException('Missing field: gCodeMove');
     }
@@ -89,7 +87,7 @@ class PrinterBuilder {
         toolhead: toolhead!,
         extruders: extruders,
         heaterBed: heaterBed,
-        printFan: printFan!,
+        printFan: printFan,
         gCodeMove: gCodeMove!,
         motionReport: motionReport!,
         displayStatus: displayStatus!,
@@ -115,7 +113,7 @@ class Printer with _$Printer {
     required Toolhead toolhead,
     required List<Extruder> extruders,
     required HeaterBed? heaterBed,
-    required PrintFan printFan,
+    required PrintFan? printFan,
     required GCodeMove gCodeMove,
     required MotionReport motionReport,
     required DisplayStatus displayStatus,

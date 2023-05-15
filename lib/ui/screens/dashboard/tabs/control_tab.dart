@@ -189,11 +189,15 @@ class _PrintFan extends ConsumerWidget {
     var fan = ref
         .watch(machinePrinterKlippySettingsProvider
             .selectAs((value) => value.printerData.printFan))
-        .valueOrFullNull!;
+        .valueOrFullNull;
     var klippyCanReceiveCommands = ref
         .watch(machinePrinterKlippySettingsProvider
             .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrFullNull!;
+
+    if (fan == null) {
+      return const SizedBox.shrink();
+    }
 
     return _FanCard(
       name: 'pages.dashboard.control.fan_card.part_fan'.tr(),
@@ -1179,7 +1183,7 @@ class _SliderOrTextInput extends HookWidget {
               },
               textAlign: TextAlign.end,
               keyboardType:
-                  TextInputType.numberWithOptions(),
+                  const TextInputType.numberWithOptions(),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))
               ],
