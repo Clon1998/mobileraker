@@ -2,8 +2,14 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/payment_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'theme_pack.dart';
+
+part 'theme_setup.g.dart';
 
 const int darkRed = 0xffb21818;
 var redish = const MaterialColor(darkRed, <int, Color>{
@@ -443,11 +449,16 @@ ThemePack _mobilerakerSupporterPack() {
 }
 
 
-final themePackProvider = Provider((ref) {
+@riverpod
+List<ThemePack> themePack(ThemePackRef ref) {
+  var customerInfo = ref.watch(customerInfoProvider).valueOrFullNull;
+
   return [
     _mobilerakerPack(),
     _voronPack(),
     _ratRigPack(),
+    if (customerInfo?.entitlements.active.containsKey('Supporter') ?? true)
     _mobilerakerSupporterPack(),
   ];
-});
+}
+

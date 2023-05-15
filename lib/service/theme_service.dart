@@ -26,8 +26,11 @@ class ThemeService {
   }
 
   _init() {
-    int themeIndex = min(
-        _settingService.readInt(selectedThemePackKey), themePacks.length - 1);
+    var selIndex = _settingService.readInt(selectedThemePackKey);
+    int themeIndex = selIndex;
+
+    if (selIndex >= themePacks.length - 1) themeIndex = 0;
+
     var mode = ThemeMode.values[min(
         _settingService.readInt(selectedThemeModeKey), themePacks.length - 1)];
     activeTheme = ThemeModel(themePacks[themeIndex], mode);
