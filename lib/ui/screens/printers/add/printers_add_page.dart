@@ -301,7 +301,7 @@ class WSInput extends HookConsumerWidget {
     var wsUrl = useState('');
     return FormBuilderTextField(
       keyboardType: TextInputType.url,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // autovalidateMode: AutovalidateMode.onUserInteraction,
       decoration: InputDecoration(
           labelText: 'pages.printer_edit.general.printer_addr'.tr(),
           hintText: 'pages.printer_add.printer_add_helper'.tr(),
