@@ -14,12 +14,14 @@ part 'payment_service.g.dart';
 Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
   var customerInfo = await Purchases.getCustomerInfo();
   logger.i('Got customerInfo: $customerInfo');
-  ref.onResume(() async {
+
+  checkForExpired() async {
+    logger.i('Checking for expired subs!');
     var v = ref.state;
     var now = DateTime.now();
     if (v.hasValue) {
       var hasExpired = v.value!.entitlements.active.values.any((ent) =>
-          ent.expirationDate != null &&
+      ent.expirationDate != null &&
           DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
       if (hasExpired) {
         logger.i('Found expired Entitlement, force refresh!');
@@ -30,7 +32,9 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
         // ref.state = AsyncValue.guard(() => )
       }
     }
-  });
+  }
+  ref.onAddListener(checkForExpired);
+  ref.onResume(checkForExpired);
 
   return customerInfo;
 }
