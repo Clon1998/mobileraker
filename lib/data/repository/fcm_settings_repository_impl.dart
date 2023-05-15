@@ -1,10 +1,9 @@
-import 'dart:convert';
-
 import 'package:mobileraker/data/data_source/moonraker_database_client.dart';
 import 'package:mobileraker/data/model/moonraker_db/device_fcm_settings.dart';
 import 'package:mobileraker/data/repository/fcm_settings_repository.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:uuid/uuid.dart';
 
 part 'fcm_settings_repository_impl.g.dart';
 
@@ -22,11 +21,18 @@ class FcmSettingsRepositoryImpl extends FcmSettingsRepository {
 
   @override
   Future<Map<String, DeviceFcmSettings>> all() async {
-    Map<String, dynamic> json =
+    Map<String, dynamic>? json =
         await _databaseService.getDatabaseItem('mobileraker', key: 'fcm');
 
-    return json
-        .map((key, value) => MapEntry(key, DeviceFcmSettings.fromJson(value)));
+    if (json == null) return {};
+
+    Map<String, DeviceFcmSettings> out = {};
+    json.forEach((key, value) {
+      if (Uuid.isValidUUID(fromString: key)) {
+        out[key] = DeviceFcmSettings.fromJson(value);
+      }
+    });
+    return out;
   }
 
   @override
