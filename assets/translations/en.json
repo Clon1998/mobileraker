@@ -367,6 +367,10 @@
     },
     "octo_indicator": {
       "tooltip": "Using OctoEveryWhere!"
+    },
+    "supporter_add": {
+      "title": "Like Mobileraker?",
+      "subtitle": "Tap me! To learn how you can support the development!"
     }
   },
   "dialogs": {
