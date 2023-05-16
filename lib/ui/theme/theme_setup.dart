@@ -1,8 +1,6 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -452,7 +450,6 @@ ThemePack _mobilerakerSupporterPack() {
 @riverpod
 List<ThemePack> themePack(ThemePackRef ref) {
   var customerInfo = ref.watch(customerInfoProvider).valueOrFullNull;
-
   return [
     _mobilerakerPack(),
     _voronPack(),

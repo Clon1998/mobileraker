@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';
@@ -29,7 +30,9 @@ class ThemeService {
     var selIndex = _settingService.readInt(selectedThemePackKey);
     int themeIndex = selIndex;
 
-    if (selIndex >= themePacks.length - 1) themeIndex = 0;
+    logger.i(
+        'Theme selected: $selIndex, available theme len: ${themePacks.length}');
+    if (selIndex > themePacks.length - 1) themeIndex = 0;
 
     var mode = ThemeMode.values[min(
         _settingService.readInt(selectedThemeModeKey), themePacks.length - 1)];
