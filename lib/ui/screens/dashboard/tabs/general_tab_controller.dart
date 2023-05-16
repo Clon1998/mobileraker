@@ -24,8 +24,6 @@ import 'package:mobileraker/util/misc.dart';
 final flipCardControllerProvider =
     Provider<FlipCardController>((ref) => FlipCardController());
 
-final dismissiedRemoteInfoProvider = StateProvider<bool>((ref) => false);
-
 final generalTabViewControllerProvider = StateNotifierProvider.autoDispose<
         GeneralTabViewController,
         AsyncValue<PrinterKlippySettingsMachineWrapper>>(

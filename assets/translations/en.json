@@ -364,6 +364,9 @@
       "trying_connect_remote": "Trying to connect using remote client...",
       "server_starting": "Server is starting...",
       "more_details": "More Details"
+    },
+    "octo_indicator": {
+      "tooltip": "Using OctoEveryWhere!"
     }
   },
   "dialogs": {

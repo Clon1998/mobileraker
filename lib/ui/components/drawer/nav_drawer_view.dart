@@ -69,8 +69,8 @@ class NavigationDrawerWidget extends ConsumerWidget {
                     icon: Icons.engineering_outlined,
                     routeName: '/setting',
                   ),
-                  const _DrawerItem(
-                    text: 'Support the Dev!',
+                  _DrawerItem(
+                    text: 'pages.paywall.title'.tr(),
                     icon: FlutterIcons.hand_holding_heart_faw5s,
                     routeName: '/paywall',
                   ),

@@ -27,6 +27,7 @@ import 'package:mobileraker/ui/components/graph_card_with_button.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker/ui/components/supporter_ad.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card.dart';
@@ -56,14 +57,14 @@ class GeneralTab extends ConsumerWidget {
               var clientType = ref.watch(generalTabViewControllerProvider
                   .select((data) => data.value!.clientType));
 
-              var dismissedRemoteInfo = ref.watch(dismissiedRemoteInfoProvider);
-
               return PullToRefreshPrinter(
                 child: ListView(
                   key: const PageStorageKey('gTab'),
                   padding: const EdgeInsets.only(bottom: 20),
                   children: [
-                    if (clientType != ClientType.local) const RemoteIndicator(),
+                    const SupporterAd(),
+                    if (clientType != ClientType.local)
+                      const DismissibleOctoIndicator(),
                     const PrintCard(),
                     const TemperatureCard(),
                     const CamCard(),
@@ -133,46 +134,7 @@ class _FetchingData extends StatelessWidget {
   }
 }
 
-class RemoteIndicator extends ConsumerWidget {
-  const RemoteIndicator({
-    Key? key,
-  }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return AnimatedSwitcher(
-        duration: kThemeAnimationDuration,
-        switchInCurve: Curves.easeInCubic,
-        switchOutCurve: Curves.easeOutCubic,
-        transitionBuilder: (child, anim) => SizeTransition(
-              sizeFactor: anim,
-              child: FadeTransition(
-                opacity: anim,
-                child: child,
-              ),
-            ),
-        child: (ref.watch(dismissiedRemoteInfoProvider))
-            ? const SizedBox.shrink()
-            : Card(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      contentPadding:
-                          const EdgeInsets.only(top: 3, left: 16, right: 16),
-                      leading: const OctoIndicator(),
-                      title: Text('Using remote connection!'),
-                      trailing: IconButton(
-                          onPressed: () => ref
-                              .read(dismissiedRemoteInfoProvider.notifier)
-                              .state = true,
-                          icon: const Icon(Icons.close)),
-                    ),
-                  ],
-                ),
-              ));
-  }
-}
 
 class PrintCard extends ConsumerWidget {
   const PrintCard({
