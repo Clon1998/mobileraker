@@ -192,13 +192,13 @@ class _PaywallOfferings extends ConsumerWidget {
   }
 }
 
-class _SubscribeTiers extends StatelessWidget {
+class _SubscribeTiers extends ConsumerWidget {
   const _SubscribeTiers({Key? key, required this.offering}) : super(key: key);
 
   final Offering? offering;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     var textTheme = Theme.of(context).textTheme;
 
     return Column(
@@ -219,6 +219,21 @@ class _SubscribeTiers extends StatelessWidget {
         Text('pages.paywall.subscribe_view.info',
                 textAlign: TextAlign.center, style: textTheme.bodySmall)
             .tr(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Learn about Supporter Perks',
+              style: textTheme.displaySmall
+                  ?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            IconButton(
+                onPressed: ref
+                    .read(paywallPageControllerProvider.notifier)
+                    .openPerksInfo,
+                icon: const Icon(Icons.info_outline))
+          ],
+        ),
         Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -261,6 +276,11 @@ class _ManageTiers extends ConsumerWidget {
             ),
           ),
         ),
+        FilledButton.tonalIcon(
+            icon: const Icon(Icons.contact_support_outlined),
+            onPressed:
+                ref.read(paywallPageControllerProvider.notifier).openDevContact,
+            label: const Text('pages.paywall.contact_dialog.title').tr()),
         Align(
             alignment: Alignment.centerLeft,
             child: Padding(

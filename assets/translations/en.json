@@ -331,7 +331,7 @@
       "manage_view": {
         "title": "Thanks for your Support!",
         "list_title": "Change Supporter Tier:",
-        "store_btn": "Manage Subscription in {}"
+        "store_btn": "Cancel Subscription in {}"
       },
       "subscribe_view": {
         "title": "Become a Mobileraker Supporter!",
@@ -341,6 +341,10 @@
       "supporter_tier_list": {
         "error_title": "Error while loading Supporter Tiers!",
         "error_body": "Sorry, an unexpected error occurred. Could not load the SupporterTiers. Please retry later!"
+      },
+      "contact_dialog": {
+        "title": "Developer Contact",
+        "body": "Mail: {}\nDiscord: {}"
       }
     }
   },
@@ -414,6 +418,19 @@
       "title": "Select Machine",
       "active_machine": "Active Machine: {}",
       "hint": "Tap on a machine to set it as active."
+    },
+    "supporter_perks": {
+      "title": "Supporter Perks",
+      "body": "By supporting Mobileraker, you ensure the app can stay free for the community. Additionally supporters gain the following list of perks.",
+      "hint": "Hint: As of now, perks are device based. This might change in the future.",
+      "theme_perk": {
+        "title": "Supporter Theme",
+        "subtitle": "Exclusive theme using Material 3"
+      },
+      "contact_perk": {
+        "title": "Developer Contact",
+        "subtitle": "Easy contact to the developer!"
+      }
     }
   },
   "klipper_state": {
