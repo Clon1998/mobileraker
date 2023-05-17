@@ -61,13 +61,15 @@ class MyApp extends ConsumerWidget {
     final goRouter = ref.watch(goRouterProvider);
     return EasyLocalization(
         supportedLocales: const [
-          Locale('en'),
           Locale('de'),
-          Locale('hu'),
-          Locale('ru'),
+          Locale('en'),
           Locale('fr'),
+          Locale('hu'),
+          Locale('it'),
+          Locale('ro'),
+          Locale('ru'),
           Locale('zh', 'CN'),
-          Locale('zh', 'HK')
+          Locale('zh', 'HK'),
         ],
         fallbackLocale: const Locale('en'),
         saveLocale: true,
