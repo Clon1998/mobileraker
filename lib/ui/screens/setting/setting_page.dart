@@ -171,8 +171,6 @@ class _NotificationSection extends ConsumerWidget {
         const NotificationFirebaseWarning(),
         const _ProgressNotificationSettingField(),
         const _StateNotificationSettingField(),
-        TextButton(
-            onPressed: () => null, child: Text('Reset delivery devices')),
         const Divider(),
         RichText(
           text: TextSpan(
