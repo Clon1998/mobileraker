@@ -12,39 +12,44 @@ With the introduction of this version, users now have the option to support the 
 through in-app subscriptions. As a token of appreciation, supporters will gain access to an exclusive Material 3-based
 theme. In the future, additional perks such as UI enhancements or minor functional features may be introduced.
 
-### Major changes
+### Major Changes
 
-- `Support the Dev!` page was added
-- Webcam config is now shared with Mainsail/Fluidd
-- Added setting to auto-switch fullscreen webcam to landscape [#95](https://github.com/Clon1998/mobileraker/issues/95)
-- Added `Printer Switch` dialog that opens if the user taps the page tilt (Note: you can always rapidly switch between
-  printers by swiping the title)
-- Added hint in the app settings if no [mobileraker_companion](https://github.com/Clon1998/mobileraker_companion) was
-  detected
-- Added Romanian translation thanks to [@vaxxi](https://github.com/vaxxi)
+- Added a new "Support the Dev!" page to facilitate user contributions
+- Improved integration by sharing webcam configuration with Mainsail/Fluidd
+- Introduced a setting to automatically switch the fullscreen webcam to landscape
+  mode ([#95](https://github.com/Clon1998/mobileraker/issues/95))
+- Implemented a "Printer Switch" dialog that opens when users tap the page's titlt (Note: Rapid printer switching can be
+  done by swiping the title)
+- Provided a helpful hint in the app settings
+  if [mobileraker_companion](https://github.com/Clon1998/mobileraker_companion) is not detected
+- Added Romanian translation, thanks to [@vaxxi](https://github.com/vaxxi)
 - Added Italian translation, thanks to [@Livex97](https://github.com/Livex97)
 
-### Changed features
+### Changed Features
 
-- WebCam should have a smoother animation when transitioning from loading to normal operation
-- Entries in Console now display the Date if they are older than 24hrs
+- Enhanced the webcam animation for smoother transitions from loading to normal operation
+- Console entries now display the date if they are older than 24 hours
 - Tapping a macro/command in the console now moves the cursor to the end of the input field
-- Added support for printers that do not use a print fan [#158](https://github.com/Clon1998/mobileraker/issues/158)
+- Added support for printers that do not utilize a print
+  fan ([#158](https://github.com/Clon1998/mobileraker/issues/158))
 
 ### Bug Fixes
 
-- Fixed webcams not working on all screens if OctoEverywhere is used
-- Fixed ConfigView and GCode preview not loading if OctoEverywhere is
-  used [#148](https://github.com/Clon1998/mobileraker/issues/148)
-- Fixed API Key not transmitted to OctoEverywhere [#146](https://github.com/Clon1998/mobileraker/issues/146)
-- Fixed duplicated notifications due to duplicate FCM entries [#133](https://github.com/Clon1998/mobileraker/issues/133)
-- Fixed Fans could be set higher than their respective `max_temp`
-  value [#139](https://github.com/Clon1998/mobileraker/issues/139)
-- Fixed JRPC-Client not waiting for pending messages [#159](https://github.com/Clon1998/mobileraker/issues/159)
-- Fixed NotificationService not registering remote-id for notifications on the machines if multiple printers are managed
-  by Mobileraker
-- Fixed overflow issue in on the `Dashboard` in the `MoveAxis card
+- Resolved issue where webcams were not functioning on all screens when OctoEverywhere is used
+- Fixed ConfigView and GCode preview loading problems when OctoEverywhere is
+  used ([#148](https://github.com/Clon1998/mobileraker/issues/148))
+- Ensured proper transmission of API Key to OctoEverywhere ([#146](https://github.com/Clon1998/mobileraker/issues/146))
+- Addressed duplicated notifications caused by duplicate FCM
+  entries ([#133](https://github.com/Clon1998/mobileraker/issues/133))
+- Fixed the ability to set fans higher than their respective `max_temp`
+  value ([#139](https://github.com/Clon1998/mobileraker/issues/139))
+- Corrected the behavior of JRPC-Client, ensuring it waits for pending messages to
+  complete ([#159](https://github.com/Clon1998/mobileraker/issues/159))
+- Fixed NotificationService not registering remote-id for notifications on machines with multiple printers managed by
+  Mobileraker
+- Resolved overflow issue on the `Dashboard` in the `MoveAxis` card
 
 ## [2.2.x]
 
-All changes before 2.3.x can be found directly on the [tags](https://github.com/Clon1998/mobileraker/releases) page.
+For a comprehensive list of changes prior to version 2.3.x, please refer to
+the [tags](https://github.com/Clon1998/mobileraker/releases) page.
