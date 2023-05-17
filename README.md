@@ -19,6 +19,7 @@
 4. [Push-Notifications](#push-notifications--remote-notification)
 5. [App Screenshots](#app-impressions)
 6. [Dev-Setup](#environment-setup)
+7. [Changelog](#changelog)
 
 ---
 
@@ -105,6 +106,10 @@ Mobileraker allows users to enable push notifications, which are also delivered 
 5. Run `flutterfire configure` for your firebase project, targeting android and ios platforms
 
 ---
+
+## Changelog
+
+The changelog can be found in [docs/changelog.md](docs/changelog.md).
 
 ## Repobeats
 
