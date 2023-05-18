@@ -47,29 +47,3 @@ class Toolhead with _$Toolhead {
     return Toolhead.fromJson(mergedJson);
   }
 }
-
-//
-//
-// Toolhead toolhead = printer.toolhead ?? const Toolhead();
-//
-// Set<PrinterAxis> homedAxes = toolhead.homedAxes;
-// List<double> position = toolhead.position;
-// double? printTime = toolhead.printTime;
-// double? estimatedPrintTime = toolhead.estimatedPrintTime;
-// double maxVelocity = toolhead.maxVelocity;
-// double maxAccel = toolhead.maxAccel;
-// double maxAccelToDecel = toolhead.maxAccelToDecel;
-// String activeExtruder = toolhead.activeExtruder;
-// double squareCornerVelocity = toolhead.squareCornerVelocity;
-//
-// if (toolHeadJson.containsKey('homed_axes')) {
-// String hAxes = toolHeadJson['homed_axes'];
-// homedAxes = hAxes
-//     .toUpperCase()
-//     .split('')
-//     .map((e) => EnumToString.fromString(PrinterAxis.values, e)!)
-//     .toSet();
-// }
-// if (toolHeadJson.containsKey('extruder')) {
-// activeExtruder = toolHeadJson['extruder'];
-// }
