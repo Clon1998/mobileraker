@@ -877,59 +877,8 @@ class PrinterService {
 
   _updateHeaterBed(Map<String, dynamic> heatedBedJson,
       {required PrinterBuilder printer}) {
-    HeaterBed old = printer.heaterBed ?? HeaterBed(lastHistory: DateTime(1990));
-
-    double? temperature;
-    double? target;
-    double? power;
-    List<double>? temperatureHistory;
-    List<double>? targetHistory;
-    List<double>? powerHistory;
-    DateTime? lastHistory;
-
-    if (heatedBedJson.containsKey('temperature')) {
-      temperature = heatedBedJson['temperature'];
-    }
-    if (heatedBedJson.containsKey('target')) {
-      target = heatedBedJson['target'];
-    }
-    if (heatedBedJson.containsKey('power')) {
-      power = heatedBedJson['power'];
-    }
-
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(old.lastHistory).inSeconds >= 1) {
-      temperatureHistory = _updateHistoryList(
-          old.temperatureHistory, temperature ?? old.temperature);
-      targetHistory =
-          _updateHistoryList(old.targetHistory, target ?? old.target);
-      powerHistory = _updateHistoryList(old.powerHistory, power ?? old.target);
-      lastHistory = now;
-    }
-
-    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    if (heatedBedJson.containsKey('temperatures')) {
-      temperatureHistory =
-          (heatedBedJson['temperatures'] as List<dynamic>).cast<double>();
-    }
-    if (heatedBedJson.containsKey('targets')) {
-      targetHistory =
-          (heatedBedJson['targets'] as List<dynamic>).cast<double>();
-    }
-    if (heatedBedJson.containsKey('powers')) {
-      powerHistory = (heatedBedJson['powers'] as List<dynamic>).cast<double>();
-    }
-
-    printer.heaterBed = HeaterBed(
-      temperature: temperature ?? old.temperature,
-      target: target ?? old.target,
-      power: power ?? old.power,
-      temperatureHistory: temperatureHistory ?? old.temperatureHistory,
-      targetHistory: targetHistory ?? old.targetHistory,
-      powerHistory: powerHistory ?? old.powerHistory,
-      lastHistory: lastHistory ?? old.lastHistory,
-    );
+    printer.heaterBed =
+        HeaterBed.partialUpdate(printer.heaterBed, heatedBedJson);
   }
 
   _updateExtruder(Map<String, dynamic> extruderJson,
@@ -1003,62 +952,7 @@ class PrinterService {
 
   _updateToolhead(Map<String, dynamic> toolHeadJson,
       {required PrinterBuilder printer}) {
-    Toolhead toolhead = printer.toolhead ?? const Toolhead();
-
-    Set<PrinterAxis> homedAxes = toolhead.homedAxes;
-    List<double> position = toolhead.position;
-    double? printTime = toolhead.printTime;
-    double? estimatedPrintTime = toolhead.estimatedPrintTime;
-    double maxVelocity = toolhead.maxVelocity;
-    double maxAccel = toolhead.maxAccel;
-    double maxAccelToDecel = toolhead.maxAccelToDecel;
-    String activeExtruder = toolhead.activeExtruder;
-    double squareCornerVelocity = toolhead.squareCornerVelocity;
-
-    if (toolHeadJson.containsKey('homed_axes')) {
-      String hAxes = toolHeadJson['homed_axes'];
-      homedAxes = hAxes
-          .toUpperCase()
-          .split('')
-          .map((e) => EnumToString.fromString(PrinterAxis.values, e)!)
-          .toSet();
-    }
-    if (toolHeadJson.containsKey('position')) {
-      position = toolHeadJson['position'].cast<double>();
-    }
-    if (toolHeadJson.containsKey('print_time')) {
-      printTime = toolHeadJson['print_time'];
-    }
-    if (toolHeadJson.containsKey('max_velocity')) {
-      maxVelocity = toolHeadJson['max_velocity'];
-    }
-    if (toolHeadJson.containsKey('max_accel')) {
-      maxAccel = toolHeadJson['max_accel'];
-    }
-    if (toolHeadJson.containsKey('max_accel_to_decel')) {
-      maxAccelToDecel = toolHeadJson['max_accel_to_decel'];
-    }
-    if (toolHeadJson.containsKey('extruder')) {
-      activeExtruder = toolHeadJson['extruder'];
-    }
-    if (toolHeadJson.containsKey('square_corner_velocity')) {
-      squareCornerVelocity = toolHeadJson['square_corner_velocity'];
-    }
-    if (toolHeadJson.containsKey('estimated_print_time')) {
-      estimatedPrintTime = toolHeadJson['estimated_print_time'];
-    }
-
-    printer.toolhead = toolhead.copyWith(
-      homedAxes: homedAxes,
-      position: position,
-      printTime: printTime,
-      estimatedPrintTime: estimatedPrintTime,
-      maxVelocity: maxVelocity,
-      maxAccel: maxAccel,
-      maxAccelToDecel: maxAccelToDecel,
-      activeExtruder: activeExtruder,
-      squareCornerVelocity: squareCornerVelocity,
-    );
+    printer.toolhead = Toolhead.partialUpdate(printer.toolhead, toolHeadJson);
   }
 
   _updateExcludeObject(Map<String, dynamic> json,
@@ -1194,7 +1088,6 @@ class PrinterService {
   }
 
   void _showExceptionSnackbar(Object e, StackTrace s) {
-
     _snackBarService.show(SnackBarConfig.stacktraceDialog(
       dialogService: _dialogService,
       exception: e,
