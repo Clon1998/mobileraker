@@ -3,12 +3,15 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/util/ref_extension.dart';
 
 final importTarget = Provider.autoDispose<Machine>(name: 'importTarget', (ref) {
   throw UnimplementedError();
@@ -23,31 +26,39 @@ final importSettingsFormKeyProvider =
     Provider.autoDispose<GlobalKey<FormBuilderState>>(
         (ref) => GlobalKey<FormBuilderState>());
 
-final footerControllerProvider = StateProvider.autoDispose((ref) => false);
-
 final importSources =
-    FutureProvider.autoDispose<List<ImportMachineSettingsDto>>((ref) async {
+FutureProvider.autoDispose<List<ImportMachineSettingsResult>>((ref) async {
   List<Machine> machines = await ref.watch(allMachinesProvider.future);
 
   Machine target = ref.watch(importTarget);
 
-  Iterable<Future<ImportMachineSettingsDto?>> map =
+  Iterable<Future<ImportMachineSettingsResult?>> map =
       machines.where((element) => element.uuid != target.uuid).map((e) async {
     try {
-      MachineSettings machineSettings = await ref
-          .watch(machineServiceProvider)
-          .fetchSettings(e)
-          .timeout(const Duration(seconds: 2));
-      return ImportMachineSettingsDto(e, machineSettings);
-    } catch (e) {
-      logger.w('Error while trying to fetch settings!',e);
+      var connected = await ref
+          .watchWhere(jrpcClientStateProvider(e.uuid),
+              (c) => c == ClientState.connected || c == ClientState.error)
+          .then((value) => value == ClientState.connected)
+          .timeout(const Duration(seconds: 10));
+
+      if (!connected) {
+        logger.w(
+            'Could not fetch settings, no JRPC connection for ${e.debugStr}');
+        return null;
+      }
+
+      MachineSettings machineSettings =
+          await ref.watch(machineServiceProvider).fetchSettings(e);
+      return ImportMachineSettingsResult(e, machineSettings);
+    } catch (er) {
+      logger.w('Error while trying to fetch settings for ${e.debugStr} !', er);
       return null;
     }
   });
-  List<ImportMachineSettingsDto?> rawList = await Future.wait(map);
+  List<ImportMachineSettingsResult?> rawList = await Future.wait(map);
 
-
-  var list = rawList.whereType<ImportMachineSettingsDto>().toList(growable: false);
+  var list =
+      rawList.whereType<ImportMachineSettingsResult>().toList(growable: false);
   if (list.isEmpty) {
     return Future.error('No sources for import found!');
   }
@@ -55,26 +66,27 @@ final importSources =
 });
 
 final importSettingsDialogController = StateNotifierProvider.autoDispose<
-        ImportSettingsDialogController, AsyncValue<ImportMachineSettingsDto>>(
+        ImportSettingsDialogController,
+        AsyncValue<ImportMachineSettingsResult>>(
     (ref) => ImportSettingsDialogController(ref));
 
 class ImportSettingsDialogController
-    extends StateNotifier<AsyncValue<ImportMachineSettingsDto>> {
+    extends StateNotifier<AsyncValue<ImportMachineSettingsResult>> {
   ImportSettingsDialogController(this.ref) : super(const AsyncValue.loading()) {
     ref.listen(importSources,
-        (previous, AsyncValue<List<ImportMachineSettingsDto>> next) {
+        (previous, AsyncValue<List<ImportMachineSettingsResult>> next) {
       next.when(
           data: (sources) {
             state = AsyncValue.data(sources.first);
           },
           error: (e, s) => state = AsyncValue.error(e, s),
           loading: () => null);
-    },fireImmediately: true);
+    }, fireImmediately: true);
   }
 
   final AutoDisposeRef ref;
 
-  onSourceChanged(ImportMachineSettingsDto? selected) {
+  onSourceChanged(ImportMachineSettingsResult? selected) {
     state = AsyncValue.data(selected!);
   }
 
@@ -98,7 +110,7 @@ class ImportSettingsDialogController
 }
 
 class ImportSettingsDialogViewResults {
-  final ImportMachineSettingsDto source;
+  final ImportMachineSettingsResult source;
   final List<TemperaturePreset> presets;
   final List<String> fields;
 
@@ -106,8 +118,8 @@ class ImportSettingsDialogViewResults {
       {required this.source, required this.presets, required this.fields});
 }
 
-class ImportMachineSettingsDto {
-  ImportMachineSettingsDto(this.machine, this.machineSettings);
+class ImportMachineSettingsResult {
+  ImportMachineSettingsResult(this.machine, this.machineSettings);
 
   final Machine machine;
   final MachineSettings machineSettings;

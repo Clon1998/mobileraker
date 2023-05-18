@@ -11,7 +11,6 @@ import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
 import 'package:progress_indicators/progress_indicators.dart';
-import 'package:stringr/stringr.dart';
 
 class ImportSettingsDialog extends ConsumerWidget {
   final DialogRequest request;
@@ -42,7 +41,6 @@ class _ImportSettingsDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Dialog(
       child: FormBuilder(
-        autovalidateMode: AutovalidateMode.always,
         key: ref.watch(importSettingsFormKeyProvider),
         child: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -102,13 +100,13 @@ class _DialogBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var selectedSource = ref.watch(importSettingsDialogController);
-    return AsyncValueWidget<ImportMachineSettingsDto>(
+    return AsyncValueWidget<ImportMachineSettingsResult>(
       value: selectedSource,
       data: (data) => Flexible(
-        child:
-            Column(mainAxisSize: MainAxisSize.min, // To make the card compact
-                children: [
-              FormBuilderDropdown<ImportMachineSettingsDto>(
+        child: Column(
+            mainAxisSize: MainAxisSize.min, // To make the card compact
+            children: [
+              FormBuilderDropdown<ImportMachineSettingsResult>(
                 name: 'source',
                 initialValue: data,
                 decoration: InputDecoration(
@@ -118,7 +116,7 @@ class _DialogBody extends ConsumerWidget {
                     .watch(importSources)
                     .valueOrNull!
                     .map(
-                      (e) => DropdownMenuItem<ImportMachineSettingsDto>(
+                      (e) => DropdownMenuItem<ImportMachineSettingsResult>(
                         value: e,
                         child: Text(
                             '${e.machine.name} (${Uri.parse(e.machine.httpUrl).host})'),
@@ -244,7 +242,8 @@ class _Footer extends ConsumerWidget {
           child: Text(tr('general.cancel')),
         ),
         TextButton(
-          onPressed: ref.watch(footerControllerProvider)
+          onPressed: ref.watch(importSources
+                  .select((value) => value.valueOrNull?.isNotEmpty == true))
               ? ref.read(importSettingsDialogController.notifier).onFormConfirm
               : null,
           child: Text(materialLocalizations.copyButtonLabel),

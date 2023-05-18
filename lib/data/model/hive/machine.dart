@@ -53,6 +53,8 @@ class Machine extends HiveObject {
 
   String get printProgressChannelKey => '$uuid-progressUpdates';
 
+  String get debugStr => '$name ($uuid)';
+
   Machine(
       {required this.name,
       required this.wsUrl,

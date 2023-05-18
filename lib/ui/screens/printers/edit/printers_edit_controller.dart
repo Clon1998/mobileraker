@@ -240,8 +240,12 @@ class PrinterEditController extends _$PrinterEditController {
       FormBuilderState formState =
           ref.read(editPrinterFormKeyProvider).currentState!;
       ImportSettingsDialogViewResults result = response.data;
-      ImportMachineSettingsDto importDto = result.source;
+      ImportMachineSettingsResult importDto = result.source;
       MachineSettings settings = importDto.machineSettings;
+      ref
+          .read(temperaturePresetListControllerProvider.notifier)
+          .importPresets(result.presets);
+
       Map<String, dynamic> patchingValues = {};
       for (String field in result.fields) {
         switch (field) {
@@ -629,6 +633,14 @@ class TemperaturePresetListController
     var list = state.toList();
     list.remove(preset);
     state = List.unmodifiable(list);
+  }
+
+  importPresets(List<TemperaturePreset> presets) {
+    // Since these presets are new to this machine, new dates+uuid!
+    var copies = presets.map((e) => TemperaturePreset(
+        name: e.name, bedTemp: e.bedTemp, extruderTemp: e.extruderTemp));
+
+    state = List.unmodifiable([...state, ...copies]);
   }
 }
 
