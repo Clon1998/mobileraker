@@ -68,6 +68,7 @@ Future<MachineSettings> selectedMachineSettings(
 
   await ref.watchWhere<KlipperInstance>(
       klipperSelectedProvider, (c) => c.klippyState == KlipperState.ready);
+  // TODO Refactor the fetchSettings into a new/machine based provider to make updating this easier!
   var fetchSettings =
       await ref.watch(machineServiceProvider).fetchSettings(machine);
   ref.keepAlive();

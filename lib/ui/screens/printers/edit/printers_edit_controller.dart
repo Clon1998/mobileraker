@@ -16,6 +16,7 @@ import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/webcam_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
@@ -69,7 +70,8 @@ class PrinterEditController extends _$PrinterEditController {
   saveForm() async {
     try {
       var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
-      if (!formBuilderState.saveAndValidate(autoScrollWhenFocusOnInvalid: true)) {
+      if (!formBuilderState.saveAndValidate(
+          autoScrollWhenFocusOnInvalid: true)) {
         ref.read(snackBarServiceProvider).show(SnackBarConfig(
               type: SnackbarType.warning,
               title: 'pages.printer_edit.store_error.title'.tr(),
@@ -104,6 +106,11 @@ class PrinterEditController extends _$PrinterEditController {
       await _saveWebcamInfos(storedValues);
 
       await _saveMachineRemoteSettings(storedValues);
+
+      // TODo remove this and replace with a invalidate of the machineSettings provider that is based on per machine once it is impl
+      var isSelectedMachine = await ref.read(selectedMachineProvider
+          .selectAsync((data) => data?.uuid == machine.uuid));
+      if (isSelectedMachine) ref.invalidate(selectedMachineSettingsProvider);
 
       ref.read(goRouterProvider).pop();
     } on Error catch (e, s) {
