@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
@@ -40,15 +41,21 @@ class SwitchPrinterAppBar extends HookConsumerWidget
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var selectedMachine = ref.watch(selectedMachineProvider).valueOrFullNull;
+    var multipleMachinesAvailable = ref
+            .watch(allMachinesProvider.selectAs((data) => data.length > 1))
+            .valueOrFullNull ==
+        true;
     return AppBar(
       centerTitle: false,
       title: GestureDetector(
         onHorizontalDragEnd: ref
             .watch(selectedPrinterAppBarController.notifier)
             .onHorizontalDragEnd,
-        onTap: () => ref
-            .read(dialogServiceProvider)
-            .show(DialogRequest(type: DialogType.activeMachine)),
+        onTap: multipleMachinesAvailable
+            ? () => ref
+                .read(dialogServiceProvider)
+                .show(DialogRequest(type: DialogType.activeMachine))
+            : null,
         child: Text(
           '${selectedMachine?.name ?? 'Printer'} - $title',
           overflow: TextOverflow.fade,
