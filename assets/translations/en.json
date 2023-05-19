@@ -31,7 +31,8 @@
     "google_play": "GooglePlay",
     "ios_store": "AppStore",
     "active": "Active",
-    "canceled": "Canceled"
+    "canceled": "Canceled",
+    "monthly": "Monthly"
   },
   "pages": {
     "dashboard": {

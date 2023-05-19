@@ -40,10 +40,13 @@ class SelectedMachineService {
 
   _init() {
     String? selectedUUID = _boxUuid.get('selectedPrinter');
-    if (selectedUUID == null) selectMachine(null);
-    _machineRepo.get(uuid: selectedUUID).then((value) {
-      selectMachine(value);
-    });
+    if (selectedUUID == null) {
+      selectMachine(null);
+    } else {
+      _machineRepo.get(uuid: selectedUUID).then((value) {
+        selectMachine(value);
+      });
+    }
   }
 
   selectMachine(Machine? machine, [bool force = false]) async {

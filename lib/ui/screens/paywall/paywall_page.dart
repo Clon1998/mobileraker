@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -183,11 +184,13 @@ class _PaywallOfferings extends ConsumerWidget {
             .valueOrNull ==
         true;
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: isSupporter
-          ? _ManageTiers(offering: offering)
-          : _SubscribeTiers(offering: offering),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: isSupporter
+            ? _ManageTiers(offering: offering)
+            : _SubscribeTiers(offering: offering),
+      ),
     );
   }
 }
@@ -431,6 +434,13 @@ class _SupporterTierCard extends ConsumerWidget {
                     Text(
                       storeProduct.priceString,
                     ),
+                    Text(
+                      'general.monthly',
+                      style: themeData.textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          color: defaultTextStyle.color
+                              ?.getShadeColor(lighten: false)),
+                    ).tr(),
                   ],
                 ),
               ],
