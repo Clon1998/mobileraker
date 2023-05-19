@@ -13,7 +13,6 @@ import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_neopixel.dart';
 import 'package:mobileraker/data/dto/config/led/config_pca_led.dart';
-import 'package:mobileraker/logger.dart';
 
 import 'config_extruder.dart';
 import 'config_heater_bed.dart';
@@ -63,7 +62,7 @@ class ConfigFile {
           jsonChild.addAll(sharedHeaterConfig);
         }
         extruders[object] = ConfigExtruder.parse(object, jsonChild);
-      } else if (object == ConfigFileEntry.output.name) {
+      } else if (object == ConfigFileEntry.output_pin.name) {
         outputs[objectName] = ConfigOutput.parse(objectName, jsonChild);
       } else if (object.startsWith(ConfigFileEntry.stepper.name)) {
         List<String> split = key.split("_");

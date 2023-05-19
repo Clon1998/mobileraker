@@ -1,6 +1,6 @@
 enum ConfigFileEntry {
   extruder,
-  output,
+  output_pin,
   stepper,
   gcode_macro,
   dotstar,
