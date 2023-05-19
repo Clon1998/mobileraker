@@ -68,7 +68,7 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   saveForm() async {
-    var jrpcStateAlive =
+    var jrpcStateKeppAliveLink =
         ref.keepAliveExternally(jrpcClientStateProvider(machine.uuid));
 
     try {
@@ -81,7 +81,7 @@ class PrinterEditController extends _$PrinterEditController {
               message: 'pages.printer_edit.store_error.message'.tr(),
               duration: const Duration(seconds: 10),
             ));
-        logger.w('Could not save state!');
+        logger.w('Could not save printer, formBuilder reported invalid state!');
         return;
       }
       state = true;
@@ -128,7 +128,7 @@ class PrinterEditController extends _$PrinterEditController {
           }));
       ;
     } finally {
-      jrpcStateAlive.close();
+      jrpcStateKeppAliveLink.close();
 
       // TODo remove this and replace with a invalidate of the machineSettings provider that is based on per machine once it is impl
       var isSelectedMachine = await ref.read(selectedMachineProvider
