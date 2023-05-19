@@ -45,9 +45,12 @@ theme. In the future, additional perks such as UI enhancements or minor function
   value ([#139](https://github.com/Clon1998/mobileraker/issues/139))
 - Corrected the behavior of JRPC-Client, ensuring it waits for pending messages to
   complete ([#159](https://github.com/Clon1998/mobileraker/issues/159))
+- Fixed `[output_pin]` config not getting parsed, finally making binary pins
+  switchable ([#146](https://github.com/Clon1998/mobileraker/issues/70))
 - Fixed NotificationService not registering remote-id for notifications on machines with multiple printers managed by
   Mobileraker
 - Resolved overflow issue on the `Dashboard` in the `MoveAxis` card
+- Fixed changes in the printer edit page not getting reflected on the dashboard!
 
 ## [2.2.x]
 
