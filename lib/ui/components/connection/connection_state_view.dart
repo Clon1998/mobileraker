@@ -208,6 +208,7 @@ class KlippyState extends ConsumerWidget {
     return AsyncValueWidget<KlipperInstance>(
       value: watch,
       data: (data) {
+        var themeData = Theme.of(context);
         switch (data.klippyState) {
           case KlipperState.disconnected:
           case KlipperState.shutdown:
@@ -220,8 +221,8 @@ class KlippyState extends ConsumerWidget {
                       child: Padding(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: Column(
-                      children: [
+                        child: Column(
+                          children: [
                         ListTile(
                           leading: const Icon(
                             FlutterIcons.disconnect_ant,
@@ -231,34 +232,41 @@ class KlippyState extends ConsumerWidget {
                         Text(
                             data.klippyStateMessage ??
                                 tr(data.klippyState.name),
-                            style: TextStyle(
-                                color: Theme.of(context).colorScheme.error)),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ElevatedButton(
-                              onPressed: ref
-                                  .read(connectionStateControllerProvider
-                                      .notifier)
-                                  .onRestartKlipperPressed,
-                              child: const Text(
-                                      'pages.dashboard.general.restart_klipper')
-                                  .tr(),
-                            ),
-                            ElevatedButton(
-                              onPressed: ref
-                                  .read(connectionStateControllerProvider
-                                      .notifier)
-                                  .onRestartMCUPressed,
-                              child: const Text(
-                                      'pages.dashboard.general.restart_mcu')
-                                  .tr(),
-                            )
-                          ],
+                            style:
+                                TextStyle(color: themeData.colorScheme.error)),
+                        ElevatedButtonTheme(
+                          data: ElevatedButtonThemeData(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: themeData.colorScheme.error,
+                                  foregroundColor:
+                                      themeData.colorScheme.onError)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton(
+                                onPressed: ref
+                                    .read(connectionStateControllerProvider
+                                        .notifier)
+                                    .onRestartKlipperPressed,
+                                child: const Text(
+                                        'pages.dashboard.general.restart_klipper')
+                                    .tr(),
+                              ),
+                              ElevatedButton(
+                                onPressed: ref
+                                    .read(connectionStateControllerProvider
+                                        .notifier)
+                                    .onRestartMCUPressed,
+                                child: const Text(
+                                        'pages.dashboard.general.restart_mcu')
+                                    .tr(),
+                              )
+                            ],
+                          ),
                         )
                       ],
-                    ),
-                  )),
+                        ),
+                      )),
                   if (data.components.contains('power')) const PowerApiCard(),
                 ],
               ),
@@ -270,22 +278,22 @@ class KlippyState extends ConsumerWidget {
                 children: [
                   Card(
                       child: Padding(
-                    padding:
+                        padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: Column(
-                      children: [
-                        ListTile(
-                          leading: const Icon(
-                            FlutterIcons.disconnect_ant,
-                          ),
-                          title: Text(data.klippyState.name).tr(),
-                        ),
-                        const Text(
+                        child: Column(
+                          children: [
+                            ListTile(
+                              leading: const Icon(
+                                FlutterIcons.disconnect_ant,
+                              ),
+                              title: Text(data.klippyState.name).tr(),
+                            ),
+                            const Text(
                                 'components.connection_watcher.server_starting')
-                            .tr()
-                      ],
-                    ),
-                  )),
+                                .tr()
+                          ],
+                        ),
+                      )),
                 ],
               ),
             );
@@ -310,7 +318,7 @@ class KlippyState extends ConsumerWidget {
                           .read(connectionStateControllerProvider.notifier)
                           .onEditPrinter,
                       child:
-                          Text('components.nav_drawer.printer_settings'.tr()))
+                      Text('components.nav_drawer.printer_settings'.tr()))
                 ],
               ),
             );

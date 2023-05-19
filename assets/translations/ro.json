@@ -87,7 +87,7 @@
           "title": "Reglaj fin axă Z"
         },
         "restart_klipper": "Repornește Klipper",
-        "restart_mcu": "Repornește MCU"
+        "restart_mcu": "@:general.restart @:general.firmware"
       },
       "control": {
         "fan_card": {

@@ -83,7 +83,7 @@
           "title": "Micro-step de l'axe Z"
         },
         "restart_klipper": "Redémarrer Klipper",
-        "restart_mcu": "Redémarrer carte mère"
+        "restart_mcu": "@:general.restart @:general.firmware"
       },
       "control": {
         "fan_card": {

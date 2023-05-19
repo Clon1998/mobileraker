@@ -97,7 +97,7 @@
           "title": "Babystepping Z-Axis"
         },
         "restart_klipper": "Restart Klipper",
-        "restart_mcu": "Restart MCU"
+        "restart_mcu": "@:general.restart @:general.firmware"
       },
       "control": {
         "fan_card": {

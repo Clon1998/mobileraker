@@ -82,7 +82,7 @@
                     "title": "babySteppping z軸"
                 },
                 "restart_klipper": "重新啟動Klipper",
-                "restart_mcu": "重新啟動MCU"
+                "restart_mcu": "@:general.restart@:general.firmware"
             },
             "control": {
                 "fan_card": {

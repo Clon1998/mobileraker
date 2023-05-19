@@ -134,8 +134,6 @@ class _FetchingData extends StatelessWidget {
   }
 }
 
-
-
 class PrintCard extends ConsumerWidget {
   const PrintCard({
     Key? key,
@@ -183,23 +181,30 @@ class PrintCard extends ConsumerWidget {
           ),
           if (const {KlipperState.shutdown, KlipperState.error}
               .contains(klippyInstance.klippyState))
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ElevatedButton(
-                  onPressed: ref
-                      .read(generalTabViewControllerProvider.notifier)
-                      .onRestartKlipperPressed,
-                  child: const Text('pages.dashboard.general.restart_klipper')
-                      .tr(),
-                ),
-                ElevatedButton(
-                  onPressed: ref
-                      .read(generalTabViewControllerProvider.notifier)
-                      .onRestartMCUPressed,
-                  child: const Text('pages.dashboard.general.restart_mcu').tr(),
-                )
-              ],
+            ElevatedButtonTheme(
+              data: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: themeData.colorScheme.error,
+                      foregroundColor: themeData.colorScheme.onError)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    onPressed: ref
+                        .read(generalTabViewControllerProvider.notifier)
+                        .onRestartKlipperPressed,
+                    child: const Text('pages.dashboard.general.restart_klipper')
+                        .tr(),
+                  ),
+                  ElevatedButton(
+                    onPressed: ref
+                        .read(generalTabViewControllerProvider.notifier)
+                        .onRestartMCUPressed,
+                    child:
+                        const Text('pages.dashboard.general.restart_mcu').tr(),
+                  )
+                ],
+              ),
             ),
           const M117Message(),
           if (klippyInstance.klippyCanReceiveCommands &&

@@ -86,7 +86,7 @@
           "title": "Babystepping Z-Achse"
         },
         "restart_klipper": "Klipper Neustart",
-        "restart_mcu": "MCU Neustart"
+        "restart_mcu": "@:general.restart @:general.firmware"
       },
       "control": {
         "fan_card": {

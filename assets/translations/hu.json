@@ -83,7 +83,7 @@
           "title": "Mikrolépés Z tengely"
         },
         "restart_klipper": "Klipper újraindítása",
-        "restart_mcu": "MCU újraindítása"
+        "restart_mcu": "@:general.restart @:general.firmware"
       },
       "control": {
         "fan_card": {

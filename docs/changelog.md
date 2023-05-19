@@ -27,11 +27,12 @@ theme. In the future, additional perks such as UI enhancements or minor function
 
 ### Changed Features
 
+- Added support for printers that do not utilize a print
+  fan ([#158](https://github.com/Clon1998/mobileraker/issues/158))
+- Streamlined `Restart MCU` to `Restart Firmeware` ([#145](https://github.com/Clon1998/mobileraker/issues/145))
 - Enhanced the webcam animation for smoother transitions from loading to normal operation
 - Console entries now display the date if they are older than 24 hours
 - Tapping a macro/command in the console now moves the cursor to the end of the input field
-- Added support for printers that do not utilize a print
-  fan ([#158](https://github.com/Clon1998/mobileraker/issues/158))
 
 ### Bug Fixes
 

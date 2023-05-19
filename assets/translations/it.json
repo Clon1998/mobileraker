@@ -87,7 +87,7 @@
           "title": "Babystepping Asse-Z"
         },
         "restart_klipper": "Riavvia Klipper",
-        "restart_mcu": "Riavvia MCU"
+        "restart_mcu": "@:general.restart @:general.firmware"
       },
       "control": {
         "fan_card": {
