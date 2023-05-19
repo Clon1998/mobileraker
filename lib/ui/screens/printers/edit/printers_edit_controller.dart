@@ -68,6 +68,9 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   saveForm() async {
+    var jrpcStateAlive =
+        ref.keepAliveExternally(jrpcClientStateProvider(machine.uuid));
+
     try {
       var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
       if (!formBuilderState.saveAndValidate(
@@ -82,7 +85,7 @@ class PrinterEditController extends _$PrinterEditController {
         return;
       }
       state = true;
-      var hasConnection =
+      var isConnected =
           ref.read(jrpcClientStateProvider(machine.uuid)).valueOrNull ==
               ClientState.connected;
 
@@ -90,10 +93,11 @@ class PrinterEditController extends _$PrinterEditController {
           Map.unmodifiable(formBuilderState.value);
 
       await _saveMachine(storedValues);
-      if (!hasConnection) {
+      if (!isConnected) {
+        logger
+            .i('Saved only local settings, machine was not connected via JRPC');
         return; // If machine was not connected, no need to store remote data hence it was not shown in the first place!
       }
-
       var jrpcState = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
           (c) => c == ClientState.connected || c == ClientState.error);
 
@@ -106,13 +110,6 @@ class PrinterEditController extends _$PrinterEditController {
       await _saveWebcamInfos(storedValues);
 
       await _saveMachineRemoteSettings(storedValues);
-
-      // TODo remove this and replace with a invalidate of the machineSettings provider that is based on per machine once it is impl
-      var isSelectedMachine = await ref.read(selectedMachineProvider
-          .selectAsync((data) => data?.uuid == machine.uuid));
-      if (isSelectedMachine) ref.invalidate(selectedMachineSettingsProvider);
-
-      ref.read(goRouterProvider).pop();
     } on Error catch (e, s) {
       state = false;
       logger.e('Error while trying to save printer data', e, s);
@@ -130,6 +127,15 @@ class PrinterEditController extends _$PrinterEditController {
                 body: 'Exception:\n $e\n\n$s'));
           }));
       ;
+    } finally {
+      jrpcStateAlive.close();
+
+      // TODo remove this and replace with a invalidate of the machineSettings provider that is based on per machine once it is impl
+      var isSelectedMachine = await ref.read(selectedMachineProvider
+          .selectAsync((data) => data?.uuid == machine.uuid));
+      if (isSelectedMachine) ref.invalidate(selectedMachineSettingsProvider);
+
+      ref.read(goRouterProvider).pop();
     }
   }
 
