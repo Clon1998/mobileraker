@@ -37,7 +37,17 @@ class FaqPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('pages.faq.title').tr()),
+      appBar: AppBar(
+        title: const Text('pages.faq.title').tr(),
+        actions: [
+          IconButton(
+            tooltip: tr('pages.faq.open_in_browser'),
+            onPressed: () =>
+                launchUrl(faqRootHuman, mode: LaunchMode.externalApplication),
+            icon: const Icon(Icons.open_in_browser),
+          )
+        ],
+      ),
       drawer: const NavigationDrawerWidget(),
       body: const _FAQBody(),
     );
