@@ -584,16 +584,9 @@ class PrinterService {
     });
   }
 
-  _updatePrintFan(Map<String, dynamic> fanJson,
+  _updatePrintFan(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    if (fanJson.containsKey('speed')) {
-      double speed = fanJson['speed'];
-      if (printer.printFan == null) {
-        printer.printFan = PrintFan(speed: speed);
-      } else {
-        printer.printFan = printer.printFan!.copyWith(speed: speed);
-      }
-    }
+    printer.printFan = PrintFan.partialUpdate(printer.printFan, jsonResponse);
   }
 
   _updateHeaterFan(String configName, Map<String, dynamic> fanJson,
