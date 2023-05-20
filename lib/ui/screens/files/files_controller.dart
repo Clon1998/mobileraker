@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -14,15 +12,11 @@ import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_it
 import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_controller.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/path_utils.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 final filePageProvider = StateProvider.autoDispose<int>((ref) => 0);
 
@@ -72,16 +66,21 @@ class FilesPageController extends StateNotifier<FilePageState> {
 
   fetchDirectoryData(
       [List<String> newPath = const ['gcodes'], bool force = false]) async {
-    if (state.apiResult.isLoading && !force) {
-      return;
-    } // Prevent dublicate fetches!
-    state = FilePageState.loading(newPath);
-    var result = await ref
-        .read(fileServiceSelectedProvider)
-        .fetchDirectoryInfo(pathAsString, true);
-    if (pathAsString != result.folderPath) return;
-    state = state.copyWith(apiResult: result);
-    _filterAndSortResult();
+    try {
+      if (state.apiResult.isLoading && !force) {
+        return;
+      } // Prevent dublicate fetches!
+      state = FilePageState.loading(newPath);
+      var result = await ref
+          .read(fileServiceSelectedProvider)
+          .fetchDirectoryInfo(pathAsString, true);
+      if (pathAsString != result.folderPath) return;
+      state = state.copyWith(apiResult: result);
+      _filterAndSortResult();
+    } catch (e, s) {
+      state = FilePageState(
+          newPath, AsyncValue.error(e, s), AsyncValue.error(e, s));
+    }
   }
 
   _filterAndSortResult() {
