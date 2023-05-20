@@ -13,14 +13,13 @@ import 'package:mobileraker/service/setting_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'cam_card_controller.freezed.dart';
-
 part 'cam_card_controller.g.dart';
 
 @freezed
 class CamCardState with _$CamCardState {
   const factory CamCardState({
     required List<WebcamInfo> allCams,
-    required WebcamInfo activeCam,
+    required WebcamInfo? activeCam,
     required ClientType clientType,
     required Machine machine,
   }) = _CamCardState;
@@ -48,15 +47,19 @@ class CamCardController extends _$CamCardController {
     Machine machine = (await ref.watch(selectedMachineProvider.future))!;
     var filteredCams =
         await ref.watch(filteredWebcamInfosProvider(machine.uuid).future);
-    var selIndex = min(
-        filteredCams.length - 1,
-        max(
-            0,
-            ref
-                .read(settingServiceProvider)
-                .readInt(selectedWebcamGrpIndex, 0)));
-    var activeCam = await ref.watch(
-        webcamInfoProvider(machine.uuid, filteredCams[selIndex].uuid).future);
+
+    WebcamInfo? activeCam;
+    if (filteredCams.isNotEmpty) {
+      var selIndex = min(
+          filteredCams.length - 1,
+          max(
+              0,
+              ref
+                  .read(settingServiceProvider)
+                  .readInt(selectedWebcamGrpIndex, 0)));
+      activeCam = await ref.watch(
+          webcamInfoProvider(machine.uuid, filteredCams[selIndex].uuid).future);
+    }
 
     return CamCardState(
         allCams: filteredCams,
@@ -68,7 +71,7 @@ class CamCardController extends _$CamCardController {
   onSelectedChange(String? camUUID) async {
     if (camUUID == null ||
         !state.hasValue ||
-        state.value?.activeCam.uuid == camUUID) return;
+        state.value?.activeCam?.uuid == camUUID) return;
 
     var c = await ref
         .watch(webcamInfoProvider(state.value!.machine.uuid, camUUID).future);
@@ -85,9 +88,9 @@ class CamCardController extends _$CamCardController {
   }
 
   onRetry() {
-    if (state.hasValue) {
+    if (state.hasValue && state.value!.activeCam != null) {
       ref.invalidate(webcamInfoProvider(
-          state.value!.machine.uuid, state.value!.activeCam.uuid));
+          state.value!.machine.uuid, state.value!.activeCam!.uuid));
     }
   }
 }

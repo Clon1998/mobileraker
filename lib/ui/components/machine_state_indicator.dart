@@ -30,32 +30,32 @@ class MachineStateIndicator extends ConsumerWidget {
     KlipperState serverState =
         klippyData?.klippyState ?? KlipperState.disconnected;
 
-
-    if (clientState == ClientState.connected) {
-      return Tooltip(
-        padding: const EdgeInsets.all(8.0),
-        message: 'pages.dashboard.server_status'.tr(args: [
-          serverState.name.tr(),
-          klippyData?.klippyConnected ?? false
-              ? tr('general.connected').toLowerCase()
-              : tr('klipper_state.disconnected').toLowerCase()
-        ], gender: 'available'),
-        child: (clientType == ClientType.local)
-            ? Icon(Icons.radio_button_on,
-                size: 10, color: _stateToColor(context, serverState))
-            : const Image(
-                height: 20,
-                width: 20,
-                image: AssetImage('assets/images/octo_everywhere.png'),
-              ),
-      );
-    } else {
-      // TODO add more states
-      return const SizedBox.shrink();
+    switch (clientState) {
+      case ClientState.connected:
+        return Tooltip(
+          padding: const EdgeInsets.all(8.0),
+          message: 'pages.dashboard.server_status'.tr(args: [
+            serverState.name.tr(),
+            klippyData?.klippyConnected ?? false
+                ? tr('general.connected').toLowerCase()
+                : tr('klipper_state.disconnected').toLowerCase()
+          ], gender: 'available'),
+          child: (clientType == ClientType.local)
+              ? Icon(Icons.radio_button_on,
+                  size: 10, color: _klippyStateToColor(context, serverState))
+              : const Image(
+                  height: 20,
+                  width: 20,
+                  image: AssetImage('assets/images/octo_everywhere.png'),
+                ),
+        );
+      default:
+        return Icon(Icons.radio_button_on,
+            size: 10, color: _stateToColor(context, clientState));
     }
   }
 
-  Color _stateToColor(BuildContext context, KlipperState state) {
+  Color _klippyStateToColor(BuildContext context, KlipperState state) {
     CustomColors? customColors = Theme.of(context).extension<CustomColors>();
 
     switch (state) {
@@ -67,6 +67,22 @@ class MachineStateIndicator extends ConsumerWidget {
         return customColors?.info ?? Colors.blueAccent;
       case KlipperState.shutdown:
       case KlipperState.disconnected:
+      default:
+        return customColors?.warning ?? Colors.orange;
+    }
+  }
+
+  Color _stateToColor(BuildContext context, ClientState state) {
+    CustomColors? customColors = Theme.of(context).extension<CustomColors>();
+
+    switch (state) {
+      case ClientState.connected:
+        return customColors?.success ?? Colors.green;
+      case ClientState.error:
+        return customColors?.danger ?? Colors.red;
+      case ClientState.connecting:
+        return customColors?.info ?? Colors.blueAccent;
+      case ClientState.disconnected:
       default:
         return customColors?.warning ?? Colors.orange;
     }

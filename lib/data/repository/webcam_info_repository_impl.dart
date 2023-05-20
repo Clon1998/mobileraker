@@ -19,8 +19,10 @@ class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
 
   @override
   Future<List<WebcamInfo>> fetchAll() async {
-    Map<String, dynamic> json =
+    Map<String, dynamic>? json =
         await _databaseService.getDatabaseItem('webcams');
+    if (json == null) return [];
+
     return json
         .map((key, value) {
           return MapEntry(

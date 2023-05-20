@@ -23,7 +23,6 @@ PowerService powerService(PowerServiceRef ref, String machineUUID) {
 @riverpod
 Stream<List<PowerDevice>> powerDevices(
     PowerDevicesRef ref, String machineUUID) {
-  var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
   return ref.watch(powerServiceProvider(machineUUID)).devices;
 }
 
@@ -70,8 +69,7 @@ class PowerService {
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(_onPowerChanged, "notify_power_changed");
     ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {
-      var data = next as AsyncValue<ClientState>;
-      switch (data.valueOrNull) {
+      switch (next.valueOrNull) {
         case ClientState.connected:
           _init();
           break;

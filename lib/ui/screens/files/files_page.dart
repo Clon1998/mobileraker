@@ -12,9 +12,11 @@ import 'package:mobileraker/data/dto/files/remote_file.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
+import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
@@ -249,7 +251,26 @@ class _FilesBody extends ConsumerWidget {
                         ),
                       );
                     },
-                    error: (e, s) => const Text('Could not fetch files!'),
+                    error: (e, s) => Expanded(
+                          child: ErrorCard(
+                            title: const Text('Unable to fetch files!'),
+                            body: Column(
+                              children: [
+                                Text(
+                                    'The following error occued while trying to fetch files:n$e'),
+                                TextButton(
+                                    // onPressed: model.showPrinterFetchingErrorDialog,
+                                    onPressed: () => ref
+                                        .read(dialogServiceProvider)
+                                        .show(DialogRequest(
+                                            type: DialogType.stacktrace,
+                                            title: e.runtimeType.toString(),
+                                            body: 'Exception:\n $e\n\n$s')),
+                                    child: const Text('Show Full Error'))
+                              ],
+                            ),
+                          ),
+                        ),
                     loading: () => Expanded(
                           child: Shimmer.fromColors(
                             baseColor: Colors.grey,
