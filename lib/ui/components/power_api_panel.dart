@@ -24,36 +24,38 @@ class PowerApiCard extends ConsumerWidget {
         (data) =>
             data.where((element) => !element.name.startsWith('_')).length));
     return powerDevicesLen.maybeWhen(
-        data: (data) => Card(
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Column(
-                  children: [
-                    ListTile(
-                      leading: const Icon(
-                        FlutterIcons.power_fea,
+        data: (data) => (data == 0)
+            ? const SizedBox.shrink()
+            : Card(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        leading: const Icon(
+                          FlutterIcons.power_fea,
+                        ),
+                        title: const Text(
+                                'pages.dashboard.control.power_card.title')
+                            .tr(),
                       ),
-                      title:
-                          const Text('pages.dashboard.control.power_card.title')
-                              .tr(),
-                    ),
-                    AdaptiveHorizontalScroll(
-                      pageStorageKey: 'powers',
-                      children: List.generate(data, (index) {
-                        var powerDeviceProvider =
-                            powerDevicesSelectedProvider.selectAs((data) => data
-                                .where(
-                                    (element) => !element.name.startsWith('_'))
-                                .elementAt(index));
+                      AdaptiveHorizontalScroll(
+                        pageStorageKey: 'powers',
+                        children: List.generate(data, (index) {
+                          var powerDeviceProvider = powerDevicesSelectedProvider
+                              .selectAs((data) => data
+                                  .where((element) =>
+                                      !element.name.startsWith('_'))
+                                  .elementAt(index));
 
-                        return _PowerDeviceCard(
-                            powerDeviceProvider: powerDeviceProvider);
-                      }),
-                    )
-                  ],
+                          return _PowerDeviceCard(
+                              powerDeviceProvider: powerDeviceProvider);
+                        }),
+                      )
+                    ],
+                  ),
                 ),
               ),
-            ),
         orElse: () => const SizedBox.shrink());
   }
 }

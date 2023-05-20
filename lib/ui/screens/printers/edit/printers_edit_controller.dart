@@ -71,19 +71,19 @@ class PrinterEditController extends _$PrinterEditController {
     var jrpcStateKeppAliveLink =
         ref.keepAliveExternally(jrpcClientStateProvider(machine.uuid));
 
+    var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
+    if (!formBuilderState.saveAndValidate(autoScrollWhenFocusOnInvalid: true)) {
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            type: SnackbarType.warning,
+            title: 'pages.printer_edit.store_error.title'.tr(),
+            message: 'pages.printer_edit.store_error.message'.tr(),
+            duration: const Duration(seconds: 10),
+          ));
+      logger.w('Could not save printer, formBuilder reported invalid state!');
+      return;
+    }
+
     try {
-      var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
-      if (!formBuilderState.saveAndValidate(
-          autoScrollWhenFocusOnInvalid: true)) {
-        ref.read(snackBarServiceProvider).show(SnackBarConfig(
-              type: SnackbarType.warning,
-              title: 'pages.printer_edit.store_error.title'.tr(),
-              message: 'pages.printer_edit.store_error.message'.tr(),
-              duration: const Duration(seconds: 10),
-            ));
-        logger.w('Could not save printer, formBuilder reported invalid state!');
-        return;
-      }
       state = true;
       var isConnected =
           ref.read(jrpcClientStateProvider(machine.uuid)).valueOrNull ==
