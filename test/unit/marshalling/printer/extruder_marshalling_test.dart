@@ -3,6 +3,8 @@ import 'package:mobileraker/data/dto/machine/extruder.dart';
 
 import '../../../test_utils.dart';
 
+var NOW = DateTime.now();
+
 void main() {
   test('Extruder fromJson', () {
     var extruder = extruderObject();
@@ -13,6 +15,7 @@ void main() {
     expect(extruder.pressureAdvance, equals(0.055));
     expect(extruder.smoothTime, equals(0.04));
     expect(extruder.power, equals(0));
+    expect(extruder.lastHistory, equals(NOW));
     expect(extruder.temperatureHistory, isNull);
     expect(extruder.targetHistory, isNull);
     expect(extruder.powerHistory, isNull);
@@ -34,6 +37,7 @@ void main() {
     expect(extruder.pressureAdvance, equals(0.055));
     expect(extruder.smoothTime, equals(0.99));
     expect(extruder.power, equals(1));
+    expect(extruder.lastHistory, equals(NOW));
     expect(extruder.temperatureHistory, isNull);
     expect(extruder.targetHistory, isNull);
     expect(extruder.powerHistory, isNull);
@@ -56,6 +60,7 @@ void main() {
     expect(extruder.pressureAdvance, equals(0.055));
     expect(extruder.smoothTime, equals(0.04));
     expect(extruder.power, equals(0));
+    expect(extruder.lastHistory, equals(NOW));
     expect(extruder.temperatureHistory,
         orderedEquals([30, 30, 31, 31, 32.5, 44, 45, 45, 9]));
     expect(extruder.targetHistory,
@@ -73,6 +78,5 @@ Extruder extruderObject() {
   return Extruder.fromJson({
     ...parsedJson,
     "num": 0,
-    "lastHistory": DateTime.now().toIso8601String()
-  });
+    "lastHistory": NOW.toIso8601String()});
 }

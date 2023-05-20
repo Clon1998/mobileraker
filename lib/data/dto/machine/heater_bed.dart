@@ -10,9 +10,9 @@ class HeaterBed with _$HeaterBed {
     @Default(0) double temperature,
     @Default(0) double target,
     @Default(0) double power,
-    List<double>? temperatureHistory,
-    List<double>? targetHistory,
-    List<double>? powerHistory,
+    @JsonKey(name: 'temperatures') List<double>? temperatureHistory,
+    @JsonKey(name: 'targets') List<double>? targetHistory,
+    @JsonKey(name: 'powers') List<double>? powerHistory,
     required DateTime lastHistory,
   }) = _HeaterBed;
 
