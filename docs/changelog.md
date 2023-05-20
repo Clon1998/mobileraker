@@ -1,6 +1,14 @@
 # Mobileraker - Changelog
 
-## [2.3.0] - 2023-05-17
+## [2.3.1] - 2023-05-20
+
+### Bug Fixes
+
+- Hotfixed Webcam card shown if no cam was found
+- Hotfixed Webcam card shows error if no cam was found
+- Hotfixed Printer edit closes even if a field error was detected
+
+## [2.3.0] - 2023-05-19
 
 This release signifies a significant shift in the philosophy governing the future of Mobileraker, particularly regarding
 its monetization strategy. However, let me begin by addressing the most crucial aspect. Currently, there are no plans to
