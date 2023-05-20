@@ -39,7 +39,6 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
-import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
@@ -709,80 +708,16 @@ class PrinterService {
     };
   }
 
-  _updateGCodeMove(Map<String, dynamic> gCodeJson,
+  _updateGCodeMove(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    double? speedFactor;
-    double? speed;
-    double? extrudeFactor;
-    bool? absoluteCoordinates;
-    bool? absoluteExtrude;
-    List<double>? position;
-    List<double>? homingOrigin;
-    List<double>? gcodePosition;
-
-    if (gCodeJson.containsKey('speed_factor')) {
-      speedFactor = (gCodeJson['speed_factor'] as double).toPrecision(2);
-    }
-    if (gCodeJson.containsKey('speed')) {
-      speed = gCodeJson['speed'];
-    }
-    if (gCodeJson.containsKey('extrude_factor')) {
-      extrudeFactor = _toPrecision(gCodeJson['extrude_factor']);
-    }
-    if (gCodeJson.containsKey('absolute_coordinates')) {
-      absoluteCoordinates = gCodeJson['absolute_coordinates'];
-    }
-    if (gCodeJson.containsKey('absolute_extrude')) {
-      absoluteExtrude = gCodeJson['absolute_extrude'];
-    }
-
-    if (gCodeJson.containsKey('position')) {
-      position = gCodeJson['position'].cast<double>();
-    }
-    if (gCodeJson.containsKey('homing_origin')) {
-      homingOrigin = gCodeJson['homing_origin'].cast<double>();
-    }
-    if (gCodeJson.containsKey('gcode_position')) {
-      gcodePosition = gCodeJson['gcode_position'].cast<double>();
-    }
-
-    GCodeMove old = printer.gCodeMove ?? const GCodeMove();
-
-    printer.gCodeMove = GCodeMove(
-      speedFactor: speedFactor ?? old.speedFactor,
-      speed: speed ?? old.speed,
-      extrudeFactor: extrudeFactor ?? old.extrudeFactor,
-      absoluteCoordinates: absoluteCoordinates ?? old.absoluteCoordinates,
-      absoluteExtrude: absoluteExtrude ?? old.absoluteExtrude,
-      position: position ?? old.position,
-      homingOrigin: homingOrigin ?? old.homingOrigin,
-      gcodePosition: gcodePosition ?? old.gcodePosition,
-    );
+    printer.gCodeMove =
+        GCodeMove.partialUpdate(printer.gCodeMove, jsonResponse);
   }
 
-  _updateMotionReport(Map<String, dynamic> gCodeJson,
+  _updateMotionReport(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    List<double>? position;
-    double? liveVelocity;
-    double? liveExtruderVelocity;
-
-    if (gCodeJson.containsKey('live_position')) {
-      position = gCodeJson['live_position'].cast<double>();
-    }
-    if (gCodeJson.containsKey('live_velocity')) {
-      liveVelocity = gCodeJson['live_velocity'];
-    }
-    if (gCodeJson.containsKey('live_extruder_velocity')) {
-      liveExtruderVelocity = gCodeJson['live_extruder_velocity'];
-    }
-
-    MotionReport old = printer.motionReport ?? const MotionReport();
-
-    printer.motionReport = MotionReport(
-      livePosition: position ?? old.livePosition,
-      liveExtruderVelocity: liveExtruderVelocity ?? old.liveExtruderVelocity,
-      liveVelocity: liveVelocity ?? old.liveVelocity,
-    );
+    printer.motionReport =
+        MotionReport.partialUpdate(printer.motionReport, jsonResponse);
   }
 
   _updateDisplayStatus(Map<String, dynamic> json,
@@ -884,66 +819,9 @@ class PrinterService {
   _updateExtruder(Map<String, dynamic> extruderJson,
       {required PrinterBuilder printer, int num = 0}) {
     List<Extruder> extruders = printer.extruders;
-
     Extruder extruder = printer.extruders[num];
-    double? temperature;
-    double? target;
-    double? pressureAdvance;
-    double? smoothTime;
-    double? power;
-    List<double>? temperatureHistory;
-    List<double>? targetHistory;
-    List<double>? powerHistory;
-    DateTime? lastHistory;
-    if (extruderJson.containsKey('temperature')) {
-      temperature = extruderJson['temperature'];
-    }
-    if (extruderJson.containsKey('target')) {
-      target = extruderJson['target'];
-    }
-    if (extruderJson.containsKey('pressure_advance')) {
-      pressureAdvance = extruderJson['pressure_advance'];
-    }
-    if (extruderJson.containsKey('smooth_time')) {
-      smoothTime = extruderJson['smooth_time'];
-    }
-    if (extruderJson.containsKey('power')) {
-      power = extruderJson['power'];
-    }
 
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(extruder.lastHistory).inSeconds >= 1) {
-      temperatureHistory = _updateHistoryList(
-          extruder.temperatureHistory, temperature ?? extruder.temperature);
-      targetHistory =
-          _updateHistoryList(extruder.targetHistory, target ?? extruder.target);
-      powerHistory =
-          _updateHistoryList(extruder.powerHistory, power ?? extruder.power);
-      lastHistory = now;
-    }
-
-    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    if (extruderJson.containsKey('temperatures')) {
-      temperatureHistory =
-          (extruderJson['temperatures'] as List<dynamic>).cast<double>();
-    }
-    if (extruderJson.containsKey('targets')) {
-      targetHistory = (extruderJson['targets'] as List<dynamic>).cast<double>();
-    }
-    if (extruderJson.containsKey('powers')) {
-      powerHistory = (extruderJson['powers'] as List<dynamic>).cast<double>();
-    }
-    var newExtruder = extruder.copyWith(
-        temperature: temperature ?? extruder.temperature,
-        target: target ?? extruder.target,
-        pressureAdvance: pressureAdvance ?? extruder.pressureAdvance,
-        smoothTime: smoothTime ?? extruder.smoothTime,
-        power: power ?? extruder.power,
-        temperatureHistory: temperatureHistory ?? extruder.temperatureHistory,
-        targetHistory: targetHistory ?? extruder.targetHistory,
-        powerHistory: powerHistory ?? extruder.powerHistory,
-        lastHistory: lastHistory ?? extruder.lastHistory);
+    Extruder newExtruder = Extruder.partialUpdate(extruder, extruderJson);
 
     printer.extruders = extruders
         .mapIndex((e, i) => i == num ? newExtruder : e)
@@ -1081,10 +959,6 @@ class PrinterService {
     if (message.isEmpty) return;
     _snackBarService.show(SnackBarConfig(
         type: SnackbarType.warning, title: 'Klippy-Message', message: message));
-  }
-
-  double _toPrecision(double d, [int fraction = 2]) {
-    return d.toPrecision(fraction);
   }
 
   void _showExceptionSnackbar(Object e, StackTrace s) {
