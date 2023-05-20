@@ -720,82 +720,27 @@ class PrinterService {
         MotionReport.partialUpdate(printer.motionReport, jsonResponse);
   }
 
-  _updateDisplayStatus(Map<String, dynamic> json,
+  _updateDisplayStatus(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    double? progress = json['progress'];
-    String? message = json['message'];
-
-    DisplayStatus old = printer.displayStatus ?? const DisplayStatus();
-
-    printer.displayStatus = DisplayStatus(
-      progress: progress ?? old.progress,
-      message: message,
+    printer.displayStatus = DisplayStatus.partialUpdate(
+      printer.displayStatus,
+      jsonResponse,
     );
   }
 
-  _updateVirtualSd(Map<String, dynamic> virtualSDJson,
+  _updateVirtualSd(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    double? progress;
-    bool? isActive;
-    int? filePosition;
-
-    if (virtualSDJson.containsKey('progress')) {
-      progress = virtualSDJson['progress'];
-    }
-    if (virtualSDJson.containsKey('is_active')) {
-      isActive = virtualSDJson['is_active'];
-    }
-    if (virtualSDJson.containsKey('file_position')) {
-      filePosition =
-          int.tryParse(virtualSDJson['file_position'].toString()) ?? 0;
-    }
-    VirtualSdCard old = printer.virtualSdCard ?? const VirtualSdCard();
-    printer.virtualSdCard = old.copyWith(
-        progress: progress ?? old.progress,
-        isActive: isActive ?? old.isActive,
-        filePosition: filePosition ?? old.filePosition);
+    printer.virtualSdCard =
+        VirtualSdCard.partialUpdate(printer.virtualSdCard, jsonResponse);
   }
 
-  _updatePrintStat(Map<String, dynamic> printStatJson,
+  _updatePrintStat(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    PrintState? state;
-    double? totalDuration;
-    double? printDuration;
-    double? filamentUsed;
-    String? message;
-    String? filename;
+    if (jsonResponse.containsKey('message')) {
+      _onMessage(jsonResponse['message']!);
+    }
 
-    if (printStatJson.containsKey('state')) {
-      state =
-          EnumToString.fromString(PrintState.values, printStatJson['state']) ??
-              PrintState.error;
-    }
-    if (printStatJson.containsKey('filename')) {
-      filename = printStatJson['filename'];
-    }
-    if (printStatJson.containsKey('total_duration')) {
-      totalDuration = printStatJson['total_duration'];
-    }
-    if (printStatJson.containsKey('print_duration')) {
-      printDuration = printStatJson['print_duration'];
-    }
-    if (printStatJson.containsKey('filament_used')) {
-      filamentUsed = printStatJson['filament_used'];
-    }
-    if (printStatJson.containsKey('message')) {
-      message = printStatJson['message'];
-      _onMessage(message!);
-    }
-    PrintStats old = printer.print ?? const PrintStats();
-
-    printer.print = PrintStats(
-      state: state ?? old.state,
-      totalDuration: totalDuration ?? old.totalDuration,
-      printDuration: printDuration ?? old.printDuration,
-      filamentUsed: filamentUsed ?? old.filamentUsed,
-      message: message ?? old.message,
-      filename: filename ?? old.filename,
-    );
+    printer.print = PrintStats.partialUpdate(printer.print, jsonResponse);
   }
 
   _updateConfigFile(Map<String, dynamic> printStatJson,
