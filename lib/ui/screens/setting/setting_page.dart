@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/gestures.dart';
@@ -14,6 +16,7 @@ import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerWidget {
   const SettingPage({Key? key}) : super(key: key);
@@ -63,7 +66,7 @@ class SettingPage extends ConsumerWidget {
                 onChanged: (b) =>
                     settingService.writeBool(useTextInputForNumKey, b ?? false),
                 initialValue:
-                    ref.watch(boolSettingProvider(useTextInputForNumKey)),
+                ref.watch(boolSettingProvider(useTextInputForNumKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -75,7 +78,7 @@ class SettingPage extends ConsumerWidget {
                 onChanged: (b) =>
                     settingService.writeBool(startWithOverviewKey, b ?? false),
                 initialValue:
-                    ref.watch(boolSettingProvider(startWithOverviewKey)),
+                ref.watch(boolSettingProvider(startWithOverviewKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -96,7 +99,7 @@ class SettingPage extends ConsumerWidget {
                 onChanged: (b) =>
                     settingService.writeBool(landscapeFullWebCam, b ?? false),
                 initialValue:
-                    ref.watch(boolSettingProvider(landscapeFullWebCam)),
+                ref.watch(boolSettingProvider(landscapeFullWebCam)),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,
@@ -118,6 +121,24 @@ class SettingPage extends ConsumerWidget {
                   dialogService.show(DialogRequest(type: DialogType.logging));
                 },
               ),
+              if (Platform.isIOS)
+                TextButton(
+                    style: TextButton.styleFrom(
+                        minimumSize: Size.zero, // Set this
+                        padding: EdgeInsets.zero,
+                        textStyle: themeData.textTheme.bodySmall
+                            ?.copyWith(color: themeData.colorScheme.secondary)),
+                    child: const Text('EULA'),
+                    onPressed: () async {
+                      const String url =
+                          'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(url,
+                            mode: LaunchMode.externalApplication);
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    }),
               TextButton(
                 style: TextButton.styleFrom(
                     minimumSize: Size.zero, // Set this
@@ -135,7 +156,7 @@ class SettingPage extends ConsumerWidget {
                       context: context,
                       applicationVersion: version,
                       applicationLegalese:
-                          'MIT License\n\nCopyright (c) 2023 Patrick Schmidt',
+                      'MIT License\n\nCopyright (c) 2023 Patrick Schmidt',
                       applicationIcon: const Center(
                         child: Image(
                             height: 80,
@@ -246,7 +267,7 @@ class _LanguageSelector extends ConsumerWidget {
 
     if (local.countryCode != null) {
       String country =
-          'languages.countryCode.${local.countryCode}.nativeName'.tr();
+      'languages.countryCode.${local.countryCode}.nativeName'.tr();
       out += " ($country)";
     }
     return out;
@@ -261,7 +282,7 @@ class _LanguageSelector extends ConsumerWidget {
       name: 'lan',
       items: supportedLocals
           .map((local) => DropdownMenuItem(
-              value: local, child: Text(constructLanguageText(local))))
+          value: local, child: Text(constructLanguageText(local))))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -285,12 +306,12 @@ class _ThemeSelector extends ConsumerWidget {
       initialValue: ref
           .watch(activeThemeProvider.selectAs(
             (value) => value.themePack,
-          ))
+      ))
           .valueOrFullNull!,
       name: 'theme',
       items: themeList
           .map((theme) =>
-              DropdownMenuItem(value: theme, child: Text(theme.name)))
+          DropdownMenuItem(value: theme, child: Text(theme.name)))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -316,7 +337,7 @@ class _ThemeModeSelector extends ConsumerWidget {
       name: 'themeMode',
       items: ThemeMode.values
           .map((themeMode) => DropdownMenuItem(
-              value: themeMode, child: Text(themeMode.name.capitalize)))
+          value: themeMode, child: Text(themeMode.name.capitalize)))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -334,14 +355,14 @@ class _ProgressNotificationSettingField extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var progressSettings =
-        ref.watch(notificationProgressSettingControllerProvider);
+    ref.watch(notificationProgressSettingControllerProvider);
 
     return FormBuilderDropdown<ProgressNotificationMode>(
       initialValue: progressSettings,
       name: 'progressNotifyMode',
       items: ProgressNotificationMode.values
           .map((mode) => DropdownMenuItem(
-              value: mode, child: Text(mode.progressNotificationModeStr())))
+          value: mode, child: Text(mode.progressNotificationModeStr())))
           .toList(),
       onChanged: (v) => ref
           .read(notificationProgressSettingControllerProvider.notifier)
@@ -428,28 +449,28 @@ class NotificationPermissionWarning extends ConsumerWidget {
       child: (ref.watch(notificationPermissionControllerProvider))
           ? const SizedBox.shrink()
           : Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: ListTile(
-                tileColor: themeData.colorScheme.errorContainer,
-                textColor: themeData.colorScheme.onErrorContainer,
-                iconColor: themeData.colorScheme.onErrorContainer,
-                onTap: ref
-                    .watch(notificationPermissionControllerProvider.notifier)
-                    .requestPermission,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                leading: const Icon(
-                  Icons.notifications_off_outlined,
-                  size: 40,
-                ),
-                title: const Text(
-                  'pages.setting.notification.no_permission_title',
-                ).tr(),
-                subtitle:
-                    const Text('pages.setting.notification.no_permission_desc')
-                        .tr(),
-              ),
-            ),
+        padding: const EdgeInsets.only(top: 16),
+        child: ListTile(
+          tileColor: themeData.colorScheme.errorContainer,
+          textColor: themeData.colorScheme.onErrorContainer,
+          iconColor: themeData.colorScheme.onErrorContainer,
+          onTap: ref
+              .watch(notificationPermissionControllerProvider.notifier)
+              .requestPermission,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+          leading: const Icon(
+            Icons.notifications_off_outlined,
+            size: 40,
+          ),
+          title: const Text(
+            'pages.setting.notification.no_permission_title',
+          ).tr(),
+          subtitle:
+          const Text('pages.setting.notification.no_permission_desc')
+              .tr(),
+        ),
+      ),
     );
   }
 }
@@ -473,26 +494,26 @@ class NotificationFirebaseWarning extends ConsumerWidget {
       child: (ref.watch(notificationFirebaseAvailableProvider))
           ? const SizedBox.shrink()
           : Padding(
-              key: UniqueKey(),
-              padding: const EdgeInsets.only(top: 16),
-              child: ListTile(
-                tileColor: themeData.colorScheme.errorContainer,
-                textColor: themeData.colorScheme.onErrorContainer,
-                iconColor: themeData.colorScheme.onErrorContainer,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                leading: const Icon(
-                  FlutterIcons.notifications_paused_mdi,
-                  size: 40,
-                ),
-                title: const Text(
-                  'pages.setting.notification.no_firebase_title',
-                ).tr(),
-                subtitle:
-                    const Text('pages.setting.notification.no_firebase_desc')
-                        .tr(),
-              ),
-            ),
+        key: UniqueKey(),
+        padding: const EdgeInsets.only(top: 16),
+        child: ListTile(
+          tileColor: themeData.colorScheme.errorContainer,
+          textColor: themeData.colorScheme.onErrorContainer,
+          iconColor: themeData.colorScheme.onErrorContainer,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(15))),
+          leading: const Icon(
+            FlutterIcons.notifications_paused_mdi,
+            size: 40,
+          ),
+          title: const Text(
+            'pages.setting.notification.no_firebase_title',
+          ).tr(),
+          subtitle:
+          const Text('pages.setting.notification.no_firebase_desc')
+              .tr(),
+        ),
+      ),
     );
   }
 }
@@ -505,7 +526,7 @@ class CompanionMissingWarning extends ConsumerWidget {
     var machinesWithoutCompanion = ref.watch(machinesWithoutCompanionProvider);
 
     var machineNames =
-        (machinesWithoutCompanion.valueOrFullNull ?? []).map((e) => e.name);
+    (machinesWithoutCompanion.valueOrFullNull ?? []).map((e) => e.name);
 
     var themeData = Theme.of(context);
     return AnimatedSwitcher(
@@ -520,17 +541,16 @@ class CompanionMissingWarning extends ConsumerWidget {
       child: (machineNames.isEmpty)
           ? const SizedBox.shrink()
           : Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: ListTile(
-
-                onTap: ref
-                    .read(settingPageControllerProvider.notifier)
-                    .openCompanion,
-                tileColor: themeData.colorScheme.errorContainer,
-                textColor: themeData.colorScheme.onErrorContainer,
-                iconColor: themeData.colorScheme.onErrorContainer,
-                // onTap: ref
-                //     .watch(notificationPermissionControllerProvider.notifier)
+        padding: const EdgeInsets.only(top: 16),
+        child: ListTile(
+          onTap: ref
+              .read(settingPageControllerProvider.notifier)
+              .openCompanion,
+          tileColor: themeData.colorScheme.errorContainer,
+          textColor: themeData.colorScheme.onErrorContainer,
+          iconColor: themeData.colorScheme.onErrorContainer,
+          // onTap: ref
+          //     .watch(notificationPermissionControllerProvider.notifier)
                 //     .requestPermission,
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(15))),
@@ -541,10 +561,11 @@ class CompanionMissingWarning extends ConsumerWidget {
                 title: const Text(
                   'pages.setting.notification.missing_companion_title',
                 ).tr(),
-                subtitle: Text(
-                    'pages.setting.notification.missing_companion_body').tr(args: [machineNames.join(', ')]),
+                subtitle: const Text(
+                        'pages.setting.notification.missing_companion_body')
+                    .tr(args: [machineNames.join(', ')]),
               ),
-            ),
+      ),
     );
   }
 }

@@ -21,7 +21,7 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
     var now = DateTime.now();
     if (v.hasValue) {
       var hasExpired = v.value!.entitlements.active.values.any((ent) =>
-      ent.expirationDate != null &&
+          ent.expirationDate != null &&
           DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
       if (hasExpired) {
         logger.i('Found expired Entitlement, force refresh!');
@@ -33,6 +33,7 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
       }
     }
   }
+
   ref.onAddListener(checkForExpired);
   ref.onResume(checkForExpired);
 
@@ -51,8 +52,6 @@ class PaymentService {
   final PaymentServiceRef ref;
 
   Future<void> initialize() async {
-    // if (kReleaseMode) return;
-
     if (kDebugMode) await Purchases.setLogLevel(LogLevel.info);
 
     PurchasesConfiguration configuration;
@@ -66,14 +65,14 @@ class PaymentService {
       throw StateError('Unsupported device type!');
     }
     await Purchases.configure(configuration);
-
   }
 
   Future<Offerings> getOfferings() {
     return Purchases.getOfferings();
   }
 
-  purchasePackage(Package packageToBuy, [UpgradeInfo? upgradeInfo]) async {
+  Future<void> purchasePackage(Package packageToBuy,
+      [UpgradeInfo? upgradeInfo]) async {
     try {
       logger.i('Trying to buy ${packageToBuy.storeProduct.identifier}');
       await Purchases.purchasePackage(packageToBuy, upgradeInfo: upgradeInfo);
@@ -98,6 +97,28 @@ class PaymentService {
         //     title: 'Canceled',
         //     message: 'Subscription request canceled'));
       }
+    }
+  }
+
+  restorePurchases() async {
+    try {
+      var customerInfo = await Purchases.restorePurchases();
+      var length = customerInfo.activeSubscriptions.length;
+      logger.i('Restored purchases: ${customerInfo.activeSubscriptions}');
+      if (length > 0) {
+        ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            type: SnackbarType.info,
+            title: 'Purchases restored',
+            message: 'Managed to restore $length subscriptions!'));
+      }
+      ref.invalidate(customerInfoProvider);
+    } on PlatformException catch (e) {
+      var errorCode = PurchasesErrorHelper.getErrorCode(e);
+      logger.e('Error while trying to restore purchases; $e');
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: 'Error during restore',
+          message: errorCode.name.capitalize));
     }
   }
 }

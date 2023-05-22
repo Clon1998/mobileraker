@@ -251,6 +251,14 @@ class _SubscribeTiers extends ConsumerWidget {
           child: _SupporterTierOfferingList(
               availablePackages: offering?.availablePackages),
         ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: FilledButton.icon(
+              onPressed:
+                  ref.read(paywallPageControllerProvider.notifier).restore,
+              icon: const Icon(Icons.restore),
+              label: const Text('general.restore').tr()),
+        )
       ],
     );
   }

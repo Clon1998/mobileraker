@@ -81,7 +81,8 @@ class _Editor extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData themeData = Theme.of(context);
-    var textStyleOnError = TextStyle(color: themeData.colorScheme.onErrorContainer);
+    var textStyleOnError =
+        TextStyle(color: themeData.colorScheme.onErrorContainer);
     return ref
         .watch(
             configFileDetailsControllerProvider.select((value) => value.config))
@@ -154,6 +155,7 @@ class _Fab extends ConsumerWidget {
               SpeedDialChild(
                 child: const Icon(Icons.save),
                 backgroundColor: themeData.colorScheme.primaryContainer,
+                foregroundColor: themeData.colorScheme.onPrimaryContainer,
                 label: 'Save',
                 onTap: () => ref
                     .read(configFileDetailsControllerProvider.notifier)
@@ -165,6 +167,7 @@ class _Fab extends ConsumerWidget {
                 SpeedDialChild(
                   child: const Icon(Icons.restart_alt),
                   backgroundColor: themeData.colorScheme.primary,
+                  foregroundColor: themeData.colorScheme.onPrimary,
                   label: 'Save & Restart',
                   onTap: () => ref
                       .read(configFileDetailsControllerProvider.notifier)

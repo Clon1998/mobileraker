@@ -32,7 +32,8 @@
     "ios_store": "AppStore",
     "active": "Active",
     "canceled": "Canceled",
-    "monthly": "Monthly"
+    "monthly": "Monthly",
+    "restore": "Restore"
   },
   "pages": {
     "dashboard": {

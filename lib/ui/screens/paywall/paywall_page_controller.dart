@@ -66,6 +66,12 @@ class PaywallPageController extends _$PaywallPageController {
     state = state.copyWith(makingPurchase: false);
   }
 
+  restore() async {
+    state = state.copyWith(makingPurchase: true);
+    await ref.read(paymentServiceProvider).restorePurchases();
+    state = state.copyWith(makingPurchase: false);
+  }
+
   openManagement() async {
     var managementUrl = ref
         .read(customerInfoProvider.selectAs((data) => data.managementURL))
