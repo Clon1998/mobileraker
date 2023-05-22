@@ -109,6 +109,7 @@ class _Mjpeg extends ConsumerWidget {
 
     if (hasError) {
       var state = ref.read(_mjpegControllerProvider);
+      var mjpegConfig = ref.watch(_mjpegConfigProvider);
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
@@ -117,6 +118,8 @@ class _Mjpeg extends ConsumerWidget {
           const SizedBox(
             height: 30,
           ),
+          Text('WebCam streamURI: ${mjpegConfig.streamUri}'),
+          Text('WebCam snapshotURI: ${mjpegConfig.snapshotUri}'),
           Text(state.error.toString(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Theme.of(context).colorScheme.error)),
