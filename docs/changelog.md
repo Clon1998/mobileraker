@@ -1,5 +1,17 @@
 # Mobileraker - Changelog
 
+## [2.3.2] - 2023-05-22
+
+### Changed Features
+
+- Added restore button for subs
+- Added IOS EULA
+- WebCam error now shows the Cam's URIs
+
+### Bug Fixes
+
+- Fixed Color in ConfigFile FAB
+
 ## [2.3.1] - 2023-05-20
 
 ### Bug Fixes
