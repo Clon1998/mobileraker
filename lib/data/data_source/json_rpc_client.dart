@@ -42,6 +42,7 @@ class JsonRpcClientBuilder {
       ..apiKey = machine.apiKey
       ..uri = localWsUir.replace(
           scheme: 'wss',
+          port: null, // OE automatically redirects the ports
           host: octoUri.host,
           userInfo:
               '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
