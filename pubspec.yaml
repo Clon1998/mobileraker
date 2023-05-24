@@ -114,7 +114,7 @@ dependencies:
   flutter_svg: ^2.0.5
   loader_overlay: ^2.2.0
   flutter_whatsnew: ^1.0.5+2
-  firebase_auth: ^4.2.10
+  cloud_firestore: ^4.4.4
 
 
 #  ditredi: ^1.0.3

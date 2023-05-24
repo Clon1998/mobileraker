@@ -3,8 +3,13 @@ import 'dart:io';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:mobileraker/data/model/firestore/supporters.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/firebase/firestore.dart';
+import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -65,6 +70,7 @@ class PaymentService {
       throw StateError('Unsupported device type!');
     }
     await Purchases.configure(configuration);
+    _setupListeners();
   }
 
   Future<Offerings> getOfferings() {
@@ -120,5 +126,51 @@ class PaymentService {
           title: 'Error during restore',
           message: errorCode.name.capitalize));
     }
+  }
+
+  // TODO: rework/extract to own method, this is just a dirty POC
+  _setupListeners() {
+    final _boxSettings = Hive.box('settingsbox');
+    final _key = 'subData';
+    ref.listen(customerInfoProvider, (previous, next) async {
+      if (next.valueOrFullNull?.activeSubscriptions.isNotEmpty == true) {
+        CustomerInfo customerInfo = next.value!;
+        String token =
+            await ref.read(notificationServiceProvider).fetchCurrentFcmToken();
+        var entitlementInfo = customerInfo.entitlements.active.values.first;
+        if (_boxSettings.containsKey(_key)) {
+          Map<dynamic, dynamic> json = _boxSettings.get(_key);
+
+          var supporter = Supporter.fromJson(json.cast<String, dynamic>());
+          logger.i(
+              'Read Supporte from local storage local: ${supporter.expirationDate}, customer ${entitlementInfo.expirationDate}');
+          if (supporter.expirationDate != null &&
+              DateTime.now().isBefore(supporter.expirationDate!)) {
+            logger.i(
+                'No need to write to firebase, its expected to still have a valid sub!');
+            return;
+          }
+        }
+
+        DateTime? dt = null;
+        if (entitlementInfo.expirationDate != null) {
+          dt = DateTime.parse(entitlementInfo.expirationDate!);
+        }
+
+        try {
+          var supporter = Supporter(fcmToken: token, expirationDate: dt);
+          await ref
+              .read(firestoreProvider)
+              .collection('sup')
+              .doc(customerInfo.originalAppUserId)
+              .set(supporter.toJson());
+          logger.i('Added fcmToken to fireStore... Updarint in local storage');
+          _boxSettings.put(_key, supporter.toJson());
+        } catch (e) {
+          logger.w(
+              'Error while trying to register FCM token with firebase:', e);
+        }
+      }
+    });
   }
 }
