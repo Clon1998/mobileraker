@@ -81,7 +81,6 @@ class KlippyService {
           break;
         case ClientState.disconnected:
         case ClientState.error:
-          logger.e('ääää $data');
           _current = _current.copyWith(
               klippyConnected: false, klippyState: KlipperState.error);
           break;
