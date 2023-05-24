@@ -132,6 +132,7 @@ class PaymentService {
   _setupListeners() {
     final _boxSettings = Hive.box('settingsbox');
     final _key = 'subData';
+    // _boxSettings.delete(_key);
     ref.listen(customerInfoProvider, (previous, next) async {
       if (next.valueOrFullNull?.activeSubscriptions.isNotEmpty == true) {
         CustomerInfo customerInfo = next.value!;
@@ -139,11 +140,10 @@ class PaymentService {
             await ref.read(notificationServiceProvider).fetchCurrentFcmToken();
         var entitlementInfo = customerInfo.entitlements.active.values.first;
         if (_boxSettings.containsKey(_key)) {
-          Map<dynamic, dynamic> json = _boxSettings.get(_key);
-
-          var supporter = Supporter.fromJson(json.cast<String, dynamic>());
+          Map<dynamic, dynamic> name = _boxSettings.get(_key);
+          var supporter = Supporter.fromJson(name.cast<String, dynamic>());
           logger.i(
-              'Read Supporte from local storage local: ${supporter.expirationDate}, customer ${entitlementInfo.expirationDate}');
+              'Read Supporter from local storage local: ${supporter.expirationDate}, customer ${entitlementInfo.expirationDate}');
           if (supporter.expirationDate != null &&
               DateTime.now().isBefore(supporter.expirationDate!)) {
             logger.i(
@@ -163,8 +163,9 @@ class PaymentService {
               .read(firestoreProvider)
               .collection('sup')
               .doc(customerInfo.originalAppUserId)
-              .set(supporter.toJson());
-          logger.i('Added fcmToken to fireStore... Updarint in local storage');
+              .set(supporter.toFirebase());
+          logger.i(
+              'Added fcmToken to fireStore... now writing it to local storage');
           _boxSettings.put(_key, supporter.toJson());
         } catch (e) {
           logger.w(
