@@ -37,7 +37,7 @@ class WebcamInfo {
     required this.snapshotUrl,
     this.rotation = 0,
     this.targetFps = 15,
-  });
+    this.enabled = true});
 
   factory WebcamInfo.mjpegDefault() {
     return WebcamInfo(
@@ -67,6 +67,8 @@ class WebcamInfo {
   Uri snapshotUrl;
   @JsonKey(readValue: _rotateOrRotation)
   int rotation;
+  @JsonKey(defaultValue: true)
+  bool enabled;
 
   @JsonKey(fromJson: _wrappedInt)
   int targetFps;
