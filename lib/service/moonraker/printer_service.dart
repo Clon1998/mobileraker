@@ -42,7 +42,6 @@ import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
-import 'package:vector_math/vector_math.dart';
 
 part 'printer_service.g.dart';
 
@@ -721,58 +720,9 @@ class PrinterService {
 
   _updateExcludeObject(Map<String, dynamic> json,
       {required PrinterBuilder printer}) {
-    String? currentObject;
-    List<String>? excludedObjects;
-    List<ParsedObject>? objects;
-
-    if (json.containsKey('current_object')) {
-      currentObject = json['current_object'];
-    }
-
-    if (json.containsKey('excluded_objects')) {
-      excludedObjects =
-          (json['excluded_objects'] as List<dynamic>).cast<String>();
-    }
-    if (json.containsKey('objects')) {
-      List<dynamic> objRaw = json['objects'];
-      List<ParsedObject> prasedObjects = [];
-      for (Map<String, dynamic> e in objRaw) {
-        Vector2 center;
-        String name = e['name'];
-        List<Vector2> polygons;
-        if (e.containsKey('center')) {
-          List<dynamic> centerFromMsg = e['center'];
-          center = centerFromMsg.isEmpty
-              ? Vector2.zero()
-              : Vector2.array(
-                  centerFromMsg.cast<num>().map((e) => e.toDouble()).toList());
-        } else {
-          center = Vector2.zero();
-        }
-        if (e.containsKey('polygon')) {
-          List<dynamic> polys = e['polygon'];
-          polygons = polys.map((e) {
-            List<dynamic> list = e as List<dynamic>;
-            return Vector2.array(
-                list.cast<num>().map((e) => e.toDouble()).toList());
-          }).toList(growable: false);
-        } else {
-          polygons = [];
-        }
-
-        prasedObjects
-            .add(ParsedObject(name: name, center: center, polygons: polygons));
-      }
-
-      objects = List.unmodifiable(prasedObjects);
-    }
-
-    ExcludeObject old = printer.excludeObject ?? const ExcludeObject();
-    printer.excludeObject = old.copyWith(
-        currentObject: currentObject,
-        excludedObjects: excludedObjects ?? old.excludedObjects,
-        objects: objects ?? old.objects);
-    logger.v('New exclude_printer: ${printer.excludeObject}');
+    printer.excludeObject =
+        ExcludeObject.partialUpdate(printer.excludeObject, json);
+    logger.e('New exclude_printer: ${printer.excludeObject}');
   }
 
   _updateLed(String led, Map<String, dynamic> ledJson,
