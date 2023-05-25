@@ -1,5 +1,16 @@
 # Mobileraker - Changelog
 
+## [2.3.x] - X.X.X
+
+### Changed Features
+
+- Added Image Notifications for Supporters
+
+### Bug Fixes
+
+- Fixed editing WebCams in Mobileraker disabled cams in Fluidd
+- Fixed Octoeverywhere for printers with non default port
+
 ## [2.3.2] - 2023-05-22
 
 ### Changed Features
