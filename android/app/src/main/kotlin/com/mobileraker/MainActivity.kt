@@ -1,4 +1,4 @@
-package com.example.mobileraker
+package com.mobileraker
 
 import io.flutter.embedding.android.FlutterActivity;
 

@@ -4,11 +4,9 @@ import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:logger/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/notification_service.dart';
@@ -33,12 +31,10 @@ Future<void> main() async {
 
   setupLicenseRegistry();
   final container = ProviderContainer(
-      observers: [
-        if (kDebugMode)
-        const RiverPodLogger(),
-      ],
-      );
-
+    observers: [
+      if (kDebugMode) const RiverPodLogger(),
+    ],
+  );
 
   await container.read(analyticsProvider).logAppOpen();
 
@@ -48,7 +44,6 @@ Future<void> main() async {
 
   await container.read(notificationServiceProvider).initialize();
   await container.read(paymentServiceProvider).initialize();
-
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 

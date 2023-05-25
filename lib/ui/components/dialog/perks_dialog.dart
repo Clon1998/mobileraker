@@ -33,6 +33,15 @@ class PerksDialog extends StatelessWidget {
                 shrinkWrap: true,
                 children: [
                   ListTile(
+                    title: const Text(
+                            'dialogs.supporter_perks.notification_perk.title')
+                        .tr(),
+                    subtitle: const Text(
+                            'dialogs.supporter_perks.notification_perk.subtitle')
+                        .tr(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  ListTile(
                     title:
                         const Text('dialogs.supporter_perks.theme_perk.title')
                             .tr(),

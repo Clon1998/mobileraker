@@ -439,6 +439,10 @@
       "contact_perk": {
         "title": "Developer Contact",
         "subtitle": "Easy contact to the developer!"
+      },
+      "notification_perk": {
+        "title": "Snapshot Notifications",
+        "subtitle": "Status notification include Webcam Snapshot"
       }
     }
   },
