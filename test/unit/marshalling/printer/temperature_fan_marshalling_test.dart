@@ -3,6 +3,8 @@ import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 
 import '../../../test_utils.dart';
 
+var NOW = DateTime.now();
+
 void main() {
   test('TemperatureFan with RPM fromJson', () {
     TemperatureFan obj = temperatureFanObjectWithRpm();
@@ -12,6 +14,7 @@ void main() {
     expect(obj.rpm, equals(500));
     expect(obj.temperature, equals(11.1));
     expect(obj.target, equals(44.95));
+    expect(obj.lastHistory, equals(NOW));
   });
 
   test('TemperatureFan without RPM fromJson', () {
@@ -22,6 +25,7 @@ void main() {
     expect(obj.rpm, equals(null));
     expect(obj.temperature, equals(11.1));
     expect(obj.target, equals(44.95));
+    expect(obj.lastHistory, equals(NOW));
   });
 
   test('TemperatureFan partialUpdate - speed', () {
@@ -36,6 +40,7 @@ void main() {
     expect(updatedObj.rpm, equals(500));
     expect(updatedObj.temperature, equals(11.1));
     expect(updatedObj.target, equals(44.95));
+    expect(updatedObj.lastHistory, equals(NOW));
   });
 
   test('TemperatureFan partialUpdate - rpm', () {
@@ -50,6 +55,7 @@ void main() {
     expect(updatedObj.rpm, equals(1099));
     expect(updatedObj.temperature, equals(11.1));
     expect(updatedObj.target, equals(44.95));
+    expect(updatedObj.lastHistory, equals(NOW));
   });
 
   test('TemperatureFan partialUpdate - temperature', () {
@@ -64,6 +70,7 @@ void main() {
     expect(updatedObj.rpm, equals(500));
     expect(updatedObj.temperature, equals(99));
     expect(updatedObj.target, equals(44.95));
+    expect(updatedObj.lastHistory, equals(NOW));
   });
 
   test('TemperatureFan partialUpdate - target', () {
@@ -78,6 +85,7 @@ void main() {
     expect(updatedObj.rpm, equals(500));
     expect(updatedObj.temperature, equals(11.1));
     expect(updatedObj.target, equals(85.22));
+    expect(updatedObj.lastHistory, equals(NOW));
   });
 }
 
@@ -88,7 +96,7 @@ TemperatureFan temperatureFanObjectWithRpm() {
   var jsonRaw = objectFromHttpApiResult(input, "fan");
 
   return TemperatureFan.fromJson(
-      {...jsonRaw, 'lastHistory': DateTime.now().toIso8601String()}, "testFan");
+      {...jsonRaw, 'lastHistory': NOW.toIso8601String()}, "testFan");
 }
 
 TemperatureFan temperatureFanObjectWithoutRpm() {
@@ -98,5 +106,5 @@ TemperatureFan temperatureFanObjectWithoutRpm() {
   var jsonRaw = objectFromHttpApiResult(input, "fan");
 
   return TemperatureFan.fromJson(
-      {...jsonRaw, 'lastHistory': DateTime.now().toIso8601String()}, "testFan");
+      {...jsonRaw, 'lastHistory': NOW.toIso8601String()}, "testFan");
 }
