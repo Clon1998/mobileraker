@@ -67,7 +67,7 @@ class WebcamInfo {
   Uri snapshotUrl;
   @JsonKey(readValue: _rotateOrRotation)
   int rotation;
-  @JsonKey(defaultValue: true)
+  @JsonKey()
   bool enabled;
 
   @JsonKey(fromJson: _wrappedInt)
@@ -142,7 +142,7 @@ String _snapshotOrStream(Map m, _) {
   return Uri.parse(m['urlStream']).replace(query: 'action=snapshot').toString();
 }
 
-int _rotateOrRotation(Map m, _) {
+int? _rotateOrRotation(Map m, _) {
   return m['rotate'] ?? m['rotation'];
 }
 

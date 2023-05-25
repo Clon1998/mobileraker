@@ -69,8 +69,8 @@ class WebcamService {
       logger.i('Got ${cams.length} webcams');
 
       return cams;
-    } on Exception catch (e) {
-      logger.e('Error while listing cams', e);
+    } catch (e, s) {
+      logger.e('Error while listing cams', e, s);
       throw MobilerakerException('Unable to list all webcams',
           parentException: e);
     }
