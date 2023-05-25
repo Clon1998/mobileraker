@@ -80,7 +80,7 @@ class WebcamService {
     logger.i('BULK ADD/MODIFY Webcams "${cams.length}" request...');
     try {
       await Future.wait(cams.map((e) => addOrModifyWebcamInfo(e)));
-    } on Exception catch (e) {
+    } catch (e) {
       throw MobilerakerException(
           'Error while trying to add or modify webcams in bulk!',
           parentException: e);
@@ -92,7 +92,7 @@ class WebcamService {
 
     try {
       return await _webcamInfoRepository.get(uuid);
-    } on Exception catch (e) {
+    } catch (e) {
       throw MobilerakerException('Unable to get webcam info for $uuid',
           parentException: e);
     }
@@ -103,7 +103,7 @@ class WebcamService {
     try {
       await _webcamInfoRepository.addOrUpdate(cam);
       ref.invalidate(webcamInfoProvider(machineUUID, cam.uuid));
-    } on Exception catch (e) {
+    } catch (e) {
       throw MobilerakerException(
           'Unable to add/update webcam info for ${cam.uuid}',
           parentException: e);
@@ -114,7 +114,7 @@ class WebcamService {
     logger.i('BULK REMOVE Webcams "${cams.length}" request...');
     try {
       return Future.wait(cams.map((e) => deleteWebcamInfo(e)));
-    } on Exception catch (e) {
+    } catch (e) {
       throw MobilerakerException(
           'Error while trying to add or modify webcams in bulk!',
           parentException: e);
@@ -125,7 +125,7 @@ class WebcamService {
     logger.i('DELETE Webcam "${cam.name}" request...');
     try {
       return await _webcamInfoRepository.remove(cam.uuid);
-    } on Exception catch (e) {
+    } catch (e) {
       throw MobilerakerException('Unable to delete webcam info for ${cam.uuid}',
           parentException: e);
     }

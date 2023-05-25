@@ -247,7 +247,7 @@ class JsonRpcClient {
 
       curState = ClientState.connected;
       return true;
-    } on Exception catch (e) {
+    } catch (e) {
       _onChannelError(e);
       return false;
     }

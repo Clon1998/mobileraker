@@ -213,7 +213,7 @@ class PrinterService {
           MobilerakerException('Could not fetch printer...',
               parentException: e, parentStack: s),
           s);
-    } on Exception catch (e, s) {
+    } catch (e, s) {
       logger.e(
           'Unexpected exception thrown during refresh $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
