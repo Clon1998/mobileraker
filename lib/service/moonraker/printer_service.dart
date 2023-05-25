@@ -589,70 +589,43 @@ class PrinterService {
     printer.printFan = PrintFan.partialUpdate(printer.printFan, jsonResponse);
   }
 
-  _updateHeaterFan(String configName, Map<String, dynamic> fanJson,
+  _updateHeaterFan(String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
-    if (!fanJson.containsKey('speed')) {
-      return;
-    }
-
-    final HeaterFan curFan = printer.fans[configName]! as HeaterFan;
-
+    final HeaterFan curFan = printer.fans[fanName]! as HeaterFan;
     printer.fans = {
       ...printer.fans,
-      configName: curFan.copyWith(speed: fanJson['speed'])
+      fanName: HeaterFan.partialUpdate(curFan, fanJson)
     };
   }
 
-  _updateControllerFan(String configName, Map<String, dynamic> fanJson,
+  _updateControllerFan(String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
-    if (!fanJson.containsKey('speed')) {
-      return;
-    }
-
-    final ControllerFan curFan = printer.fans[configName]! as ControllerFan;
+    final ControllerFan curFan = printer.fans[fanName]! as ControllerFan;
 
     printer.fans = {
       ...printer.fans,
-      configName: curFan.copyWith(speed: fanJson['speed'])
+      fanName: ControllerFan.partialUpdate(curFan, fanJson)
     };
   }
 
-  _updateTemperatureFan(String configName, Map<String, dynamic> fanJson,
+  _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
-    if (!fanJson.containsKey('speed') &&
-        !fanJson.containsKey('rpm') &&
-        !fanJson.containsKey('temperature') &&
-        !fanJson.containsKey('target')) {
-      return;
-    }
+    final TemperatureFan curFan = printer.fans[fanName]! as TemperatureFan;
 
-    final TemperatureFan curFan = printer.fans[configName]! as TemperatureFan;
-
+    //TODO add TempHistory
     printer.fans = {
       ...printer.fans,
-      configName: curFan.copyWith(
-        speed: fanJson['speed'] ?? curFan.speed,
-        rpm: fanJson['rpm'] ?? curFan.rpm,
-        temperature: fanJson['temperature'] ?? curFan.temperature,
-        target: fanJson['target'] ?? curFan.target,
-      )
+      fanName: TemperatureFan.partialUpdate(curFan, fanJson)
     };
   }
 
-  _updateGenericFan(String configName, Map<String, dynamic> fanJson,
+  _updateGenericFan(String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
-    if (!fanJson.containsKey('speed')) {
-      return;
-    }
-    if (!fanJson.containsKey('speed')) {
-      return;
-    }
-
-    final GenericFan curFan = printer.fans[configName]! as GenericFan;
+    final GenericFan curFan = printer.fans[fanName]! as GenericFan;
 
     printer.fans = {
       ...printer.fans,
-      configName: curFan.copyWith(speed: fanJson['speed'])
+      fanName: GenericFan.partialUpdate(curFan, fanJson)
     };
   }
 
