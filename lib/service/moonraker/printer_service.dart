@@ -631,46 +631,21 @@ class PrinterService {
 
   _updateTemperatureSensor(String configName, Map<String, dynamic> sensorJson,
       {required PrinterBuilder printer}) {
-    TemperatureSensor curTmpSensor = printer.temperatureSensors[configName]!;
-
-    List<double>? temperatureHistory =
-        (sensorJson['temperatures'] as List<dynamic>?)?.cast<double>() ??
-            curTmpSensor.temperatureHistory;
-    DateTime? lastHistory;
-
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(curTmpSensor.lastHistory).inSeconds >= 1) {
-      temperatureHistory = _updateHistoryList(curTmpSensor.temperatureHistory,
-          sensorJson['temperature'] ?? curTmpSensor.temperature);
-      lastHistory = now;
-    }
+    TemperatureSensor current = printer.temperatureSensors[configName]!;
 
     printer.temperatureSensors = {
       ...printer.temperatureSensors,
-      configName: curTmpSensor.copyWith(
-        temperature: sensorJson['temperature'] ?? curTmpSensor.temperature,
-        measuredMinTemp:
-            sensorJson['measured_min_temp'] ?? curTmpSensor.measuredMinTemp,
-        measuredMaxTemp:
-            sensorJson['measured_max_temp'] ?? curTmpSensor.measuredMaxTemp,
-        lastHistory: lastHistory ?? curTmpSensor.lastHistory,
-        temperatureHistory:
-            temperatureHistory ?? curTmpSensor.temperatureHistory,
-      )
+      configName: TemperatureSensor.partialUpdate(current, sensorJson)
     };
   }
 
   _updateOutputPin(String pin, Map<String, dynamic> pinJson,
       {required PrinterBuilder printer}) {
     OutputPin curPin = printer.outputPins[pin]!;
-    if (!pinJson.containsKey('value')) {
-      return;
-    }
 
     printer.outputPins = {
       ...printer.outputPins,
-      pin: curPin.copyWith(value: pinJson['value'])
+      pin: OutputPin.partialUpdate(curPin, pinJson)
     };
   }
 
