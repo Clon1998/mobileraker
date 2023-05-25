@@ -28,64 +28,66 @@ void main() {
     expect(obj.lastHistory, equals(NOW));
   });
 
-  test('TemperatureFan partialUpdate - speed', () {
-    TemperatureFan old = temperatureFanObjectWithRpm();
+  group('TemperatureFan partialUpdate', () {
+    test('speed', () {
+      TemperatureFan old = temperatureFanObjectWithRpm();
 
-    var updateJson = {"speed": 0.99};
+      var updateJson = {"speed": 0.99};
 
-    var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
+      var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
 
-    expect(updatedObj, isNotNull);
-    expect(updatedObj.speed, equals(0.99));
-    expect(updatedObj.rpm, equals(500));
-    expect(updatedObj.temperature, equals(11.1));
-    expect(updatedObj.target, equals(44.95));
-    expect(updatedObj.lastHistory, equals(NOW));
-  });
+      expect(updatedObj, isNotNull);
+      expect(updatedObj.speed, equals(0.99));
+      expect(updatedObj.rpm, equals(500));
+      expect(updatedObj.temperature, equals(11.1));
+      expect(updatedObj.target, equals(44.95));
+      expect(updatedObj.lastHistory, equals(NOW));
+    });
 
-  test('TemperatureFan partialUpdate - rpm', () {
-    TemperatureFan old = temperatureFanObjectWithRpm();
+    test('rpm', () {
+      TemperatureFan old = temperatureFanObjectWithRpm();
 
-    var updateJson = {"rpm": 1099};
+      var updateJson = {"rpm": 1099};
 
-    var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
+      var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
 
-    expect(updatedObj, isNotNull);
-    expect(updatedObj.speed, equals(0.55));
-    expect(updatedObj.rpm, equals(1099));
-    expect(updatedObj.temperature, equals(11.1));
-    expect(updatedObj.target, equals(44.95));
-    expect(updatedObj.lastHistory, equals(NOW));
-  });
+      expect(updatedObj, isNotNull);
+      expect(updatedObj.speed, equals(0.55));
+      expect(updatedObj.rpm, equals(1099));
+      expect(updatedObj.temperature, equals(11.1));
+      expect(updatedObj.target, equals(44.95));
+      expect(updatedObj.lastHistory, equals(NOW));
+    });
 
-  test('TemperatureFan partialUpdate - temperature', () {
-    TemperatureFan old = temperatureFanObjectWithRpm();
+    test('temperature', () {
+      TemperatureFan old = temperatureFanObjectWithRpm();
 
-    var updateJson = {"temperature": 99};
+      var updateJson = {"temperature": 99};
 
-    var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
+      var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
 
-    expect(updatedObj, isNotNull);
-    expect(updatedObj.speed, equals(0.55));
-    expect(updatedObj.rpm, equals(500));
-    expect(updatedObj.temperature, equals(99));
-    expect(updatedObj.target, equals(44.95));
-    expect(updatedObj.lastHistory, equals(NOW));
-  });
+      expect(updatedObj, isNotNull);
+      expect(updatedObj.speed, equals(0.55));
+      expect(updatedObj.rpm, equals(500));
+      expect(updatedObj.temperature, equals(99));
+      expect(updatedObj.target, equals(44.95));
+      expect(updatedObj.lastHistory, equals(NOW));
+    });
 
-  test('TemperatureFan partialUpdate - target', () {
-    TemperatureFan old = temperatureFanObjectWithRpm();
+    test('target', () {
+      TemperatureFan old = temperatureFanObjectWithRpm();
 
-    var updateJson = {"target": 85.22};
+      var updateJson = {"target": 85.22};
 
-    var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
+      var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
 
-    expect(updatedObj, isNotNull);
-    expect(updatedObj.speed, equals(0.55));
-    expect(updatedObj.rpm, equals(500));
-    expect(updatedObj.temperature, equals(11.1));
-    expect(updatedObj.target, equals(85.22));
-    expect(updatedObj.lastHistory, equals(NOW));
+      expect(updatedObj, isNotNull);
+      expect(updatedObj.speed, equals(0.55));
+      expect(updatedObj.rpm, equals(500));
+      expect(updatedObj.temperature, equals(11.1));
+      expect(updatedObj.target, equals(85.22));
+      expect(updatedObj.lastHistory, equals(NOW));
+    });
   });
 }
 
