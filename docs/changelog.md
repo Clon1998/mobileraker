@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.3.4] - 2023-05-26
+
+### Bug Fixes
+
+- Fixed webcam not working if rotation was missing
+
 ## [2.3.3] - 2023-05-25
 
 ### Changed Features
