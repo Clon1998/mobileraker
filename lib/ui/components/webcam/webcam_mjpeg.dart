@@ -4,7 +4,6 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/enums/webcam_service_type.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/util/misc.dart';
@@ -54,39 +53,22 @@ class WebcamMjpeg extends ConsumerWidget {
         ..streamUri = camStreamUrl.isAbsolute
             ? camStreamUrl
             : substituteProtocols(machineUri.resolveUri(camStreamUrl))
+                .replace(port: null)
         ..snapshotUri = camSnapshotUrl.isAbsolute
             ? camSnapshotUrl
-            : substituteProtocols(machineUri.resolveUri(camSnapshotUrl));
+            : substituteProtocols(machineUri.resolveUri(camSnapshotUrl))
+                .replace(port: null);
     } else {
       configBuilder.timeout = const Duration(seconds: 30);
       var baseUri = octoEverywhere!.uri.replace(
           userInfo:
               '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
 
-      if (camStreamUrl.isAbsolute) {
-        if (camStreamUrl.host.toLowerCase() == machineUri.host.toLowerCase()) {
-          configBuilder.streamUri = baseUri.replace(
-              path: camStreamUrl.path, query: camStreamUrl.query);
-        } else {
-          configBuilder.streamUri = camStreamUrl;
-        }
-      } else {
-        configBuilder.streamUri =
-            substituteProtocols(baseUri.resolveUri(camStreamUrl));
-      }
-
-      if (camSnapshotUrl.isAbsolute) {
-        if (camSnapshotUrl.host.toLowerCase() ==
-            machineUri.host.toLowerCase()) {
-          configBuilder.snapshotUri = baseUri.replace(
-              path: camSnapshotUrl.path, query: camSnapshotUrl.query);
-        } else {
-          configBuilder.snapshotUri = camSnapshotUrl;
-        }
-      } else {
-        configBuilder.snapshotUri =
-            substituteProtocols(baseUri.resolveUri(camSnapshotUrl));
-      }
+      configBuilder
+        ..streamUri =
+            _adjustCamUriForRemoteUsage(baseUri, machineUri, camStreamUrl)
+        ..snapshotUri =
+            _adjustCamUriForRemoteUsage(baseUri, machineUri, camSnapshotUrl);
     }
 
     return Mjpeg(
@@ -107,5 +89,17 @@ class WebcamMjpeg extends ConsumerWidget {
           )),
       ],
     );
+  }
+}
+
+Uri _adjustCamUriForRemoteUsage(Uri baseRemoteUri, Uri machineUri, Uri camUri) {
+  if (camUri.isAbsolute) {
+    if (camUri.host.toLowerCase() == machineUri.host.toLowerCase()) {
+      return baseRemoteUri.replace(path: camUri.path, query: camUri.query);
+    } else {
+      return camUri;
+    }
+  } else {
+    return substituteProtocols(baseRemoteUri.resolveUri(camUri));
   }
 }

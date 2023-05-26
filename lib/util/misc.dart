@@ -136,7 +136,7 @@ _verifyLocalHttpResponseCodes(int statusCode) {
   }
 }
 
-substituteProtocols(Uri wsUri,
+Uri substituteProtocols(Uri wsUri,
     [String protocol = 'http', String secureProtocol = 'https']) {
   if ([protocol, secureProtocol].contains(wsUri.scheme.toLowerCase())) {
     return wsUri;
