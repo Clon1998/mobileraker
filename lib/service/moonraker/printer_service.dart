@@ -727,24 +727,8 @@ class PrinterService {
 
   _updateLed(String led, Map<String, dynamic> ledJson,
       {required PrinterBuilder printer}) {
-    if (!ledJson.containsKey('color_data')) {
-      return;
-    }
-
-    List<dynamic> colorData = ledJson['color_data'];
-    var pixels = colorData
-        .map((e) => Pixel.fromList(e.cast<double>()))
-        .toList(growable: false);
-
     final Led curLed = printer.leds[led]!;
-
-    if (curLed is DumbLed) {
-      printer.leds = {...printer.leds, led: curLed.copyWith(color: pixels[0])};
-    } else if (curLed is AddressableLed) {
-      printer.leds = {...printer.leds, led: curLed.copyWith(pixels: pixels)};
-    } else {
-      throw UnsupportedError('The provided LED Type is not implemented yet!');
-    }
+    printer.leds = {...printer.leds, led: Led.partialUpdate(curLed, ledJson)};
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(

@@ -1,4 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/dto/machine/leds/addressable_led.dart';
+import 'package:mobileraker/data/dto/machine/leds/dumb_led.dart';
 
 part 'led.freezed.dart';
 
@@ -23,5 +25,17 @@ class Pixel with _$Pixel {
 }
 
 abstract class Led {
+  const Led();
+
   abstract final String name;
+
+  factory Led.partialUpdate(Led current, Map<String, dynamic> partialJson) {
+    if (current is DumbLed) {
+      return DumbLed.partialUpdate(current, partialJson);
+    } else if (current is AddressableLed) {
+      return AddressableLed.partialUpdate(current, partialJson);
+    } else {
+      throw UnsupportedError('The provided LED Type is not implemented yet!');
+    }
+  }
 }
