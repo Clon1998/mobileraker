@@ -1,22 +1,23 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import 'fan.dart';
 
-class PrintFan implements Fan {
-  const PrintFan({this.speed = 0.0});
+part 'print_fan.freezed.dart';
+part 'print_fan.g.dart';
 
-  @override
-  final double speed;
+@freezed
+class PrintFan with _$PrintFan implements Fan {
+  const factory PrintFan({
+    @Default(0) double speed,
+  }) = _PrintFan;
 
-  PrintFan copyWith({double? speed}) {
-    return PrintFan(speed: speed ?? this.speed);
+  factory PrintFan.fromJson(Map<String, dynamic> json) =>
+      _$PrintFanFromJson(json);
+
+  factory PrintFan.partialUpdate(
+      PrintFan? current, Map<String, dynamic> partialJson) {
+    PrintFan old = current ?? const PrintFan();
+    var mergedJson = {...old.toJson(), ...partialJson};
+    return PrintFan.fromJson(mergedJson);
   }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is PrintFan &&
-          runtimeType == other.runtimeType &&
-          speed == other.speed;
-
-  @override
-  int get hashCode => speed.hashCode;
 }

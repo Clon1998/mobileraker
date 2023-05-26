@@ -39,11 +39,9 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
-import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
-import 'package:vector_math/vector_math.dart';
 
 part 'printer_service.g.dart';
 
@@ -585,282 +583,104 @@ class PrinterService {
     });
   }
 
-  _updatePrintFan(Map<String, dynamic> fanJson,
+  _updatePrintFan(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    if (fanJson.containsKey('speed')) {
-      double speed = fanJson['speed'];
-      if (printer.printFan == null) {
-        printer.printFan = PrintFan(speed: speed);
-      } else {
-        printer.printFan = printer.printFan!.copyWith(speed: speed);
-      }
-    }
+    printer.printFan = PrintFan.partialUpdate(printer.printFan, jsonResponse);
   }
 
-  _updateHeaterFan(String configName, Map<String, dynamic> fanJson,
+  _updateHeaterFan(String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
-    if (!fanJson.containsKey('speed')) {
-      return;
-    }
-
-    final HeaterFan curFan = printer.fans[configName]! as HeaterFan;
-
+    final HeaterFan curFan = printer.fans[fanName]! as HeaterFan;
     printer.fans = {
       ...printer.fans,
-      configName: curFan.copyWith(speed: fanJson['speed'])
+      fanName: HeaterFan.partialUpdate(curFan, fanJson)
     };
   }
 
-  _updateControllerFan(String configName, Map<String, dynamic> fanJson,
+  _updateControllerFan(String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
-    if (!fanJson.containsKey('speed')) {
-      return;
-    }
-
-    final ControllerFan curFan = printer.fans[configName]! as ControllerFan;
+    final ControllerFan curFan = printer.fans[fanName]! as ControllerFan;
 
     printer.fans = {
       ...printer.fans,
-      configName: curFan.copyWith(speed: fanJson['speed'])
+      fanName: ControllerFan.partialUpdate(curFan, fanJson)
     };
   }
 
-  _updateTemperatureFan(String configName, Map<String, dynamic> fanJson,
+  _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
-    if (!fanJson.containsKey('speed') &&
-        !fanJson.containsKey('rpm') &&
-        !fanJson.containsKey('temperature') &&
-        !fanJson.containsKey('target')) {
-      return;
-    }
+    final TemperatureFan curFan = printer.fans[fanName]! as TemperatureFan;
 
-    final TemperatureFan curFan = printer.fans[configName]! as TemperatureFan;
-
+    //TODO add TempHistory
     printer.fans = {
       ...printer.fans,
-      configName: curFan.copyWith(
-        speed: fanJson['speed'] ?? curFan.speed,
-        rpm: fanJson['rpm'] ?? curFan.rpm,
-        temperature: fanJson['temperature'] ?? curFan.temperature,
-        target: fanJson['target'] ?? curFan.target,
-      )
+      fanName: TemperatureFan.partialUpdate(curFan, fanJson)
     };
   }
 
-  _updateGenericFan(String configName, Map<String, dynamic> fanJson,
+  _updateGenericFan(String fanName, Map<String, dynamic> fanJson,
       {required PrinterBuilder printer}) {
-    if (!fanJson.containsKey('speed')) {
-      return;
-    }
-    if (!fanJson.containsKey('speed')) {
-      return;
-    }
-
-    final GenericFan curFan = printer.fans[configName]! as GenericFan;
+    final GenericFan curFan = printer.fans[fanName]! as GenericFan;
 
     printer.fans = {
       ...printer.fans,
-      configName: curFan.copyWith(speed: fanJson['speed'])
+      fanName: GenericFan.partialUpdate(curFan, fanJson)
     };
   }
 
   _updateTemperatureSensor(String configName, Map<String, dynamic> sensorJson,
       {required PrinterBuilder printer}) {
-    TemperatureSensor curTmpSensor = printer.temperatureSensors[configName]!;
-
-    List<double>? temperatureHistory =
-        (sensorJson['temperatures'] as List<dynamic>?)?.cast<double>() ??
-            curTmpSensor.temperatureHistory;
-    DateTime? lastHistory;
-
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(curTmpSensor.lastHistory).inSeconds >= 1) {
-      temperatureHistory = _updateHistoryList(curTmpSensor.temperatureHistory,
-          sensorJson['temperature'] ?? curTmpSensor.temperature);
-      lastHistory = now;
-    }
+    TemperatureSensor current = printer.temperatureSensors[configName]!;
 
     printer.temperatureSensors = {
       ...printer.temperatureSensors,
-      configName: curTmpSensor.copyWith(
-        temperature: sensorJson['temperature'] ?? curTmpSensor.temperature,
-        measuredMinTemp:
-            sensorJson['measured_min_temp'] ?? curTmpSensor.measuredMinTemp,
-        measuredMaxTemp:
-            sensorJson['measured_max_temp'] ?? curTmpSensor.measuredMaxTemp,
-        lastHistory: lastHistory ?? curTmpSensor.lastHistory,
-        temperatureHistory:
-            temperatureHistory ?? curTmpSensor.temperatureHistory,
-      )
+      configName: TemperatureSensor.partialUpdate(current, sensorJson)
     };
   }
 
   _updateOutputPin(String pin, Map<String, dynamic> pinJson,
       {required PrinterBuilder printer}) {
     OutputPin curPin = printer.outputPins[pin]!;
-    if (!pinJson.containsKey('value')) {
-      return;
-    }
 
     printer.outputPins = {
       ...printer.outputPins,
-      pin: curPin.copyWith(value: pinJson['value'])
+      pin: OutputPin.partialUpdate(curPin, pinJson)
     };
   }
 
-  _updateGCodeMove(Map<String, dynamic> gCodeJson,
+  _updateGCodeMove(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    double? speedFactor;
-    double? speed;
-    double? extrudeFactor;
-    bool? absoluteCoordinates;
-    bool? absoluteExtrude;
-    List<double>? position;
-    List<double>? homingOrigin;
-    List<double>? gcodePosition;
+    printer.gCodeMove =
+        GCodeMove.partialUpdate(printer.gCodeMove, jsonResponse);
+  }
 
-    if (gCodeJson.containsKey('speed_factor')) {
-      speedFactor = (gCodeJson['speed_factor'] as double).toPrecision(2);
-    }
-    if (gCodeJson.containsKey('speed')) {
-      speed = gCodeJson['speed'];
-    }
-    if (gCodeJson.containsKey('extrude_factor')) {
-      extrudeFactor = _toPrecision(gCodeJson['extrude_factor']);
-    }
-    if (gCodeJson.containsKey('absolute_coordinates')) {
-      absoluteCoordinates = gCodeJson['absolute_coordinates'];
-    }
-    if (gCodeJson.containsKey('absolute_extrude')) {
-      absoluteExtrude = gCodeJson['absolute_extrude'];
-    }
+  _updateMotionReport(Map<String, dynamic> jsonResponse,
+      {required PrinterBuilder printer}) {
+    printer.motionReport =
+        MotionReport.partialUpdate(printer.motionReport, jsonResponse);
+  }
 
-    if (gCodeJson.containsKey('position')) {
-      position = gCodeJson['position'].cast<double>();
-    }
-    if (gCodeJson.containsKey('homing_origin')) {
-      homingOrigin = gCodeJson['homing_origin'].cast<double>();
-    }
-    if (gCodeJson.containsKey('gcode_position')) {
-      gcodePosition = gCodeJson['gcode_position'].cast<double>();
-    }
-
-    GCodeMove old = printer.gCodeMove ?? const GCodeMove();
-
-    printer.gCodeMove = GCodeMove(
-      speedFactor: speedFactor ?? old.speedFactor,
-      speed: speed ?? old.speed,
-      extrudeFactor: extrudeFactor ?? old.extrudeFactor,
-      absoluteCoordinates: absoluteCoordinates ?? old.absoluteCoordinates,
-      absoluteExtrude: absoluteExtrude ?? old.absoluteExtrude,
-      position: position ?? old.position,
-      homingOrigin: homingOrigin ?? old.homingOrigin,
-      gcodePosition: gcodePosition ?? old.gcodePosition,
+  _updateDisplayStatus(Map<String, dynamic> jsonResponse,
+      {required PrinterBuilder printer}) {
+    printer.displayStatus = DisplayStatus.partialUpdate(
+      printer.displayStatus,
+      jsonResponse,
     );
   }
 
-  _updateMotionReport(Map<String, dynamic> gCodeJson,
+  _updateVirtualSd(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    List<double>? position;
-    double? liveVelocity;
-    double? liveExtruderVelocity;
-
-    if (gCodeJson.containsKey('live_position')) {
-      position = gCodeJson['live_position'].cast<double>();
-    }
-    if (gCodeJson.containsKey('live_velocity')) {
-      liveVelocity = gCodeJson['live_velocity'];
-    }
-    if (gCodeJson.containsKey('live_extruder_velocity')) {
-      liveExtruderVelocity = gCodeJson['live_extruder_velocity'];
-    }
-
-    MotionReport old = printer.motionReport ?? const MotionReport();
-
-    printer.motionReport = MotionReport(
-      livePosition: position ?? old.livePosition,
-      liveExtruderVelocity: liveExtruderVelocity ?? old.liveExtruderVelocity,
-      liveVelocity: liveVelocity ?? old.liveVelocity,
-    );
+    printer.virtualSdCard =
+        VirtualSdCard.partialUpdate(printer.virtualSdCard, jsonResponse);
   }
 
-  _updateDisplayStatus(Map<String, dynamic> json,
+  _updatePrintStat(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    double? progress = json['progress'];
-    String? message = json['message'];
+    if (jsonResponse.containsKey('message')) {
+      _onMessage(jsonResponse['message']!);
+    }
 
-    DisplayStatus old = printer.displayStatus ?? const DisplayStatus();
-
-    printer.displayStatus = DisplayStatus(
-      progress: progress ?? old.progress,
-      message: message,
-    );
-  }
-
-  _updateVirtualSd(Map<String, dynamic> virtualSDJson,
-      {required PrinterBuilder printer}) {
-    double? progress;
-    bool? isActive;
-    int? filePosition;
-
-    if (virtualSDJson.containsKey('progress')) {
-      progress = virtualSDJson['progress'];
-    }
-    if (virtualSDJson.containsKey('is_active')) {
-      isActive = virtualSDJson['is_active'];
-    }
-    if (virtualSDJson.containsKey('file_position')) {
-      filePosition =
-          int.tryParse(virtualSDJson['file_position'].toString()) ?? 0;
-    }
-    VirtualSdCard old = printer.virtualSdCard ?? const VirtualSdCard();
-    printer.virtualSdCard = old.copyWith(
-        progress: progress ?? old.progress,
-        isActive: isActive ?? old.isActive,
-        filePosition: filePosition ?? old.filePosition);
-  }
-
-  _updatePrintStat(Map<String, dynamic> printStatJson,
-      {required PrinterBuilder printer}) {
-    PrintState? state;
-    double? totalDuration;
-    double? printDuration;
-    double? filamentUsed;
-    String? message;
-    String? filename;
-
-    if (printStatJson.containsKey('state')) {
-      state =
-          EnumToString.fromString(PrintState.values, printStatJson['state']) ??
-              PrintState.error;
-    }
-    if (printStatJson.containsKey('filename')) {
-      filename = printStatJson['filename'];
-    }
-    if (printStatJson.containsKey('total_duration')) {
-      totalDuration = printStatJson['total_duration'];
-    }
-    if (printStatJson.containsKey('print_duration')) {
-      printDuration = printStatJson['print_duration'];
-    }
-    if (printStatJson.containsKey('filament_used')) {
-      filamentUsed = printStatJson['filament_used'];
-    }
-    if (printStatJson.containsKey('message')) {
-      message = printStatJson['message'];
-      _onMessage(message!);
-    }
-    PrintStats old = printer.print ?? const PrintStats();
-
-    printer.print = PrintStats(
-      state: state ?? old.state,
-      totalDuration: totalDuration ?? old.totalDuration,
-      printDuration: printDuration ?? old.printDuration,
-      filamentUsed: filamentUsed ?? old.filamentUsed,
-      message: message ?? old.message,
-      filename: filename ?? old.filename,
-    );
+    printer.print = PrintStats.partialUpdate(printer.print, jsonResponse);
   }
 
   _updateConfigFile(Map<String, dynamic> printStatJson,
@@ -877,124 +697,16 @@ class PrinterService {
 
   _updateHeaterBed(Map<String, dynamic> heatedBedJson,
       {required PrinterBuilder printer}) {
-    HeaterBed old = printer.heaterBed ?? HeaterBed(lastHistory: DateTime(1990));
-
-    double? temperature;
-    double? target;
-    double? power;
-    List<double>? temperatureHistory;
-    List<double>? targetHistory;
-    List<double>? powerHistory;
-    DateTime? lastHistory;
-
-    if (heatedBedJson.containsKey('temperature')) {
-      temperature = heatedBedJson['temperature'];
-    }
-    if (heatedBedJson.containsKey('target')) {
-      target = heatedBedJson['target'];
-    }
-    if (heatedBedJson.containsKey('power')) {
-      power = heatedBedJson['power'];
-    }
-
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(old.lastHistory).inSeconds >= 1) {
-      temperatureHistory = _updateHistoryList(
-          old.temperatureHistory, temperature ?? old.temperature);
-      targetHistory =
-          _updateHistoryList(old.targetHistory, target ?? old.target);
-      powerHistory = _updateHistoryList(old.powerHistory, power ?? old.target);
-      lastHistory = now;
-    }
-
-    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    if (heatedBedJson.containsKey('temperatures')) {
-      temperatureHistory =
-          (heatedBedJson['temperatures'] as List<dynamic>).cast<double>();
-    }
-    if (heatedBedJson.containsKey('targets')) {
-      targetHistory =
-          (heatedBedJson['targets'] as List<dynamic>).cast<double>();
-    }
-    if (heatedBedJson.containsKey('powers')) {
-      powerHistory = (heatedBedJson['powers'] as List<dynamic>).cast<double>();
-    }
-
-    printer.heaterBed = HeaterBed(
-      temperature: temperature ?? old.temperature,
-      target: target ?? old.target,
-      power: power ?? old.power,
-      temperatureHistory: temperatureHistory ?? old.temperatureHistory,
-      targetHistory: targetHistory ?? old.targetHistory,
-      powerHistory: powerHistory ?? old.powerHistory,
-      lastHistory: lastHistory ?? old.lastHistory,
-    );
+    printer.heaterBed =
+        HeaterBed.partialUpdate(printer.heaterBed, heatedBedJson);
   }
 
   _updateExtruder(Map<String, dynamic> extruderJson,
       {required PrinterBuilder printer, int num = 0}) {
     List<Extruder> extruders = printer.extruders;
-
     Extruder extruder = printer.extruders[num];
-    double? temperature;
-    double? target;
-    double? pressureAdvance;
-    double? smoothTime;
-    double? power;
-    List<double>? temperatureHistory;
-    List<double>? targetHistory;
-    List<double>? powerHistory;
-    DateTime? lastHistory;
-    if (extruderJson.containsKey('temperature')) {
-      temperature = extruderJson['temperature'];
-    }
-    if (extruderJson.containsKey('target')) {
-      target = extruderJson['target'];
-    }
-    if (extruderJson.containsKey('pressure_advance')) {
-      pressureAdvance = extruderJson['pressure_advance'];
-    }
-    if (extruderJson.containsKey('smooth_time')) {
-      smoothTime = extruderJson['smooth_time'];
-    }
-    if (extruderJson.containsKey('power')) {
-      power = extruderJson['power'];
-    }
 
-    // Update temp cache for graphs!
-    DateTime now = DateTime.now();
-    if (now.difference(extruder.lastHistory).inSeconds >= 1) {
-      temperatureHistory = _updateHistoryList(
-          extruder.temperatureHistory, temperature ?? extruder.temperature);
-      targetHistory =
-          _updateHistoryList(extruder.targetHistory, target ?? extruder.target);
-      powerHistory =
-          _updateHistoryList(extruder.powerHistory, power ?? extruder.power);
-      lastHistory = now;
-    }
-
-    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
-    if (extruderJson.containsKey('temperatures')) {
-      temperatureHistory =
-          (extruderJson['temperatures'] as List<dynamic>).cast<double>();
-    }
-    if (extruderJson.containsKey('targets')) {
-      targetHistory = (extruderJson['targets'] as List<dynamic>).cast<double>();
-    }
-    if (extruderJson.containsKey('powers')) {
-      powerHistory = (extruderJson['powers'] as List<dynamic>).cast<double>();
-    }
-    var newExtruder = extruder.copyWith(
-        temperature: temperature ?? extruder.temperature,
-        target: target ?? extruder.target,
-        pressureAdvance: pressureAdvance ?? extruder.pressureAdvance,
-        smoothTime: smoothTime ?? extruder.smoothTime,
-        power: power ?? extruder.power,
-        temperatureHistory: temperatureHistory ?? extruder.temperatureHistory,
-        targetHistory: targetHistory ?? extruder.targetHistory,
-        powerHistory: powerHistory ?? extruder.powerHistory,
-        lastHistory: lastHistory ?? extruder.lastHistory);
+    Extruder newExtruder = Extruder.partialUpdate(extruder, extruderJson);
 
     printer.extruders = extruders
         .mapIndex((e, i) => i == num ? newExtruder : e)
@@ -1003,140 +715,20 @@ class PrinterService {
 
   _updateToolhead(Map<String, dynamic> toolHeadJson,
       {required PrinterBuilder printer}) {
-    Toolhead toolhead = printer.toolhead ?? const Toolhead();
-
-    Set<PrinterAxis> homedAxes = toolhead.homedAxes;
-    List<double> position = toolhead.position;
-    double? printTime = toolhead.printTime;
-    double? estimatedPrintTime = toolhead.estimatedPrintTime;
-    double maxVelocity = toolhead.maxVelocity;
-    double maxAccel = toolhead.maxAccel;
-    double maxAccelToDecel = toolhead.maxAccelToDecel;
-    String activeExtruder = toolhead.activeExtruder;
-    double squareCornerVelocity = toolhead.squareCornerVelocity;
-
-    if (toolHeadJson.containsKey('homed_axes')) {
-      String hAxes = toolHeadJson['homed_axes'];
-      homedAxes = hAxes
-          .toUpperCase()
-          .split('')
-          .map((e) => EnumToString.fromString(PrinterAxis.values, e)!)
-          .toSet();
-    }
-    if (toolHeadJson.containsKey('position')) {
-      position = toolHeadJson['position'].cast<double>();
-    }
-    if (toolHeadJson.containsKey('print_time')) {
-      printTime = toolHeadJson['print_time'];
-    }
-    if (toolHeadJson.containsKey('max_velocity')) {
-      maxVelocity = toolHeadJson['max_velocity'];
-    }
-    if (toolHeadJson.containsKey('max_accel')) {
-      maxAccel = toolHeadJson['max_accel'];
-    }
-    if (toolHeadJson.containsKey('max_accel_to_decel')) {
-      maxAccelToDecel = toolHeadJson['max_accel_to_decel'];
-    }
-    if (toolHeadJson.containsKey('extruder')) {
-      activeExtruder = toolHeadJson['extruder'];
-    }
-    if (toolHeadJson.containsKey('square_corner_velocity')) {
-      squareCornerVelocity = toolHeadJson['square_corner_velocity'];
-    }
-    if (toolHeadJson.containsKey('estimated_print_time')) {
-      estimatedPrintTime = toolHeadJson['estimated_print_time'];
-    }
-
-    printer.toolhead = toolhead.copyWith(
-      homedAxes: homedAxes,
-      position: position,
-      printTime: printTime,
-      estimatedPrintTime: estimatedPrintTime,
-      maxVelocity: maxVelocity,
-      maxAccel: maxAccel,
-      maxAccelToDecel: maxAccelToDecel,
-      activeExtruder: activeExtruder,
-      squareCornerVelocity: squareCornerVelocity,
-    );
+    printer.toolhead = Toolhead.partialUpdate(printer.toolhead, toolHeadJson);
   }
 
   _updateExcludeObject(Map<String, dynamic> json,
       {required PrinterBuilder printer}) {
-    String? currentObject;
-    List<String>? excludedObjects;
-    List<ParsedObject>? objects;
-
-    if (json.containsKey('current_object')) {
-      currentObject = json['current_object'];
-    }
-
-    if (json.containsKey('excluded_objects')) {
-      excludedObjects =
-          (json['excluded_objects'] as List<dynamic>).cast<String>();
-    }
-    if (json.containsKey('objects')) {
-      List<dynamic> objRaw = json['objects'];
-      List<ParsedObject> prasedObjects = [];
-      for (Map<String, dynamic> e in objRaw) {
-        Vector2 center;
-        String name = e['name'];
-        List<Vector2> polygons;
-        if (e.containsKey('center')) {
-          List<dynamic> centerFromMsg = e['center'];
-          center = centerFromMsg.isEmpty
-              ? Vector2.zero()
-              : Vector2.array(
-                  centerFromMsg.cast<num>().map((e) => e.toDouble()).toList());
-        } else {
-          center = Vector2.zero();
-        }
-        if (e.containsKey('polygon')) {
-          List<dynamic> polys = e['polygon'];
-          polygons = polys.map((e) {
-            List<dynamic> list = e as List<dynamic>;
-            return Vector2.array(
-                list.cast<num>().map((e) => e.toDouble()).toList());
-          }).toList(growable: false);
-        } else {
-          polygons = [];
-        }
-
-        prasedObjects
-            .add(ParsedObject(name: name, center: center, polygons: polygons));
-      }
-
-      objects = List.unmodifiable(prasedObjects);
-    }
-
-    ExcludeObject old = printer.excludeObject ?? const ExcludeObject();
-    printer.excludeObject = old.copyWith(
-        currentObject: currentObject,
-        excludedObjects: excludedObjects ?? old.excludedObjects,
-        objects: objects ?? old.objects);
-    logger.v('New exclude_printer: ${printer.excludeObject}');
+    printer.excludeObject =
+        ExcludeObject.partialUpdate(printer.excludeObject, json);
+    logger.e('New exclude_printer: ${printer.excludeObject}');
   }
 
   _updateLed(String led, Map<String, dynamic> ledJson,
       {required PrinterBuilder printer}) {
-    if (!ledJson.containsKey('color_data')) {
-      return;
-    }
-
-    List<dynamic> colorData = ledJson['color_data'];
-    var pixels = colorData
-        .map((e) => Pixel.fromList(e.cast<double>()))
-        .toList(growable: false);
-
     final Led curLed = printer.leds[led]!;
-
-    if (curLed is DumbLed) {
-      printer.leds = {...printer.leds, led: curLed.copyWith(color: pixels[0])};
-    } else if (curLed is AddressableLed) {
-      printer.leds = {...printer.leds, led: curLed.copyWith(pixels: pixels)};
-    } else {
-      throw UnsupportedError('The provided LED Type is not implemented yet!');
-    }
+    printer.leds = {...printer.leds, led: Led.partialUpdate(curLed, ledJson)};
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(
@@ -1189,12 +781,7 @@ class PrinterService {
         type: SnackbarType.warning, title: 'Klippy-Message', message: message));
   }
 
-  double _toPrecision(double d, [int fraction = 2]) {
-    return d.toPrecision(fraction);
-  }
-
   void _showExceptionSnackbar(Object e, StackTrace s) {
-
     _snackBarService.show(SnackBarConfig.stacktraceDialog(
       dialogService: _dialogService,
       exception: e,
