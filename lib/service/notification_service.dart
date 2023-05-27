@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:io' show Platform;
+import 'dart:isolate';
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
@@ -19,6 +21,7 @@ import 'package:mobileraker/license.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';
 import 'package:mobileraker/util/ref_extension.dart';
@@ -45,6 +48,8 @@ NotificationService notificationService(NotificationServiceRef ref) {
 }
 
 class NotificationService {
+  static const String _portName = 'onNoti';
+
   NotificationService(this.ref)
       : _machineService = ref.watch(machineServiceProvider),
         _settingsService = ref.watch(settingServiceProvider),
@@ -58,27 +63,30 @@ class NotificationService {
   final AwesomeNotificationsFcm _notifyFCM;
   final Map<String, ProviderSubscription<AsyncValue<Printer>>>
       _printerStreamMap = {};
+  final ReceivePort _notificationTapPort = ReceivePort();
+
   StreamSubscription<BoxEvent>? _hiveStreamListener;
 
   Future<void> initialize() async {
     try {
       List<Machine> allMachines = await _machineService.fetchAll();
 
-      await initializeNotificationChannels(allMachines);
+      await _initializeNotificationChannels(allMachines);
 
-      await initialRequestPermission();
+      await _initialRequestPermission();
 
       // ToDo: Add listener to token update to clear fcm.cfg!
 
       // ToDo: Implement local notification handling again!
       for (Machine setting in allMachines) {
-        registerLocalMessageHandling(setting);
+        _registerLocalMessageHandling(setting);
       }
 
-      _hiveStreamListener = setupHiveBoxListener();
-      await initializeNotificationListeners();
+      _hiveStreamListener = _setupHiveBoxListener();
+      _initializedPortForTask();
+      await _initializeNotificationListeners();
       if (await isFirebaseAvailable()) {
-        await initializeRemoteMessaging();
+        await _initializeRemoteMessaging();
 
         allMachines.forEach(_setupFCMOnPrinterOnceConnected);
       }
@@ -90,7 +98,7 @@ class NotificationService {
     }
   }
 
-  Future<bool> initialRequestPermission() async {
+  Future<bool> _initialRequestPermission() async {
     bool notificationAllowed = await hasNotificationPermission();
     logger.i('Notifications are permitted: $notificationAllowed');
 
@@ -113,7 +121,7 @@ class NotificationService {
     return notificationAllowed;
   }
 
-  void registerLocalMessageHandling(Machine setting) {
+  void _registerLocalMessageHandling(Machine setting) {
     // ToDo: Implement local notification handling again!
     return;
     _printerStreamMap[setting.uuid] = ref.listen(printerProvider(setting.uuid),
@@ -122,12 +130,12 @@ class NotificationService {
     });
   }
 
-  Future<void> initializeNotificationListeners() {
+  Future<void> _initializeNotificationListeners() {
     return _notifyAPI.setListeners(
         onActionReceivedMethod: _onActionReceivedMethod);
   }
 
-  StreamSubscription<BoxEvent> setupHiveBoxListener() {
+  StreamSubscription<BoxEvent> _setupHiveBoxListener() {
     return _machineService.machineEventStream.listen((event) {
       logger.d(
           "Received Box-Event<machine>: event(${event.key}:${event.value} del=${event.deleted}");
@@ -139,7 +147,7 @@ class NotificationService {
     });
   }
 
-  Future<void> initializeNotificationChannels(List<Machine> machines) async {
+  Future<void> _initializeNotificationChannels(List<Machine> machines) async {
     // Always have a basic channel!
     List<NotificationChannelGroup> groups = [
       NotificationChannelGroup(
@@ -151,7 +159,7 @@ class NotificationService {
         channelKey: 'basic_channel',
         channelName: 'General Notifications',
         channelDescription:
-            'Notifications regarding updates and infos about Mobileraker!',
+        'Notifications regarding updates and infos about Mobileraker!',
         channelGroupKey: 'mobileraker_default_grp',
       )
     ];
@@ -162,13 +170,13 @@ class NotificationService {
     }
 
     await _notifyAPI.initialize(
-        // set the icon to null if you want to use the default app icon
+      // set the icon to null if you want to use the default app icon
         null,
         channels,
         channelGroups: groups);
   }
 
-  Future<void> initializeRemoteMessaging() async {
+  Future<void> _initializeRemoteMessaging() async {
     await _notifyFCM.initialize(
         onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
         onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
@@ -183,6 +191,19 @@ class NotificationService {
         _processPrinterUpdate(machine, value);
       });
     }
+  }
+
+  Future<void> _initializedPortForTask() async {
+    // This might create a Race Condition, However in my case doing it like that is fine
+    // Since AwesomeFCM  creates an Isolate only once the notification is tapped!
+    IsolateNameServer.removePortNameMapping(_portName);
+    IsolateNameServer.registerPortWithName(
+        _notificationTapPort.sendPort, _portName);
+
+    // No need to close this sub, since I close the port!
+    _notificationTapPort.listen(_onNotificationTapPortMessage,
+        onError: _onNotificationTapPortError);
+    logger.i('Setup ReceiverPort!');
   }
 
   // updatePrintStateOnce() {
@@ -231,7 +252,7 @@ class NotificationService {
       _notifyAPI.setChannel(channels);
     }
     _setupFCMOnPrinterOnceConnected(setting);
-    registerLocalMessageHandling(setting);
+    _registerLocalMessageHandling(setting);
   }
 
   void onMachineRemoved(String uuid) {
@@ -245,11 +266,44 @@ class NotificationService {
   @pragma("vm:entry-point")
   static Future<void> _onActionReceivedMethod(
       ReceivedAction receivedAction) async {
-    //TODO: Swap to active printer that issued the notification!
+    SendPort? uiSendPort = IsolateNameServer.lookupPortByName(_portName);
+    if (uiSendPort != null) {
+      logger.e(
+          'Background action running on parallel isolate without valid context. Redirecting execution');
+      uiSendPort.send(receivedAction);
+    } else {
+      logger.e('??? Port is null wtf??');
+    }
+  }
+
+  Future<void> _onNotificationTapPortMessage(dynamic data) async {
+    if (data is! ReceivedAction) {
+      logger.w(
+          'Received object from the onNotificationTap Port is not of type: ReceivedAction it is type:${data.runtimeType}');
+      return;
+    }
+    var payload = data.payload;
+    logger.i('Received payload: $payload');
+
+    if (payload?.containsKey('printerId') == true) {
+      var machine = await _machineService.fetch(payload!['printerId']!);
+      if (machine != null) {
+        await ref.read(selectedMachineServiceProvider).selectMachine(machine);
+        logger.i(
+            'Successfully switched to printer ${machine.debugStr} that was contained in the notification\'s ReceivedAction');
+        return;
+      }
+    }
+    logger.i('No action taken from the ReceivedAction');
+
     // Your code goes here
     // ref
     //     .read(selectedMachineProvider)
     //     .whenData((value) => ref.read(jrpcClientProvider(value!.uuid)));
+  }
+
+  Future<void> _onNotificationTapPortError(error) async {
+    logger.e('Received an error from the onNotificationTap Port', e);
   }
 
   @pragma("vm:entry-point")
@@ -261,8 +315,7 @@ class NotificationService {
   }
 
   @pragma("vm:entry-point")
-  static Future<void> _awesomeNotificationFCMBackgroundHandler(
-      FcmSilentData message) async {
+  static Future<void> _awesomeNotificationFCMBackgroundHandler(FcmSilentData message) async {
     // Todo: Do I even need background stuff ?
     // logger.i('Receieved a notif Message');
     // print('I-AM-COOL');
@@ -345,7 +398,7 @@ class NotificationService {
           channelKey: machine.m117ChannelKey,
           channelName: 'User M117 Notifications - ${machine.name}',
           channelDescription:
-              'Notifications issued by M117 with prefix "\$MR\$:".',
+          'Notifications issued by M117 with prefix "\$MR\$:".',
           channelGroupKey: machine.uuid,
           // importance: NotificationImportance.Max,
           defaultColor: brownish.shade500,
@@ -372,13 +425,13 @@ class NotificationService {
 
   void _setupFCMOnPrinterOnceConnected(Machine machine) async {
     String fcmToken =
-        await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
+    await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
     logger
         .i('${machine.name}(${machine.wsUrl})  Device\'s FCM token: $fcmToken');
     try {
       // Wait until connected
       await ref.readWhere<KlipperInstance>(klipperProvider(machine.uuid),
-          (c) => c.klippyState == KlipperState.ready);
+              (c) => c.klippyState == KlipperState.ready);
       logger.i(
           'Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
       await _machineService.updateMachineFcmConfig(machine, fcmToken);
@@ -399,8 +452,7 @@ class NotificationService {
     await machine.save();
   }
 
-  Future<PrintState> _updatePrintStatusNotification(
-      Machine machine, PrintState updatedState, String? updatedFile,
+  Future<PrintState> _updatePrintStatusNotification(Machine machine, PrintState updatedState, String? updatedFile,
       [bool createNotification = true]) async {
     PrintState? oldState = machine.lastPrintState;
 
@@ -415,8 +467,8 @@ class NotificationService {
     }
 
     if (
-        // !allowed.contains(oldState?.name ?? PrintState.error.name) &&
-        !allowed.contains(updatedState.name)) {
+    // !allowed.contains(oldState?.name ?? PrintState.error.name) &&
+    !allowed.contains(updatedState.name)) {
       logger.i(
           'Skipping notifications,  "$oldState" nor "$updatedState" contained in allowedStates:"$allowed"');
       return updatedState;
@@ -467,8 +519,7 @@ class NotificationService {
   Future<void> _removePrintProgressNotification(Machine machine) => _notifyAPI
       .cancelNotificationsByChannelKey(machine.printProgressChannelKey);
 
-  Future<void> _updatePrintProgressNotification(
-      Machine machine, double progress, double printDuration,
+  Future<void> _updatePrintProgressNotification(Machine machine, double progress, double printDuration,
       [bool normalize = true]) async {
     if (progress >= 100) return;
 
@@ -481,7 +532,7 @@ class NotificationService {
     if (progMode == ProgressNotificationMode.DISABLED) return;
 
     double normalizedProgress =
-        normalize ? normalizeProgress(progMode, progress) : progress;
+    normalize ? normalizeProgress(progMode, progress) : progress;
 
     if (machine.lastPrintProgress == normalizedProgress) return;
     machine.lastPrintProgress = normalizedProgress;
@@ -518,6 +569,7 @@ class NotificationService {
 
   dispose() {
     logger.e('NEVER DISPOSE THIS SERVICE!');
+    _notificationTapPort.close();
     _hiveStreamListener?.cancel();
     for (var element in _printerStreamMap.values) {
       element.close();

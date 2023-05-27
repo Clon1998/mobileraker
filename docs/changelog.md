@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.x.x] - 2023-xx
+
+### Major Changes
+
+- Tapping a notification now brings up the correct printer in a multi-printer
+  setup [#128](https://github.com/Clon1998/mobileraker/issues/128)
+
 ## [2.3.4] - 2023-05-26
 
 ### Bug Fixes
