@@ -59,3 +59,9 @@ As a result, the app is currently unable to update notifications.
 
 ## 🌪️ How can I switch the active printer without using the navbar?
 You can easily switch between printers by swiping horizontally on the page's title.
+
+## 🖼️ Is it possible for Mobileraker to send notifications along with a screenshot?
+Currently, only mobileraker supporters have access to notification support that includes screenshots.
+
+## 🦺 Does Mobileraker store the notification's screenshots the backend receives?
+To ensure efficient delivery of push notifications, mobilerarker caches all images received until they are delivered to the user. However, all images are encrypted and deleted within 48 hours of receiving the initial request from the `mobilraker_companion`. If a user wants to prevent the transmission of image data to the backend, they can simply disable it in the `Mobileraker.conf` file (`include_snapshot: False` in the `[general]` section).
