@@ -22,7 +22,7 @@ class KlipperInstance with _$KlipperInstance {
   const KlipperInstance._();
   const factory KlipperInstance(
       {@Default(false) bool klippyConnected,
-      @Default(KlipperState.error) KlipperState klippyState,
+      @Default(KlipperState.disconnected) KlipperState klippyState,
       @Default([]) List<String> components,
       @Default([]) List<String> warnings,
       String? klippyStateMessage}) = _KlipperInstance;

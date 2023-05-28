@@ -39,6 +39,7 @@ class JsonRpcClientBuilder {
     var octoUri = Uri.parse(octoEverywhere.url);
 
     return JsonRpcClientBuilder()
+      ..timeout = const Duration(seconds: 5)
       ..apiKey = machine.apiKey
       ..uri = localWsUir.replace(
           scheme: 'wss',

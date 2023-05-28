@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
@@ -67,33 +66,29 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
   OctoEverywhere? octoEverywhere = machine.octoEverywhere;
   if (octoEverywhere == null) {
     logger.i(
-        'No remote client configured... cant do handover! ref:${identityHashCode(ref)}');
+        'No OE config was found! Will only rely on local client. ref:${identityHashCode(ref)}');
     return localClient;
   }
+  logger.i(
+      'An OE config is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
+
   // This section needs to be run if the local client provider was already present
   if (localClient.curState == ClientState.error) {
     logger.i(
         'Local client already is errored? Returning remote one... ref:${identityHashCode(ref)}');
     return ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
   }
-  // Here we register a listner that can wait for the loal client to switch to remote one!
-  late ProviderSubscription sub;
-  sub = ref.listen<AsyncValue<ClientState>>(
-      _jsonRpcStateProvider(machineUUID, ClientType.local),
-      (previous, AsyncValue<ClientState> next) {
-    next.whenData(
-      (d) async {
-        if (d == ClientState.error) {
 
-          var remoteClinet =
-              ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
+  ref
+      .readWhere(_jsonRpcStateProvider(machineUUID, ClientType.local),
+          (clientState) => clientState == ClientState.error)
+      .then((value) {
+    var remoteClinet =
+        ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
+    logger.i(
+        'Local clientState is $value. Will switch to remoteClient. ref:${identityHashCode(ref)}, remoteclient:${identityHashCode(remoteClinet)}');
 
-          logger.i(
-              'Returning remote client... ref:${identityHashCode(ref)}, remoteclient:${identityHashCode(remoteClinet)}');
-          ref.state = remoteClinet;
-        }
-      },
-    );
+    ref.state = remoteClinet;
   });
   return localClient;
 }
@@ -102,7 +97,6 @@ JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
 Stream<ClientState> jrpcClientState(
     JrpcClientStateRef ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
-
 
   StreamController<ClientState> sc = StreamController<ClientState>();
 
@@ -151,7 +145,6 @@ ClientType jrpcClientType(JrpcClientTypeRef ref, String machineUUID) {
 //       return jrpcFallbackService.stateStream;
 //     });
 
-
 @riverpod
 JsonRpcClient jrpcClientSelected(JrpcClientSelectedRef ref) {
   var machine = ref.watch(selectedMachineProvider).value;
@@ -162,7 +155,8 @@ JsonRpcClient jrpcClientSelected(JrpcClientSelectedRef ref) {
 }
 
 @riverpod
-Stream<ClientState> jrpcClientStateSelected(JrpcClientStateSelectedRef ref) async* {
+Stream<ClientState> jrpcClientStateSelected(
+    JrpcClientStateSelectedRef ref) async* {
   try {
     Machine machine = await ref.watchWhereNotNull(selectedMachineProvider);
     StreamController<ClientState> sc = StreamController<ClientState>();
@@ -173,14 +167,14 @@ Stream<ClientState> jrpcClientStateSelected(JrpcClientStateSelectedRef ref) asyn
     });
 
     ref.listen<AsyncValue<ClientState>>(jrpcClientStateProvider(machine.uuid),
-            (previous, next) {
-          next.when(
-              data: (data) => sc.add(data),
-              error: (err, st) => sc.addError(err, st),
-              loading: () {
-                if (previous != null) ref.invalidateSelf();
-              });
-        }, fireImmediately: true);
+        (previous, next) {
+      next.when(
+          data: (data) => sc.add(data),
+          error: (err, st) => sc.addError(err, st),
+          loading: () {
+            if (previous != null) ref.invalidateSelf();
+          });
+    }, fireImmediately: true);
 
     yield* sc.stream;
   } on StateError catch (_) {

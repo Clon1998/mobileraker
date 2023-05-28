@@ -26,15 +26,13 @@ Stream<KlipperInstance> klipper(KlipperRef ref, String machineUUID) {
 }
 
 @riverpod
-KlippyService klipperServiceSelected(
-    KlipperServiceSelectedRef ref) {
+KlippyService klipperServiceSelected(KlipperServiceSelectedRef ref) {
   return ref.watch(klipperServiceProvider(
       ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 }
 
 @riverpod
-Stream<KlipperInstance> klipperSelected(
-    KlipperSelectedRef ref) async* {
+Stream<KlipperInstance> klipperSelected(KlipperSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
     StreamController<KlipperInstance> sc = StreamController<KlipperInstance>();
@@ -74,19 +72,17 @@ class KlippyService {
         _onNotifyKlippyDisconnected, "notify_klippy_disconnected");
 
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
-      var data = next as AsyncValue<ClientState>;
-      switch (data.valueOrFullNull) {
+      switch (next.valueOrFullNull) {
         case ClientState.connected:
           _onJrpcConnected();
           break;
-        case ClientState.disconnected:
         case ClientState.error:
           _current = _current.copyWith(
               klippyConnected: false, klippyState: KlipperState.error);
           break;
         default:
       }
-    });
+    }, fireImmediately: true);
   }
 
   final AutoDisposeRef ref;
@@ -137,7 +133,8 @@ class KlippyService {
 
   _onJrpcConnected() async {
     try {
-      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]).timeout(const Duration(seconds: 5));
+      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()])
+          .timeout(const Duration(seconds: 5));
     } on JRpcError catch (e, s) {
       logger.w('Error while fetching inital KlippyObject: ${e.message}');
 
