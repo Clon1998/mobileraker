@@ -62,7 +62,7 @@ void main() {
 
 GCodeMove gcodeMoveObject() {
   String input =
-      '{"result": {"status": {"gcode_move": {"homing_origin": [1.1, 2.2, 3.3, 4.4], "speed_factor": 1.23, "gcode_position": [0.0, 1.1, 2.2, 3.3], "absolute_extrude": false, "absolute_coordinates": true, "position": [0, 1, 2, 3], "speed": 1500.0, "extrude_factor": 0.71}}, "eventtime": 3790887.876200505}}';
+      '{"result": {"status": {"gcode_move": {"homing_origin": [1.1, 2.2, 3.3, 4.4], "speed_factor": 1.2333, "gcode_position": [0.0, 1.1, 2.2, 3.3], "absolute_extrude": false, "absolute_coordinates": true, "position": [0, 1, 2, 3], "speed": 1500.0, "extrude_factor": 0.71123}}, "eventtime": 3790887.876200505}}';
 
   var parsedJson = objectFromHttpApiResult(input, "gcode_move");
 

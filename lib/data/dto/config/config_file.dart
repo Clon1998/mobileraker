@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/config/config_file_entry_enum.dart';
 import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
+import 'package:mobileraker/data/dto/config/config_heater_generic.dart';
 import 'package:mobileraker/data/dto/config/fan/config_controller_fan.dart';
 import 'package:mobileraker/data/dto/config/fan/config_fan.dart';
 import 'package:mobileraker/data/dto/config/fan/config_generic_fan.dart';
@@ -30,6 +31,7 @@ class ConfigFile {
   Map<String, ConfigGcodeMacro> gcodeMacros = {};
   Map<String, ConfigLed> leds = {};
   Map<String, ConfigFan> fans = {};
+  Map<String, ConfigHeaterGeneric> genericHeaters = {};
 
   ConfigFile();
 
@@ -90,9 +92,14 @@ class ConfigFile {
         fans[objectName] = ConfigTemperatureFan.fromJson(objectName, jsonChild);
       } else if (object == ConfigFileEntry.fan_generic.name) {
         fans[objectName] = ConfigGenericFan.fromJson(objectName, jsonChild);
+      } else if (object == ConfigFileEntry.heater_generic.name) {
+        genericHeaters[objectName] =
+            ConfigHeaterGeneric.fromJson(objectName, jsonChild);
       }
     }
+
     //ToDo parse the config for e.g. EXTRUDERS (Temp settings), ...
+    // TODO migrate to the entire key instead of just the objectName. The problem is LEDs, Fans of different types can have the same name!
   }
 
   Map<String, dynamic> rawConfig = {};
@@ -127,13 +134,17 @@ class ConfigFile {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ConfigFile &&
+          other is ConfigFile &&
           runtimeType == other.runtimeType &&
           configPrinter == other.configPrinter &&
           configHeaterBed == other.configHeaterBed &&
           mapEquals(extruders, other.extruders) &&
           mapEquals(outputs, other.outputs) &&
           mapEquals(steppers, other.steppers) &&
+          mapEquals(gcodeMacros, other.gcodeMacros) &&
+          mapEquals(leds, other.leds) &&
+          mapEquals(fans, other.fans) &&
+          mapEquals(genericHeaters, other.genericHeaters) &&
           rawConfig == other.rawConfig &&
           saveConfigPending == other.saveConfigPending;
 

@@ -1,11 +1,14 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:mobileraker/util/json_util.dart';
 
 part 'heater_bed.freezed.dart';
 part 'heater_bed.g.dart';
 
 @freezed
-class HeaterBed with _$HeaterBed {
+class HeaterBed with _$HeaterBed, HeaterMixin {
+  const HeaterBed._();
+
   const factory HeaterBed({
     @Default(0) double temperature,
     @Default(0) double target,
@@ -40,4 +43,6 @@ class HeaterBed with _$HeaterBed {
 
     return HeaterBed.fromJson(mergedJson);
   }
+
+  String get name => 'heater_bed';
 }

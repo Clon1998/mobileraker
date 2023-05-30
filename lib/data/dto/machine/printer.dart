@@ -1,16 +1,19 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
+import 'package:mobileraker/data/dto/machine/bed_screw.dart';
 import 'package:mobileraker/data/dto/machine/display_status.dart';
+import 'package:mobileraker/data/dto/machine/heaters/generic_heater.dart';
 import 'package:mobileraker/data/dto/machine/leds/led.dart';
+import 'package:mobileraker/data/dto/machine/manual_probe.dart';
 import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/exceptions.dart';
 
 import 'exclude_object.dart';
-import 'extruder.dart';
 import 'fans/named_fan.dart';
 import 'fans/print_fan.dart';
 import 'gcode_move.dart';
-import 'heater_bed.dart';
+import 'heaters/extruder.dart';
+import 'heaters/heater_bed.dart';
 import 'output_pin.dart';
 import 'print_stats.dart';
 import 'temperature_sensor.dart';
@@ -32,6 +35,8 @@ class PrinterBuilder {
         excludeObject = printer.excludeObject,
         configFile = printer.configFile,
         virtualSdCard = printer.virtualSdCard,
+        manualProbe = printer.manualProbe,
+        bedScrew = printer.bedScrew,
         fans = printer.fans,
         temperatureSensors = printer.temperatureSensors,
         outputPins = printer.outputPins,
@@ -39,7 +44,8 @@ class PrinterBuilder {
         gcodeMacros = printer.gcodeMacros,
         motionReport = printer.motionReport,
         displayStatus = printer.displayStatus,
-        leds = printer.leds;
+        leds = printer.leds,
+        genericHeaters = printer.genericHeaters;
 
   Toolhead? toolhead;
   List<Extruder> extruders = [];
@@ -52,12 +58,15 @@ class PrinterBuilder {
   ExcludeObject? excludeObject;
   ConfigFile? configFile;
   VirtualSdCard? virtualSdCard;
+  ManualProbe? manualProbe;
+  BedScrew? bedScrew;
   Map<String, NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
   List<String> queryableObjects = [];
   List<String> gcodeMacros = [];
   Map<String, Led> leds = {};
+  Map<String, GenericHeater> genericHeaters = {};
 
   Printer build() {
     if (toolhead == null) {
@@ -85,22 +94,26 @@ class PrinterBuilder {
 
     var printer = Printer(
         toolhead: toolhead!,
-        extruders: extruders,
-        heaterBed: heaterBed,
-        printFan: printFan,
-        gCodeMove: gCodeMove!,
-        motionReport: motionReport!,
-        displayStatus: displayStatus!,
-        print: print!,
-        excludeObject: excludeObject,
-        configFile: configFile!,
-        virtualSdCard: virtualSdCard!,
-        fans: Map.unmodifiable(fans),
-        temperatureSensors: Map.unmodifiable(temperatureSensors),
-        outputPins: Map.unmodifiable(outputPins),
-        queryableObjects: queryableObjects,
-        gcodeMacros: gcodeMacros,
-        leds: Map.unmodifiable(leds));
+      extruders: extruders,
+      heaterBed: heaterBed,
+      printFan: printFan,
+      gCodeMove: gCodeMove!,
+      motionReport: motionReport!,
+      displayStatus: displayStatus!,
+      print: print!,
+      excludeObject: excludeObject,
+      configFile: configFile!,
+      virtualSdCard: virtualSdCard!,
+      manualProbe: manualProbe,
+      bedScrew: bedScrew,
+      fans: Map.unmodifiable(fans),
+      temperatureSensors: Map.unmodifiable(temperatureSensors),
+      outputPins: Map.unmodifiable(outputPins),
+      queryableObjects: queryableObjects,
+      gcodeMacros: gcodeMacros,
+      leds: Map.unmodifiable(leds),
+      genericHeaters: Map.unmodifiable(genericHeaters),
+    );
     return printer;
   }
 }
@@ -121,12 +134,15 @@ class Printer with _$Printer {
     ExcludeObject? excludeObject,
     required ConfigFile configFile,
     required VirtualSdCard virtualSdCard,
+    ManualProbe? manualProbe,
+    BedScrew? bedScrew,
     @Default({}) Map<String, NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
     @Default({}) Map<String, OutputPin> outputPins,
     @Default([]) List<String> queryableObjects,
     @Default([]) List<String> gcodeMacros,
     @Default({}) Map<String, Led> leds,
+    @Default({}) Map<String, GenericHeater> genericHeaters,
   }) = _Printer;
 
   Extruder get extruder =>

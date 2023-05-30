@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobileraker/data/dto/machine/heater_bed.dart';
+import 'package:mobileraker/data/dto/machine/heaters/heater_bed.dart';
 
 import '../../../test_utils.dart';
 

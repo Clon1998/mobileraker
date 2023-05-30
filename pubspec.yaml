@@ -115,6 +115,7 @@ dependencies:
   loader_overlay: ^2.2.0
   flutter_whatsnew: ^1.0.5+2
   cloud_firestore: ^4.4.4
+  flutter_webrtc: ^0.9.31
 
 
 #  ditredi: ^1.0.3

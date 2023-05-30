@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/util/extensions/double_extension.dart';
+import 'package:mobileraker/data/converters/double_precision_converter.dart';
 
 part 'gcode_move.freezed.dart';
 part 'gcode_move.g.dart';
@@ -9,11 +9,13 @@ class GCodeMove with _$GCodeMove {
   const GCodeMove._();
 
   const factory GCodeMove({
-    @JsonKey(name: 'speed_factor', fromJson: _toTwoFractions)
+    @Double2PrecisionConverter()
+    @JsonKey(name: 'speed_factor')
     @Default(0)
         double speedFactor,
     @Default(0) double speed,
-    @JsonKey(name: 'extrude_factor', fromJson: _toTwoFractions)
+    @Double2PrecisionConverter()
+    @JsonKey(name: 'extrude_factor')
     @Default(0)
         double extrudeFactor,
     @JsonKey(name: 'absolute_coordinates')
@@ -43,5 +45,3 @@ class GCodeMove with _$GCodeMove {
     return (speed / 60 * speedFactor).round();
   }
 }
-
-double _toTwoFractions(double d) => d.toPrecision(2);

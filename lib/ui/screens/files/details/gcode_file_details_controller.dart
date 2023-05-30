@@ -61,8 +61,8 @@ class GCodeFileDetailsController extends _$GCodeFileDetailsController {
     )
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false) {
-        _printerService.setTemperature('extruder', 170);
-        _printerService.setTemperature(
+        _printerService.setHeaterTemperature('extruder', 170);
+        _printerService.setHeaterTemperature(
             'heater_bed', (gCodeFile.firstLayerTempBed ?? 60.0).toInt());
         _snackBarService.show(SnackBarConfig(
             title: tr('pages.files.details.preheat_snackbar.title'),

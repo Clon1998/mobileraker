@@ -10,8 +10,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
-import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
+import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
@@ -406,6 +406,13 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
     int extruderCnt = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.printerData.extruderCount));
 
+    int genericHeateCnt = ref
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
+            .printerData.genericHeaters.values
+            .where((e) => !e.name.startsWith('_'))
+            .length))
+        .valueOrFullNull!;
+
     int sensorsCnt = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
             .printerData.temperatureSensors.values
@@ -424,8 +431,23 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
     return AdaptiveHorizontalScroll(
       pageStorageKey: "temps",
       children: [
-        ...List.generate(extruderCnt, (index) => _ExtruderCard(extNum: index)),
-        if (hasHeaterBed) const _HeatedBedCard(),
+        ...List.generate(
+            extruderCnt,
+            (index) => _HeaterMixinCard(
+                heaterProvider: machinePrinterKlippySettingsProvider
+                    .selectAs((value) => value.printerData.extruders[index]))),
+        if (hasHeaterBed)
+          _HeaterMixinCard(
+            heaterProvider: machinePrinterKlippySettingsProvider
+                .selectAs((data) => data.printerData.heaterBed!),
+          ),
+        ...List.generate(
+            genericHeateCnt,
+            (index) => _HeaterMixinCard(
+                heaterProvider: machinePrinterKlippySettingsProvider.selectAs(
+                    (value) => value.printerData.genericHeaters.values
+                        .where((element) => !element.name.startsWith('_'))
+                        .elementAt(index)))),
         ...List.generate(
             sensorsCnt,
             (index) => _SensorCard(
@@ -436,84 +458,54 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
         ...List.generate(
             temperatureFanCnt,
             (index) => _TemperatureFanCard(
-                tempFanProvider: machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.fans.values
-                        .where((element) => !element.name.startsWith('_'))
-                        .whereType<TemperatureFan>()
-                        .elementAt(index)))),
+                tempFanProvider: machinePrinterKlippySettingsProvider
+                        .selectAs(
+                            (value) =>
+                            value.printerData.fans.values
+                                .where((element) =>
+                            !element.name.startsWith('_'))
+                                .whereType<TemperatureFan>()
+                                .elementAt(index)))),
       ],
     );
   }
 }
 
-class _ExtruderCard extends HookConsumerWidget {
-  const _ExtruderCard({Key? key, required this.extNum}) : super(key: key);
-  final int extNum;
+
+class _HeaterMixinCard extends HookConsumerWidget {
+  const _HeaterMixinCard({Key? key, required this.heaterProvider})
+      : super(key: key);
+  final ProviderListenable<AsyncValue<HeaterMixin>> heaterProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Extruder extruder = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.printerData.extruders[extNum]));
+    var genericHeater = ref
+        .watch(heaterProvider)
+        .valueOrFullNull;
+
+    if (genericHeater == null) return const SizedBox.shrink();
+
     var spots = useState(<FlSpot>[]);
 
-    var temperatureHistory = extruder.temperatureHistory;
+    var temperatureHistory = genericHeater.temperatureHistory;
     if (temperatureHistory != null) {
       List<double> sublist =
-          temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
-
+      temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
       spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
-    final String extruderNameStr =
-        tr('pages.dashboard.control.extrude_card.title');
 
     return _HeaterCard(
-      name: extNum > 0 ? '$extruderNameStr $extNum' : extruderNameStr,
-      current: extruder.temperature,
-      target: extruder.target,
+      name: beautifyName(genericHeater.name),
+      current: genericHeater.temperature,
+      target: genericHeater.target,
       spots: spots.value,
-      // spots: model.heatedBedKeeper.spots,
       onTap: ref.watch(generalTabViewControllerProvider.select(
               (data) => data.value!.klippyData.klippyCanReceiveCommands))
-          ? () => ref
+          ? () =>
+          ref
               .read(generalTabViewControllerProvider.notifier)
-              .editExtruderHeater(extruder)
-          : null,
-    );
-  }
-}
-
-class _HeatedBedCard extends HookConsumerWidget {
-  const _HeatedBedCard({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var heaterBed = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.printerData.heaterBed));
-
-    if (heaterBed == null) {
-      logger.w('Tried to build a _HeatedBedCard while heater bed is null!');
-      return const SizedBox.shrink();
-    }
-
-    var spots = useState(<FlSpot>[]);
-
-    var temperatureHistory = heaterBed.temperatureHistory;
-    if (temperatureHistory != null) {
-      List<double> sublist =
-          temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
-      spots.value.clear();
-      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
-    }
-
-    return _HeaterCard(
-      name: 'pages.dashboard.general.temp_card.bed'.tr(),
-      current: heaterBed.temperature,
-      target: heaterBed.target,
-      spots: spots.value,
-      onTap: ref.watch(generalTabViewControllerProvider.select(
-              (data) => data.value!.klippyData.klippyCanReceiveCommands))
-          ? ref.read(generalTabViewControllerProvider.notifier).editHeatedBed
+              .editHHHeater(genericHeater)
           : null,
     );
   }

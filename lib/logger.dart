@@ -63,8 +63,8 @@ class RiverPodLogger extends ProviderObserver {
       '_jsonRpcClientProvider',
       'jrpcClientProvider',
       'machineProvider',
+      'klipperSelectedProvider',
       '_jsonRpcStateProvider',
-
     ].contains(provider.name)) return;
 
     var familiy = provider.argument?.toString() ?? '';

@@ -200,7 +200,8 @@ class KlippyState extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(printerSelectedProvider.select((value) => value.hasValue))) {
+    if (ref.watch(printerSelectedProvider
+        .select((value) => value.hasValue && !value.isLoading))) {
       return onConnected;
     }
 

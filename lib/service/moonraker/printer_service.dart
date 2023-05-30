@@ -10,19 +10,22 @@ import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
+import 'package:mobileraker/data/dto/machine/bed_screw.dart';
 import 'package:mobileraker/data/dto/machine/display_status.dart';
 import 'package:mobileraker/data/dto/machine/exclude_object.dart';
-import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/controller_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/heater_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/print_fan.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/gcode_move.dart';
-import 'package:mobileraker/data/dto/machine/heater_bed.dart';
+import 'package:mobileraker/data/dto/machine/heaters/extruder.dart';
+import 'package:mobileraker/data/dto/machine/heaters/generic_heater.dart';
+import 'package:mobileraker/data/dto/machine/heaters/heater_bed.dart';
 import 'package:mobileraker/data/dto/machine/leds/addressable_led.dart';
 import 'package:mobileraker/data/dto/machine/leds/dumb_led.dart';
 import 'package:mobileraker/data/dto/machine/leds/led.dart';
+import 'package:mobileraker/data/dto/machine/manual_probe.dart';
 import 'package:mobileraker/data/dto/machine/motion_report.dart';
 import 'package:mobileraker/data/dto/machine/output_pin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
@@ -161,6 +164,9 @@ class PrinterService {
     'dotstar': _updateLed,
     'pca9533': _updateLed,
     'pca9632': _updateLed,
+    'manual_probe': _updateManualProbe,
+    'bed_screws': _updateBedScrew,
+    'heater_generic': _updateGenericHeater,
   };
 
   final StreamController<String> _gCodeResponseStreamController =
@@ -369,7 +375,7 @@ class PrinterService {
     gCode('SET_VELOCITY_LIMIT ACCEL_TO_DECEL=$accelDecel');
   }
 
-  setTemperature(String heater, int target) {
+  setHeaterTemperature(String heater, int target) {
     gCode('SET_HEATER_TEMPERATURE  HEATER=$heater TARGET=$target');
   }
 
@@ -561,6 +567,11 @@ class PrinterService {
       } else if (objectName.startsWith('dotstar ')) {
         printerBuilder.leds[objectName] =
             AddressableLed(name: objectName.substring(8));
+      } else if (objectName.startsWith('heater_generic ')) {
+        printerBuilder.genericHeaters[objectName] = GenericHeater(
+          name: objectName.substring(15),
+          lastHistory: DateTime(1990),
+        );
       }
     }
     printerBuilder.extruders = List.generate(extruderCnt,
@@ -683,52 +694,73 @@ class PrinterService {
     printer.print = PrintStats.partialUpdate(printer.print, jsonResponse);
   }
 
-  _updateConfigFile(Map<String, dynamic> printStatJson,
+  _updateConfigFile(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
     var config = printer.configFile ?? ConfigFile();
-    if (printStatJson.containsKey('settings')) {
-      config = ConfigFile.parse(printStatJson['settings']);
+    if (jsonResponse.containsKey('settings')) {
+      config = ConfigFile.parse(jsonResponse['settings']);
     }
-    if (printStatJson.containsKey('save_config_pending')) {
-      config.saveConfigPending = printStatJson['save_config_pending'];
+    if (jsonResponse.containsKey('save_config_pending')) {
+      config.saveConfigPending = jsonResponse['save_config_pending'];
     }
     printer.configFile = config;
   }
 
-  _updateHeaterBed(Map<String, dynamic> heatedBedJson,
+  _updateHeaterBed(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
     printer.heaterBed =
-        HeaterBed.partialUpdate(printer.heaterBed, heatedBedJson);
+        HeaterBed.partialUpdate(printer.heaterBed, jsonResponse);
   }
 
-  _updateExtruder(Map<String, dynamic> extruderJson,
+  _updateGenericHeater(String configName, Map<String, dynamic> jsonResponse,
+      {required PrinterBuilder printer}) {
+    printer.genericHeaters = {
+      ...printer.genericHeaters,
+      configName: GenericHeater.partialUpdate(
+          printer.genericHeaters[configName]!, jsonResponse)
+    };
+  }
+
+  _updateExtruder(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer, int num = 0}) {
     List<Extruder> extruders = printer.extruders;
     Extruder extruder = printer.extruders[num];
 
-    Extruder newExtruder = Extruder.partialUpdate(extruder, extruderJson);
+    Extruder newExtruder = Extruder.partialUpdate(extruder, jsonResponse);
 
     printer.extruders = extruders
         .mapIndex((e, i) => i == num ? newExtruder : e)
         .toList(growable: false);
   }
 
-  _updateToolhead(Map<String, dynamic> toolHeadJson,
+  _updateToolhead(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    printer.toolhead = Toolhead.partialUpdate(printer.toolhead, toolHeadJson);
+    printer.toolhead = Toolhead.partialUpdate(printer.toolhead, jsonResponse);
   }
 
-  _updateExcludeObject(Map<String, dynamic> json,
+  _updateExcludeObject(Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
     printer.excludeObject =
-        ExcludeObject.partialUpdate(printer.excludeObject, json);
-    logger.e('New exclude_printer: ${printer.excludeObject}');
+        ExcludeObject.partialUpdate(printer.excludeObject, jsonResponse);
   }
 
-  _updateLed(String led, Map<String, dynamic> ledJson,
+  _updateLed(String led, Map<String, dynamic> jsonResponse,
       {required PrinterBuilder printer}) {
-    final Led curLed = printer.leds[led]!;
-    printer.leds = {...printer.leds, led: Led.partialUpdate(curLed, ledJson)};
+    printer.leds = {
+      ...printer.leds,
+      led: Led.partialUpdate(printer.leds[led]!, jsonResponse)
+    };
+  }
+
+  _updateManualProbe(Map<String, dynamic> jsonResponse,
+      {required PrinterBuilder printer}) {
+    printer.manualProbe =
+        ManualProbe.partialUpdate(printer.manualProbe, jsonResponse);
+  }
+
+  _updateBedScrew(Map<String, dynamic> jsonResponse,
+      {required PrinterBuilder printer}) {
+    printer.bedScrew = BedScrew.partialUpdate(printer.bedScrew, jsonResponse);
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(
@@ -807,16 +839,6 @@ class PrinterService {
               body:
                   '$Exception:\n $e\n\n$s\n\nFailed-Key: $key \nRaw Json:\n${jsonEncode(json)}'));
         }));
-  }
-
-  List<T>? _updateHistoryList<T>(List<T>? currentHistory, T toAdd) {
-    if (currentHistory == null) {
-      return null;
-    }
-    if (currentHistory.length >= 1200) {
-      return [...currentHistory.sublist(1), toAdd];
-    }
-    return [...currentHistory, toAdd];
   }
 
   dispose() {

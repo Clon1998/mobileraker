@@ -3,8 +3,11 @@ import 'package:flip_card/flip_card_controller.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/config/fan/config_temperature_fan.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/machine/extruder.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
+import 'package:mobileraker/data/dto/machine/heaters/extruder.dart';
+import 'package:mobileraker/data/dto/machine/heaters/generic_heater.dart';
+import 'package:mobileraker/data/dto/machine/heaters/heater_bed.dart';
+import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/logger.dart';
@@ -71,17 +74,24 @@ class GeneralTabViewController
 
   adjustNozzleAndBed(int extruderTemp, int? bedTemp) {
     var printerService = ref.read(printerServiceSelectedProvider);
-    printerService.setTemperature('extruder', extruderTemp);
+    printerService.setHeaterTemperature('extruder', extruderTemp);
     if (bedTemp != null) {
-      printerService.setTemperature('heater_bed', bedTemp);
+      printerService.setHeaterTemperature('heater_bed', bedTemp);
     }
     flipTemperatureCard();
   }
 
-  editHeatedBed() {
-    if (state.value!.printerData.heaterBed == null) {
-      throw ArgumentError('Heater bed is null');
+  editHHHeater(HeaterMixin heater) {
+    double? maxValue;
+    var configFile = state.valueOrFullNull?.printerData.configFile;
+    if (heater is Extruder) {
+      maxValue = configFile?.extruders[heater.name]?.maxTemp;
+    } else if (heater is HeaterBed) {
+      maxValue = configFile?.configHeaterBed?.maxTemp;
+    } else if (heater is GenericHeater) {
+      maxValue = configFile?.genericHeaters[heater.name.toLowerCase()]?.maxTemp;
     }
+
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
@@ -89,51 +99,18 @@ class GeneralTabViewController
                 ref.read(settingServiceProvider).readBool(useTextInputForNumKey)
                     ? DialogType.numEdit
                     : DialogType.rangeEdit,
-            title: "Edit Heated Bed Temperature",
+            title: "Edit ${beautifyName(heater.name)} Temperature",
             cancelBtn: tr('general.cancel'),
             confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
-                current: state.value!.printerData.heaterBed!.target.round(),
-                min: 0,
-                max: state
-                        .value!.printerData.configFile.configHeaterBed?.maxTemp
-                        .toInt() ??
-                    150)))
+                current: heater.target, min: 0, max: maxValue ?? 150)))
         .then((value) {
       if (value == null || !value.confirmed || value.data == null) return;
 
       num v = value.data;
       ref
           .read(printerServiceSelectedProvider)
-          .setTemperature('heater_bed', v.toInt());
-    });
-  }
-
-  editExtruderHeater(Extruder extruder) {
-    ref
-        .read(dialogServiceProvider)
-        .show(DialogRequest(
-            type:
-                ref.read(settingServiceProvider).readBool(useTextInputForNumKey)
-                    ? DialogType.numEdit
-                    : DialogType.rangeEdit,
-            title:
-                'Edit Extruder ${extruder.num > 0 ? extruder.num : ''} Temperature',
-            cancelBtn: tr('general.cancel'),
-            confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(
-                current: extruder.target.round(),
-                min: 0,
-                max: state.value!.printerData.configFile
-                        .extruderForIndex(extruder.num)
-                        ?.maxTemp
-                        .toInt() ??
-                    300)))
-        .then((value) {
-      if (value == null || !value.confirmed || value.data == null) return;
-      num v = value.data;
-      ref.read(printerServiceSelectedProvider).setTemperature(
-          'extruder${extruder.num > 0 ? extruder.num : ''}', v.toInt());
+          .setHeaterTemperature(heater.name, v.toInt());
     });
   }
 
@@ -153,8 +130,12 @@ class GeneralTabViewController
             confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
               current: temperatureFan.target.round(),
-              min:  (configFan != null && configFan is ConfigTemperatureFan)? configFan.minTemp : 0,
-              max: (configFan != null && configFan is ConfigTemperatureFan)? configFan.maxTemp : 100,
+              min: (configFan != null && configFan is ConfigTemperatureFan)
+                  ? configFan.minTemp
+                  : 0,
+              max: (configFan != null && configFan is ConfigTemperatureFan)
+                  ? configFan.maxTemp
+                  : 100,
             )))
         .then((value) {
       if (value == null || !value.confirmed || value.data == null) return;
