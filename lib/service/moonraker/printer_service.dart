@@ -102,11 +102,6 @@ class PrinterService {
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
     ref.onDispose(dispose);
-    _jRpcClient.addMethodListener(
-        _onStatusUpdateHandler, 'notify_status_update');
-
-    _jRpcClient.addMethodListener(
-        _onNotifyGcodeResponse, 'notify_gcode_response');
 
     ref.listen<AsyncValue<KlipperInstance>>(klipperProvider(ownerUUID),
         (previous, next) {
@@ -197,19 +192,19 @@ class PrinterService {
 
   bool get hasCurrent => _current != null;
 
-  refreshPrinter() async {
+  Future<void> refreshPrinter() async {
     try {
+      // Remove Handerls to prevent updates
+      _removeJrpcHandlers();
       logger.i('Refreshing printer for uuid: $ownerUUID');
       PrinterBuilder printerBuilder = await _printerObjectsList();
       await _printerObjectsQuery(printerBuilder);
-
       await _temperatureStore(printerBuilder);
-      // After initally getting all information we can get the data!
-      Printer printer = printerBuilder.build();
-      _makeSubscribeRequest(printer.queryableObjects);
-      current = printer;
 
-      _machineService.updateMacrosInSettings(ownerUUID, printer.gcodeMacros);
+      current = printerBuilder.build();
+      _machineService.updateMacrosInSettings(ownerUUID, current.gcodeMacros);
+      _registerJrpcHandlers();
+      _makeSubscribeRequest(current.queryableObjects);
     } on JRpcError catch (e, s) {
       logger.e('Unable to refresh Printer $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
@@ -793,6 +788,22 @@ class PrinterService {
     _parseQueriedObjects(jRpcResponse.result, printer);
   }
 
+  _removeJrpcHandlers() {
+    _jRpcClient.removeMethodListener(
+        _onStatusUpdateHandler, 'notify_status_update');
+
+    _jRpcClient.removeMethodListener(
+        _onNotifyGcodeResponse, 'notify_gcode_response');
+  }
+
+  _registerJrpcHandlers() {
+    _jRpcClient.addMethodListener(
+        _onStatusUpdateHandler, 'notify_status_update');
+
+    _jRpcClient.addMethodListener(
+        _onNotifyGcodeResponse, 'notify_gcode_response');
+  }
+
   /// This method registeres every printer object for websocket updates!
   _makeSubscribeRequest(List<String> queryableObjects) {
     logger.i('Subscribing printer objects for ws-updates!');
@@ -842,11 +853,7 @@ class PrinterService {
   }
 
   dispose() {
-    _jRpcClient.removeMethodListener(
-        _onStatusUpdateHandler, 'notify_status_update');
-
-    _jRpcClient.removeMethodListener(
-        _onNotifyGcodeResponse, 'notify_gcode_response');
+    _removeJrpcHandlers();
 
     _printerStreamCtler.close();
     _gCodeResponseStreamController.close();
