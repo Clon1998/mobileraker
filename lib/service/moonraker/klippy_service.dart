@@ -74,7 +74,7 @@ class KlippyService {
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       switch (next.valueOrFullNull) {
         case ClientState.connected:
-          _onJrpcConnected();
+          refreshKlippy();
           break;
         case ClientState.error:
           _current = _current.copyWith(
@@ -131,7 +131,7 @@ class KlippyService {
     _jRpcClient.sendJsonRpcWithCallback("printer.emergency_stop");
   }
 
-  _onJrpcConnected() async {
+  Future<void> refreshKlippy() async {
     try {
       await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()])
           .timeout(const Duration(seconds: 5));
