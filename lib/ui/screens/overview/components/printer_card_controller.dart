@@ -28,9 +28,8 @@ class PrinterCardController extends _$PrinterCardController {
   @override
   FutureOr<WebcamInfo?> build() async {
     var machine = ref.watch(printerCardMachineProvider);
-    await ref.watchWhere<KlipperInstance>(
-        klipperProvider(machine.uuid),
-        (c) => c.klippyState == KlipperState.ready);
+    await ref.watchWhere<KlipperInstance>(klipperProvider(machine.uuid),
+        (c) => c.klippyState == KlipperState.ready, false);
     var filteredCams =
         await ref.watch(filteredWebcamInfosProvider(machine.uuid).future);
     if (filteredCams.isEmpty) return null;

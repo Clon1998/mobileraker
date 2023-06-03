@@ -419,9 +419,7 @@ class JsonRpcClient {
         logger.i(
             '$uri${identityHashCode(this)}] All hanging requests finished!');
       }
-
     }
-
 
     _requestsBlocking.forEach((key, value) => value.completeError(Future.error(
         'Websocket is closing, request id=$key never got an response!')));
@@ -430,6 +428,7 @@ class JsonRpcClient {
 
     _resetChannel();
     _stateStream.close();
+    logger.i('JsonRpcClient ($uri, $clientType) disposed!');
   }
 
   @override

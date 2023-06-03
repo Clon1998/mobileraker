@@ -24,7 +24,6 @@ import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'file_service.freezed.dart';
-
 part 'file_service.g.dart';
 
 //TODO: Move the dto/data classes to the correct folder
@@ -88,12 +87,14 @@ Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
 @riverpod
 FileService _fileServicee(
     _FileServiceeRef ref, String machineUUID, ClientType type) {
-  var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
-  var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
+  var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
 
   if (machine == null) {
-    throw ArgumentError('Provided machine. $machineUUID, was null?');
+    throw MobilerakerException(
+        'Machine with UUID "$machineUUID" was not found!');
   }
+
+  var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
   if (type == ClientType.local) {
     return FileService(ref, jsonRpcClient, Uri.parse(machine.httpUrl));
   } else if (type == ClientType.octo) {

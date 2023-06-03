@@ -7,7 +7,6 @@ import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -16,10 +15,11 @@ part 'jrpc_client_provider.g.dart';
 @riverpod
 JsonRpcClient _jsonRpcClient(
     _JsonRpcClientRef ref, String machineUUID, ClientType type) {
-  var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
+  var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
 
   if (machine == null) {
-    throw ArgumentError('Provided machine. $machineUUID, was null?');
+    throw MobilerakerException(
+        'Machine with UUID "$machineUUID" was not found!');
   }
 
   JsonRpcClient jsonRpcClient;
@@ -35,7 +35,14 @@ JsonRpcClient _jsonRpcClient(
     throw ArgumentError('Unknown Client type $type');
   }
 
+  logger.i('JsonRpcClient (${jsonRpcClient.uri} , $type) CREATED!!');
   ref.onDispose(jsonRpcClient.dispose);
+  ref.onAddListener(() {
+    logger.i('JsonRpcClient (${jsonRpcClient.uri} , $type) lstner added!!');
+  });
+  ref.onRemoveListener(() {
+    logger.i('JsonRpcClient (${jsonRpcClient.uri} , $type) lstner removed!!');
+  });
   // ref.onDispose(() {
   //   ref.invalidate(_jsonRpcStateProvider(machineUUID));
   // });
@@ -54,43 +61,48 @@ Stream<ClientState> _jsonRpcState(
 
 @riverpod
 JsonRpcClient jrpcClient(JrpcClientRef ref, String machineUUID) {
-  var machine = ref.watch(machineProvider(machineUUID)).valueOrFullNull;
-  if (machine == null) {
-    throw MobilerakerException(
-        'Machine with UUID "$machineUUID" was not found!');
-  }
-  JsonRpcClient localClient = ref
-      .watch(_jsonRpcClientProvider(machineUUID, ClientType.local))
-    ..ensureConnection();
+  var providerToWatch = ref.watch(jrpcClientManagerProvider(machineUUID));
+  return ref.watch(providerToWatch);
+}
 
-  OctoEverywhere? octoEverywhere = machine.octoEverywhere;
-  if (octoEverywhere == null) {
+@riverpod
+class JrpcClientManager extends _$JrpcClientManager {
+  @override
+  AutoDisposeProvider<JsonRpcClient> build(String machineUUID) {
+    var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
+    if (machine == null) {
+      throw MobilerakerException(
+          'Machine with UUID "$machineUUID" was not found!');
+    }
+
+    OctoEverywhere? octoEverywhere = machine.octoEverywhere;
+    if (octoEverywhere == null) {
+      logger.i(
+          'No OE config was found! Will only rely on local client. ref:${identityHashCode(ref)}');
+      return _jsonRpcClientProvider(machineUUID, ClientType.local);
+    }
     logger.i(
-        'No OE config was found! Will only rely on local client. ref:${identityHashCode(ref)}');
-    return localClient;
+        'An OE config is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
+
+    ref
+        .readWhere(_jsonRpcStateProvider(machineUUID, ClientType.local),
+            (clientState) => clientState == ClientState.error, false)
+        .then((value) {
+      var remoteClinet = logger.i(
+          'Local clientState is $value. Will switch to remoteClient. ref:${identityHashCode(ref)}');
+
+      // ref.state = remoteClinet;
+      state = _jsonRpcClientProvider(machineUUID, ClientType.octo);
+      logger.w('Returned RemoteClient');
+    });
+    logger.w('Returning LocalClient');
+    return _jsonRpcClientProvider(machineUUID, ClientType.local);
   }
-  logger.i(
-      'An OE config is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
 
-  // This section needs to be run if the local client provider was already present
-  if (localClient.curState == ClientState.error) {
-    logger.i(
-        'Local client already is errored? Returning remote one... ref:${identityHashCode(ref)}');
-    return ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
+  refreshCurrentClient() {
+    var refresh = ref.refresh(state);
+    refresh.ensureConnection();
   }
-
-  ref
-      .readWhere(_jsonRpcStateProvider(machineUUID, ClientType.local),
-          (clientState) => clientState == ClientState.error)
-      .then((value) {
-    var remoteClinet =
-        ref.watch(_jsonRpcClientProvider(machineUUID, ClientType.octo));
-    logger.i(
-        'Local clientState is $value. Will switch to remoteClient. ref:${identityHashCode(ref)}, remoteclient:${identityHashCode(remoteClinet)}');
-
-    ref.state = remoteClinet;
-  });
-  return localClient;
 }
 
 @riverpod

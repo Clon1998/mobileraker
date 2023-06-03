@@ -33,9 +33,9 @@ class RiverPodLogger extends ProviderObserver {
 
   @override
   void didDisposeProvider(ProviderBase provider, ProviderContainer container) {
-    if(['toolheadInfoProvider'].contains(provider.name)) return;
+    if (['toolheadInfoProvider'].contains(provider.name)) return;
 
-    var familiy = provider.argument?.toString() ?? '';
+    var familiy = provider.from?.toString() ?? '';
     logger.wtf(
         'RiverPod::DISPOSED:${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy');
     //
@@ -47,7 +47,7 @@ class RiverPodLogger extends ProviderObserver {
   @override
   void didAddProvider(
       ProviderBase provider, Object? value, ProviderContainer container) {
-    var familiy = provider.argument?.toString() ?? '';
+    var familiy = provider.from?.toString() ?? '';
     logger.wtf(
         'RiverPod::CREATED-> ${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy WITH PARENT? ${container.depth}');
   }

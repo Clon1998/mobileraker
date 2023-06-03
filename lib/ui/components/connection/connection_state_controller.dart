@@ -6,6 +6,7 @@ import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
@@ -57,7 +58,8 @@ class ConnectionStateController extends _$ConnectionStateController {
 
         if (selMachine != null) {
           logger.i('Refreshing selectedPrinter...');
-          ref.refresh(jrpcClientProvider(selMachine.uuid));
+          // we must use refresh!
+          ref.invalidate(machineProvider(selMachine.uuid));
         }
 
         break;

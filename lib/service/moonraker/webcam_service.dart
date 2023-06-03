@@ -29,8 +29,8 @@ WebcamService webcamService(WebcamServiceRef ref, String machineUUID) {
 @riverpod
 Future<List<WebcamInfo>> allWebcamInfos(
     AllWebcamInfosRef ref, String machineUUID) async {
-  await ref.watchWhere(
-      jrpcClientStateProvider(machineUUID), (c) => c == ClientState.connected);
+  await ref.watchWhere(jrpcClientStateProvider(machineUUID),
+      (c) => c == ClientState.connected, false);
   return ref.watch(webcamServiceProvider(machineUUID)).listWebcamInfos();
 }
 
@@ -45,8 +45,8 @@ Future<List<WebcamInfo>> filteredWebcamInfos(
 @riverpod
 Future<WebcamInfo> webcamInfo(
     WebcamInfoRef ref, String machineUUID, String camUUID) async {
-  await ref.watchWhere(
-      jrpcClientStateProvider(machineUUID), (c) => c == ClientState.connected);
+  await ref.watchWhere(jrpcClientStateProvider(machineUUID),
+      (c) => c == ClientState.connected, false);
   return ref.watch(webcamServiceProvider(machineUUID)).getWebcamInfo(camUUID);
 }
 
