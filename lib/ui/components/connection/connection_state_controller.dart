@@ -58,7 +58,6 @@ class ConnectionStateController extends _$ConnectionStateController {
 
         if (selMachine != null) {
           logger.i('Refreshing selectedPrinter...');
-          // we must use refresh!
           ref.invalidate(machineProvider(selMachine.uuid));
         }
 

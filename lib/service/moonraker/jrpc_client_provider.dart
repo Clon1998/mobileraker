@@ -37,12 +37,7 @@ JsonRpcClient _jsonRpcClient(
 
   logger.i('JsonRpcClient (${jsonRpcClient.uri} , $type) CREATED!!');
   ref.onDispose(jsonRpcClient.dispose);
-  ref.onAddListener(() {
-    logger.i('JsonRpcClient (${jsonRpcClient.uri} , $type) lstner added!!');
-  });
-  ref.onRemoveListener(() {
-    logger.i('JsonRpcClient (${jsonRpcClient.uri} , $type) lstner removed!!');
-  });
+
   // ref.onDispose(() {
   //   ref.invalidate(_jsonRpcStateProvider(machineUUID));
   // });
