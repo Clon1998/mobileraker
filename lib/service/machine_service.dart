@@ -33,8 +33,8 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:mobileraker/util/extensions/analytics_extension.dart';
-import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'setting_service.dart';
@@ -306,7 +306,7 @@ class MachineService {
       }
       if (updateReq.isNotEmpty) await Future.wait(updateReq);
       logger.i(
-          '[${machine.name}@${machine.wsUrl}] Propagated new notifcation settings');
+          '[${machine.name}@${machine.wsUrl}] Propagated new notification settings');
     } finally {
       keepAliveExternally.close();
     }

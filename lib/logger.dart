@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
+import 'package:mobileraker/util/extensions/provider_extension.dart';
 import 'package:stringr/stringr.dart';
 
 late final Logger logger;

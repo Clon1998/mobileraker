@@ -11,7 +11,7 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/util/ref_extension.dart';
+import 'package:mobileraker/util/extensions/ref_extension.dart';
 
 final importTarget = Provider.autoDispose<Machine>(name: 'importTarget', (ref) {
   throw UnimplementedError();

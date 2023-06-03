@@ -8,7 +8,7 @@ import 'package:mobileraker/data/repository/webcam_info_repository_impl.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/util/ref_extension.dart';
+import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/model/moonraker_db/webcam_info.dart';
