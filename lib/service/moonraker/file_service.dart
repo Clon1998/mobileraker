@@ -138,24 +138,7 @@ Stream<FileApiResponse> fileNotificationsSelected(
     FileNotificationsSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-
-    StreamController<FileApiResponse> sc = StreamController<FileApiResponse>();
-    ref.onDispose(() {
-      if (!sc.isClosed) {
-        sc.close();
-      }
-    });
-    ref.listen<AsyncValue<FileApiResponse>>(
-        fileNotificationsProvider(machine.uuid), (previous, next) {
-      next.when(
-          data: (data) => sc.add(data),
-          error: (err, st) => sc.addError(err, st),
-          loading: () {
-            if (previous != null) ref.invalidateSelf();
-          });
-    }, fireImmediately: true);
-
-    yield* sc.stream;
+    yield* ref.watchAsSubject(fileNotificationsProvider(machine.uuid));
   } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!
   }

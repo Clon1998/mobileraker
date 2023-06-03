@@ -72,24 +72,7 @@ Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-    StreamController<Printer> sc = StreamController<Printer>();
-    ref.onDispose(() {
-      logger.w('-DISPOSED printerSelected');
-      if (!sc.isClosed) {
-        sc.close();
-      }
-    });
-    ref.listen<AsyncValue<Printer>>(printerProvider(machine.uuid),
-        (previous, next) {
-      next.when(
-          data: (data) => sc.add(data),
-          error: (err, st) => sc.addError(err, st),
-          loading: () {
-            if (previous != null) ref.invalidateSelf();
-          });
-    }, fireImmediately: true);
-
-    yield* sc.stream;
+    yield* ref.watchAsSubject(printerProvider(machine.uuid));
   } on StateError catch (_) {
     // Just catch it. It is expected that the future/where might not complete!
   }

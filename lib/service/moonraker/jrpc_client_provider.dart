@@ -105,29 +105,8 @@ Stream<ClientState> jrpcClientState(
     JrpcClientStateRef ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
-  StreamController<ClientState> sc = StreamController<ClientState>();
-
-  ref.listen<AsyncValue<ClientState>>(
-      _jsonRpcStateProvider(machineUUID, jsonRpcClient.clientType),
-      (previous, next) {
-    if (sc.isClosed) {
-      ref.invalidateSelf();
-      return;
-    }
-    next.when(
-        data: (data) => sc.add(data),
-        error: (err, st) => sc.addError(err, st),
-        loading: () {
-          if (previous != null) ref.invalidateSelf();
-        });
-  }, fireImmediately: true);
-
-  ref.onDispose(() {
-    if (!sc.isClosed) {
-      sc.close();
-    }
-  });
-  return sc.stream;
+  return ref.watchAsSubject(
+      _jsonRpcStateProvider(machineUUID, jsonRpcClient.clientType));
 }
 
 @riverpod
@@ -166,24 +145,7 @@ Stream<ClientState> jrpcClientStateSelected(
     JrpcClientStateSelectedRef ref) async* {
   try {
     Machine machine = await ref.watchWhereNotNull(selectedMachineProvider);
-    StreamController<ClientState> sc = StreamController<ClientState>();
-    ref.onDispose(() {
-      if (!sc.isClosed) {
-        sc.close();
-      }
-    });
-
-    ref.listen<AsyncValue<ClientState>>(jrpcClientStateProvider(machine.uuid),
-        (previous, next) {
-      next.when(
-          data: (data) => sc.add(data),
-          error: (err, st) => sc.addError(err, st),
-          loading: () {
-            if (previous != null) ref.invalidateSelf();
-          });
-    }, fireImmediately: true);
-
-    yield* sc.stream;
+    yield* ref.watchAsSubject(jrpcClientStateProvider(machine.uuid));
   } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!
   }

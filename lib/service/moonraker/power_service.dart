@@ -37,25 +37,7 @@ Stream<List<PowerDevice>> powerDevicesSelected(
     PowerDevicesSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
-
-    StreamController<List<PowerDevice>> sc =
-        StreamController<List<PowerDevice>>();
-    ref.onDispose(() {
-      if (!sc.isClosed) {
-        sc.close();
-      }
-    });
-    ref.listen<AsyncValue<List<PowerDevice>>>(
-        powerDevicesProvider(machine.uuid), (previous, next) {
-      next.when(
-          data: (data) => sc.add(data),
-          error: (err, st) => sc.addError(err, st),
-          loading: () {
-            if (previous != null) ref.invalidateSelf();
-          });
-    }, fireImmediately: true);
-
-    yield* sc.stream;
+    yield* ref.watchAsSubject(powerDevicesProvider(machine.uuid));
   } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!
   }
