@@ -8,6 +8,7 @@ import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/util/misc.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
 
 enum ClientState { disconnected, connecting, connected, error }
@@ -114,8 +115,8 @@ class JsonRpcClient {
 
   StreamSubscription? _channelSub;
 
-  final StreamController<ClientState> _stateStream = StreamController()
-    ..add(ClientState.disconnected);
+  final BehaviorSubject<ClientState> _stateStream =
+      BehaviorSubject.seeded(ClientState.disconnected);
 
   Stream<ClientState> get stateStream => _stateStream.stream;
 

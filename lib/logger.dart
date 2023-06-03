@@ -14,7 +14,11 @@ void setupLogger() {
   Logger.level = Level.info;
   memoryOutput = MemoryOutput(bufferSize: 200, secondOutput: ConsoleOutput());
   logger = Logger(
-    printer: PrettyPrinter(methodCount: 0, noBoxingByDefault: true, colors: !Platform.isIOS),
+    printer: PrettyPrinter(
+        methodCount: 0,
+        errorMethodCount: 200,
+        noBoxingByDefault: true,
+        colors: !Platform.isIOS),
     output: memoryOutput,
     filter: ProductionFilter(),
   );
@@ -26,10 +30,7 @@ class RiverPodLogger extends ProviderObserver {
   @override
   void providerDidFail(ProviderBase provider, Object error,
       StackTrace stackTrace, ProviderContainer container) {
-    logger.e(
-        '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} failed with',
-        error,
-        stackTrace);
+    logger.e(' ${provider.toIdentityString()} failed with', error, stackTrace);
   }
 
   @override
@@ -37,8 +38,7 @@ class RiverPodLogger extends ProviderObserver {
     if (['toolheadInfoProvider'].contains(provider.name)) return;
 
     var familiy = provider.from?.toString() ?? '';
-    logger.wtf(
-        'RiverPod::DISPOSED:${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy');
+    logger.wtf('RiverPod::DISPOSED: ${provider.toIdentityString()} $familiy');
     //
     // if (provider.name == 'klipperServiceProvider') {
     //   logger.wtf('RiverPod::klipperServiceProvider:  ${container}');
@@ -48,9 +48,8 @@ class RiverPodLogger extends ProviderObserver {
   @override
   void didAddProvider(
       ProviderBase provider, Object? value, ProviderContainer container) {
-    var familiy = provider.from?.toString() ?? '';
     logger.wtf(
-        'RiverPod::CREATED-> ${provider.name ?? provider.runtimeType}#${identityHashCode(provider)} $familiy WITH PARENT? ${container.depth}');
+        'RiverPod::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth}');
   }
 
   @override
