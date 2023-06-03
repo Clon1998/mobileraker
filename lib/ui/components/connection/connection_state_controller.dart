@@ -20,7 +20,7 @@ part 'connection_state_controller.g.dart';
 class ConnectionStateController extends _$ConnectionStateController {
   @override
   Future<ClientState> build() async =>
-      ref.watch(jrpcClientStateSelectedProvider.future);
+      ref.watch(jrpcClientStateSelectedProvider.selectAsync((data) => data));
 
   onRetryPressed() {
     ref.read(jrpcClientSelectedProvider).openChannel();

@@ -91,11 +91,10 @@ class WebSocketState extends HookConsumerWidget {
     ClientType clientType = ref
         .watch(jrpcClientSelectedProvider.select((value) => value.clientType));
 
-    useOnAppLifecycleStateChange(ref
-        .watch(connectionStateControllerProvider.notifier)
-        .onChangeAppLifecycleState);
     var connectionStateController =
         ref.read(connectionStateControllerProvider.notifier);
+    useOnAppLifecycleStateChange(
+        connectionStateController.onChangeAppLifecycleState);
 
     return AsyncValueWidget(
       value: connectionState,
