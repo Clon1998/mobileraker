@@ -27,10 +27,14 @@ class RangeSelector extends StatelessWidget {
     if (values.isEmpty) {
       return const Text('No Steps configured!');
     } else {
-      return ToggleButtons(
-          isSelected: selectedMap,
-          onPressed: onSelected != null? _onSelectionChanged:null,
-          children: values.map((e) => Text(e.toString())).toList());
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const ClampingScrollPhysics(),
+        child: ToggleButtons(
+            isSelected: selectedMap,
+            onPressed: onSelected != null ? _onSelectionChanged : null,
+            children: values.map((e) => Text(e.toString())).toList()),
+      );
     }
   }
 }
