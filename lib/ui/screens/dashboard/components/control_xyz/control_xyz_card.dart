@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
+import 'package:mobileraker/ui/components/IconElevatedButton.dart';
 import 'package:mobileraker/ui/components/homed_axis_chip.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/async_button_.dart';
@@ -43,121 +44,34 @@ class ControlXYZCard extends HookConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: ElevatedButton(
-                                  onPressed: klippyCanReceiveCommands
-                                      ? () => ref
-                                          .read(controlXYZCardControllerProvider
-                                              .notifier)
-                                          .onMoveBtn(PrinterAxis.Y)
-                                      : null,
-                                  child: const Icon(FlutterIcons.upsquare_ant)),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: ElevatedButton(
-                                  onPressed: klippyCanReceiveCommands
-                                      ? () => ref
-                                          .read(controlXYZCardControllerProvider
-                                              .notifier)
-                                          .onMoveBtn(PrinterAxis.X, false)
-                                      : null,
-                                  child:
-                                      const Icon(FlutterIcons.leftsquare_ant)),
-                            ),
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: Tooltip(
-                                message:
-                                    'pages.dashboard.general.move_card.home_xy_tooltip'
-                                        .tr(),
-                                child: AsyncButton(
-                                    onPressed: klippyCanReceiveCommands &&
-                                            ref.watch(
-                                                controlXYZCardControllerProvider
-                                                    .select((value) =>
-                                                        !value.homing))
-                                        ? () => ref
-                                            .read(
-                                                controlXYZCardControllerProvider
-                                                    .notifier)
-                                            .onHomeAxisBtn(
-                                                {PrinterAxis.X, PrinterAxis.Y})
-                                        : null,
-                                    child: const Icon(Icons.home)),
-                              ),
-                            ),
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: ElevatedButton(
-                                  onPressed: klippyCanReceiveCommands
-                                      ? () => ref
-                                          .read(controlXYZCardControllerProvider
-                                              .notifier)
-                                          .onMoveBtn(PrinterAxis.X)
-                                      : null,
-                                  child:
-                                      const Icon(FlutterIcons.rightsquare_ant)),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            Container(
-                              margin: marginForBtns,
-                              height: 40,
-                              width: 40,
-                              child: ElevatedButton(
+                            SquareElevatedIconButton(
+                                margin: marginForBtns,
                                 onPressed: klippyCanReceiveCommands
                                     ? () => ref
                                         .read(controlXYZCardControllerProvider
                                             .notifier)
-                                        .onMoveBtn(PrinterAxis.Y, false)
+                                        .onMoveBtn(PrinterAxis.Y)
                                     : null,
-                                child: const Icon(FlutterIcons.downsquare_ant),
-                              ),
-                            ),
+                                child: const Icon(FlutterIcons.upsquare_ant)),
                           ],
                         ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Container(
-                          margin: marginForBtns,
-                          height: 40,
-                          width: 40,
-                          child: ElevatedButton(
-                              onPressed: klippyCanReceiveCommands
-                                  ? () => ref
-                                      .read(controlXYZCardControllerProvider
-                                          .notifier)
-                                      .onMoveBtn(PrinterAxis.Z)
-                                  : null,
-                              child: const Icon(FlutterIcons.upsquare_ant)),
-                        ),
-                        Container(
-                          margin: marginForBtns,
-                          height: 40,
-                          width: 40,
-                          child: Tooltip(
-                            message:
-                                'pages.dashboard.general.move_card.home_z_tooltip'
-                                    .tr(),
-                            child: AsyncButton(
+                        Row(
+                          children: [
+                            SquareElevatedIconButton(
+                                margin: marginForBtns,
+                                onPressed: klippyCanReceiveCommands
+                                    ? () => ref
+                                        .read(controlXYZCardControllerProvider
+                                            .notifier)
+                                        .onMoveBtn(PrinterAxis.X, false)
+                                    : null,
+                                child: const Icon(FlutterIcons.leftsquare_ant)),
+                            Tooltip(
+                              message:
+                                  'pages.dashboard.general.move_card.home_xy_tooltip'
+                                      .tr(),
+                              child: AsyncElevatedButton.squareIcon(
+                                margin: marginForBtns,
                                 onPressed: klippyCanReceiveCommands &&
                                         ref.watch(
                                             controlXYZCardControllerProvider
@@ -166,24 +80,76 @@ class ControlXYZCard extends HookConsumerWidget {
                                     ? () => ref
                                         .read(controlXYZCardControllerProvider
                                             .notifier)
-                                        .onHomeAxisBtn({PrinterAxis.Z})
+                                        .onHomeAxisBtn(
+                                            {PrinterAxis.X, PrinterAxis.Y})
                                     : null,
-                                child: const Icon(Icons.home)),
-                          ),
+                                icon: const Icon(Icons.home),
+                              ),
+                            ),
+                            SquareElevatedIconButton(
+                                margin: marginForBtns,
+                                onPressed: klippyCanReceiveCommands
+                                    ? () => ref
+                                        .read(controlXYZCardControllerProvider
+                                            .notifier)
+                                        .onMoveBtn(PrinterAxis.X)
+                                    : null,
+                                child:
+                                    const Icon(FlutterIcons.rightsquare_ant)),
+                          ],
                         ),
-                        Container(
-                          margin: marginForBtns,
-                          height: 40,
-                          width: 40,
-                          child: ElevatedButton(
+                        Row(
+                          children: [
+                            SquareElevatedIconButton(
+                              margin: marginForBtns,
                               onPressed: klippyCanReceiveCommands
                                   ? () => ref
                                       .read(controlXYZCardControllerProvider
                                           .notifier)
-                                      .onMoveBtn(PrinterAxis.Z, false)
+                                      .onMoveBtn(PrinterAxis.Y, false)
                                   : null,
-                              child: const Icon(FlutterIcons.downsquare_ant)),
+                              child: const Icon(FlutterIcons.downsquare_ant),
+                            ),
+                          ],
                         ),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        SquareElevatedIconButton(
+                            margin: marginForBtns,
+                            onPressed: klippyCanReceiveCommands
+                                ? () => ref
+                                    .read(controlXYZCardControllerProvider
+                                        .notifier)
+                                    .onMoveBtn(PrinterAxis.Z)
+                                : null,
+                            child: const Icon(FlutterIcons.upsquare_ant)),
+                        Tooltip(
+                          message:
+                              'pages.dashboard.general.move_card.home_z_tooltip'
+                                  .tr(),
+                          child: AsyncElevatedButton.squareIcon(
+                              margin: marginForBtns,
+                              onPressed: klippyCanReceiveCommands &&
+                                      ref.watch(controlXYZCardControllerProvider
+                                          .select((value) => !value.homing))
+                                  ? () => ref
+                                      .read(controlXYZCardControllerProvider
+                                          .notifier)
+                                      .onHomeAxisBtn({PrinterAxis.Z})
+                                  : null,
+                              icon: const Icon(Icons.home)),
+                        ),
+                        SquareElevatedIconButton(
+                            margin: marginForBtns,
+                            onPressed: klippyCanReceiveCommands
+                                ? () => ref
+                                    .read(controlXYZCardControllerProvider
+                                        .notifier)
+                                    .onMoveBtn(PrinterAxis.Z, false)
+                                : null,
+                            child: const Icon(FlutterIcons.downsquare_ant)),
                       ],
                     ),
                   ],
@@ -203,7 +169,7 @@ class ControlXYZCard extends HookConsumerWidget {
                       message:
                           'pages.dashboard.general.move_card.home_all_tooltip'
                               .tr(),
-                      child: AsyncButton.icon(
+                      child: AsyncElevatedButton.icon(
                         onPressed: klippyCanReceiveCommands &&
                                 ref.watch(controlXYZCardControllerProvider
                                     .select((value) => !value.homing))
@@ -232,7 +198,7 @@ class ControlXYZCard extends HookConsumerWidget {
                       Tooltip(
                         message: 'pages.dashboard.general.move_card.qgl_tooltip'
                             .tr(),
-                        child: AsyncButton.icon(
+                        child: AsyncElevatedButton.icon(
                           onPressed: klippyCanReceiveCommands &&
                                   ref.watch(controlXYZCardControllerProvider
                                       .select((value) => !value.qgl))
@@ -257,7 +223,7 @@ class ControlXYZCard extends HookConsumerWidget {
                         message:
                             'pages.dashboard.general.move_card.mesh_tooltip'
                                 .tr(),
-                        child: AsyncButton.icon(
+                        child: AsyncElevatedButton.icon(
                           onPressed: klippyCanReceiveCommands &&
                                   ref.watch(controlXYZCardControllerProvider
                                       .select((value) => !value.mesh))
@@ -307,7 +273,7 @@ class ControlXYZCard extends HookConsumerWidget {
                         message:
                             'pages.dashboard.general.move_card.ztilt_tooltip'
                                 .tr(),
-                        child: AsyncButton.icon(
+                        child: AsyncElevatedButton.icon(
                           onPressed: klippyCanReceiveCommands &&
                                   ref.watch(controlXYZCardControllerProvider
                                       .select((value) => !value.zTilt))
@@ -327,7 +293,7 @@ class ControlXYZCard extends HookConsumerWidget {
                     Tooltip(
                       message:
                           'pages.dashboard.general.move_card.m84_tooltip'.tr(),
-                      child: AsyncButton.icon(
+                      child: AsyncElevatedButton.icon(
                         onPressed: klippyCanReceiveCommands &&
                                 ref.watch(controlXYZCardControllerProvider
                                     .select((value) => !value.motorsOff))
@@ -349,7 +315,8 @@ class ControlXYZCard extends HookConsumerWidget {
                   children: [
                     Flexible(
                       child: Text(
-                          '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',),
+                        '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',
+                      ),
                     ),
                     RangeSelector(
                         selectedIndex: ref.watch(

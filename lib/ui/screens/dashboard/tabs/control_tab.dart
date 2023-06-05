@@ -84,6 +84,7 @@ class ControlTab extends ConsumerWidget {
                       const PowerApiCard(),
                     const MultipliersCard(),
                     const LimitsCard(),
+                    const CalibrationCard(),
                   ],
                 ),
               );
@@ -1081,6 +1082,48 @@ class LimitsCard extends HookConsumerWidget {
                   unit: 'mm/s²',
                   maxValue: 3500,
                 ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CalibrationCard extends HookConsumerWidget {
+  const CalibrationCard({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var klippyCanReceiveCommands = ref
+        .watch(machinePrinterKlippySettingsProvider
+            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .valueOrFullNull!;
+
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          ListTile(
+            leading: const Icon(Icons.tune),
+            title: const Text('Calibration Helper'),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
+            child: Column(
+              children: [
+                FilledButton.tonal(
+                    onPressed: () => ref
+                        .read(dialogServiceProvider)
+                        .show(DialogRequest(type: DialogType.manualOffset)),
+                    child: Text('Probe Calibrate')),
+                FilledButton.tonal(
+                    onPressed: () => null, child: Text('Z Endstop Calibrate')),
+                FilledButton.tonal(
+                    onPressed: () => null, child: Text('BED_SCREWS_ADJUST')),
               ],
             ),
           ),

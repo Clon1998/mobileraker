@@ -21,6 +21,7 @@ import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/ui/components/IconElevatedButton.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/graph_card_with_button.dart';
@@ -458,19 +459,15 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
         ...List.generate(
             temperatureFanCnt,
             (index) => _TemperatureFanCard(
-                tempFanProvider: machinePrinterKlippySettingsProvider
-                        .selectAs(
-                            (value) =>
-                            value.printerData.fans.values
-                                .where((element) =>
-                            !element.name.startsWith('_'))
-                                .whereType<TemperatureFan>()
-                                .elementAt(index)))),
+                tempFanProvider: machinePrinterKlippySettingsProvider.selectAs(
+                    (value) => value.printerData.fans.values
+                        .where((element) => !element.name.startsWith('_'))
+                        .whereType<TemperatureFan>()
+                        .elementAt(index)))),
       ],
     );
   }
 }
-
 
 class _HeaterMixinCard extends HookConsumerWidget {
   const _HeaterMixinCard({Key? key, required this.heaterProvider})
@@ -479,9 +476,7 @@ class _HeaterMixinCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var genericHeater = ref
-        .watch(heaterProvider)
-        .valueOrFullNull;
+    var genericHeater = ref.watch(heaterProvider).valueOrFullNull;
 
     if (genericHeater == null) return const SizedBox.shrink();
 
@@ -490,7 +485,7 @@ class _HeaterMixinCard extends HookConsumerWidget {
     var temperatureHistory = genericHeater.temperatureHistory;
     if (temperatureHistory != null) {
       List<double> sublist =
-      temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
+          temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
       spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
@@ -502,8 +497,7 @@ class _HeaterMixinCard extends HookConsumerWidget {
       spots: spots.value,
       onTap: ref.watch(generalTabViewControllerProvider.select(
               (data) => data.value!.klippyData.klippyCanReceiveCommands))
-          ? () =>
-          ref
+          ? () => ref
               .read(generalTabViewControllerProvider.notifier)
               .editHHHeater(genericHeater)
           : null,
@@ -826,30 +820,22 @@ class _BabySteppingCard extends ConsumerWidget {
               children: <Widget>[
                 Column(
                   children: [
-                    Container(
-                      margin: const EdgeInsets.all(5),
-                      height: 40,
-                      width: 40,
-                      child: ElevatedButton(
-                          onPressed: klippyCanReceiveCommands
-                              ? () => ref
-                                  .read(babyStepControllerProvider.notifier)
-                                  .onBabyStepping()
-                              : null,
-                          child: const Icon(FlutterIcons.upsquare_ant)),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.all(5),
-                      height: 40,
-                      width: 40,
-                      child: ElevatedButton(
-                          onPressed: klippyCanReceiveCommands
-                              ? () => ref
-                                  .read(babyStepControllerProvider.notifier)
-                                  .onBabyStepping(false)
-                              : null,
-                          child: const Icon(FlutterIcons.downsquare_ant)),
-                    ),
+                    SquareElevatedIconButton(
+                        margin: const EdgeInsets.all(5),
+                        onPressed: klippyCanReceiveCommands
+                            ? () => ref
+                                .read(babyStepControllerProvider.notifier)
+                                .onBabyStepping()
+                            : null,
+                        child: const Icon(FlutterIcons.upsquare_ant)),
+                    SquareElevatedIconButton(
+                        margin: const EdgeInsets.all(5),
+                        onPressed: klippyCanReceiveCommands
+                            ? () => ref
+                                .read(babyStepControllerProvider.notifier)
+                                .onBabyStepping(false)
+                            : null,
+                        child: const Icon(FlutterIcons.downsquare_ant)),
                   ],
                 ),
                 Column(

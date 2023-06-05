@@ -6,6 +6,20 @@
 
 - Tapping a notification now brings up the correct printer in a multi-printer
   setup [#128](https://github.com/Clon1998/mobileraker/issues/128)
+- Added `[heater_generic]` support [#140](https://github.com/Clon1998/mobileraker/issues/140)
+- Revamped the parsing and update mechanism of printer objects for improved efficiency and functionality.
+- Refactored Handover Mechanism between Local and OctoEverywhere Connection
+
+### Changed Features
+
+- Enhanced the reliability of printer refresh on the dashboard, ensuring it now reliably refreshes both the printer and
+  klippy.
+
+### Bug Fixes
+
+- The utilization of the printer port should be avoided for relative path
+  webcams ([#168](https://github.com/Clon1998/mobileraker/issues/168))
+- Resolved the "Stream has been listened to" error ([#174](https://github.com/Clon1998/mobileraker/issues/174))
 
 ## [2.3.4] - 2023-05-26
 

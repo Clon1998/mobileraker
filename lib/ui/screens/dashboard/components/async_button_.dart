@@ -1,27 +1,46 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class AsyncButton extends HookConsumerWidget {
-  const AsyncButton({
+class AsyncElevatedButton extends HookConsumerWidget {
+  const AsyncElevatedButton({
     Key? key,
     required this.child,
     required this.onPressed,
+    this.style,
+    this.margin,
   })  : label = null,
         super(key: key);
 
-  const AsyncButton.icon({
+  const AsyncElevatedButton.icon(
+      {Key? key,
+      required Icon icon,
+      required Widget this.label,
+      required this.onPressed,
+      this.margin,
+      this.style})
+      : child = icon,
+        super(key: key);
+
+  factory AsyncElevatedButton.squareIcon({
     Key? key,
     required Icon icon,
-    required this.label,
-    required this.onPressed,
-  })  : child = icon,
-        super(key: key);
+    required VoidCallback? onPressed,
+    EdgeInsetsGeometry? margin,
+  }) {
+    return AsyncElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(minimumSize: const Size.square(40)),
+      margin: margin,
+      child: icon,
+    );
+  }
 
   final Icon child;
   final Widget? label;
   final VoidCallback? onPressed;
+  final ButtonStyle? style;
+  final EdgeInsetsGeometry? margin;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,17 +66,25 @@ class AsyncButton extends HookConsumerWidget {
       ico = child;
     }
 
-    if (label == null) {
-      return ElevatedButton(
-        onPressed: onPressed,
-        child: ico,
-      );
+    var btn = (label == null)
+        ? ElevatedButton(
+            onPressed: onPressed,
+            style: style,
+            child: ico,
+          )
+        : ElevatedButton.icon(
+            style: style,
+            onPressed: onPressed,
+            icon: ico,
+            label: label!,
+          );
+    if (margin == null) {
+      return btn;
     }
 
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: ico,
-      label: label!,
+    return Container(
+      margin: margin,
+      child: btn,
     );
   }
 }
