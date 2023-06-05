@@ -24,7 +24,6 @@ import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
-import 'package:stringr/stringr.dart';
 
 import 'dashboard_controller.dart';
 
@@ -238,6 +237,7 @@ class _DashboardBody extends ConsumerWidget {
               // Text("Fetching printer ...")
             ],
           )),
+          skipLoadingOnRefresh: false,
         );
   }
 }
