@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 
 class RangeSelector extends StatelessWidget {
   final Function(int)? onSelected;
-  final List<String> values;
+  final Iterable<String> values;
   final int selectedIndex;
 
   const RangeSelector(
-      {super.key, this.onSelected,
+      {super.key,
+      this.onSelected,
       required this.values,
       this.selectedIndex = 0})
       : assert(selectedIndex >= 0, 'SelectedIndex must be > 0'),
