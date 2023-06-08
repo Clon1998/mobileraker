@@ -1,9 +1,7 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/machine/leds/addressable_led.dart';
 import 'package:mobileraker/data/dto/machine/leds/dumb_led.dart';
@@ -14,7 +12,6 @@ import 'package:mobileraker/util/extensions/pixel_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'led_rgbw_dialog_controller.freezed.dart';
-
 part 'led_rgbw_dialog_controller.g.dart';
 
 class LedRGBWDialogArgument {
@@ -24,8 +21,6 @@ class LedRGBWDialogArgument {
   LedRGBWDialogArgument(this.configLed, this.ledData);
 }
 
-final dialogCompleterProvider =
-    Provider.autoDispose<DialogCompleter>((ref) => throw UnimplementedError());
 final dialogArgsProvider = Provider.autoDispose<LedRGBWDialogArgument>(
     name: 'LedRGBWDialogArgumentProvider', (ref) {
   throw UnimplementedError();

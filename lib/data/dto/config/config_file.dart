@@ -1,5 +1,6 @@
 //TODO Decide regarding null values or not!
 import 'package:flutter/foundation.dart';
+import 'package:mobileraker/data/dto/config/config_bed_screws.dart';
 import 'package:mobileraker/data/dto/config/config_file_entry_enum.dart';
 import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
 import 'package:mobileraker/data/dto/config/config_heater_generic.dart';
@@ -14,6 +15,7 @@ import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_neopixel.dart';
 import 'package:mobileraker/data/dto/config/led/config_pca_led.dart';
+import 'package:mobileraker/logger.dart';
 
 import 'config_extruder.dart';
 import 'config_heater_bed.dart';
@@ -25,6 +27,7 @@ class ConfigFile {
   ConfigPrinter? configPrinter;
   ConfigHeaterBed? configHeaterBed;
   ConfigPrintCoolingFan? configPrintCoolingFan;
+  ConfigBedScrews? configBedScrews;
   Map<String, ConfigExtruder> extruders = {};
   Map<String, ConfigOutput> outputs = {};
   Map<String, ConfigStepper> steppers = {};
@@ -95,6 +98,9 @@ class ConfigFile {
       } else if (object == ConfigFileEntry.heater_generic.name) {
         genericHeaters[objectName] =
             ConfigHeaterGeneric.fromJson(objectName, jsonChild);
+      } else if (objectName == ConfigFileEntry.bed_screws.name) {
+        configBedScrews = ConfigBedScrews.fromJson(jsonChild);
+        logger.w('I got a BedScrews: $configBedScrews');
       }
     }
 

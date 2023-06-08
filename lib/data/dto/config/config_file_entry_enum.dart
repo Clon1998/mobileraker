@@ -13,7 +13,9 @@ enum ConfigFileEntry {
   controller_fan,
   temperature_fan,
   fan_generic,
-  heater_generic;
+  heater_generic,
+  bed_screws,
+  ;
 
   const ConfigFileEntry();
 }

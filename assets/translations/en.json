@@ -33,7 +33,10 @@
     "active": "Active",
     "canceled": "Canceled",
     "monthly": "Monthly",
-    "restore": "Restore"
+    "restore": "Restore",
+    "accept": "Accept",
+    "abort": "Abort",
+    "offset": "Offset"
   },
   "pages": {
     "dashboard": {
@@ -444,6 +447,19 @@
         "title": "Snapshot Notifications",
         "subtitle": "Status notification include Webcam Snapshot"
       }
+    },
+    "bed_screw_adjust": {
+      "title": "Bed Screw Adjust",
+      "xy_plane": "Printer X/Y Plane:",
+      "active_screw_title": "Active Screw:",
+      "accept_screw_title": "Accepted Screws:",
+      "accept_screw_value": "{} of {}",
+      "hint": "Click Adjusted if a significant adjustment is necessary on the current screw; otherwise, click Accept to continue.",
+      "adjusted_btn": "Adjusted"
+    },
+    "manual_offset": {
+      "title": "@:general.offset Calibration",
+      "hint_tooltip": "Klipper's Paper Test Documentation"
     }
   },
   "klipper_state": {

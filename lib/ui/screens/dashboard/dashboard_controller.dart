@@ -5,11 +5,14 @@ import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
@@ -69,7 +72,34 @@ final dashBoardViewControllerProvider =
 class DashBoardViewController extends StateNotifier<int> {
   DashBoardViewController(this.ref)
       : pageController = ref.watch(pageControllerProvider),
-        super(0);
+        super(0) {
+    setupCalibrationDialogTriggers();
+  }
+
+  void setupCalibrationDialogTriggers() async {
+    // Manual Probe Dialog
+    ref.listen(
+        machinePrinterKlippySettingsProvider
+            .selectAs((data) => data.printerData.manualProbe?.isActive),
+        (previous, next) {
+      if (next.valueOrFullNull == true) {
+        logger.i('Detected manualProbe... opening Dialog');
+        ref.read(dialogServiceProvider).show(DialogRequest(
+            barrierDismissible: false, type: DialogType.manualOffset));
+      }
+    }, fireImmediately: true);
+
+    // Bed Screw Adjust
+    ref.listen(
+        machinePrinterKlippySettingsProvider.selectAs(
+            (data) => data.printerData.bedScrew?.isActive), (previous, next) {
+      if (next.valueOrFullNull == true) {
+        logger.i('Detected bedScrew... opening Dialog');
+        ref.read(dialogServiceProvider).show(DialogRequest(
+            barrierDismissible: false, type: DialogType.bedScrewAdjust));
+      }
+    }, fireImmediately: true);
+  }
 
   final AutoDisposeRef ref;
 

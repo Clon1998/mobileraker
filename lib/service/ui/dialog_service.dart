@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_srew_adjust_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
@@ -10,6 +12,7 @@ import 'package:mobileraker/ui/components/dialog/info_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/led_rgbw/led_rgbw_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/logger_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/macro_params/macro_params_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/manual_offset/manual_offset_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/perks_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/select_printer/select_printer_dialog.dart';
@@ -21,7 +24,6 @@ part 'dialog_service.g.dart';
 
 @Riverpod(keepAlive: true)
 DialogService dialogService(DialogServiceRef ref) => DialogService(ref);
-
 
 enum DialogType {
   info,
@@ -37,7 +39,9 @@ enum DialogType {
   logging,
   webcamPreview,
   activeMachine,
-  perks
+  perks,
+  manualOffset,
+  bedScrewAdjust,
 }
 
 typedef DialogCompleter = Function(DialogResponse);
@@ -76,6 +80,10 @@ class DialogService {
     DialogType.activeMachine: (r, c) =>
         SelectPrinterDialog(request: r, completer: c),
     DialogType.perks: (r, c) => PerksDialog(request: r, completer: c),
+    DialogType.manualOffset: (r, c) =>
+        ManualOffsetDialog(request: r, completer: c),
+    DialogType.bedScrewAdjust: (r, c) =>
+        BedScrewAdjustDialog(request: r, completer: c),
   };
 
   Future<DialogResponse?> showConfirm({
@@ -97,11 +105,19 @@ class DialogService {
     ));
   }
 
-  Future<DialogResponse?> show(DialogRequest request) {
+  Future<DialogResponse?> show(DialogRequest request) async {
     BuildContext? ctx =
         ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
+    // Just catch some cases where an widget calls the dialogService before it is even mounted!
+    // if there's a current frame,
+    if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.idle) {
+      // wait for the end of that frame.
+      await SchedulerBinding.instance.endOfFrame;
+    }
+
     return showDialog<DialogResponse>(
+        barrierDismissible: request.barrierDismissible,
         context: ctx!,
         builder: (_) {
           return availableDialogs[request.type]!(request, _completeDialog);
@@ -124,6 +140,7 @@ class DialogRequest<T> {
       this.cancelBtn,
       this.confirmBtnColor,
       this.cancelBtnColor,
+      this.barrierDismissible = true,
       this.data});
 
   final DialogType type;
@@ -134,6 +151,7 @@ class DialogRequest<T> {
   final String? cancelBtn;
   final Color? confirmBtnColor;
   final Color? cancelBtnColor;
+  final bool barrierDismissible;
   final T? data;
 
   @override
@@ -193,3 +211,6 @@ class DialogResponse<T> {
     return 'DialogResponse{confirmed: $confirmed, data: $data}';
   }
 }
+
+final dialogCompleterProvider =
+    Provider.autoDispose<DialogCompleter>((ref) => throw UnimplementedError());
