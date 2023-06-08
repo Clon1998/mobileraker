@@ -21,6 +21,12 @@
   webcams ([#168](https://github.com/Clon1998/mobileraker/issues/168))
 - Resolved the "Stream has been listened to" error ([#174](https://github.com/Clon1998/mobileraker/issues/174))
 
+## [2.3.5] - 2023-06-8
+
+### Changed Features
+
+- Corrected tagging of machines
+
 ## [2.3.4] - 2023-05-26
 
 ### Bug Fixes
