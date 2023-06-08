@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -97,6 +98,7 @@ class MachineService {
   Future<void> updateMachine(Machine machine) async {
     await machine.save();
     logger.i('Updated machine: ${machine.name}');
+    ref.read(analyticsProvider).logEvent(name: 'updated_machine');
     await ref.refresh(machineProvider(machine.uuid).future);
     var selectedMachineService = ref.read(selectedMachineServiceProvider);
     if (selectedMachineService.isSelectedMachine(machine)) {
@@ -127,7 +129,13 @@ class MachineService {
 
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);
-    ref.read(analyticsProvider).logEvent(name: 'add_machine');
+    FirebaseAnalytics firebaseAnalytics = ref.read(analyticsProvider);
+    firebaseAnalytics.logEvent(name: 'add_machine');
+    _machineRepo.count().then((value) => firebaseAnalytics.setUserProperty(
+          name: 'machine_count',
+          value: value.toString(),
+        ));
+
     await ref.read(machineProvider(machine.uuid).future);
     return machine;
   }
@@ -135,6 +143,13 @@ class MachineService {
   Future<void> removeMachine(Machine machine) async {
     logger.i('Removing machine ${machine.uuid}');
     await _machineRepo.remove(machine.uuid);
+    var firebaseAnalytics = ref.read(analyticsProvider);
+    firebaseAnalytics.logEvent(name: 'remove_machine');
+    _machineRepo.count().then((value) => firebaseAnalytics.setUserProperty(
+          name: 'machine_count',
+          value: value.toString(),
+        ));
+
     if (_selectedMachineService.isSelectedMachine(machine)) {
       logger.i(
           'Removed Machine ${machine.uuid} is active machine... move to next one...');
@@ -289,9 +304,9 @@ class MachineService {
             machine.uuid, printStates);
         updateReq.add(future);
       }
-      if (updateReq.isNotEmpty)
-      await Future.wait(updateReq);
-      logger.i('[${machine.name}@${machine.wsUrl}] Propagated new notifcation settings');
+      if (updateReq.isNotEmpty) await Future.wait(updateReq);
+      logger.i(
+          '[${machine.name}@${machine.wsUrl}] Propagated new notifcation settings');
     } finally {
       keepAliveExternally.close();
     }
