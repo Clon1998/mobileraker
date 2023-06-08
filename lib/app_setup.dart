@@ -14,9 +14,12 @@ import 'package:mobileraker/data/model/hive/temperature_preset.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
+import 'package:mobileraker/data/repository/machine_hive_repository.dart';
+import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/util/extensions/analytics_extension.dart';
 
 import 'logger.dart';
 
@@ -135,4 +138,15 @@ initializeAvailableMachines(ProviderContainer container) async {
   }
 
   logger.i('Finished initializeAvailableMachines');
+}
+
+trackInitialMachineCount(ProviderContainer container) async {
+  var boxSettings = Hive.box('settingsbox');
+  var key = 'iMacCnt';
+  if (!boxSettings.get(key, defaultValue: false)) {
+    logger.i('Set initial machine count with analytics');
+    await boxSettings.put(key, true);
+    var count = await container.read(machineRepositoryProvider).count();
+    container.read(analyticsProvider).updateMachineCount(count);
+  }
 }

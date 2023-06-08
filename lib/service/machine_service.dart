@@ -33,6 +33,7 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:mobileraker/util/extensions/analytics_extension.dart';
 import 'package:mobileraker/util/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -131,10 +132,9 @@ class MachineService {
     ref.invalidate(allMachinesProvider);
     FirebaseAnalytics firebaseAnalytics = ref.read(analyticsProvider);
     firebaseAnalytics.logEvent(name: 'add_machine');
-    _machineRepo.count().then((value) => firebaseAnalytics.setUserProperty(
-          name: 'machine_count',
-          value: value.toString(),
-        ));
+    _machineRepo
+        .count()
+        .then((value) => firebaseAnalytics.updateMachineCount(value));
 
     await ref.read(machineProvider(machine.uuid).future);
     return machine;
@@ -145,10 +145,9 @@ class MachineService {
     await _machineRepo.remove(machine.uuid);
     var firebaseAnalytics = ref.read(analyticsProvider);
     firebaseAnalytics.logEvent(name: 'remove_machine');
-    _machineRepo.count().then((value) => firebaseAnalytics.setUserProperty(
-          name: 'machine_count',
-          value: value.toString(),
-        ));
+    _machineRepo
+        .count()
+        .then((value) => firebaseAnalytics.updateMachineCount(value));
 
     if (_selectedMachineService.isSelectedMachine(machine)) {
       logger.i(

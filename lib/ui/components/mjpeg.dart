@@ -328,15 +328,48 @@ class MjpegState {
   final double fps;
 }
 
+class MjpegConfigBuilder {
+  Uri? streamUri;
+  Uri? snapshotUri;
+  Duration? timeout;
+  Map<String, String>? httpHeader;
+  int? targetFps;
+  MjpegMode? mode;
+  int? rotation;
+  Matrix4? transformation;
+
+  MjpegConfig build() {
+    if (streamUri == null) {
+      throw ArgumentError("StreamURI is null");
+    }
+    if (snapshotUri == null) {
+      throw ArgumentError("snapshotUri is null");
+    }
+    if (mode == null) {
+      throw ArgumentError("mode is null");
+    }
+
+    return MjpegConfig(
+        streamUri: streamUri!,
+        snapshotUri: snapshotUri!,
+        mode: mode!,
+        httpHeader: httpHeader ?? {},
+        targetFps: targetFps ?? 10,
+        timeout: timeout ?? const Duration(seconds: 10),
+        rotation: rotation ?? 0,
+        transformation: transformation);
+  }
+}
+
 @immutable
 class MjpegConfig {
   const MjpegConfig(
       {required this.streamUri,
       required this.snapshotUri,
-      this.httpHeader = const {},
       required this.mode,
+      this.httpHeader = const {},
       this.targetFps = 10,
-      this.timeout = const Duration(seconds: 5),
+      this.timeout = const Duration(seconds: 10),
       this.rotation = 0,
       this.transformation});
 
