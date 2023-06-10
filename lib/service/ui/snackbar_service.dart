@@ -44,8 +44,8 @@ class SnackBarService {
         btnOnBg = Colors.white70;
         break;
       default:
-        bgCol = themeData.colorScheme.background;
-        txtCol = themeData.colorScheme.onBackground;
+        bgCol = themeData.colorScheme.tertiaryContainer;
+        txtCol = themeData.colorScheme.onTertiaryContainer;
         btnBg = themeData.colorScheme.primary;
         btnOnBg = themeData.colorScheme.onPrimary;
     }
