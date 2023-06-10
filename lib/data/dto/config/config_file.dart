@@ -15,7 +15,6 @@ import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_neopixel.dart';
 import 'package:mobileraker/data/dto/config/led/config_pca_led.dart';
-import 'package:mobileraker/logger.dart';
 
 import 'config_extruder.dart';
 import 'config_heater_bed.dart';
@@ -100,7 +99,6 @@ class ConfigFile {
             ConfigHeaterGeneric.fromJson(objectName, jsonChild);
       } else if (objectName == ConfigFileEntry.bed_screws.name) {
         configBedScrews = ConfigBedScrews.fromJson(jsonChild);
-        logger.w('I got a BedScrews: $configBedScrews');
       }
     }
 

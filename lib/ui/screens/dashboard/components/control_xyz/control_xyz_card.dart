@@ -250,6 +250,7 @@ class _MoreActionsPopup extends ConsumerWidget {
         itemBuilder: (BuildContext context) => entries
             .map(
               (e) => PopupMenuItem(
+                enabled: klippyCanReceiveCommands,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 onTap: e.callback,
                 child: ListTile(

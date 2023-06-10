@@ -8,7 +8,6 @@ import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/exceptions.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
@@ -194,7 +193,6 @@ class ControlXYZCardController extends _$ControlXYZCardController {
       callback: onMotorOff,
     );
 
-    logger.wtf('Dir ac ${directActions.length}');
     if (directActions.length < 3) {
       directActions.add(m84);
     } else {

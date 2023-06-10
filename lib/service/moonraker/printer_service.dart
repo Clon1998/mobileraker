@@ -115,6 +115,8 @@ class PrinterService {
 
   final StreamController<Printer> _printerStreamCtler = StreamController();
 
+  bool get disposed => _printerStreamCtler.isClosed;
+
   Stream<Printer> get printerStream => _printerStreamCtler.stream;
 
   /// This map defines how different printerObjects will be parsed
@@ -158,7 +160,7 @@ class PrinterService {
   Printer? _current;
 
   set current(Printer nI) {
-    if (_printerStreamCtler.isClosed) {
+    if (disposed) {
       logger.w(
           'Tried to set current Printer on an old printerService? ${identityHashCode(this)}',
           null,
@@ -183,6 +185,8 @@ class PrinterService {
       PrinterBuilder printerBuilder = await _printerObjectsList();
       await _printerObjectsQuery(printerBuilder);
       await _temperatureStore(printerBuilder);
+      // It can happen that the service disposed. Make sure to not proceed.
+      if (disposed) return;
       // I need this temp variable since in some edge cases the updateSettings otherwise throws?
       var printerObj = printerBuilder.build();
       _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros);
@@ -431,11 +435,12 @@ class PrinterService {
   }
 
   Future<void> _temperatureStore(PrinterBuilder printer) async {
+    if (disposed) return;
     logger.i('Fetching cached temperature store data');
 
     try {
       RpcResponse blockingResponse =
-          await _jRpcClient.sendJRpcMethod('server.temperature_store');
+      await _jRpcClient.sendJRpcMethod('server.temperature_store');
 
       Map<String, dynamic> raw = blockingResponse.result;
       List<String> sensors = raw.keys
@@ -781,9 +786,10 @@ class PrinterService {
 
   /// Query the state of queryable printer objects once!
   _printerObjectsQuery(PrinterBuilder printer) async {
+    if (disposed) return;
     logger.i('>>>Querying Printer Objects!');
     Map<String, List<String>?> queryObjects =
-        _queryPrinterObjectJson(printer.queryableObjects);
+    _queryPrinterObjectJson(printer.queryableObjects);
 
     RpcResponse jRpcResponse = await _jRpcClient.sendJRpcMethod(
         'printer.objects.query',
