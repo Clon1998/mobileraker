@@ -183,11 +183,12 @@ class PrinterService {
       PrinterBuilder printerBuilder = await _printerObjectsList();
       await _printerObjectsQuery(printerBuilder);
       await _temperatureStore(printerBuilder);
-
-      current = printerBuilder.build();
-      _machineService.updateMacrosInSettings(ownerUUID, current.gcodeMacros);
+      // I need this temp variable since in some edge cases the updateSettings otherwise throws?
+      var printerObj = printerBuilder.build();
+      _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros);
       _registerJrpcHandlers();
-      _makeSubscribeRequest(current.queryableObjects);
+      _makeSubscribeRequest(printerObj.queryableObjects);
+      current = printerObj;
     } on JRpcError catch (e, s) {
       logger.e('Unable to refresh Printer $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
