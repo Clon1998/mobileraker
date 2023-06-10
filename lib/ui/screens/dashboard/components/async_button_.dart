@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -12,20 +14,19 @@ class AsyncElevatedButton extends HookConsumerWidget {
   })  : label = null,
         super(key: key);
 
-  const AsyncElevatedButton.icon(
-      {Key? key,
-      required Icon icon,
-      required Widget this.label,
-      required this.onPressed,
-      this.margin,
-      this.style})
+  const AsyncElevatedButton.icon({Key? key,
+    required Icon icon,
+    required Widget this.label,
+    required this.onPressed,
+    this.margin,
+    this.style})
       : child = icon,
         super(key: key);
 
   factory AsyncElevatedButton.squareIcon({
     Key? key,
     required Icon icon,
-    required VoidCallback? onPressed,
+    required FutureOr<void>? Function()? onPressed,
     EdgeInsetsGeometry? margin,
   }) {
     return AsyncElevatedButton(
@@ -38,7 +39,7 @@ class AsyncElevatedButton extends HookConsumerWidget {
 
   final Icon child;
   final Widget? label;
-  final VoidCallback? onPressed;
+  final FutureOr<void>? Function()? onPressed;
   final ButtonStyle? style;
   final EdgeInsetsGeometry? margin;
 
@@ -49,32 +50,31 @@ class AsyncElevatedButton extends HookConsumerWidget {
         lowerBound: 0.5,
         upperBound: 1,
         initialValue: 1);
-    if (onPressed == null) {
+    var actionRunning = useState(false);
+
+    if (actionRunning.value) {
       animCtrler.repeat(reverse: true);
     } else {
-      animCtrler.stop();
+      animCtrler.value = 1;
     }
 
-    Widget ico;
+    Widget ico = ScaleTransition(
+      scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+      child: child,
+    );
 
-    if (onPressed == null) {
-      ico = ScaleTransition(
-        scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
-        child: child,
-      );
-    } else {
-      ico = child;
-    }
-
+    var onPressedWrapped = onPressed != null && !actionRunning.value
+        ? () => _onPressedWrapper(context, actionRunning)
+        : null;
     var btn = (label == null)
         ? ElevatedButton(
-            onPressed: onPressed,
+            onPressed: onPressedWrapped,
             style: style,
             child: ico,
           )
         : ElevatedButton.icon(
             style: style,
-            onPressed: onPressed,
+            onPressed: onPressedWrapped,
             icon: ico,
             label: label!,
           );
@@ -86,5 +86,14 @@ class AsyncElevatedButton extends HookConsumerWidget {
       margin: margin,
       child: btn,
     );
+  }
+
+  _onPressedWrapper(BuildContext context,
+      ValueNotifier<bool> valueNotifier) async {
+    FutureOr<void>? ftr = onPressed!();
+    if (ftr == null) return;
+    valueNotifier.value = true;
+    await ftr;
+    if (context.mounted) valueNotifier.value = false;
   }
 }
