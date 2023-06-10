@@ -200,6 +200,10 @@ class PrinterService {
           'Unexpected exception thrown during refresh $ownerUUID...', e, s);
       _showExceptionSnackbar(e, s);
       _printerStreamCtler.addError(e, s);
+      if (e is Future) {
+        e.then((value) => logger.e('Error was a Future: Data. $value'),
+            onError: (e, s) => logger.e('Error was a Future: Error. $e', e, s));
+      }
     }
   }
 
