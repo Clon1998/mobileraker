@@ -816,12 +816,12 @@ class _BabySteppingCard extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 Column(
                   children: [
                     SquareElevatedIconButton(
-                        margin: const EdgeInsets.all(5),
+                        margin: const EdgeInsets.all(10),
                         onPressed: klippyCanReceiveCommands
                             ? () => ref
                                 .read(babyStepControllerProvider.notifier)
@@ -829,7 +829,7 @@ class _BabySteppingCard extends ConsumerWidget {
                             : null,
                         child: const Icon(FlutterIcons.upsquare_ant)),
                     SquareElevatedIconButton(
-                        margin: const EdgeInsets.all(5),
+                        margin: const EdgeInsets.all(10),
                         onPressed: klippyCanReceiveCommands
                             ? () => ref
                                 .read(babyStepControllerProvider.notifier)
