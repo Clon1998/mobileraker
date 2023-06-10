@@ -120,6 +120,15 @@ class ConfigFile {
 
   bool get hasZTilt => rawConfig.containsKey('z_tilt');
 
+  bool get hasBedScrews => rawConfig.containsKey('bed_screws');
+
+  /// Either has BlTouch or a normal probe!
+  bool get hasProbe =>
+      rawConfig.containsKey('probe') || rawConfig.containsKey('bltouch');
+
+  bool get hasVirtualZEndstop =>
+      steppers['z']?.endstopPin?.contains('z_virtual_endstop') == true;
+
   ConfigExtruder? get primaryExtruder => extruders['extruder'];
 
   ConfigExtruder? extruderForIndex(int idx) =>

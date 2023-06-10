@@ -84,7 +84,6 @@ class ControlTab extends ConsumerWidget {
                       const PowerApiCard(),
                     const MultipliersCard(),
                     const LimitsCard(),
-                    const CalibrationCard(),
                   ],
                 ),
               );
@@ -163,8 +162,7 @@ class FansCard extends ConsumerWidget {
               const _PrintFan(),
               ...List.generate(fanLen, (index) {
                 var fanProvider = machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.fans
-                    .values
+                    (value) => value.printerData.fans.values
                         .where((element) => !element.name.startsWith('_'))
                         .elementAt(index));
 
@@ -681,8 +679,6 @@ class _PinTile extends ConsumerWidget {
             .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrFullNull!;
 
-    logger.wtf(pin.name);
-    logger.wtf(pinConfig);
     if (pinConfig?.pwm == false) {
       return CardWithSwitch(
           value: pin.value > 0,
@@ -1091,48 +1087,6 @@ class LimitsCard extends HookConsumerWidget {
   }
 }
 
-class CalibrationCard extends HookConsumerWidget {
-  const CalibrationCard({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
-        .valueOrFullNull!;
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(Icons.tune),
-            title: const Text('Calibration Helper'),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: Column(
-              children: [
-                FilledButton.tonal(
-                    onPressed: () => ref
-                        .read(dialogServiceProvider)
-                        .show(DialogRequest(type: DialogType.manualOffset)),
-                    child: Text('Probe Calibrate')),
-                FilledButton.tonal(
-                    onPressed: () => null, child: Text('Z Endstop Calibrate')),
-                FilledButton.tonal(
-                    onPressed: () => null, child: Text('BED_SCREWS_ADJUST')),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _SliderOrTextInput extends HookWidget {
   final ValueChanged<double>? onChange;
   final String prefixText;
@@ -1226,8 +1180,7 @@ class _SliderOrTextInput extends HookWidget {
                 if (!inputValid.value) inputValid.value = true;
               },
               textAlign: TextAlign.end,
-              keyboardType:
-                  const TextInputType.numberWithOptions(),
+              keyboardType: const TextInputType.numberWithOptions(),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))
               ],

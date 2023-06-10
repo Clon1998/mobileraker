@@ -22,8 +22,6 @@ class ControlXYZCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
-    var iconThemeData = IconTheme.of(context);
-
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -72,11 +70,7 @@ class ControlXYZCard extends HookConsumerWidget {
                                       .tr(),
                               child: AsyncElevatedButton.squareIcon(
                                 margin: marginForBtns,
-                                onPressed: klippyCanReceiveCommands &&
-                                        ref.watch(
-                                            controlXYZCardControllerProvider
-                                                .select(
-                                                    (value) => !value.homing))
+                                onPressed: klippyCanReceiveCommands
                                     ? () => ref
                                         .read(controlXYZCardControllerProvider
                                             .notifier)
@@ -131,9 +125,7 @@ class ControlXYZCard extends HookConsumerWidget {
                                   .tr(),
                           child: AsyncElevatedButton.squareIcon(
                               margin: marginForBtns,
-                              onPressed: klippyCanReceiveCommands &&
-                                      ref.watch(controlXYZCardControllerProvider
-                                          .select((value) => !value.homing))
+                              onPressed: klippyCanReceiveCommands
                                   ? () => ref
                                       .read(controlXYZCardControllerProvider
                                           .notifier)
@@ -160,155 +152,7 @@ class ControlXYZCard extends HookConsumerWidget {
                     rowsToShow: [ToolheadInfoTable.POS_ROW],
                   ),
                 ),
-                Wrap(
-                  runSpacing: 4,
-                  spacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: [
-                    Tooltip(
-                      message:
-                          'pages.dashboard.general.move_card.home_all_tooltip'
-                              .tr(),
-                      child: AsyncElevatedButton.icon(
-                        onPressed: klippyCanReceiveCommands &&
-                                ref.watch(controlXYZCardControllerProvider
-                                    .select((value) => !value.homing))
-                            ? () =>
-                                ref
-                                    .read(controlXYZCardControllerProvider
-                                        .notifier)
-                                    .onHomeAxisBtn({
-                                  PrinterAxis.X,
-                                  PrinterAxis.Y,
-                                  PrinterAxis.Z
-                                })
-                            : null,
-                        icon: const Icon(Icons.home),
-                        label: Text(
-                            'pages.dashboard.general.move_card.home_all_btn'
-                                .tr()
-                                .toUpperCase()),
-                      ),
-                    ),
-                    if (ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.valueOrNull?.printerData.configFile
-                                .hasQuadGantry ==
-                            true)))
-                      Tooltip(
-                        message: 'pages.dashboard.general.move_card.qgl_tooltip'
-                            .tr(),
-                        child: AsyncElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands &&
-                                  ref.watch(controlXYZCardControllerProvider
-                                      .select((value) => !value.qgl))
-                              ? ref
-                                  .read(
-                                      controlXYZCardControllerProvider.notifier)
-                                  .onQuadGantry
-                              : null,
-                          icon: const Icon(FlutterIcons.quadcopter_mco),
-                          label: Text(
-                              'pages.dashboard.general.move_card.qgl_btn'
-                                  .tr()
-                                  .toUpperCase()),
-                        ),
-                      ),
-                    if (ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.valueOrNull?.printerData.configFile
-                                .hasBedMesh ==
-                            true)))
-                      Tooltip(
-                        message:
-                            'pages.dashboard.general.move_card.mesh_tooltip'
-                                .tr(),
-                        child: AsyncElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands &&
-                                  ref.watch(controlXYZCardControllerProvider
-                                      .select((value) => !value.mesh))
-                              ? ref
-                                  .read(
-                                      controlXYZCardControllerProvider.notifier)
-                                  .onBedMesh
-                              : null,
-                          icon: const Icon(FlutterIcons.map_marker_path_mco),
-                          label: Text(
-                              'pages.dashboard.general.move_card.mesh_btn'
-                                  .tr()
-                                  .toUpperCase()),
-                          // color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                    if (ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.valueOrNull?.printerData.configFile
-                                .hasScrewTiltAdjust ==
-                            true)))
-                      Tooltip(
-                        message: 'pages.dashboard.general.move_card.stc_tooltip'
-                            .tr(),
-                        child: ElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands &&
-                                  ref.watch(controlXYZCardControllerProvider
-                                      .select((value) => !value.screwTilt))
-                              ? ref
-                                  .read(
-                                      controlXYZCardControllerProvider.notifier)
-                                  .onScrewTiltCalc
-                              : null,
-                          icon: const Icon(
-                              FlutterIcons.screw_machine_flat_top_mco),
-                          label: Text(
-                              'pages.dashboard.general.move_card.stc_btn'
-                                  .tr()
-                                  .toUpperCase()),
-                        ),
-                      ),
-                    if (ref.watch(generalTabViewControllerProvider.select(
-                        (data) =>
-                            data.valueOrNull?.printerData.configFile.hasZTilt ==
-                            true)))
-                      Tooltip(
-                        message:
-                            'pages.dashboard.general.move_card.ztilt_tooltip'
-                                .tr(),
-                        child: AsyncElevatedButton.icon(
-                          onPressed: klippyCanReceiveCommands &&
-                                  ref.watch(controlXYZCardControllerProvider
-                                      .select((value) => !value.zTilt))
-                              ? ref
-                                  .read(
-                                      controlXYZCardControllerProvider.notifier)
-                                  .onZTiltAdjust
-                              : null,
-                          icon:
-                              const Icon(FlutterIcons.unfold_less_vertical_mco),
-                          label: Text(
-                              'pages.dashboard.general.move_card.ztilt_btn'
-                                  .tr()
-                                  .toUpperCase()),
-                        ),
-                      ),
-                    Tooltip(
-                      message:
-                          'pages.dashboard.general.move_card.m84_tooltip'.tr(),
-                      child: AsyncElevatedButton.icon(
-                        onPressed: klippyCanReceiveCommands &&
-                                ref.watch(controlXYZCardControllerProvider
-                                    .select((value) => !value.motorsOff))
-                            ? ref
-                                .read(controlXYZCardControllerProvider.notifier)
-                                .onMotorOff
-                            : null,
-                        icon: const Icon(Icons.near_me_disabled),
-                        label: const Text(
-                                'pages.dashboard.general.move_card.m84_btn')
-                            .tr(),
-                      ),
-                    ),
-                  ],
-                ),
+                const _ShortCuts(),
                 const Divider(),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -340,5 +184,95 @@ class ControlXYZCard extends HookConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class _ShortCuts extends ConsumerWidget {
+  const _ShortCuts({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var klippyCanReceiveCommands = ref.watch(generalTabViewControllerProvider
+        .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
+
+    var directActions = ref.watch(controlXYZCardControllerProvider
+        .select((value) => value.directActions));
+    var moreActions = ref.watch(
+        controlXYZCardControllerProvider.select((value) => value.moreActions));
+
+    return Wrap(
+      runSpacing: 4,
+      spacing: 8,
+      alignment: WrapAlignment.center,
+      children: [
+        ...directActions
+            .map(
+              (e) => Tooltip(
+                message: e.description,
+                child: AsyncElevatedButton.icon(
+                  onPressed: klippyCanReceiveCommands ? e.callback : null,
+                  icon: Icon(e.icon),
+                  label: Text(e.title.toUpperCase()),
+                ),
+              ),
+            )
+            .toList(),
+        _MoreActionsPopup(
+          klippyCanReceiveCommands: klippyCanReceiveCommands,
+          entries: moreActions,
+        ),
+      ],
+    );
+  }
+}
+
+class _MoreActionsPopup extends ConsumerWidget {
+  const _MoreActionsPopup({
+    Key? key,
+    required this.entries,
+    required this.klippyCanReceiveCommands,
+  }) : super(key: key);
+  final List<QuickAction> entries;
+  final bool klippyCanReceiveCommands;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
+
+    bool enabled =
+        klippyCanReceiveCommands && entries.any((e) => e.callback != null);
+
+    return PopupMenuButton(
+        enabled: enabled,
+        position: PopupMenuPosition.over,
+        itemBuilder: (BuildContext context) => entries
+            .map(
+              (e) => PopupMenuItem(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                onTap: e.callback,
+                child: ListTile(
+                  enabled: e.callback != null,
+                  contentPadding: EdgeInsets.zero,
+                  dense: true,
+                  leading: Icon(e.icon),
+                  title: Text(e.title),
+                  subtitle: Text(e.description),
+                ),
+              ),
+            )
+            .toList(),
+        child: ElevatedButton.icon(
+            style: enabled
+                ? ElevatedButton.styleFrom(
+                    disabledBackgroundColor: themeData.colorScheme.primary,
+                    disabledForegroundColor: themeData.colorScheme.onPrimary)
+                : null,
+            onPressed: null,
+            icon: const Icon(Icons.more_vert),
+            label:
+                const Text('@.upper:pages.dashboard.general.move_card.more_btn')
+                    .tr()));
   }
 }

@@ -95,7 +95,16 @@
           "stc_tooltip": "Run Screws-Tilt calculation",
           "stc_btn": "STC",
           "ztilt_tooltip": "Run Z-Tilt calibration",
-          "ztilt_btn": "zTilt"
+          "ztilt_btn": "zTilt",
+          "poff_tooltip": "Run Probe Offset calibration",
+          "poff_btn": "Probe Calibration",
+          "zoff_tooltip": "Run Z Endstop Offset calibration",
+          "zoff_btn": "Z-Endstop Calibration",
+          "bsa_tooltip": "Run Bed Screw Adjust calibration",
+          "bsa_btn": "Bed Screw Adjust",
+          "save_tooltip": "Save calibration results",
+          "save_btn": "Save Config",
+          "more_btn": "More"
         },
         "baby_step_card": {
           "title": "Babystepping Z-Axis"
@@ -459,7 +468,9 @@
     },
     "manual_offset": {
       "title": "@:general.offset Calibration",
-      "hint_tooltip": "Klipper's Paper Test Documentation"
+      "hint_tooltip": "Klipper's Paper Test Documentation",
+      "snackbar_title": "Calibration done",
+      "snackbar_message": "Make sure to persist offset via the Save Config action."
     }
   },
   "klipper_state": {
