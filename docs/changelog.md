@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.x.x] - 2023-xx
+## [2.4.0] - 2023-06-11
 
 ### Major Changes
 
@@ -9,11 +9,15 @@
 - Added `[heater_generic]` support [#140](https://github.com/Clon1998/mobileraker/issues/140)
 - Revamped the parsing and update mechanism of printer objects for improved efficiency and functionality.
 - Refactored Handover Mechanism between Local and OctoEverywhere Connection
+- Added Calibration actions to **Move Axis** card
+- Added Manual Probe and Bed Screw Adjust Dialogs [#169](https://github.com/Clon1998/mobileraker/issues/169)
 
 ### Changed Features
 
 - Enhanced the reliability of printer refresh on the dashboard, ensuring it now reliably refreshes both the printer and
   klippy.
+- Info Snackbars make use of tenary color
+- Step selectors should work better on smaller screens
 
 ### Bug Fixes
 

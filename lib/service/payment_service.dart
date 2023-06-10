@@ -15,10 +15,14 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'payment_service.g.dart';
 
+// GP: $RCAnonymousID:0b43a2b24a9c4cdb9edb57198a077e5f
+// BLA: $RCAnonymousID:f78797ad228f4a718864dd8b7baf911c
+// NOW-BLA: $RCAnonymousID:b21163a05e7642ac928b7c028c9125a6
 @Riverpod(keepAlive: true)
 Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
   var customerInfo = await Purchases.getCustomerInfo();
   logger.i('Got customerInfo: $customerInfo');
+  logger.i('RCat ID: ${customerInfo.originalAppUserId}');
 
   checkForExpired() async {
     logger.i('Checking for expired subs!');
@@ -139,7 +143,8 @@ class PaymentService {
         String token =
             await ref.read(notificationServiceProvider).fetchCurrentFcmToken();
         var entitlementInfo = customerInfo.entitlements.active.values.first;
-        if (_boxSettings.containsKey(_key)) {
+        if (_boxSettings
+            .containsKey('$_key-${customerInfo.originalAppUserId}')) {
           Map<dynamic, dynamic> name = _boxSettings.get(_key);
           var supporter = Supporter.fromJson(name.cast<String, dynamic>());
           logger.i(
