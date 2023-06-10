@@ -272,6 +272,22 @@ class PrinterService {
     return gCode('SCREWS_TILT_CALCULATE');
   }
 
+  Future<bool> probeCalibrate() {
+    return gCode('PROBE_CALIBRATE');
+  }
+
+  Future<bool> zEndstopCalibrate() {
+    return gCode('Z_ENDSTOP_CALIBRATE');
+  }
+
+  Future<bool> bedScrewsAdjust() {
+    return gCode('BED_SCREWS_ADJUST');
+  }
+
+  Future<bool> saveConfig() {
+    return gCode('SAVE_CONFIG');
+  }
+
   m117([String? msg]) {
     gCode('M117 ${msg ?? ''}');
   }
