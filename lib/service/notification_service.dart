@@ -22,7 +22,6 @@ import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
-import 'package:mobileraker/license.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -30,6 +29,7 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
+import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'machine_service.dart';
@@ -164,7 +164,7 @@ class NotificationService {
         channelKey: 'basic_channel',
         channelName: 'General Notifications',
         channelDescription:
-        'Notifications regarding updates and infos about Mobileraker!',
+            'Notifications regarding updates and infos about Mobileraker!',
         channelGroupKey: 'mobileraker_default_grp',
       )
     ];
@@ -320,7 +320,8 @@ class NotificationService {
   }
 
   @pragma("vm:entry-point")
-  static Future<void> _awesomeNotificationFCMBackgroundHandler(FcmSilentData message) async {
+  static Future<void> _awesomeNotificationFCMBackgroundHandler(
+      FcmSilentData message) async {
     // Todo: Do I even need background stuff ?
     // logger.i('Receieved a notif Message');
     // print('I-AM-COOL');
@@ -403,7 +404,7 @@ class NotificationService {
           channelKey: machine.m117ChannelKey,
           channelName: 'User M117 Notifications - ${machine.name}',
           channelDescription:
-          'Notifications issued by M117 with prefix "\$MR\$:".',
+              'Notifications issued by M117 with prefix "\$MR\$:".',
           channelGroupKey: machine.uuid,
           // importance: NotificationImportance.Max,
           defaultColor: brownish.shade500,
@@ -430,13 +431,13 @@ class NotificationService {
 
   void _setupFCMOnPrinterOnceConnected(Machine machine) async {
     String fcmToken =
-    await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
+        await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
     logger
         .i('${machine.name}(${machine.wsUrl})  Device\'s FCM token: $fcmToken');
     try {
       // Wait until connected
       await ref.readWhere<KlipperInstance>(klipperProvider(machine.uuid),
-              (c) => c.klippyState == KlipperState.ready);
+          (c) => c.klippyState == KlipperState.ready);
       logger.i(
           'Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
       await _machineService.updateMachineFcmConfig(machine, fcmToken);
@@ -457,7 +458,8 @@ class NotificationService {
     await machine.save();
   }
 
-  Future<PrintState> _updatePrintStatusNotification(Machine machine, PrintState updatedState, String? updatedFile,
+  Future<PrintState> _updatePrintStatusNotification(
+      Machine machine, PrintState updatedState, String? updatedFile,
       [bool createNotification = true]) async {
     PrintState? oldState = machine.lastPrintState;
 
@@ -472,8 +474,8 @@ class NotificationService {
     }
 
     if (
-    // !allowed.contains(oldState?.name ?? PrintState.error.name) &&
-    !allowed.contains(updatedState.name)) {
+        // !allowed.contains(oldState?.name ?? PrintState.error.name) &&
+        !allowed.contains(updatedState.name)) {
       logger.i(
           'Skipping notifications,  "$oldState" nor "$updatedState" contained in allowedStates:"$allowed"');
       return updatedState;
@@ -524,7 +526,8 @@ class NotificationService {
   Future<void> _removePrintProgressNotification(Machine machine) => _notifyAPI
       .cancelNotificationsByChannelKey(machine.printProgressChannelKey);
 
-  Future<void> _updatePrintProgressNotification(Machine machine, double progress, double printDuration,
+  Future<void> _updatePrintProgressNotification(
+      Machine machine, double progress, double printDuration,
       [bool normalize = true]) async {
     if (progress >= 100) return;
 
@@ -537,7 +540,7 @@ class NotificationService {
     if (progMode == ProgressNotificationMode.DISABLED) return;
 
     double normalizedProgress =
-    normalize ? normalizeProgress(progMode, progress) : progress;
+        normalize ? normalizeProgress(progMode, progress) : progress;
 
     if (machine.lastPrintProgress == normalizedProgress) return;
     machine.lastPrintProgress = normalizedProgress;

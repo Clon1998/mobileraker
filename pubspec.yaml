@@ -25,6 +25,9 @@ dependencies:
   flutter:
     sdk: flutter
 
+  mobileraker_pro:
+    path: ../mobileraker_pro
+
   web_socket_channel: ^2.1.0
   http: ^0.13.4
 

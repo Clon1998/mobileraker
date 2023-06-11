@@ -17,10 +17,10 @@ import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
+import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import 'app_setup.dart';
-import 'firebase_options.dart';
 import 'logger.dart';
 
 Future<void> main() async {
