@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:async';
 
 /*
@@ -73,16 +78,16 @@ class AsyncElevatedButton extends HookConsumerWidget {
         : null;
     var btn = (label == null)
         ? ElevatedButton(
-            onPressed: onPressedWrapped,
-            style: style,
-            child: ico,
-          )
+      onPressed: onPressedWrapped,
+      style: style,
+      child: ico,
+    )
         : ElevatedButton.icon(
-            style: style,
-            onPressed: onPressedWrapped,
-            icon: ico,
-            label: label!,
-          );
+      style: style,
+      onPressed: onPressedWrapped,
+      icon: ico,
+      label: label!,
+    );
     if (margin == null) {
       return btn;
     }

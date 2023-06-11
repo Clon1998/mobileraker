@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -17,8 +22,7 @@ class BedScrewAdjustDialog extends HookConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const BedScrewAdjustDialog(
-      {Key? key, required this.request, required this.completer})
+  const BedScrewAdjustDialog({Key? key, required this.request, required this.completer})
       : super(key: key);
 
   @override
@@ -76,90 +80,90 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
                 ),
                 duration: kThemeAnimationDuration,
                 child: ref.watch(bedScrewAdjustDialogControllerProvider).when(
-                      data: (data) => Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const ScrewLocationIndicator(),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: InputDecorator(
-                                    decoration: InputDecoration(
-                                      isDense: true,
-                                      contentPadding:
-                                          const EdgeInsets.only(top: 8),
-                                      floatingLabelBehavior:
-                                          FloatingLabelBehavior.always,
-                                      label: const Text(
-                                              'dialogs.bed_screw_adjust.active_screw_title')
-                                          .tr(),
-                                      border: InputBorder.none,
-                                    ),
-                                    child: Text(data
-                                        .config
-                                        .configBedScrews!
-                                        .screws[data.bedScrew.currentScrew]
-                                        .name),
-                                  ),
+                  data: (data) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding:
+                        const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const ScrewLocationIndicator(),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding:
+                                  const EdgeInsets.only(top: 8),
+                                  floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                                  label: const Text(
+                                      'dialogs.bed_screw_adjust.active_screw_title')
+                                      .tr(),
+                                  border: InputBorder.none,
                                 ),
-                                Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: InputDecorator(
-                                    decoration: InputDecoration(
-                                      isDense: true,
-                                      contentPadding:
-                                          const EdgeInsets.only(top: 8),
-                                      floatingLabelBehavior:
-                                          FloatingLabelBehavior.always,
-                                      label: const Text(
-                                              'dialogs.bed_screw_adjust.accept_screw_title')
-                                          .tr(),
-                                      border: InputBorder.none,
-                                    ),
-                                    child: const Text(
-                                            'dialogs.bed_screw_adjust.accept_screw_value')
-                                        .tr(args: [
-                                      data.bedScrew.acceptedScrews.toString(),
-                                      data.config.configBedScrews!.screws.length
-                                          .toString()
-                                    ]),
-                                  ),
+                                child: Text(data
+                                    .config
+                                    .configBedScrews!
+                                    .screws[data.bedScrew.currentScrew]
+                                    .name),
+                              ),
+                            ),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  contentPadding:
+                                  const EdgeInsets.only(top: 8),
+                                  floatingLabelBehavior:
+                                  FloatingLabelBehavior.always,
+                                  label: const Text(
+                                      'dialogs.bed_screw_adjust.accept_screw_title')
+                                      .tr(),
+                                  border: InputBorder.none,
                                 ),
-                              ],
+                                child: const Text(
+                                    'dialogs.bed_screw_adjust.accept_screw_value')
+                                    .tr(args: [
+                                  data.bedScrew.acceptedScrews.toString(),
+                                  data.config.configBedScrews!.screws.length
+                                      .toString()
+                                ]),
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0),
-                            child: LinearProgressIndicator(
-                              minHeight: 6,
-                              backgroundColor:
-                                  themeData.colorScheme.primaryContainer,
-                              value: data.bedScrew.acceptedScrews /
-                                  data.config.configBedScrews!.screws.length,
-                            ),
-                          ),
-                          Text(
-                            'dialogs.bed_screw_adjust.hint',
-                            textAlign: TextAlign.center,
-                            style: themeData.textTheme.bodySmall,
-                          ).tr(),
-                        ],
+                          ],
+                        ),
                       ),
-                      error: (e, s) => ErrorCard(
-                        title: const Text('Error loading Bed Screw'),
-                        body: Text(e.toString()),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: LinearProgressIndicator(
+                          minHeight: 6,
+                          backgroundColor:
+                          themeData.colorScheme.primaryContainer,
+                          value: data.bedScrew.acceptedScrews /
+                              data.config.configBedScrews!.screws.length,
+                        ),
                       ),
-                      loading: () => SpinKitWave(
-                        size: 33,
-                        color: themeData.colorScheme.primary,
-                      ),
-                      skipLoadingOnReload: true,
-                    ),
+                      Text(
+                        'dialogs.bed_screw_adjust.hint',
+                        textAlign: TextAlign.center,
+                        style: themeData.textTheme.bodySmall,
+                      ).tr(),
+                    ],
+                  ),
+                  error: (e, s) => ErrorCard(
+                    title: const Text('Error loading Bed Screw'),
+                    body: Text(e.toString()),
+                  ),
+                  loading: () => SpinKitWave(
+                    size: 33,
+                    color: themeData.colorScheme.primary,
+                  ),
+                  skipLoadingOnReload: true,
+                ),
               ),
               _Footer(dialogCompleter: completer),
             ],
@@ -316,8 +320,7 @@ class BedScrewIndicatorPainter extends CustomPainter {
     });
   }
 
-  void drawOrientationText(
-      String text, Alignment align, Canvas canvas, double maxX, double maxY) {
+  void drawOrientationText(String text, Alignment align, Canvas canvas, double maxX, double maxY) {
     var themeData = Theme.of(context);
     TextSpan span = TextSpan(
       text: text,

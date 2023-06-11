@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:mobileraker/util/json_util.dart';
@@ -22,8 +27,7 @@ class HeaterBed with _$HeaterBed, HeaterMixin {
   factory HeaterBed.fromJson(Map<String, dynamic> json) =>
       _$HeaterBedFromJson(json);
 
-  factory HeaterBed.partialUpdate(
-      HeaterBed? current, Map<String, dynamic> partialJson) {
+  factory HeaterBed.partialUpdate(HeaterBed? current, Map<String, dynamic> partialJson) {
     HeaterBed old = current ?? HeaterBed(lastHistory: DateTime(1990));
 
     var mergedJson = {...old.toJson(), ...partialJson};
@@ -34,7 +38,7 @@ class HeaterBed with _$HeaterBed, HeaterMixin {
       mergedJson = {
         ...mergedJson,
         'temperatures':
-            updateHistoryListInJson(mergedJson, 'temperatures', 'temperature'),
+        updateHistoryListInJson(mergedJson, 'temperatures', 'temperature'),
         'targets': updateHistoryListInJson(mergedJson, 'targets', 'target'),
         'powers': updateHistoryListInJson(mergedJson, 'powers', 'power'),
         'lastHistory': now.toIso8601String()

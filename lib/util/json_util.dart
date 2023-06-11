@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 List<T>? updateHistoryListInJson<T>(
     Map<String, dynamic> inputJson, String listKey, String valueKey) {
   var currentHistory = inputJson[listKey] as List<dynamic>?;

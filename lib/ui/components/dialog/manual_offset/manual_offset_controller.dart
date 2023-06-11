@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/data/dto/machine/manual_probe.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -62,7 +67,7 @@ class ManualOffsetDialogController extends _$ManualOffsetDialogController {
         mainButtonTitle: 'Save_Config',
         closeOnMainButtonTapped: true,
         onMainButtonTapped:
-            ref.read(printerServiceSelectedProvider).saveConfig));
+        ref.read(printerServiceSelectedProvider).saveConfig));
   }
 
   onHelpPressed() {

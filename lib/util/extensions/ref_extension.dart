@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -176,8 +181,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   }
 
   /// Helper method to externally keep a provider alive without the need to watch it!
-  ProviderSubscription<T> keepAliveExternally<T>(
-      ProviderListenable<T> provider) {
+  ProviderSubscription<T> keepAliveExternally<T>(ProviderListenable<T> provider) {
     var providerSubscription = listen(provider, (_, __) {});
     onDispose(() => providerSubscription.close());
     return providerSubscription;

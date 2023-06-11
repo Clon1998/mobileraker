@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -21,8 +26,7 @@ class ManualOffsetDialog extends HookConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const ManualOffsetDialog(
-      {Key? key, required this.request, required this.completer})
+  const ManualOffsetDialog({Key? key, required this.request, required this.completer})
       : super(key: key);
 
   @override
@@ -36,26 +40,26 @@ class ManualOffsetDialog extends HookConsumerWidget {
       onWillPop: ref.read(controller.notifier).onPopTriggered,
       child: Dialog(
           child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Text(
-                request.title ?? tr('dialogs.manual_offset.title'),
-                style: themeData.textTheme.headlineSmall,
-              ),
-            ),
-            AnimatedSwitcher(
-              switchInCurve: Curves.easeInCirc,
-              switchOutCurve: Curves.easeOutExpo,
-              transitionBuilder: (child, anim) => SizeAndFadeTransition(
-                sizeAndFadeFactor: anim,
-                child: child,
-              ),
-              duration: kThemeAnimationDuration,
-              child: ref.watch(controller).when(
+            padding: const EdgeInsets.symmetric(vertical: 15),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0),
+                  child: Text(
+                    request.title ?? tr('dialogs.manual_offset.title'),
+                    style: themeData.textTheme.headlineSmall,
+                  ),
+                ),
+                AnimatedSwitcher(
+                  switchInCurve: Curves.easeInCirc,
+                  switchOutCurve: Curves.easeOutExpo,
+                  transitionBuilder: (child, anim) => SizeAndFadeTransition(
+                    sizeAndFadeFactor: anim,
+                    child: child,
+                  ),
+                  duration: kThemeAnimationDuration,
+                  child: ref.watch(controller).when(
                     data: (manualProbe) => Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -66,13 +70,13 @@ class ManualOffsetDialog extends HookConsumerWidget {
                             children: [
                               Row(
                                 mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                MainAxisAlignment.spaceBetween,
                                 children: [
                                   IconButton(
                                       onPressed: () => ref
                                           .read(controller.notifier)
                                           .onOffsetMinusPressed(
-                                              offsetSteps[selectedStep.value]),
+                                          offsetSteps[selectedStep.value]),
                                       icon: const Icon(Icons.remove)),
                                   // IconButton(
                                   //     style: IconButton.styleFrom(
@@ -86,9 +90,9 @@ class ManualOffsetDialog extends HookConsumerWidget {
                                       decoration: InputDecoration(
                                           isDense: true,
                                           floatingLabelAlignment:
-                                              FloatingLabelAlignment.center,
+                                          FloatingLabelAlignment.center,
                                           floatingLabelBehavior:
-                                              FloatingLabelBehavior.always,
+                                          FloatingLabelBehavior.always,
                                           label: Text(
                                               '${tr('general.offset')} [mm]'),
                                           border: const OutlineInputBorder()),
@@ -100,7 +104,7 @@ class ManualOffsetDialog extends HookConsumerWidget {
                                       onPressed: () => ref
                                           .read(controller.notifier)
                                           .onOffsetPlusPressed(
-                                              offsetSteps[selectedStep.value]),
+                                          offsetSteps[selectedStep.value]),
                                       icon: const Icon(Icons.add)),
                                 ],
                               ),
@@ -109,16 +113,16 @@ class ManualOffsetDialog extends HookConsumerWidget {
                                   decoration: InputDecoration(
                                     contentPadding: EdgeInsets.only(top: 16),
                                     floatingLabelBehavior:
-                                        FloatingLabelBehavior.always,
+                                    FloatingLabelBehavior.always,
                                     label: Text(
                                         '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]'),
                                     border: InputBorder.none,
                                   ),
                                   child: RangeSelector(
                                     onSelected: (idx) =>
-                                        selectedStep.value = idx,
+                                    selectedStep.value = idx,
                                     values:
-                                        offsetSteps.map((e) => e.toString()),
+                                    offsetSteps.map((e) => e.toString()),
                                     selectedIndex: selectedStep.value,
                                   ),
                                 ),
@@ -145,11 +149,11 @@ class ManualOffsetDialog extends HookConsumerWidget {
                     ),
                     skipLoadingOnReload: true,
                   ),
+                ),
+                _Footer(dialogCompleter: completer),
+              ],
             ),
-            _Footer(dialogCompleter: completer),
-          ],
-        ),
-      )),
+          )),
     );
   }
 }

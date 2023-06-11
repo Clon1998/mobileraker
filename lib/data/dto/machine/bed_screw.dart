@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'bed_screw.freezed.dart';
@@ -24,8 +29,7 @@ class BedScrew with _$BedScrew {
   factory BedScrew.fromJson(Map<String, dynamic> json) =>
       _$BedScrewFromJson(json);
 
-  factory BedScrew.partialUpdate(
-      BedScrew? current, Map<String, dynamic> partialJson) {
+  factory BedScrew.partialUpdate(BedScrew? current, Map<String, dynamic> partialJson) {
     BedScrew old = current ?? const BedScrew();
     var mergedJson = {...old.toJson(), ...partialJson};
     return BedScrew.fromJson(mergedJson);

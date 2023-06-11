@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:mobileraker/util/json_util.dart';
@@ -23,8 +28,7 @@ class GenericHeater with _$GenericHeater, HeaterMixin {
   factory GenericHeater.fromJson(Map<String, dynamic> json, [String? name]) =>
       _$GenericHeaterFromJson(name != null ? {...json, 'name': name} : json);
 
-  factory GenericHeater.partialUpdate(
-      GenericHeater current, Map<String, dynamic> partialJson) {
+  factory GenericHeater.partialUpdate(GenericHeater current, Map<String, dynamic> partialJson) {
     var mergedJson = {...current.toJson(), ...partialJson};
     // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
     // Update temp cache for graphs!
@@ -33,7 +37,7 @@ class GenericHeater with _$GenericHeater, HeaterMixin {
       mergedJson = {
         ...mergedJson,
         'temperatures':
-            updateHistoryListInJson(mergedJson, 'temperatures', 'temperature'),
+        updateHistoryListInJson(mergedJson, 'temperatures', 'temperature'),
         'targets': updateHistoryListInJson(mergedJson, 'targets', 'target'),
         'powers': updateHistoryListInJson(mergedJson, 'powers', 'power'),
         'lastHistory': now.toIso8601String()

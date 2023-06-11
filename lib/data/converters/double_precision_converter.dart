@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 

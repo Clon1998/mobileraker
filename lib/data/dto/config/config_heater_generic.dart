@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'config_heater_generic.freezed.dart';
@@ -36,7 +41,6 @@ class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
     @JsonKey(name: 'min_temp') required double minTemp,
   }) = _ConfigHeaterGeneric;
 
-  factory ConfigHeaterGeneric.fromJson(
-          String name, Map<String, dynamic> json) =>
+  factory ConfigHeaterGeneric.fromJson(String name, Map<String, dynamic> json) =>
       _$ConfigHeaterGenericFromJson({...json, 'name': name});
 }

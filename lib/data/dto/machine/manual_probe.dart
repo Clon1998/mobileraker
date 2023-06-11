@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/converters/double_precision_converter.dart';
 
@@ -16,19 +21,14 @@ class ManualProbe with _$ManualProbe {
   const factory ManualProbe({
     @JsonKey(name: 'is_active') @Default(false) bool isActive,
     @Double3PrecisionConverter() @JsonKey(name: 'z_position') double? zPosition,
-    @Double3PrecisionConverter()
-    @JsonKey(name: 'z_position_upper')
-        double? zPositionUpper,
-    @Double3PrecisionConverter()
-    @JsonKey(name: 'z_position_lower')
-        double? zPositionLower,
+    @Double3PrecisionConverter() @JsonKey(name: 'z_position_upper') double? zPositionUpper,
+    @Double3PrecisionConverter() @JsonKey(name: 'z_position_lower') double? zPositionLower,
   }) = _ManualProbe;
 
   factory ManualProbe.fromJson(Map<String, dynamic> json) =>
       _$ManualProbeFromJson(json);
 
-  factory ManualProbe.partialUpdate(
-      ManualProbe? current, Map<String, dynamic> partialJson) {
+  factory ManualProbe.partialUpdate(ManualProbe? current, Map<String, dynamic> partialJson) {
     ManualProbe old = current ?? const ManualProbe();
     var mergedJson = {...old.toJson(), ...partialJson};
     return ManualProbe.fromJson(mergedJson);

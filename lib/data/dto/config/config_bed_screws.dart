@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'config_bed_screws.freezed.dart';
@@ -41,7 +46,7 @@ List<dynamic> _constructScrews(Map input, String key) {
     String screwName = split[0];
     // remap #screw1: -> position
     String screwAtt =
-        (split.length == 1) ? 'position' : split.sublist(1).join('_');
+    (split.length == 1) ? 'position' : split.sublist(1).join('_');
 
     int screwIndex = int.parse(screwName.substring(5));
     var screwJson = out.putIfAbsent(screwIndex, () => {});

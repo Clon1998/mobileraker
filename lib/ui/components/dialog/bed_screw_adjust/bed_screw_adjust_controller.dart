@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
@@ -61,7 +66,6 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
 
 @freezed
 class BedScrewAndConfig with _$BedScrewAndConfig {
-  const factory BedScrewAndConfig(
-      {required BedScrew bedScrew,
-      required ConfigFile config}) = _BedScrewAndConfig;
+  const factory BedScrewAndConfig({required BedScrew bedScrew,
+    required ConfigFile config}) = _BedScrewAndConfig;
 }
