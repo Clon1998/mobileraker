@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/moonraker_db/notification_settings.dart';
 

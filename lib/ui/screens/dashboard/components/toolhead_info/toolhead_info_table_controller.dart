@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 //TODO Decide regarding null values or not!
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/config/config_file_entry_enum.dart';

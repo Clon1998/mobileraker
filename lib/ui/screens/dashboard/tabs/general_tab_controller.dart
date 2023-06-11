@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';

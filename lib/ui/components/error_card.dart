@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:flutter/material.dart';
 
 class ErrorCard extends StatelessWidget {

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
 import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';

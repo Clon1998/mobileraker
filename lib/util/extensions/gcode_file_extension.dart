@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 
 extension UriExtension on GCodeFile {

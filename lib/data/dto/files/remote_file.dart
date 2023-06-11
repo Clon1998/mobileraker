@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 class RemoteFile {
   static int nameComparator(RemoteFile a, RemoteFile b) => a.name.compareTo(b.name);
   static int modifiedComparator(RemoteFile a, RemoteFile b) => b.modified.compareTo(a.modified);

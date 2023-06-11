@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 // {
 // "message": "// Probe samples exceed tolerance. Retrying...",
 // "time": 1647707136.4041042,

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 // Generic AsyncValueWidget to work with values of type T
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
