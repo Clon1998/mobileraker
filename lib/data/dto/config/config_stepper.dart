@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/util/extensions/iterable_extension.dart';
 import 'package:mobileraker/util/extensions/list_extension.dart';

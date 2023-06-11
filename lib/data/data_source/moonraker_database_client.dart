@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:io';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';

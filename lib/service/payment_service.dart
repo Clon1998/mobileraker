@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:io';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';

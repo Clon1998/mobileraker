@@ -1,4 +1,9 @@
 
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 class Folder {
   static int modifiedComparator(folderA, folderB) => folderB.modified.compareTo(folderA.modified);
   static int nameComparator(folderA, folderB) => folderA.name.compareTo(folderB.name);

@@ -1,4 +1,9 @@
 
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 extension ListExtensions<E> on List<E> {
   E? get firstOrNull {
     if (isEmpty) return null;

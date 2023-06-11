@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 class ConfigPrinter {
   final String kinematics;
   final double maxVelocity;

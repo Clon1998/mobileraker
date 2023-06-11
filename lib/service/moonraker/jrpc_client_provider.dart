@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:async';
 
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
