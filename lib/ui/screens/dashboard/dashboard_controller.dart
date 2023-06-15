@@ -87,9 +87,11 @@ class DashBoardViewController extends StateNotifier<int> {
         machinePrinterKlippySettingsProvider
             .selectAs((data) => data.printerData.manualProbe?.isActive),
         (previous, next) {
-      if (next.valueOrFullNull == true) {
+      var dialogService = ref.read(dialogServiceProvider);
+
+      if (next.valueOrFullNull == true && !dialogService.isDialogOpen) {
         logger.i('Detected manualProbe... opening Dialog');
-        ref.read(dialogServiceProvider).show(DialogRequest(
+        dialogService.show(DialogRequest(
             barrierDismissible: false, type: DialogType.manualOffset));
       }
     }, fireImmediately: true);
@@ -98,7 +100,9 @@ class DashBoardViewController extends StateNotifier<int> {
     ref.listen(
         machinePrinterKlippySettingsProvider.selectAs(
             (data) => data.printerData.bedScrew?.isActive), (previous, next) {
-      if (next.valueOrFullNull == true) {
+      var dialogService = ref.read(dialogServiceProvider);
+
+      if (next.valueOrFullNull == true && !dialogService.isDialogOpen) {
         logger.i('Detected bedScrew... opening Dialog');
         ref.read(dialogServiceProvider).show(DialogRequest(
             barrierDismissible: false, type: DialogType.bedScrewAdjust));

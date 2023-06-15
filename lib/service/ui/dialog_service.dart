@@ -7,6 +7,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:mobileraker/exceptions.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_srew_adjust_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
@@ -55,6 +57,10 @@ class DialogService {
   DialogService(this.ref);
 
   final DialogServiceRef ref;
+
+  DialogRequest? _currentDialogRequest = null;
+
+  bool get isDialogOpen => _currentDialogRequest != null;
 
   final Map<DialogType, Widget Function(DialogRequest, DialogCompleter)>
       availableDialogs = {
@@ -114,6 +120,13 @@ class DialogService {
     BuildContext? ctx =
         ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
+    logger.i('Show Dialog request for ${request.type}');
+    if (_currentDialogRequest != null) {
+      logger.e('New dialog was requested but old one is still open?');
+      throw const MobilerakerException('A dialog is already shown!');
+    }
+    _currentDialogRequest = request;
+
     // Just catch some cases where an widget calls the dialogService before it is even mounted!
     // if there's a current frame,
     if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.idle) {
@@ -126,7 +139,7 @@ class DialogService {
         context: ctx!,
         builder: (_) {
           return availableDialogs[request.type]!(request, _completeDialog);
-        });
+        }).whenComplete(() => _currentDialogRequest = null);
   }
 
   void _completeDialog(DialogResponse response) {
