@@ -4,6 +4,7 @@
  */
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/converters/integer_converter.dart';
 
 part 'bed_screw.freezed.dart';
 part 'bed_screw.g.dart';
@@ -22,8 +23,12 @@ class BedScrew with _$BedScrew {
   const factory BedScrew({
     @JsonKey(name: 'is_active') @Default(false) bool isActive,
     BedScrewMode? state,
-    @JsonKey(name: 'accepted_screws') @Default(0) int acceptedScrews,
-    @JsonKey(name: 'current_screw') @Default(0) int currentScrew,
+    @IntegerConverter()
+    @JsonKey(name: 'accepted_screws')
+    @Default(0) int acceptedScrews,
+    @IntegerConverter()
+    @JsonKey(name: 'current_screw')
+    @Default(0) int currentScrew,
   }) = _BedScrew;
 
   factory BedScrew.fromJson(Map<String, dynamic> json) =>

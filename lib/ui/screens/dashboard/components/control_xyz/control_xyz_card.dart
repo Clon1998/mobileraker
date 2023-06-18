@@ -27,6 +27,8 @@ class ControlXYZCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
+    var numberFormat = NumberFormat.decimalPattern(context.locale.languageCode);
+
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -174,13 +176,12 @@ class ControlXYZCard extends HookConsumerWidget {
                         onSelected: ref
                             .read(controlXYZCardControllerProvider.notifier)
                             .onSelectedAxisStepSizeChanged,
-                        values: ref
-                            .watch(
-                                generalTabViewControllerProvider.select((data) {
-                              return data.valueOrNull!.settings.moveSteps;
-                            }))
-                            .map((e) => e.toString())
-                            .toList())
+                        values: ref.watch(
+                            generalTabViewControllerProvider.select((data) {
+                          return data.valueOrNull!.settings.moveSteps;
+                        })).map((e) {
+                          return numberFormat.format(e);
+                        }).toList())
                   ],
                 )
               ],

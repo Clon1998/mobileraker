@@ -4,6 +4,7 @@
  */
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/converters/integer_converter.dart';
 
 part 'virtual_sd_card.freezed.dart';
 part 'virtual_sd_card.g.dart';
@@ -13,7 +14,9 @@ class VirtualSdCard with _$VirtualSdCard {
   const factory VirtualSdCard({
     @Default(0) double progress,
     @JsonKey(name: 'is_active') @Default(false) bool isActive,
-    @JsonKey(name: 'file_position') @Default(0) int filePosition,
+    @IntegerConverter()
+    @JsonKey(name: 'file_position')
+    @Default(0) int filePosition,
   }) = _VirtualSdCard;
 
   factory VirtualSdCard.fromJson(Map<String, dynamic> json) =>

@@ -4,9 +4,9 @@
  */
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/converters/integer_converter.dart';
 
 part 'app_connection_info_response.freezed.dart';
-
 part 'app_connection_info_response.g.dart';
 
 // {
@@ -33,7 +33,7 @@ part 'app_connection_info_response.g.dart';
 @freezed
 class AppConnectionInfoResponse with _$AppConnectionInfoResponse {
   const factory AppConnectionInfoResponse({
-    @JsonKey(name: 'Status') required int status,
+    @IntegerConverter() @JsonKey(name: 'Status') required int status,
     @JsonKey(name: 'Error') required String error,
     @JsonKey(name: 'IsUserError') required bool isUserError,
     @JsonKey(name: 'Result') required ConnectionInfoResult result,
@@ -46,8 +46,10 @@ class AppConnectionInfoResponse with _$AppConnectionInfoResponse {
 @freezed
 class ConnectionInfoResult with _$ConnectionInfoResult {
   const factory ConnectionInfoResult({
-    @JsonKey(name: 'LastConnectionTimeUtc') required DateTime lastConnectionTimeUtc,
-    @JsonKey(name: 'LastDisconnectTimeUtc') required DateTime lastDisconnectTimeUtc,
+    @JsonKey(name: 'LastConnectionTimeUtc')
+        required DateTime lastConnectionTimeUtc,
+    @JsonKey(name: 'LastDisconnectTimeUtc')
+        required DateTime lastDisconnectTimeUtc,
     @JsonKey(name: 'IsOnline') required bool isOnline,
     @JsonKey(name: 'PrinterName') required String printerName,
     @JsonKey(name: 'PrinterLocalIp') required String? printerLocalIp,
@@ -61,14 +63,23 @@ class ConnectionInfoResult with _$ConnectionInfoResult {
 @freezed
 class PrinterLimits with _$PrinterLimits {
   const factory PrinterLimits({
-    @JsonKey(name: 'MaxDownloadFileSizeBytes') required int maxDownloadFileSizeBytes,
-    @JsonKey(name: 'MaxUploadFileSizeBytes') required int maxUploadFileSizeBytes,
-    @JsonKey(name: 'MaxSingleWebcamStreamLengthSeconds') required int maxSingleWebcamStreamLengthSeconds,
-    @JsonKey(name: 'MaxTotalWebcamStreamTimePerTimeWindowSeconds') required int? maxTotalWebcamStreamTimePerTimeWindowSeconds,
-    @JsonKey(name: 'WebcamStreamTimeWindow') required int? webcamStreamTimeWindow,
+    @IntegerConverter()
+    @JsonKey(name: 'MaxDownloadFileSizeBytes')
+        required int maxDownloadFileSizeBytes,
+    @IntegerConverter()
+    @JsonKey(name: 'MaxUploadFileSizeBytes')
+        required int maxUploadFileSizeBytes,
+    @IntegerConverter()
+    @JsonKey(name: 'MaxSingleWebcamStreamLengthSeconds')
+        required int maxSingleWebcamStreamLengthSeconds,
+    @IntegerConverter()
+    @JsonKey(name: 'MaxTotalWebcamStreamTimePerTimeWindowSeconds')
+        required int? maxTotalWebcamStreamTimePerTimeWindowSeconds,
+    @IntegerConverter()
+    @JsonKey(name: 'WebcamStreamTimeWindow')
+        required int? webcamStreamTimeWindow,
   }) = _PrinterLimits;
 
   factory PrinterLimits.fromJson(Map<String, dynamic> json) =>
       _$PrinterLimitsFromJson(json);
 }
-

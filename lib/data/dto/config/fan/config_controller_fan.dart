@@ -4,10 +4,10 @@
  */
 
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/converters/integer_converter.dart';
 import 'package:mobileraker/data/dto/config/fan/config_fan.dart';
 
 part 'config_controller_fan.freezed.dart';
-
 part 'config_controller_fan.g.dart';
 
 @freezed
@@ -24,13 +24,17 @@ class ConfigControllerFan extends ConfigFan with _$ConfigControllerFan {
     @JsonKey(name: 'kick_start_time') @Default(0.100) double kickStartTime,
     @JsonKey(name: 'off_below') @Default(0) double offBelow,
     @JsonKey(name: 'tachometer_pin') String? tachometerPin,
-    @JsonKey(name: 'tachometer_ppr') @Default(2) int? tachometerPpr,
+    @IntegerConverter()
+    @JsonKey(name: 'tachometer_ppr')
+    @Default(2) int? tachometerPpr,
     @JsonKey(name: 'tachometer_poll_interval')
     @Default(0.0015)
         double? tachometerPollInterval,
     @JsonKey(name: 'enable_pin') String? enablePin,
     @JsonKey(name: 'fan_speed') @Default(1) double fanSpeed,
-    @JsonKey(name: 'idle_timeout') @Default(30) int idleTimeout,
+    @IntegerConverter()
+    @JsonKey(name: 'idle_timeout')
+    @Default(30) int idleTimeout,
     @JsonKey(name: 'idle_speed') @Default(1.0) double idleSpeed,
     @Default([]) List<String> heater,
     @Default([]) List<String> stepper,
