@@ -165,4 +165,6 @@ class Printer with _$Printer {
     }
     return null;
   }
+
+  bool get hasPrintFan => printFan != null;
 }

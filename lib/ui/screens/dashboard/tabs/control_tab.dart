@@ -151,6 +151,7 @@ class FansCard extends ConsumerWidget {
             .where((element) => !element.name.startsWith('_'))
             .length))
         .valueOrFullNull!;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
@@ -164,7 +165,12 @@ class FansCard extends ConsumerWidget {
                   .plural(fanLen),
             ),
             AdaptiveHorizontalScroll(pageStorageKey: 'fans', children: [
-              const _PrintFan(),
+              if (ref
+                      .watch(machinePrinterKlippySettingsProvider
+                          .selectAs((data) => data.printerData.hasPrintFan))
+                      .valueOrNull ==
+                  true)
+                const _PrintFan(),
               ...List.generate(fanLen, (index) {
                 var fanProvider = machinePrinterKlippySettingsProvider.selectAs(
                     (value) => value.printerData.fans.values
