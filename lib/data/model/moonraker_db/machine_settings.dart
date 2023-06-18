@@ -36,7 +36,7 @@ class MachineSettings extends StampedEntity {
   int speedXY;
   int speedZ;
   int extrudeFeedrate;
-  List<int> moveSteps;
+  List<double> moveSteps;
   List<double> babySteps;
   List<int> extrudeSteps;
   List<MacroGroup> macroGroups;

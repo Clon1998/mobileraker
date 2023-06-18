@@ -633,6 +633,7 @@ class MoveStepSegmentInput extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var numberFormat = NumberFormat.decimalPattern(context.locale.languageCode);
     var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
       decoration: InputDecoration(
@@ -640,7 +641,8 @@ class MoveStepSegmentInput extends ConsumerWidget {
           suffixText: 'mm'),
       options: ref
           .watch(moveStepStateProvider)
-          .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
+          .map((e) => FormBuilderFieldOption(
+              value: e, child: Text(numberFormat.format(e))))
           .toList(growable: false),
       onAdd: isSaving ? null : ref.read(moveStepStateProvider.notifier).onAdd,
       onSelected:
@@ -648,11 +650,10 @@ class MoveStepSegmentInput extends ConsumerWidget {
       validator: FormBuilderValidators.compose([
         FormBuilderValidators.required(),
         FormBuilderValidators.numeric(),
-        FormBuilderValidators.integer(),
-        FormBuilderValidators.min(1),
+        FormBuilderValidators.min(0.001),
         ref.read(moveStepStateProvider.notifier).validate
       ]),
-      inputType: TextInputType.number,
+      inputType: const TextInputType.numberWithOptions(decimal: true),
     );
   }
 }

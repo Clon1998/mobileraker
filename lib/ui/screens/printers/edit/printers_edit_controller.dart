@@ -180,7 +180,7 @@ class PrinterEditController extends _$PrinterEditController {
           ..lastModified = DateTime.now();
       }
 
-      List<int> moveSteps = ref.read(moveStepStateProvider);
+      List<double> moveSteps = ref.read(moveStepStateProvider);
       List<double> babySteps = ref.read(babyStepStateProvider);
       List<int> extSteps = ref.read(extruderStepStateProvider);
 
@@ -402,9 +402,9 @@ class WebcamListController extends _$WebcamListController {
 }
 
 final moveStepStateProvider =
-    StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>(
-        (ref) {
-  return IntStepSegmentController(
+StateNotifierProvider.autoDispose<
+    DoubleStepSegmentController, List<double>>((ref) {
+  return DoubleStepSegmentController(
       ref.watch(machineRemoteSettingsProvider).value!.moveSteps);
 });
 
