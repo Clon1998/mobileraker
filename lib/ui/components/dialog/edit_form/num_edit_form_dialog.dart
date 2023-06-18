@@ -218,7 +218,8 @@ class RangeEditSlider extends StatelessWidget {
       // divisions: (data.max + data.min.abs()).toInt(),
       autofocus: true,
       numberFormat: NumberFormat(
-          frac == 0 ? "####" : "0.${List.filled(frac, '0').join()}"),
+          frac == 0 ? "0" : "0.${List.filled(frac, '0').join()}",
+          context.locale.languageCode),
     );
   }
 }

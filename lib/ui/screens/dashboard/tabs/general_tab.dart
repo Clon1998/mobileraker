@@ -567,11 +567,6 @@ class _HeaterCard extends StatelessWidget {
   final List<FlSpot> spots;
   final VoidCallback? onTap;
 
-  String get targetTemp => target > 0
-      ? 'pages.dashboard.general.temp_card.heater_on'
-          .tr(args: [target.toStringAsFixed(1)])
-      : 'general.off'.tr();
-
   const _HeaterCard({
     Key? key,
     required this.name,
@@ -583,6 +578,8 @@ class _HeaterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    NumberFormat numberFormat =
+        NumberFormat('0.0', context.locale.languageCode);
     ThemeData themeData = Theme.of(context);
     Color colorBg = themeData.colorScheme.surfaceVariant;
     if (target > 0 && onTap != null) {
@@ -596,7 +593,6 @@ class _HeaterCard extends StatelessWidget {
               .withOpacity(min(current / _stillHotTemp - 1, 1)),
           colorBg);
     }
-
     return GraphCardWithButton(
         backgroundColor: colorBg,
         plotSpots: spots,
@@ -618,9 +614,12 @@ class _HeaterCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text('${current.toStringAsFixed(1)} °C',
+                    Text('${numberFormat.format(current)} °C',
                         style: innerTheme.textTheme.titleLarge),
-                    Text(targetTemp),
+                    Text(target > 0
+                        ? 'pages.dashboard.general.temp_card.heater_on'
+                            .tr(args: [numberFormat.format(target)])
+                        : 'general.off'.tr()),
                   ],
                 ),
                 AnimatedOpacity(

@@ -672,8 +672,8 @@ class _PinTile extends ConsumerWidget {
   const _PinTile({Key? key, required this.pinProvider}) : super(key: key);
   final ProviderListenable<AsyncValue<OutputPin>> pinProvider;
 
-  String pinValue(double v) {
-    if (v > 0) return NumberFormat('0.##').format(v);
+  String pinValue(double v, String locale) {
+    if (v > 0) return NumberFormat('0.##', locale).format(v);
 
     return 'general.off'.tr();
   }
@@ -739,7 +739,9 @@ class _PinTile extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(pinValue(pin.value * (pinConfig?.scale ?? 1)),
+                Text(
+                    pinValue(pin.value * (pinConfig?.scale ?? 1),
+                        context.locale.languageCode),
                     style: textTheme.headlineSmall),
               ],
             ),
@@ -777,7 +779,7 @@ class _Led extends ConsumerWidget {
     return pixel.rgbwColor;
   }
 
-  String statusText(Led led, ConfigLed? ledConfig) {
+  String statusText(Led led, ConfigLed? ledConfig, String locale) {
     if (led is DumbLed &&
             ledConfig?.isSingleColor == false &&
             led.color.hasColor ||
@@ -788,7 +790,7 @@ class _Led extends ConsumerWidget {
     if (led is DumbLed && ledConfig?.isSingleColor == true) {
       List<double> rgbw = led.color.asList();
       var value = rgbw.reduce(max);
-      if (value > 0) return NumberFormat('0%').format(value);
+      if (value > 0) return NumberFormat('0%', locale).format(value);
     }
     return 'general.off'.tr();
   }
@@ -876,7 +878,8 @@ class _Led extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(statusText(led, ledConfig),
+                    Text(
+                        statusText(led, ledConfig, context.locale.languageCode),
                         style: Theme.of(context).textTheme.headlineSmall),
                   ],
                 ),
@@ -963,7 +966,8 @@ class MultipliersCard extends HookConsumerWidget {
                           .watch(controlTabControllerProvider.notifier)
                           .onEditedPressureAdvanced
                       : null,
-                  numberFormat: NumberFormat('0.##### mm/s'),
+                  numberFormat:
+                      NumberFormat('0.##### mm/s', context.locale.languageCode),
                   unit: 'mm/s',
                 ),
                 _SliderOrTextInput(
@@ -977,7 +981,8 @@ class MultipliersCard extends HookConsumerWidget {
                           .watch(controlTabControllerProvider.notifier)
                           .onEditedSmoothTime
                       : null,
-                  numberFormat: NumberFormat('0.### s'),
+                  numberFormat:
+                      NumberFormat('0.### s', context.locale.languageCode),
                   maxValue: 0.2,
                   unit: 's',
                 ),
@@ -1041,7 +1046,8 @@ class LimitsCard extends HookConsumerWidget {
                           .watch(controlTabControllerProvider.notifier)
                           .onEditedMaxVelocity
                       : null,
-                  numberFormat: NumberFormat('0 mm/s'),
+                  numberFormat:
+                      NumberFormat('0 mm/s', context.locale.languageCode),
                   unit: 'mm/s',
                   maxValue: 500,
                 ),
@@ -1055,7 +1061,8 @@ class LimitsCard extends HookConsumerWidget {
                           .watch(controlTabControllerProvider.notifier)
                           .onEditedMaxAccel
                       : null,
-                  numberFormat: NumberFormat('0 mm/s²'),
+                  numberFormat:
+                      NumberFormat('0 mm/s²', context.locale.languageCode),
                   unit: 'mm/s²',
                   maxValue: 5000,
                 ),
@@ -1070,7 +1077,8 @@ class LimitsCard extends HookConsumerWidget {
                           .watch(controlTabControllerProvider.notifier)
                           .onEditedMaxSquareCornerVelocity
                       : null,
-                  numberFormat: NumberFormat('0.# mm/s'),
+                  numberFormat:
+                      NumberFormat('0.# mm/s', context.locale.languageCode),
                   unit: 'mm/s',
                   maxValue: 8,
                 ),
@@ -1085,7 +1093,8 @@ class LimitsCard extends HookConsumerWidget {
                           .watch(controlTabControllerProvider.notifier)
                           .onEditedMaxAccelToDecel
                       : null,
-                  numberFormat: NumberFormat('0 mm/s²'),
+                  numberFormat:
+                      NumberFormat('0 mm/s²', context.locale.languageCode),
                   unit: 'mm/s²',
                   maxValue: 3500,
                 ),
@@ -1128,7 +1137,7 @@ class _SliderOrTextInput extends HookWidget {
     var focusRequested = useState(false);
     var inputValid = useState(true);
 
-    NumberFormat numFormat = numberFormat ?? NumberFormat('###%');
+    NumberFormat numFormat = numberFormat ?? NumberFormat('0%');
 
     if (initial.value != initialValue) {
       initial.value = initialValue;
