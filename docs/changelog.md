@@ -18,13 +18,15 @@
   klippy.
 - Info Snackbars make use of tenary color
 - Step selectors should work better on smaller screens
-
+- Move Axis Step selector allows input of real numbers/floating numbers
+- Number displays are more i18n aware
 ### Bug Fixes
 
 - The utilization of the printer port should be avoided for relative path
   webcams ([#168](https://github.com/Clon1998/mobileraker/issues/168))
 - Resolved the "Stream has been listened to" error ([#174](https://github.com/Clon1998/mobileraker/issues/174))
-
+- Fixed min Ios Version ([#171](https://github.com/Clon1998/mobileraker/issues/171))
+- Fixed void in Fans card if cooling fan is not configured
 ## [2.3.5] - 2023-06-8
 
 ### Changed Features
