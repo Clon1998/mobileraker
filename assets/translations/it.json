@@ -44,7 +44,7 @@
           "elapsed": "Trascorso",
           "flow": "Flusso",
           "filament": "Filamento",
-          "filament_used": "Usato {} % del Filamento, che è {} m dei {} m previsti."
+          "filament_tooltip": "Usato {} % del Filamento, che è {} m dei {} m previsti."
         },
         "cam_card": {
           "webcam": "Webcam",

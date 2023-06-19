@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
-String secondsToDurationText(double sec) {
-  var d = Duration(seconds: sec.round());
+String secondsToDurationText(int sec) {
+  var d = Duration(seconds: sec);
   var seconds = d.inSeconds;
   final days = seconds ~/ Duration.secondsPerDay;
   seconds -= days * Duration.secondsPerDay;

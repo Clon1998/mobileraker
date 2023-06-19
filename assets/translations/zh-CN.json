@@ -39,7 +39,7 @@
                     "elapsed": "已耗时",
                     "flow": "流量",
                     "filament": "耗材",
-                    "filament_used": "使用的{}％的丝，即{} m的{} m预测。"
+                    "filament_tooltip": "使用的{}％的丝，即{} m的{} m预测。"
                 },
                 "cam_card": {
                     "webcam": "摄像头",

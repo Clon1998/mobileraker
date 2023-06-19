@@ -177,7 +177,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                       title:
                           'pages.files.details.meta_card.est_print_time'.tr(),
                       subtitle:
-                          '${secondsToDurationText(gcodeFile.estimatedTime ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(gcodeFile)}',
+                          '${secondsToDurationText(gcodeFile.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(gcodeFile)}',
                     ),
                     PropertyTile(
                       title: 'pages.files.details.meta_card.slicer'.tr(),

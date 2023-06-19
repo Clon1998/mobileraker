@@ -39,7 +39,7 @@
           "elapsed": "Temps écoulé",
           "flow": "Débit",
           "filament": "Filament",
-          "filament_used": "{} % de filament utilisé, correspond à {} m sur les {} m prédit."
+          "filament_tooltip": "{} % de filament utilisé, correspond à {} m sur les {} m prédit."
 
         },
         "cam_card": {

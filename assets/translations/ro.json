@@ -44,7 +44,7 @@
           "elapsed": "Timp Scurs",
           "flow": "Flux",
           "filament": "Filament",
-          "filament_used": "Utilizat {} % din Filament, adică {} m din cei {} m estimați."
+          "filament_tooltip": "Utilizat {} % din Filament, adică {} m din cei {} m estimați."
         },
         "cam_card": {
           "webcam": "Cameră web",

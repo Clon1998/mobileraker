@@ -43,7 +43,7 @@
           "elapsed": "Verstrichen",
           "flow": "Fluss",
           "filament": "Filament",
-          "filament_used": "{} % Filament Verwendet, dass ist {} m der vorhergesagten {} m."
+          "filament_tooltip": "{} % Filament Verwendet, dass ist {} m der vorhergesagten {} m."
         },
         "cam_card": {
           "webcam": "Webcam",

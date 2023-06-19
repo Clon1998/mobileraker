@@ -58,7 +58,8 @@
           "elapsed": "Elapsed",
           "flow": "Flow",
           "filament": "Filament",
-          "filament_used": "Used {} % of Filament, that is {} m of the {} m predicted."
+          "filament_tooltip": "Used {} % of Filament, that is {} m of the {} m predicted.",
+          "eta_tooltip": "Remaining time: {} "
         },
         "cam_card": {
           "webcam": "Webcam",

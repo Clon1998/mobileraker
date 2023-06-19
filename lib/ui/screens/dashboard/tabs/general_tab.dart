@@ -177,7 +177,7 @@ class PrintCard extends ConsumerWidget {
                     ? ref.watch(generalTabViewControllerProvider.select(
                         (data) => data.value!.printerData.print.stateName))
                     : klippyInstance.klippyStateMessage ??
-                        'Klipper: ${klippyInstance.klippyState.name}',
+                        'Klipper: ${tr(klippyInstance.klippyState.name)}',
                 style: TextStyle(
                     color: !klippyInstance.klippyCanReceiveCommands
                         ? themeData.colorScheme.error

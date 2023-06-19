@@ -39,7 +39,7 @@
           "elapsed": "Eltelt",
           "flow": "Áramlás",
           "filament": "Nyomtatószál",
-          "filament_used": "A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből."
+          "filament_tooltip": "A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből."
 
         },
         "cam_card": {

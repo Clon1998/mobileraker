@@ -39,7 +39,7 @@
                     "elapsed": "過去",
                     "flow": "流動",
                     "filament": "燈絲",
-                    "filament_used": "使用的{}％的絲，即{} m的{} m預測。"
+                    "filament_tooltip": "使用的{}％的絲，即{} m的{} m預測。"
                 },
                 "cam_card": {
                     "webcam": "攝像頭",

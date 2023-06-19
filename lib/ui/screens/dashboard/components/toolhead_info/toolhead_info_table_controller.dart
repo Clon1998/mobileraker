@@ -13,10 +13,10 @@ import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'toolhead_info_table_controller.freezed.dart';
-
 part 'toolhead_info_table_controller.g.dart';
 
 @freezed
@@ -33,7 +33,8 @@ class ToolheadInfo with _$ToolheadInfo {
     double? totalFilament, // in meters!
     required double usedFilamentPerc,
     DateTime? eta,
-    required double totalDuration,
+    required int totalDuration,
+    int? remaining,
   }) = _ToolheadInfo;
 
   factory ToolheadInfo.byComponents(Printer a, GCodeFile? b) {
@@ -87,7 +88,8 @@ class ToolheadInfo with _$ToolheadInfo {
         totalFilament: totalFilament,
         usedFilamentPerc: usedFilamentPerc,
         eta: a.eta,
-        totalDuration: a.print.totalDuration);
+        remaining: a.eta?.let((v) => v.difference(DateTime.now()).inSeconds),
+        totalDuration: a.print.totalDuration.toInt());
   }
 }
 

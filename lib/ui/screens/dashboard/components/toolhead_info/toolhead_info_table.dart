@@ -9,6 +9,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table_controller.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/time_util.dart';
 
 class ToolheadInfoTable extends ConsumerWidget {
@@ -163,7 +164,8 @@ class _ToolheadData extends ConsumerWidget {
               ),
               Tooltip(
                 textAlign: TextAlign.center,
-                message: tr('pages.dashboard.general.print_card.filament_used',
+                message: tr(
+                    'pages.dashboard.general.print_card.filament_tooltip',
                     args: [
                       toolheadInfo.usedFilamentPerc.toStringAsFixed(0),
                       toolheadInfo.usedFilament?.toStringAsFixed(1) ?? '0',
@@ -182,16 +184,23 @@ class _ToolheadData extends ConsumerWidget {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('pages.dashboard.general.print_card.eta').tr(),
-                    Text((toolheadInfo.eta != null)
-                        ? DateFormat.Hm().format(toolheadInfo.eta!)
-                        : '--:--'),
-                  ],
+              Tooltip(
+                textAlign: TextAlign.center,
+                message: tr('pages.dashboard.general.print_card.eta_tooltip',
+                    args: [
+                      toolheadInfo.remaining?.let(secondsToDurationText) ?? ''
+                    ]),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text('pages.dashboard.general.print_card.eta').tr(),
+                      Text((toolheadInfo.eta != null)
+                          ? DateFormat.Hm().format(toolheadInfo.eta!)
+                          : '--:--'),
+                    ],
+                  ),
                 ),
               ),
             ],
