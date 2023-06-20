@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          path: 'mobileraker'
       - uses: actions/checkout@v3
         with:
           repository: 'Clon1998/mobileraker_pro'
@@ -29,16 +31,24 @@ jobs:
       - run: echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
       - name: Print current working dir
         run: |
+          echo $PWD
           ls -la $PWD
           ls -la $GITHUB_WORKSPACE
-      - name: Setup and run tests
+      - name: Build Mobileraker Pro
         working-directory: ./mobileraker_pro
         run: |
+          echo $PWD
+          ls -la $PWD
           flutter pub get
           flutter packages pub run build_runner build
-      - run: flutter pub get
-      - run: flutter packages pub run build_runner build
-      - run: flutter build apk --release
+      - name: Build Mobileraker
+        working-directory: ./mobileraker
+        run: |
+          echo $PWD
+          ls -la $PWD
+          flutter pub get
+          flutter packages pub run build_runner build
+          flutter build apk --release
       - name: Generate changelog
         id: changelog
         uses: metcalfc/changelog-generator@v3.0.0
@@ -47,8 +57,6 @@ jobs:
       - name: Create a Release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "build/app/outputs/flutter-apk/app-release.apk"
+          artifacts: "mobileraker/build/app/outputs/flutter-apk/app-release.apk"
           token: ${{ secrets.GITHUB_TOKEN }}
           body: ${{ steps.changelog.outputs.changelog }}
-
-          
