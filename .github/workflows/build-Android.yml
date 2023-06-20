@@ -26,6 +26,7 @@ jobs:
       - run: echo ${{ secrets.PLAY_STORE_JKS }} | base64 -d > ./android/app/gps.jks
       - run: echo ${{ secrets.AWESOME_NOTI_LICENSE }} | base64 -d > ./lib/license.dart
       - run: echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
+      - run: ls
       - run: cd .. & cd mobileraker_pro
       - run: flutter pub get
       - run: flutter packages pub run build_runner build
