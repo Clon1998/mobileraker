@@ -23,7 +23,7 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.7.12'
-      - name: Setup Files
+      - name: Setup Env Files
         working-directory: ./mobileraker
         run: |
           echo ${{ secrets.GOOGLE_SERVICES_JSON }} | base64 -d > ./android/app/google-services.json
@@ -31,26 +31,17 @@ jobs:
           echo ${{ secrets.PLAY_STORE_JKS }} | base64 -d > ./android/app/gps.jks
           echo ${{ secrets.AWESOME_NOTI_LICENSE }} | base64 -d > ./lib/license.dart
           echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
-      - name: Print current working dir
-        run: |
-          echo $PWD
-          ls -la $PWD
-          ls -la $GITHUB_WORKSPACE
       - name: Build Mobileraker Pro
         working-directory: ./mobileraker_pro
         run: |
-          echo $PWD
-          ls -la $PWD
           flutter pub get || true
           flutter packages pub run build_runner build
       - name: Build Mobileraker
         working-directory: ./mobileraker
         run: |
-          echo $PWD
-          ls -la $PWD
           flutter pub get
           flutter packages pub run build_runner build
-          flutter build apk --release
+          flutter build apk --release --verbose
       - name: Generate changelog
         id: changelog
         uses: metcalfc/changelog-generator@v3.0.0
