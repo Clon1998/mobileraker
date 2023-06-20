@@ -352,6 +352,78 @@ ThemePack _ratRigPack() {
       brandingIcon: const AssetImage('assets/images/rr_icon_green.png'));
 }
 
+ThemePack _vzBot() {
+  var light = FlexThemeData.light(
+    colors: const FlexSchemeColor(
+      primary: Color(0xffe32020),
+      secondary: Color(0xff7d7d7d),
+    ),
+    usedColors: 2,
+    surfaceMode: FlexSurfaceMode.highSurfaceLowScaffold,
+    blendLevel: 2,
+    appBarStyle: FlexAppBarStyle.material,
+    appBarElevation: 3.0,
+    bottomAppBarElevation: 5.0,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    // To use the playground font, add GoogleFonts package and uncomment
+    fontFamily: GoogleFonts.varela().fontFamily,
+  );
+
+  var dark = FlexThemeData.dark(
+    colors: const FlexSchemeColor(
+      primary: Color(0xfffb1818),
+      secondary: Color(0xffb0adad),
+    ),
+    usedColors: 2,
+    surfaceMode: FlexSurfaceMode.highScaffoldLowSurfaces,
+    blendLevel: 1,
+    appBarStyle: FlexAppBarStyle.material,
+    // appBarElevation: 3.0,
+    // bottomAppBarElevation: 5.0,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    // To use the playground font, add GoogleFonts package and uncomment
+    fontFamily: GoogleFonts.varela().fontFamily,
+  );
+  ;
+
+  return ThemePack(
+      name: 'VzBot',
+      lightTheme: light.copyWith(
+          elevatedButtonTheme: _elevatedButtonThemeData,
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: light.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onPrimary,
+            unselectedLabelSchemeColor: SchemeColor.onPrimary,
+            selectedIconSchemeColor: SchemeColor.onPrimary,
+            unselectedIconSchemeColor: SchemeColor.onPrimary,
+            backgroundSchemeColor: SchemeColor.primary,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          inputDecorationTheme:
+              light.inputDecorationTheme.copyWith(filled: false),
+          cardTheme: light.cardTheme.copyWith(elevation: 3),
+          extensions: [CustomColors.light]),
+      darkTheme: dark.copyWith(
+          elevatedButtonTheme: _elevatedButtonThemeData,
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: dark.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onBackground,
+            unselectedLabelSchemeColor: SchemeColor.onBackground,
+            selectedIconSchemeColor: SchemeColor.onBackground,
+            unselectedIconSchemeColor: SchemeColor.onBackground,
+            backgroundSchemeColor: SchemeColor.background,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          inputDecorationTheme:
+              dark.inputDecorationTheme.copyWith(filled: false),
+          bottomSheetTheme: dark.bottomSheetTheme
+              .copyWith(modalBackgroundColor: dark.colorScheme.background),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3),
+          extensions: [CustomColors.dark]),
+      brandingIcon: const AssetImage('assets/images/vz_logo.png'));
+}
 
 ThemePack _mobilerakerSupporterPack() {
   var light = FlexThemeData.light(
@@ -373,7 +445,7 @@ ThemePack _mobilerakerSupporterPack() {
     // visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
     // To use the playground font, add GoogleFonts package and uncomment
-    // fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.notoSans().fontFamily,
   );
 
   var dark = FlexThemeData.dark(
@@ -395,7 +467,7 @@ ThemePack _mobilerakerSupporterPack() {
     // visualDensity: FlexColorScheme.comfortablePlatformDensity,
     useMaterial3: true,
     // To use the playground font, add GoogleFonts package and uncomment
-    // fontFamily: GoogleFonts.notoSans().fontFamily,
+    fontFamily: GoogleFonts.notoSans().fontFamily,
   );
 
   return ThemePack(
@@ -415,7 +487,8 @@ ThemePack _mobilerakerSupporterPack() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          floatingActionButtonTheme: FlexSubThemes.floatingActionButtonTheme(colorScheme: light.colorScheme, alwaysCircular: true),
+          floatingActionButtonTheme: FlexSubThemes.floatingActionButtonTheme(
+              colorScheme: light.colorScheme, alwaysCircular: true),
           // tabBarTheme: FlexSubThemes.tabBarTheme(
           //     colorScheme: light.colorScheme,
           //     indicatorColor: light.colorScheme.onPrimary,
@@ -441,16 +514,16 @@ ThemePack _mobilerakerSupporterPack() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          floatingActionButtonTheme: FlexSubThemes.floatingActionButtonTheme(colorScheme: light.colorScheme, alwaysCircular: true),
+          floatingActionButtonTheme: FlexSubThemes.floatingActionButtonTheme(
+              colorScheme: light.colorScheme, alwaysCircular: true),
           inputDecorationTheme:
-          dark.inputDecorationTheme.copyWith(filled: false),
+              dark.inputDecorationTheme.copyWith(filled: false),
           bottomSheetTheme: dark.bottomSheetTheme
               .copyWith(modalBackgroundColor: dark.colorScheme.background),
           cardTheme: dark.cardTheme.copyWith(elevation: 3),
           extensions: [CustomColors.dark]),
       brandingIcon: const AssetImage('assets/icon/mr_logo.png'));
 }
-
 
 @riverpod
 List<ThemePack> themePack(ThemePackRef ref) {
@@ -459,8 +532,8 @@ List<ThemePack> themePack(ThemePackRef ref) {
     _mobilerakerPack(),
     _voronPack(),
     _ratRigPack(),
+    _vzBot(),
     if (customerInfo?.entitlements.active.containsKey('Supporter') ?? true)
-    _mobilerakerSupporterPack(),
+      _mobilerakerSupporterPack(),
   ];
 }
-
