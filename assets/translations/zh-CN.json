@@ -1,5 +1,6 @@
 {
     "general": {
+    	"pause": "暂停",
         "resume": "恢复",
         "connected": "已连接",
         "off": "关闭",
@@ -15,9 +16,27 @@
         "shutdown": "关闭",
         "firmware": "固件",
         "fetching": "获取",
+   	 "loading": "加载中",
         "unknown": "未知",
         "disabled": "禁用",
         "confirm": "确认"
+   	 "cancel": "取消",
+   	 "close": "关闭",
+   	 "edit": "编辑",
+ 	   "preview": "预览",
+ 	   "retry": "重试",
+  	  "supported": "支持",
+ 	   "unsupported": "不支持",
+ 	   "details": "详细",
+ 	   "google_play": "GooglePlay",
+ 	   "ios_store": "AppStore",
+ 	   "active": "激活",
+  	  "canceled": "取消",
+ 	   "monthly": "每月",
+	    "restore": "恢复",
+ 	   "accept": "接受",
+  	  "abort": "中止",
+ 	   "offset": "抵消"
     },
     "pages": {
         "dashboard": {
@@ -77,6 +96,15 @@
                     "stc_btn": "STC",
                     "ztilt_tooltip": "运行Z倾斜校准",
                     "ztilt_btn": "ZTILT"
+    	            "poff_tooltip": "运行探头偏移校准",
+       		    "poff_btn": "探头校准",
+                    "zoff_tooltip": "运行Z停止点偏移校准",
+                    "zoff_btn": "Z停止点校准",
+                    "bsa_tooltip": "运行热床螺丝调整校准",
+                    "bsa_btn": "热床螺丝校准",
+                    "save_tooltip": "保存校准结果",
+                    "save_btn": "保存配置",
+                    "more_btn": "更多"
                 },
                 "baby_step_card": {
                     "title": "Z轴偏移"
@@ -139,6 +167,7 @@
             "name": "名称",
             "last_mod": "修改时间",
             "last_printed": "上次打印",
+            "not_printed": "未打印",
             "fetching_files": "@:general.fetching文件...",
             "no_files_found": "找不到文件！",
             "details": {
@@ -186,6 +215,7 @@
                 "num_edit": "使用键盘进行数字输入",
                 "start_with_overview": "show @:pages.overview.title默认",
                 "use_offset_pos": "显示使用偏移量的坐标。",
+                "lcFullCam": "横向全屏显示摄像头",
                 "language": "语言",
                 "companion": "想接收远程通知吗？ \n 了解如何在其上设置Mobileraker的同伴"
             },
@@ -193,10 +223,16 @@
                 "title": "消息通知",
                 "progress_label": "进度通知",
                 "progress_helper": "打印进度通知的更新间隔",
+                "state_label": "状态通知",
+                "state_helper": "在状态发生改变时发出通知",
                 "no_permission_title": "没有通知权限！",
                 "no_permission_desc": "无权限的情况下无法显示通知。 \n 单击弹出通知授权窗口！",
+                "no_firebase_title": "无法显示通知",
+                "no_firebase_desc": "Mobileaker无法向设备发送任何通知。\n您的设备似乎缺少Google Play服务或阻止了Firebase连接！",
                 "ios_notifications_title": "iOS通知交付",
                 "ios_notifications_desc": "通知要求至少一次打开一次通知，并在后台。 \n 仍然可以通过操作系统阻止一些通知！"
+                "missing_companion_title": "找不到配套软件！",
+                "missing_companion_body": "似乎没有安装配套软件，因此以下计算机无法发送通知：｛｝\n点击了解更多信息！"
             },
             "imprint": "隐私声明及用户协议"
         },
@@ -208,6 +244,10 @@
             "fetching_additional_settings": "@:general.fetching从网络...",
             "could_not_fetch_additional": "无法获取其他设置！",
             "fetch_error_hint": "确保机器可以触及，并连接到它。",
+            "store_error": {
+              "title": "保存失败！",
+              "message": "某些字段包含无效值！\请确保所有字段都有效。"
+             },
             "general": {
                 "displayname": "显示名称",
                 "printer_addr": "打印机地址",
@@ -245,11 +285,15 @@
                 "target_fps": "当前FPS",
                 "new_cam": "新网络摄像头",
                 "no_webcams": "没有添加网络摄像头！",
+                "stream_url": "Stream URL",
+                "snapshot_url": "快照地址",
                 "webcam_addr": "网络摄像头地址",
                 "default_addr": "默认地址",
+	        "default_url": "默认地址",
                 "flip_vertical": "垂直翻转",
                 "flip_horizontal": "水平翻转",
                 "cam_mode": "凸轮模式"
+                "cam_rotate": "旋转"
             },
             "macros": {
                 "new_macro_grp": "新建宏命令组",
@@ -290,7 +334,35 @@
             "fetching_machines": "@:general.fetching机器...",
             "no_entries": "找不到机器",
             "add_machine": "添加机器"
-        }
+        },
+        "faq": {
+          "title": "常问问题",
+          "loading": "@:general.loading FAQ...",
+          "error": "尝试获取常见问题时出错",
+          "open_in_browser": "Open @:pages.faq.title in Browser"
+        },
+        "paywall": {
+          "title": "支持开发人员！",
+          "calling_store": "正在处理请求。。。",
+          "manage_view": {
+            "title": "感谢您的支持！",
+            "list_title": "更改支持者级别：",
+            "store_btn": "取消订阅 {}"
+          },
+          "subscribe_view": {
+            "title": "成为Mobileraker的支持者！",
+            "info": "Mobileraker旨在为Klipper提供快速可靠的移动用户界面，这得益于RepRap的精神，即开源软件和硬件可以产生积极影响。\n由于Mobileraker由一家开发商开发并免费提供，它依靠社区资金来支付运营和开发成本。",
+            "list_title": "选择支持者等级:"
+          },
+          "supporter_tier_list": {
+            "error_title": "加载支持者等级时出错!",
+            "error_body": "很抱歉，发生了意外错误。无法加载支持者等级。请稍后重试！"
+          },
+          "contact_dialog": {
+            "title": "开发人员联系人",
+            "body": "Mail: {}\nDiscord: {}"
+          }
+      }
     },
     "components": {
         "pull_to_refresh": {
@@ -305,7 +377,16 @@
         "connection_watcher": {
             "reconnect": "重新连接",
             "trying_connect": "尝试链接...",
+      	    "trying_connect_remote": "正在尝试使用远程客户端进行连接。。。",
             "server_starting": "服务器正在启动..."
+            "more_details": "更多详细信息"
+       },
+       "octo_indicator": {
+         "tooltip": "使用OctoEveryWhere!"
+       },
+       "supporter_add": {
+         "title": "喜欢 Mobileraker?",
+         "subtitle": "点击我！了解如何支持发展!"
         }
     },
     "dialogs": {
@@ -349,14 +430,58 @@
         "ws_input_help": {
             "title": "URL输入帮助",
             "body": "您可以将IP，URL或完整URI输入到Webinterface或直接到Moonraker提供的WebSocket实例。 \n\n 有效示例："
+        },
+        "gcode_params": {
+          "hint": "提示：如果您想提交默认值的宏，可以长按！"
+        },
+       "rgbw": {
+         "recent_colors": "最近使用的颜色"
+        },
+       "select_machine": {
+         "title": "选择机器",
+         "active_machine": "激活的机器: {}",
+         "hint": "点击机器以将其设置为激活状态。"
+        },
+        "supporter_perks": {
+          "title": "支持者福利",
+          "body": "通过支持Mobileaker，您可以确保该应用程序对社区免费。此外，支持者还可以获得以下福利。",
+          "hint": "提示：到目前为止，福利是基于设备的。这种情况将来可能会改变。",
+          "theme_perk": {
+            "title": "支持者主题",
+            "subtitle": "使用Material 3的独家主题"
+        },
+        "contact_perk": {
+          "title": "开发人员联系人",
+          "subtitle": "轻松联系开发人员！"
+        },
+        "notification_perk": {
+          "title": "快照通知",
+          "subtitle": "状态通知包括网络摄像头快照"
         }
+      },
+      "bed_screw_adjust": {
+      "title": "热床螺丝调整",
+      "xy_plane": "打印机X/Y平面:",
+      "active_screw_title": "激活螺丝:",
+      "accept_screw_title": "确认的螺丝:",
+      "accept_screw_value": "{} of {}",
+      "hint": "如果需要对当前螺钉进行重大调整，请单击“调整”；否则，请单击“接受”继续。",
+      "adjusted_btn": "调整过的"
     },
+    "manual_offset": {
+      "title": "@:general.offset Calibration",
+      "hint_tooltip": "Klipper的纸质测试文档",
+      "snackbar_title": "校准完成",
+      "snackbar_message": "确保通过“保存配置”操作保存偏移."
+    }
+  },
     "klipper_state": {
         "ready": "就绪",
         "shutdown": "关闭",
         "starting": "开始",
         "disconnected": "已断开",
         "error": "错误"
+        "unauthorized": "未经授权"
     },
     "notifications": {
         "channel_printer_grp": "打印机{}",
