@@ -23,12 +23,14 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.7.12'
-      - run: echo ${{ secrets.GOOGLE_SERVICES_JSON }} | base64 -d > ./android/app/google-services.json
-      - run: echo ${{ secrets.KEY_PROPERTIES }} | base64 -d > ./android/key.properties
-      - run: echo ${{ secrets.PLAY_STORE_JKS }} | base64 -d > ./android/app/gps.jks
-      - run: echo ${{ secrets.AWESOME_NOTI_LICENSE }} | base64 -d > ./lib/license.dart
-      - run: echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
-      - run: echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
+      - name: Setup Files
+        working-directory: ./mobileraker
+        run: |
+          echo ${{ secrets.GOOGLE_SERVICES_JSON }} | base64 -d > ./android/app/google-services.json
+          echo ${{ secrets.KEY_PROPERTIES }} | base64 -d > ./android/key.properties
+          echo ${{ secrets.PLAY_STORE_JKS }} | base64 -d > ./android/app/gps.jks
+          echo ${{ secrets.AWESOME_NOTI_LICENSE }} | base64 -d > ./lib/license.dart
+          echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
       - name: Print current working dir
         run: |
           echo $PWD
