@@ -188,7 +188,7 @@ class _ToolheadData extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 message: tr('pages.dashboard.general.print_card.eta_tooltip',
                     args: [
-                      toolheadInfo.remaining?.let(secondsToDurationText) ?? ''
+                      toolheadInfo.remaining?.let(secondsToDurationText) ?? '--'
                     ]),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
