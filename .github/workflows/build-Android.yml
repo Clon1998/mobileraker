@@ -8,7 +8,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          repository: 'Clon1998/mobileraker_pro'
       - uses: actions/setup-java@v1
         with:
           java-version: '12.x'
