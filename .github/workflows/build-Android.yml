@@ -43,6 +43,7 @@ jobs:
           ls -la $PWD
           flutter pub get
           flutter packages pub run build_runner build
+          echo "Done with Mobileraker Pro"
       - name: Build Mobileraker
         working-directory: ./mobileraker
         run: |
