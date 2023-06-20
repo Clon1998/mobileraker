@@ -26,11 +26,18 @@ jobs:
       - run: echo ${{ secrets.PLAY_STORE_JKS }} | base64 -d > ./android/app/gps.jks
       - run: echo ${{ secrets.AWESOME_NOTI_LICENSE }} | base64 -d > ./lib/license.dart
       - run: echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
-      - run: ls
-      - run: cd .. & cd mobileraker_pro
+               - run: echo ${{ secrets.FIREBASE_OPTIONS }} | base64 -d > ./lib/firebase_options.dart
+      - name: Print current working dir
+        run: |
+          ls -la $PWD
+          ls -la $GITHUB_WORKSPACE
+      - name: Setup and run tests
+        working-directory: ./mobileraker_pro
+        run: |
+          flutter pub get
+          flutter packages pub run build_runner build
       - run: flutter pub get
       - run: flutter packages pub run build_runner build
-      - run: cd $GITHUB_WORKSPACE
       - run: flutter build apk --release
       - name: Generate changelog
         id: changelog
