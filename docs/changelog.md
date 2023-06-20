@@ -11,6 +11,8 @@
 - Refactored Handover Mechanism between Local and OctoEverywhere Connection
 - Added Calibration actions to **Move Axis** card
 - Added Manual Probe and Bed Screw Adjust Dialogs [#169](https://github.com/Clon1998/mobileraker/issues/169)
+- Added VzBot theme
+-
 
 ### Changed Features
 
@@ -20,6 +22,7 @@
 - Step selectors should work better on smaller screens
 - Move Axis Step selector allows input of real numbers/floating numbers
 - Number displays are more i18n aware
+- Updated Chinese Translation
 ### Bug Fixes
 
 - The utilization of the printer port should be avoided for relative path
