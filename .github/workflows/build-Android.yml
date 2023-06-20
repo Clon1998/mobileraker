@@ -14,6 +14,7 @@ jobs:
           repository: 'Clon1998/mobileraker_pro'
           ref: 'main'
           path: 'mobileraker_pro'
+          token: ${{ secrets.PRO_PAT }}
       - uses: actions/setup-java@v1
         with:
           java-version: '12.x'
