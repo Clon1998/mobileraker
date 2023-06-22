@@ -17,17 +17,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-part 'faq_page.g.dart';
-
-final faqRoot = Uri.parse(
-    'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/faq.md');
-
-final faqRootHuman = Uri.parse(
-    'https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md');
+part 'mark_down_page.g.dart';
 
 @riverpod
-Future<String> _markdownData(_MarkdownDataRef ref) async {
-  http.Response res = await http.get(faqRoot);
+Future<String> _markdownData(_MarkdownDataRef ref, Uri mdRoot) async {
+  http.Response res = await http.get(mdRoot);
 
   if (res.statusCode != 200) {
     throw HttpException(res.body);
@@ -36,46 +30,76 @@ Future<String> _markdownData(_MarkdownDataRef ref) async {
   return res.body;
 }
 
-class FaqPage extends StatelessWidget {
-  const FaqPage({Key? key}) : super(key: key);
+class MarkDownPage extends StatelessWidget {
+  const MarkDownPage({
+    Key? key,
+    required this.title,
+    required this.mdRoot,
+    required this.mdHuman,
+  }) : super(key: key);
+
+  final String title;
+  final Uri mdRoot;
+  final Uri mdHuman;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('pages.faq.title').tr(),
+        title: Text(title),
         actions: [
           IconButton(
-            tooltip: tr('pages.faq.open_in_browser'),
+            tooltip: tr('pages.markdown.open_in_browser', args: [title]),
             onPressed: () =>
-                launchUrl(faqRootHuman, mode: LaunchMode.externalApplication),
+                launchUrl(mdHuman, mode: LaunchMode.externalApplication),
             icon: const Icon(Icons.open_in_browser),
           )
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: const _FAQBody(),
+      body: _MarkDownBody(
+        mdHuman: mdHuman,
+        mdRoot: mdRoot,
+        title: title,
+      ),
     );
   }
 }
 
-class _FAQBody extends ConsumerWidget {
-  const _FAQBody({Key? key}) : super(key: key);
+class _MarkDownBody extends ConsumerWidget {
+  const _MarkDownBody({
+    Key? key,
+    required this.mdRoot,
+    required this.mdHuman,
+    required this.title,
+  }) : super(key: key);
+  final Uri mdRoot;
+  final Uri mdHuman;
+  final String title;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) =>
-      ref.watch(_markdownDataProvider).when(
+      ref.watch(_markdownDataProvider(mdRoot)).when(
           data: (data) => _MakrdownViewer(data: data),
           error: (e, _) => _ErrorWidget(
                 error: e,
+                mdHuman: mdHuman,
+                title: title,
               ),
           loading: () => const _LoadingMarkdownWidget());
 }
 
 class _ErrorWidget extends StatelessWidget {
-  const _ErrorWidget({Key? key, this.error}) : super(key: key);
+  const _ErrorWidget({
+    Key? key,
+    this.error,
+    required this.mdHuman,
+    required this.title,
+  }) : super(key: key);
 
   final Object? error;
+  final Uri mdHuman;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -105,13 +129,14 @@ class _ErrorWidget extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            Text('${tr('pages.faq.error')}:'),
+            const Text('pages.markdown.error').tr(args: [title]),
             Text(error?.toString() ?? 'Unknown cause'),
             TextButton.icon(
-                onPressed: () => launchUrl(faqRootHuman,
-                    mode: LaunchMode.externalApplication),
+                onPressed: () =>
+                    launchUrl(mdHuman, mode: LaunchMode.externalApplication),
                 icon: const Icon(Icons.open_in_browser),
-                label: const Text('pages.faq.open_in_browser').tr())
+                label: const Text('pages.markdown.open_in_browser')
+                    .tr(args: [title]))
           ],
         ),
       ),

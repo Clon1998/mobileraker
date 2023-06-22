@@ -34,52 +34,60 @@ class NavigationDrawerWidget extends ConsumerWidget {
           const _NavHeader(),
           Expanded(
             child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  const _PrinterSelection(),
-                  if ((ref.watch(allMachinesProvider.select(
-                              (value) => value.valueOrFullNull?.length)) ??
-                          0) >
-                      1) ...[
+              child: Material(
+                child: Column(
+                  children: [
+                    const _PrinterSelection(),
+                    if ((ref.watch(allMachinesProvider.select(
+                                (value) => value.valueOrFullNull?.length)) ??
+                            0) >
+                        1) ...[
+                      _DrawerItem(
+                        text: 'pages.overview.title'.tr(),
+                        icon: FlutterIcons.view_dashboard_mco,
+                        routeName: '/overview',
+                      ),
+                      const Divider(),
+                    ],
                     _DrawerItem(
-                      text: 'pages.overview.title'.tr(),
-                      icon: FlutterIcons.view_dashboard_mco,
-                      routeName: '/overview',
+                      text: 'pages.dashboard.title'.tr(),
+                      icon: FlutterIcons.printer_3d_nozzle_mco,
+                      routeName: '/',
+                    ),
+                    _DrawerItem(
+                      text: 'pages.console.title'.tr(),
+                      icon: Icons.terminal,
+                      routeName: '/console',
+                    ),
+                    _DrawerItem(
+                      text: 'pages.files.title'.tr(),
+                      icon: Icons.file_present,
+                      routeName: '/files',
                     ),
                     const Divider(),
+                    _DrawerItem(
+                      text: 'pages.setting.title'.tr(),
+                      icon: Icons.engineering_outlined,
+                      routeName: '/setting',
+                    ),
+                    _DrawerItem(
+                      text: 'pages.paywall.title'.tr(),
+                      icon: FlutterIcons.hand_holding_heart_faw5s,
+                      routeName: '/paywall',
+                    ),
+                    const Divider(),
+                    _DrawerItem(
+                      text: tr('pages.faq.title'),
+                      icon: Icons.help,
+                      routeName: '/faq',
+                    ),
+                    _DrawerItem(
+                      text: tr('pages.changelog.title'),
+                      icon: Icons.history,
+                      routeName: '/changelog',
+                    ),
                   ],
-                  _DrawerItem(
-                    text: 'pages.dashboard.title'.tr(),
-                    icon: FlutterIcons.printer_3d_nozzle_mco,
-                    routeName: '/',
-                  ),
-                  _DrawerItem(
-                    text: 'pages.console.title'.tr(),
-                    icon: Icons.terminal,
-                    routeName: '/console',
-                  ),
-                  _DrawerItem(
-                    text: 'pages.files.title'.tr(),
-                    icon: Icons.file_present,
-                    routeName: '/files',
-                  ),
-                  _DrawerItem(
-                    text: tr('pages.faq.title'),
-                    icon: Icons.help,
-                    routeName: '/faq',
-                  ),
-                  const Divider(),
-                  _DrawerItem(
-                    text: 'pages.setting.title'.tr(),
-                    icon: Icons.engineering_outlined,
-                    routeName: '/setting',
-                  ),
-                  _DrawerItem(
-                    text: 'pages.paywall.title'.tr(),
-                    icon: FlutterIcons.hand_holding_heart_faw5s,
-                    routeName: '/paywall',
-                  ),
-                ],
+                ),
               ),
             ),
           ),
