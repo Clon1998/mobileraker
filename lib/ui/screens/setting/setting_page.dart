@@ -531,44 +531,46 @@ class CompanionMissingWarning extends ConsumerWidget {
     var machinesWithoutCompanion = ref.watch(machinesWithoutCompanionProvider);
 
     var machineNames =
-    (machinesWithoutCompanion.valueOrFullNull ?? []).map((e) => e.name);
+        (machinesWithoutCompanion.valueOrFullNull ?? []).map((e) => e.name);
 
     var themeData = Theme.of(context);
-    return AnimatedSwitcher(
-      transitionBuilder: (child, anim) => SizeTransition(
-        sizeFactor: anim,
-        child: FadeTransition(
-          opacity: anim,
-          child: child,
+    return Material(
+      child: AnimatedSwitcher(
+        transitionBuilder: (child, anim) => SizeTransition(
+          sizeFactor: anim,
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
+          ),
         ),
-      ),
-      duration: kThemeAnimationDuration,
-      child: (machineNames.isEmpty)
-          ? const SizedBox.shrink()
-          : Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: ListTile(
-          onTap: ref
-              .read(settingPageControllerProvider.notifier)
-              .openCompanion,
-          tileColor: themeData.colorScheme.errorContainer,
-          textColor: themeData.colorScheme.onErrorContainer,
-          iconColor: themeData.colorScheme.onErrorContainer,
-          // onTap: ref
-          //     .watch(notificationPermissionControllerProvider.notifier)
-                //     .requestPermission,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                leading: const Icon(
-                  FlutterIcons.uninstall_ent,
-                  size: 40,
+        duration: kThemeAnimationDuration,
+        child: (machineNames.isEmpty)
+            ? const SizedBox.shrink()
+            : Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: ListTile(
+                  onTap: ref
+                      .read(settingPageControllerProvider.notifier)
+                      .openCompanion,
+                  tileColor: themeData.colorScheme.errorContainer,
+                  textColor: themeData.colorScheme.onErrorContainer,
+                  iconColor: themeData.colorScheme.onErrorContainer,
+                  // onTap: ref
+                  //     .watch(notificationPermissionControllerProvider.notifier)
+                  //     .requestPermission,
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(15))),
+                  leading: const Icon(
+                    FlutterIcons.uninstall_ent,
+                    size: 40,
+                  ),
+                  title: const Text(
+                    'pages.setting.notification.missing_companion_title',
+                  ).tr(),
+                  subtitle: const Text(
+                          'pages.setting.notification.missing_companion_body')
+                      .tr(args: [machineNames.join(', ')]),
                 ),
-                title: const Text(
-                  'pages.setting.notification.missing_companion_title',
-                ).tr(),
-                subtitle: const Text(
-                        'pages.setting.notification.missing_companion_body')
-                    .tr(args: [machineNames.join(', ')]),
               ),
       ),
     );
