@@ -16,27 +16,27 @@
         "shutdown": "关闭",
         "firmware": "固件",
         "fetching": "获取",
-   	 "loading": "加载中",
+   	    "loading": "加载中",
         "unknown": "未知",
         "disabled": "禁用",
         "confirm": "确认"
-   	 "cancel": "取消",
-   	 "close": "关闭",
-   	 "edit": "编辑",
- 	   "preview": "预览",
- 	   "retry": "重试",
-  	  "supported": "支持",
- 	   "unsupported": "不支持",
- 	   "details": "详细",
- 	   "google_play": "GooglePlay",
- 	   "ios_store": "AppStore",
- 	   "active": "激活",
-  	  "canceled": "取消",
- 	   "monthly": "每月",
+   	    "cancel": "取消",
+   	    "close": "关闭",
+   	    "edit": "编辑",
+ 	    "preview": "预览",
+ 	    "retry": "重试",
+  	    "supported": "支持",
+ 	    "unsupported": "不支持",
+ 	    "details": "详细",
+ 	    "google_play": "GooglePlay",
+ 	    "ios_store": "AppStore",
+ 	    "active": "激活",
+  	    "canceled": "取消",
+ 	    "monthly": "每月",
 	    "restore": "恢复",
- 	   "accept": "接受",
-  	  "abort": "中止",
- 	   "offset": "抵消"
+ 	    "accept": "接受",
+  	    "abort": "中止",
+ 	    "offset": "抵消"
     },
     "pages": {
         "dashboard": {
@@ -58,7 +58,7 @@
                     "elapsed": "已耗时",
                     "flow": "流量",
                     "filament": "耗材",
-                    "filament_tooltip": "使用的{}％的丝，即{} m的{} m预测。"
+                    "filament_used": "使用的{}％的丝，即{} m的{} m预测。"
                 },
                 "cam_card": {
                     "webcam": "摄像头",
@@ -97,7 +97,7 @@
                     "ztilt_tooltip": "运行Z倾斜校准",
                     "ztilt_btn": "ZTILT"
     	            "poff_tooltip": "运行探头偏移校准",
-       		    "poff_btn": "探头校准",
+       		        "poff_btn": "探头校准",
                     "zoff_tooltip": "运行Z停止点偏移校准",
                     "zoff_btn": "Z停止点校准",
                     "bsa_tooltip": "运行热床螺丝调整校准",
@@ -245,8 +245,8 @@
             "could_not_fetch_additional": "无法获取其他设置！",
             "fetch_error_hint": "确保机器可以触及，并连接到它。",
             "store_error": {
-              "title": "保存失败！",
-              "message": "某些字段包含无效值！\请确保所有字段都有效。"
+                "title": "保存失败！",
+                "message": "某些字段包含无效值！\请确保所有字段都有效。"
              },
             "general": {
                 "displayname": "显示名称",
@@ -289,7 +289,7 @@
                 "snapshot_url": "快照地址",
                 "webcam_addr": "网络摄像头地址",
                 "default_addr": "默认地址",
-	        "default_url": "默认地址",
+	            "default_url": "默认地址",
                 "flip_vertical": "垂直翻转",
                 "flip_horizontal": "水平翻转",
                 "cam_mode": "凸轮模式"
@@ -382,11 +382,11 @@
             "more_details": "更多详细信息"
        },
        "octo_indicator": {
-         "tooltip": "使用OctoEveryWhere!"
+            "tooltip": "使用OctoEveryWhere!"
        },
        "supporter_add": {
-         "title": "喜欢 Mobileraker?",
-         "subtitle": "点击我！了解如何支持发展!"
+            "title": "喜欢 Mobileraker?",
+            "subtitle": "点击我！了解如何支持发展!"
         }
     },
     "dialogs": {
@@ -432,15 +432,15 @@
             "body": "您可以将IP，URL或完整URI输入到Webinterface或直接到Moonraker提供的WebSocket实例。 \n\n 有效示例："
         },
         "gcode_params": {
-          "hint": "提示：如果您想提交默认值的宏，可以长按！"
+            "hint": "提示：如果您想提交默认值的宏，可以长按！"
         },
        "rgbw": {
-         "recent_colors": "最近使用的颜色"
+            "recent_colors": "最近使用的颜色"
         },
        "select_machine": {
-         "title": "选择机器",
-         "active_machine": "激活的机器: {}",
-         "hint": "点击机器以将其设置为激活状态。"
+            "title": "选择机器",
+            "active_machine": "激活的机器: {}",
+            "hint": "点击机器以将其设置为激活状态。"
         },
         "supporter_perks": {
           "title": "支持者福利",
@@ -451,12 +451,12 @@
             "subtitle": "使用Material 3的独家主题"
         },
         "contact_perk": {
-          "title": "开发人员联系人",
-          "subtitle": "轻松联系开发人员！"
+            "title": "开发人员联系人",
+            "subtitle": "轻松联系开发人员！"
         },
         "notification_perk": {
-          "title": "快照通知",
-          "subtitle": "状态通知包括网络摄像头快照"
+            "title": "快照通知",
+            "subtitle": "状态通知包括网络摄像头快照"
         }
       },
       "bed_screw_adjust": {
