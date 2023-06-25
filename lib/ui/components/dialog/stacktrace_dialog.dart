@@ -43,7 +43,7 @@ class StackTraceDialog extends StatelessWidget {
                 IconButton(
                   color: Theme.of(context).colorScheme.primary,
                   onPressed: () => Clipboard.setData(
-                      ClipboardData(text: request.body)),
+                      ClipboardData(text: request.body ?? '')),
                   icon: const Icon(Icons.copy_all),
                   tooltip: MaterialLocalizations.of(context).copyButtonLabel,
                 )
