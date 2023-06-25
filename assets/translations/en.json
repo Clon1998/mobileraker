@@ -235,6 +235,10 @@
         "missing_companion_title": "Companion not found!",
         "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\nTap to learn more!"
       },
+      "developer": {
+        "title": "Developer",
+        "crashlytics": "Enable Crashlytics reporting"
+      },
       "imprint": "Privacy/Impressum"
     },
     "printer_edit": {

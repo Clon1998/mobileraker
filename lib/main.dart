@@ -40,7 +40,9 @@ Future<void> main() async {
   };
 
   // FirebaseCrashlytics.instance.sendUnsentReports();
-  FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(!kDebugMode);
+  if (kDebugMode) {
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  }
 
   await FirebaseAppCheck.instance.activate();
   await EasyLocalization.ensureInitialized();

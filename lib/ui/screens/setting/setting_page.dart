@@ -6,7 +6,9 @@
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -71,7 +73,7 @@ class SettingPage extends ConsumerWidget {
                 onChanged: (b) =>
                     settingService.writeBool(useTextInputForNumKey, b ?? false),
                 initialValue:
-                ref.watch(boolSettingProvider(useTextInputForNumKey)),
+                    ref.watch(boolSettingProvider(useTextInputForNumKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -83,7 +85,7 @@ class SettingPage extends ConsumerWidget {
                 onChanged: (b) =>
                     settingService.writeBool(startWithOverviewKey, b ?? false),
                 initialValue:
-                ref.watch(boolSettingProvider(startWithOverviewKey)),
+                    ref.watch(boolSettingProvider(startWithOverviewKey)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -104,7 +106,7 @@ class SettingPage extends ConsumerWidget {
                 onChanged: (b) =>
                     settingService.writeBool(landscapeFullWebCam, b ?? false),
                 initialValue:
-                ref.watch(boolSettingProvider(landscapeFullWebCam)),
+                    ref.watch(boolSettingProvider(landscapeFullWebCam)),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,
@@ -113,19 +115,8 @@ class SettingPage extends ConsumerWidget {
               ),
               const _NotificationSection(),
               const Divider(),
-              const VersionText(),
-              TextButton(
-                style: TextButton.styleFrom(
-                    minimumSize: Size.zero, // Set this
-                    padding: EdgeInsets.zero,
-                    textStyle: themeData.textTheme.bodySmall
-                        ?.copyWith(color: themeData.colorScheme.secondary)),
-                child: const Text('Debug-Logs'),
-                onPressed: () {
-                  var dialogService = ref.read(dialogServiceProvider);
-                  dialogService.show(DialogRequest(type: DialogType.logging));
-                },
-              ),
+              const _DeveloperSection(),
+              const Divider(),
               if (Platform.isIOS)
                 TextButton(
                     style: TextButton.styleFrom(
@@ -170,6 +161,7 @@ class SettingPage extends ConsumerWidget {
                       ));
                 },
               ),
+              const VersionText(),
               // _SectionHeader(title: 'Notifications'),
             ],
           ),
@@ -224,6 +216,48 @@ class _NotificationSection extends ConsumerWidget {
   }
 }
 
+class _DeveloperSection extends ConsumerWidget {
+  const _DeveloperSection({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
+    return Column(
+      children: [
+        _SectionHeader(title: tr('pages.setting.developer.title')),
+        FormBuilderSwitch(
+          name: 'crashalytics',
+          title: const Text('pages.setting.developer.crashlytics').tr(),
+          enabled: !kDebugMode,
+          onChanged: (b) => FirebaseCrashlytics.instance
+              .setCrashlyticsCollectionEnabled(b ?? true),
+          initialValue:
+              FirebaseCrashlytics.instance.isCrashlyticsCollectionEnabled,
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            isCollapsed: true,
+          ),
+          activeColor: themeData.colorScheme.primary,
+        ),
+        TextButton(
+          style: TextButton.styleFrom(
+              minimumSize: Size.zero, // Set this
+              padding: EdgeInsets.zero,
+              textStyle: themeData.textTheme.bodySmall
+                  ?.copyWith(color: themeData.colorScheme.secondary)),
+          child: const Text('Debug-Logs'),
+          onPressed: () {
+            var dialogService = ref.read(dialogServiceProvider);
+            dialogService.show(DialogRequest(type: DialogType.logging));
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class VersionText extends ConsumerWidget {
   const VersionText({
     Key? key,
@@ -272,7 +306,7 @@ class _LanguageSelector extends ConsumerWidget {
 
     if (local.countryCode != null) {
       String country =
-      'languages.countryCode.${local.countryCode}.nativeName'.tr();
+          'languages.countryCode.${local.countryCode}.nativeName'.tr();
       out += " ($country)";
     }
     return out;
@@ -287,7 +321,7 @@ class _LanguageSelector extends ConsumerWidget {
       name: 'lan',
       items: supportedLocals
           .map((local) => DropdownMenuItem(
-          value: local, child: Text(constructLanguageText(local))))
+              value: local, child: Text(constructLanguageText(local))))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -311,12 +345,12 @@ class _ThemeSelector extends ConsumerWidget {
       initialValue: ref
           .watch(activeThemeProvider.selectAs(
             (value) => value.themePack,
-      ))
+          ))
           .valueOrFullNull!,
       name: 'theme',
       items: themeList
           .map((theme) =>
-          DropdownMenuItem(value: theme, child: Text(theme.name)))
+              DropdownMenuItem(value: theme, child: Text(theme.name)))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -342,7 +376,7 @@ class _ThemeModeSelector extends ConsumerWidget {
       name: 'themeMode',
       items: ThemeMode.values
           .map((themeMode) => DropdownMenuItem(
-          value: themeMode, child: Text(themeMode.name.capitalize)))
+              value: themeMode, child: Text(themeMode.name.capitalize)))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -360,14 +394,14 @@ class _ProgressNotificationSettingField extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var progressSettings =
-    ref.watch(notificationProgressSettingControllerProvider);
+        ref.watch(notificationProgressSettingControllerProvider);
 
     return FormBuilderDropdown<ProgressNotificationMode>(
       initialValue: progressSettings,
       name: 'progressNotifyMode',
       items: ProgressNotificationMode.values
           .map((mode) => DropdownMenuItem(
-          value: mode, child: Text(mode.progressNotificationModeStr())))
+              value: mode, child: Text(mode.progressNotificationModeStr())))
           .toList(),
       onChanged: (v) => ref
           .read(notificationProgressSettingControllerProvider.notifier)
@@ -454,28 +488,28 @@ class NotificationPermissionWarning extends ConsumerWidget {
       child: (ref.watch(notificationPermissionControllerProvider))
           ? const SizedBox.shrink()
           : Padding(
-        padding: const EdgeInsets.only(top: 16),
-        child: ListTile(
-          tileColor: themeData.colorScheme.errorContainer,
-          textColor: themeData.colorScheme.onErrorContainer,
-          iconColor: themeData.colorScheme.onErrorContainer,
-          onTap: ref
-              .watch(notificationPermissionControllerProvider.notifier)
-              .requestPermission,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15))),
-          leading: const Icon(
-            Icons.notifications_off_outlined,
-            size: 40,
-          ),
-          title: const Text(
-            'pages.setting.notification.no_permission_title',
-          ).tr(),
-          subtitle:
-          const Text('pages.setting.notification.no_permission_desc')
-              .tr(),
-        ),
-      ),
+              padding: const EdgeInsets.only(top: 16),
+              child: ListTile(
+                tileColor: themeData.colorScheme.errorContainer,
+                textColor: themeData.colorScheme.onErrorContainer,
+                iconColor: themeData.colorScheme.onErrorContainer,
+                onTap: ref
+                    .watch(notificationPermissionControllerProvider.notifier)
+                    .requestPermission,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                leading: const Icon(
+                  Icons.notifications_off_outlined,
+                  size: 40,
+                ),
+                title: const Text(
+                  'pages.setting.notification.no_permission_title',
+                ).tr(),
+                subtitle:
+                    const Text('pages.setting.notification.no_permission_desc')
+                        .tr(),
+              ),
+            ),
     );
   }
 }
@@ -499,26 +533,26 @@ class NotificationFirebaseWarning extends ConsumerWidget {
       child: (ref.watch(notificationFirebaseAvailableProvider))
           ? const SizedBox.shrink()
           : Padding(
-        key: UniqueKey(),
-        padding: const EdgeInsets.only(top: 16),
-        child: ListTile(
-          tileColor: themeData.colorScheme.errorContainer,
-          textColor: themeData.colorScheme.onErrorContainer,
-          iconColor: themeData.colorScheme.onErrorContainer,
-          shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15))),
-          leading: const Icon(
-            FlutterIcons.notifications_paused_mdi,
-            size: 40,
-          ),
-          title: const Text(
-            'pages.setting.notification.no_firebase_title',
-          ).tr(),
-          subtitle:
-          const Text('pages.setting.notification.no_firebase_desc')
-              .tr(),
-        ),
-      ),
+              key: UniqueKey(),
+              padding: const EdgeInsets.only(top: 16),
+              child: ListTile(
+                tileColor: themeData.colorScheme.errorContainer,
+                textColor: themeData.colorScheme.onErrorContainer,
+                iconColor: themeData.colorScheme.onErrorContainer,
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15))),
+                leading: const Icon(
+                  FlutterIcons.notifications_paused_mdi,
+                  size: 40,
+                ),
+                title: const Text(
+                  'pages.setting.notification.no_firebase_title',
+                ).tr(),
+                subtitle:
+                    const Text('pages.setting.notification.no_firebase_desc')
+                        .tr(),
+              ),
+            ),
     );
   }
 }
