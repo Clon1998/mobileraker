@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +14,7 @@ import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
-import 'package:mobileraker/ui/screens/faq/faq_page.dart';
+import 'package:mobileraker/ui/screens/faq/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/files_page.dart';
@@ -45,6 +46,7 @@ enum AppRoute {
   configDetail,
   dev,
   faq,
+  changelog,
   supportDev
 }
 
@@ -159,7 +161,23 @@ GoRouter goRouter(GoRouterRef ref) {
       GoRoute(
           path: '/faq',
           name: AppRoute.faq.name,
-          builder: (context, state) => const FaqPage()),
+          builder: (context, state) => MarkDownPage(
+                title: tr('pages.faq.title'),
+                mdRoot: Uri.parse(
+                    'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/faq.md'),
+                mdHuman: Uri.parse(
+                    'https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md'),
+              )),
+      GoRoute(
+          path: '/changelog',
+          name: AppRoute.changelog.name,
+          builder: (context, state) => MarkDownPage(
+                title: tr('pages.changelog.title'),
+                mdRoot: Uri.parse(
+                    'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/changelog.md'),
+                mdHuman: Uri.parse(
+                    'https://github.com/Clon1998/mobileraker/blob/master/docs/changelog.md'),
+              )),
       GoRoute(
           path: '/paywall',
           name: AppRoute.supportDev.name,

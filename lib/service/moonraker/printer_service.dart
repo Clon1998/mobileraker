@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:enum_to_string/enum_to_string.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
@@ -205,6 +206,8 @@ class PrinterService {
           MobilerakerException('Could not fetch printer...',
               parentException: e, parentStack: s),
           s);
+      FirebaseCrashlytics.instance
+          .recordError(e, s, reason: 'JRpcError thrown during printer refresh');
     } catch (e, s) {
       logger.e(
           'Unexpected exception thrown during refresh $ownerUUID...', e, s);
@@ -214,6 +217,8 @@ class PrinterService {
         e.then((value) => logger.e('Error was a Future: Data. $value'),
             onError: (e, s) => logger.e('Error was a Future: Error. $e', e, s));
       }
+      FirebaseCrashlytics.instance
+          .recordError(e, s, reason: 'Error thrown during printer refresh');
     }
   }
 
@@ -516,6 +521,10 @@ class PrinterService {
       logger.e('Error while parsing $key object', e, s);
       _printerStreamCtler.addError(e, s);
       _showParsingExceptionSnackbar(e, s, key, json);
+      FirebaseCrashlytics.instance.recordError(e, s,
+          reason: 'Error while parsing $key object from JSON',
+          information: [json],
+          fatal: true);
     }
   }
 

@@ -235,6 +235,10 @@
         "missing_companion_title": "Companion not found!",
         "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\nTap to learn more!"
       },
+      "developer": {
+        "title": "Developer",
+        "crashlytics": "Enable Crashlytics reporting"
+      },
       "imprint": "Privacy/Impressum"
     },
     "printer_edit": {
@@ -334,11 +338,16 @@
       "no_entries": "No machines found",
       "add_machine": "Add Machine"
     },
-    "faq": {
-      "title": "FAQ",
-      "loading": "@:general.loading FAQ...",
-      "error": "An error occurred while trying to fetch FAQ",
+    "markdown": {
+      "loading": "@:general.loading {}...",
+      "error": "An error occurred while trying to fetch {};",
       "open_in_browser": "Open @:pages.faq.title in Browser"
+    },
+    "faq": {
+      "title": "FAQ"
+    },
+    "changelog": {
+      "title": "Changelog"
     },
     "paywall": {
       "title": "Support the Dev!",

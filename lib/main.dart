@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -31,6 +32,18 @@ Future<void> main() async {
   await setupBoxes();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack);
+    return true;
+  };
+
+  // FirebaseCrashlytics.instance.sendUnsentReports();
+  if (kDebugMode) {
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  }
+
   await FirebaseAppCheck.instance.activate();
   await EasyLocalization.ensureInitialized();
 
