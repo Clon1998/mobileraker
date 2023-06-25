@@ -14,6 +14,7 @@ enum PrintState {
   printing('Printing'),
   paused('Paused'),
   complete('Complete'),
+  cancelled('Cancelled'),
   error('Error');
 
   const PrintState(this.displayName);
