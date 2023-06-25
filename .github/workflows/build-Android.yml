@@ -21,8 +21,8 @@ jobs:
         with:
           java-version: '12.x'
       - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.7.12'
+      #        with:
+      #          flutter-version: '3.7.12'
       - name: Setup Env Files
         working-directory: ./mobileraker
         run: |

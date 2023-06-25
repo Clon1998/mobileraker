@@ -19,7 +19,11 @@ version: 2.4.1+145
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
-  flutter: '3.7.2'
+  flutter: '>=3.7.2'
+
+
+dependency_overrides:
+  intl: ^0.18.1 # required due to awesome notifications and formbuilder
 
 dependencies:
   flutter:
@@ -80,8 +84,8 @@ dependencies:
   awesome_notifications_fcm: ^0.7.1
 
   #form
-  flutter_form_builder: ^8.0.0
-  form_builder_validators: ^8.1.1
+  flutter_form_builder: ^9.0.0
+  form_builder_validators: ^9.0.0
 
   #tranlation
   easy_localization: ^3.0.0
