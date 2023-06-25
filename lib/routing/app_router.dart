@@ -14,6 +14,7 @@ import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
+import 'package:mobileraker/ui/screens/dev/dev_page.dart';
 import 'package:mobileraker/ui/screens/faq/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
@@ -182,6 +183,10 @@ GoRouter goRouter(GoRouterRef ref) {
           path: '/paywall',
           name: AppRoute.supportDev.name,
           builder: (context, state) => const PaywallPage()),
+      GoRoute(
+          path: '/dev',
+          name: AppRoute.dev.name,
+          builder: (context, state) => DevPage()),
       // GoRoute(
       //   path: 'cart',
       //   name: AppRoute.cart.name,
