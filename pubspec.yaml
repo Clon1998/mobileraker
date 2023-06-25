@@ -37,6 +37,8 @@ dependencies:
   firebase_core: <2.8.0
   firebase_analytics: ^10.1.5
   firebase_app_check: 0.1.1+12
+  firebase_crashlytics: ^3.0.16
+
 
   #architecture
   freezed_annotation: ^2.1.0
