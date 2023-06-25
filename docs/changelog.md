@@ -1,5 +1,17 @@
 # Mobileraker - Changelog
 
+## [2.4.1] - 2023-06-25
+
+### Changed Features
+
+- Added changelog directly in the app
+- Added Firebase Crashlytics
+
+### Bug Fixes
+
+- Fixed chinese translation [#179](https://github.com/Clon1998/mobileraker/pull/179)
+- Fixed Mobileraker breaking existing WebRtc cam settings
+
 ## [2.4.0] - 2023-06-20
 
 ### Major Changes
