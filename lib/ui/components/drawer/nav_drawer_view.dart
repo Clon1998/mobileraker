@@ -4,6 +4,7 @@
  */
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -86,6 +87,12 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       icon: Icons.history,
                       routeName: '/changelog',
                     ),
+                    if (kDebugMode)
+                      const _DrawerItem(
+                        text: 'DEV',
+                        icon: FlutterIcons.build_mdi,
+                        routeName: '/dev',
+                      ),
                   ],
                 ),
               ),
