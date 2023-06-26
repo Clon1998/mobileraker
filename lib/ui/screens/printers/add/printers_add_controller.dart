@@ -49,6 +49,8 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   final AppConnectionService _appConnectionService;
   final SnackBarService _snackBarService;
 
+  StreamSubscription? _testConnectionRPCState;
+
   onFormConfirm() async {
     var formState = ref.read(simpleFormKeyProvider).currentState!;
     if (formState.saveAndValidate()) {
@@ -87,7 +89,7 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
         ..trustSelfSignedCertificate = trustSelfSigned;
       var jsonRpcClient = jsonRpcClientBuilder.build();
       jsonRpcClient.openChannel();
-      StreamSubscription list = jsonRpcClient.stateStream.listen((event) {
+      _testConnectionRPCState = jsonRpcClient.stateStream.listen((event) {
         state = AsyncValue.data(event);
       });
 
@@ -95,11 +97,14 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
             ClientState.connected,
             ClientState.error
           ].contains(element.valueOrNull));
-      if (jsonRpcClient.hasError) {
-        state =
-            AsyncValue.error(jsonRpcClient.errorReason!, StackTrace.current);
+
+      if (mounted) {
+        if (jsonRpcClient.hasError) {
+          state =
+              AsyncValue.error(jsonRpcClient.errorReason!, StackTrace.current);
+        }
       }
-      list.cancel();
+      _testConnectionRPCState?.cancel();
       jsonRpcClient.dispose();
     } else {
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
@@ -157,6 +162,12 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
           title: 'OctoEverywhere-Error:',
           message: e.message));
     }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _testConnectionRPCState?.cancel();
   }
 }
 //
