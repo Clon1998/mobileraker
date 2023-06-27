@@ -37,10 +37,10 @@ dependencies:
 
   #firebase
   firebase_core_platform_interface: ^4.8.0
-  firebase_core: ^2.14.0
+  firebase_core: ^2.13.1
   firebase_analytics: ^10.4.3
   firebase_app_check: ^0.1.4+3
-  firebase_crashlytics: ^3.3.3
+  firebase_crashlytics: ^3.3.2
   cloud_firestore: ^4.8.1
 
 
@@ -80,8 +80,8 @@ dependencies:
 
 
   #notification
-  awesome_notifications: ^0.7.5-dev.2+1
-  awesome_notifications_fcm: ^0.7.5-dev.2+1
+  awesome_notifications: ^0.7.5-dev.3
+  awesome_notifications_fcm: ^0.7.5-dev.3
 
   #form
   flutter_form_builder: ^9.0.0
