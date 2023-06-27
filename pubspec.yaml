@@ -37,10 +37,10 @@ dependencies:
 
   #firebase
   firebase_core_platform_interface: ^4.8.0
-  firebase_core: ^2.13.1
+  firebase_core: ^2.14.0
   firebase_analytics: ^10.4.3
   firebase_app_check: ^0.1.4+3
-  firebase_crashlytics: ^3.3.2
+  firebase_crashlytics: ^3.3.3
   cloud_firestore: ^4.8.1
 
 
