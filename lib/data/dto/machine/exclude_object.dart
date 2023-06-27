@@ -49,7 +49,7 @@ class ParsedObject with _$ParsedObject {
     @Vector2Converter()
     @JsonKey(name: 'polygon')
     @Default([])
-        List<Vector2> polygons,
+    List<Vector2> polygons,
   }) = _ParsedObject;
 
   factory ParsedObject.fromJson(Map<String, dynamic> json) =>
