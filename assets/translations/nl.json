@@ -66,8 +66,8 @@
           "fullscreen": "Volledig Scherm"
         },
         "temp_card": {
-          "title": "Temperatuur bediening",
-          "presets_btn": "Presets",
+          "title": "Temperatuurbediening",
+          "presets_btn": "Voorinstellingen",
           "hotend": "Hotend",
           "bed": "Bouwplaat",
           "temp_presets": "Temperatuur voorinstellingen",
@@ -157,7 +157,7 @@
           "velocity": "Snelheid",
           "accel": "Versnelling",
           "sq_corn_vel": "Rechte hoeksnelheid",
-          "accel_to_decel": "Versnellen naar afremmen"
+          "accel_to_decel": "Versnellen naar vertragen"
         }
       }
     },
@@ -237,7 +237,7 @@
       },
       "developer": {
         "title": "Ontwikkelaar",
-        "crashlytics": "Enable Crashlytics reporting"
+        "crashlytics": "Crashlytics rapportering inschakelen"
       },
       "imprint": "Privacy/Impressum"
     },
@@ -295,7 +295,7 @@
         "default_url": "Standaard URL",
         "flip_vertical": "Verticaal omdraaien",
         "flip_horizontal": "Horizontaal omdraaien",
-        "cam_mode": "Camera Modus",
+        "cam_mode": "Cameramodus",
         "cam_rotate": "Draaiing"
       },
       "macros": {
@@ -359,7 +359,7 @@
       },
       "subscribe_view": {
         "title": "Ondersteun Mobileraker!",
-        "info": "Mobileraker streeft ernaar een snelle en betrouwebare mobiele interface voor Klipper te verzorgen, gedreven door de geest van RepRap, dat open-source software en hardware een positieve impact kan maken.\nAangezien Mobileraker door een enkele ontwikkelaar wordt ontwikkeld en gratis aangeboden wordt, is het afhankelijk van financiering van de gemeenschap voor operationele- en ontwikkelingskosten.",
+        "info": "Mobileraker streeft ernaar een snelle en betrouwbare mobiele interface voor Klipper te verzorgen, gedreven door de geest van RepRap, dat open-source software en hardware een positieve impact kan maken.\nAangezien Mobileraker door een enkele ontwikkelaar wordt ontwikkeld en gratis aangeboden wordt, is het afhankelijk van financiering van de gemeenschap voor operationele- en ontwikkelingskosten.",
         "list_title": "Kies een ondersteuningsrang:"
       },
       "supporter_tier_list": {
