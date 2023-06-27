@@ -80,8 +80,8 @@ dependencies:
 
 
   #notification
-  awesome_notifications: ^0.7.5-dev.3
-  awesome_notifications_fcm: ^0.7.5-dev.3
+  awesome_notifications: ^0.7.5-dev.2+1
+  awesome_notifications_fcm: ^0.7.5-dev.2+1
 
   #form
   flutter_form_builder: ^9.0.0
