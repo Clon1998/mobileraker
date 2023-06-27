@@ -84,6 +84,7 @@
 		CDCDCED92A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MobilerakerNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDCDCEDB2A4B784100E1B5C8 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		CDCDCEDD2A4B784100E1B5C8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CDCDCEE52A4B7BF300E1B5C8 /* MobilerakerNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobilerakerNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		D19DB313433F7C241DF96C57 /* Pods_MobilerakerNotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobilerakerNotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB914D1C27C43AD0005E5F80 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		FC87F71B355261A988C6B3D7 /* Pods-MobilerakerServiceExtension.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerServiceExtension.profile.xcconfig"; path = "Target Support Files/Pods-MobilerakerServiceExtension/Pods-MobilerakerServiceExtension.profile.xcconfig"; sourceTree = "<group>"; };
@@ -178,6 +179,7 @@
 		CDCDCEDA2A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension */ = {
 			isa = PBXGroup;
 			children = (
+				CDCDCEE52A4B7BF300E1B5C8 /* MobilerakerNotificationServiceExtension.entitlements */,
 				CDCDCEDB2A4B784100E1B5C8 /* NotificationService.swift */,
 				CDCDCEDD2A4B784100E1B5C8 /* Info.plist */,
 			);
@@ -721,6 +723,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationServiceExtension/MobilerakerNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q4XB68D4T7;
@@ -762,6 +765,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationServiceExtension/MobilerakerNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q4XB68D4T7;
@@ -800,6 +804,7 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationServiceExtension/MobilerakerNotificationServiceExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q4XB68D4T7;
