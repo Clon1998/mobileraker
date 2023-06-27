@@ -39,17 +39,3 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
   end
 end
-
-
-
-################  Awesome Notifications FCM pod steps   ###################
-awesome_fcm_pod_file = File.expand_path(File.join('plugins', 'awesome_notifications_fcm', 'ios', 'Scripts', 'AwesomeFcmPodFile'), '.symlinks')
-require awesome_fcm_pod_file
-target 'MobilerakerServiceExtension' do
-  use_frameworks!
-  use_modular_headers!
-  
-  install_awesome_fcm_ios_pod_target File.dirname(File.realpath(__FILE__))
-end
-update_awesome_fcm_service_target('MobilerakerServiceExtension', File.dirname(File.realpath(__FILE__)), flutter_root)
-################  Awesome Notifications FCM pod steps   ###################
