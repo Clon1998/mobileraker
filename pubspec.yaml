@@ -36,12 +36,12 @@ dependencies:
   http: ^0.13.4
 
   #firebase
-  # thats a workaround, remove in a coulple of weeks!
-  firebase_core_platform_interface: 4.6.0
-  firebase_core: <2.8.0
-  firebase_analytics: ^10.1.5
-  firebase_app_check: 0.1.1+12
-  firebase_crashlytics: ^3.0.16
+  firebase_core_platform_interface: ^4.8.0
+  firebase_core: ^2.14.0
+  firebase_analytics: ^10.4.3
+  firebase_app_check: ^0.1.4+3
+  firebase_crashlytics: ^3.3.3
+  cloud_firestore: ^4.8.1
 
 
   #architecture
@@ -124,7 +124,6 @@ dependencies:
   flutter_svg: ^2.0.5
   loader_overlay: ^2.2.0
   flutter_whatsnew: ^1.0.5+2
-  cloud_firestore: ^4.4.4
 
 
 #  ditredi: ^1.0.3
