@@ -30,6 +30,8 @@ flutter_ios_podfile_setup
 target 'Runner' do
   use_frameworks!
   use_modular_headers!
+  
+  pod 'GoogleUtilities'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
 end
@@ -47,6 +49,8 @@ require awesome_fcm_pod_file
 target 'MobilerakerNotificationServiceExtension' do
   use_frameworks!
   use_modular_headers!
+  
+  pod 'GoogleUtilities'
   
   install_awesome_fcm_ios_pod_target File.dirname(File.realpath(__FILE__))
 end
