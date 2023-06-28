@@ -4,7 +4,9 @@
  */
 
 enum PowerState {
-on,
-off,
-init;
+  on,
+  off,
+  error,
+  unknown,
+  init;
 }
