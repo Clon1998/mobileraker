@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/enums/webcam_service_type.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
@@ -60,15 +61,15 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   openQrScanner(BuildContext context) async {
-    var qr = await Navigator.of(context)
+    Barcode qr = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     logger.wtf('QR $qr');
-    if (qr != null) {
+    if (qr.rawValue != null) {
       ref
           .read(editPrinterFormKeyProvider)
           .currentState
           ?.fields['printerApiKey']
-          ?.didChange(qr);
+          ?.didChange(qr.rawValue);
     }
   }
 
