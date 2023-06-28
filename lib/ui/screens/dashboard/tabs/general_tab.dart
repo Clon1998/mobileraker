@@ -162,7 +162,7 @@ class PrintCard extends ConsumerWidget {
         .select((data) => data.value!.printerData.excludeObject));
 
     var themeData = Theme.of(context);
-
+    logger.wtf('klippy instance $klippyInstance');
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

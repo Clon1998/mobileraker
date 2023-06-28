@@ -55,13 +55,20 @@ class PullToRefreshPrinterConsumer extends _$PullToRefreshPrinterConsumer {
       klippyServiceKeepAlive =
           ref.keepAliveExternally(klipperServiceProvider(selMachine.uuid));
 
-      await Future.wait([
-        printerServiceKeepAlive.read().refreshPrinter(),
-        klippyServiceKeepAlive.read().refreshKlippy()
-      ]);
+      await klippyServiceKeepAlive.read().refreshKlippy();
+      var read = ref.read(klipperProvider(selMachine.uuid));
+      if (!read.hasError &&
+          read.hasValue &&
+          read.value!.klippyCanReceiveCommands) {
+        logger.i(
+            'Klippy reported ready and connected, will try to refresh printer');
+        await printerServiceKeepAlive.read().refreshPrinter();
+      }
+
       refreshController.refreshCompleted();
     } catch (e) {
       logger.w("Error while trying to refresh printer", e);
+      refreshController.refreshFailed();
     } finally {
       printerServiceKeepAlive?.close();
       klippyServiceKeepAlive?.close();
