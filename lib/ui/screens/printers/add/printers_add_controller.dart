@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response.dart';
 import 'package:mobileraker/data/dto/octoeverywhere/app_portal_result.dart';
@@ -115,14 +116,14 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   }
 
   openQrScanner(BuildContext context) async {
-    var qr = await Navigator.of(context)
+    Barcode qr = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
-    if (qr != null) {
+    if (qr.rawValue != null) {
       ref
           .read(simpleFormKeyProvider)
           .currentState
           ?.fields['printerApiKey']
-          ?.didChange(qr);
+          ?.didChange(qr.rawValue);
     }
   }
 
