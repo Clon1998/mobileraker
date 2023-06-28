@@ -76,7 +76,9 @@ class _PowerDeviceCard extends ConsumerWidget {
     var powerDevice = ref.watch(powerDeviceProvider).valueOrFullNull!;
     return CardWithSwitch(
         value: powerDevice.status == PowerState.on,
-        onChanged: (powerDevice.lockedWhilePrinting &&
+        onChanged: (powerDevice.status == PowerState.error ||
+                powerDevice.status == PowerState.unknown ||
+                powerDevice.lockedWhilePrinting &&
                     ref.watch(printerSelectedProvider.select((d) =>
                         d.valueOrFullNull?.print.state ==
                         PrintState.printing)) ||
