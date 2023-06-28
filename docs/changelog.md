@@ -1,5 +1,19 @@
 # Mobileraker - Changelog
 
+## [2.4.2] - 2023-06-28
+
+### Major Changes
+
+- Added Dutch translation thanks
+  to [JMSPI](https://github.com/JMSPI) [#185](https://github.com/Clon1998/mobileraker/pull/185)
+
+### Bug Fixes
+
+- Fixed app not starting on ios [#186](https://github.com/Clon1998/mobileraker/pull/186)
+- Fixed printer refresh if klipper is not in ready state [#187](https://github.com/Clon1998/mobileraker/pull/187)
+- Fixed parsing of print_states [#181](https://github.com/Clon1998/mobileraker/pull/181)
+- Fixed QR scanner not populating API key field. [#189](https://github.com/Clon1998/mobileraker/pull/181)
+
 ## [2.4.1] - 2023-06-25
 
 ### Changed Features
