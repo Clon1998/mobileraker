@@ -184,7 +184,7 @@ class JsonRpcClient {
   }
 
   /// Send a JsonRpc using futures
-  Future<RpcResponse> sendJRpcMethod(String method, {dynamic params}) async {
+  Future<RpcResponse> sendJRpcMethod(String method, {dynamic params}) {
     var jsonRpc = _constructJsonRPCMessage(method, params: params);
     var mId = jsonRpc['id'];
     _requests[mId] = _completerCallback;
