@@ -261,11 +261,7 @@
         "flip_horizontal": "Capovolgi Orizzontalmente",
         "cam_mode": "Modalità Videocamera",
         "cam_mofde": "Fasff Videocamera",
-        "cam_rotate": {
-          "label": "Ruota",
-          "landscape": "Orizzintale",
-          "portrait": "Verticale"
-        }
+        "cam_rotate": "Ruota"
       },
       "macros": {
         "new_macro_grp": "Nuova Macro - Gruppo",
