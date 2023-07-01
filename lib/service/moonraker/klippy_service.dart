@@ -87,7 +87,9 @@ class KlippyService {
 
   set _current(KlipperInstance nI) {
     __current = nI;
-    _klipperStreamCtler.add(nI);
+    if (!_klipperStreamCtler.isClosed) {
+      _klipperStreamCtler.add(nI);
+    }
   }
 
   KlipperInstance get _current => __current;
