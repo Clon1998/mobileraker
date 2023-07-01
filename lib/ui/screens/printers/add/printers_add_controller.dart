@@ -116,14 +116,14 @@ class PrinterAddViewController extends StateNotifier<AsyncValue<ClientState>> {
   }
 
   openQrScanner(BuildContext context) async {
-    Barcode qr = await Navigator.of(context)
+    Barcode? qr = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
-    if (qr.rawValue != null) {
+    if (qr?.rawValue != null) {
       ref
           .read(simpleFormKeyProvider)
           .currentState
           ?.fields['printerApiKey']
-          ?.didChange(qr.rawValue);
+          ?.didChange(qr!.rawValue);
     }
   }
 

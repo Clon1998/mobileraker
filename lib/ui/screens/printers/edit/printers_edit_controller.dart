@@ -61,15 +61,14 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   openQrScanner(BuildContext context) async {
-    Barcode qr = await Navigator.of(context)
+    Barcode? qr = await Navigator.of(context)
         .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
-    logger.wtf('QR $qr');
-    if (qr.rawValue != null) {
+    if (qr?.rawValue != null) {
       ref
           .read(editPrinterFormKeyProvider)
           .currentState
           ?.fields['printerApiKey']
-          ?.didChange(qr.rawValue);
+          ?.didChange(qr!.rawValue);
     }
   }
 
