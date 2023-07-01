@@ -266,7 +266,7 @@ class JsonRpcClient {
     if (trustSelfSignedCertificate) {
       // only allow self signed certificates!
       httpClient.badCertificateCallback =
-          (cert, host, port) => cert.issuer == cert.subject;
+          (cert, host, port) => true;
     }
     return httpClient;
   }
