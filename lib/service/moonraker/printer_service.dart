@@ -223,15 +223,15 @@ class PrinterService {
   }
 
   resumePrint() {
-    _jRpcClient.sendJsonRpcWithCallback('printer.print.resume');
+    _jRpcClient.sendJRpcMethod('printer.print.resume').ignore();
   }
 
   pausePrint() {
-    _jRpcClient.sendJsonRpcWithCallback('printer.print.pause');
+    _jRpcClient.sendJRpcMethod('printer.print.pause').ignore();
   }
 
   cancelPrint() {
-    _jRpcClient.sendJsonRpcWithCallback('printer.print.cancel');
+    _jRpcClient.sendJRpcMethod('printer.print.cancel').ignore();
   }
 
   setGcodeOffset({double? x, double? y, double? z, int? move}) {
@@ -397,8 +397,8 @@ class PrinterService {
   }
 
   startPrintFile(GCodeFile file) {
-    _jRpcClient.sendJsonRpcWithCallback('printer.print.start',
-        params: {'filename': file.pathForPrint});
+    _jRpcClient.sendJRpcMethod('printer.print.start',
+        params: {'filename': file.pathForPrint}).ignore();
   }
 
   resetPrintStat() {
@@ -834,8 +834,8 @@ class PrinterService {
     Map<String, List<String>?> queryObjects =
         _queryPrinterObjectJson(queryableObjects);
 
-    _jRpcClient.sendJsonRpcWithCallback('printer.objects.subscribe',
-        params: {'objects': queryObjects});
+    _jRpcClient.sendJRpcMethod('printer.objects.subscribe',
+        params: {'objects': queryObjects}).ignore();
   }
 
   String _gcodeMoveCode(String axis, double value) {

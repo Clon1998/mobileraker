@@ -97,29 +97,29 @@ class KlippyService {
   bool get isKlippyConnected => _current.klippyConnected;
 
   restartMCUs() {
-    _jRpcClient.sendJsonRpcWithCallback("printer.firmware_restart");
+    _jRpcClient.sendJRpcMethod("printer.firmware_restart").ignore();
   }
 
   rebootHost() {
-    _jRpcClient.sendJsonRpcWithCallback("machine.reboot");
+    _jRpcClient.sendJRpcMethod("machine.reboot").ignore();
   }
 
   shutdownHost() {
-    _jRpcClient.sendJsonRpcWithCallback("machine.shutdown");
+    _jRpcClient.sendJRpcMethod("machine.shutdown").ignore();
   }
 
   restartKlipper() {
-    _jRpcClient.sendJsonRpcWithCallback("machine.services.restart",
-        params: {'service': 'klipper'});
+    _jRpcClient.sendJRpcMethod("machine.services.restart",
+        params: {'service': 'klipper'}).ignore();
   }
 
   restartMoonraker() {
-    _jRpcClient.sendJsonRpcWithCallback("machine.services.restart",
-        params: {'service': 'moonraker'});
+    _jRpcClient.sendJRpcMethod("machine.services.restart",
+        params: {'service': 'moonraker'}).ignore();
   }
 
   emergencyStop() {
-    _jRpcClient.sendJsonRpcWithCallback("printer.emergency_stop");
+    _jRpcClient.sendJRpcMethod("printer.emergency_stop").ignore();
   }
 
   Future<void> refreshKlippy() async {
