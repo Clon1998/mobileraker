@@ -29,8 +29,8 @@ Future<PackageInfo> versionInfo(VersionInfoRef ref) async {
 }
 
 @riverpod
-bool boolSetting(BoolSettingRef ref, String key) =>
-    ref.watch(settingServiceProvider).readBool(key);
+bool boolSetting(BoolSettingRef ref, String key, [bool fallback = false]) =>
+    ref.watch(settingServiceProvider).readBool(key, fallback);
 
 @riverpod
 Future<List<Machine>> machinesWithoutCompanion(

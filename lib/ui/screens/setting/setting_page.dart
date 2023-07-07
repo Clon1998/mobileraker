@@ -52,7 +52,7 @@ class SettingPage extends ConsumerWidget {
                 name: 'emsConfirmation',
                 title: const Text('pages.setting.general.ems_confirm').tr(),
                 onChanged: (b) => settingService.writeBool(emsKey, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(emsKey)),
+                initialValue: ref.watch(boolSettingProvider(emsKey, true)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,

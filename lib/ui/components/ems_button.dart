@@ -32,19 +32,19 @@ class EmergencyStopBtn extends ConsumerWidget {
       tooltip: tr('pages.dashboard.ems_btn'),
       onPressed: klippyState == KlipperState.ready
           ? () async {
-        if (ref.read(settingServiceProvider).readBool(emsKey)) {
-          var result = await ref.read(dialogServiceProvider).showConfirm(
-            title: "Emergency Stop - Confirmation",
-            body: "Are you sure?",
-            confirmBtn: "STOP!",
-            confirmBtnColor:
-            Theme.of(context).extension<CustomColors>()?.danger ??
-                Colors.red,
-          );
-          if (!(result?.confirmed ?? false)) return;
-        }
+        if (ref.read(settingServiceProvider).readBool(emsKey, true)) {
+                var result = await ref.read(dialogServiceProvider).showConfirm(
+                      title: "Emergency Stop - Confirmation",
+                      body: "Are you sure?",
+                      confirmBtn: "STOP!",
+                      confirmBtnColor:
+                          Theme.of(context).extension<CustomColors>()?.danger ??
+                              Colors.red,
+                    );
+                if (!(result?.confirmed ?? false)) return;
+              }
 
-        ref.read(klipperServiceSelectedProvider).emergencyStop();
+              ref.read(klipperServiceSelectedProvider).emergencyStop();
       }
           : null,
     );
