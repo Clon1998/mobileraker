@@ -67,6 +67,219 @@ void main() {
       expect(uri.fragment, equals(''));
       expect(uri.userInfo, equals(''));
     });
+
+    test('should correctly deserialize a Uri object with missing scheme field',
+        () {
+      final mockReader = MockBinaryReader();
+
+      var mockReadByteAnswer = [7, 1, 6, 2, 3, 4, 5, 0];
+      when(mockReader.readByte())
+          .thenAnswer((_) => mockReadByteAnswer.removeAt(0));
+      var mockReadAnswer = [
+        'example.com', // host
+        'user:pass', // userInfo
+        8080, // port
+        '/path', // path
+        'query=value', // query
+        'fragment', // fragment
+        null, // scheme (missing field)
+      ];
+      when(mockReader.read())
+          .thenAnswer((realInvocation) => mockReadAnswer.removeAt(0));
+
+      final uri = adapter.read(mockReader);
+
+      expect(uri.scheme, isEmpty);
+      expect(uri.host, equals('example.com'));
+      expect(uri.port, equals(8080));
+      expect(uri.path, equals('/path'));
+      expect(uri.query, equals('query=value'));
+      expect(uri.fragment, equals('fragment'));
+      expect(uri.userInfo, equals('user:pass'));
+    });
+
+    test('should correctly deserialize a Uri object with missing host field',
+        () {
+      final mockReader = MockBinaryReader();
+
+      var mockReadByteAnswer = [7, 0, 6, 2, 3, 4, 5, 1];
+      when(mockReader.readByte())
+          .thenAnswer((_) => mockReadByteAnswer.removeAt(0));
+      var mockReadAnswer = [
+        'https', // scheme
+        'user:pass', // userInfo
+        8080, // port
+        '/path', // path
+        'query=value', // query
+        'fragment', // fragment
+        null, // host (missing field)
+      ];
+      when(mockReader.read())
+          .thenAnswer((realInvocation) => mockReadAnswer.removeAt(0));
+
+      final uri = adapter.read(mockReader);
+
+      expect(uri.scheme, equals('https'));
+      expect(uri.host, isEmpty);
+      expect(uri.port, equals(8080));
+      expect(uri.path, equals('/path'));
+      expect(uri.query, equals('query=value'));
+      expect(uri.fragment, equals('fragment'));
+      expect(uri.userInfo, equals('user:pass'));
+    });
+
+    test('should correctly deserialize a Uri object with missing port field',
+        () {
+      final mockReader = MockBinaryReader();
+
+      var mockReadByteAnswer = [7, 0, 1, 6, 3, 4, 5, 2];
+      when(mockReader.readByte())
+          .thenAnswer((_) => mockReadByteAnswer.removeAt(0));
+      var mockReadAnswer = [
+        'https', // scheme
+        'example.com', // host
+        'user:pass', // userInfo
+        '/path', // path
+        'query=value', // query
+        'fragment', // fragment
+        null, // port (missing field)
+      ];
+      when(mockReader.read())
+          .thenAnswer((realInvocation) => mockReadAnswer.removeAt(0));
+
+      final uri = adapter.read(mockReader);
+
+      expect(uri.scheme, equals('https'));
+      expect(uri.host, equals('example.com'));
+      expect(uri.hasPort, isFalse);
+      expect(uri.port, equals(443));
+      expect(uri.path, equals('/path'));
+      expect(uri.query, equals('query=value'));
+      expect(uri.fragment, equals('fragment'));
+      expect(uri.userInfo, equals('user:pass'));
+    });
+
+    test('should correctly deserialize a Uri object with missing path field',
+        () {
+      final mockReader = MockBinaryReader();
+
+      var mockReadByteAnswer = [7, 0, 1, 6, 2, 4, 5, 3];
+      when(mockReader.readByte())
+          .thenAnswer((_) => mockReadByteAnswer.removeAt(0));
+      var mockReadAnswer = [
+        'https', // scheme
+        'example.com', // host
+        'user:pass', // userInfo
+        8080, // port
+        'query=value', // query
+        'fragment', // fragment
+        null, // path (missing field)
+      ];
+      when(mockReader.read())
+          .thenAnswer((realInvocation) => mockReadAnswer.removeAt(0));
+
+      final uri = adapter.read(mockReader);
+
+      expect(uri.scheme, equals('https'));
+      expect(uri.host, equals('example.com'));
+      expect(uri.port, equals(8080));
+      expect(uri.path, isEmpty);
+      expect(uri.query, equals('query=value'));
+      expect(uri.fragment, equals('fragment'));
+      expect(uri.userInfo, equals('user:pass'));
+    });
+
+    test('should correctly deserialize a Uri object with missing query field',
+        () {
+      final mockReader = MockBinaryReader();
+
+      var mockReadByteAnswer = [7, 0, 1, 6, 2, 3, 5, 4];
+      when(mockReader.readByte())
+          .thenAnswer((_) => mockReadByteAnswer.removeAt(0));
+      var mockReadAnswer = [
+        'https', // scheme
+        'example.com', // host
+        'user:pass', // userInfo
+        8080, // port
+        '/path', // path
+        'fragment', // fragment
+        null, // query (missing field)
+      ];
+      when(mockReader.read())
+          .thenAnswer((realInvocation) => mockReadAnswer.removeAt(0));
+
+      final uri = adapter.read(mockReader);
+
+      expect(uri.scheme, equals('https'));
+      expect(uri.host, equals('example.com'));
+      expect(uri.port, equals(8080));
+      expect(uri.path, equals('/path'));
+      expect(uri.query, isEmpty);
+      expect(uri.fragment, equals('fragment'));
+      expect(uri.userInfo, equals('user:pass'));
+    });
+
+    test(
+        'should correctly deserialize a Uri object with missing fragment field',
+        () {
+      final mockReader = MockBinaryReader();
+
+      var mockReadByteAnswer = [7, 0, 1, 6, 2, 3, 4, 5];
+      when(mockReader.readByte())
+          .thenAnswer((_) => mockReadByteAnswer.removeAt(0));
+      var mockReadAnswer = [
+        'https', // scheme
+        'example.com', // host
+        'user:pass', // userInfo
+        8080, // port
+        '/path', // path
+        'query=value', // query
+        null, // fragment (missing field)
+      ];
+      when(mockReader.read())
+          .thenAnswer((realInvocation) => mockReadAnswer.removeAt(0));
+
+      final uri = adapter.read(mockReader);
+
+      expect(uri.scheme, equals('https'));
+      expect(uri.host, equals('example.com'));
+      expect(uri.port, equals(8080));
+      expect(uri.path, equals('/path'));
+      expect(uri.query, equals('query=value'));
+      expect(uri.fragment, isEmpty);
+      expect(uri.userInfo, equals('user:pass'));
+    });
+
+    test(
+        'should correctly deserialize a Uri object with missing userInfo field',
+        () {
+      final mockReader = MockBinaryReader();
+
+      var mockReadByteAnswer = [7, 0, 1, 2, 3, 4, 5, 6];
+      when(mockReader.readByte())
+          .thenAnswer((_) => mockReadByteAnswer.removeAt(0));
+      var mockReadAnswer = [
+        'https', // scheme
+        'example.com', // host
+        8080, // port
+        '/path', // path
+        'query=value', // query
+        'fragment', // fragment
+        null, // userInfo (missing field)
+      ];
+      when(mockReader.read())
+          .thenAnswer((realInvocation) => mockReadAnswer.removeAt(0));
+
+      final uri = adapter.read(mockReader);
+
+      expect(uri.scheme, equals('https'));
+      expect(uri.host, equals('example.com'));
+      expect(uri.port, equals(8080));
+      expect(uri.path, equals('/path'));
+      expect(uri.query, equals('query=value'));
+      expect(uri.fragment, equals('fragment'));
+      expect(uri.userInfo, isEmpty);
+    });
   });
 
   group('UriAdapter - Serialization', () {
