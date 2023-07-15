@@ -123,19 +123,19 @@ void main() {
       verifyInOrder([
         mockWriter.writeByte(7), // Total number of fields
         mockWriter.writeByte(0), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(1), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(2), // Field index
-        mockWriter.write(0), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(3), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(4), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(5), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(6), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
       ]);
       verifyNoMoreInteractions(mockWriter);
     });
@@ -145,7 +145,6 @@ void main() {
       final uri = Uri(
         scheme: '',
         host: '',
-        port: 0,
         path: '',
         query: '',
         fragment: '',
@@ -157,19 +156,19 @@ void main() {
       verifyInOrder([
         mockWriter.writeByte(7), // Total number of fields
         mockWriter.writeByte(0), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(1), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(2), // Field index
-        mockWriter.write(0), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(3), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(4), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(5), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(6), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
       ]);
       verifyNoMoreInteractions(mockWriter);
     });
@@ -191,7 +190,7 @@ void main() {
       verifyInOrder([
         mockWriter.writeByte(7), // Total number of fields
         mockWriter.writeByte(0), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(1), // Field index
         mockWriter.write('example.com'), // Field value
         mockWriter.writeByte(2), // Field index
@@ -226,7 +225,7 @@ void main() {
         mockWriter.writeByte(0), // Field index
         mockWriter.write('https'), // Field value
         mockWriter.writeByte(1), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(2), // Field index
         mockWriter.write(8080), // Field value
         mockWriter.writeByte(3), // Field index
@@ -261,7 +260,7 @@ void main() {
         mockWriter.writeByte(1), // Field index
         mockWriter.write('example.com'), // Field value
         mockWriter.writeByte(2), // Field index
-        mockWriter.write(443), // Uri will use default port
+        mockWriter.write(null), // Uri will use default port
         mockWriter.writeByte(3), // Field index
         mockWriter.write('/path'), // Field value
         mockWriter.writeByte(4), // Field index
@@ -296,7 +295,7 @@ void main() {
         mockWriter.writeByte(2), // Field index
         mockWriter.write(8080), // Field value
         mockWriter.writeByte(3), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(4), // Field index
         mockWriter.write('query=value'), // Field value
         mockWriter.writeByte(5), // Field index
@@ -332,7 +331,7 @@ void main() {
         mockWriter.writeByte(3), // Field index
         mockWriter.write('/path'), // Field value
         mockWriter.writeByte(4), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(5), // Field index
         mockWriter.write('fragment'), // Field value
         mockWriter.writeByte(6), // Field index
@@ -368,7 +367,7 @@ void main() {
         mockWriter.writeByte(4), // Field index
         mockWriter.write('query=value'), // Field value
         mockWriter.writeByte(5), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
         mockWriter.writeByte(6), // Field index
         mockWriter.write('user:pass'), // Field value
       ]);
@@ -404,7 +403,7 @@ void main() {
         mockWriter.writeByte(5), // Field index
         mockWriter.write('fragment'), // Field value
         mockWriter.writeByte(6), // Field index
-        mockWriter.write(''), // Field value
+        mockWriter.write(null), // Field value
       ]);
       verifyNoMoreInteractions(mockWriter);
     });

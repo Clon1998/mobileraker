@@ -16,13 +16,13 @@ class UriAdapter extends TypeAdapter<Uri> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Uri(
-      scheme: fields[0] as String,
-      host: fields[1] as String,
-      port: fields[2] as int,
-      path: fields[3] as String,
-      query: fields[4] as String,
-      fragment: fields[5] as String,
-      userInfo: fields[6] as String,
+      scheme: fields[0] as String?,
+      host: fields[1] as String?,
+      port: fields[2] as int?,
+      path: fields[3] as String?,
+      query: fields[4] as String?,
+      fragment: fields[5] as String?,
+      userInfo: fields[6] as String?,
     );
   }
 
@@ -31,19 +31,19 @@ class UriAdapter extends TypeAdapter<Uri> {
     writer
       ..writeByte(7)
       ..writeByte(0)
-      ..write(obj.scheme)
+      ..write(obj.scheme.isNotEmpty ? obj.scheme : null)
       ..writeByte(1)
-      ..write(obj.host)
+      ..write(obj.host.isNotEmpty ? obj.host : null)
       ..writeByte(2)
-      ..write(obj.port)
+      ..write(obj.hasPort ? obj.port : null)
       ..writeByte(3)
-      ..write(obj.path)
+      ..write(obj.path.isNotEmpty ? obj.path : null)
       ..writeByte(4)
-      ..write(obj.query)
+      ..write(obj.query.isNotEmpty ? obj.query : null)
       ..writeByte(5)
-      ..write(obj.fragment)
+      ..write(obj.fragment.isNotEmpty ? obj.fragment : null)
       ..writeByte(6)
-      ..write(obj.userInfo);
+      ..write(obj.userInfo.isNotEmpty ? obj.userInfo : null);
   }
 
   @override
