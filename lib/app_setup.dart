@@ -106,6 +106,9 @@ setupBoxes() async {
 
   try {
     await openBoxes(keyMaterial);
+    Hive.box<Machine>("printers").values.forEach((element) {
+      logger.i('Machine in box is ${element.debugStr}#${element.hashCode}');
+    });
   } catch (e) {
     await Hive.deleteBoxFromDisk('printers');
     await Hive.deleteBoxFromDisk('uuidbox');
@@ -116,12 +119,21 @@ setupBoxes() async {
 
 Future<List<Box>> openBoxes(Uint8List keyMaterial) {
   return Future.wait([
-    Hive.openBox<Machine>('printers'),
+    Hive.openBox<Machine>('printers').then(_migrateMachine),
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
     Hive.openBox<OctoEverywhere>('octo',
         encryptionCipher: HiveAesCipher(keyMaterial))
   ]);
+}
+
+Future<Box<Machine>> _migrateMachine(Box<Machine> box) async {
+  var allMigratedPrinters = box.values.toList();
+  await box.clear();
+  await box.putAll({
+    for (var p in allMigratedPrinters) p.uuid: p,
+  });
+  return box;
 }
 
 setupLicenseRegistry() {

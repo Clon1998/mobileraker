@@ -36,8 +36,6 @@ class MachineAdapter extends TypeAdapter<Machine> {
           'Found a legacy Printer httpUri for ${fields[0]}(${fields[2]}). "${fields[6]}" migrated to "$httpUri"');
     } else {
       httpUri = fields[6] as Uri;
-      logger
-          .w('Found NO legacy Printer httpUri for ${fields[0]}(${fields[2]}).');
     }
 
     return Machine(

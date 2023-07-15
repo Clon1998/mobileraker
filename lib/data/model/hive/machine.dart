@@ -95,30 +95,32 @@ class Machine extends HiveObject {
       other is Machine &&
           runtimeType == other.runtimeType &&
           name == other.name &&
-          wsUrl == other.wsUrl &&
+          wsUri == other.wsUri &&
           uuid == other.uuid &&
           apiKey == other.apiKey &&
           listEquals(temperaturePresets, other.temperaturePresets) &&
-          httpUrl == other.httpUrl &&
+          httpUri == other.httpUri &&
           lastPrintProgress == other.lastPrintProgress &&
           _lastPrintState == other._lastPrintState &&
           fcmIdentifier == other.fcmIdentifier &&
           lastModified == other.lastModified &&
-          octoEverywhere == other.octoEverywhere;
+          octoEverywhere == other.octoEverywhere &&
+          listEquals(camOrdering, other.camOrdering);
 
   @override
   int get hashCode =>
       name.hashCode ^
-      wsUrl.hashCode ^
+      wsUri.hashCode ^
       uuid.hashCode ^
       apiKey.hashCode ^
       temperaturePresets.hashCode ^
-      httpUrl.hashCode ^
+      httpUri.hashCode ^
       lastPrintProgress.hashCode ^
       _lastPrintState.hashCode ^
       fcmIdentifier.hashCode ^
       lastModified.hashCode ^
-      octoEverywhere.hashCode;
+      octoEverywhere.hashCode ^
+      camOrdering.hashCode;
 
   @override
   String toString() {
