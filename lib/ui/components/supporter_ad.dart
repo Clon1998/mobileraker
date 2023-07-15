@@ -38,7 +38,7 @@ class _SupporterAdController extends _$SupporterAdController {
 
     logger.i('Last dismiss of Supporter AD: $stamp');
 
-    return stamp == null || DateTime.now().difference(stamp).inDays > 25;
+    return stamp == null || DateTime.now().difference(stamp).inDays > 20;
   }
 
   dismissAd() {

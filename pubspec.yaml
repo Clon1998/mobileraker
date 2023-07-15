@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 2.4.2+145
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
   flutter: '>=3.7.2'
 
 
@@ -84,7 +84,12 @@ dependencies:
   awesome_notifications_fcm: ^0.7.5-dev.3
 
   #form
-  flutter_form_builder: ^9.0.0
+  flutter_form_builder:
+    #hotfix for autovalidation
+    git:
+      url: https://github.com/flutter-form-builder-ecosystem/flutter_form_builder.git
+      ref: 957a77dc061bfb9cd26632f803c931f1fe331f7d
+
   form_builder_validators: ^9.0.0
 
   #tranlation
@@ -97,6 +102,7 @@ dependencies:
   rate_my_app: ^1.1.4
 
   #ui
+  easy_stepper: ^0.7.2
   flutter_colorpicker: ^1.0.3
   percent_indicator: ^4.0.1
   flutter_icons:

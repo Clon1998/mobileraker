@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/adapters/uri_adapter.dart';
 import 'package:mobileraker/data/model/hive/gcode_macro.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/macro_group.dart';
@@ -95,6 +96,12 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId)) {
     Hive.registerAdapter(webcamSettingAdapter);
   }
+
+  var uriAdapter = UriAdapter();
+  if (!Hive.isAdapterRegistered(uriAdapter.typeId)) {
+    Hive.registerAdapter(uriAdapter);
+  }
+
   // Hive.deleteBoxFromDisk('printers');
 
   try {

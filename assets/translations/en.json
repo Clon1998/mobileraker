@@ -36,7 +36,9 @@
     "restore": "Restore",
     "accept": "Accept",
     "abort": "Abort",
-    "offset": "Offset"
+    "offset": "Offset",
+    "valid": "Valid",
+    "invalid": "Invalid"
   },
   "pages": {
     "dashboard": {
@@ -316,13 +318,51 @@
       }
     },
     "printer_add": {
+      "steps": {
+        "mode": "Mode",
+        "input": "Input",
+        "test": "Test",
+        "done": "Done"
+      },
       "title": "Add New Printer",
-      "printer_add_helper": "Host, IP, or full URL",
-      "resulting_ws_url": "Resulting WebSocket-URL: {}",
-      "misc": "Misc",
-      "test_ws": "Test websocket connection",
-      "result_ws_test": "Result: {}",
-      "run_test_btn": "Test"
+      "initial_name": "My Printer",
+      "select_mode": {
+        "title": "Pick an input mode:",
+        "body": "If you are new to this, it's best to stick to the simple mode. However, if you are experienced and need to use custom headers, certificates, etc., then the expert mode is for you. Keep in mind that the mode you choose won't affect the app itself, but it will determine how the input is validated and displayed, and what options are available while you are adding a machine.",
+        "simple": "Simple",
+        "advanced": "Advanced",
+        "add_via_oe": "Add via OctoEverywhere"
+      },
+      "simple_form": {
+        "hint_title": "Hint - Simple Mode",
+        "hint_body": "Simple mode allows you to enter the host and port. However, if you need to customize the path, headers, certificates, or other settings, switch to the advanced mode.",
+        "url_hint": "Printer's IP or Hostname"
+      },
+      "advanced_form": {
+        "hint_title": "Hint - Advanced Mode",
+        "hint_body": "Please note that in Advanced mode, validation is mostly disabled. It is imperative that you take full responsibility for ensuring that the URL you enter is valid.",
+        "http_helper": "Please enter the HTTP endpoint of Moonraker",
+        "ws_helper": "Optional, WebSocket endpoint of Moonraker",
+        "section_security": "Security",
+        "section_headers": "HTTP-Headers"
+      },
+      "test_connection": {
+        "section_connection": "Connection Data",
+        "ws_url_label": "Resulting WebSocket-URL",
+        "http_url_label": "Resulting HTTP-URL",
+        "section_test": "Connection Tests",
+        "http_label": "Http Endpoint - Test",
+        "ws_label": "Websocket Endpoint - Test",
+        "awaiting": "Awaiting result…",
+        "continue": "Continue",
+        "continue_anyway": "Continue Anyway",
+        "proceed_warning": "It seems like the app is having trouble connecting to the machine. This might be because you are not on the same network as the machine or you do not have the necessary permissions to access it. Although you can choose to add the machine despite the issue, please be aware that there is no guarantee that it will connect properly. Please proceed with caution.",
+        "button": "Test Connection"
+      },
+      "confirmed": {
+        "title": "Printer {} added!",
+        "to_dashboard": "To the Dashboard"
+      }
     },
     "console": {
       "title": "Console",
@@ -509,6 +549,9 @@
         "title": "Print progress of {}"
       }
     }
+  },
+  "form_validators": {
+    "simple_url": "Input only allows URL components: Hostname and Port"
   },
   "languages": {
     "languageCode": {

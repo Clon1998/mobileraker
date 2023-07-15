@@ -72,11 +72,11 @@ class JsonRpcClientBuilder {
   Uri? uri;
   bool trustSelfSignedCertificate = false;
   Duration timeout = const Duration(seconds: 3);
+  Map<String, dynamic> headers = {};
 
   JsonRpcClient build() {
     assert(uri != null, 'Provided URI was null');
 
-    Map<String, dynamic> headers = {};
     if (apiKey != null) {
       headers['X-Api-Key'] = apiKey;
     }
@@ -359,7 +359,8 @@ class JsonRpcClient {
       HttpClientResponse response = await request.close();
       logger.wtf('Got Response: ${response.statusCode}');
       verifyHttpResponseCodes(response.statusCode, clientType);
-      openChannel(); // If no exception was thrown, we just try again!
+      // openChannel(); // If no exception was thrown, we just try again!
+      _updateError(error);
     } catch (e) {
       _updateError(e);
     }

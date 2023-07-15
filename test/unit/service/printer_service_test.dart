@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -32,7 +37,7 @@ void main() {
         .thenReturn(null);
     final respList = File('test_resources/list_resp.json');
     when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
-        (realInvocation) async =>
+            (realInvocation) async =>
             RpcResponse.fromJson(jsonDecode(respList.readAsStringSync())));
     final respQuery = File('test_resources/query_resp.json');
     var queryAbleObjects = {
@@ -62,9 +67,8 @@ void main() {
         (realInvocation) async =>
             RpcResponse.fromJson(jsonDecode(respTemp.readAsStringSync())));
 
-    when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
-            params: queryAbleObjects))
-        .thenReturn(null);
+    when(mockRpc.sendJRpcMethod('printer.objects.subscribe',
+        params: queryAbleObjects));
 
     var mockMachineService = MockMachineService();
 
@@ -122,7 +126,7 @@ void main() {
     final respList = File(
         'test_resources/service/printer_service/exclude_object_list_resp.json');
     when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
-        (realInvocation) async =>
+            (realInvocation) async =>
             RpcResponse.fromJson(jsonDecode(respList.readAsStringSync())));
     final respQuery = File(
         'test_resources/service/printer_service/exclude_object_query_response.json');
@@ -147,14 +151,14 @@ void main() {
     };
 
     when(mockRpc.sendJRpcMethod('printer.objects.query',
-            params: queryAbleObjects))
+        params: queryAbleObjects))
         .thenAnswer((realInvocation) async =>
-            RpcResponse.fromJson(jsonDecode(respQuery.readAsStringSync())));
+        RpcResponse.fromJson(jsonDecode(respQuery.readAsStringSync())));
     when(mockRpc.sendJRpcMethod('server.temperature_store'))
         .thenAnswer((realInvocation) async => const RpcResponse(jsonrpc: "2.0",id: 212,result: {}));
 
     when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
-            params: queryAbleObjects))
+        params: queryAbleObjects))
         .thenReturn(null);
 
     var mockMachineService = MockMachineService();
@@ -250,24 +254,24 @@ void main() {
     expect(printerService.currentOrNull, null);
 
     when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
-        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
-              'objects': ['toolhead']
-            }));
+            (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
+          'objects': ['toolhead']
+        }));
 
     when(mockRpc.sendJRpcMethod('printer.objects.query', params: {
       'objects': {'toolhead': null}
     })).thenAnswer(
-        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
-              'status': {
-                "toolhead": {
-                  "position": [0, 0, 0, 0],
-                  "status": "Ready"
-                }
-              }
-            }));
+            (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
+          'status': {
+            "toolhead": {
+              "position": [0, 0, 0, 0],
+              "status": "Ready"
+            }
+          }
+        }));
 
     when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
-        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {}));
+            (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {}));
 
     when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
         params: ['toolhead'])).thenReturn(null);
