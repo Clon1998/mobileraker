@@ -492,6 +492,9 @@ class NotificationService {
         body = 'Started to print file: "$file"';
         machine.lastPrintProgress = null;
         break;
+      case PrintState.cancelled:
+        body = 'Cancelled printing of file: "$file"';
+        break;
       case PrintState.paused:
         body = 'Paused printing file: "$file"';
         break;
