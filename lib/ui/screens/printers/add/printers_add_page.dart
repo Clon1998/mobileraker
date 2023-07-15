@@ -60,17 +60,12 @@ class _StepperBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var stepperIndex = ref
-        .watch(printerAddViewControllerProvider.select((value) => value.step));
+    var controller = ref.watch(printerAddViewControllerProvider.notifier);
+    var model = ref.watch(printerAddViewControllerProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: FormBuilder(
-        onWillPop: () async {
-          if (stepperIndex == 0 || stepperIndex == 3) return true;
-
-          ref.watch(printerAddViewControllerProvider.notifier).previousStep();
-          return false;
-        },
+        onWillPop: controller.onWillPopScope,
         key: ref.watch(formKeyProvider),
         child: AnimatedSwitcher(
           duration: kThemeAnimationDuration,
@@ -80,9 +75,8 @@ class _StepperBody extends ConsumerWidget {
             child: child,
           ),
           child: stepperBody(
-            stepperIndex,
-            ref.watch(printerAddViewControllerProvider
-                .select((value) => value.isExpert)),
+            model.step,
+            model.isExpert,
           ),
         ),
       ),

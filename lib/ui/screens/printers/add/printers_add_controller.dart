@@ -94,6 +94,16 @@ class PrinterAddViewController extends _$PrinterAddViewController {
     }
   }
 
+  Future<bool> onWillPopScope() async {
+    var stepperIndex = ref
+        .read(printerAddViewControllerProvider.select((value) => value.step));
+
+    if (stepperIndex == 0 || stepperIndex == 3) return true;
+
+    ref.watch(printerAddViewControllerProvider.notifier).previousStep();
+    return false;
+  }
+
   selectMode(bool isExpert) {
     if (isExpert != state.isExpert) {
       ref.invalidate(formKeyProvider);
