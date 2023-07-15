@@ -136,9 +136,12 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.url(
-                      protocols: ['http', 'https'],
-                      requireProtocol: true,
-                      requireTld: false)
+                      requireTld: false,
+                      requireProtocol: false,
+                      protocols: [
+                        'http',
+                        'https',
+                      ])
                 ]),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),
@@ -153,7 +156,12 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.url(
-                      protocols: ['ws', 'wss'], requireProtocol: true)
+                      requireTld: false,
+                      requireProtocol: false,
+                      protocols: [
+                        'ws',
+                        'wss',
+                      ])
                 ]),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),

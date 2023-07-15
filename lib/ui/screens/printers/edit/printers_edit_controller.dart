@@ -29,6 +29,7 @@ import 'package:mobileraker/ui/components/dialog/import_settings/import_settings
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'printers_edit_controller.g.dart';
@@ -204,8 +205,15 @@ class PrinterEditController extends _$PrinterEditController {
   Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
     machine.name = storedValues['printerName'];
     machine.apiKey = storedValues['printerApiKey'];
-    machine.httpUrl = storedValues['printerUrl'];
-    machine.wsUrl = storedValues['wsUrl'];
+    var httpUri = buildMoonrakerHttpUri(storedValues['printerUrl']);
+    if (httpUri != null) {
+      machine.httpUri = httpUri;
+    }
+
+    var wsUri = buildMoonrakerWebSocketUri(storedValues['wsUrl']);
+    if (wsUri != null) {
+      machine.wsUri = wsUri;
+    }
     machine.trustUntrustedCertificate = storedValues['trustSelfSigned'];
     await ref.read(machineServiceProvider).updateMachine(machine);
   }
@@ -401,8 +409,7 @@ class WebcamListController extends _$WebcamListController {
   }
 }
 
-final moveStepStateProvider =
-StateNotifierProvider.autoDispose<
+final moveStepStateProvider = StateNotifierProvider.autoDispose<
     DoubleStepSegmentController, List<double>>((ref) {
   return DoubleStepSegmentController(
       ref.watch(machineRemoteSettingsProvider).value!.moveSteps);
