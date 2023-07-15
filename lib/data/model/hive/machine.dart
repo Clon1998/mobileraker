@@ -28,9 +28,9 @@ class Machine extends HiveObject {
   // Replaced in favor of httpUri
   @deprecated
   String get httpUrl => httpUri.toString();
-  @HiveField(22)
+  @HiveField(1)
   Uri wsUri;
-  @HiveField(23)
+  @HiveField(6)
   Uri httpUri;
   @HiveField(2)
   String uuid = const Uuid().v4();

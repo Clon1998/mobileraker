@@ -18,24 +18,28 @@ class MachineAdapter extends TypeAdapter<Machine> {
     };
 
     Uri wsUri;
-    if (fields.containsKey(22)) {
-      wsUri = fields[22];
-    } else {
+    if (fields[1] is String?) {
       wsUri = buildMoonrakerWebSocketUri(fields[1] as String, false) ??
           Uri.parse('ws://127.0.0.1/websocket');
       logger.w(
-          'Found a legacy Printer wsUri. "${fields[1]}" migrated to "$wsUri"');
+          'Found a legacy Printer wsUri for ${fields[0]}(${fields[2]}). "${fields[1]}" migrated to "$wsUri"');
+    } else {
+      wsUri = fields[1] as Uri;
     }
 
     Uri httpUri;
-    if (fields.containsKey(23)) {
-      httpUri = fields[23];
-    } else {
+    if (fields[6] is String?) {
       httpUri = buildMoonrakerHttpUri(fields[6] as String) ??
           Uri.parse('http://127.0.0.1');
+
       logger.w(
-          'Found a legacy Printer wsUri. "${fields[6]}" migrated to "$httpUri"');
+          'Found a legacy Printer httpUri for ${fields[0]}(${fields[2]}). "${fields[6]}" migrated to "$httpUri"');
+    } else {
+      httpUri = fields[6] as Uri;
+      logger
+          .w('Found NO legacy Printer httpUri for ${fields[0]}(${fields[2]}).');
     }
+
     return Machine(
       name: fields[0] as String,
       wsUri: wsUri,
@@ -63,9 +67,9 @@ class MachineAdapter extends TypeAdapter<Machine> {
       ..writeByte(13)
       ..writeByte(0)
       ..write(obj.name)
-      ..writeByte(22)
+      ..writeByte(1)
       ..write(obj.wsUri)
-      ..writeByte(23)
+      ..writeByte(6)
       ..write(obj.httpUri)
       ..writeByte(2)
       ..write(obj.uuid)
