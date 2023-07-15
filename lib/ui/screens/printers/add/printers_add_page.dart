@@ -29,12 +29,12 @@ class PrinterAddPage extends HookConsumerWidget {
       appBar: AppBar(
         title: const Text('pages.printer_add.title').tr(),
       ),
-      body: const Column(
-        children: [
-          _AddPrinterStepperFlow(),
-          Divider(),
-          Expanded(
-            child: SafeArea(
+      body: SafeArea(
+        child: const Column(
+          children: [
+            _AddPrinterStepperFlow(),
+            Divider(),
+            Expanded(
               child: CustomScrollView(
                 physics: ClampingScrollPhysics(),
                 slivers: [
@@ -45,9 +45,9 @@ class PrinterAddPage extends HookConsumerWidget {
                 ],
               ),
             ),
-          ),
-          _StepperFooter(),
-        ],
+            _StepperFooter(),
+          ],
+        ),
       ),
     );
   }
@@ -121,7 +121,7 @@ class _StepperFooter extends ConsumerWidget {
       children: [
         const Divider(),
         Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: footer,
         ),
       ],
