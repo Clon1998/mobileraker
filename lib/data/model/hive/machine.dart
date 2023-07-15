@@ -8,29 +8,36 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
+import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:uuid/uuid.dart';
 
 import 'temperature_preset.dart';
 
-part 'machine.g.dart';
+part 'machine_adapter.dart';
 
 @HiveType(typeId: 1)
 class Machine extends HiveObject {
   @HiveField(0)
   String name;
-  @HiveField(1)
-  String wsUrl;
+
+  // Replaced in favor of wsUri
+  @deprecated
+  String get wsUrl => wsUri.toString();
+
+  // Replaced in favor of httpUri
+  @deprecated
+  String get httpUrl => httpUri.toString();
+  @HiveField(22)
+  Uri wsUri;
+  @HiveField(23)
+  Uri httpUri;
   @HiveField(2)
   String uuid = const Uuid().v4();
-
-  // @HiveField(3, defaultValue: [])
-  // List<WebcamSetting> cams;
   @HiveField(4)
   String? apiKey;
   @HiveField(5, defaultValue: [])
   List<TemperaturePreset> temperaturePresets;
-  @HiveField(6)
-  String httpUrl;
   @HiveField(14, defaultValue: 0)
   double? lastPrintProgress;
   @HiveField(15)
@@ -62,8 +69,8 @@ class Machine extends HiveObject {
 
   Machine(
       {required this.name,
-      required this.wsUrl,
-      required this.httpUrl,
+      required this.wsUri,
+      required this.httpUri,
       this.apiKey,
       this.temperaturePresets = const [],
       this.trustUntrustedCertificate = false,
