@@ -14,9 +14,25 @@ final class MobilerakerFormBuilderValidator {
       if (valueCandidate != null) {
         assert(valueCandidate is String);
 
-        if (!RegExp(r'^[A-z.0-9]+(?::[1-9]+)?$')
+        if (!RegExp(r'^[\w.-]+(?::[1-9]+)?$')
             .hasMatch(valueCandidate as String)) {
           return errorText ?? tr('form_validators.simple_url');
+        }
+      }
+      return null;
+    };
+  }
+
+  static FormFieldValidator<T> disallowMdns<T>({
+    String? errorText,
+  }) {
+    return (T? valueCandidate) {
+      if (valueCandidate != null) {
+        assert(valueCandidate is String);
+
+        if (RegExp(r'^(?:\w+://)?[\w.-]+.local(?:$|[#?][\w=]+|/[\w.-/#?=]*$)')
+            .hasMatch(valueCandidate as String)) {
+          return errorText ?? tr('form_validators.disallow_mdns');
         }
       }
       return null;

@@ -281,6 +281,7 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.url(requireTld: false),
+            MobilerakerFormBuilderValidator.disallowMdns(),
             MobilerakerFormBuilderValidator.simpleUrl(),
           ]),
         ),
@@ -382,7 +383,8 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
                 protocols: [
                   'http',
                   'https',
-                ])
+                ]),
+            MobilerakerFormBuilderValidator.disallowMdns(),
           ]),
         ),
         FormBuilderTextField(
@@ -402,7 +404,8 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
                 protocols: [
                   'ws',
                   'wss',
-                ])
+                ]),
+            MobilerakerFormBuilderValidator.disallowMdns(),
           ]),
         ),
         _SectionHeader(

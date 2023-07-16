@@ -331,7 +331,7 @@
         "body": "If you are new to this, it's best to stick to the simple mode. However, if you are experienced and need to use custom headers, certificates, etc., then the expert mode is for you. Keep in mind that the mode you choose won't affect the app itself, but it will determine how the input is validated and displayed, and what options are available while you are adding a machine.",
         "simple": "Simple",
         "advanced": "Advanced",
-        "add_via_oe": "Add via OctoEverywhere"
+        "add_via_oe": "One-click OctoEverywhere setup"
       },
       "simple_form": {
         "hint_title": "Hint - Simple Mode",
@@ -340,7 +340,7 @@
       },
       "advanced_form": {
         "hint_title": "Hint - Advanced Mode",
-        "hint_body": "Please note that in Advanced mode, validation is mostly disabled. It is imperative that you take full responsibility for ensuring that the URL you enter is valid.",
+        "hint_body": "Please note that in Advanced mode, validation is mostly disabled. It is important that you take full responsibility for ensuring that the URL you enter is valid.",
         "http_helper": "Please enter the HTTP endpoint of Moonraker",
         "ws_helper": "Optional, WebSocket endpoint of Moonraker",
         "section_security": "Security",
@@ -551,7 +551,8 @@
     }
   },
   "form_validators": {
-    "simple_url": "Input only allows URL components: Hostname and Port"
+    "simple_url": "Input only allows URL components: Hostname and Port",
+    "disallow_mdns": "MDNs (.local) addresses are not supported"
   },
   "languages": {
     "languageCode": {
