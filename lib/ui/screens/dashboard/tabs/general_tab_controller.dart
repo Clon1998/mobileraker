@@ -7,7 +7,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/config/fan/config_temperature_fan.dart';
-import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/heaters/extruder.dart';
 import 'package:mobileraker/data/dto/machine/heaters/generic_heater.dart';
@@ -17,7 +16,6 @@ import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
@@ -155,13 +153,6 @@ class GeneralTabViewController
     ref.read(printerServiceSelectedProvider).m117();
   }
 }
-
-final filePrintingProvider = FutureProvider.autoDispose<GCodeFile?>((ref) {
-  String? fileName = ref.watch(printerSelectedProvider
-      .select((data) => data.valueOrNull?.print.filename));
-  if (fileName == null || fileName.isEmpty) return Future.value();
-  return ref.watch(fileServiceSelectedProvider).getGCodeMetadata(fileName);
-}, name: 'filePrintingProvider');
 
 final babyStepControllerProvider =
     StateNotifierProvider.autoDispose<BabyStepCardController, int>((ref) {

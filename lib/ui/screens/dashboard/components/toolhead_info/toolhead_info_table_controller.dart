@@ -10,8 +10,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -37,68 +37,96 @@ class ToolheadInfo with _$ToolheadInfo {
     int? remaining,
   }) = _ToolheadInfo;
 
-  factory ToolheadInfo.byComponents(Printer a, GCodeFile? b) {
-    int maxLayer = 0;
-    int curLayer = 0;
+  factory ToolheadInfo.byComponents(Printer printer, GCodeFile? currentFile) {
+    int maxLayer = _calculateMaxLayer(printer, currentFile);
+    int curLayer = _calculateCurrentLayer(printer, currentFile, maxLayer);
     double currentFlow = 0;
     double? usedFilament, totalFilament;
     double usedFilamentPerc = 0;
-    if (b != null) {
-      if (b.objectHeight != null &&
-          b.firstLayerHeight != null &&
-          b.layerHeight != null) {
-        maxLayer = max(
-            0,
-            ((b.objectHeight! - b.firstLayerHeight!) / b.layerHeight! + 1)
-                .ceil());
 
-        curLayer = max(
-            0,
-            min(
-                maxLayer,
-                ((a.toolhead.position[2] - b.firstLayerHeight!) /
-                            b.layerHeight! +
-                        1)
-                    .ceil()));
+    if (currentFile != null) {
+      if (currentFile.filamentTotal != null) {
+        usedFilament = printer.print.filamentUsed / 1000;
+        totalFilament = currentFile.filamentTotal! / 1000;
+        usedFilamentPerc = min(100,
+            (printer.print.filamentUsed / currentFile.filamentTotal! * 100));
       }
-      if (b.filamentTotal != null) {
-        usedFilament = a.print.filamentUsed / 1000;
-        totalFilament = b.filamentTotal! / 1000;
-        usedFilamentPerc =
-            min(100, (a.print.filamentUsed / b.filamentTotal! * 100));
-      }
-      double crossSection =
-          pow((a.configFile.primaryExtruder?.filamentDiameter ?? 1.75) / 2, 2) *
-              pi;
-      currentFlow = (crossSection * a.motionReport.liveExtruderVelocity)
+      double crossSection = pow(
+              (printer.configFile.primaryExtruder?.filamentDiameter ?? 1.75) /
+                  2,
+              2) *
+          pi;
+      currentFlow = (crossSection * printer.motionReport.liveExtruderVelocity)
           .toPrecision(1)
           .abs();
     }
 
     return ToolheadInfo(
-        livePosition: a.motionReport.livePosition.toList(growable: false),
-        postion: a.gCodeMove.gcodePosition.toList(growable: false),
+        livePosition: printer.motionReport.livePosition.toList(growable: false),
+        postion: printer.gCodeMove.gcodePosition.toList(growable: false),
         printingOrPaused: const {PrintState.printing, PrintState.paused}
-            .contains(a.print.state),
-        mmSpeed: a.gCodeMove.mmSpeed,
+            .contains(printer.print.state),
+        mmSpeed: printer.gCodeMove.mmSpeed,
         currentLayer: curLayer,
         maxLayers: maxLayer,
         currentFlow: currentFlow,
         usedFilament: usedFilament,
         totalFilament: totalFilament,
         usedFilamentPerc: usedFilamentPerc,
-        eta: a.eta,
-        remaining: a.eta?.let((v) => v.difference(DateTime.now()).inSeconds),
-        totalDuration: a.print.totalDuration.toInt());
+        eta: printer.eta,
+        remaining:
+            printer.eta?.let((v) => v.difference(DateTime.now()).inSeconds),
+        totalDuration: printer.print.totalDuration.toInt());
+  }
+
+  static int _calculateMaxLayer(Printer printer, GCodeFile? currentFile) {
+    final totalLayer = printer.print.totalLayer;
+    final objectHeight = currentFile?.objectHeight;
+    final firstLayerHeight = currentFile?.firstLayerHeight;
+    final layerHeight = currentFile?.layerHeight;
+
+    if (totalLayer != null) return totalLayer;
+    if (objectHeight == null ||
+        firstLayerHeight == null ||
+        layerHeight == null) {
+      return 0;
+    }
+
+    return max(0, ((objectHeight - firstLayerHeight) / layerHeight + 1).ceil());
+  }
+
+  static int _calculateCurrentLayer(
+      Printer printer, GCodeFile? currentFile, int totalLayers) {
+    final currentLayer = printer.print.currentLayer;
+    final firstLayerHeight = currentFile?.firstLayerHeight;
+    final layerHeight = currentFile?.layerHeight;
+    final toolheadZPosition = printer.toolhead.position[2];
+
+    if (currentLayer != null) return currentLayer;
+    if (firstLayerHeight == null || layerHeight == null) {
+      return 0;
+    }
+
+    return max(
+        0,
+        min(totalLayers,
+            ((toolheadZPosition - firstLayerHeight) / layerHeight + 1).ceil()));
   }
 }
 
 @riverpod
 Future<ToolheadInfo> toolheadInfo(ToolheadInfoRef ref) async {
+  String? currentFilePrinting = ref.watch(printerSelectedProvider
+      .select((data) => data.valueOrNull?.print.filename));
+
   var res = await Future.wait([
     ref.watch(printerSelectedProvider.future),
-    ref.watch(filePrintingProvider.future)
+    if (currentFilePrinting != null && currentFilePrinting.isNotEmpty)
+      ref
+          .watch(fileServiceSelectedProvider)
+          .getGCodeMetadata(currentFilePrinting)
   ]);
 
-  return ToolheadInfo.byComponents(res[0] as Printer, res[1] as GCodeFile?);
+  return ToolheadInfo.byComponents(
+      res[0] as Printer, res.elementAtOrNull(1) as GCodeFile?);
 }
