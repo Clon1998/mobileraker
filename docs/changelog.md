@@ -1,5 +1,25 @@
 # Mobileraker - Changelog
 
+## [2.x.x] - 2023-0x-xx
+
+### Major Changes
+
+- Reworked the printer setup flow to provide a more user-friendly experience for beginners and offer additional
+  customization options for advanced
+  users. [#153](https://github.com/Clon1998/mobileraker/issues/153) [#134](https://github.com/Clon1998/mobileraker/issues/134) [#182](https://github.com/Clon1998/mobileraker/issues/182) [#193](https://github.com/Clon1998/mobileraker/issues/193)
+
+### Changed Features
+
+- Changed the behavior of Confirm EMS setting, to be an opt-out setting instead of opt-in.
+- Improved the accuracy of current and max layer display by utilizing moonraker's info.layer
+  fields.[#138](https://github.com/Clon1998/mobileraker/issues/138)
+
+### Bug Fixes
+
+- Fixed the QR reader functionality.
+- Enhanced the reliability of the JRpc client.
+- Addressed several minor errors in the background.
+
 ## [2.4.2] - 2023-06-28
 
 ### Major Changes
