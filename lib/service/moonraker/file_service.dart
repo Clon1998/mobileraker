@@ -16,8 +16,10 @@ import 'package:http/http.dart' as http;
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/generic_file.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_action_enum.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_action_response.dart';
+import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
@@ -30,20 +32,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'file_service.freezed.dart';
 part 'file_service.g.dart';
-
-//TODO: Move the dto/data classes to the correct folder
-enum FileRoot { gcodes, config, config_examples, docs }
-
-enum FileAction {
-  create_file, // ignore: constant_identifier_names
-  create_dir, // ignore: constant_identifier_names
-  delete_file, // ignore: constant_identifier_names
-  delete_dir, // ignore: constant_identifier_names
-  move_file, // ignore: constant_identifier_names
-  move_dir, // ignore: constant_identifier_names
-  modify_file, // ignore: constant_identifier_names
-  root_update // ignore: constant_identifier_names
-}
 
 typedef FileListChangedListener = Function(
     Map<String, dynamic> item, Map<String, dynamic>? srcItem);
@@ -83,7 +71,8 @@ Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
       : ClientType.local;
   if (machine != null) {
     if (clientType == ClientType.octo) {
-      headers[HttpHeaders.authorizationHeader] = machine.octoEverywhere!.basicAuthorizationHeader;
+      headers[HttpHeaders.authorizationHeader] =
+          machine.octoEverywhere!.basicAuthorizationHeader;
     }
   }
   return headers;
@@ -127,7 +116,7 @@ FileService fileService(FileServiceRef ref, String machineUUID) {
 }
 
 @riverpod
-Stream<FileApiResponse> fileNotifications(
+Stream<FileActionResponse> fileNotifications(
     FileNotificationsRef ref, String machineUUID) {
   return ref.watch(fileServiceProvider(machineUUID)).fileNotificationStream;
 }
@@ -139,7 +128,7 @@ FileService fileServiceSelected(FileServiceSelectedRef ref) {
 }
 
 @riverpod
-Stream<FileApiResponse> fileNotificationsSelected(
+Stream<FileActionResponse> fileNotificationsSelected(
     FileNotificationsSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
@@ -163,10 +152,10 @@ class FileService {
   final Uri httpUri;
   final MemoryFileSystem _fileSystem = MemoryFileSystem();
 
-  final StreamController<FileApiResponse> _fileActionStreamCtrler =
+  final StreamController<FileActionResponse> _fileActionStreamCtrler =
       StreamController();
 
-  Stream<FileApiResponse> get fileNotificationStream =>
+  Stream<FileActionResponse> get fileNotificationStream =>
       _fileActionStreamCtrler.stream;
 
   final JsonRpcClient _jRpcClient;
@@ -209,39 +198,39 @@ class FileService {
     }
   }
 
-  Future<FileApiResponse> createDir(String filePath) async {
+  Future<FileActionResponse> createDir(String filePath) async {
     logger.i('Creating Folder "$filePath"');
 
     var rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.post_directory',
         params: {'path': filePath});
-    return FileApiResponse.fromJson(rpcResponse.result);
+    return FileActionResponse.fromJson(rpcResponse.result);
   }
 
-  Future<FileApiResponse> deleteFile(String filePath) async {
+  Future<FileActionResponse> deleteFile(String filePath) async {
     logger.i('Deleting File "$filePath"');
 
     RpcResponse rpcResponse = await _jRpcClient
         .sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
-    return FileApiResponse.fromJson(rpcResponse.result);
+    return FileActionResponse.fromJson(rpcResponse.result);
   }
 
-  Future<FileApiResponse> deleteDirForced(String filePath) async {
+  Future<FileActionResponse> deleteDirForced(String filePath) async {
     logger.i('Deleting Folder-Forced "$filePath"');
 
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.delete_directory',
         params: {'path': filePath, 'force': true});
-    return FileApiResponse.fromJson(rpcResponse.result);
+    return FileActionResponse.fromJson(rpcResponse.result);
   }
 
-  Future<FileApiResponse> moveFile(String origin, String destination) async {
+  Future<FileActionResponse> moveFile(String origin, String destination) async {
     logger.i('Moving file from $origin to $destination');
 
     RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
         'server.files.move',
         params: {'source': origin, 'dest': destination});
-    return FileApiResponse.fromJson(rpcResponse.result);
+    return FileActionResponse.fromJson(rpcResponse.result);
   }
 
   // Throws TimeOut exception, if file download took to long!
@@ -272,7 +261,8 @@ class FileService {
     }
   }
 
-  Future<FileApiResponse> uploadAsFile(String filePath, String content) async {
+  Future<FileActionResponse> uploadAsFile(
+      String filePath, String content) async {
     assert(!filePath.startsWith('(gcodes|config)'),
         'filePath needs to contain root folder config or gcodes!');
     List<String> fileSplit = filePath.split('/');
@@ -291,7 +281,7 @@ class FileService {
     if (response.statusCode != 201) {
       throw HttpException('Error while uploading file $filePath.', uri: uri);
     }
-    return FileApiResponse.fromJson(jsonDecode(response.body));
+    return FileActionResponse.fromJson(jsonDecode(response.body));
   }
 
   _onFileListChanged(Map<String, dynamic> rawMessage) {
@@ -300,7 +290,7 @@ class FileService {
         EnumToString.fromString(FileAction.values, params['action']);
 
     if (fileAction != null) {
-      _fileActionStreamCtrler.add(FileApiResponse.fromJson(params));
+      _fileActionStreamCtrler.add(FileActionResponse.fromJson(params));
     }
   }
 
@@ -308,8 +298,9 @@ class FileService {
       RpcResponse blockingResponse, String forPath,
       [Set<String> allowedFileType = const {'.gcode'}]) {
     Map<String, dynamic> response = blockingResponse.result;
-    List<dynamic> filesResponse = response['files']; // Just add an type
-    List<dynamic> directoriesResponse = response['dirs']; // Just add an type
+    List<dynamic> filesResponse = response['files'] ?? []; // Just add an type
+    List<dynamic> directoriesResponse =
+        response['dirs'] ?? []; // Just add an type
 
     directoriesResponse.removeWhere((element) {
       String name = element['dirname'];
@@ -319,11 +310,7 @@ class FileService {
     List<Folder> listOfFolder =
         List.generate(directoriesResponse.length, (index) {
       var element = directoriesResponse[index];
-      String name = element['dirname'];
-      double lastModified = element['modified'];
-      int size = element['size'];
-
-      return Folder(name: name, modified: lastModified, size: size);
+      return Folder.fromJson(element, forPath);
     });
 
     filesResponse.removeWhere((element) {
@@ -339,7 +326,7 @@ class FileService {
       if (RegExp(r'^.*\.(gcode|g|gc|gco)$').hasMatch(name)) {
         return GCodeFile.fromJson(element, forPath);
       } else {
-        return RemoteFile.fromJson(element, forPath);
+        return GenericFile.fromJson(element, forPath);
       }
     });
 

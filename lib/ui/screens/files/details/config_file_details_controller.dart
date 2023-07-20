@@ -8,9 +8,8 @@ import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/generic_file.dart';
 import 'package:mobileraker/exceptions.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -18,11 +17,10 @@ import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'config_file_details_controller.freezed.dart';
-
 part 'config_file_details_controller.g.dart';
 
 @riverpod
-RemoteFile configFile(ConfigFileRef ref) => throw UnimplementedError();
+GenericFile configFile(ConfigFileRef ref) => throw UnimplementedError();
 
 final configFileDetailsControllerProvider = StateNotifierProvider.autoDispose<
     ConfigFileDetailsController,

@@ -13,7 +13,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';

@@ -8,24 +8,21 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/converters/integer_converter.dart';
 import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 
-part 'folder.freezed.dart';
-part 'folder.g.dart';
+part 'generic_file.freezed.dart';
+part 'generic_file.g.dart';
 
 @freezed
-class Folder with _$Folder, RemoteFile {
-  const Folder._();
+class GenericFile with _$GenericFile, RemoteFile {
+  const GenericFile._();
 
-  @JsonSerializable(
-    fieldRename: FieldRename.snake,
-  )
-  const factory Folder({
+  const factory GenericFile({
+    @JsonKey(name: 'filename') required String name,
     required String parentPath,
     required double modified,
-    @JsonKey(name: 'dirname') required String name,
     @IntegerConverter() required int size,
     @Default('') String permissions,
-  }) = _Folder;
+  }) = _GenericFile;
 
-  factory Folder.fromJson(Map<String, dynamic> json, String parentPath) =>
-      _$FolderFromJson({...json, 'parent_path': parentPath});
+  factory GenericFile.fromJson(Map<String, dynamic> json, String parentPath) =>
+      _$GenericFileFromJson({...json, 'parentPath': parentPath});
 }

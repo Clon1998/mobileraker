@@ -12,7 +12,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:highlight/languages/properties.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/generic_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
@@ -22,7 +22,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 
 class ConfigFileDetailPage extends ConsumerWidget {
   const ConfigFileDetailPage({Key? key, required this.file}) : super(key: key);
-  final RemoteFile file;
+  final GenericFile file;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

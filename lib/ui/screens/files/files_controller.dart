@@ -11,10 +11,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/moonraker/file_api_response.dart';
-import 'package:mobileraker/data/dto/files/moonraker/file_notification_item.dart';
-import 'package:mobileraker/data/dto/files/moonraker/file_notification_source_item.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_action_response.dart';
+import 'package:mobileraker/data/dto/files/moonraker/file_item.dart';
+import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
@@ -59,7 +58,7 @@ class FilesPageController extends StateNotifier<FilePageState> {
     });
 
     ref.listen(fileNotificationsSelectedProvider,
-        (previous, AsyncValue<FileApiResponse> next) {
+            (previous, AsyncValue<FileActionResponse> next) {
       next.whenData(handleFileListChanged);
     });
   }
@@ -110,9 +109,7 @@ class FilesPageController extends StateNotifier<FilePageState> {
     }
 
     var sortMode = ref.read(fileSortControllerProvider);
-    if (sortMode.comparatorFolder != null) {
-      folders.sort(sortMode.comparatorFolder);
-    }
+    folders.sort(sortMode.comparatorFile);
     files.sort(sortMode.comparatorFile);
 
     state = state.copyWith(
@@ -120,12 +117,11 @@ class FilesPageController extends StateNotifier<FilePageState> {
             FolderContentWrapper(rawContent.folderPath, folders, files));
   }
 
-  handleFileListChanged(FileApiResponse fileListChangedNotification) {
-    FileNotificationItem item = fileListChangedNotification.item;
+  handleFileListChanged(FileActionResponse fileListChangedNotification) {
+    FileItem item = fileListChangedNotification.item;
     var itemWithInLevel = isWithin(pathAsString, item.fullPath);
 
-    FileNotificationSourceItem? srcItem =
-        fileListChangedNotification.sourceItem;
+    FileItem? srcItem = fileListChangedNotification.sourceItem;
     var srcItemWithInLevel = isWithin(pathAsString, srcItem?.fullPath ?? '');
 
     if (itemWithInLevel != 0 && srcItemWithInLevel != 0) {

@@ -8,7 +8,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/generic_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
@@ -141,7 +141,7 @@ GoRouter goRouter(GoRouterRef ref) {
               path: 'config-details',
               name: AppRoute.configDetail.name,
               builder: (context, state) =>
-                  ConfigFileDetailPage(file: state.extra! as RemoteFile),
+                  ConfigFileDetailPage(file: state.extra! as GenericFile),
             ),
           ]),
       GoRoute(

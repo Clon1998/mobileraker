@@ -3,27 +3,23 @@
  * All rights reserved.
  */
 
-import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'file_sort_mode_selector_controller.g.dart';
 
 enum FileSort {
-  name('pages.files.name', RemoteFile.nameComparator, Folder.nameComparator),
-  lastModified('pages.files.last_mod', RemoteFile.modifiedComparator,
-      Folder.modifiedComparator),
-  lastPrinted(
-      'pages.files.last_printed', GCodeFile.lastPrintedComparator, null);
+  name('pages.files.name', RemoteFile.nameComparator),
+  lastModified('pages.files.last_mod', RemoteFile.modifiedComparator),
+  lastPrinted('pages.files.last_printed', GCodeFile.lastPrintedComparator);
 
-  const FileSort(this.translation, this.comparatorFile, this.comparatorFolder);
+  const FileSort(this.translation, this.comparatorFile);
 
   final String translation;
 
   final Comparator<RemoteFile>? comparatorFile;
-  final Comparator<Folder>? comparatorFolder;
 }
 
 @riverpod
