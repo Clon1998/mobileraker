@@ -83,9 +83,11 @@ class ToolheadInfo with _$ToolheadInfo {
     final totalLayer = printer.print.totalLayer;
     final objectHeight = currentFile?.objectHeight;
     final firstLayerHeight = currentFile?.firstLayerHeight;
+    final fileLayerCount = currentFile?.layerCount;
     final layerHeight = currentFile?.layerHeight;
 
     if (totalLayer != null) return totalLayer;
+    if (fileLayerCount != null) return fileLayerCount;
     if (objectHeight == null ||
         firstLayerHeight == null ||
         layerHeight == null) {
