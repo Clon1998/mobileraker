@@ -435,6 +435,10 @@
     "supporter_add": {
       "title": "Like Mobileraker?",
       "subtitle": "Tap me! To learn how you can support the development!"
+    },
+    "supporter_only_feature": {
+      "button": "Become a Mobileraker Supporter",
+      "webcam": "Sorry, Webcams of type {} are only available to supporters."
     }
   },
   "dialogs": {

@@ -30,16 +30,51 @@ final defaultSnapshotUri = Uri(path: '/webcam', query: 'action=snapshot');
 // "urlSnapshot": "/webcam?action=snapshot" // mansail only
 // }
 
+// NEW Webcam API - Moonraker
+// CAM_FIELDS {
+//   "name": "name",
+//   "service": "service",
+//   "target_fps": "targetFps",
+//   "stream_url": "urlStream",
+//   "snapshot_url": "urlSnapshot",
+//   "flip_horizontal": "flipX",
+//   "flip_vertical": "flipY",
+//   "enabled": "enabled",
+//   "target_fps_idle": "targetFpsIdle",
+//   "aspect_ratio": "aspectRatio",
+//   "icon": "icon",
+//   "extra_data": {}
+// }
+
+/*
+
+        webcam["name"] = cam_data["name"]
+        webcam["enabled"] = cam_data.get("enabled", True)
+        webcam["icon"] = cam_data.get("icon", "mdiWebcam")
+        webcam["aspect_ratio"] = cam_data.get("aspectRatio", "4:3")
+        webcam["location"] = cam_data.get("location", "printer")
+        webcam["service"] = cam_data.get("service", "mjpegstreamer")
+        webcam["target_fps"] = cam_data.get("targetFps", 15)
+        webcam["target_fps_idle"] = cam_data.get("targetFpsIdle", 5)
+        webcam["stream_url"] = cam_data.get("urlStream", "")
+        webcam["snapshot_url"] = cam_data.get("urlSnapshot", "")
+        webcam["flip_horizontal"] = cam_data.get("flipX", False)
+        webcam["flip_vertical"] = cam_data.get("flipY", False)
+        webcam["rotation"] = cam_data.get("rotation", webcam.get("rotate", 0))
+        webcam["extra_data"] = cam_data.get("extra_data", {})
+
+ */
+
 @JsonSerializable()
 class WebcamInfo {
-  WebcamInfo({
-    required this.uuid,
-    required this.name,
-    required this.service,
-    this.flipHorizontal = false,
-    this.flipVertical = false,
-    required this.streamUrl,
-    required this.snapshotUrl,
+  WebcamInfo(
+      {required this.uuid,
+      required this.name,
+      required this.service,
+      this.flipHorizontal = false,
+      this.flipVertical = false,
+      required this.streamUrl,
+      required this.snapshotUrl,
     this.rotation = 0,
     this.targetFps = 15,
     this.enabled = true});

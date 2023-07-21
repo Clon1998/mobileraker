@@ -20,13 +20,16 @@ import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
+import 'package:mobileraker/ui/components/supporter_only_feature.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
+import 'package:stringr/stringr.dart';
 
 import 'printers_edit_controller.dart';
 
@@ -285,6 +288,11 @@ class _WebCamItem extends HookConsumerWidget {
             //   child: const Icon(Icons.drag_handle),
             // ),
             children: [
+          if (cam.service.forSupporters && !ref.watch(isSupporterProvider))
+            SupporterOnlyFeature(
+                text: const Text(
+              'components.supporter_only_feature.webcam',
+            ).tr(args: [cam.service.name.titleCase()])),
           FormBuilderTextField(
             keyboardType: TextInputType.text,
             decoration: InputDecoration(

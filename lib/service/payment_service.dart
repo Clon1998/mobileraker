@@ -55,6 +55,13 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
 }
 
 @Riverpod(keepAlive: true)
+bool isSupporter(IsSupporterRef ref) {
+  return ref.watch(customerInfoProvider).maybeWhen(
+      data: (d) => d.entitlements.active.containsKey('Supporter'),
+      orElse: () => false);
+}
+
+@Riverpod(keepAlive: true)
 PaymentService paymentService(PaymentServiceRef ref) {
   return PaymentService(ref);
 }
