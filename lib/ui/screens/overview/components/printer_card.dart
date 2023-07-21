@@ -14,7 +14,7 @@ import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
-import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
+import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/overview/components/printer_card_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -145,12 +145,12 @@ class _Cam extends ConsumerWidget {
           )),
       child: (webcamInfo == null)
           ? const SizedBox.shrink()
-          : WebcamMjpeg(
+          : Webcam(
               key: ValueKey(machine.uuid + webcamInfo.uuid),
               webcamInfo: webcamInfo,
               machine: machine,
               showRemoteIndicator: false,
-              stackChild: [
+              stackContent: [
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.bottomRight,

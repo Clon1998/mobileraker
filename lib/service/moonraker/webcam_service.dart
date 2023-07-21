@@ -23,7 +23,8 @@ part 'webcam_service.g.dart';
 const List<WebcamServiceType> supportedCamTypes = [
   WebcamServiceType.mjpegStreamer,
   WebcamServiceType.mjpegStreamerAdaptive,
-  WebcamServiceType.uv4lMjpeg
+  WebcamServiceType.uv4lMjpeg,
+  WebcamServiceType.webRtc,
 ];
 
 @riverpod
@@ -107,8 +108,10 @@ class WebcamService {
     logger.i('ADD/MODIFY Webcam "${cam.name}" request...');
     try {
       await _webcamInfoRepository.addOrUpdate(cam);
+      logger.e(cam);
       ref.invalidate(webcamInfoProvider(machineUUID, cam.uuid));
     } catch (e) {
+      logger.e('Error while saving cam', e);
       throw MobilerakerException(
           'Unable to add/update webcam info for ${cam.uuid}',
           parentException: e);

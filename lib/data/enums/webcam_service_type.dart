@@ -19,7 +19,7 @@ enum WebcamServiceType {
   @JsonValue('ipstream')
   ipSream(false),
   @JsonValue('webrtc-camerastreamer')
-  webRtc(false),
+  webRtc(true),
   @JsonValue('unknown')
   unknown(false);
 

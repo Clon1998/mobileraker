@@ -5,7 +5,6 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
@@ -14,10 +13,9 @@ import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/moonraker/webcam_service.dart';
-import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
-import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
+import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
 import 'package:mobileraker/util/misc.dart';
 
@@ -56,12 +54,12 @@ class _FullCamView extends ConsumerWidget {
             constrained: true,
             minScale: 1,
             maxScale: 10,
-            child: WebcamMjpeg(
-              webcamInfo: selectedCam,
+            child: Webcam(
               machine: machine,
-              showFps: true,
+              webcamInfo: selectedCam,
+              stackContent: const [StackContent()],
+              showFpsIfAvailable: true,
               showRemoteIndicator: false,
-              stackChild: const [StackContent()],
             )),
         const _CamSelector(),
         Align(
