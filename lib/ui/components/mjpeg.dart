@@ -280,18 +280,18 @@ class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
 
   onRetryPressed() {
     state = const AsyncValue.loading();
-    ref.watch(_mjpegManagerProvider).start();
+    ref.read(_mjpegManagerProvider).start();
   }
 
   @override
   didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        ref.watch(_mjpegManagerProvider).start();
+        ref.read(_mjpegManagerProvider).start();
         break;
 
       case AppLifecycleState.paused:
-        ref.watch(_mjpegManagerProvider).stop();
+        ref.read(_mjpegManagerProvider).stop();
         break;
       default:
       // Do Nothing
