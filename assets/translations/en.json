@@ -409,7 +409,9 @@
       "contact_dialog": {
         "title": "Developer Contact",
         "body": "Mail: {}\nDiscord: {}"
-      }
+      },
+      "discount_validity": "Special offer: {} at {} off",
+      "tip_developer": "Tip Developer"
     }
   },
   "components": {
@@ -557,6 +559,42 @@
   "form_validators": {
     "simple_url": "Input only allows URL components: Hostname and Port",
     "disallow_mdns": "MDNs (.local) addresses are not supported"
+  },
+  "date": {
+    "year": {
+      "one": "Year",
+      "other": "Years"
+    },
+    "month": {
+      "one": "Month",
+      "other": "Months"
+    },
+    "week": {
+      "one": "Week",
+      "other": "Weeks"
+    },
+    "day": {
+      "one": "Day",
+      "other": "Days"
+    }
+  },
+  "date_periods": {
+    "year": {
+      "one": "Yearly",
+      "other": "Years"
+    },
+    "month": {
+      "one": "Monthly",
+      "other": "Months"
+    },
+    "week": {
+      "one": "Weekly",
+      "other": "Weeks"
+    },
+    "day": {
+      "one": "Daily",
+      "other": "Days"
+    }
   },
   "languages": {
     "languageCode": {

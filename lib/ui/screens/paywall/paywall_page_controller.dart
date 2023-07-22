@@ -31,15 +31,18 @@ class PaywallPageController extends _$PaywallPageController {
     try {
       Offerings offerings =
           await ref.watch(paymentServiceProvider).getOfferings();
-      if (offerings.current != null &&
-          offerings.current!.availablePackages.isNotEmpty) {
-        state = state.copyWith(offering: AsyncValue.data(offerings.current));
-        return;
-      }
-      state = state.copyWith(offering: const AsyncValue.data(null));
+
+      logger.e('Got offerings:$offerings');
+
+      // if (offerings.current != null &&
+      //     offerings.current!.availablePackages.isNotEmpty) {
+      //   state = state.copyWith(offering: AsyncValue.data(offerings.current));
+      //   return;
+      // }
+      state = state.copyWith(offerings: AsyncValue.data(offerings));
     } on PlatformException catch (e, s) {
       logger.e('Error while trying to fetch offerings from revenue cat!', e, s);
-      state = state.copyWith(offering: AsyncValue.error(e, s));
+      state = state.copyWith(offerings: AsyncValue.error(e, s));
     }
   }
 
@@ -50,6 +53,20 @@ class PaywallPageController extends _$PaywallPageController {
     } else {
       throw 'Could not launch $url';
     }
+  }
+
+  tipTheDev() async {
+    var availablePackages =
+        state.offerings.valueOrNull?.all['tip']?.availablePackages;
+    if (availablePackages == null) {
+      logger.e('Tip package was not available');
+      return;
+    }
+    if (availablePackages.length != 1) {
+      logger.e('Available TIP package Size is greater than 1!');
+      return;
+    }
+    makePurchase(availablePackages.first);
   }
 
   makePurchase(Package packageToBuy) async {
@@ -111,6 +128,6 @@ class PaywallPageController extends _$PaywallPageController {
 class PaywallPageState with _$PaywallPageState {
   const factory PaywallPageState(
           {@Default(false) bool makingPurchase,
-          @Default(AsyncValue.loading()) AsyncValue<Offering?> offering}) =
+          @Default(AsyncValue.loading()) AsyncValue<Offerings?> offerings}) =
       _PaywallPageState;
 }

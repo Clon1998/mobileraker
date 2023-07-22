@@ -56,9 +56,13 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
 
 @Riverpod(keepAlive: true)
 bool isSupporter(IsSupporterRef ref) {
-  return ref.watch(customerInfoProvider).maybeWhen(
-      data: (d) => d.entitlements.active.containsKey('Supporter'),
-      orElse: () => false);
+  return ref
+          .watch(customerInfoProvider)
+          .valueOrNull
+          ?.entitlements
+          .active
+          .containsKey('Supporter') ==
+      true;
 }
 
 @Riverpod(keepAlive: true)
@@ -96,8 +100,20 @@ class PaymentService {
   Future<void> purchasePackage(Package packageToBuy,
       [UpgradeInfo? upgradeInfo]) async {
     try {
-      logger.i('Trying to buy ${packageToBuy.storeProduct.identifier}');
-      await Purchases.purchasePackage(packageToBuy, upgradeInfo: upgradeInfo);
+      var storeProduct = packageToBuy.storeProduct;
+      if (Platform.isIOS && storeProduct.discounts?.isNotEmpty == true) {
+        logger
+            .i('Trying to buy ${storeProduct.identifier} at discounted rate ');
+        var promotionalOffer = await Purchases.getPromotionalOffer(
+            storeProduct, storeProduct.discounts!.first);
+
+        await Purchases.purchaseDiscountedPackage(
+            packageToBuy, promotionalOffer);
+      } else {
+        logger.i('Trying to buy ${storeProduct.identifier}');
+        await Purchases.purchasePackage(packageToBuy, upgradeInfo: upgradeInfo);
+      }
+
       var customerInfo = await ref.refresh(customerInfoProvider.future);
       logger.i('Successful bought package... $customerInfo');
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
