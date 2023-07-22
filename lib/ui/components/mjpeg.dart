@@ -27,10 +27,10 @@ typedef StreamConnectedBuilder = Widget Function(
 
 enum MjpegMode { stream, adaptiveStream }
 
-@riverpod
+@Riverpod(dependencies: [])
 MjpegConfig _mjpegConfig(_MjpegConfigRef ref) => throw UnimplementedError();
 
-@riverpod
+@Riverpod(dependencies: [_mjpegConfig])
 _MjpegManager _mjpegManager(_MjpegManagerRef ref) {
   var mjpegConfig = ref.watch(_mjpegConfigProvider);
 
@@ -66,8 +66,6 @@ class Mjpeg extends ConsumerWidget {
     return ProviderScope(
       overrides: [
         _mjpegConfigProvider.overrideWithValue(config),
-        _mjpegControllerProvider,
-        _mjpegManagerProvider
       ],
       child: _Mjpeg(
         stackChild: stackChild,
@@ -253,8 +251,7 @@ class _TransformedImage extends ConsumerWidget {
   }
 }
 
-@riverpod
-// 4. extend like this
+@Riverpod(dependencies: [_mjpegManager, _mjpegConfig])
 class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
   _MjpegController() {
     WidgetsBinding.instance.addObserver(this);
