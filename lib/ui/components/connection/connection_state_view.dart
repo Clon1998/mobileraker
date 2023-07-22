@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
@@ -41,43 +42,47 @@ class ConnectionStateView extends ConsumerWidget {
                   onConnected: onConnected,
                 )
               : Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.info_outline),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          text: 'You will have to ',
-                          style: DefaultTextStyle.of(context).style,
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: 'add',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    decoration: TextDecoration.underline),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    ref
-                                        .read(goRouterProvider)
-                                        .pushNamed(AppRoute.printerAdd.name);
-                                  }),
-                            const TextSpan(
-                              text: ' a printer first!',
-                            ),
-                          ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                            child: SvgPicture.asset(
+                                'assets/vector/undraw_hello_re_3evm.svg')),
+                        RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            text: 'You will have to ',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            children: <TextSpan>[
+                              TextSpan(
+                                  text: 'add',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      decoration: TextDecoration.underline),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      ref
+                                          .read(goRouterProvider)
+                                          .pushNamed(AppRoute.printerAdd.name);
+                                    }),
+                              const TextSpan(
+                                text: ' a printer first!',
+                              ),
+                            ],
+                          ),
                         ),
-                      )
-                    ],
+                        const Spacer()
+                      ],
+                    ),
                   ),
                 );
         },
         error: (e, _) => ErrorCard(
-              title: Text('Error selecting active machine'),
+          title: const Text('Error selecting active machine'),
               body: Text(e.toString()),
             ),
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -224,10 +229,10 @@ class KlippyState extends ConsumerWidget {
                 children: [
                   Card(
                       child: Padding(
-                    padding:
+                        padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: Column(
-                          children: [
+                    child: Column(
+                      children: [
                         ListTile(
                           leading: const Icon(
                             FlutterIcons.disconnect_ant,
@@ -270,8 +275,8 @@ class KlippyState extends ConsumerWidget {
                           ),
                         )
                       ],
-                        ),
-                      )),
+                    ),
+                  )),
                   if (data.components.contains('power')) const PowerApiCard(),
                 ],
               ),
@@ -285,20 +290,20 @@ class KlippyState extends ConsumerWidget {
                       child: Padding(
                         padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: Column(
-                          children: [
-                            ListTile(
-                              leading: const Icon(
-                                FlutterIcons.disconnect_ant,
-                              ),
-                              title: Text(data.klippyState.name).tr(),
-                            ),
-                            const Text(
-                                'components.connection_watcher.server_starting')
-                                .tr()
-                          ],
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(
+                            FlutterIcons.disconnect_ant,
+                          ),
+                          title: Text(data.klippyState.name).tr(),
                         ),
-                      )),
+                        const Text(
+                                'components.connection_watcher.server_starting')
+                            .tr()
+                      ],
+                    ),
+                  )),
                 ],
               ),
             );
@@ -323,7 +328,7 @@ class KlippyState extends ConsumerWidget {
                           .read(connectionStateControllerProvider.notifier)
                           .onEditPrinter,
                       child:
-                      Text('components.nav_drawer.printer_settings'.tr()))
+                          Text('components.nav_drawer.printer_settings'.tr()))
                 ],
               ),
             );
