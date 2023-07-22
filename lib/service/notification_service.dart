@@ -27,7 +27,6 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/theme/theme_setup.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -392,34 +391,38 @@ class NotificationService {
   List<NotificationChannel> _channelsOfmachines(Machine machine) {
     return [
       NotificationChannel(
+          icon: 'resource://drawable/mobileraker_logo',
           channelKey: machine.statusUpdatedChannelKey,
           channelName: 'Print Status Updates - ${machine.name}',
           channelDescription: 'Notifications regarding the print status.',
           channelGroupKey: machine.uuid,
           // importance: NotificationImportance.Default,
-          defaultColor: brownish.shade500,
+          defaultColor: Colors.white,
           playSound: true,
           enableVibration: true),
       NotificationChannel(
+          icon: 'resource://drawable/mobileraker_logo',
           channelKey: machine.m117ChannelKey,
           channelName: 'User M117 Notifications - ${machine.name}',
           channelDescription:
               'Notifications issued by M117 with prefix "\$MR\$:".',
           channelGroupKey: machine.uuid,
           // importance: NotificationImportance.Max,
-          defaultColor: brownish.shade500,
+          defaultColor: Colors.white,
           playSound: true,
           enableVibration: true),
       NotificationChannel(
-          channelKey: machine.printProgressChannelKey,
-          channelName: 'Print Progress Updates - ${machine.name}',
-          channelDescription: 'Notifications regarding the print progress.',
-          channelGroupKey: machine.uuid,
-          playSound: false,
-          enableVibration: false,
-          enableLights: false,
-          importance: NotificationImportance.Low,
-          defaultColor: brownish.shade500)
+        icon: 'resource://drawable/mobileraker_logo',
+        channelKey: machine.printProgressChannelKey,
+        channelName: 'Print Progress Updates - ${machine.name}',
+        channelDescription: 'Notifications regarding the print progress.',
+        channelGroupKey: machine.uuid,
+        playSound: false,
+        enableVibration: false,
+        enableLights: false,
+        importance: NotificationImportance.Low,
+        defaultColor: Colors.white,
+      )
     ];
   }
 

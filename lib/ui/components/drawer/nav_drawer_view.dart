@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/routing/app_router.dart';
@@ -195,11 +196,13 @@ class _NavHeader extends ConsumerWidget {
                   Expanded(
                     child: Row(
                       children: [
-                        Image(
-                            height: 60,
-                            width: 60,
-                            image: brandingIcon ??
-                                const AssetImage('assets/icon/mr_logo.png')),
+                        (brandingIcon == null)
+                            ? SvgPicture.asset(
+                                'assets/vector/mr_logo.svg',
+                                width: 60,
+                                height: 60,
+                              )
+                            : Image(height: 60, width: 60, image: brandingIcon),
                         Flexible(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

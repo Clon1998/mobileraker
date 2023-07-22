@@ -12,6 +12,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
@@ -153,11 +154,12 @@ class SettingPage extends ConsumerWidget {
                       applicationVersion: version,
                       applicationLegalese:
                           'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
-                      applicationIcon: const Center(
-                        child: Image(
-                            height: 80,
-                            width: 80,
-                            image: AssetImage('assets/icon/mr_logo.png')),
+                      applicationIcon: Center(
+                        child: SvgPicture.asset(
+                          'assets/vector/mr_logo.svg',
+                          width: 80,
+                          height: 80,
+                        ),
                       ));
                 },
               ),

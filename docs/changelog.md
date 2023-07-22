@@ -7,6 +7,8 @@
 - Reworked the printer setup flow to provide a more user-friendly experience for beginners and offer additional
   customization options for advanced
   users. [#153](https://github.com/Clon1998/mobileraker/issues/153) [#134](https://github.com/Clon1998/mobileraker/issues/134) [#182](https://github.com/Clon1998/mobileraker/issues/182) [#193](https://github.com/Clon1998/mobileraker/issues/193)
+- Added support for WebRtc for
+  Supports [#167](https://github.com/Clon1998/mobileraker/issues/167) [#191](https://github.com/Clon1998/mobileraker/issues/191)
 
 ### Changed Features
 
@@ -14,6 +16,7 @@
 - Improved the accuracy of current and max layer display by utilizing moonraker's info.layer
   fields.[#138](https://github.com/Clon1998/mobileraker/issues/138)
 - Added support for 12hr time format [#192](https://github.com/Clon1998/mobileraker/issues/197)
+- Changed Mobileraker's notifcaiton icon for Android
 
 ### Bug Fixes
 
