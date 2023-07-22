@@ -11,6 +11,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
+import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
@@ -20,6 +21,7 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/console/console_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:mobileraker/util/extensions/text_editing_controller_extension.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -66,7 +68,8 @@ class _ConsoleBody extends HookConsumerWidget {
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
+          borderRadius:
+              const BorderRadius.vertical(bottom: Radius.circular(10)),
           boxShadow: [
             if (theme.brightness == Brightness.light)
               BoxShadow(
@@ -127,8 +130,9 @@ class _ConsoleBody extends HookConsumerWidget {
                         icon: const Icon(Icons.send),
                         onPressed: klippyCanReceiveCommands
                             ? () {
-                                ref
-                                    .read(consoleListControllerProvider.notifier)
+                          ref
+                                    .read(
+                                        consoleListControllerProvider.notifier)
                                     .onCommandSubmit(consoleTextEditor.text);
                                 consoleTextEditor.clear();
                               }
@@ -261,6 +265,8 @@ class _Console extends ConsumerWidget {
             .valueOrFullNull
             ?.klippyCanReceiveCommands ??
         false;
+    var dateFormatService = ref.read(dateFormatServiceProvider);
+
     return ref.watch(consoleListControllerProvider).when(
         data: (entries) {
           if (entries.isEmpty) {
@@ -268,7 +274,6 @@ class _Console extends ConsumerWidget {
                 leading: const Icon(Icons.browser_not_supported_sharp),
                 title: const Text('pages.console.no_entries').tr());
           }
-          var now = DateTime.now();
           return SmartRefresher(
               header: ClassicHeader(
                 textStyle: TextStyle(color: themeData.colorScheme.onBackground),
@@ -291,11 +296,10 @@ class _Console extends ConsumerWidget {
                     int correctedIndex = entries.length - 1 - index;
                     ConsoleEntry entry = entries[correctedIndex];
 
-                    DateFormat dateFormat = DateFormat.Hms();
-                    if (now.difference(entry.timestamp).inDays != 0) {
+                    DateFormat dateFormat = dateFormatService.Hms();
+                    if (entry.timestamp.isNotToday()) {
                       dateFormat.addPattern('MMMd', ', ');
                     }
-
 
                     if (entry.type == ConsoleEntryType.COMMAND) {
                       return ListTile(
@@ -305,8 +309,7 @@ class _Console extends ConsumerWidget {
                         title: Text(entry.message,
                             style: _commandTextStyle(
                                 themeData, ListTileTheme.of(context))),
-                        subtitle:
-                            Text(dateFormat.format(entry.timestamp)),
+                        subtitle: Text(dateFormat.format(entry.timestamp)),
                         onTap:
                             canSend ? () => onCommandTap(entry.message) : null,
                       );

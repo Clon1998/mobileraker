@@ -15,6 +15,7 @@ import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
@@ -427,8 +428,9 @@ class GCodeFileItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     String? lastPrinted = gCode.lastPrintDate != null
-        ? DateFormat.yMd(context.deviceLocale.languageCode)
-            .add_jm()
+        ? ref
+            .read(dateFormatServiceProvider)
+            .add_Hm(DateFormat.yMd(context.deviceLocale.languageCode))
             .format(gCode.lastPrintDate!)
         : null;
 

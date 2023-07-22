@@ -2,7 +2,6 @@
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
  */
-
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -46,6 +45,7 @@ class SettingPage extends ConsumerWidget {
             children: <Widget>[
               _SectionHeader(title: 'pages.setting.general.title'.tr()),
               const _LanguageSelector(),
+              const _TimeFormatSelector(),
               const _ThemeSelector(),
               const _ThemeModeSelector(),
               FormBuilderSwitch(
@@ -330,6 +330,34 @@ class _LanguageSelector extends ConsumerWidget {
       onChanged: (Locale? local) =>
           context.setLocale(local ?? context.fallbackLocale!),
     );
+  }
+}
+
+class _TimeFormatSelector extends ConsumerWidget {
+  const _TimeFormatSelector({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // context.locale.
+    // DateFormat
+    // initializeDateFormatting()
+    var now = DateTime.now();
+
+    return FormBuilderDropdown(
+        initialValue: ref.watch(boolSettingProvider(timeMode)),
+        name: 'timeMode',
+        items: [
+          DropdownMenuItem(
+              value: false, child: Text(DateFormat.Hm().format(now))),
+          DropdownMenuItem(
+              value: true, child: Text(DateFormat.jm().format(now)))
+        ],
+        decoration: InputDecoration(
+          labelStyle: Theme.of(context).textTheme.labelLarge,
+          labelText: 'Time Format',
+        ),
+        onChanged: (bool? b) =>
+            ref.read(settingServiceProvider).writeBool(timeMode, b ?? false));
   }
 }
 
