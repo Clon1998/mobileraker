@@ -20,7 +20,6 @@ import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/extensions/revenuecat_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/time_util.dart';
@@ -129,7 +128,7 @@ class _PaywallPage extends ConsumerWidget {
     return ref
         .watch(paywallPageControllerProvider.select((value) => value.offerings))
         .when(
-        data: (data) => _PaywallOfferings(offerings: data),
+            data: (data) => _PaywallOfferings(offerings: data),
             error: (e, s) {
               if (e is PlatformException) {
                 if (e.code == "3") {
@@ -301,7 +300,11 @@ class _SubscribeTiers extends ConsumerWidget {
               ).tr(),
             )),
         _SupporterTierOfferingList(
-            availablePackages: offerings?.current?.availablePackages),
+            availablePackages: offerings?.current?.availablePackages
+                .where((element) =>
+                    element.storeProduct.productCategory ==
+                    ProductCategory.subscription)
+                .toList(growable: false)),
         if (offerings?.all.containsKey('tip') == true)
           FilledButton.icon(
             onPressed:
@@ -384,14 +387,17 @@ class _SupporterTierOfferingList extends ConsumerWidget {
       );
     }
 
-    logger.e('Got available Packaets: $availablePackages');
+    logger.e(
+        'Got ${availablePackages?.length ?? 0} available Packets: $availablePackages');
 
     return Column(
         mainAxisSize: MainAxisSize.min,
         children: availablePackages!
             .map((package) => Padding(
                   padding: const EdgeInsets.only(top: 4, bottom: 4),
-                  child: _SupporterTierCard(package: package),
+                  child: Platform.isAndroid
+                      ? _AndroidSupporterTierCard(package: package)
+                      : _SupporterTierCard(package: package),
                 ))
             .toList());
   }
@@ -421,109 +427,304 @@ class _SupporterTierCard extends ConsumerWidget {
     }));
 
     var storeProduct = package.storeProduct;
-    var themeData = Theme.of(context);
+    var discountOffer = storeProduct.discounts?.firstOrNull;
 
+    // ToDo: Intro Prices for IOS
+    // var hasIntroPrice = storeProduct.introductoryPrice != null;
+    // Purchases.checkTrialOrIntroductoryPriceEligibility(productIdentifiers) // IOS ONLY
+
+    Widget? header = _constructHeader(context, storeProduct);
+
+    return _SubscriptionOfferTile(
+      offerHeader: header,
+      purchasePackage: () => ref
+          .read(paywallPageControllerProvider.notifier)
+          .makePurchase(package),
+      isActiveSubscription: activeEntitlement?.isActive == true,
+      isRenewingSubscription: activeEntitlement?.willRenew == true,
+      subscriptionTitle: storeProduct.title,
+      subscriptionDescription: storeProduct.description,
+      subscriptionPriceString: storeProduct.priceString,
+      subscriptionIso8601: storeProduct.subscriptionPeriod,
+      discountedPriceString: discountOffer?.priceString,
+    );
+  }
+
+  Widget? _constructHeader(BuildContext context, StoreProduct storeProduct) {
+    final themeData = Theme.of(context);
+
+    var discountOffer = storeProduct.discounts?.firstOrNull;
+    var introOffer = storeProduct.introductoryPrice;
+
+    logger.e('discountOffer: $discountOffer');
+    logger.e('introOffer: $introOffer');
+
+    if (discountOffer == null && introOffer == null) return null;
+
+    String offerDuration;
+    double offerDiscount;
+    if (introOffer != null) {
+      offerDuration = introOffer.discountDurationText;
+      offerDiscount = introOffer.price / storeProduct.price;
+    } else {
+      offerDuration = discountOffer!.discountDurationText;
+      offerDiscount = discountOffer.price / storeProduct.price;
+    }
+
+    return Column(
+      children: [
+        Text(
+          tr(
+            'pages.paywall.promo_title',
+          ),
+          style: themeData.textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          tr('pages.paywall.intro_phase', args: [
+            offerDuration,
+            NumberFormat.percentPattern(context.locale.languageCode)
+                .format(offerDiscount)
+          ]),
+          style: themeData.textTheme.titleMedium,
+          textAlign: TextAlign.center,
+        ),
+        const Divider(),
+      ],
+    );
+  }
+}
+
+class _AndroidSupporterTierCard extends ConsumerWidget {
+  const _AndroidSupporterTierCard({
+    super.key,
+    required this.package,
+  });
+
+  final Package package;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    EntitlementInfo? activeEntitlement =
+        ref.watch(customerInfoProvider.select((asyncData) {
+      CustomerInfo? customerInfo = asyncData.valueOrFullNull;
+      var isActive = customerInfo?.activeSubscriptions
+          .contains(package.storeProduct.identifier);
+
+      if (isActive != true) {
+        return null;
+      }
+
+      return customerInfo?.entitlements.active.values.first;
+    }));
+
+    var storeProduct = package.storeProduct;
+    var defaultOption = storeProduct.defaultOption!;
+
+    var isDiscounted = !defaultOption.isBasePlan;
+    var hasFreePhase = defaultOption.freePhase != null;
+    var hasIntroPhase = defaultOption.introPhase != null;
+
+    Widget? header = _constructOfferHeader(defaultOption, context);
+    String? discountedPriceString;
+    if (isDiscounted && (hasIntroPhase || hasFreePhase)) {
+      discountedPriceString = hasIntroPhase
+          ? defaultOption.introPhase!.price.formatted
+          : tr('general.free');
+    }
+
+    return _SubscriptionOfferTile(
+      offerHeader: header,
+      purchasePackage: () => ref
+          .read(paywallPageControllerProvider.notifier)
+          .makePurchase(package),
+      isActiveSubscription: activeEntitlement?.isActive == true,
+      isRenewingSubscription: activeEntitlement?.willRenew == true,
+      subscriptionTitle: storeProduct.title,
+      subscriptionDescription: storeProduct.description,
+      subscriptionPriceString: storeProduct.priceString,
+      subscriptionIso8601: (!hasFreePhase || hasIntroPhase)
+          ? storeProduct.subscriptionPeriod
+          : null,
+      discountedPriceString: discountedPriceString,
+    );
+  }
+
+  Widget? _constructOfferHeader(
+      SubscriptionOption subscriptionOption, BuildContext context) {
+    final themeData = Theme.of(context);
+
+    if (subscriptionOption.isBasePlan) return null;
+    return Column(
+      children: [
+        Text(
+          tr(
+            'pages.paywall.promo_title',
+          ),
+          style: themeData.textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          _constructHeaderSubtitle(subscriptionOption, context)!,
+          style: themeData.textTheme.titleMedium,
+          textAlign: TextAlign.center,
+        ),
+        const Divider(),
+      ],
+    );
+  }
+
+  String? _constructHeaderSubtitle(
+      SubscriptionOption subscriptionOption, BuildContext context) {
+    if (subscriptionOption.isBasePlan) return null;
+
+    var tmp = <String>[];
+    if (subscriptionOption.freePhase != null) {
+      tmp.add(tr('pages.paywall.free_phase',
+          args: [subscriptionOption.freePhaseDurationText!]));
+    }
+    if (subscriptionOption.introPhase != null) {
+      var discount = subscriptionOption.introPhase!.price.amountMicros /
+          subscriptionOption.fullPricePhase!.price.amountMicros;
+      tmp.add(tr('pages.paywall.intro_phase', args: [
+        subscriptionOption.introPhaseDurationText!,
+        NumberFormat.percentPattern(context.locale.languageCode)
+            .format(discount)
+      ]));
+    }
+    return tmp.isEmpty ? null : tmp.join(' + ');
+  }
+}
+
+class _SubscriptionOfferTile extends StatelessWidget {
+  const _SubscriptionOfferTile({
+    Key? key,
+    this.offerHeader,
+    this.purchasePackage,
+    required this.isActiveSubscription,
+    required this.isRenewingSubscription,
+    required this.subscriptionTitle,
+    required this.subscriptionDescription,
+    required this.subscriptionPriceString,
+    this.subscriptionIso8601,
+    this.discountedPriceString,
+  }) : super(key: key);
+
+  // Header of the Card
+  final Widget? offerHeader;
+  final GestureTapCallback? purchasePackage;
+
+  final bool isActiveSubscription;
+  final bool isRenewingSubscription;
+
+  final String subscriptionTitle;
+  final String subscriptionDescription;
+  final String subscriptionPriceString;
+  final String? subscriptionIso8601;
+
+  final String? discountedPriceString;
+
+  bool get hasDiscountAvailable => discountedPriceString != null;
+
+  @override
+  Widget build(BuildContext context) {
+    var themeData = Theme.of(context);
     var borderRadius = BorderRadius.circular(16);
-    var isActive = activeEntitlement?.isActive == true;
-    var wilLRenew = activeEntitlement?.willRenew == true;
     var defaultTextStyle = themeData.textTheme.labelLarge!.copyWith(
-      color: isActive
+      color: isActiveSubscription
           ? themeData.colorScheme.onPrimary
           : themeData.colorScheme.onPrimaryContainer,
     );
-
-    // TODO: currently everything is shown as monthly!
-
-    var isDiscounted = storeProduct.discounts?.isNotEmpty == true;
-    var discountOffer = storeProduct.discounts?.firstOrNull;
-    var discountPercent =
-        discountOffer?.let((d) => d.price / storeProduct.price);
-
-    // var hasIntroPrice = storeProduct.introductoryPrice != null;
-    // Purchases.checkTrialOrIntroductoryPriceEligibility(productIdentifiers) // IOS ONLY
 
     return DefaultTextStyle(
       style: defaultTextStyle,
       child: Ink(
         decoration: BoxDecoration(
             borderRadius: borderRadius,
-            color: isActive
+            color: isActiveSubscription
                 ? themeData.colorScheme.primary
                 : themeData.colorScheme.primaryContainer),
         child: InkWell(
-          onTap: activeEntitlement?.willRenew == true
-              ? null
-              : () => ref
-                  .read(paywallPageControllerProvider.notifier)
-                  .makePurchase(package),
+          onTap: isRenewingSubscription ? null : purchasePackage,
           borderRadius: borderRadius,
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: [
-                if (isDiscounted) ...[
-                  Text(
-                    tr('pages.paywall.discount_validity', args: [
-                      discountOffer!.discountDurationText,
-                      NumberFormat.percentPattern(context.locale.languageCode)
-                          .format(discountPercent)
-                    ]),
-                    style: themeData.textTheme.titleMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
-                  ),
-                  const Divider(),
-                ],
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
                   children: [
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            storeProduct.title,
-                            style: defaultTextStyle.copyWith(
-                                fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            storeProduct.description,
-                          )
-                        ],
-                      ),
-                    ),
-                    Column(
+                    if (offerHeader != null) offerHeader!,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        if (isActive)
-                          Text(
-                            wilLRenew ? 'general.active' : 'general.canceled',
-                            style: themeData.textTheme.bodySmall?.copyWith(
-                                color: themeData.colorScheme.onPrimary),
-                          ).tr(),
-                        Text(
-                          storeProduct.priceString,
-                          style: (isDiscounted)
-                              ? themeData.textTheme.bodySmall?.copyWith(
-                                  decoration: TextDecoration.lineThrough)
-                              : null,
-                        ),
-                        if (isDiscounted)
-                          Text(
-                            discountOffer!.priceString,
+                        Flexible(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                subscriptionTitle,
+                                style: defaultTextStyle.copyWith(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                subscriptionDescription,
+                              )
+                            ],
                           ),
-                        Text(
-                          iso8601PeriodToText(storeProduct.subscriptionPeriod!),
-                          style: themeData.textTheme.bodySmall?.copyWith(
-                              fontSize: 10,
-                              color: defaultTextStyle.color
-                                  ?.getShadeColor(lighten: false)),
-                        ).tr(),
+                        ),
+                        Column(
+                          children: [
+                            if (isActiveSubscription)
+                              Text(
+                                isRenewingSubscription
+                                    ? 'general.active'
+                                    : 'general.canceled',
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                    color: themeData.colorScheme.onPrimary),
+                              ).tr(),
+                            Text(
+                              subscriptionPriceString,
+                              style: hasDiscountAvailable
+                                  ? themeData.textTheme.bodySmall?.copyWith(
+                                      decoration: TextDecoration.lineThrough)
+                                  : null,
+                            ),
+                            if (hasDiscountAvailable)
+                              Text(discountedPriceString!),
+                            if (subscriptionIso8601 != null)
+                              Text(
+                                iso8601PeriodToText(subscriptionIso8601!),
+                                style: themeData.textTheme.bodySmall?.copyWith(
+                                    fontSize: 10,
+                                    color: defaultTextStyle.color
+                                        ?.getShadeColor(lighten: false)),
+                              ).tr(),
+                          ],
+                        ),
                       ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+              // TextButton(
+              //   style: TextButton.styleFrom(
+              //     minimumSize: const Size.fromHeight(48),
+              //     padding: EdgeInsets.zero,
+              //     shape: const RoundedRectangleBorder(
+              //       borderRadius:
+              //       BorderRadius.vertical(bottom: Radius.circular(16)),
+              //     ),
+              //     foregroundColor: themeData.colorScheme.onPrimary,
+              //     backgroundColor: themeData.colorScheme.primary,
+              //     // onPrimary: Theme.of(context).colorScheme.onSecondary,
+              //     disabledForegroundColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
+              //   ),
+              //   onPressed: () => null,
+              //   child: Text('Become a Supporter'),
+              // )
+            ],
           ),
         ),
       ),

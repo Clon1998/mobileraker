@@ -38,7 +38,8 @@
     "abort": "Abort",
     "offset": "Offset",
     "valid": "Valid",
-    "invalid": "Invalid"
+    "invalid": "Invalid",
+    "free": "Free"
   },
   "pages": {
     "dashboard": {
@@ -390,8 +391,7 @@
       "title": "Changelog"
     },
     "paywall": {
-      "title": "Support the Dev!",
-      "calling_store": "Processing request...",
+
       "manage_view": {
         "title": "Thanks for your Support!",
         "list_title": "Change Supporter Tier:",
@@ -410,7 +410,11 @@
         "title": "Developer Contact",
         "body": "Mail: {}\nDiscord: {}"
       },
-      "discount_validity": "Special offer: {} at {} off",
+      "title": "Support the Dev!",
+      "calling_store": "Processing request...",
+      "promo_title": "Promotion",
+      "free_phase": "First {} free",
+      "intro_phase": "Enjoy {} at {} off",
       "tip_developer": "Tip Developer"
     }
   },
