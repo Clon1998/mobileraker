@@ -465,10 +465,10 @@ class _SupporterTierCard extends ConsumerWidget {
     double offerDiscount;
     if (introOffer != null) {
       offerDuration = introOffer.discountDurationText;
-      offerDiscount = introOffer.price / storeProduct.price;
+      offerDiscount = 1 - (introOffer.price / storeProduct.price);
     } else {
       offerDuration = discountOffer!.discountDurationText;
-      offerDiscount = discountOffer.price / storeProduct.price;
+      offerDiscount = 1 - (discountOffer.price / storeProduct.price);
     }
 
     return Column(
@@ -586,8 +586,9 @@ class _AndroidSupporterTierCard extends ConsumerWidget {
           args: [subscriptionOption.freePhaseDurationText!]));
     }
     if (subscriptionOption.introPhase != null) {
-      var discount = subscriptionOption.introPhase!.price.amountMicros /
-          subscriptionOption.fullPricePhase!.price.amountMicros;
+      var discount = 1 -
+          (subscriptionOption.introPhase!.price.amountMicros /
+              subscriptionOption.fullPricePhase!.price.amountMicros);
       tmp.add(tr('pages.paywall.intro_phase', args: [
         subscriptionOption.introPhaseDurationText!,
         NumberFormat.percentPattern(context.locale.languageCode)
@@ -649,82 +650,61 @@ class _SubscriptionOfferTile extends StatelessWidget {
         child: InkWell(
           onTap: isRenewingSubscription ? null : purchasePackage,
           borderRadius: borderRadius,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              children: [
+                if (offerHeader != null) offerHeader!,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (offerHeader != null) offerHeader!,
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                subscriptionTitle,
-                                style: defaultTextStyle.copyWith(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                subscriptionDescription,
-                              )
-                            ],
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            subscriptionTitle,
+                            style: defaultTextStyle.copyWith(
+                                fontWeight: FontWeight.bold),
                           ),
+                          Text(
+                            subscriptionDescription,
+                          )
+                        ],
+                      ),
+                    ),
+                    Column(
+                      children: [
+                        if (isActiveSubscription)
+                          Text(
+                            isRenewingSubscription
+                                ? 'general.active'
+                                : 'general.canceled',
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                                color: themeData.colorScheme.onPrimary),
+                          ).tr(),
+                        Text(
+                          subscriptionPriceString,
+                          style: hasDiscountAvailable
+                              ? themeData.textTheme.bodySmall?.copyWith(
+                                  decoration: TextDecoration.lineThrough)
+                              : null,
                         ),
-                        Column(
-                          children: [
-                            if (isActiveSubscription)
-                              Text(
-                                isRenewingSubscription
-                                    ? 'general.active'
-                                    : 'general.canceled',
-                                style: themeData.textTheme.bodySmall?.copyWith(
-                                    color: themeData.colorScheme.onPrimary),
-                              ).tr(),
-                            Text(
-                              subscriptionPriceString,
-                              style: hasDiscountAvailable
-                                  ? themeData.textTheme.bodySmall?.copyWith(
-                                      decoration: TextDecoration.lineThrough)
-                                  : null,
-                            ),
-                            if (hasDiscountAvailable)
-                              Text(discountedPriceString!),
-                            if (subscriptionIso8601 != null)
-                              Text(
-                                iso8601PeriodToText(subscriptionIso8601!),
-                                style: themeData.textTheme.bodySmall?.copyWith(
-                                    fontSize: 10,
-                                    color: defaultTextStyle.color
-                                        ?.getShadeColor(lighten: false)),
-                              ).tr(),
-                          ],
-                        ),
+                        if (hasDiscountAvailable) Text(discountedPriceString!),
+                        if (subscriptionIso8601 != null)
+                          Text(
+                            iso8601PeriodToText(subscriptionIso8601!),
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                                fontSize: 10,
+                                color: defaultTextStyle.color
+                                    ?.getShadeColor(lighten: false)),
+                          ).tr(),
                       ],
                     ),
                   ],
                 ),
-              ),
-              // TextButton(
-              //   style: TextButton.styleFrom(
-              //     minimumSize: const Size.fromHeight(48),
-              //     padding: EdgeInsets.zero,
-              //     shape: const RoundedRectangleBorder(
-              //       borderRadius:
-              //       BorderRadius.vertical(bottom: Radius.circular(16)),
-              //     ),
-              //     foregroundColor: themeData.colorScheme.onPrimary,
-              //     backgroundColor: themeData.colorScheme.primary,
-              //     // onPrimary: Theme.of(context).colorScheme.onSecondary,
-              //     disabledForegroundColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
-              //   ),
-              //   onPressed: () => null,
-              //   child: Text('Become a Supporter'),
-              // )
-            ],
+              ],
+            ),
           ),
         ),
       ),
