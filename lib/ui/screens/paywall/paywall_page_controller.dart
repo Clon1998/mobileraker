@@ -6,6 +6,7 @@
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/logger.dart';
@@ -22,28 +23,37 @@ part 'paywall_page_controller.g.dart';
 @riverpod
 class PaywallPageController extends _$PaywallPageController {
   @override
-  PaywallPageState build() {
-    _fetchOfferings();
-    return const PaywallPageState();
-  }
-
-  _fetchOfferings() async {
+  FutureOr<PaywallPageState> build() async {
     try {
-      Offerings offerings =
-          await ref.watch(paymentServiceProvider).getOfferings();
-
-      logger.e('Got offerings:$offerings');
-
-      // if (offerings.current != null &&
-      //     offerings.current!.availablePackages.isNotEmpty) {
-      //   state = state.copyWith(offering: AsyncValue.data(offerings.current));
-      //   return;
-      // }
-      state = state.copyWith(offerings: AsyncValue.data(offerings));
+      return _fetchPaywallState();
     } on PlatformException catch (e, s) {
       logger.e('Error while trying to fetch offerings from revenue cat!', e, s);
-      state = state.copyWith(offerings: AsyncValue.error(e, s));
+      rethrow;
     }
+  }
+
+  Future<PaywallPageState> _fetchPaywallState() async {
+    Offerings offerings =
+        await ref.watch(paymentServiceProvider).getOfferings();
+    logger.wtf('Got offerings:${offerings.all.keys}');
+    logger.wtf('Got offerings detailed:$offerings');
+
+    Offering? activeOffering = offerings.current;
+    if (kDebugMode) activeOffering = offerings.getOffering('default_v2');
+    final offerMetadata = activeOffering?.metadata ?? {};
+    final excludeFromPaywall =
+        (offerMetadata['exclude_package'] as String? ?? '').split(',');
+    final List<Package> packetsToOffer = activeOffering?.availablePackages
+            .where((p) => !excludeFromPaywall.contains(p.identifier))
+            .toList(growable: false) ??
+        [];
+
+    // Due to the lack of ability to buy things multiple times, I need to put this into a seperate offer group
+    final List<Package> tipPackets =
+        offerings.getOffering('tip')?.availablePackages ?? [];
+
+    return PaywallPageState(
+        paywallOfferings: packetsToOffer, tipPackages: tipPackets);
   }
 
   openGithub() async {
@@ -55,23 +65,32 @@ class PaywallPageController extends _$PaywallPageController {
     }
   }
 
-  tipTheDev() async {
-    var availablePackages =
-        state.offerings.valueOrNull?.all['tip']?.availablePackages;
-    if (availablePackages == null) {
-      logger.e('Tip package was not available');
+  onTippingPressed() async {
+    // var tipPacket = state.valueOrNull?.tipPackage;
+    if (state.valueOrNull?.tipAvailable != true) {
+      logger.w('Tip package is not available');
       return;
     }
-    if (availablePackages.length != 1) {
-      logger.e('Available TIP package Size is greater than 1!');
-      return;
+
+    var dialogResponse = await ref.read(dialogServiceProvider).show(
+        DialogRequest(
+            type: DialogType.tipping,
+            data: state.valueOrNull?.tipPackages ?? []));
+    if (dialogResponse?.confirmed == true) {
+      logger.i('User selected tip package: ${dialogResponse?.data}');
+      makePurchase(dialogResponse!.data as Package);
     }
-    makePurchase(availablePackages.first);
+  }
+
+  copyRCatIdToClipboard() {
+    var customerInfo = ref.read(customerInfoProvider).valueOrNull;
+    Clipboard.setData(
+        ClipboardData(text: customerInfo?.originalAppUserId ?? ''));
   }
 
   makePurchase(Package packageToBuy) async {
     // state = const AsyncLoading();
-    state = state.copyWith(makingPurchase: true);
+    state = state.whenData((value) => value.copyWith(makingPurchase: true));
     CustomerInfo customerInfo = await ref.read(customerInfoProvider.future);
 
     UpgradeInfo? upgradeInfo;
@@ -85,20 +104,20 @@ class PaywallPageController extends _$PaywallPageController {
     await ref
         .read(paymentServiceProvider)
         .purchasePackage(packageToBuy, upgradeInfo);
-    state = state.copyWith(makingPurchase: false);
+    state = state.whenData((value) => value.copyWith(makingPurchase: false));
   }
 
   restore() async {
-    state = state.copyWith(makingPurchase: true);
+    state = state.whenData((value) => value.copyWith(makingPurchase: true));
     await ref.read(paymentServiceProvider).restorePurchases();
-    state = state.copyWith(makingPurchase: false);
+    state = state.whenData((value) => value.copyWith(makingPurchase: false));
   }
 
   openManagement() async {
     var managementUrl = ref
         .read(customerInfoProvider.selectAs((data) => data.managementURL))
         .valueOrNull;
-    logger.wtf(managementUrl);
+    // logger.wtf(managementUrl);
     if (managementUrl == null) return;
 
     if (await canLaunchUrlString(managementUrl)) {
@@ -126,8 +145,14 @@ class PaywallPageController extends _$PaywallPageController {
 
 @freezed
 class PaywallPageState with _$PaywallPageState {
-  const factory PaywallPageState(
-          {@Default(false) bool makingPurchase,
-          @Default(AsyncValue.loading()) AsyncValue<Offerings?> offerings}) =
-      _PaywallPageState;
+  const PaywallPageState._();
+
+  const factory PaywallPageState({
+    @Default(false) bool makingPurchase,
+    @Default([]) List<Package> paywallOfferings,
+    @Default([]) List<Package> tipPackages,
+    // @Default(AsyncValue.loading()) AsyncValue<Offerings?> offerings,
+  }) = _PaywallPageState;
+
+  bool get tipAvailable => tipPackages.isNotEmpty;
 }

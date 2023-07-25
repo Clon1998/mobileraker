@@ -116,120 +116,118 @@ class _PaywallPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen(
-        paywallPageControllerProvider.select((value) => value.makingPurchase),
+        paywallPageControllerProvider.selectAs((value) => value.makingPurchase),
         (previous, next) {
-      if (next) {
+      if (next.valueOrNull == true) {
         context.loaderOverlay.show();
       } else {
         context.loaderOverlay.hide();
       }
     });
 
-    return ref
-        .watch(paywallPageControllerProvider.select((value) => value.offerings))
-        .when(
-            data: (data) => _PaywallOfferings(offerings: data),
-            error: (e, s) {
-              if (e is PlatformException) {
-                if (e.code == "3") {
-                  var themeData = Theme.of(context);
-                  var textStyleOnError =
-                      TextStyle(color: themeData.colorScheme.onErrorContainer);
-                  return ErrorCard(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          leading: Icon(
-                            FlutterIcons.issue_opened_oct,
-                            color: themeData.colorScheme.onErrorContainer,
-                          ),
-                          title: Text(storeName(), style: textStyleOnError),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                          ),
-                          child: RichText(
-                              text: TextSpan(
-                                  style: textStyleOnError,
-                                  text:
-                                      'To support the project, a properly configured ${(Platform.isAndroid) ? 'Google' : 'Apple'}-Account is required!',
-                                  children: const [
-                                TextSpan(
-                                  text:
-                                      'However, you can support the project by either rating it in the app stores, providing feedback via Github, or make donations.\nYou can find out more on the Github page of Mobileraker.',
-                                )
-                              ])),
-                        ),
-                        ElevatedButton.icon(
-                          icon: const Icon(FlutterIcons.github_faw5d),
-                          onPressed: ref
-                              .read(paywallPageControllerProvider.notifier)
-                              .openGithub,
-                          label: const Text('GitHub'),
-                        ),
-                        const SizedBox(
-                          height: 8,
-                        )
-                      ],
-                    ),
-                  );
-                }
-              }
-              return Center(
-                child: Card(
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(40.0),
-                  ),
-                  child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          leading: Icon(
-                            FlutterIcons.issue_opened_oct,
-                          ),
-                          title: Text('Can not fetch supporter tiers!'),
-                        ),
-                        Text(
-                          'Sorry...\nIt seems like there was a problem while trying to load the different Supported tiers!\nPlease try again later!',
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(
-                          height: 8,
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-            loading: () => Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+    return ref.watch(paywallPageControllerProvider).when(
+        data: (data) => _PaywallOfferings(model: data),
+        error: (e, s) {
+          if (e is PlatformException) {
+            if (e.code == "3") {
+              var themeData = Theme.of(context);
+              var textStyleOnError =
+                  TextStyle(color: themeData.colorScheme.onErrorContainer);
+              return ErrorCard(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    SpinKitPumpingHeart(
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 66,
+                    ListTile(
+                      leading: Icon(
+                        FlutterIcons.issue_opened_oct,
+                        color: themeData.colorScheme.onErrorContainer,
+                      ),
+                      title: Text(storeName(), style: textStyleOnError),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                      ),
+                      child: RichText(
+                          text: TextSpan(
+                              style: textStyleOnError,
+                              text:
+                                  'To support the project, a properly configured ${(Platform.isAndroid) ? 'Google' : 'Apple'}-Account is required!',
+                              children: const [
+                            TextSpan(
+                              text:
+                                  'However, you can support the project by either rating it in the app stores, providing feedback via Github, or make donations.\nYou can find out more on the Github page of Mobileraker.',
+                            )
+                          ])),
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(FlutterIcons.github_faw5d),
+                      onPressed: ref
+                          .read(paywallPageControllerProvider.notifier)
+                          .openGithub,
+                      label: const Text('GitHub'),
                     ),
                     const SizedBox(
-                      height: 20,
-                    ),
-                    FadingText('Loading supporter Tiers')
+                      height: 8,
+                    )
                   ],
-                ));
+                ),
+              );
+            }
+          }
+          return Center(
+            child: Card(
+              shape: ContinuousRectangleBorder(
+                borderRadius: BorderRadius.circular(40.0),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ListTile(
+                      leading: Icon(
+                        FlutterIcons.issue_opened_oct,
+                      ),
+                      title: Text('Can not fetch supporter tiers!'),
+                    ),
+                    Text(
+                      'Sorry...\nIt seems like there was a problem while trying to load the different Supported tiers!\nPlease try again later!',
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: 8,
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+        loading: () => Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SpinKitPumpingHeart(
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 66,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                FadingText('Loading supporter Tiers')
+              ],
+            ));
   }
 }
 
 class _PaywallOfferings extends ConsumerWidget {
   const _PaywallOfferings({
     Key? key,
-    required this.offerings,
+    required this.model,
   }) : super(key: key);
 
-  final Offerings? offerings;
+  final PaywallPageState model;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -238,23 +236,22 @@ class _PaywallOfferings extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: ref.watch(isSupporterProvider)
-            ? _ManageTiers(offerings: offerings)
-            : _SubscribeTiers(offerings: offerings),
+            ? _ManageTiers(model: model)
+            : _SubscribeTiers(model: model),
       ),
     );
   }
 }
 
 class _SubscribeTiers extends ConsumerWidget {
-  const _SubscribeTiers({Key? key, required this.offerings}) : super(key: key);
+  const _SubscribeTiers({Key? key, required this.model}) : super(key: key);
 
-  final Offerings? offerings;
+  final PaywallPageState model;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var textTheme = Theme.of(context).textTheme;
-    logger.e('Offerings: ${offerings?.all.keys}');
-    // logger.e('Offerings: ${offerings?.all}');
+    final textTheme = Theme.of(context).textTheme;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -263,14 +260,6 @@ class _SubscribeTiers extends ConsumerWidget {
           textAlign: TextAlign.center,
           style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ).tr(),
-        // Flexible(
-        //   child: Padding(
-        //     padding: const EdgeInsets.symmetric(vertical: 8.0),
-        //     child: SvgPicture.asset(
-        //       'assets/vector/undraw_pair_programming_re_or4x.svg',
-        //     ),
-        //   ),
-        // ),
         Text('pages.paywall.subscribe_view.info',
                 textAlign: TextAlign.center, style: textTheme.bodySmall)
             .tr(),
@@ -299,19 +288,8 @@ class _SubscribeTiers extends ConsumerWidget {
                     ?.copyWith(fontSize: 20, fontWeight: FontWeight.w900),
               ).tr(),
             )),
-        _SupporterTierOfferingList(
-            availablePackages: offerings?.current?.availablePackages
-                .where((element) =>
-                    element.storeProduct.productCategory ==
-                    ProductCategory.subscription)
-                .toList(growable: false)),
-        if (offerings?.all.containsKey('tip') == true)
-          FilledButton.icon(
-            onPressed:
-                ref.read(paywallPageControllerProvider.notifier).tipTheDev,
-            icon: const Icon(Icons.volunteer_activism),
-            label: const Text('Tip the Dev'),
-          ),
+        _SupporterTierOfferingList(packets: model.paywallOfferings),
+        if (model.tipAvailable) const _TippingButton(),
         const _RestoreButton(),
         // const _TippingButton(),
       ],
@@ -320,9 +298,9 @@ class _SubscribeTiers extends ConsumerWidget {
 }
 
 class _ManageTiers extends ConsumerWidget {
-  const _ManageTiers({Key? key, this.offerings}) : super(key: key);
+  const _ManageTiers({Key? key, required this.model}) : super(key: key);
 
-  final Offerings? offerings;
+  final PaywallPageState model;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -352,9 +330,10 @@ class _ManageTiers extends ConsumerWidget {
             )),
         Expanded(
           child: _SupporterTierOfferingList(
-            availablePackages: offerings?.current?.availablePackages,
+            packets: model.paywallOfferings,
           ),
         ),
+        if (model.tipAvailable) const _TippingButton(),
         ElevatedButton.icon(
             icon: const Icon(Icons.subscriptions_outlined),
             label: const Text('pages.paywall.manage_view.store_btn')
@@ -374,32 +353,34 @@ class _ManageTiers extends ConsumerWidget {
 }
 
 class _SupporterTierOfferingList extends ConsumerWidget {
-  const _SupporterTierOfferingList({super.key, this.availablePackages});
+  const _SupporterTierOfferingList({super.key, this.packets});
 
-  final List<Package>? availablePackages;
+  final List<Package>? packets;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (availablePackages == null || availablePackages!.isEmpty) {
+    if (packets == null || packets!.isEmpty) {
       return ErrorCard(
         title: const Text('pages.paywall.supporter_tier_list.error_title').tr(),
         body: const Text('pages.paywall.supporter_tier_list.error_body').tr(),
       );
     }
 
-    logger.e(
-        'Got ${availablePackages?.length ?? 0} available Packets: $availablePackages');
+    logger.e('Got ${packets?.length ?? 0} available Packets: $packets');
 
-    return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: availablePackages!
-            .map((package) => Padding(
-                  padding: const EdgeInsets.only(top: 4, bottom: 4),
-                  child: Platform.isAndroid
-                      ? _AndroidSupporterTierCard(package: package)
-                      : _SupporterTierCard(package: package),
-                ))
-            .toList());
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: packets!
+              .map((package) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 3),
+                    child: Platform.isAndroid
+                        ? _AndroidSupporterTierCard(package: package)
+                        : _SupporterTierCard(package: package),
+                  ))
+              .toList()),
+    );
   }
 }
 
@@ -442,7 +423,7 @@ class _SupporterTierCard extends ConsumerWidget {
           .makePurchase(package),
       isActiveSubscription: activeEntitlement?.isActive == true,
       isRenewingSubscription: activeEntitlement?.willRenew == true,
-      subscriptionTitle: storeProduct.title,
+      subscriptionTitle: storeProduct.title + " (${storeProduct.identifier})",
       subscriptionDescription: storeProduct.description,
       subscriptionPriceString: storeProduct.priceString,
       subscriptionIso8601: storeProduct.subscriptionPeriod,
@@ -720,8 +701,17 @@ class _RestoreButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => TextButton.icon(
       onPressed: ref.read(paywallPageControllerProvider.notifier).restore,
-      icon: const Icon(Icons.restore),
-      label: const Text('general.restore').tr());
+      onLongPress: ref
+          .read(paywallPageControllerProvider.notifier)
+          .copyRCatIdToClipboard,
+      icon: const Icon(
+        Icons.restore,
+        size: 18,
+      ),
+      label: Text(
+        'general.restore',
+        style: TextStyle(fontSize: 12),
+      ).tr());
 }
 
 class _TippingButton extends ConsumerWidget {
@@ -730,8 +720,12 @@ class _TippingButton extends ConsumerWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) => TextButton.icon(
-      onPressed: ref.read(paywallPageControllerProvider.notifier).tipTheDev,
+  Widget build(BuildContext context, WidgetRef ref) => FilledButton.tonalIcon(
+      onPressed:
+          ref.read(paywallPageControllerProvider.notifier).onTippingPressed,
+      onLongPress: ref
+          .read(paywallPageControllerProvider.notifier)
+          .copyRCatIdToClipboard,
       icon: const Icon(Icons.volunteer_activism),
       label: const Text('pages.paywall.tip_developer').tr());
 }

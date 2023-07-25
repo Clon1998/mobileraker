@@ -24,6 +24,7 @@ import 'package:mobileraker/ui/components/dialog/perks_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/select_printer/select_printer_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/tipping_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -49,6 +50,7 @@ enum DialogType {
   perks,
   manualOffset,
   bedScrewAdjust,
+  tipping,
 }
 
 typedef DialogCompleter = Function(DialogResponse);
@@ -58,7 +60,7 @@ class DialogService {
 
   final DialogServiceRef ref;
 
-  DialogRequest? _currentDialogRequest = null;
+  DialogRequest? _currentDialogRequest;
 
   bool get isDialogOpen => _currentDialogRequest != null;
 
@@ -95,6 +97,7 @@ class DialogService {
         ManualOffsetDialog(request: r, completer: c),
     DialogType.bedScrewAdjust: (r, c) =>
         BedScrewAdjustDialog(request: r, completer: c),
+    DialogType.tipping: (r, c) => TippingDialog(request: r, completer: c)
   };
 
   Future<DialogResponse?> showConfirm({

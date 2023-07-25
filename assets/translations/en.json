@@ -531,6 +531,12 @@
       "hint_tooltip": "Klipper's Paper Test Documentation",
       "snackbar_title": "Calibration done",
       "snackbar_message": "Make sure to persist offset via the Save Config action."
+    },
+    "tipping": {
+      "title": "Tip the Developer!",
+      "body": "This tip is solely meant to appreciate the developer's efforts and DOES NOT grant access to any additional features.",
+      "amount_label": "Tip amount",
+      "tip": "Tip"
     }
   },
   "klipper_state": {
