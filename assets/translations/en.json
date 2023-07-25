@@ -515,6 +515,10 @@
       "notification_perk": {
         "title": "Snapshot Notifications",
         "subtitle": "Status notification include Webcam Snapshot"
+      },
+      "webrtc_perk": {
+        "title": "WebRtc Support",
+        "subtitle": "Allows the usage of WebRtc webcams!"
       }
     },
     "bed_screw_adjust": {
