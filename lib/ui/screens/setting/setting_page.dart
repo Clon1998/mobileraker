@@ -352,7 +352,7 @@ class _TimeFormatSelector extends ConsumerWidget {
           DropdownMenuItem(
               value: false, child: Text(DateFormat.Hm().format(now))),
           DropdownMenuItem(
-              value: true, child: Text(DateFormat.jm().format(now)))
+              value: true, child: Text(DateFormat('h:mm a').format(now)))
         ],
         decoration: InputDecoration(
           labelStyle: Theme.of(context).textTheme.labelLarge,

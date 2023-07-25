@@ -20,16 +20,20 @@ class DateFormatService {
 
   DateFormatService(this._settingService);
 
+  DateFormat _jm() => DateFormat('h:mm a');
+
+  DateFormat _jms() => DateFormat('h:mm:ss a');
+
   DateFormat Hm() {
     var isFreedomUnit = _settingService.readBool(timeMode);
 
-    return isFreedomUnit ? DateFormat.jm() : DateFormat.Hm();
+    return isFreedomUnit ? _jm() : DateFormat.Hm();
   }
 
   DateFormat Hms() {
     var isFreedomUnit = _settingService.readBool(timeMode);
 
-    return isFreedomUnit ? DateFormat.jms() : DateFormat.Hms();
+    return isFreedomUnit ? _jms() : DateFormat.Hms();
   }
 
   DateFormat add_Hm(DateFormat format) {
