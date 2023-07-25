@@ -26,12 +26,13 @@ class PerksDialog extends StatelessWidget {
               'dialogs.supporter_perks.title',
               style: Theme.of(context).textTheme.headlineSmall,
             ).tr(),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'dialogs.supporter_perks.body',
-                style: Theme.of(context).textTheme.bodySmall,
-              ).tr(),
+            Text(
+              'dialogs.supporter_perks.body',
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.justify,
+            ).tr(),
+            SizedBox(
+              height: 8,
             ),
             Flexible(
               child: ListView(
