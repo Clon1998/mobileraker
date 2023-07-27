@@ -5,6 +5,7 @@
 
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,7 @@ import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/extensions/revenuecat_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker/util/time_util.dart';
@@ -288,7 +290,10 @@ class _SubscribeTiers extends ConsumerWidget {
                     ?.copyWith(fontSize: 20, fontWeight: FontWeight.w900),
               ).tr(),
             )),
-        _SupporterTierOfferingList(packets: model.paywallOfferings),
+        _OfferedProductList(
+          packets: model.paywallOfferings,
+          iapPromos: model.iapPromos,
+        ),
         if (model.tipAvailable) const _TippingButton(),
         const _RestoreButton(),
         // const _TippingButton(),
@@ -328,11 +333,15 @@ class _ManageTiers extends ConsumerWidget {
                     ?.copyWith(fontSize: 20, fontWeight: FontWeight.w900),
               ).tr(),
             )),
-        Expanded(
-          child: _SupporterTierOfferingList(
-            packets: model.paywallOfferings,
-          ),
+        _OfferedProductList(
+          packets: model.paywallOfferings,
+          iapPromos: model.iapPromos,
         ),
+        Text(
+          'pages.paywall.manage_view.sub_warning',
+          style: textTheme.bodySmall,
+          textAlign: TextAlign.justify,
+        ).tr(),
         if (model.tipAvailable) const _TippingButton(),
         ElevatedButton.icon(
             icon: const Icon(Icons.subscriptions_outlined),
@@ -352,10 +361,11 @@ class _ManageTiers extends ConsumerWidget {
   }
 }
 
-class _SupporterTierOfferingList extends ConsumerWidget {
-  const _SupporterTierOfferingList({super.key, this.packets});
+class _OfferedProductList extends ConsumerWidget {
+  const _OfferedProductList({super.key, this.packets, this.iapPromos});
 
   final List<Package>? packets;
+  final List<Package>? iapPromos;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -375,17 +385,109 @@ class _SupporterTierOfferingList extends ConsumerWidget {
           children: packets!
               .map((package) => Padding(
                     padding: const EdgeInsets.symmetric(vertical: 3),
-                    child: Platform.isAndroid
-                        ? _AndroidSupporterTierCard(package: package)
-                        : _SupporterTierCard(package: package),
+                    child: package.let((p) {
+                      if (p.storeProduct.productCategory ==
+                          ProductCategory.nonSubscription) {
+                        var promoPackage = iapPromos?.firstWhereOrNull(
+                            (promo) =>
+                                promo.storeProduct.identifier ==
+                                '${p.storeProduct.identifier}_promo');
+
+                        return _InAppPurchaseProduct(
+                          iapPackage: package,
+                          promoPackage: promoPackage,
+                        );
+                      }
+                      if (package.storeProduct.defaultOption != null) {
+                        return _SubscriptionOptionProduct(package: package);
+                      }
+                      return _SubscriptionProduct(package: package);
+                    }),
                   ))
               .toList()),
     );
   }
 }
 
-class _SupporterTierCard extends ConsumerWidget {
-  const _SupporterTierCard({
+class _InAppPurchaseProduct extends ConsumerWidget {
+  const _InAppPurchaseProduct({
+    super.key,
+    required this.iapPackage,
+    this.promoPackage,
+  });
+
+  final Package iapPackage;
+  final Package? promoPackage;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    EntitlementInfo? activeEntitlement =
+        ref.watch(customerInfoProvider.select((asyncData) {
+      CustomerInfo? customerInfo = asyncData.valueOrFullNull;
+      if (customerInfo?.isSubscriptionActive(iapPackage) != true) return null;
+      return customerInfo!.getActiveEntitlementForPackage(iapPackage);
+    }));
+
+    var storeProduct = iapPackage.storeProduct;
+    var promoStoreProduct = promoPackage?.storeProduct;
+
+    logger.w('SP: $storeProduct');
+    logger.w('PID: ${iapPackage.identifier}');
+    logger.w('SP_promo: $promoStoreProduct');
+    logger.w('PID_PROMO: ${promoPackage?.identifier}');
+
+    Widget? header = _constructHeader(context, storeProduct, promoStoreProduct);
+
+    return _ProductTile(
+      offerHeader: header,
+      purchasePackage: () => ref
+          .read(paywallPageControllerProvider.notifier)
+          .makePurchase(promoPackage ?? iapPackage),
+      isActiveSubscription: activeEntitlement?.isActive == true,
+      isRenewingSubscription: false,
+      isLifetimeSubscription: true,
+      subscriptionTitle: storeProduct.title,
+      subscriptionDescription: storeProduct.description,
+      subscriptionPriceString: storeProduct.priceString,
+      subscriptionIso8601: storeProduct.subscriptionPeriod,
+      discountedPriceString: promoStoreProduct?.priceString,
+    );
+  }
+
+  Widget? _constructHeader(BuildContext context, StoreProduct storeProduct,
+      StoreProduct? promoStoreProduct) {
+    final themeData = Theme.of(context);
+
+    if (promoStoreProduct == null) return null;
+
+    double offerDiscount = 1 - (promoStoreProduct.price / storeProduct.price);
+
+    return Column(
+      children: [
+        Text(
+          tr(
+            'pages.paywall.promo_title',
+          ),
+          style: themeData.textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        Text(
+          tr('pages.paywall.iap_offer', args: [
+            NumberFormat.percentPattern(context.locale.languageCode)
+                .format(offerDiscount)
+          ]),
+          style: themeData.textTheme.titleMedium,
+          textAlign: TextAlign.center,
+        ),
+        const Divider(),
+      ],
+    );
+  }
+}
+
+class _SubscriptionProduct extends ConsumerWidget {
+  const _SubscriptionProduct({
     super.key,
     required this.package,
   });
@@ -397,33 +499,30 @@ class _SupporterTierCard extends ConsumerWidget {
     EntitlementInfo? activeEntitlement =
         ref.watch(customerInfoProvider.select((asyncData) {
       CustomerInfo? customerInfo = asyncData.valueOrFullNull;
-      var isActive = customerInfo?.activeSubscriptions
-          .contains(package.storeProduct.identifier);
-
-      if (isActive != true) {
-        return null;
-      }
-
-      return customerInfo?.entitlements.active.values.first;
+      if (customerInfo?.isSubscriptionActive(package) != true) return null;
+      return customerInfo!.getActiveEntitlementForPackage(package);
     }));
 
     var storeProduct = package.storeProduct;
     var discountOffer = storeProduct.discounts?.firstOrNull;
 
+    logger.w('SP: $storeProduct');
+    logger.w('PID: ${package.identifier}');
     // ToDo: Intro Prices for IOS
     // var hasIntroPrice = storeProduct.introductoryPrice != null;
     // Purchases.checkTrialOrIntroductoryPriceEligibility(productIdentifiers) // IOS ONLY
 
     Widget? header = _constructHeader(context, storeProduct);
 
-    return _SubscriptionOfferTile(
+    return _ProductTile(
       offerHeader: header,
       purchasePackage: () => ref
           .read(paywallPageControllerProvider.notifier)
           .makePurchase(package),
       isActiveSubscription: activeEntitlement?.isActive == true,
       isRenewingSubscription: activeEntitlement?.willRenew == true,
-      subscriptionTitle: storeProduct.title + " (${storeProduct.identifier})",
+      isLifetimeSubscription: package.packageType == PackageType.lifetime,
+      subscriptionTitle: storeProduct.title,
       subscriptionDescription: storeProduct.description,
       subscriptionPriceString: storeProduct.priceString,
       subscriptionIso8601: storeProduct.subscriptionPeriod,
@@ -477,8 +576,8 @@ class _SupporterTierCard extends ConsumerWidget {
   }
 }
 
-class _AndroidSupporterTierCard extends ConsumerWidget {
-  const _AndroidSupporterTierCard({
+class _SubscriptionOptionProduct extends ConsumerWidget {
+  const _SubscriptionOptionProduct({
     super.key,
     required this.package,
   });
@@ -490,17 +589,16 @@ class _AndroidSupporterTierCard extends ConsumerWidget {
     EntitlementInfo? activeEntitlement =
         ref.watch(customerInfoProvider.select((asyncData) {
       CustomerInfo? customerInfo = asyncData.valueOrFullNull;
-      var isActive = customerInfo?.activeSubscriptions
-          .contains(package.storeProduct.identifier);
 
-      if (isActive != true) {
-        return null;
-      }
-
-      return customerInfo?.entitlements.active.values.first;
+      if (customerInfo?.isSubscriptionActive(package) != true) return null;
+      return customerInfo!.getActiveEntitlementForPackage(package);
     }));
 
+    // Sp: StoreProduct(identifier: mobileraker_supporter_v2.lifetime, description: Earn all supporter benefits forever., title: Lifetime Supporter (Mobileraker), price: 32.99, priceString: €32.99, currencyCode: EUR, introductoryPrice: null, discounts: null, productCategory: ProductCategory.nonSubscription, defaultOption: null, subscriptionOptions: null, presentedOfferingIdentifier: default_v2, subscriptionPeriod: null)
+    logger.w('Sp: ${package.storeProduct}');
+
     var storeProduct = package.storeProduct;
+
     var defaultOption = storeProduct.defaultOption!;
 
     var isDiscounted = !defaultOption.isBasePlan;
@@ -515,13 +613,14 @@ class _AndroidSupporterTierCard extends ConsumerWidget {
           : tr('general.free');
     }
 
-    return _SubscriptionOfferTile(
+    return _ProductTile(
       offerHeader: header,
       purchasePackage: () => ref
           .read(paywallPageControllerProvider.notifier)
           .makePurchase(package),
       isActiveSubscription: activeEntitlement?.isActive == true,
       isRenewingSubscription: activeEntitlement?.willRenew == true,
+      isLifetimeSubscription: false,
       subscriptionTitle: storeProduct.title,
       subscriptionDescription: storeProduct.description,
       subscriptionPriceString: storeProduct.priceString,
@@ -580,13 +679,14 @@ class _AndroidSupporterTierCard extends ConsumerWidget {
   }
 }
 
-class _SubscriptionOfferTile extends StatelessWidget {
-  const _SubscriptionOfferTile({
+class _ProductTile extends StatelessWidget {
+  const _ProductTile({
     Key? key,
     this.offerHeader,
     this.purchasePackage,
     required this.isActiveSubscription,
     required this.isRenewingSubscription,
+    required this.isLifetimeSubscription,
     required this.subscriptionTitle,
     required this.subscriptionDescription,
     required this.subscriptionPriceString,
@@ -600,6 +700,7 @@ class _SubscriptionOfferTile extends StatelessWidget {
 
   final bool isActiveSubscription;
   final bool isRenewingSubscription;
+  final bool isLifetimeSubscription;
 
   final String subscriptionTitle;
   final String subscriptionDescription;
@@ -629,13 +730,16 @@ class _SubscriptionOfferTile extends StatelessWidget {
                 ? themeData.colorScheme.primary
                 : themeData.colorScheme.primaryContainer),
         child: InkWell(
-          onTap: isRenewingSubscription ? null : purchasePackage,
+          onTap: isActiveSubscription &&
+                  (isRenewingSubscription || isLifetimeSubscription)
+              ? null
+              : purchasePackage,
           borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
               children: [
-                if (offerHeader != null) offerHeader!,
+                if (!isActiveSubscription && offerHeader != null) offerHeader!,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -658,23 +762,35 @@ class _SubscriptionOfferTile extends StatelessWidget {
                       children: [
                         if (isActiveSubscription)
                           Text(
-                            isRenewingSubscription
+                            isRenewingSubscription || isLifetimeSubscription
                                 ? 'general.active'
                                 : 'general.canceled',
                             style: themeData.textTheme.bodySmall?.copyWith(
                                 color: themeData.colorScheme.onPrimary),
                           ).tr(),
-                        Text(
-                          subscriptionPriceString,
-                          style: hasDiscountAvailable
-                              ? themeData.textTheme.bodySmall?.copyWith(
-                                  decoration: TextDecoration.lineThrough)
-                              : null,
-                        ),
-                        if (hasDiscountAvailable) Text(discountedPriceString!),
+                        if (!isLifetimeSubscription ||
+                            (!isActiveSubscription && isLifetimeSubscription))
+                          Text(
+                            subscriptionPriceString,
+                            style:
+                                (!isActiveSubscription && hasDiscountAvailable)
+                                    ? themeData.textTheme.bodySmall?.copyWith(
+                                        decoration: TextDecoration.lineThrough)
+                                    : null,
+                          ),
+                        if (!isActiveSubscription && hasDiscountAvailable)
+                          Text(discountedPriceString!),
                         if (subscriptionIso8601 != null)
                           Text(
                             iso8601PeriodToText(subscriptionIso8601!),
+                            style: themeData.textTheme.bodySmall?.copyWith(
+                                fontSize: 10,
+                                color: defaultTextStyle.color
+                                    ?.getShadeColor(lighten: false)),
+                          ).tr(),
+                        if (isLifetimeSubscription)
+                          Text(
+                            'general.lifetime',
                             style: themeData.textTheme.bodySmall?.copyWith(
                                 fontSize: 10,
                                 color: defaultTextStyle.color

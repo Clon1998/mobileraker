@@ -39,7 +39,8 @@
     "offset": "Offset",
     "valid": "Valid",
     "invalid": "Invalid",
-    "free": "Free"
+    "free": "Free",
+    "lifetime": "Lifetime"
   },
   "pages": {
     "dashboard": {
@@ -395,7 +396,8 @@
       "manage_view": {
         "title": "Thanks for your Support!",
         "list_title": "Change Supporter Tier:",
-        "store_btn": "Cancel Subscription in {}"
+        "store_btn": "Cancel Subscription in {}",
+        "sub_warning": "Please take note that purchasing the lifetime supporter tier does not automatically cancel any other active subscription. You will need to cancel any active subscriptions manually. However, you have the option to continue supporting the development of Mobileraker on a recurring basis even after purchasing the lifetime supporter tier."
       },
       "subscribe_view": {
         "title": "Become a Mobileraker Supporter!",
@@ -415,6 +417,7 @@
       "promo_title": "Promotion",
       "free_phase": "First {} free",
       "intro_phase": "Enjoy {} at {} off",
+      "iap_offer": "{} off original price",
       "tip_developer": "Tip Developer"
     }
   },

@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:collection/collection.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -56,4 +57,24 @@ String periodUnitToText(PeriodUnit? periodUnit, int cycles) {
     _ => throw ArgumentError('Detected unsupported period')
   };
   return dateUnit;
+}
+
+extension MobilerakerCustomerInfo on CustomerInfo {
+  bool isSubscriptionActive(Package subPackage) {
+    var productIdentifier = subPackage.storeProduct.identifier;
+    if (subPackage.storeProduct.productCategory ==
+        ProductCategory.subscription) {
+      return activeSubscriptions.contains(productIdentifier);
+    }
+
+    return nonSubscriptionTransactions
+        .any((tx) => tx.productIdentifier == productIdentifier);
+  }
+
+  EntitlementInfo? getActiveEntitlementForPackage(Package package) {
+    var productIdentifier = package.storeProduct.identifier.split(':').first;
+
+    return entitlements.active.values
+        .firstWhereOrNull((e) => e.productIdentifier == productIdentifier);
+  }
 }

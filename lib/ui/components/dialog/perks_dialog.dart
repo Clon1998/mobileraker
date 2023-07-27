@@ -31,7 +31,7 @@ class PerksDialog extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
               textAlign: TextAlign.justify,
             ).tr(),
-            SizedBox(
+            const SizedBox(
               height: 8,
             ),
             Flexible(

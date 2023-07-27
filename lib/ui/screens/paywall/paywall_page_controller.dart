@@ -42,7 +42,11 @@ class PaywallPageController extends _$PaywallPageController {
     if (kDebugMode) activeOffering = offerings.getOffering('default_v2');
     final offerMetadata = activeOffering?.metadata ?? {};
     final excludeFromPaywall =
-        (offerMetadata['exclude_package'] as String? ?? '').split(',');
+        (offerMetadata['exclude_package'] as String? ?? '')
+            .split(',')
+            .map((e) => e.trim());
+
+    // final iapOffers = offerMetadata.
     final List<Package> packetsToOffer = activeOffering?.availablePackages
             .where((p) => !excludeFromPaywall.contains(p.identifier))
             .toList(growable: false) ??
@@ -52,8 +56,14 @@ class PaywallPageController extends _$PaywallPageController {
     final List<Package> tipPackets =
         offerings.getOffering('tip')?.availablePackages ?? [];
 
+    // Due to lack of support in the stores to offer IAP discouts I created a new offer group that is used to detect offers for IAP
+    final List<Package> iapOffers =
+        offerings.getOffering('iap_promos')?.availablePackages ?? [];
+
     return PaywallPageState(
-        paywallOfferings: packetsToOffer, tipPackages: tipPackets);
+        paywallOfferings: packetsToOffer,
+        tipPackages: tipPackets,
+        iapPromos: iapOffers);
   }
 
   openGithub() async {
@@ -93,17 +103,22 @@ class PaywallPageController extends _$PaywallPageController {
     state = state.whenData((value) => value.copyWith(makingPurchase: true));
     CustomerInfo customerInfo = await ref.read(customerInfoProvider.future);
 
-    UpgradeInfo? upgradeInfo;
-    if (Platform.isAndroid && customerInfo.activeSubscriptions.isNotEmpty) {
-      EntitlementInfo activeEnt = customerInfo.entitlements.active.values.first;
-      if (activeEnt.willRenew) {
-        upgradeInfo = UpgradeInfo(customerInfo.activeSubscriptions.first);
+    GoogleProductChangeInfo? googleProductChangeInfo;
+    if (Platform.isAndroid &&
+        customerInfo.activeSubscriptions.isNotEmpty &&
+        packageToBuy.storeProduct.productCategory ==
+            ProductCategory.subscription) {
+      EntitlementInfo? activeEnt =
+          customerInfo.entitlements.active['supporter_subscription'];
+      if (activeEnt?.willRenew == true) {
+        googleProductChangeInfo =
+            GoogleProductChangeInfo(activeEnt!.productIdentifier);
       }
     }
 
     await ref
         .read(paymentServiceProvider)
-        .purchasePackage(packageToBuy, upgradeInfo);
+        .purchasePackage(packageToBuy, googleProductChangeInfo);
     state = state.whenData((value) => value.copyWith(makingPurchase: false));
   }
 
@@ -151,6 +166,7 @@ class PaywallPageState with _$PaywallPageState {
     @Default(false) bool makingPurchase,
     @Default([]) List<Package> paywallOfferings,
     @Default([]) List<Package> tipPackages,
+    @Default([]) List<Package> iapPromos,
     // @Default(AsyncValue.loading()) AsyncValue<Offerings?> offerings,
   }) = _PaywallPageState;
 

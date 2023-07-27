@@ -98,7 +98,7 @@ class PaymentService {
   }
 
   Future<void> purchasePackage(Package packageToBuy,
-      [UpgradeInfo? upgradeInfo]) async {
+      [GoogleProductChangeInfo? googleProductChangeInfo]) async {
     try {
       var storeProduct = packageToBuy.storeProduct;
       if (Platform.isIOS && storeProduct.discounts?.isNotEmpty == true) {
@@ -111,7 +111,8 @@ class PaymentService {
             packageToBuy, promotionalOffer);
       } else {
         logger.i('Trying to buy ${storeProduct.identifier}');
-        await Purchases.purchasePackage(packageToBuy, upgradeInfo: upgradeInfo);
+        await Purchases.purchasePackage(packageToBuy,
+            googleProductChangeInfo: googleProductChangeInfo);
       }
 
       var customerInfo = await ref.refresh(customerInfoProvider.future);
