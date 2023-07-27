@@ -78,12 +78,12 @@ class PerksDialog extends StatelessWidget {
               ),
             ),
             const Divider(),
-            Text(
-              "dialogs.supporter_perks.hint",
-              textAlign: TextAlign.center,
-              style:
-                  Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9),
-            ).tr(),
+            // Text(
+            //   "dialogs.supporter_perks.hint",
+            //   textAlign: TextAlign.center,
+            //   style:
+            //       Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9),
+            // ).tr(),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

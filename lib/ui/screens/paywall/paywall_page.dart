@@ -790,7 +790,7 @@ class _ProductTile extends StatelessWidget {
                           ).tr(),
                         if (isLifetimeSubscription)
                           Text(
-                            'general.lifetime',
+                            'general.one_time',
                             style: themeData.textTheme.bodySmall?.copyWith(
                                 fontSize: 10,
                                 color: defaultTextStyle.color

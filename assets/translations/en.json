@@ -40,7 +40,7 @@
     "valid": "Valid",
     "invalid": "Invalid",
     "free": "Free",
-    "lifetime": "Lifetime"
+    "one_time": "One time"
   },
   "pages": {
     "dashboard": {
