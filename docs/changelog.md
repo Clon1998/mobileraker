@@ -1,6 +1,11 @@
 # Mobileraker - Changelog
 
-## [2.4.2] - 2023-07-27
+## [2.4.3] - 2023-07-27
+
+### Major Changes
+
+- Added Afrikaans translation thanks
+  to [DMT07](https://github.com/DMT07) [#201](https://github.com/Clon1998/mobileraker/pull/201)
 
 ### Bug Fixes
 
