@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.4.2] - 2023-07-27
+
+### Bug Fixes
+
+- Fixed displayStatus being a mandatory field [#202](https://github.com/Clon1998/mobileraker/pull/202)
+
 ## [2.4.2] - 2023-06-28
 
 ### Major Changes

@@ -84,9 +84,6 @@ class PrinterBuilder {
     if (motionReport == null) {
       throw const MobilerakerException('Missing field: motionReport');
     }
-    if (displayStatus == null) {
-      throw const MobilerakerException('Missing field: displayStatus');
-    }
     if (print == null) {
       throw const MobilerakerException('Missing field: print');
     }
@@ -104,7 +101,7 @@ class PrinterBuilder {
       printFan: printFan,
       gCodeMove: gCodeMove!,
       motionReport: motionReport!,
-      displayStatus: displayStatus!,
+      displayStatus: displayStatus,
       print: print!,
       excludeObject: excludeObject,
       configFile: configFile!,
@@ -134,7 +131,7 @@ class Printer with _$Printer {
     required PrintFan? printFan,
     required GCodeMove gCodeMove,
     required MotionReport motionReport,
-    required DisplayStatus displayStatus,
+    DisplayStatus? displayStatus,
     required PrintStats print,
     ExcludeObject? excludeObject,
     required ConfigFile configFile,
