@@ -878,7 +878,7 @@ class M117Message extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var m117 = ref.watch(generalTabViewControllerProvider
-        .selectAs((data) => data.printerData.displayStatus.message));
+        .selectAs((data) => data.printerData.displayStatus?.message));
     if (m117.valueOrFullNull == null) return const SizedBox.shrink();
 
     var themeData = Theme.of(context);
