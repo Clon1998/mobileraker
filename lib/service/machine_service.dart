@@ -38,8 +38,8 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:mobileraker/util/extensions/analytics_extension.dart';
+import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'setting_service.dart';
@@ -271,7 +271,6 @@ class MachineService {
       logger.i('Current FCMConfig in MoonrakerDB: $fcmCfg');
     } finally {
       providerSubscription.close();
-      logger.w('Sucka for ${machine.name}');
     }
   }
 

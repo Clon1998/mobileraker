@@ -28,6 +28,7 @@ import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -672,25 +673,23 @@ class TemperaturePresetListController
 WebcamInfo _applyWebcamFieldsToWebcam(
     Map<String, dynamic> storedValues, WebcamInfo cam) {
   var name = storedValues['${cam.uuid}-camName'];
-  var streamUrl = storedValues['${cam.uuid}-streamUrl'];
-  var snapshotUrl = storedValues['${cam.uuid}-snapshotUrl'];
+  String? streamUrl = storedValues['${cam.uuid}-streamUrl'];
+  String? snapshotUrl = storedValues['${cam.uuid}-snapshotUrl'];
   var fH = storedValues['${cam.uuid}-camFH'];
   var fV = storedValues['${cam.uuid}-camFV'];
-  var tFps = storedValues['${cam.uuid}-tFps'];
   var service = storedValues['${cam.uuid}-service'];
-  var rotate = storedValues['${cam.uuid}-rotate'];
+  var rotation = storedValues['${cam.uuid}-rotate'];
+  var tFps = (service == WebcamServiceType.mjpegStreamerAdaptive)
+      ? storedValues['${cam.uuid}-tFps']
+      : null;
 
-  if (name != null) cam.name = name;
-  if (snapshotUrl != null) cam.snapshotUrl = Uri.parse(snapshotUrl);
-  if (streamUrl != null) cam.streamUrl = Uri.parse(streamUrl);
-  if (fH != null) cam.flipHorizontal = fH;
-  if (fV != null) cam.flipVertical = fV;
-  if (fV != null &&
-      service == WebcamServiceType.mjpegStreamerAdaptive &&
-      tFps != null) {
-    cam.targetFps = tFps;
-  }
-  if (service != null) cam.service = service;
-  if (rotate != null) cam.rotation = rotate;
-  return cam;
+  return cam.copyWith(
+      name: name ?? cam.name,
+      snapshotUrl: snapshotUrl?.let((e) => Uri.tryParse(e)) ?? cam.snapshotUrl,
+      streamUrl: streamUrl?.let((e) => Uri.tryParse(e)) ?? cam.streamUrl,
+      flipHorizontal: fH ?? cam.flipHorizontal,
+      flipVertical: fV ?? cam.flipVertical,
+      targetFps: tFps ?? cam.targetFps,
+      service: service ?? cam.service,
+      rotation: rotation ?? cam.rotation);
 }
