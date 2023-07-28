@@ -15,6 +15,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
+import 'package:mobileraker/ui/components/supporter_only_feature.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_controller.dart';
 import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -25,27 +26,33 @@ class PrinterAddPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // TabController tabController = useTabController(initialLength: 2);
+    var nonSupError = ref.watch(printerAddViewControllerProvider
+        .select((value) => value.nonSupporterError));
     return Scaffold(
       appBar: AppBar(
         title: const Text('pages.printer_add.title').tr(),
       ),
       body: SafeArea(
-        child: const Column(
+        child: Column(
           children: [
-            _AddPrinterStepperFlow(),
-            Divider(),
-            Expanded(
-              child: CustomScrollView(
-                physics: ClampingScrollPhysics(),
-                slivers: [
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: _StepperBody(),
-                  )
-                ],
+            const _AddPrinterStepperFlow(),
+            const Divider(),
+            if (nonSupError != null)
+              Center(child: SupporterOnlyFeature(text: Text(nonSupError))),
+            if (nonSupError == null) ...[
+              const Expanded(
+                child: CustomScrollView(
+                  physics: ClampingScrollPhysics(),
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: _StepperBody(),
+                    )
+                  ],
+                ),
               ),
-            ),
-            _StepperFooter(),
+              const _StepperFooter(),
+            ],
           ],
         ),
       ),

@@ -366,7 +366,8 @@ class MachineService {
     return i;
   }
 
-  updateMacrosInSettings(String machineUUID, List<String> macros) async {
+  Future<void> updateMacrosInSettings(
+      String machineUUID, List<String> macros) async {
     Machine? machine = await _machineRepo.get(uuid: machineUUID);
     if (machine == null) {
       logger.e('Could not update macros, machine $machineUUID not found!');

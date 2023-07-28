@@ -30,6 +30,7 @@ import 'package:mobileraker/ui/components/IconElevatedButton.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/graph_card_with_button.dart';
+import 'package:mobileraker/ui/components/machine_deletion_warning.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
@@ -68,6 +69,7 @@ class GeneralTab extends ConsumerWidget {
                   key: const PageStorageKey('gTab'),
                   padding: const EdgeInsets.only(bottom: 20),
                   children: [
+                    const MachineDeletionWarning(),
                     const SupporterAd(),
                     if (clientType != ClientType.local)
                       const DismissibleOctoIndicator(),

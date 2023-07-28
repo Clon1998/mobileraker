@@ -392,7 +392,6 @@
       "title": "Changelog"
     },
     "paywall": {
-
       "manage_view": {
         "title": "Thanks for your Support!",
         "list_title": "Change Supporter Tier:",
@@ -447,7 +446,12 @@
     },
     "supporter_only_feature": {
       "button": "Become a Mobileraker Supporter",
-      "webcam": "Sorry, Webcams of type {} are only available to supporters."
+      "webcam": "Sorry, Webcams of type {} are only available to supporters.",
+      "printer_add": "Sorry, adding more than {} machines is only available to supporters."
+    },
+    "machine_deletion_warning": {
+      "title": "Machine Deletion",
+      "subtitle": "It seems like you are not a Supporter. Only supports can have more than {} machine(s). You have {} days before excess machines will be removed."
     }
   },
   "dialogs": {

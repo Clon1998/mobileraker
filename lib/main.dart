@@ -15,6 +15,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
+import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
@@ -53,8 +54,9 @@ Future<void> main() async {
       if (kDebugMode) const RiverPodLogger(),
     ],
   );
-
+  await container.read(remoteConfigProvider).initialize();
   await container.read(analyticsProvider).logAppOpen();
+  await container.read(paymentServiceProvider).initialize();
 
   // await for the initial rout provider to be ready and setup!
   await container.read(initialRouteProvider.future);
@@ -62,7 +64,6 @@ Future<void> main() async {
   await trackInitialMachineCount(container);
 
   await container.read(notificationServiceProvider).initialize();
-  await container.read(paymentServiceProvider).initialize();
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 

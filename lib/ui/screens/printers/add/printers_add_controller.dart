@@ -20,8 +20,10 @@ import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
+import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
@@ -40,26 +42,47 @@ GlobalKey<FormBuilderState> formKey(FormKeyRef ref) {
 @riverpod
 class PrinterAddViewController extends _$PrinterAddViewController {
   @override
-  PrinterAddState build() => const PrinterAddState();
+  PrinterAddState build() {
+    var isSupporter = ref.watch(isSupporterProvider);
+    var maxNonSupporterMachines =
+        ref.watch(remoteConfigProvider).maxNonSupporterMachines;
+    if (!isSupporter && maxNonSupporterMachines > 0) {
+      ref
+          .watch(allMachinesProvider.selectAsync((data) => data.length))
+          .then((value) {
+        if (value >= maxNonSupporterMachines) {
+          state = state.copyWith(
+              nonSupporterError: tr(
+                  'components.supporter_only_feature.printer_add',
+                  args: [maxNonSupporterMachines.toString()]));
+        }
+      });
+    }
+
+    return const PrinterAddState();
+  }
 
   onStepTapped(int step) {
+    if (state.nonSupporterError != null) return;
     state = state.copyWith(step: step);
   }
 
   previousStep() {
+    if (state.nonSupporterError != null) return;
     state = state.copyWith(step: max(0, state.step - 1));
   }
 
   addFromOcto() async {
+    if (state.nonSupporterError != null) return;
     state = state.copyWith(step: 3);
     var appConnectionService = ref.read(appConnectionServiceProvider);
 
     try {
       AppPortalResult appPortalResult =
-          await appConnectionService.linkAppWithOcto();
+      await appConnectionService.linkAppWithOcto();
 
       AppConnectionInfoResponse appConnectionInfo =
-          await appConnectionService.getInfo(appPortalResult.appApiToken);
+      await appConnectionService.getInfo(appPortalResult.appApiToken);
 
       var infoResult = appConnectionInfo.result;
       var localIp = infoResult.printerLocalIp;
@@ -120,6 +143,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
   }
 
   submitMachine() async {
+    if (state.nonSupporterError != null) return;
     state = state.copyWith(step: state.step + 1);
     await ref.read(machineServiceProvider).addMachine(state.machineToAdd!);
     state = state.copyWith(addedMachine: true);
@@ -255,7 +279,7 @@ class TestConnectionController extends _$TestConnectionController {
 
     TestConnectionState s;
     HttpClient httpClient = HttpClient()
-      ..connectionTimeout = Duration(seconds: 10);
+      ..connectionTimeout = const Duration(seconds: 10);
     JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder()
       ..timeout = httpClient.connectionTimeout!
       ..uri = machineToAdd.wsUri
@@ -330,6 +354,7 @@ class PrinterAddState with _$PrinterAddState {
   const PrinterAddState._();
 
   const factory PrinterAddState({
+    String? nonSupporterError,
     @Default(false) bool isExpert,
     @Default(0) int step,
     Machine? machineToAdd,
