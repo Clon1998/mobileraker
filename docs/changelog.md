@@ -16,13 +16,15 @@
 - Improved the accuracy of current and max layer display by utilizing moonraker's info.layer
   fields.[#138](https://github.com/Clon1998/mobileraker/issues/138)
 - Added support for 12hr time format [#192](https://github.com/Clon1998/mobileraker/issues/197)
-- Changed Mobileraker's notifcaiton icon for Android
+- Changed Mobileraker's notification icon for Android [#194](https://github.com/Clon1998/mobileraker/issues/194)
+- Migrated webcams to Moonraker's Webcam API
 
 ### Bug Fixes
 
 - Fixed the QR reader functionality.
 - Enhanced the reliability of the JRpc client.
 - Addressed several minor errors in the background.
+- Fixed Webcam Service type could not be edited [#198](https://github.com/Clon1998/mobileraker/issues/198)
 
 ## [2.4.2] - 2023-06-28
 
