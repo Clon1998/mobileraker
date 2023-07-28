@@ -84,12 +84,7 @@ dependencies:
   awesome_notifications_fcm: ^0.7.5-dev.3
 
   #form
-  flutter_form_builder:
-    #hotfix for autovalidation
-    git:
-      url: https://github.com/flutter-form-builder-ecosystem/flutter_form_builder.git
-      ref: 957a77dc061bfb9cd26632f803c931f1fe331f7d
-
+  flutter_form_builder: ^9.1.0
   form_builder_validators: ^9.0.0
 
   #tranlation
