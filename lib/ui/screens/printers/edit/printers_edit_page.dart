@@ -252,7 +252,7 @@ class WebcamList extends ConsumerWidget {
         },
         error: (e, s) => Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text('Error while loadign webcam: $e'),
+              child: Text('Error while loading webcam: $e'),
             ),
         loading: () => Padding(
               padding: const EdgeInsets.all(8.0),
