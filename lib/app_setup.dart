@@ -20,14 +20,7 @@ import 'package:mobileraker/data/model/hive/temperature_preset.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
-import 'package:mobileraker/data/repository/machine_hive_repository.dart';
-import 'package:mobileraker/service/firebase/analytics.dart';
-import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/util/extensions/analytics_extension.dart';
 
 import 'logger.dart';
 
@@ -124,8 +117,7 @@ Future<List<Box>> openBoxes(Uint8List keyMaterial) {
     Hive.openBox<Machine>('printers').then(_migrateMachine),
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
-    Hive.openBox<OctoEverywhere>('octo',
-        encryptionCipher: HiveAesCipher(keyMaterial))
+    Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
   ]);
 }
 
@@ -145,61 +137,18 @@ setupLicenseRegistry() {
   });
 }
 
-const _deletingWarningKey = 'nonSupporterMachineDeletion';
-
 /// Ensure all services are setup/available/connected if they are also read just once!
 initializeAvailableMachines(ProviderContainer container) async {
   logger.i('Started initializeAvailableMachines');
-  List<Machine> all = await container.read(allMachinesProvider.future);
-  var isSupporter = await container.read(customerInfoProvider.selectAsync(
-      (data) => data.entitlements.active.containsKey('Supporter')));
-  var maxNonSupporterMachines =
-      container.read(remoteConfigProvider).maxNonSupporterMachines;
-  final box = Hive.box('settingsbox');
+  List<Machine> machines = await container.read(allMachinesProvider.future);
 
-  DateTime? stamp = box.get(_deletingWarningKey);
-  if (maxNonSupporterMachines > 0 &&
-      !isSupporter &&
-      all.length > maxNonSupporterMachines) {
-    if (stamp != null && stamp.difference(DateTime.now()).inDays == 0) {
-      logger.i(
-          'The user was not a supporter. Therefore, deleting ${all.length - 1} printers from him');
-      await Future.wait(all.skip(maxNonSupporterMachines).map((element) =>
-          container.read(machineServiceProvider).removeMachine(element)));
-      all = await container.refresh(allMachinesProvider.future);
-    } else if (stamp == null) {
-      var cleanupDate = DateTime.now().add(const Duration(days: 7));
-      logger.i('Writing nonSuporter machine cleanup date $cleanupDate');
-      box.put(_deletingWarningKey, cleanupDate);
-    }
-  } else {
-    box.delete(_deletingWarningKey);
-  }
-
-  List<Future> futures = [];
-
-  for (var machine in all) {
-    futures.add(container.read(machineProvider(machine.uuid).future));
-  }
-
-  await Future.wait(futures);
+  await Future.wait(machines.map((e) => container.read(machineProvider(e.uuid).future)));
   logger.i('initialized all machineProviders');
-  for (var machine in all) {
-    logger.i('Init for ${machine.name}(${machine.uuid})');
-    container.read(klipperServiceProvider(machine.uuid));
-    container.read(printerServiceProvider(machine.uuid));
-  }
+  // for (var machine in machines) {
+  //   logger.i('Init for ${machine.name}(${machine.uuid})');
+  //   container.read(klipperServiceProvider(machine.uuid));
+  //   container.read(printerServiceProvider(machine.uuid));
+  // }
 
   logger.i('Finished initializeAvailableMachines');
-}
-
-trackInitialMachineCount(ProviderContainer container) async {
-  var boxSettings = Hive.box('settingsbox');
-  var key = 'iMacCnt';
-  if (!boxSettings.get(key, defaultValue: false)) {
-    logger.i('Set initial machine count with analytics');
-    await boxSettings.put(key, true);
-    var count = await container.read(machineRepositoryProvider).count();
-    container.read(analyticsProvider).updateMachineCount(count);
-  }
 }

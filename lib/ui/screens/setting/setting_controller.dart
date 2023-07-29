@@ -29,13 +29,11 @@ Future<PackageInfo> versionInfo(VersionInfoRef ref) async {
 }
 
 @riverpod
-bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key,
-        [bool fallback = false]) =>
+bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key, [bool fallback = false]) =>
     ref.watch(settingServiceProvider).readBool(key, fallback);
 
 @riverpod
-Future<List<Machine>> machinesWithoutCompanion(
-    MachinesWithoutCompanionRef ref) {
+Future<List<Machine>> machinesWithoutCompanion(MachinesWithoutCompanionRef ref) {
   var machineService = ref.watch(machineServiceProvider);
 
   return machineService.fetchMachinesWithoutCompanion();
@@ -64,18 +62,16 @@ class NotificationPermissionController extends StateNotifier<bool> {
 }
 
 final notificationProgressSettingControllerProvider =
-    NotifierProvider.autoDispose<NotificationProgressSettingController,
-        ProgressNotificationMode>(() {
+    NotifierProvider.autoDispose<NotificationProgressSettingController, ProgressNotificationMode>(
+        () {
   return NotificationProgressSettingController();
 });
 
-class NotificationProgressSettingController
-    extends AutoDisposeNotifier<ProgressNotificationMode> {
+class NotificationProgressSettingController extends AutoDisposeNotifier<ProgressNotificationMode> {
   @override
   ProgressNotificationMode build() {
-    int progressModeInt = ref
-        .watch(settingServiceProvider)
-        .readInt(AppSettingKeys.progressNotificationMode, -1);
+    int progressModeInt =
+        ref.watch(settingServiceProvider).readInt(AppSettingKeys.progressNotificationMode, -1);
     var progressMode = (progressModeInt < 0)
         ? ProgressNotificationMode.TWENTY_FIVE
         : ProgressNotificationMode.values[progressModeInt];
@@ -84,58 +80,49 @@ class NotificationProgressSettingController
   }
 
   void onProgressChanged(ProgressNotificationMode mode) async {
-    ref
-        .read(settingServiceProvider)
-        .writeInt(AppSettingKeys.progressNotificationMode, mode.index);
+    ref.read(settingServiceProvider).writeInt(AppSettingKeys.progressNotificationMode, mode.index);
 
     state = mode;
 
     // Now also propagate it to all connected machines!
 
-    MachineService machineService = ref.read(machineServiceProvider);
-
-    List<Machine> allMachine = await machineService.fetchAll();
+    List<Machine> allMachine = await ref.read(allMachinesProvider.future);
     for (var machine in allMachine) {
-      machineService.updateMachineFcmNotificationConfig(
-          machine: machine, mode: mode);
+      ref
+          .read(machineServiceProvider)
+          .updateMachineFcmNotificationConfig(machine: machine, mode: mode);
     }
   }
 }
 
-final notificationStateSettingControllerProvider = NotifierProvider.autoDispose<
-    NotificationStateSettingController, Set<PrintState>>(() {
+final notificationStateSettingControllerProvider =
+    NotifierProvider.autoDispose<NotificationStateSettingController, Set<PrintState>>(() {
   return NotificationStateSettingController();
 });
 
-class NotificationStateSettingController
-    extends AutoDisposeNotifier<Set<PrintState>> {
+class NotificationStateSettingController extends AutoDisposeNotifier<Set<PrintState>> {
   @override
   Set<PrintState> build() {
     return ref
         .watch(settingServiceProvider)
-        .read(AppSettingKeys.statesTriggeringNotification,
-            'standby,printing,paused,complete,error')
+        .read(AppSettingKeys.statesTriggeringNotification, 'standby,printing,paused,complete,error')
         .split(',')
-        .map((e) =>
-            EnumToString.fromString(PrintState.values, e) ?? PrintState.error)
+        .map((e) => EnumToString.fromString(PrintState.values, e) ?? PrintState.error)
         .toSet();
   }
 
   void onStatesChanged(Set<PrintState> printStates) async {
     var str = printStates.map((e) => e.name).join(',');
-    ref
-        .read(settingServiceProvider)
-        .write(AppSettingKeys.statesTriggeringNotification, str);
+    ref.read(settingServiceProvider).write(AppSettingKeys.statesTriggeringNotification, str);
     state = printStates;
 
     // Now also propagate it to all connected machines!
 
-    MachineService machineService = ref.read(machineServiceProvider);
-
-    List<Machine> allMachine = await machineService.fetchAll();
+    List<Machine> allMachine = await ref.read(allMachinesProvider.future);
     for (var machine in allMachine) {
-      machineService.updateMachineFcmNotificationConfig(
-          machine: machine, printStates: state);
+      ref
+          .read(machineServiceProvider)
+          .updateMachineFcmNotificationConfig(machine: machine, printStates: state);
     }
   }
 }

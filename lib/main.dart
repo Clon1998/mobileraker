@@ -61,7 +61,6 @@ Future<void> main() async {
   // await for the initial rout provider to be ready and setup!
   await container.read(initialRouteProvider.future);
   await initializeAvailableMachines(container);
-  await trackInitialMachineCount(container);
 
   await container.read(notificationServiceProvider).initialize();
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));

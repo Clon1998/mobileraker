@@ -16,8 +16,7 @@ SettingService settingService(SettingServiceRef ref) {
 /// Actually this class turned more into a KeyValue store than just storing app setings
 /// Settings related to the App!
 class SettingService {
-  late final _boxSettings =
-      Hive.box('settingsbox'); // maybe move it to the repo ?
+  late final _boxSettings = Hive.box('settingsbox'); // maybe move it to the repo ?
 
   Future<void> writeBool(KeyValueStoreKey key, bool val) {
     return _boxSettings.put(key.key, val);
@@ -48,9 +47,11 @@ class SettingService {
   }
 
   List<T> readList<T>(KeyValueStoreKey key, [List<T>? fallback]) {
-    return (_boxSettings.get(key.key) as List<dynamic>?)?.cast<T>() ??
-        fallback ??
-        [];
+    return (_boxSettings.get(key.key) as List<dynamic>?)?.cast<T>() ?? fallback ?? [];
+  }
+
+  Future<void> delete(KeyValueStoreKey key) {
+    return _boxSettings.delete(key);
   }
 }
 
@@ -84,6 +85,8 @@ enum UtilityKeys implements KeyValueStoreKey {
   fileSortingIndex('selFileSrt'),
   requestedNotifyPermission('reqNotifyPerm'),
   recentColors('selectedColors'),
+  nonSupporterDismiss('nSWDismiss'),
+  nonSupporterMachineCleanup('nSMachCleanDate'),
   ;
 
   @override
