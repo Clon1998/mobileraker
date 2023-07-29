@@ -75,7 +75,7 @@ class ConfigFile {
         outputs[objectName] = ConfigOutput.parse(objectName, jsonChild);
       } else if (stepperRegex.hasMatch(key)) {
         var match = stepperRegex.firstMatch(key)!;
-        steppers[match.group(1)!] = ConfigStepper.parse(match.group(1)!, jsonChild);
+        steppers[match.group(1)!] = ConfigStepper.fromJson(match.group(1)!, jsonChild);
       } else if (object == ConfigFileEntry.gcode_macro.name) {
         gcodeMacros[objectName] = ConfigGcodeMacro.parse(objectName, jsonChild);
       } else if (object == ConfigFileEntry.dotstar.name) {
