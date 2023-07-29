@@ -290,17 +290,30 @@ class _FilesBody extends ConsumerWidget {
                                     leading: Container(
                                       width: 64,
                                       height: 64,
-                                      color: Colors.white,
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 2, horizontal: 2),
+                                  color: Colors.white,
+                                  margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                                ),
+                                title: Container(
+                                  width: double.infinity,
+                                  height: 16.0,
+                                  margin: const EdgeInsets.only(right: 5),
+                                  color: Colors.white,
+                                ),
+                                subtitle: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 10.0,
+                                        color: Colors.white,
+                                      ),
                                     ),
-                                    title: Container(
-                                      width: double.infinity,
-                                      height: 16.0,
-                                      margin: const EdgeInsets.only(right: 5),
-                                      color: Colors.white,
-                                    ),
-                                  );
+                                    const Spacer(
+                                      flex: 2,
+                                    )
+                                  ],
+                                ),
+                              );
                                 }),
                           ),
                         )),
