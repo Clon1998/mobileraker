@@ -146,7 +146,7 @@ class ConfigFile {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ConfigFile &&
+      other is ConfigFile &&
           runtimeType == other.runtimeType &&
           configPrinter == other.configPrinter &&
           configHeaterBed == other.configHeaterBed &&
