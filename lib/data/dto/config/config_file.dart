@@ -27,6 +27,8 @@ import 'config_output.dart';
 import 'config_printer.dart';
 import 'config_stepper.dart';
 
+var stepperRegex = RegExp(r'^stepper_(\w+)$', caseSensitive: false);
+
 class ConfigFile {
   ConfigPrinter? configPrinter;
   ConfigHeaterBed? configHeaterBed;
@@ -64,19 +66,16 @@ class ConfigFile {
       if (object == ConfigFileEntry.extruder.name) {
         if (jsonChild.containsKey('shared_heater')) {
           String sharedHeater = jsonChild['shared_heater'];
-          Map<String, dynamic> sharedHeaterConfig =
-              Map.of(rawConfig[sharedHeater]);
-          sharedHeaterConfig
-              .removeWhere((key, value) => jsonChild.containsKey(key));
+          Map<String, dynamic> sharedHeaterConfig = Map.of(rawConfig[sharedHeater]);
+          sharedHeaterConfig.removeWhere((key, value) => jsonChild.containsKey(key));
           jsonChild.addAll(sharedHeaterConfig);
         }
         extruders[object] = ConfigExtruder.parse(object, jsonChild);
       } else if (object == ConfigFileEntry.output_pin.name) {
         outputs[objectName] = ConfigOutput.parse(objectName, jsonChild);
-      } else if (object.startsWith(ConfigFileEntry.stepper.name)) {
-        List<String> split = key.split("_");
-        String name = split.length > 1 ? split.skip(1).join("_") : split[0];
-        steppers[name] = ConfigStepper.parse(name, jsonChild);
+      } else if (stepperRegex.hasMatch(key)) {
+        var match = stepperRegex.firstMatch(key)!;
+        steppers[match.group(1)!] = ConfigStepper.parse(match.group(1)!, jsonChild);
       } else if (object == ConfigFileEntry.gcode_macro.name) {
         gcodeMacros[objectName] = ConfigGcodeMacro.parse(objectName, jsonChild);
       } else if (object == ConfigFileEntry.dotstar.name) {
@@ -85,8 +84,7 @@ class ConfigFile {
         leds[objectName] = ConfigNeopixel.fromJson(objectName, jsonChild);
       } else if (object == ConfigFileEntry.led.name) {
         leds[objectName] = ConfigDumbLed.fromJson(objectName, jsonChild);
-      } else if (object == ConfigFileEntry.pca9533.name ||
-          object == ConfigFileEntry.pca9632.name) {
+      } else if (object == ConfigFileEntry.pca9533.name || object == ConfigFileEntry.pca9632.name) {
         //pca9533 and pcapca9632
         leds[objectName] = ConfigPcaLed.fromJson(objectName, jsonChild);
       } else if (object == ConfigFileEntry.fan.name) {
@@ -100,8 +98,7 @@ class ConfigFile {
       } else if (object == ConfigFileEntry.fan_generic.name) {
         fans[objectName] = ConfigGenericFan.fromJson(objectName, jsonChild);
       } else if (object == ConfigFileEntry.heater_generic.name) {
-        genericHeaters[objectName] =
-            ConfigHeaterGeneric.fromJson(objectName, jsonChild);
+        genericHeaters[objectName] = ConfigHeaterGeneric.fromJson(objectName, jsonChild);
       } else if (objectName == ConfigFileEntry.bed_screws.name) {
         configBedScrews = ConfigBedScrews.fromJson(jsonChild);
       }
@@ -126,16 +123,13 @@ class ConfigFile {
   bool get hasBedScrews => rawConfig.containsKey('bed_screws');
 
   /// Either has BlTouch or a normal probe!
-  bool get hasProbe =>
-      rawConfig.containsKey('probe') || rawConfig.containsKey('bltouch');
+  bool get hasProbe => rawConfig.containsKey('probe') || rawConfig.containsKey('bltouch');
 
-  bool get hasVirtualZEndstop =>
-      steppers['z']?.endstopPin?.contains('z_virtual_endstop') == true;
+  bool get hasVirtualZEndstop => steppers['z']?.endstopPin?.contains('z_virtual_endstop') == true;
 
   ConfigExtruder? get primaryExtruder => extruders['extruder'];
 
-  ConfigExtruder? extruderForIndex(int idx) =>
-      extruders['extruder${idx > 0 ? idx : ''}'];
+  ConfigExtruder? extruderForIndex(int idx) => extruders['extruder${idx > 0 ? idx : ''}'];
 
   double get maxX => stepperX?.positionMax ?? 300;
 
