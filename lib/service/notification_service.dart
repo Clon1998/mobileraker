@@ -173,7 +173,7 @@ class NotificationService {
     }
 
     await _notifyAPI.initialize(
-      // set the icon to null if you want to use the default app icon
+        // set the icon to null if you want to use the default app icon
         null,
         channels,
         channelGroups: groups);
@@ -426,16 +426,16 @@ class NotificationService {
 
   Future<void> _setupFCMOnPrinterOnceConnected(Machine machine) async {
     String fcmToken = await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
-    logger.i('${machine.name}(${machine.wsUrl})  Device\'s FCM token: $fcmToken');
+    logger.i('${machine.name}(${machine.wsUri})  Device\'s FCM token: $fcmToken');
     try {
       // Wait until connected
       await ref.readWhere<KlipperInstance>(
           klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready);
       logger.i(
-          'Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
+          'Jrpc Client of ${machine.name}(${machine.wsUri}) is connected, can Setup FCM on printer now!');
       await _machineService.updateMachineFcmConfig(machine, fcmToken);
     } catch (e, s) {
-      logger.w('Could not setupFCM on ${machine.name}(${machine.wsUrl})', e, s);
+      logger.w('Could not setupFCM on ${machine.name}(${machine.wsUri})', e, s);
     }
   }
 

@@ -53,7 +53,7 @@ Uri? previewImageUri(PreviewImageUriRef ref) {
       : ClientType.local;
   if (machine != null) {
     if (clientType == ClientType.local) {
-      return Uri.tryParse(machine.httpUrl);
+      return machine.httpUri;
     } else {
       var octoEverywhere = machine.octoEverywhere;
       return octoEverywhere!.uri;
@@ -90,7 +90,7 @@ FileService _fileServicee(
 
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
   if (type == ClientType.local) {
-    return FileService(ref, jsonRpcClient, Uri.parse(machine.httpUrl));
+    return FileService(ref, jsonRpcClient, machine.httpUri);
   } else if (type == ClientType.octo) {
     var octoEverywhere = machine.octoEverywhere;
     if (octoEverywhere == null) {

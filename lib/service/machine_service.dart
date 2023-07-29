@@ -323,7 +323,7 @@ class MachineService {
           (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
       if (connectionResult != ClientState.connected) {
         logger.w(
-            '[${machine.name}@${machine.wsUrl}]Unable to propagate new notification settings because JRPC was not connected!');
+            '[${machine.name}@${machine.wsUri}]Unable to propagate new notification settings because JRPC was not connected!');
         return;
       }
 
@@ -338,7 +338,7 @@ class MachineService {
         updateReq.add(future);
       }
       if (updateReq.isNotEmpty) await Future.wait(updateReq);
-      logger.i('[${machine.name}@${machine.wsUrl}] Propagated new notification settings');
+      logger.i('[${machine.name}@${machine.wsUri}] Propagated new notification settings');
     } finally {
       keepAliveExternally.close();
     }
@@ -359,7 +359,7 @@ class MachineService {
         (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
     if (connectionResult != ClientState.connected) {
       logger.w(
-          '[${machine.name}@${machine.wsUrl}]Unable to propagate new notification settings because JRPC was not connected!');
+          '[${machine.name}@${machine.wsUri}]Unable to propagate new notification settings because JRPC was not connected!');
       throw const MobilerakerException('Machine not connected');
     }
 
@@ -406,7 +406,7 @@ class MachineService {
       logger.e('Could not update macros, machine $machineUUID not found!');
       return;
     }
-    logger.i('Updating Default Macros for "${machine.name}(${machine.wsUrl})"!');
+    logger.i('Updating Default Macros for "${machine.name}(${machine.wsUri})"!');
     MachineSettings machineSettings = await fetchSettings(machine);
     List<String> filteredMacros = macros.where((element) => !element.startsWith('_')).toList();
     List<MacroGroup> modifiableMacroGrps = machineSettings.macroGroups.toList();

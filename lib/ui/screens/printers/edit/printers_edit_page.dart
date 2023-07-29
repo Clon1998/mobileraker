@@ -135,16 +135,13 @@ class PrinterSettingScrollView extends ConsumerWidget {
                   hintText: 'pages.printer_edit.general.full_url'.tr(),
                 ),
                 name: 'printerUrl',
-                initialValue: machine.httpUrl,
+                initialValue: machine.httpUri.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
-                  FormBuilderValidators.url(
-                      requireTld: false,
-                      requireProtocol: false,
-                      protocols: [
-                        'http',
-                        'https',
-                      ])
+                  FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: [
+                    'http',
+                    'https',
+                  ])
                 ]),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),
@@ -155,16 +152,13 @@ class PrinterSettingScrollView extends ConsumerWidget {
                   hintText: 'pages.printer_edit.general.full_url'.tr(),
                 ),
                 name: 'wsUrl',
-                initialValue: machine.wsUrl,
+                initialValue: machine.wsUri.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
-                  FormBuilderValidators.url(
-                      requireTld: false,
-                      requireProtocol: false,
-                      protocols: [
-                        'ws',
-                        'wss',
-                      ])
+                  FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: [
+                    'ws',
+                    'wss',
+                  ])
                 ]),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),

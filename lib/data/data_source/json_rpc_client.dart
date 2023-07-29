@@ -44,7 +44,7 @@ class JsonRpcClientBuilder {
 
   factory JsonRpcClientBuilder.fromOcto(Machine machine) {
     var octoEverywhere = machine.octoEverywhere!;
-    var localWsUir = Uri.parse(machine.wsUrl);
+    var localWsUir = machine.wsUri;
     var octoUri = Uri.parse(octoEverywhere.url);
 
     return JsonRpcClientBuilder()
@@ -54,14 +54,13 @@ class JsonRpcClientBuilder {
           scheme: 'wss',
           port: 0, // OE automatically redirects the ports
           host: octoUri.host,
-          userInfo:
-              '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
+          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
       ..clientType = ClientType.octo;
   }
 
   factory JsonRpcClientBuilder.fromMachine(Machine machine) {
     return JsonRpcClientBuilder()
-      ..uri = Uri.parse(machine.wsUrl)
+      ..uri = machine.wsUri
       ..apiKey = machine.apiKey
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
       ..clientType = ClientType.local;

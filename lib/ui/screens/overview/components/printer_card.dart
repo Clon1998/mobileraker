@@ -57,7 +57,7 @@ class _PrinterCard extends ConsumerWidget {
             onTap: singlePrinterCardController.onTapTile,
             onLongPress: singlePrinterCardController.onLongPressTile,
             title: Text(machine.name),
-            subtitle: Text(machine.httpUrl),
+            subtitle: Text(machine.httpUri.toString()),
             trailing: const _Trailing(),
           )
         ],

@@ -37,7 +37,7 @@ class WebcamMjpeg extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
     var octoEverywhere = machine.octoEverywhere;
-    var machineUri = Uri.parse(machine.wsUrl);
+    var machineUri = machine.wsUri;
 
     var camStreamUrl = webcamInfo.streamUrl;
     var camSnapshotUrl = webcamInfo.snapshotUrl;

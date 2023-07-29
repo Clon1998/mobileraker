@@ -40,8 +40,8 @@ class NavigationDrawerWidget extends ConsumerWidget {
                 child: Column(
                   children: [
                     const _PrinterSelection(),
-                    if ((ref.watch(allMachinesProvider.select(
-                                (value) => value.valueOrFullNull?.length)) ??
+                    if ((ref.watch(allMachinesProvider
+                                .select((value) => value.valueOrFullNull?.length)) ??
                             0) >
                         1) ...[
                       _DrawerItem(
@@ -110,8 +110,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
                     children: [
                       TextSpan(
                         text: ' GitHub ',
-                        style:
-                            TextStyle(color: themeData.colorScheme.secondary),
+                        style: TextStyle(color: themeData.colorScheme.secondary),
                         children: const [
                           WidgetSpan(
                             child: Icon(FlutterIcons.github_alt_faw, size: 18),
@@ -119,11 +118,9 @@ class NavigationDrawerWidget extends ConsumerWidget {
                         ],
                         recognizer: TapGestureRecognizer()
                           ..onTap = () async {
-                            const String url =
-                                'https://github.com/Clon1998/mobileraker';
+                            const String url = 'https://github.com/Clon1998/mobileraker';
                             if (await canLaunchUrlString(url)) {
-                              await launchUrlString(url,
-                                  mode: LaunchMode.externalApplication);
+                              await launchUrlString(url, mode: LaunchMode.externalApplication);
                             } else {
                               throw 'Could not launch $url';
                             }
@@ -132,8 +129,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       const TextSpan(text: '\n\n'),
                       TextSpan(
                           text: tr('pages.setting.imprint'),
-                          style:
-                              TextStyle(color: themeData.colorScheme.secondary),
+                          style: TextStyle(color: themeData.colorScheme.secondary),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () => ref
                                 .read(navDrawerControllerProvider.notifier)
@@ -168,9 +164,8 @@ class _NavHeader extends ConsumerWidget {
         .watch(selectedMachineProvider)
         .maybeMap<AsyncValue<Machine>>(
             orElse: () => const AsyncValue.loading(),
-            data: (data) => data.value != null
-                ? AsyncData(data.value!)
-                : const AsyncValue.loading());
+            data: (data) =>
+                data.value != null ? AsyncData(data.value!) : const AsyncValue.loading());
     return DrawerHeader(
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
@@ -181,13 +176,11 @@ class _NavHeader extends ConsumerWidget {
             InkWell(
               onTap: () {
                 if (neverNullMachineAsyncData.hasValue) {
-                  ref.read(navDrawerControllerProvider.notifier).pushingTo(
-                      '/printer/edit',
-                      arguments: neverNullMachineAsyncData.value!);
-                } else {
                   ref
                       .read(navDrawerControllerProvider.notifier)
-                      .pushingTo('/printer/add');
+                      .pushingTo('/printer/edit', arguments: neverNullMachineAsyncData.value!);
+                } else {
+                  ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add');
                 }
               },
               child: Row(
@@ -210,24 +203,21 @@ class _NavHeader extends ConsumerWidget {
                             children: [
                               Text(
                                 neverNullMachineAsyncData.maybeWhen<String>(
-                                    orElse: () => 'NO PRINTER',
-                                    data: (data) => data.name),
+                                    orElse: () => 'NO PRINTER', data: (data) => data.name),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: themeData.textTheme.titleLarge
-                                    ?.copyWith(color: onBackground),
+                                style:
+                                    themeData.textTheme.titleLarge?.copyWith(color: onBackground),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 neverNullMachineAsyncData.maybeWhen(
                                     orElse: () => 'Add printer first',
-                                    data: (machine) =>
-                                        Uri.tryParse(machine.httpUrl)?.host ??
-                                        machine.httpUrl),
+                                    data: (machine) => machine.wsUri.host),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: themeData.textTheme.titleSmall
-                                    ?.copyWith(color: onBackground),
+                                style:
+                                    themeData.textTheme.titleSmall?.copyWith(color: onBackground),
                               ),
                             ],
                           ),
@@ -262,9 +252,7 @@ class _NavHeader extends ConsumerWidget {
                     Icons.expand_less,
                     color: onBackground,
                   )),
-              onTap: ref
-                  .read(navDrawerControllerProvider.notifier)
-                  .toggleManagePrintersExpanded,
+              onTap: ref.read(navDrawerControllerProvider.notifier).toggleManagePrintersExpanded,
             )
           ],
         ));
@@ -272,8 +260,7 @@ class _NavHeader extends ConsumerWidget {
 }
 
 class _DrawerItem extends ConsumerWidget {
-  const _DrawerItem(
-      {required this.text, required this.icon, required this.routeName});
+  const _DrawerItem({required this.text, required this.icon, required this.routeName});
 
   final String text;
   final IconData icon;
@@ -293,8 +280,7 @@ class _DrawerItem extends ConsumerWidget {
       textColor: themeData.colorScheme.onBackground,
       leading: Icon(icon),
       title: Text(text),
-      onTap: () =>
-          ref.read(navDrawerControllerProvider.notifier).navigateTo(routeName),
+      onTap: () => ref.read(navDrawerControllerProvider.notifier).navigateTo(routeName),
     );
   }
 }
@@ -328,15 +314,12 @@ class _PrinterSelection extends ConsumerWidget {
                     isSelected: true,
                   ),
                 ...ref
-                    .watch(allMachinesProvider.selectAs((data) => data.where(
-                        (element) =>
-                            element.uuid != selMachine.valueOrFullNull?.uuid)))
+                    .watch(allMachinesProvider.selectAs((data) =>
+                        data.where((element) => element.uuid != selMachine.valueOrFullNull?.uuid)))
                     .maybeWhen(
                         orElse: () => [
                               ListTile(
-                                title: FadingText(
-                                    'components.nav_drawer.fetching_printers'
-                                        .tr()),
+                                title: FadingText('components.nav_drawer.fetching_printers'.tr()),
                                 contentPadding: basePadding,
                               )
                             ],
@@ -355,9 +338,8 @@ class _PrinterSelection extends ConsumerWidget {
                     Icons.add,
                     size: baseIconSize,
                   ),
-                  onTap: () => ref
-                      .read(navDrawerControllerProvider.notifier)
-                      .pushingTo('/printer/add'),
+                  onTap: () =>
+                      ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add'),
                 )
               ],
             )

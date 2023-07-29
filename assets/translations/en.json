@@ -40,7 +40,8 @@
     "valid": "Valid",
     "invalid": "Invalid",
     "free": "Free",
-    "one_time": "One time"
+    "one_time": "One time",
+    "delete": "Delete"
   },
   "pages": {
     "dashboard": {
@@ -255,7 +256,25 @@
       "fetch_error_hint": "Ensure the machine is reachable, and Mobileraker is connected to it.",
       "store_error": {
         "title": "Saving failed!",
-        "message": "Some fields contain invalid values!\nPlease make sure all fields are valid."
+        "message": "Some fields contain invalid values!\nPlease make sure all fields are valid.",
+        "unexpected_error": "An unexpected error occurred while trying to save the machine data!"
+      },
+      "confirm_deletion": {
+        "title": "Delete {}?",
+        "body": "You are about to remove the printer '{}' connected at '{}'. \n\nConfirm your action."
+      },
+      "success_oe_link": {
+        "title": "Linked {}",
+        "body": "Successfully linked {} with OctoEverywhere!"
+      },
+      "confirm_oe_unlink": {
+        "title": "Unlink {}?",
+        "body": "Please confirm the unlinking of the printer {} from OctoEverywhere.",
+        "button": "Unlink"
+      },
+      "success_oe_unlink": {
+        "title": "Unlinked {}",
+        "body": "Successfully unlinked {} from OctoEverywhere!"
       },
       "general": {
         "displayname": "Displayname",

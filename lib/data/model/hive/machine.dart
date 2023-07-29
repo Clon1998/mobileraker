@@ -20,14 +20,6 @@ part 'machine_adapter.dart';
 class Machine extends HiveObject {
   @HiveField(0)
   String name;
-
-  // Replaced in favor of wsUri
-  @deprecated
-  String get wsUrl => wsUri.toString();
-
-  // Replaced in favor of httpUri
-  @deprecated
-  String get httpUrl => httpUri.toString();
   @HiveField(1)
   Uri wsUri;
   @HiveField(6)
@@ -124,6 +116,6 @@ class Machine extends HiveObject {
 
   @override
   String toString() {
-    return 'Machine{name: $name, wsUrl: $wsUrl, uuid: $uuid, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUrl: $httpUrl, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
+    return 'Machine{name: $name, wsUri: $wsUri, uuid: $uuid, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUri: $httpUri, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
   }
 }
