@@ -65,6 +65,30 @@ Future<Machine?> machine(MachineRef ref, String uuid) async {
 
 @riverpod
 Future<List<Machine>> allMachines(AllMachinesRef ref) async {
+  // var isSupporter = await ref.watch(customerInfoProvider.selectAsync(
+  //         (data) => data.entitlements.active.containsKey('Supporter')));
+  // var maxNonSupporterMachines =
+  //     ref.watch(remoteConfigProvider).maxNonSupporterMachines;
+  // ref.watch(settingServiceProvider);
+  //
+  // if (maxNonSupporterMachines > 0 &&
+  //     !isSupporter &&
+  //     all.length > maxNonSupporterMachines) {
+  //   if (stamp != null && stamp.difference(DateTime.now()).inDays == 0) {
+  //     logger.i(
+  //         'The user was not a supporter. Therefore, deleting ${all.length - 1} printers from him');
+  //     await Future.wait(all.skip(maxNonSupporterMachines).map((element) =>
+  //         ref.read(machineServiceProvider).removeMachine(element)));
+  //     all = await ref.refresh(allMachinesProvider.future);
+  //   } else if (stamp == null) {
+  //     var cleanupDate = DateTime.now().add(const Duration(days: 7));
+  //     logger.i('Writing nonSuporter machine cleanup date $cleanupDate');
+  //     box.put(_deletingWarningKey, cleanupDate);
+  //   }
+  // } else {
+  //   box.delete(_deletingWarningKey);
+  // }
+
   return ref.watch(machineServiceProvider).fetchAll();
 }
 
@@ -148,6 +172,16 @@ class MachineService {
 
   Future<void> removeMachine(Machine machine) async {
     logger.i('Removing machine ${machine.uuid}');
+    try {
+      await ref
+          .read(fcmSettingsRepositoryProvider(machine.uuid))
+          .delete(machine.uuid);
+    } catch (e) {
+      logger.w(
+          'Was unable to delete FCM settings from machine that is about to get deleted...',
+          e);
+    }
+
     await _machineRepo.remove(machine.uuid);
     var firebaseAnalytics = ref.read(analyticsProvider);
     firebaseAnalytics.logEvent(name: 'remove_machine');
@@ -222,12 +256,10 @@ class MachineService {
       // Remove DeviceFcmSettings if the device does not has the machineUUID anymore!
       var allDeviceSettings = await fcmRepo.all();
       var allMachineUUIDs = (await fetchAll()).map((e) => e.uuid);
-      //Filter all entries out that dont have the same FCMTOKEN
-      allDeviceSettings
-          .removeWhere((key, value) => value.fcmToken != deviceFcmToken);
-      // Remove all entries where a machine exist for
-      allDeviceSettings
-          .removeWhere((key, value) => allMachineUUIDs.contains(key));
+      // Filter all entries out that dont have the same FCMTOKEN
+      // AND Remove all entries where a machine exist for
+      allDeviceSettings.removeWhere((key, value) =>
+          value.fcmToken != deviceFcmToken || allMachineUUIDs.contains(key));
 
       // Clear all of the DeviceFcmSettings that are left
       for (String uuid in allDeviceSettings.keys) {
@@ -239,13 +271,14 @@ class MachineService {
       DeviceFcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
 
       int progressModeInt =
-          _settingService.readInt(selectedProgressNotifyMode, -1);
+          _settingService.readInt(AppSettingKeys.progressNotificationMode, -1);
       var progressMode = (progressModeInt < 0)
           ? ProgressNotificationMode.TWENTY_FIVE
           : ProgressNotificationMode.values[progressModeInt];
 
       var states = _settingService
-          .read(activeStateNotifyMode, 'standby,printing,paused,complete,error')
+          .read(AppSettingKeys.statesTriggeringNotification,
+              'standby,printing,paused,complete,error')
           .split(',')
           .toSet();
 

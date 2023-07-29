@@ -106,7 +106,8 @@ class NotificationService {
     bool notificationAllowed = await hasNotificationPermission();
     logger.i('Notifications are permitted: $notificationAllowed');
 
-    if (_settingsService.readBool(requestedNotifyPermission, true)) {
+    if (_settingsService.readBool(
+        UtilityKeys.requestedNotifyPermission, true)) {
       return notificationAllowed;
     }
     if (!notificationAllowed) {
@@ -116,7 +117,8 @@ class NotificationService {
   }
 
   Future<bool> requestNotificationPermission() async {
-    await _settingsService.writeBool(requestedNotifyPermission, true);
+    await _settingsService.writeBool(
+        UtilityKeys.requestedNotifyPermission, true);
     return _notifyAPI.requestPermissionToSendNotifications();
   }
 
@@ -467,7 +469,8 @@ class NotificationService {
     PrintState? oldState = machine.lastPrintState;
 
     var allowed = _settingsService.read(
-        activeStateNotifyMode, 'standby,printing,paused,complete,error');
+        AppSettingKeys.statesTriggeringNotification,
+        'standby,printing,paused,complete,error');
 
     if (updatedState == oldState) return updatedState;
     machine.lastPrintState = updatedState;
@@ -537,7 +540,8 @@ class NotificationService {
       [bool normalize = true]) async {
     if (progress >= 100) return;
 
-    int readInt = _settingsService.readInt(selectedProgressNotifyMode, -1);
+    int readInt =
+        _settingsService.readInt(AppSettingKeys.progressNotificationMode, -1);
 
     ProgressNotificationMode progMode = readInt >= 0
         ? ProgressNotificationMode.values[readInt]

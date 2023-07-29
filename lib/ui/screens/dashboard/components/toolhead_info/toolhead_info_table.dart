@@ -55,7 +55,9 @@ class _ToolheadData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var position = ref.watch(settingServiceProvider).readBool(useOffsetPosKey)
+    var position = ref
+            .watch(settingServiceProvider)
+            .readBool(AppSettingKeys.applyOffsetsToPostion)
         ? toolheadInfo.postion
         : toolheadInfo.livePosition;
     return Table(

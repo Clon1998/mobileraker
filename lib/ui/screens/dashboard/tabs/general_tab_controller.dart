@@ -99,8 +99,10 @@ class GeneralTabViewController
         .read(dialogServiceProvider)
         .show(DialogRequest(
             type:
-                ref.read(settingServiceProvider).readBool(useTextInputForNumKey)
-                    ? DialogType.numEdit
+                ref
+                    .read(settingServiceProvider)
+                    .readBool(AppSettingKeys.defaultNumEditMode)
+                ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: "Edit ${beautifyName(heater.name)} Temperature",
             cancelBtn: tr('general.cancel'),
@@ -125,8 +127,10 @@ class GeneralTabViewController
         .read(dialogServiceProvider)
         .show(DialogRequest(
             type:
-                ref.read(settingServiceProvider).readBool(useTextInputForNumKey)
-                    ? DialogType.numEdit
+            ref
+                    .read(settingServiceProvider)
+                    .readBool(AppSettingKeys.defaultNumEditMode)
+                ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
             cancelBtn: tr('general.cancel'),

@@ -8,64 +8,86 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'setting_service.g.dart';
 
-const String emsKey = 'ems_setting';
-const String showBabyAlwaysKey = 'always_babystepping_setting';
-const String useTextInputForNumKey = 'text_inpt_for_num_fields';
-const String startWithOverviewKey = 'start_with_overview';
-const String useOffsetPosKey = 'use_offset_pos';
-const String selectedThemeModeKey = 'selectedThemeMode';
-const String selectedThemePackKey = 'selectedThemePack';
-const String selectedGCodeGrpIndex = 'selGCodeGrp';
-const String selectedWebcamGrpIndex = 'selWebcamGrp';
-const String selectedProgressNotifyMode = 'selProgNotMode';
-const String activeStateNotifyMode = 'activeStateNotMode';
-const String requestedNotifyPermission = 'reqNotifyPerm';
-const String selectedFileSortKey = 'selFileSrt';
-const String recentColorsKey = 'selectedColors';
-const String landscapeFullWebCam = 'lcFullCam';
-const String timeMode = 'tMode';
-
 @riverpod
 SettingService settingService(SettingServiceRef ref) {
   return SettingService();
 }
 
+/// Actually this class turned more into a KeyValue store than just storing app setings
 /// Settings related to the App!
 class SettingService {
   late final _boxSettings =
       Hive.box('settingsbox'); // maybe move it to the repo ?
 
-  Future<void> writeBool(String key, bool val) {
-    return _boxSettings.put(key, val);
+  Future<void> writeBool(KeyValueStoreKey key, bool val) {
+    return _boxSettings.put(key.key, val);
   }
 
-  bool readBool(String key, [bool fallback = false]) {
-    return _boxSettings.get(key) ?? fallback;
+  bool readBool(KeyValueStoreKey key, [bool fallback = false]) {
+    return _boxSettings.get(key.key) ?? fallback;
   }
 
-  Future<void> writeInt(String key, int val) {
-    return _boxSettings.put(key, val);
+  Future<void> writeInt(KeyValueStoreKey key, int val) {
+    return _boxSettings.put(key.key, val);
   }
 
-  int readInt(String key, [int fallback = 0]) {
-    return _boxSettings.get(key) ?? fallback;
+  int readInt(KeyValueStoreKey key, [int fallback = 0]) {
+    return _boxSettings.get(key.key) ?? fallback;
   }
 
-  Future<void> write<T>(String key, T val) {
-    return _boxSettings.put(key, val);
+  Future<void> write<T>(KeyValueStoreKey key, T val) {
+    return _boxSettings.put(key.key, val);
   }
 
-  T read<T>(String key, T fallback) {
-    return _boxSettings.get(key) ?? fallback;
+  T read<T>(KeyValueStoreKey key, T fallback) {
+    return _boxSettings.get(key.key) ?? fallback;
   }
 
-  Future<void> writeList<T>(String key, List<T> val) {
-    return _boxSettings.put(key, val);
+  Future<void> writeList<T>(KeyValueStoreKey key, List<T> val) {
+    return _boxSettings.put(key.key, val);
   }
 
-  List<T> readList<T>(String key, [List<T>? fallback]) {
-    return (_boxSettings.get(key) as List<dynamic>?)?.cast<T>() ??
+  List<T> readList<T>(KeyValueStoreKey key, [List<T>? fallback]) {
+    return (_boxSettings.get(key.key) as List<dynamic>?)?.cast<T>() ??
         fallback ??
         [];
   }
+}
+
+mixin KeyValueStoreKey {
+  String get key;
+}
+
+enum AppSettingKeys implements KeyValueStoreKey {
+  confirmEmergencyStop('ems_setting'),
+  alwaysShowBabyStepping('always_babystepping_setting'),
+  defaultNumEditMode('text_inpt_for_num_fields'),
+  overviewIsHomescreen('start_with_overview'),
+  applyOffsetsToPostion('use_offset_pos'),
+  themeMode('selectedThemeMode'),
+  themePack('selectedThemePack'),
+  progressNotificationMode('selProgNotMode'),
+  statesTriggeringNotification('activeStateNotMode'),
+  fullscreenCamOrientation('lcFullCam'),
+  timeFormat('tMode'),
+  ;
+
+  @override
+  final String key;
+
+  const AppSettingKeys(this.key);
+}
+
+enum UtilityKeys implements KeyValueStoreKey {
+  gCodeIndex('selGCodeGrp'),
+  webcamIndex('selWebcamGrp'),
+  fileSortingIndex('selFileSrt'),
+  requestedNotifyPermission('reqNotifyPerm'),
+  recentColors('selectedColors'),
+  ;
+
+  @override
+  final String key;
+
+  const UtilityKeys(this.key);
 }

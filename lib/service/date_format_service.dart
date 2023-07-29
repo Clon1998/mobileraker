@@ -25,25 +25,25 @@ class DateFormatService {
   DateFormat _jms() => DateFormat('h:mm:ss a');
 
   DateFormat Hm() {
-    var isFreedomUnit = _settingService.readBool(timeMode);
+    var isFreedomUnit = _settingService.readBool(AppSettingKeys.timeFormat);
 
     return isFreedomUnit ? _jm() : DateFormat.Hm();
   }
 
   DateFormat Hms() {
-    var isFreedomUnit = _settingService.readBool(timeMode);
+    var isFreedomUnit = _settingService.readBool(AppSettingKeys.timeFormat);
 
     return isFreedomUnit ? _jms() : DateFormat.Hms();
   }
 
   DateFormat add_Hm(DateFormat format) {
-    var isFreedomUnit = _settingService.readBool(timeMode);
+    var isFreedomUnit = _settingService.readBool(AppSettingKeys.timeFormat);
 
     return isFreedomUnit ? format.add_jm() : format.add_Hm();
   }
 
   DateFormat add_Hms(DateFormat format) {
-    var isFreedomUnit = _settingService.readBool(timeMode);
+    var isFreedomUnit = _settingService.readBool(AppSettingKeys.timeFormat);
 
     return isFreedomUnit ? format.add_jms() : format.add_Hms();
   }

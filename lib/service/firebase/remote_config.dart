@@ -4,6 +4,7 @@
  */
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'remote_config.g.dart';
@@ -18,11 +19,15 @@ extension MobilerakerFF on FirebaseRemoteConfig {
   int get maxNonSupporterMachines => getInt('non_suporters_max_printers');
 
   Future<void> initialize() async {
-    await setConfigSettings(RemoteConfigSettings(
-      fetchTimeout: const Duration(minutes: 1),
-      minimumFetchInterval:
-          kDebugMode ? const Duration(minutes: 5) : const Duration(hours: 12),
-    ));
-    await fetchAndActivate();
+    try {
+      await setConfigSettings(RemoteConfigSettings(
+        fetchTimeout: const Duration(minutes: 1),
+        minimumFetchInterval:
+            kDebugMode ? const Duration(minutes: 5) : const Duration(hours: 12),
+      ));
+      await fetchAndActivate();
+    } catch (e) {
+      logger.w('Error while trying to setup Firebase Remote Config', e);
+    }
   }
 }

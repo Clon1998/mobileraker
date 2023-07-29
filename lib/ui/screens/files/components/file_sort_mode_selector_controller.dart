@@ -28,7 +28,7 @@ class FileSortController extends _$FileSortController {
   FileSort build() {
     var selSort = ref
         .watch(settingServiceProvider)
-        .readInt(selectedFileSortKey, FileSort.lastModified.index);
+        .readInt(UtilityKeys.fileSortingIndex, FileSort.lastModified.index);
 
     if (selSort >= FileSort.values.length || selSort < 0) {
       selSort = FileSort.lastModified.index;
@@ -42,6 +42,6 @@ class FileSortController extends _$FileSortController {
 
     ref
         .read(settingServiceProvider)
-        .writeInt(selectedFileSortKey, newSelected.index);
+        .writeInt(UtilityKeys.fileSortingIndex, newSelected.index);
   }
 }

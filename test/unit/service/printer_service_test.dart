@@ -37,7 +37,7 @@ void main() {
         .thenReturn(null);
     final respList = File('test_resources/list_resp.json');
     when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
-            (realInvocation) async =>
+        (realInvocation) async =>
             RpcResponse.fromJson(jsonDecode(respList.readAsStringSync())));
     final respQuery = File('test_resources/query_resp.json');
     var queryAbleObjects = {
@@ -96,7 +96,7 @@ void main() {
       "MEASURE_COREXY_BELT_TENSION",
       "COMPILE_FIRMWARE",
       "CHANGE_HOSTNAME"
-    ])).thenReturn(null);
+    ])).thenAnswer((_) async {});
 
     var mockSnackBarService = MockSnackBarService();
     var mockDialogService = MockDialogService();
@@ -151,14 +151,15 @@ void main() {
     };
 
     when(mockRpc.sendJRpcMethod('printer.objects.query',
-        params: queryAbleObjects))
+            params: queryAbleObjects))
         .thenAnswer((realInvocation) async =>
-        RpcResponse.fromJson(jsonDecode(respQuery.readAsStringSync())));
-    when(mockRpc.sendJRpcMethod('server.temperature_store'))
-        .thenAnswer((realInvocation) async => const RpcResponse(jsonrpc: "2.0",id: 212,result: {}));
+            RpcResponse.fromJson(jsonDecode(respQuery.readAsStringSync())));
+    when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
+        (realInvocation) async =>
+            const RpcResponse(jsonrpc: "2.0", id: 212, result: {}));
 
     when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
-        params: queryAbleObjects))
+            params: queryAbleObjects))
         .thenReturn(null);
 
     var mockMachineService = MockMachineService();
@@ -187,7 +188,7 @@ void main() {
       "MEASURE_COREXY_BELT_TENSION",
       "COMPILE_FIRMWARE",
       "CHANGE_HOSTNAME"
-    ])).thenReturn(null);
+    ])).thenAnswer((_) async {});
 
     var mockSnackBarService = MockSnackBarService();
     var mockDialogService = MockDialogService();
@@ -254,29 +255,30 @@ void main() {
     expect(printerService.currentOrNull, null);
 
     when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
-            (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
-          'objects': ['toolhead']
-        }));
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
+              'objects': ['toolhead']
+            }));
 
     when(mockRpc.sendJRpcMethod('printer.objects.query', params: {
       'objects': {'toolhead': null}
     })).thenAnswer(
-            (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
-          'status': {
-            "toolhead": {
-              "position": [0, 0, 0, 0],
-              "status": "Ready"
-            }
-          }
-        }));
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
+              'status': {
+                "toolhead": {
+                  "position": [0, 0, 0, 0],
+                  "status": "Ready"
+                }
+              }
+            }));
 
     when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
-            (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {}));
+        (_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {}));
 
     when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
         params: ['toolhead'])).thenReturn(null);
 
-    when(mockMachineService.updateMacrosInSettings(uuid, any)).thenReturn(null);
+    when(mockMachineService.updateMacrosInSettings(uuid, any))
+        .thenAnswer((_) async {});
 
     mockKlipyyStreamCtl.add(const KlipperInstance(
         klippyConnected: true, klippyState: KlipperState.ready));

@@ -59,7 +59,7 @@ class LedRGBWDialogController extends _$LedRGBWDialogController {
     }
     SettingService settingService = ref.watch(settingServiceProvider);
     List<Color> recentColors = settingService
-        .readList<String>(recentColorsKey)
+        .readList<String>(UtilityKeys.recentColors)
         .map((e) => colorFromHex(e, enableAlpha: false))
         .whereType<Color>()
         .toList(); // Removes null values
@@ -83,12 +83,14 @@ class LedRGBWDialogController extends _$LedRGBWDialogController {
 
   onSubmit() {
     SettingService settingService = ref.watch(settingServiceProvider);
-    var recentColors = state.recentColors.where((element) => element != state.selectedColor);
+    var recentColors =
+        state.recentColors.where((element) => element != state.selectedColor);
     var list = [state.selectedColor, ...recentColors.take(9)]
         .map((e) => e.hexCode)
         .toList();
-    settingService.writeList(recentColorsKey, list);
+    settingService.writeList(UtilityKeys.recentColors, list);
 
-    ref.read(dialogCompleterProvider)(DialogResponse.confirmed(state.selectedColor));
+    ref.read(dialogCompleterProvider)(
+        DialogResponse.confirmed(state.selectedColor));
   }
 }

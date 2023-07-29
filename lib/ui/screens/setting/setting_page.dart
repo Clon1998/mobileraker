@@ -52,8 +52,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'emsConfirmation',
                 title: const Text('pages.setting.general.ems_confirm').tr(),
-                onChanged: (b) => settingService.writeBool(emsKey, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(emsKey, true)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.confirmEmergencyStop, b ?? false),
+                initialValue: ref.watch(boolSettingProvider(
+                    AppSettingKeys.confirmEmergencyStop, true)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -61,9 +63,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'alwaysShowBaby',
                 title: const Text('pages.setting.general.always_baby').tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(showBabyAlwaysKey, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(showBabyAlwaysKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.alwaysShowBabyStepping, b ?? false),
+                initialValue: ref.watch(
+                    boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -71,10 +74,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'useTextInputForNum',
                 title: const Text('pages.setting.general.num_edit').tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(useTextInputForNumKey, b ?? false),
-                initialValue:
-                    ref.watch(boolSettingProvider(useTextInputForNumKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.defaultNumEditMode, b ?? false),
+                initialValue: ref.watch(
+                    boolSettingProvider(AppSettingKeys.defaultNumEditMode)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -83,10 +86,10 @@ class SettingPage extends ConsumerWidget {
                 name: 'startWithOverview',
                 title: const Text('pages.setting.general.start_with_overview')
                     .tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(startWithOverviewKey, b ?? false),
-                initialValue:
-                    ref.watch(boolSettingProvider(startWithOverviewKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.overviewIsHomescreen, b ?? false),
+                initialValue: ref.watch(
+                    boolSettingProvider(AppSettingKeys.overviewIsHomescreen)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -94,9 +97,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'useLivePos',
                 title: const Text('pages.setting.general.use_offset_pos').tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(useOffsetPosKey, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(useOffsetPosKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.applyOffsetsToPostion, b ?? false),
+                initialValue: ref.watch(
+                    boolSettingProvider(AppSettingKeys.applyOffsetsToPostion)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -104,10 +108,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'lcFullCam',
                 title: const Text('pages.setting.general.lcFullCam').tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(landscapeFullWebCam, b ?? false),
-                initialValue:
-                    ref.watch(boolSettingProvider(landscapeFullWebCam)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.fullscreenCamOrientation, b ?? false),
+                initialValue: ref.watch(boolSettingProvider(
+                    AppSettingKeys.fullscreenCamOrientation)),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,
@@ -346,7 +350,7 @@ class _TimeFormatSelector extends ConsumerWidget {
     var now = DateTime.now();
 
     return FormBuilderDropdown(
-        initialValue: ref.watch(boolSettingProvider(timeMode)),
+        initialValue: ref.watch(boolSettingProvider(AppSettingKeys.timeFormat)),
         name: 'timeMode',
         items: [
           DropdownMenuItem(
@@ -358,8 +362,9 @@ class _TimeFormatSelector extends ConsumerWidget {
           labelStyle: Theme.of(context).textTheme.labelLarge,
           labelText: 'Time Format',
         ),
-        onChanged: (bool? b) =>
-            ref.read(settingServiceProvider).writeBool(timeMode, b ?? false));
+        onChanged: (bool? b) => ref
+            .read(settingServiceProvider)
+            .writeBool(AppSettingKeys.timeFormat, b ?? false));
   }
 }
 

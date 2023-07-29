@@ -21,8 +21,9 @@ WebcamInfo initialCam(InitialCamRef ref) => throw UnimplementedError();
 class FullCamPageController extends _$FullCamPageController {
   @override
   WebcamInfo build() {
-    var rotateCam =
-        ref.watch(settingServiceProvider).readBool(landscapeFullWebCam, false);
+    var rotateCam = ref
+        .watch(settingServiceProvider)
+        .readBool(AppSettingKeys.fullscreenCamOrientation, false);
     if (rotateCam) {
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);

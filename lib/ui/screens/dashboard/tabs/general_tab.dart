@@ -80,7 +80,7 @@ class GeneralTab extends ConsumerWidget {
                       const ControlXYZCard(),
                     if (ref
                             .watch(settingServiceProvider)
-                            .readBool(showBabyAlwaysKey) ||
+                            .readBool(AppSettingKeys.alwaysShowBabyStepping) ||
                         const {PrintState.printing, PrintState.paused}
                             .contains(printState))
                       const _BabySteppingCard(),

@@ -61,7 +61,7 @@ class CamCardController extends _$CamCardController {
               0,
               ref
                   .read(settingServiceProvider)
-                  .readInt(selectedWebcamGrpIndex, 0)));
+                  .readInt(UtilityKeys.webcamIndex, 0)));
       activeCam = await ref.watch(
           webcamInfoProvider(machine.uuid, filteredCams[selIndex].uuid).future);
     }
@@ -82,7 +82,7 @@ class CamCardController extends _$CamCardController {
         .watch(webcamInfoProvider(state.value!.machine.uuid, camUUID).future);
 
     var indexOf = state.value!.allCams.indexOf(c);
-    ref.read(settingServiceProvider).writeInt(selectedWebcamGrpIndex, indexOf);
+    ref.read(settingServiceProvider).writeInt(UtilityKeys.webcamIndex, indexOf);
     state = AsyncValue.data(state.value!.copyWith(activeCam: c));
   }
 

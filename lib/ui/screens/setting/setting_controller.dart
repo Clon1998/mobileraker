@@ -29,7 +29,8 @@ Future<PackageInfo> versionInfo(VersionInfoRef ref) async {
 }
 
 @riverpod
-bool boolSetting(BoolSettingRef ref, String key, [bool fallback = false]) =>
+bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key,
+        [bool fallback = false]) =>
     ref.watch(settingServiceProvider).readBool(key, fallback);
 
 @riverpod
@@ -74,7 +75,7 @@ class NotificationProgressSettingController
   ProgressNotificationMode build() {
     int progressModeInt = ref
         .watch(settingServiceProvider)
-        .readInt(selectedProgressNotifyMode, -1);
+        .readInt(AppSettingKeys.progressNotificationMode, -1);
     var progressMode = (progressModeInt < 0)
         ? ProgressNotificationMode.TWENTY_FIVE
         : ProgressNotificationMode.values[progressModeInt];
@@ -85,7 +86,7 @@ class NotificationProgressSettingController
   void onProgressChanged(ProgressNotificationMode mode) async {
     ref
         .read(settingServiceProvider)
-        .writeInt(selectedProgressNotifyMode, mode.index);
+        .writeInt(AppSettingKeys.progressNotificationMode, mode.index);
 
     state = mode;
 
@@ -112,7 +113,8 @@ class NotificationStateSettingController
   Set<PrintState> build() {
     return ref
         .watch(settingServiceProvider)
-        .read(activeStateNotifyMode, 'standby,printing,paused,complete,error')
+        .read(AppSettingKeys.statesTriggeringNotification,
+            'standby,printing,paused,complete,error')
         .split(',')
         .map((e) =>
             EnumToString.fromString(PrintState.values, e) ?? PrintState.error)
@@ -121,7 +123,9 @@ class NotificationStateSettingController
 
   void onStatesChanged(Set<PrintState> printStates) async {
     var str = printStates.map((e) => e.name).join(',');
-    ref.read(settingServiceProvider).write(activeStateNotifyMode, str);
+    ref
+        .read(settingServiceProvider)
+        .write(AppSettingKeys.statesTriggeringNotification, str);
     state = printStates;
 
     // Now also propagate it to all connected machines!

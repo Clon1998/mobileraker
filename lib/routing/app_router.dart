@@ -56,7 +56,7 @@ Future<String> initialRoute(InitialRouteRef ref) async {
   ref.keepAlive();
   SettingService settingService = ref.watch(settingServiceProvider);
 
-  if (!settingService.readBool(startWithOverviewKey)) {
+  if (!settingService.readBool(AppSettingKeys.overviewIsHomescreen)) {
     return '/';
   }
   int printerCnt =
