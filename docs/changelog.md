@@ -24,7 +24,9 @@
 - Fixed the QR reader functionality.
 - Enhanced the reliability of the JRpc client.
 - Addressed several minor errors in the background.
-- Fixed Webcam Service type could not be edited [#198](https://github.com/Clon1998/mobileraker/issues/198)
+- Fixed Webcam Service type could not be
+  edited [#198](https://github.com/Clon1998/mobileraker/issues/198)
+- Fixed potential parsing error [#205](https://github.com/Clon1998/mobileraker/issues/205)
 
 ## [2.4.2] - 2023-06-28
 
