@@ -55,6 +55,7 @@
       "general": {
         "print_card": {
           "reset": "Reset",
+          "reprint": "Reprint",
           "printing_for": "Printing: {}",
           "speed": "Speed",
           "layer": "Layer",

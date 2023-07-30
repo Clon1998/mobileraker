@@ -58,13 +58,15 @@ class GeneralTabViewController
   }
 
   onExcludeObjectPressed() {
-    ref
-        .read(dialogServiceProvider)
-        .show(DialogRequest(type: DialogType.excludeObject));
+    ref.read(dialogServiceProvider).show(DialogRequest(type: DialogType.excludeObject));
   }
 
   onResetPrintTap() {
     ref.watch(printerServiceSelectedProvider).resetPrintStat();
+  }
+
+  onReprintTap() {
+    ref.watch(printerServiceSelectedProvider).reprintCurrentFile();
   }
 
   flipTemperatureCard() {

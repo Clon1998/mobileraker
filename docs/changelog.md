@@ -10,6 +10,7 @@
   users. [#153](https://github.com/Clon1998/mobileraker/issues/153) [#134](https://github.com/Clon1998/mobileraker/issues/134) [#182](https://github.com/Clon1998/mobileraker/issues/182) [#193](https://github.com/Clon1998/mobileraker/issues/193)
 - Added support for WebRtc for
   Supports [#167](https://github.com/Clon1998/mobileraker/issues/167) [#191](https://github.com/Clon1998/mobileraker/issues/191)
+- Added option to directly reprint the last file if printer is still in complete state.
 
 ### Changed Features
 
