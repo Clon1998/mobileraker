@@ -38,7 +38,7 @@ class PaywallPageController extends _$PaywallPageController {
     logger.wtf('Got offerings detailed:$offerings');
 
     Offering? activeOffering = offerings.current;
-    activeOffering = offerings.getOffering('default_v2');
+    if (kDebugMode) activeOffering = offerings.getOffering('default_v2');
     final offerMetadata = activeOffering?.metadata ?? {};
     final excludeFromPaywall =
         (offerMetadata['exclude_package'] as String? ?? '').split(',').map((e) => e.trim());
@@ -50,17 +50,13 @@ class PaywallPageController extends _$PaywallPageController {
         [];
 
     // Due to the lack of ability to buy things multiple times, I need to put this into a seperate offer group
-    final List<Package> tipPackets =
-        offerings.getOffering('tip')?.availablePackages ?? [];
+    final List<Package> tipPackets = offerings.getOffering('tip')?.availablePackages ?? [];
 
     // Due to lack of support in the stores to offer IAP discouts I created a new offer group that is used to detect offers for IAP
-    final List<Package> iapOffers =
-        offerings.getOffering('iap_promos')?.availablePackages ?? [];
+    final List<Package> iapOffers = offerings.getOffering('iap_promos')?.availablePackages ?? [];
 
     return PaywallPageState(
-        paywallOfferings: packetsToOffer,
-        tipPackages: tipPackets,
-        iapPromos: iapOffers);
+        paywallOfferings: packetsToOffer, tipPackages: tipPackets, iapPromos: iapOffers);
   }
 
   openGithub() async {
@@ -79,10 +75,9 @@ class PaywallPageController extends _$PaywallPageController {
       return;
     }
 
-    var dialogResponse = await ref.read(dialogServiceProvider).show(
-        DialogRequest(
-            type: DialogType.tipping,
-            data: state.valueOrNull?.tipPackages ?? []));
+    var dialogResponse = await ref
+        .read(dialogServiceProvider)
+        .show(DialogRequest(type: DialogType.tipping, data: state.valueOrNull?.tipPackages ?? []));
     if (dialogResponse?.confirmed == true) {
       logger.i('User selected tip package: ${dialogResponse?.data}');
       makePurchase(dialogResponse!.data as Package);
@@ -91,8 +86,7 @@ class PaywallPageController extends _$PaywallPageController {
 
   copyRCatIdToClipboard() {
     var customerInfo = ref.read(customerInfoProvider).valueOrNull;
-    Clipboard.setData(
-        ClipboardData(text: customerInfo?.originalAppUserId ?? ''));
+    Clipboard.setData(ClipboardData(text: customerInfo?.originalAppUserId ?? ''));
   }
 
   makePurchase(Package packageToBuy) async {
@@ -103,19 +97,14 @@ class PaywallPageController extends _$PaywallPageController {
     GoogleProductChangeInfo? googleProductChangeInfo;
     if (Platform.isAndroid &&
         customerInfo.activeSubscriptions.isNotEmpty &&
-        packageToBuy.storeProduct.productCategory ==
-            ProductCategory.subscription) {
-      EntitlementInfo? activeEnt =
-          customerInfo.entitlements.active['supporter_subscription'];
+        packageToBuy.storeProduct.productCategory == ProductCategory.subscription) {
+      EntitlementInfo? activeEnt = customerInfo.entitlements.active['supporter_subscription'];
       if (activeEnt?.willRenew == true) {
-        googleProductChangeInfo =
-            GoogleProductChangeInfo(activeEnt!.productIdentifier);
+        googleProductChangeInfo = GoogleProductChangeInfo(activeEnt!.productIdentifier);
       }
     }
 
-    await ref
-        .read(paymentServiceProvider)
-        .purchasePackage(packageToBuy, googleProductChangeInfo);
+    await ref.read(paymentServiceProvider).purchasePackage(packageToBuy, googleProductChangeInfo);
     state = state.whenData((value) => value.copyWith(makingPurchase: false));
   }
 
@@ -126,15 +115,13 @@ class PaywallPageController extends _$PaywallPageController {
   }
 
   openManagement() async {
-    var managementUrl = ref
-        .read(customerInfoProvider.selectAs((data) => data.managementURL))
-        .valueOrNull;
+    var managementUrl =
+        ref.read(customerInfoProvider.selectAs((data) => data.managementURL)).valueOrNull;
     // logger.wtf(managementUrl);
     if (managementUrl == null) return;
 
     if (await canLaunchUrlString(managementUrl)) {
-      await launchUrlString(managementUrl,
-          mode: LaunchMode.externalApplication);
+      await launchUrlString(managementUrl, mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch $managementUrl';
     }
@@ -150,8 +137,7 @@ class PaywallPageController extends _$PaywallPageController {
     ref.read(dialogServiceProvider).show(DialogRequest(
         type: DialogType.info,
         title: 'pages.paywall.contact_dialog.title'.tr(),
-        body: 'pages.paywall.contact_dialog.body'
-            .tr(args: ['dev@mobileraker.com', 'Pad#3489'])));
+        body: 'pages.paywall.contact_dialog.body'.tr(args: ['dev@mobileraker.com', 'Pad#3489'])));
   }
 }
 
