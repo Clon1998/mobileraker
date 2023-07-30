@@ -33,18 +33,15 @@ class PaywallPageController extends _$PaywallPageController {
   }
 
   Future<PaywallPageState> _fetchPaywallState() async {
-    Offerings offerings =
-        await ref.watch(paymentServiceProvider).getOfferings();
+    Offerings offerings = await ref.watch(paymentServiceProvider).getOfferings();
     logger.wtf('Got offerings:${offerings.all.keys}');
     logger.wtf('Got offerings detailed:$offerings');
 
     Offering? activeOffering = offerings.current;
-    if (kDebugMode) activeOffering = offerings.getOffering('default_v2');
+    activeOffering = offerings.getOffering('default_v2');
     final offerMetadata = activeOffering?.metadata ?? {};
     final excludeFromPaywall =
-        (offerMetadata['exclude_package'] as String? ?? '')
-            .split(',')
-            .map((e) => e.trim());
+        (offerMetadata['exclude_package'] as String? ?? '').split(',').map((e) => e.trim());
 
     // final iapOffers = offerMetadata.
     final List<Package> packetsToOffer = activeOffering?.availablePackages
