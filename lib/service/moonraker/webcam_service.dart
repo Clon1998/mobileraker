@@ -7,7 +7,6 @@ import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/enums/webcam_service_type.dart';
 import 'package:mobileraker/data/repository/webcam_info_repository.dart';
 import 'package:mobileraker/data/repository/webcam_info_repository_impl.dart';
 import 'package:mobileraker/exceptions.dart';
@@ -20,12 +19,6 @@ import '../../data/model/moonraker_db/webcam_info.dart';
 
 part 'webcam_service.g.dart';
 
-const List<WebcamServiceType> supportedCamTypes = [
-  WebcamServiceType.mjpegStreamer,
-  WebcamServiceType.mjpegStreamerAdaptive,
-  WebcamServiceType.uv4lMjpeg,
-  WebcamServiceType.webRtc,
-];
 
 @riverpod
 WebcamService webcamService(WebcamServiceRef ref, String machineUUID) {
@@ -41,10 +34,10 @@ Future<List<WebcamInfo>> allWebcamInfos(
 }
 
 @riverpod
-Future<List<WebcamInfo>> filteredWebcamInfos(
-    FilteredWebcamInfosRef ref, String machineUUID) async {
+Future<List<WebcamInfo>> allSupportedWebcamInfos(
+    AllSupportedWebcamInfosRef ref, String machineUUID) async {
   return (await ref.watch(allWebcamInfosProvider(machineUUID).future))
-      .where((element) => supportedCamTypes.contains(element.service))
+      .where((element) => element.service.supported)
       .toList(growable: false);
 }
 

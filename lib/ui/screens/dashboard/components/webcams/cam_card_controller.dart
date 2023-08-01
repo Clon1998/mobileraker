@@ -50,18 +50,12 @@ class CamCardController extends _$CamCardController {
     ref.onDispose(() => timer?.cancel);
 
     Machine machine = (await ref.watch(selectedMachineProvider.future))!;
-    var filteredCams =
-        await ref.watch(filteredWebcamInfosProvider(machine.uuid).future);
+    var filteredCams = await ref.watch(allSupportedWebcamInfosProvider(machine.uuid).future);
 
     WebcamInfo? activeCam;
     if (filteredCams.isNotEmpty) {
-      var selIndex = min(
-          filteredCams.length - 1,
-          max(
-              0,
-              ref
-                  .read(settingServiceProvider)
-                  .readInt(UtilityKeys.webcamIndex, 0)));
+      var selIndex = min(filteredCams.length - 1,
+          max(0, ref.read(settingServiceProvider).readInt(UtilityKeys.webcamIndex, 0)));
       activeCam = await ref.watch(
           webcamInfoProvider(machine.uuid, filteredCams[selIndex].uuid).future);
     }

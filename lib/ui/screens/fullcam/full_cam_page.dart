@@ -154,8 +154,7 @@ class _CamSelector extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(fullCamMachineProvider);
 
-    var webcams =
-        ref.watch(filteredWebcamInfosProvider(machine.uuid)).valueOrNull ?? [];
+    var webcams = ref.watch(allSupportedWebcamInfosProvider(machine.uuid)).valueOrNull ?? [];
 
     if (webcams.length <= 1) return const SizedBox.shrink();
 
@@ -163,8 +162,7 @@ class _CamSelector extends ConsumerWidget {
       alignment: Alignment.bottomCenter,
       child: DropdownButton<WebcamInfo>(
           value: ref.watch(fullCamPageControllerProvider),
-          onChanged:
-              ref.watch(fullCamPageControllerProvider.notifier).selectCam,
+          onChanged: ref.watch(fullCamPageControllerProvider.notifier).selectCam,
           items: webcams
               .map((c) => DropdownMenuItem(
                     value: c,
