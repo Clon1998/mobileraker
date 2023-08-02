@@ -1,5 +1,6 @@
 {
   "general": {
+    "pause": "Szünet",
     "resume": "Folytatás",
     "connected": "Csatlakozva",
     "off": "Ki",
@@ -9,15 +10,33 @@
     "create": "Létrehozás",
     "rename": "Átnevezés",
     "remove": "Törlés",
-    "set": "Set",
+    "set": "Készlet",
     "use": "Használ",
     "restart": "Újraindítás",
     "shutdown": "Leállítás",
     "firmware": "Firmware",
     "fetching": "Vonza",
+    "loading": "Betöltés",
     "unknown": "Ismeretlen",
-    "disabled": "Disabled",
-    "confirm": "Confirm"
+    "disabled": "Tiltva",
+    "confirm": "Megerősít",
+    "cancel": "Mégse",
+    "close": "Bezár",
+    "edit": "Szerkeszt",
+    "preview": "Előnézet",
+    "retry": "Újra",
+    "supported": "Támogatott",
+    "unsupported": "Nem támogatott",
+    "details": "Részletek",
+    "google_play": "GooglePlay",
+    "ios_store": "AppStore",
+    "active": "Aktív",
+    "canceled": "Törölve",
+    "monthly": "Havi",
+    "restore": "Visszaállítás",
+    "accept": "Elfogad",
+    "abort": "Elvet",
+    "offset": "Offset"
   },
   "pages": {
     "dashboard": {
@@ -27,7 +46,7 @@
         "unavailable": "Nincs elérhető szerver",
         "available": "A szerver állapota {} és Klippy {}"
       },
-      "fetching_printer": "@:general.fetching printer...",
+      "fetching_printer": "@:general.fetching nyomtató...",
       "general": {
         "print_card": {
           "reset": "Visszaállítás",
@@ -39,8 +58,8 @@
           "elapsed": "Eltelt",
           "flow": "Áramlás",
           "filament": "Nyomtatószál",
-          "filament_tooltip": "A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből."
-
+          "filament_tooltip": "A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből.",
+          "eta_tooltip": "Hátralévő idő: {} "
         },
         "cam_card": {
           "webcam": "Webkamera",
@@ -77,7 +96,16 @@
           "stc_tooltip": "Csavar dőlésszámítás indítása",
           "stc_btn": "STC",
           "ztilt_tooltip": "Z-Tilt kalibráció indítása",
-          "ztilt_btn": "zTilt"
+          "ztilt_btn": "Z-Tilt",
+          "poff_tooltip": "Futtasd a Szonda eltolás kalibrálást",
+          "poff_btn": "Szonda kalibrálása",
+          "zoff_tooltip": "Futtasd a Z végpont eltolás kalibrálását",
+          "zoff_btn": "Z-Végpont kalibráció",
+          "bsa_tooltip": "Futtasd az ágycsavarok kalibrálását",
+          "bsa_btn": "Ágy csavarjainak beállítása",
+          "save_tooltip": "Mentse a kalibrálási eredményeket",
+          "save_btn": "Konfiguráció mentése",
+          "more_btn": "Több"
         },
         "baby_step_card": {
           "title": "Mikrolépés Z tengely"
@@ -140,6 +168,7 @@
       "name": "Név",
       "last_mod": "Utolsó módosítás",
       "last_printed": "Utoljára nyomtatott",
+      "not_printed": "Nincs nyomtatva",
       "fetching_files": "@:general.fetching Fájlok...",
       "no_files_found": "Nem található fájl!",
       "details": {
@@ -152,7 +181,7 @@
           "no_data": "Nincs adat"
         },
         "meta_card": {
-          "title": "Gcode Meta adatok",
+          "title": "G-kód Meta adatok",
           "filament": "Nyomtatószál",
           "filament_type": "Nyomtatószál típusa",
           "filament_name": "Nyomtatószál neve",
@@ -187,6 +216,7 @@
         "num_edit": "Számbevitelhez billentyűzet használata",
         "start_with_overview": "@:pages.overview.title mutatása alapesetben",
         "use_offset_pos": "Koordináták megjelenítése adott eltolás mellett.",
+        "lcFullCam": "Teljes képernyős webkamera fekvő helyzetben",
         "language": "Nyelv",
         "companion": "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani "
       },
@@ -194,10 +224,20 @@
         "title": "Értesítés",
         "progress_label": "Haladási értesítés",
         "progress_helper": "Frissítési időköz a nyomtatási folyamatról szóló értesítéshez",
+        "state_label": "Állami értesítés",
+        "state_helper": "Állapotváltozásról szóló értesítést kiadó államok",
         "no_permission_title": "Nincs értesítési engedély!",
         "no_permission_desc": "Az értesítések nem jeleníthetők meg.\nKérj engedélyt kattintással!",
+        "no_firebase_title": "Az értesítések nem jeleníthetők meg",
+        "no_firebase_desc": "A Mobileraker nem tud értesítést küldeni az eszközre.\nÚgy tűnik, hogy eszközödről hiányoznak a Google Play-szolgáltatások, vagy blokkolja a Firebase-kapcsolatot!",
         "ios_notifications_title": "IOS értesítések kézbesítése",
-        "ios_notifications_desc": "Az értesítésekhez a Mobilerakert legalább egyszer meg kell nyitni, és a háttérben kell futnia.\nElőfordulhat, hogy néhány értesítést még mindig letiltott az operációs rendszer!"
+        "ios_notifications_desc": "Az értesítésekhez a Mobilerakert legalább egyszer meg kell nyitni, és a háttérben kell futnia.\nElőfordulhat, hogy néhány értesítést még mindig letiltott az operációs rendszer!",
+        "missing_companion_title": "Társ nem található!",
+        "missing_companion_body": "Úgy tűnik, hogy a társ nincs telepítve, ezért a következő gépek nem tudnak értesítést küldeni: {}\nKoppints további információért!"
+      },
+      "developer": {
+        "title": "Fejlesztő",
+        "crashlytics": "Crashlytics jelentések engedélyezése"
       },
       "imprint": "Adatvédelem/Impresszum"
     },
@@ -209,14 +249,18 @@
       "fetching_additional_settings": "@:general.fetching további beállítások a hálózatról...",
       "could_not_fetch_additional": "Nem tudtam lekérni a további beállításokat!",
       "fetch_error_hint": "Győződj meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.",
+      "store_error": {
+        "title": "Sikertelen mentés!",
+        "message": "Egyes mezők érvénytelen értékeket tartalmaznak!\nKérjük, győződj meg róla, hogy minden mező érvényes."
+      },
       "general": {
         "displayname": "Megjelenítendő név",
-        "printer_addr": "Nyomtató - Címe",
-        "ws_addr": "Webhely - Cím",
-        "moonraker_api_key": "Moonraker - API kulcs",
-        "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfeleid vannak. A FluiddPI ezt kikényszeríti!",
+        "printer_addr": "Nyomtató - Cím",
+        "ws_addr": "Websocket – Cím",
+        "moonraker_api_key": "Moonraker - API Kulcs",
+        "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfeleket használsz. A FluiddPI ezt kényszeríti ki!",
         "full_url": "Teljes URL",
-        "self_signed": "Bízz az Ön-aláírt tanúsítványokban"
+        "self_signed": "Bízz az önaláírt tanúsítványokban"
       },
       "motion_system": {
         "title": "Mozgásrendszer",
@@ -246,11 +290,13 @@
         "target_fps": "Cél FPS",
         "new_cam": "Új webkamera",
         "no_webcams": "Nincs webkamera hozzáadva!",
-        "webcam_addr": "Webkamera - Cím",
-        "default_addr": "Alapértelmezett cím",
+        "stream_url": "Sugárzási URL",
+        "snapshot_url": "Pillanatkép URL",
+        "default_url": "Alapértelmezett URL",
         "flip_vertical": "Függőleges fordítás",
-        "flip_horizontal": "Vízszintes fordítás",
-        "cam_mode": "Kamera mód"
+        "flip_horizontal": "Vízszintesen fordít",
+        "cam_mode": "Kamera mód",
+        "cam_rotate": "Forgatás"
       },
       "macros": {
         "new_macro_grp": "Új makró - Csoport",
@@ -291,6 +337,39 @@
       "fetching_machines": "@:general.fetching gépek...",
       "no_entries": "Nem találtam gépeket",
       "add_machine": "Gép hozzáadása"
+    },
+    "markdown": {
+      "loading": "@:general.loading {}...",
+      "error": "Hiba történt a lekérés során {};",
+      "open_in_browser": "Megnyitás @:pages.faq.title a böngészőben"
+    },
+    "faq": {
+      "title": "GYIK"
+    },
+    "changelog": {
+      "title": "Változási napló"
+    },
+    "paywall": {
+      "title": "Támogatási oldal!",
+      "calling_store": "Kérés feldolgozása...",
+      "manage_view": {
+        "title": "Köszönet a támogatásodért!",
+        "list_title": "Támogatói szint módosítása:",
+        "store_btn": "Előfizetés lemondása itt {}"
+      },
+      "subscribe_view": {
+        "title": "Legyél Mobileraker támogató!",
+        "info": "A Mobileraker célja, hogy gyors és megbízható mobil felhasználói felületet adjon a Klipper számára, amelyet a RepRap szellemisége vezérel, és a nyílt forráskódú szoftverek és hardverek pozitív hatást gyakorolhatnak.\nMivel a Mobileraker-t egyetlen fejlesztő fejleszti és ingyenesen kínálja, közösségi finanszírozásra támaszkodik mind a működési, mind a fejlesztési költségek fedezésére.",
+        "list_title": "Válassz támogatói szintet:"
+      },
+      "supporter_tier_list": {
+        "error_title": "Hiba a támogatói szintek betöltésekor!",
+        "error_body": "Sajnálom, váratlan hiba történt. Nem sikerült betölteni a támogatói szintet. Kérlek, próbáld újra később!"
+      },
+      "contact_dialog": {
+        "title": "Fejlesztői kapcsolattartó",
+        "body": "Email: {}\nDiscord: {}"
+      }
     }
   },
   "components": {
@@ -306,7 +385,16 @@
     "connection_watcher": {
       "reconnect": "Újracsatlakoztatás",
       "trying_connect": "Próbálok csatlakozni...",
-      "server_starting": "Szerver elindul..."
+      "trying_connect_remote": "Távoli kliensel próbál csatlakozni...",
+      "server_starting": "Szerver elindul...",
+      "more_details": "További részletek"
+    },
+    "octo_indicator": {
+      "tooltip": "Az OctoEveryWhere használata!"
+    },
+    "supporter_add": {
+      "title": "Tetszik a Mobileraker?",
+      "subtitle": "Koppints rám! Tanuld meg, hogyan támogathatod a fejlesztést!"
     }
   },
   "dialogs": {
@@ -350,6 +438,49 @@
     "ws_input_help": {
       "title": "URL beviteli súgó",
       "body": "Megadhatsz egy IP-címet, URL-t vagy teljes URI-t a webes felületen, vagy közvetlenül a moonraker által biztosított websocket példányban.\n\nÉrvényes példák:"
+    },
+    "gcode_params": {
+      "hint": "Tipp: Ha a makrót alapértelmezett értékekkel szeretnéd elküldeni, akkor hosszan nyomd!"
+    },
+    "rgbw": {
+      "recent_colors": "Legutóbbi színek"
+    },
+    "select_machine": {
+      "title": "Válassz gépet",
+      "active_machine": "Aktív gép: {}",
+      "hint": "Érintsd meg a gépet az aktívként való beállításhoz."
+    },
+    "supporter_perks": {
+      "title": "Támogatói jutalmak",
+      "body": "A Mobileraker támogatásával biztosítod, hogy az alkalmazás ingyenes maradjon mindenkinek. Ezenkívül a támogatók az alábbi jutalmakat is megkapják.",
+      "hint": "Tipp: Jelenleg a jutalmak eszközalapúak. Ez változhat a jövőben.",
+      "theme_perk": {
+        "title": "Támogatói téma",
+        "subtitle": "Exkluzív téma a Material 3 használatával"
+      },
+      "contact_perk": {
+        "title": "Fejlesztői kapcsolattartás",
+        "subtitle": "Könnyű kapcsolatfelvétel a fejlesztővel!"
+      },
+      "notification_perk": {
+        "title": "Pillanatkép értesítések",
+        "subtitle": "Az állapotértesítések közé tartozik a Webcam pillanatkép"
+      }
+    },
+    "bed_screw_adjust": {
+      "title": "Ágycsavar beállítása",
+      "xy_plane": "Nyomtató X/Y sík:",
+      "active_screw_title": "Aktív csavar:",
+      "accept_screw_title": "Elfogadott csavarok:",
+      "accept_screw_value": "{} vagy {}",
+      "hint": "Kattints a Beállított gombra, ha az aktuális csavaron jelentős módosításra van szükség; ellenkező esetben kattints az Elfogadás gombra a folytatáshoz.",
+      "adjusted_btn": "Beállított"
+    },
+    "manual_offset": {
+      "title": "@:general.offset Kalibráció",
+      "hint_tooltip": "Klipper papírteszt dokumentációja",
+      "snackbar_title": "Kalibráció kész",
+      "snackbar_message": "Ügyelj rá, hogy az eltolás megmaradjon a Konfiguráció mentése művelettel."
     }
   },
   "klipper_state": {
@@ -357,7 +488,8 @@
     "shutdown": "Leállítás",
     "starting": "Indítás",
     "disconnected": "Szétkapcsolt",
-    "error": "Hiba"
+    "error": "Hiba",
+    "unauthorized": "Jogosulatlan"
   },
   "notifications": {
     "channel_printer_grp": "Nyomtató {}",
