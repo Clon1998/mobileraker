@@ -69,6 +69,7 @@ class _HttpHeaderDialog extends HookConsumerWidget {
                       hintText: tr('dialogs.http_header.header_hint'),
                     ),
                     controller: headerController,
+                    enableSuggestions: false,
                   ),
                   TextField(
                     decoration: InputDecoration(
@@ -78,6 +79,7 @@ class _HttpHeaderDialog extends HookConsumerWidget {
                     minLines: 1,
                     maxLines: 10,
                     controller: valueController,
+                    enableSuggestions: false,
                   ),
                 ],
               ),

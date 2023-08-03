@@ -212,6 +212,7 @@ class JsonRpcClient {
       // }
 
       HttpClient httpClient = _constructHttpClient();
+      logger.i('Using headers $headers');
       WebSocket socket = await WebSocket.connect(
         uri.toString(),
         headers: headers,

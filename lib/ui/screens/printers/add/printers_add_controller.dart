@@ -24,8 +24,8 @@ import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
+import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/uri_extension.dart';
@@ -225,12 +225,14 @@ class AdvancedFormController extends _$AdvancedFormController {
     var wsInput =
         (_wsField.transformedValue?.isEmpty ?? true) ? httpInput : _wsField.transformedValue;
 
+    var headers = ref.read(headersControllerProvider(state.headers));
+
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
           name: _displayNameField.transformedValue,
           httpUri: buildMoonrakerHttpUri(httpInput)!,
           wsUri: buildMoonrakerWebSocketUri(wsInput, false)!,
           apiKey: _apiKeyField.transformedValue,
-          httpHeaders: state.headers,
+          httpHeaders: headers,
         ));
   }
 
@@ -239,42 +241,6 @@ class AdvancedFormController extends _$AdvancedFormController {
         wsUriFromHttpUri: (httpInput == null || httpInput.isEmpty)
             ? null
             : buildMoonrakerWebSocketUri(httpInput));
-  }
-
-  Future<void> addHttpHeader() async {
-    var dialogResponse =
-        await ref.read(dialogServiceProvider).show(DialogRequest(type: DialogType.httpHeader));
-
-    if (dialogResponse?.confirmed == true) {
-      var data = dialogResponse!.data as MapEntry<String, String>;
-      logger.i('Got httpHeader response from dialog: $data');
-      if (data.key.isNotEmpty) {
-        state = state.copyWith(headers: {...state.headers, data.key: data.value});
-      }
-    }
-  }
-
-  Future<void> editHttpHeader(String header, String value) async {
-    var dialogResponse = await ref.read(dialogServiceProvider).show(DialogRequest(
-          type: DialogType.httpHeader,
-          title: header,
-          body: value,
-        ));
-
-    if (dialogResponse?.confirmed == true) {
-      var data = dialogResponse!.data as MapEntry<String, String>;
-      logger.i('Got httpHeader response from dialog: $data');
-      if (data.key != header) deleteHttpHeader(header);
-      if (data.key.isNotEmpty) {
-        state = state.copyWith(headers: {...state.headers, data.key: data.value});
-      }
-    }
-  }
-
-  deleteHttpHeader(String header) {
-    var current = Map.of(state.headers);
-    current.remove(header);
-    state = state.copyWith(headers: Map.unmodifiable(current));
   }
 }
 

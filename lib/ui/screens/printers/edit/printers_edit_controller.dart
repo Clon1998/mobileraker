@@ -27,6 +27,7 @@ import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
+import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
@@ -208,6 +209,7 @@ class PrinterEditController extends _$PrinterEditController {
       _machine.wsUri = wsUri;
     }
     _machine.trustUntrustedCertificate = storedValues['trustSelfSigned'];
+    _machine.httpHeaders = ref.read(headersControllerProvider(_machine.httpHeaders));
     await ref.read(machineServiceProvider).updateMachine(_machine);
   }
 

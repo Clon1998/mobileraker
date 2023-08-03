@@ -25,6 +25,8 @@ import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/supporter_only_feature.dart';
+import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
+import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -115,7 +117,7 @@ class PrinterSettingScrollView extends ConsumerWidget {
           padding: const EdgeInsets.all(10.0),
           child: Column(
             children: <Widget>[
-              _SectionHeader(title: 'pages.setting.general.title'.tr()),
+              SectionHeader(title: 'pages.setting.general.title'.tr()),
               FormBuilderTextField(
                 enableInteractiveSelection: true,
                 keyboardType: TextInputType.text,
@@ -124,8 +126,7 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 ),
                 name: 'printerName',
                 initialValue: machine.name,
-                validator: FormBuilderValidators.compose(
-                    [FormBuilderValidators.required()]),
+                validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),
               FormBuilderTextField(
@@ -182,17 +183,19 @@ class PrinterSettingScrollView extends ConsumerWidget {
               ),
               FormBuilderCheckbox(
                 name: 'trustSelfSigned',
-                title:
-                    const Text('pages.printer_edit.general.self_signed').tr(),
+                title: const Text('pages.printer_edit.general.self_signed').tr(),
                 controlAffinity: ListTileControlAffinity.trailing,
                 initialValue: machine.trustUntrustedCertificate,
               ),
+              HttpHeaders(
+                initialValue: machine.httpHeaders,
+              ),
+              const Divider(),
               if (machine.octoEverywhere == null)
                 OctoEveryWhereBtn(
                   title: 'Connect OctoEverywhere',
-                  onPressed: ref
-                      .read(printerEditControllerProvider.notifier)
-                      .linkWithOctoeverywhere,
+                  onPressed:
+                      ref.read(printerEditControllerProvider.notifier).linkWithOctoeverywhere,
                 ),
               if (machine.octoEverywhere != null)
                 OctoEveryWhereBtn(
@@ -410,27 +413,6 @@ class _WebCamItem extends HookConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-
-  const _SectionHeader({Key? key, required this.title}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        title.toUpperCase(),
-        style: TextStyle(
-          color: Theme.of(context).colorScheme.secondary,
-          fontSize: 12.0,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
-}
-
 class _SectionHeaderWithAction extends StatelessWidget {
   final String title;
   final Widget action;
@@ -445,17 +427,7 @@ class _SectionHeaderWithAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title.toUpperCase(),
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.secondary,
-            fontSize: 12.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        action
-      ],
+      children: [SectionHeader(title: title), action],
     );
   }
 }
@@ -486,8 +458,7 @@ class RemoteSettings extends ConsumerWidget {
                     )),
                 const WebcamList(),
                 const Divider(),
-                _SectionHeader(
-                    title: 'pages.printer_edit.motion_system.title'.tr()),
+                SectionHeader(title: 'pages.printer_edit.motion_system.title'.tr()),
                 FormBuilderSwitch(
                   name: 'invertX',
                   initialValue: machineSettings.inverts[0],
@@ -552,8 +523,7 @@ class RemoteSettings extends ConsumerWidget {
                 const MoveStepSegmentInput(),
                 const BabyStepSegmentInput(),
                 const Divider(),
-                _SectionHeader(
-                    title: 'pages.printer_edit.extruders.title'.tr()),
+                SectionHeader(title: 'pages.printer_edit.extruders.title'.tr()),
                 FormBuilderTextField(
                   name: 'extrudeSpeed',
                   initialValue: machineSettings.extrudeFeedrate.toString(),
@@ -861,7 +831,7 @@ class _MacroGroup extends HookConsumerWidget {
           const SizedBox(
             height: 8,
           ),
-          const _SectionHeader(title: 'Macros'),
+          const SectionHeader(title: 'Macros'),
           if (macros.isEmpty)
             const Padding(
               padding: EdgeInsets.all(8.0),

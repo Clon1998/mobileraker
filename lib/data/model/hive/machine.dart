@@ -16,6 +16,8 @@ import 'temperature_preset.dart';
 
 part 'machine_adapter.dart';
 
+// part 'machine.g.dart';
+
 @HiveType(typeId: 1)
 class Machine extends HiveObject {
   @HiveField(0)

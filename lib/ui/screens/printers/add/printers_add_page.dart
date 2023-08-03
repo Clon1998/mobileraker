@@ -17,6 +17,8 @@ import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/components/supporter_only_feature.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_controller.dart';
+import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
+import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
@@ -253,7 +255,7 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
               'pages.printer_add.simple_form.hint_body',
               textAlign: TextAlign.justify,
             ).tr()),
-        _SectionHeader(title: tr('pages.setting.general.title')),
+        SectionHeader(title: tr('pages.setting.general.title')),
         FormBuilderTextField(
           keyboardType: TextInputType.text,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -353,7 +355,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             textAlign: TextAlign.justify,
           ).tr(),
         ),
-        _SectionHeader(title: tr('pages.setting.general.title')),
+        SectionHeader(title: tr('pages.setting.general.title')),
         FormBuilderTextField(
           keyboardType: TextInputType.text,
           autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -399,7 +401,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             MobilerakerFormBuilderValidator.disallowMdns(),
           ]),
         ),
-        _SectionHeader(
+        SectionHeader(
           title: tr('pages.printer_add.advanced_form.section_security'),
         ),
         Row(
@@ -421,25 +423,9 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
                     ))
           ],
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _SectionHeader(title: tr('pages.printer_add.advanced_form.section_headers')),
-            TextButton.icon(
-                onPressed: advancedFormController.addHttpHeader,
-                icon: const Icon(Icons.add_box_outlined),
-                label: const Text('general.add').tr())
-          ],
+        HttpHeaders(
+          initialValue: advancedFormState.headers,
         ),
-        if (advancedFormState.headers.isEmpty)
-          Center(child: const Text('pages.printer_add.advanced_form.empty_headers').tr()),
-        ...advancedFormState.headers.entries.map((e) => _HttpHeader(
-              header: e.key,
-              value: e.value,
-              onDelete: () => advancedFormController.deleteHttpHeader(e.key),
-              onTap: () => advancedFormController.editHttpHeader(e.key, e.value),
-            )),
       ],
     );
   }
@@ -457,7 +443,7 @@ class _TestConnectionStepScreen extends HookConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionHeader(title: tr('pages.printer_add.test_connection.section_connection')),
+        SectionHeader(title: tr('pages.printer_add.test_connection.section_connection')),
         InputDecorator(
           decoration: InputDecoration(
             labelText: tr('pages.printer_add.test_connection.http_url_label'),
@@ -472,7 +458,7 @@ class _TestConnectionStepScreen extends HookConsumerWidget {
           ),
           child: Text(model.wsUri?.toString() ?? 'MISSING?'),
         ),
-        _SectionHeader(title: tr('pages.printer_add.test_connection.section_test')),
+        SectionHeader(title: tr('pages.printer_add.test_connection.section_test')),
         InputDecorator(
           decoration: InputDecoration(
             labelText: tr('pages.printer_add.test_connection.http_label'),
@@ -594,27 +580,6 @@ class _ConfirmationStepScreen extends ConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    var themeData = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          title.toUpperCase(),
-          style: themeData.textTheme.labelMedium?.copyWith(color: themeData.colorScheme.secondary),
-        ),
-      ),
-    );
-  }
-}
-
 class _FlowControlButtons extends ConsumerWidget {
   const _FlowControlButtons({
     Key? key,
@@ -649,52 +614,3 @@ class _FlowControlButtons extends ConsumerWidget {
   }
 }
 
-class _HttpHeader extends StatelessWidget {
-  const _HttpHeader({
-    Key? key,
-    required this.header,
-    required this.value,
-    this.onTap,
-    this.onDelete,
-  }) : super(key: key);
-
-  final String header;
-  final String value;
-  final VoidCallback? onDelete;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    var themeData = Theme.of(context);
-    return InkWell(
-      onTap: onTap,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Flexible(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  header,
-                  style: themeData.listTileTheme.titleTextStyle,
-                ),
-                Text(
-                  value.isEmpty ? '<EMPTY_VALUE>' : value,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: themeData.textTheme.bodySmall?.copyWith(fontSize: 13),
-                )
-              ],
-            ),
-          ),
-          IconButton(
-            onPressed: onDelete,
-            icon: const Icon(Icons.delete_forever),
-          )
-        ],
-      ),
-    );
-  }
-}

@@ -27,7 +27,7 @@ import 'logger.dart';
 
 Future<void> main() async {
   setupLogger();
-
+  // TODO: REWRITE THIS TO A WARM_UP_WIDGET (https://www.youtube.com/watch?v=LEk6AWroib8)
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
   WidgetsFlutterBinding.ensureInitialized();
   await setupBoxes();

@@ -43,14 +43,11 @@ class MachineAdapter extends TypeAdapter<Machine> {
       wsUri: wsUri,
       httpUri: httpUri,
       apiKey: fields[4] as String?,
-      temperaturePresets: fields[5] == null
-          ? []
-          : (fields[5] as List).cast<TemperaturePreset>(),
-      trustUntrustedCertificate:
-          fields[19] == null ? false : fields[19] as bool,
+      temperaturePresets: fields[5] == null ? [] : (fields[5] as List).cast<TemperaturePreset>(),
+      trustUntrustedCertificate: fields[19] == null ? false : fields[19] as bool,
       octoEverywhere: fields[20] as OctoEverywhere?,
-      camOrdering:
-          fields[21] == null ? [] : (fields[21] as List).cast<String>(),
+      camOrdering: fields[21] == null ? [] : (fields[21] as List).cast<String>(),
+      httpHeaders: fields[22] == null ? {} : (fields[22] as Map).cast<String, String>(),
     )
       ..uuid = fields[2] as String
       ..lastPrintProgress = fields[14] == null ? 0 : fields[14] as double?
@@ -62,8 +59,7 @@ class MachineAdapter extends TypeAdapter<Machine> {
   @override
   void write(BinaryWriter writer, Machine obj) {
     writer
-      ..writeByte(13)
-      ..writeByte(0)
+      ..writeByte(13)..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.wsUri)
@@ -73,6 +69,8 @@ class MachineAdapter extends TypeAdapter<Machine> {
       ..write(obj.uuid)
       ..writeByte(4)
       ..write(obj.apiKey)
+      ..writeByte(22)
+      ..write(obj.httpHeaders)
       ..writeByte(5)
       ..write(obj.temperaturePresets)
       ..writeByte(14)
