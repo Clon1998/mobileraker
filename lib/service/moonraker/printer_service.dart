@@ -49,6 +49,7 @@ import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
+import 'package:mobileraker/util/extensions/string_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:stringr/stringr.dart';
 
@@ -487,22 +488,24 @@ class PrinterService {
 
   _parseObjectType(String key, Map<String, dynamic> json, PrinterBuilder printer) {
     // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-    List<String> split = key.split(' ');
-    String mainObjectType = split[0];
+    var klipperObjectIdentifier = key.toKlipperObjectIdentifier();
+    var objectType = klipperObjectIdentifier.$1;
+    var objectName = klipperObjectIdentifier.$2;
+
     try {
-      if (_subToPrinterObjects.containsKey(mainObjectType)) {
-        var method = _subToPrinterObjects[mainObjectType];
+      if (_subToPrinterObjects.containsKey(objectType)) {
+        var method = _subToPrinterObjects[objectType];
         if (method != null) {
-          if (split.length > 1) {
+          if (objectName != null) {
             method(key, json[key], printer: printer);
           } else {
             method(json[key], printer: printer);
           }
         }
-      } else if (mainObjectType.startsWith('extruder')) {
+      } else if (objectType.startsWith('extruder')) {
         // Note that extruder will be handled above!
         _updateExtruder(json[key],
-            printer: printer, num: int.tryParse(mainObjectType.substring(8)) ?? 0);
+            printer: printer, num: int.tryParse(objectType.substring(8)) ?? 0);
       }
     } catch (e, s) {
       logger.e('Error while parsing $key object', e, s);
@@ -719,8 +722,8 @@ class PrinterService {
     Map<String, List<String>?> queryObjects = {};
     for (String ele in queryableObjects) {
       // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
-      List<String> split = ele.split(' ');
-      String objTypeKey = split[0];
+      var klipperObjectIdentifier = ele.toKlipperObjectIdentifier();
+      String objTypeKey = klipperObjectIdentifier.$1;
 
       if (_subToPrinterObjects.keys.contains(objTypeKey)) {
         queryObjects[ele] = null;

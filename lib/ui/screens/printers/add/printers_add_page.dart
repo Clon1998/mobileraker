@@ -26,8 +26,8 @@ class PrinterAddPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // TabController tabController = useTabController(initialLength: 2);
-    var nonSupError = ref.watch(printerAddViewControllerProvider
-        .select((value) => value.nonSupporterError));
+    var nonSupError =
+        ref.watch(printerAddViewControllerProvider.select((value) => value.nonSupporterError));
     return Scaffold(
       appBar: AppBar(
         title: const Text('pages.printer_add.title').tr(),
@@ -37,8 +37,7 @@ class PrinterAddPage extends HookConsumerWidget {
           children: [
             const _AddPrinterStepperFlow(),
             const Divider(),
-            if (nonSupError != null)
-              Center(child: SupporterOnlyFeature(text: Text(nonSupError))),
+            if (nonSupError != null) Center(child: SupporterOnlyFeature(text: Text(nonSupError))),
             if (nonSupError == null) ...[
               const Expanded(
                 child: CustomScrollView(
@@ -90,11 +89,10 @@ class _StepperBody extends ConsumerWidget {
     );
   }
 
-  Widget stepperBody(int stepperIndex, bool isExpert) => switch (stepperIndex) {
+  Widget stepperBody(int stepperIndex, bool isExpert) =>
+      switch (stepperIndex) {
         0 => const _InputModeStepScreen(),
-        1 => (isExpert)
-            ? const _AdvancedInputStepScreen()
-            : const _SimpleUrlInputStepScreen(),
+        1 => (isExpert) ? const _AdvancedInputStepScreen() : const _SimpleUrlInputStepScreen(),
         2 => const _TestConnectionStepScreen(),
         3 => const _ConfirmationStepScreen(),
         _ => Text('No step widget found for index $stepperIndex')
@@ -150,8 +148,7 @@ class _AddPrinterStepperFlow extends HookConsumerWidget {
             title: tr('pages.printer_add.steps.mode'),
             icon: const Icon(Icons.add_moderator_outlined)),
         EasyStep(
-            title: tr('pages.printer_add.steps.input'),
-            icon: const Icon(Icons.settings_outlined)),
+            title: tr('pages.printer_add.steps.input'), icon: const Icon(Icons.settings_outlined)),
         EasyStep(
             title: tr('pages.printer_add.steps.test'),
             icon: const Icon(Icons.settings_input_antenna_outlined),
@@ -214,8 +211,7 @@ class _InputModeStepScreen extends ConsumerWidget {
             FilledButton.icon(
                 onPressed: () => controller.selectMode(true),
                 icon: const Icon(Icons.engineering_outlined),
-                label:
-                    const Text('pages.printer_add.select_mode.advanced').tr()),
+                label: const Text('pages.printer_add.select_mode.advanced').tr()),
           ],
         ),
         Align(
@@ -227,8 +223,7 @@ class _InputModeStepScreen extends ConsumerWidget {
                 width: 24,
                 image: AssetImage('assets/images/octo_everywhere.png'),
               ),
-              label:
-                  const Text('pages.printer_add.select_mode.add_via_oe').tr()),
+              label: const Text('pages.printer_add.select_mode.add_via_oe').tr()),
         ),
         // OctoEveryWhereBtn(
         //     title: 'Add using OctoEverywhere', onPressed: () => null),
@@ -267,8 +262,7 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
           ),
           name: 'simple.name',
           initialValue: tr('pages.printer_add.initial_name'),
-          validator:
-              FormBuilderValidators.compose([FormBuilderValidators.required()]),
+          validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
         ),
         FormBuilderTextField(
           keyboardType: TextInputType.url,
@@ -298,10 +292,8 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
               child: FormBuilderTextField(
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                    labelText:
-                        'pages.printer_edit.general.moonraker_api_key'.tr(),
-                    helperText:
-                        'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                    labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
+                    helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
                     helperMaxLines: 3),
                 name: 'simple.apikey',
               ),
@@ -325,8 +317,7 @@ class _UrlInputStepFooter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isExpert = ref.watch(
-        printerAddViewControllerProvider.select((value) => value.isExpert));
+    var isExpert = ref.watch(printerAddViewControllerProvider.select((value) => value.isExpert));
 
     var proceed = isExpert
         ? ref.watch(advancedFormControllerProvider.notifier).proceed
@@ -348,9 +339,10 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var advancedFormState = ref.watch(advancedFormControllerProvider);
-    var advancedFormController =
-        ref.watch(advancedFormControllerProvider.notifier);
+    var advancedFormController = ref.watch(advancedFormControllerProvider.notifier);
+
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InfoCard(
@@ -370,8 +362,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
           ),
           name: 'advanced.name',
           initialValue: tr('pages.printer_add.initial_name'),
-          validator:
-              FormBuilderValidators.compose([FormBuilderValidators.required()]),
+          validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
         ),
         FormBuilderTextField(
           decoration: InputDecoration(
@@ -384,34 +375,27 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
           // initialValue: advancedFormState.httpUri?.toString(),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
-            FormBuilderValidators.url(
-                requireTld: false,
-                requireProtocol: false,
-                protocols: [
-                  'http',
-                  'https',
-                ]),
+            FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: [
+              'http',
+              'https',
+            ]),
             MobilerakerFormBuilderValidator.disallowMdns(),
           ]),
         ),
         FormBuilderTextField(
           decoration: InputDecoration(
             labelText: 'pages.printer_edit.general.ws_addr'.tr(),
-            hintText: advancedFormState.wsUriFromHttpUri?.toString() ??
-                'E.g.: 192.1.1.1/websocket',
+            hintText: advancedFormState.wsUriFromHttpUri?.toString() ?? 'E.g.: 192.1.1.1/websocket',
             helperText: tr('pages.printer_add.advanced_form.ws_helper'),
           ),
           name: 'advanced.ws',
           autovalidateMode: AutovalidateMode.onUserInteraction,
           // initialValue: advancedFormState.wsUri?.toString(),
           validator: FormBuilderValidators.compose([
-            FormBuilderValidators.url(
-                requireTld: false,
-                requireProtocol: false,
-                protocols: [
-                  'ws',
-                  'wss',
-                ]),
+            FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: [
+              'ws',
+              'wss',
+            ]),
             MobilerakerFormBuilderValidator.disallowMdns(),
           ]),
         ),
@@ -424,10 +408,8 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
               child: FormBuilderTextField(
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                    labelText:
-                        'pages.printer_edit.general.moonraker_api_key'.tr(),
-                    helperText:
-                        'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                    labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
+                    helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
                     helperMaxLines: 3),
                 name: 'advanced.apikey',
               ),
@@ -439,19 +421,25 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
                     ))
           ],
         ),
-        // Row(
-        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //   crossAxisAlignment: CrossAxisAlignment.center,
-        //   children: [
-        //     _SectionHeader(
-        //         title: tr('pages.printer_add.advanced_form.section_headers')),
-        //     TextButton.icon(
-        //         onPressed: () => null,
-        //         icon: const Icon(Icons.add_box_outlined),
-        //         label: const Text('general.add').tr())
-        //   ],
-        // ),
-        // Center(child: const Text('general.none').tr()),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _SectionHeader(title: tr('pages.printer_add.advanced_form.section_headers')),
+            TextButton.icon(
+                onPressed: advancedFormController.addHttpHeader,
+                icon: const Icon(Icons.add_box_outlined),
+                label: const Text('general.add').tr())
+          ],
+        ),
+        if (advancedFormState.headers.isEmpty)
+          Center(child: const Text('pages.printer_add.advanced_form.empty_headers').tr()),
+        ...advancedFormState.headers.entries.map((e) => _HttpHeader(
+              header: e.key,
+              value: e.value,
+              onDelete: () => advancedFormController.deleteHttpHeader(e.key),
+              onTap: () => advancedFormController.editHttpHeader(e.key, e.value),
+            )),
       ],
     );
   }
@@ -469,8 +457,7 @@ class _TestConnectionStepScreen extends HookConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _SectionHeader(
-            title: tr('pages.printer_add.test_connection.section_connection')),
+        _SectionHeader(title: tr('pages.printer_add.test_connection.section_connection')),
         InputDecorator(
           decoration: InputDecoration(
             labelText: tr('pages.printer_add.test_connection.http_url_label'),
@@ -485,8 +472,7 @@ class _TestConnectionStepScreen extends HookConsumerWidget {
           ),
           child: Text(model.wsUri?.toString() ?? 'MISSING?'),
         ),
-        _SectionHeader(
-            title: tr('pages.printer_add.test_connection.section_test')),
+        _SectionHeader(title: tr('pages.printer_add.test_connection.section_test')),
         InputDecorator(
           decoration: InputDecoration(
             labelText: tr('pages.printer_add.test_connection.http_label'),
@@ -547,8 +533,7 @@ class _TestConnectionStepFooter extends ConsumerWidget {
         _FlowControlButtons(
           proceed: model.hasResults ? controller.proceed : null,
           proceedIcon: (model.hasResults && !model.combinedResult)
-              ? const Text('pages.printer_add.test_connection.continue_anyway')
-                  .tr()
+              ? const Text('pages.printer_add.test_connection.continue_anyway').tr()
               : const Text('pages.printer_add.test_connection.continue').tr(),
           proceedLabel: const Icon(Icons.navigate_next),
           proceedStyle: (model.hasResults && !model.combinedResult)
@@ -602,8 +587,7 @@ class _ConfirmationStepScreen extends ConsumerWidget {
           FilledButton.tonalIcon(
               onPressed: controller.goToDashboard,
               icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
-              label:
-                  const Text('pages.printer_add.confirmed.to_dashboard').tr()),
+              label: const Text('pages.printer_add.confirmed.to_dashboard').tr()),
         ],
       ),
     );
@@ -624,8 +608,7 @@ class _SectionHeader extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: Text(
           title.toUpperCase(),
-          style: themeData.textTheme.labelMedium
-              ?.copyWith(color: themeData.colorScheme.secondary),
+          style: themeData.textTheme.labelMedium?.copyWith(color: themeData.colorScheme.secondary),
         ),
       ),
     );
@@ -652,9 +635,7 @@ class _FlowControlButtons extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         FilledButton.tonalIcon(
-            onPressed: ref
-                .watch(printerAddViewControllerProvider.notifier)
-                .previousStep,
+            onPressed: ref.watch(printerAddViewControllerProvider.notifier).previousStep,
             icon: const Icon(Icons.navigate_before),
             label: Text(MaterialLocalizations.of(context).backButtonTooltip)),
         FilledButton.tonalIcon(
@@ -664,6 +645,56 @@ class _FlowControlButtons extends ConsumerWidget {
           label: proceedLabel,
         )
       ],
+    );
+  }
+}
+
+class _HttpHeader extends StatelessWidget {
+  const _HttpHeader({
+    Key? key,
+    required this.header,
+    required this.value,
+    this.onTap,
+    this.onDelete,
+  }) : super(key: key);
+
+  final String header;
+  final String value;
+  final VoidCallback? onDelete;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    var themeData = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  header,
+                  style: themeData.listTileTheme.titleTextStyle,
+                ),
+                Text(
+                  value.isEmpty ? '<EMPTY_VALUE>' : value,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: themeData.textTheme.bodySmall?.copyWith(fontSize: 13),
+                )
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: onDelete,
+            icon: const Icon(Icons.delete_forever),
+          )
+        ],
+      ),
     );
   }
 }

@@ -366,7 +366,8 @@
         "http_helper": "Please enter the HTTP endpoint of Moonraker",
         "ws_helper": "Optional, WebSocket endpoint of Moonraker",
         "section_security": "Security",
-        "section_headers": "HTTP-Headers"
+        "section_headers": "HTTP-Headers",
+        "empty_headers": "No Headers added!"
       },
       "test_connection": {
         "section_connection": "Connection Data",
@@ -568,6 +569,13 @@
       "body": "This tip is solely meant to appreciate the developer's efforts and DOES NOT grant access to any additional features.",
       "amount_label": "Tip amount",
       "tip": "Tip"
+    },
+    "http_header": {
+      "title": "Http-Header",
+      "header": "Header",
+      "header_hint": "The HTTP-Header nam",
+      "value": "Header-Value",
+      "value_hint": "The value of the header"
     }
   },
   "klipper_state": {

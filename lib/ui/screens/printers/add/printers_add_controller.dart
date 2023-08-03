@@ -24,6 +24,7 @@ import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/octoeverywhere/app_connection_service.dart';
 import 'package:mobileraker/service/payment_service.dart';
+import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
@@ -44,16 +45,12 @@ class PrinterAddViewController extends _$PrinterAddViewController {
   @override
   PrinterAddState build() {
     var isSupporter = ref.watch(isSupporterProvider);
-    var maxNonSupporterMachines =
-        ref.watch(remoteConfigProvider).maxNonSupporterMachines;
+    var maxNonSupporterMachines = ref.watch(remoteConfigProvider).maxNonSupporterMachines;
     if (!isSupporter && maxNonSupporterMachines > 0) {
-      ref
-          .watch(allMachinesProvider.selectAsync((data) => data.length))
-          .then((value) {
+      ref.watch(allMachinesProvider.selectAsync((data) => data.length)).then((value) {
         if (value >= maxNonSupporterMachines) {
           state = state.copyWith(
-              nonSupporterError: tr(
-                  'components.supporter_only_feature.printer_add',
+              nonSupporterError: tr('components.supporter_only_feature.printer_add',
                   args: [maxNonSupporterMachines.toString()]));
         }
       });
@@ -78,26 +75,23 @@ class PrinterAddViewController extends _$PrinterAddViewController {
     var appConnectionService = ref.read(appConnectionServiceProvider);
 
     try {
-      AppPortalResult appPortalResult =
-      await appConnectionService.linkAppWithOcto();
+      AppPortalResult appPortalResult = await appConnectionService.linkAppWithOcto();
 
       AppConnectionInfoResponse appConnectionInfo =
-      await appConnectionService.getInfo(appPortalResult.appApiToken);
+          await appConnectionService.getInfo(appPortalResult.appApiToken);
 
       var infoResult = appConnectionInfo.result;
       var localIp = infoResult.printerLocalIp;
       logger.i('OctoEverywhere returned Local IP: $localIp');
 
       if (localIp == null) {
-        throw const OctoEverywhereException(
-            'Could not retrieve Printer\'s local IP.');
+        throw const OctoEverywhereException('Could not retrieve Printer\'s local IP.');
       }
 
       var wsUrl = buildMoonrakerWebSocketUri(localIp);
       var httpUri = buildMoonrakerHttpUri(localIp);
       if (wsUrl == null || httpUri == null) {
-        throw const OctoEverywhereException(
-            'Could not retrieve Printer\'s local IP.');
+        throw const OctoEverywhereException('Could not retrieve Printer\'s local IP.');
       }
 
       var machine = Machine(
@@ -110,16 +104,13 @@ class PrinterAddViewController extends _$PrinterAddViewController {
     } on OctoEverywhereException catch (e, s) {
       logger.e('Error while trying to add printer via Ocot', e, s);
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: 'OctoEverywhere-Error:',
-          message: e.message));
+          type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
       state = state.copyWith(step: 0);
     }
   }
 
   Future<bool> onWillPopScope() async {
-    var stepperIndex = ref
-        .read(printerAddViewControllerProvider.select((value) => value.step));
+    var stepperIndex = ref.read(printerAddViewControllerProvider.select((value) => value.step));
 
     if (stepperIndex == 0 || stepperIndex == 3) return true;
 
@@ -160,8 +151,7 @@ class SimpleFormController extends _$SimpleFormController {
 
   FormBuilderState get _formState => ref.read(formKeyProvider).currentState!;
 
-  FormBuilderFieldState get _displayNameField =>
-      _formState.fields['simple.name']!;
+  FormBuilderFieldState get _displayNameField => _formState.fields['simple.name']!;
 
   FormBuilderFieldState get _urlField => _formState.fields['simple.url']!;
 
@@ -187,10 +177,8 @@ class SimpleFormController extends _$SimpleFormController {
 
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
         name: _displayNameField.transformedValue,
-        wsUri: buildMoonrakerWebSocketUri(
-            '${state.scheme}${_urlField.transformedValue}')!,
-        httpUri: buildMoonrakerHttpUri(
-            '${state.scheme}${_urlField.transformedValue}')!,
+        wsUri: buildMoonrakerWebSocketUri('${state.scheme}${_urlField.transformedValue}')!,
+        httpUri: buildMoonrakerHttpUri('${state.scheme}${_urlField.transformedValue}')!,
         apiKey: _apiKeyField.transformedValue));
   }
 }
@@ -201,15 +189,13 @@ class AdvancedFormController extends _$AdvancedFormController {
 
   FormBuilderState get _formState => ref.read(formKeyProvider).currentState!;
 
-  FormBuilderFieldState get _displayNameField =>
-      _formState.fields['advanced.name']!;
+  FormBuilderFieldState get _displayNameField => _formState.fields['advanced.name']!;
 
   FormBuilderFieldState get _httpField => _formState.fields['advanced.http']!;
 
   FormBuilderFieldState get _wsField => _formState.fields['advanced.ws']!;
 
-  FormBuilderFieldState get _apiKeyField =>
-      _formState.fields['advanced.apikey']!;
+  FormBuilderFieldState get _apiKeyField => _formState.fields['advanced.apikey']!;
 
   @override
   AdvancedFormState build() {
@@ -217,9 +203,8 @@ class AdvancedFormController extends _$AdvancedFormController {
 
     if (pState.machineToAdd != null) {
       return AdvancedFormState(
-        wsUriFromHttpUri:
-            buildMoonrakerWebSocketUri(pState.machineToAdd!.httpUri.toString()),
-      );
+          wsUriFromHttpUri: buildMoonrakerWebSocketUri(pState.machineToAdd!.httpUri.toString()),
+          headers: pState.machineToAdd!.httpHeaders);
     }
 
     return const AdvancedFormState();
@@ -237,15 +222,15 @@ class AdvancedFormController extends _$AdvancedFormController {
     if (!_formState.saveAndValidate()) return;
 
     var httpInput = _httpField.transformedValue;
-    var wsInput = (_wsField.transformedValue?.isEmpty ?? true)
-        ? httpInput
-        : _wsField.transformedValue;
+    var wsInput =
+        (_wsField.transformedValue?.isEmpty ?? true) ? httpInput : _wsField.transformedValue;
 
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
           name: _displayNameField.transformedValue,
           httpUri: buildMoonrakerHttpUri(httpInput)!,
           wsUri: buildMoonrakerWebSocketUri(wsInput, false)!,
           apiKey: _apiKeyField.transformedValue,
+          httpHeaders: state.headers,
         ));
   }
 
@@ -254,6 +239,42 @@ class AdvancedFormController extends _$AdvancedFormController {
         wsUriFromHttpUri: (httpInput == null || httpInput.isEmpty)
             ? null
             : buildMoonrakerWebSocketUri(httpInput));
+  }
+
+  Future<void> addHttpHeader() async {
+    var dialogResponse =
+        await ref.read(dialogServiceProvider).show(DialogRequest(type: DialogType.httpHeader));
+
+    if (dialogResponse?.confirmed == true) {
+      var data = dialogResponse!.data as MapEntry<String, String>;
+      logger.i('Got httpHeader response from dialog: $data');
+      if (data.key.isNotEmpty) {
+        state = state.copyWith(headers: {...state.headers, data.key: data.value});
+      }
+    }
+  }
+
+  Future<void> editHttpHeader(String header, String value) async {
+    var dialogResponse = await ref.read(dialogServiceProvider).show(DialogRequest(
+          type: DialogType.httpHeader,
+          title: header,
+          body: value,
+        ));
+
+    if (dialogResponse?.confirmed == true) {
+      var data = dialogResponse!.data as MapEntry<String, String>;
+      logger.i('Got httpHeader response from dialog: $data');
+      if (data.key != header) deleteHttpHeader(header);
+      if (data.key.isNotEmpty) {
+        state = state.copyWith(headers: {...state.headers, data.key: data.value});
+      }
+    }
+  }
+
+  deleteHttpHeader(String header) {
+    var current = Map.of(state.headers);
+    current.remove(header);
+    state = state.copyWith(headers: Map.unmodifiable(current));
   }
 }
 
@@ -269,18 +290,16 @@ class TestConnectionController extends _$TestConnectionController {
     ref.listenSelf((previous, next) {
       logger.wtf('TestConnectionState: $previous -> $next');
     });
-    PrinterAddState printerAddState =
-        ref.watch(printerAddViewControllerProvider);
+    PrinterAddState printerAddState = ref.watch(printerAddViewControllerProvider);
     var machineToAdd = printerAddState.machineToAdd;
     if (machineToAdd == null) {
-      throw ArgumentError(
-          'Expected the machine to add to be available. However it is null?');
+      throw ArgumentError('Expected the machine to add to be available. However it is null?');
     }
 
     TestConnectionState s;
-    HttpClient httpClient = HttpClient()
-      ..connectionTimeout = const Duration(seconds: 10);
+    HttpClient httpClient = HttpClient()..connectionTimeout = const Duration(seconds: 10);
     JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder()
+      ..headers = machineToAdd.httpHeaders
       ..timeout = httpClient.connectionTimeout!
       ..uri = machineToAdd.wsUri
       ..apiKey = machineToAdd.apiKey
@@ -309,16 +328,14 @@ class TestConnectionController extends _$TestConnectionController {
       state = switch (event) {
         ClientState.connected => state.copyWith(wsState: event, wsError: null),
         ClientState.error => state.copyWith(
-            wsState: event,
-            wsError: _client.errorReason?.toString() ?? 'Unknown Error'),
+            wsState: event, wsError: _client.errorReason?.toString() ?? 'Unknown Error'),
         _ => state.copyWith(wsState: event),
       };
       if (event == ClientState.connected || event == ClientState.error) {
         _testConnectionRPCState?.cancel();
         _client.dispose();
 
-        logger.i(
-            'Test connection got a result, cancel stream and dispose client.');
+        logger.i('Test connection got a result, cancel stream and dispose client.');
       }
     });
   }
@@ -326,16 +343,13 @@ class TestConnectionController extends _$TestConnectionController {
   _testHttp(Uri? httpUri) async {
     if (httpUri == null) return;
     try {
-      var request =
-          await _httpClient.getUrl(httpUri.appendPath('/access/info'));
+      var request = await _httpClient.getUrl(httpUri.appendPath('/access/info'));
       var response = await request.close();
 
       var isSuccess = response.statusCode == 200;
       state = state.copyWith(
           httpState: isSuccess,
-          httpError: isSuccess
-              ? null
-              : '${response.statusCode} - ${response.reasonPhrase}');
+          httpError: isSuccess ? null : '${response.statusCode} - ${response.reasonPhrase}');
     } catch (e) {
       logger.w('_testHttp returned error', e);
 
@@ -384,13 +398,8 @@ class AdvancedFormState with _$AdvancedFormState {
   const AdvancedFormState._();
 
   const factory AdvancedFormState({
-    // String? displayName,
-    // Uri? httpUri,
     Uri? wsUriFromHttpUri,
-    // String? apiKey,
-    // @Default(false) bool isValid,
-    // @Default(false) bool allowSelfSignedCert,
-    // @Default({}) Map<String, String> headers,
+    @Default({}) Map<String, String> headers,
   }) = _AdvancedFormState;
 }
 
@@ -409,8 +418,7 @@ class TestConnectionState with _$TestConnectionState {
 
   bool get hasResults => wsState != null && httpState != null;
 
-  bool get combinedResult =>
-      wsState == ClientState.connected && httpState == true;
+  bool get combinedResult => wsState == ClientState.connected && httpState == true;
 
   String get wsStateText => tr(switch (wsState) {
         ClientState.connected => 'general.valid',
@@ -424,11 +432,10 @@ class TestConnectionState with _$TestConnectionState {
         _ => 'general.unknown'
       });
 
-  Color wsStateColor(ThemeData theme) => switch (wsState) {
-        ClientState.connected =>
-          theme.extension<CustomColors>()?.success ?? Colors.green,
-        ClientState.error =>
-          theme.extension<CustomColors>()?.danger ?? Colors.yellow,
+  Color wsStateColor(ThemeData theme) =>
+      switch (wsState) {
+        ClientState.connected => theme.extension<CustomColors>()?.success ?? Colors.green,
+        ClientState.error => theme.extension<CustomColors>()?.danger ?? Colors.yellow,
         _ => theme.extension<CustomColors>()?.info ?? Colors.lightBlue
       };
 

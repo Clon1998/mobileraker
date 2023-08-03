@@ -9,7 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'remote_config.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 FirebaseRemoteConfig remoteConfig(RemoteConfigRef ref) {
   var instance = FirebaseRemoteConfig.instance;
   return instance;

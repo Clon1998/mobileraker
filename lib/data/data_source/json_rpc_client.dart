@@ -21,8 +21,7 @@ enum ClientState { disconnected, connecting, connected, error }
 
 enum ClientType { local, octo }
 
-typedef RpcCallback = Function(Map<String, dynamic> response,
-    {Map<String, dynamic>? err});
+typedef RpcCallback = Function(Map<String, dynamic> response, {Map<String, dynamic>? err});
 
 typedef RpcMethodListener = Function(Map<String, dynamic> response);
 
@@ -48,6 +47,7 @@ class JsonRpcClientBuilder {
     var octoUri = Uri.parse(octoEverywhere.url);
 
     return JsonRpcClientBuilder()
+      ..headers = machine.httpHeaders
       ..timeout = const Duration(seconds: 5)
       ..apiKey = machine.apiKey
       ..uri = localWsUir.replace(
@@ -60,6 +60,7 @@ class JsonRpcClientBuilder {
 
   factory JsonRpcClientBuilder.fromMachine(Machine machine) {
     return JsonRpcClientBuilder()
+      ..headers = machine.httpHeaders
       ..uri = machine.wsUri
       ..apiKey = machine.apiKey
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
@@ -77,7 +78,7 @@ class JsonRpcClientBuilder {
     assert(uri != null, 'Provided URI was null');
 
     if (apiKey != null) {
-      headers['X-Api-Key'] = apiKey;
+      headers = {...headers, 'X-Api-Key': apiKey};
     }
 
     return JsonRpcClient(
@@ -98,8 +99,7 @@ class JsonRpcClient {
     this.headers = const {},
     this.clientType = ClientType.local,
   })  : timeout = timeout ?? const Duration(seconds: 3),
-        assert(['ws', 'wss'].contains(uri.scheme),
-            'Scheme of provided URI must be WS or WSS!');
+        assert(['ws', 'wss'].contains(uri.scheme), 'Scheme of provided URI must be WS or WSS!');
 
   final ClientType clientType;
 
@@ -165,8 +165,7 @@ class JsonRpcClient {
   /// returns a future that completes to true if the WS is connected or false once the
   /// reconnection try, if needded is completed!
   Future<bool> ensureConnection() async {
-    if (curState != ClientState.connected &&
-        curState != ClientState.connecting) {
+    if (curState != ClientState.connected && curState != ClientState.connecting) {
       logger.i('[$uri] WS not connected! connecting...');
       return openChannel();
     }
@@ -186,16 +185,14 @@ class JsonRpcClient {
   }
 
   /// add a method listener for all(all=*) or given [method]
-  addMethodListener(RpcMethodListener callback,
-      [String method = WILDCARD_METHOD]) {
+  addMethodListener(RpcMethodListener callback, [String method = WILDCARD_METHOD]) {
     _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
   }
 
   // removes the method that was previously added by addMethodListeners
   bool removeMethodListener(RpcMethodListener callback, [String? method]) {
     if (method != null) {
-      var foundListeners = _methodListeners.values
-          .where((element) => element.contains(callback));
+      var foundListeners = _methodListeners.values.where((element) => element.contains(callback));
       if (foundListeners.isEmpty) return true;
       return foundListeners
           .map((element) => element.remove(callback))
@@ -215,7 +212,6 @@ class JsonRpcClient {
       // }
 
       HttpClient httpClient = _constructHttpClient();
-
       WebSocket socket = await WebSocket.connect(
         uri.toString(),
         headers: headers,
@@ -237,8 +233,7 @@ class JsonRpcClient {
       _channelSub = ioChannel.stream.listen(
         _onChannelMessage,
         onError: _onChannelError,
-        onDone: () =>
-            _onChannelClosesNormal(socket.closeCode, socket.closeReason),
+        onDone: () => _onChannelClosesNormal(socket.closeCode, socket.closeReason),
       );
 
       curState = ClientState.connected;
@@ -259,9 +254,7 @@ class JsonRpcClient {
     return httpClient;
   }
 
-  Map<String, dynamic> _constructJsonRPCMessage(String method,
-          {dynamic params}) =>
-      {
+  Map<String, dynamic> _constructJsonRPCMessage(String method, {dynamic params}) => {
         'jsonrpc': '2.0',
         'id': _idCounter++,
         'method': method,
@@ -292,16 +285,14 @@ class JsonRpcClient {
   }
 
   /// Helper method used as callback if a normal async/future send is requested
-  _completerCallback(Map<String, dynamic> response,
-      {Map<String, dynamic>? err}) {
+  _completerCallback(Map<String, dynamic> response, {Map<String, dynamic>? err}) {
     var mId = response['id'];
     logger.d('[$uri] Received(Blocking) for id: "$mId"');
     if (_pendingRequests.containsKey(mId)) {
       var request = _pendingRequests.remove(mId)!;
       if (err != null) {
         // logger.e('Completing $mId with error $err,\n${StackTrace.current}',);
-        request.completer.completeError(
-            JRpcError(err['code'], err['message']), request.stacktrace);
+        request.completer.completeError(JRpcError(err['code'], err['message']), request.stacktrace);
       } else {
         if (response['result'] == 'ok') {
           response = {
@@ -318,8 +309,7 @@ class JsonRpcClient {
 
   _onChannelClosesNormal(int? closeCode, String? closeReason) {
     if (_disposed) {
-      logger
-          .i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
+      logger.i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
       return;
     }
 
@@ -379,8 +369,7 @@ class JsonRpcClient {
       logger.i(
           '$uri${identityHashCode(this)}] Found ${_pendingRequests.length} hanging requests, waiting for them before completly disposing client');
       try {
-        await Future.wait(
-                _pendingRequests.values.map((e) => e.completer.future))
+        await Future.wait(_pendingRequests.values.map((e) => e.completer.future))
             .timeout(const Duration(seconds: 30));
       } on TimeoutException catch (_) {
         logger.i(
@@ -389,14 +378,12 @@ class JsonRpcClient {
         // Just catch the JRPC errors that might be returned in the futures to prevent async gap errors...
         // These errors should be handled in the respective caller!
       } finally {
-        logger
-            .i('$uri${identityHashCode(this)}] All hanging requests finished!');
+        logger.i('$uri${identityHashCode(this)}] All hanging requests finished!');
       }
     }
 
-    _pendingRequests.forEach((key, value) => value.completer.completeError(
-        StateError(
-            'Websocket is closing, request id=$key, method ${value.method} never got an response!')));
+    _pendingRequests.forEach((key, value) => value.completer.completeError(StateError(
+        'Websocket is closing, request id=$key, method ${value.method} never got an response!')));
     _methodListeners.clear();
     _channelSub?.cancel();
 

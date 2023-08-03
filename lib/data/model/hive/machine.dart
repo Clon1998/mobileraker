@@ -28,6 +28,8 @@ class Machine extends HiveObject {
   String uuid = const Uuid().v4();
   @HiveField(4)
   String? apiKey;
+  @HiveField(22, defaultValue: {})
+  Map<String, String> httpHeaders;
   @HiveField(5, defaultValue: [])
   List<TemperaturePreset> temperaturePresets;
   @HiveField(14, defaultValue: 0)
@@ -59,15 +61,18 @@ class Machine extends HiveObject {
 
   String get debugStr => '$name ($uuid)';
 
-  Machine(
-      {required this.name,
-      required this.wsUri,
-      required this.httpUri,
-      this.apiKey,
-      this.temperaturePresets = const [],
-      this.trustUntrustedCertificate = false,
-      this.octoEverywhere,
-      this.camOrdering = const []});
+  Machine({
+    required String name,
+    required this.wsUri,
+    required this.httpUri,
+    String? apiKey,
+    this.temperaturePresets = const [],
+    this.trustUntrustedCertificate = false,
+    this.octoEverywhere,
+    this.camOrdering = const [],
+    this.httpHeaders = const {},
+  })  : name = name.trim(),
+        apiKey = apiKey?.trim();
 
   @override
   Future<void> save() async {
