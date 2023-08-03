@@ -20,6 +20,7 @@ import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_led.dart';
 import 'package:mobileraker/data/dto/config/led/config_neopixel.dart';
 import 'package:mobileraker/data/dto/config/led/config_pca_led.dart';
+import 'package:mobileraker/util/extensions/string_extension.dart';
 
 import 'config_extruder.dart';
 import 'config_heater_bed.dart';
@@ -57,9 +58,9 @@ class ConfigFile {
     }
 
     for (String key in rawConfig.keys) {
-      List<String> split = key.split(" ");
-      String object = split[0].toLowerCase();
-      String objectName = (split.length > 1) ? split.skip(1).join(" ") : object;
+      var klipperObjectIdentifier = key.toKlipperObjectIdentifier();
+      String object = klipperObjectIdentifier.$1.toLowerCase();
+      String objectName = klipperObjectIdentifier.$2 ?? klipperObjectIdentifier.$1;
 
       Map<String, dynamic> jsonChild = Map.of(rawConfig[key]);
 
