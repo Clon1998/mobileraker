@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
@@ -29,7 +28,7 @@ class SelectPrinterDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var selected = useState(false);
 
-    if (selected.value) return const Center(child: CircularProgressIndicator());
+    if (selected.value) return const Center(child: CircularProgressIndicator.adaptive());
 
     var activeName = ref
         .watch(selectedMachineProvider.selectAs((data) => data?.name))

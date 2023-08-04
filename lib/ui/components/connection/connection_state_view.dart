@@ -66,10 +66,10 @@ class ConnectionStateView extends ConsumerWidget {
                 );
         },
         error: (e, _) => ErrorCard(
-          title: const Text('Error selecting active machine'),
+              title: const Text('Error selecting active machine'),
               body: Text(e.toString()),
             ),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator.adaptive()),
         skipLoadingOnRefresh: false);
   }
 }

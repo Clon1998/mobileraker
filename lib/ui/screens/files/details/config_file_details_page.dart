@@ -182,7 +182,7 @@ class _Fab extends ConsumerWidget {
       spacing: 5,
       overlayOpacity: 0.5,
       backgroundColor: uploading ? themeData.disabledColor : null,
-      child: uploading ? const CircularProgressIndicator() : null,
+      child: uploading ? const CircularProgressIndicator.adaptive() : null,
     );
   }
 }
