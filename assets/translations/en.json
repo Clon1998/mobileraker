@@ -456,7 +456,8 @@
       "trying_connect": "Trying to connect...",
       "trying_connect_remote": "Trying to connect using remote client...",
       "server_starting": "Server is starting...",
-      "more_details": "More Details"
+      "more_details": "More Details",
+      "add_printer": "Hey there,\nI am excited to see you here!\nTo kickstart your experience, kindly add a printer to Mobileraker. Once you've completed this step, you'll be able to take direct control of your printer right from within Mobileraker."
     },
     "octo_indicator": {
       "tooltip": "Using OctoEveryWhere!"
