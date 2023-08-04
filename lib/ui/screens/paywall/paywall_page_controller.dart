@@ -38,7 +38,7 @@ class PaywallPageController extends _$PaywallPageController {
     logger.wtf('Got offerings detailed:$offerings');
 
     Offering? activeOffering = offerings.current;
-    activeOffering = offerings.getOffering('default_v2');
+    if (kDebugMode) activeOffering = offerings.getOffering('default_v2');
     final offerMetadata = activeOffering?.metadata ?? {};
     final excludeFromPaywall =
         (offerMetadata['exclude_package'] as String? ?? '').split(',').map((e) => e.trim());
