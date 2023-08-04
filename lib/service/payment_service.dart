@@ -81,16 +81,15 @@ class PaymentService {
 
     PurchasesConfiguration configuration;
     if (Platform.isAndroid) {
-      configuration =
-          PurchasesConfiguration('goog_uzbmaMIthLRzhDyQpPsmvOXbaCK');
+      configuration = PurchasesConfiguration('goog_uzbmaMIthLRzhDyQpPsmvOXbaCK');
     } else if (Platform.isIOS) {
-      configuration =
-          PurchasesConfiguration('appl_RsarzvMWCvAavWUevgRSXXLDeTL');
+      configuration = PurchasesConfiguration('appl_RsarzvMWCvAavWUevgRSXXLDeTL');
     } else {
       throw StateError('Unsupported device type!');
     }
     await Purchases.configure(configuration);
     _setupListeners();
+    logger.i('Completed PaymentService init');
   }
 
   Future<Offerings> getOfferings() {

@@ -12,6 +12,7 @@ import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -99,7 +100,13 @@ class NotificationService {
           _setupFCMOnPrinterOnceConnected(e).ignore();
         }
       }
+      logger.i('Completed NotificationService init');
     } catch (e, s) {
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        s,
+        reason: 'Error while setting up notificationService',
+      );
       logger.w('Error encountered while trying to setup the Notification Service.', e, s);
     }
   }

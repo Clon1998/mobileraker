@@ -59,9 +59,9 @@ Future<Machine?> machine(MachineRef ref, String uuid) async {
   ref.keepAlive();
   ref.onDispose(() => logger.e('machineProvider disposed $uuid'));
 
-  logger.e('machineProvider creation STARTED $uuid');
+  logger.i('machineProvider creation STARTED $uuid');
   var future = await ref.watch(machineRepositoryProvider).get(uuid: uuid);
-  logger.e('machineProvider creation DONE $uuid');
+  logger.i('machineProvider creation DONE $uuid');
   return future;
 }
 
@@ -69,8 +69,10 @@ Future<Machine?> machine(MachineRef ref, String uuid) async {
 Future<List<Machine>> allMachines(AllMachinesRef ref) async {
   var settingService = ref.watch(settingServiceProvider);
   var machines = await ref.watch(machineServiceProvider).fetchAll();
+  logger.i('Received fetchAll');
   var isSupporter = await ref.watch(customerInfoProvider
       .selectAsync((data) => data.entitlements.active.containsKey('Supporter')));
+  logger.i('Received isSupporter $isSupporter');
   var maxNonSupporterMachines = ref.watch(remoteConfigProvider).maxNonSupporterMachines;
   logger.i('Max allowed machines for non Supporters is $maxNonSupporterMachines');
   if (isSupporter) {

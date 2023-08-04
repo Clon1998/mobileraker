@@ -5,6 +5,10 @@
 
 import 'dart:convert';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -20,9 +24,18 @@ import 'package:mobileraker/data/model/hive/temperature_preset.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
+import 'package:mobileraker/firebase_options.dart';
+import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/firebase/analytics.dart';
+import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/notification_service.dart';
+import 'package:mobileraker/service/payment_service.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'logger.dart';
+
+part 'app_setup.g.dart';
 
 setupBoxes() async {
   await Hive.initFlutter();
@@ -105,11 +118,13 @@ setupBoxes() async {
       logger.i('Machine in box is ${element.debugStr}#${element.hashCode}');
     });
   } catch (e) {
+    logger.e('There was an error while trying to init Hive. Resetting all Hive data...');
     await Hive.deleteBoxFromDisk('printers');
     await Hive.deleteBoxFromDisk('uuidbox');
     await Hive.deleteBoxFromDisk('settingsbox');
     await openBoxes(keyMaterial);
   }
+  logger.i('Completed Hive init');
 }
 
 Future<List<Box>> openBoxes(Uint8List keyMaterial) {
@@ -138,11 +153,12 @@ setupLicenseRegistry() {
 }
 
 /// Ensure all services are setup/available/connected if they are also read just once!
-initializeAvailableMachines(ProviderContainer container) async {
+initializeAvailableMachines(Ref ref) async {
   logger.i('Started initializeAvailableMachines');
-  List<Machine> machines = await container.read(allMachinesProvider.future);
+  List<Machine> machines = await ref.read(allMachinesProvider.future);
+  logger.i('Received all machines');
 
-  await Future.wait(machines.map((e) => container.read(machineProvider(e.uuid).future)));
+  await Future.wait(machines.map((e) => ref.read(machineProvider(e.uuid).future)));
   logger.i('initialized all machineProviders');
   // for (var machine in machines) {
   //   logger.i('Init for ${machine.name}(${machine.uuid})');
@@ -150,5 +166,56 @@ initializeAvailableMachines(ProviderContainer container) async {
   //   container.read(printerServiceProvider(machine.uuid));
   // }
 
-  logger.i('Finished initializeAvailableMachines');
+  logger.i('Completed initializeAvailableMachines');
+}
+
+@riverpod
+Future<bool> warmupProvider(WarmupProviderRef ref) async {
+  ref.listenSelf((previous, next) {
+    if (next.hasError) {
+      var error = next.asError!;
+      FirebaseCrashlytics.instance.recordError(
+        error.error,
+        error.stackTrace,
+        fatal: true,
+        reason: 'Error during WarmUp!',
+      );
+    }
+  });
+  // Firebase stuff
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirebaseAppCheck.instance.activate();
+  await ref.read(remoteConfigProvider).initialize();
+  if (kDebugMode) {
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+  }
+
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack);
+    return true;
+  };
+  await ref.read(analyticsProvider).logAppOpen();
+
+  setupLicenseRegistry();
+
+  // Prepare "Database"
+  await setupBoxes();
+
+  // Prepare Translations
+  await EasyLocalization.ensureInitialized();
+
+  await ref.read(paymentServiceProvider).initialize();
+
+  // await for the initial rout provider to be ready and setup!
+  await ref.read(initialRouteProvider.future);
+  logger.i('Completed initialRoute init');
+
+  // Wait for the machines to be ready
+  await initializeAvailableMachines(ref);
+  await ref.read(notificationServiceProvider).initialize();
+
+  // await Future.delayed(Duration(seconds: 3));
+  // throw Exception("bas");
+  return true;
 }

@@ -51,7 +51,7 @@ class SettingService {
   }
 
   Future<void> delete(KeyValueStoreKey key) {
-    return _boxSettings.delete(key);
+    return _boxSettings.delete(key.key);
   }
 }
 

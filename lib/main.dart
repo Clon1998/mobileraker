@@ -5,65 +5,33 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
-import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/app_setup.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/firebase/analytics.dart';
-import 'package:mobileraker/service/firebase/remote_config.dart';
-import 'package:mobileraker/service/notification_service.dart';
-import 'package:mobileraker/service/payment_service.dart';
+import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
-import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
-import 'app_setup.dart';
 import 'logger.dart';
 
 Future<void> main() async {
   setupLogger();
-  // TODO: REWRITE THIS TO A WARM_UP_WIDGET (https://www.youtube.com/watch?v=LEk6AWroib8)
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
-  WidgetsFlutterBinding.ensureInitialized();
-  await setupBoxes();
+  var widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack);
-    return true;
-  };
-
-  // FirebaseCrashlytics.instance.sendUnsentReports();
-  if (kDebugMode) {
-    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
-  }
-
-  await FirebaseAppCheck.instance.activate();
-  await EasyLocalization.ensureInitialized();
-
-  setupLicenseRegistry();
-  final container = ProviderContainer(
+  // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  runApp(const ProviderScope(
     observers: [
-      if (kDebugMode) const RiverPodLogger(),
+      if (kDebugMode) RiverPodLogger(),
     ],
-  );
-  await container.read(remoteConfigProvider).initialize();
-  await container.read(analyticsProvider).logAppOpen();
-  await container.read(paymentServiceProvider).initialize();
-
-  // await for the initial rout provider to be ready and setup!
-  await container.read(initialRouteProvider.future);
-  await initializeAvailableMachines(container);
-
-  await container.read(notificationServiceProvider).initialize();
-  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
+    child: WarmUp(),
+  ));
 }
 
 class MyApp extends ConsumerWidget {
@@ -91,8 +59,8 @@ class MyApp extends ConsumerWidget {
         useFallbackTranslations: true,
         path: 'assets/translations',
         child: ThemeBuilder(
-          builder: (BuildContext context, ThemeData? regularTheme,
-              ThemeData? darkTheme, ThemeMode? themeMode) {
+          builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme,
+              ThemeMode? themeMode) {
             return MaterialApp.router(
               routerDelegate: goRouter.routerDelegate,
               routeInformationProvider: goRouter.routeInformationProvider,
@@ -116,3 +84,56 @@ class MyApp extends ConsumerWidget {
         ));
   }
 }
+
+class WarmUp extends HookConsumerWidget {
+  const WarmUp({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var brightness = usePlatformBrightness();
+    return Container(
+      color: splashBgColorForBrightness(brightness),
+      child: ref.watch(warmupProviderProvider).when(
+            data: (_) {
+              return const MyApp();
+            },
+            error: (e, s) {
+              return MaterialApp(
+                home: ErrorCard(
+                  title: const Text('Error while starting Mobileraker!'),
+                  body: Text(
+                      'I am sorry...\nSomething unexpected happed.\nPlease report this bug to the developer!\n\n$e\n$s'),
+                ),
+              );
+            },
+            loading: () => const _LoadingSplashScreen(),
+          ),
+    );
+  }
+}
+
+class _LoadingSplashScreen extends HookWidget {
+  const _LoadingSplashScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var animCtrler = useAnimationController(
+        duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1)
+      ..repeat(reverse: true);
+
+    return Center(
+      child: ScaleTransition(
+        scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+        child: SvgPicture.asset(
+          'assets/vector/mr_logo.svg',
+          height: 120,
+        ),
+      ),
+    );
+  }
+}
+
+Color splashBgColorForBrightness(Brightness brightness) =>
+    (brightness == Brightness.dark) ? const Color(0xff2A2A2A) : const Color(0xfff7f7f7);
