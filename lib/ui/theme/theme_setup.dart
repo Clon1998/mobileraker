@@ -525,13 +525,12 @@ ThemePack _mobilerakerSupporterPack() {
 
 @riverpod
 List<ThemePack> themePack(ThemePackRef ref) {
-  var customerInfo = ref.watch(customerInfoProvider).valueOrFullNull;
+  var isSupporter = ref.watch(isSupporterAsyncProvider).valueOrFullNull;
   return [
     _mobilerakerPack(),
     _voronPack(),
     _ratRigPack(),
     _vzBot(),
-    if (customerInfo?.entitlements.active.containsKey('Supporter') ?? true)
-      _mobilerakerSupporterPack(),
+    if (isSupporter ?? true) _mobilerakerSupporterPack(),
   ];
 }

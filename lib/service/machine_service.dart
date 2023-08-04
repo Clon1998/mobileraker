@@ -70,8 +70,8 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
   var settingService = ref.watch(settingServiceProvider);
   var machines = await ref.watch(machineServiceProvider).fetchAll();
   logger.i('Received fetchAll');
-  var isSupporter = await ref.watch(customerInfoProvider
-      .selectAsync((data) => data.entitlements.active.containsKey('Supporter')));
+
+  var isSupporter = await ref.watch(isSupporterAsyncProvider.future);
   logger.i('Received isSupporter $isSupporter');
   var maxNonSupporterMachines = ref.watch(remoteConfigProvider).maxNonSupporterMachines;
   logger.i('Max allowed machines for non Supporters is $maxNonSupporterMachines');

@@ -27,7 +27,6 @@ part 'payment_service.g.dart';
 Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
   var customerInfo = await Purchases.getCustomerInfo();
   logger.i('Got customerInfo: $customerInfo');
-  logger.i('RCat ID: ${customerInfo.originalAppUserId}');
 
   checkForExpired() async {
     logger.i('Checking for expired subs!');
@@ -50,19 +49,20 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
 
   ref.onAddListener(checkForExpired);
   ref.onResume(checkForExpired);
+  logger.i('RCat ID: ${customerInfo.originalAppUserId}');
 
   return customerInfo;
 }
 
 @Riverpod(keepAlive: true)
 bool isSupporter(IsSupporterRef ref) {
-  return ref
-          .watch(customerInfoProvider)
-          .valueOrNull
-          ?.entitlements
-          .active
-          .containsKey('Supporter') ==
-      true;
+  return ref.watch(isSupporterAsyncProvider).valueOrNull == true;
+}
+
+@Riverpod(keepAlive: true)
+FutureOr<bool> isSupporterAsync(IsSupporterAsyncRef ref) async {
+  var customerInfo = await ref.watch(customerInfoProvider.future);
+  return customerInfo.entitlements.active.containsKey('Supporter') == true;
 }
 
 @Riverpod(keepAlive: true)
@@ -101,13 +101,11 @@ class PaymentService {
     try {
       var storeProduct = packageToBuy.storeProduct;
       if (Platform.isIOS && storeProduct.discounts?.isNotEmpty == true) {
-        logger
-            .i('Trying to buy ${storeProduct.identifier} at discounted rate ');
-        var promotionalOffer = await Purchases.getPromotionalOffer(
-            storeProduct, storeProduct.discounts!.first);
+        logger.i('Trying to buy ${storeProduct.identifier} at discounted rate ');
+        var promotionalOffer =
+            await Purchases.getPromotionalOffer(storeProduct, storeProduct.discounts!.first);
 
-        await Purchases.purchaseDiscountedPackage(
-            packageToBuy, promotionalOffer);
+        await Purchases.purchaseDiscountedPackage(packageToBuy, promotionalOffer);
       } else {
         logger.i('Trying to buy ${storeProduct.identifier}');
         await Purchases.purchasePackage(packageToBuy,
@@ -118,8 +116,7 @@ class PaymentService {
       logger.i('Successful bought package... $customerInfo');
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
           title: 'Subscribed!',
-          message:
-              'You just subscribed to Mobileraker! Thanks a lot for the support!'));
+          message: 'You just subscribed to Mobileraker! Thanks a lot for the support!'));
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
@@ -168,19 +165,16 @@ class PaymentService {
     ref.listen(customerInfoProvider, (previous, next) async {
       if (next.valueOrFullNull?.activeSubscriptions.isNotEmpty == true) {
         CustomerInfo customerInfo = next.value!;
-        String token =
-            await ref.read(notificationServiceProvider).fetchCurrentFcmToken();
+        String token = await ref.read(notificationServiceProvider).fetchCurrentFcmToken();
         var entitlementInfo = customerInfo.entitlements.active.values.first;
-        if (_boxSettings
-            .containsKey('$_key-${customerInfo.originalAppUserId}')) {
+        if (_boxSettings.containsKey('$_key-${customerInfo.originalAppUserId}')) {
           Map<dynamic, dynamic> name = _boxSettings.get(_key);
           var supporter = Supporter.fromJson(name.cast<String, dynamic>());
           logger.i(
               'Read Supporter from local storage local: ${supporter.expirationDate}, customer ${entitlementInfo.expirationDate}');
           if (supporter.expirationDate != null &&
               DateTime.now().isBefore(supporter.expirationDate!)) {
-            logger.i(
-                'No need to write to firebase, its expected to still have a valid sub!');
+            logger.i('No need to write to firebase, its expected to still have a valid sub!');
             return;
           }
         }
@@ -197,12 +191,10 @@ class PaymentService {
               .collection('sup')
               .doc(customerInfo.originalAppUserId)
               .set(supporter.toFirebase());
-          logger.i(
-              'Added fcmToken to fireStore... now writing it to local storage');
+          logger.i('Added fcmToken to fireStore... now writing it to local storage');
           _boxSettings.put(_key, supporter.toJson());
         } catch (e) {
-          logger.w(
-              'Error while trying to register FCM token with firebase:', e);
+          logger.w('Error while trying to register FCM token with firebase:', e);
         }
       }
     });
