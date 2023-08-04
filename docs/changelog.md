@@ -8,28 +8,33 @@
   additional
   customization options for advanced
   users. [#153](https://github.com/Clon1998/mobileraker/issues/153) [#134](https://github.com/Clon1998/mobileraker/issues/134) [#182](https://github.com/Clon1998/mobileraker/issues/182) [#193](https://github.com/Clon1998/mobileraker/issues/193)
-- Added support for WebRtc for
-  Supports [#167](https://github.com/Clon1998/mobileraker/issues/167) [#191](https://github.com/Clon1998/mobileraker/issues/191)
-- Added option to directly reprint the last file if printer is still in complete state.
+- Added support for WebRTC, enabling real-time communication between
+  devices. [#167](https://github.com/Clon1998/mobileraker/issues/167), [#191](https://github.com/Clon1998/mobileraker/issues/191)
+- Introduced the option to directly reprint the last file if the printer is still in a complete
+  state.
 
 ### Changed Features
 
-- Changed the behavior of Confirm EMS setting, to be an opt-out setting instead of opt-in.
-- Improved the accuracy of current and max layer display by utilizing moonraker's info.layer
-  fields.[#138](https://github.com/Clon1998/mobileraker/issues/138)
-- Added support for 12hr time format [#192](https://github.com/Clon1998/mobileraker/issues/197)
-- Changed Mobileraker's notification icon for
-  Android [#194](https://github.com/Clon1998/mobileraker/issues/194)
-- Migrated webcams to Moonraker's Webcam API
+- Modified the behavior of the Confirm EMS setting to be an opt-out setting instead of opt-in.
+- Improved the accuracy of the current and max layer display by utilizing moonraker's info.layer
+  fields. [#138](https://github.com/Clon1998/mobileraker/issues/138)
+- Added support for a 12-hour time
+  format. [#192](https://github.com/Clon1998/mobileraker/issues/197)
+- Updated Mobileraker's notification icon for
+  Android. [#194](https://github.com/Clon1998/mobileraker/issues/194)
+- Migrated webcams to Moonraker's Webcam API.
+- Added a new splash screen during app startup.
+- Introduced an error widget in case the initial startup fails.
 
 ### Bug Fixes
 
-- Fixed the QR reader functionality.
-- Enhanced the reliability of the JRpc client.
-- Addressed several minor errors in the background.
-- Fixed Webcam Service type could not be
-  edited [#198](https://github.com/Clon1998/mobileraker/issues/198)
-- Fixed potential parsing error [#205](https://github.com/Clon1998/mobileraker/issues/205)
+- Fixed the QR reader functionality, resolving issues with scanning QR codes.
+- Enhanced the reliability of the JRpc client, ensuring smoother communication with the server.
+- Addressed several minor errors in the background, improving overall app stability.
+- Fixed an issue where Webcam Service type could not be
+  edited. [#198](https://github.com/Clon1998/mobileraker/issues/198)
+- Resolved potential parsing errors, ensuring proper data
+  handling. [#205](https://github.com/Clon1998/mobileraker/issues/205)
 
 ## [2.4.2] - 2023-06-28
 
