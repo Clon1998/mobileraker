@@ -58,6 +58,15 @@ class MyApp extends ConsumerWidget {
         saveLocale: true,
         useFallbackTranslations: true,
         path: 'assets/translations',
+        errorWidget: (e) {
+          return MaterialApp(
+            home: ErrorCard(
+              title: const Text('Can not load languange files!'),
+              body: Text(
+                  'I am sorry. An unexpected error occured while loading the languange files.\nPlease submit this error to the developer via github: www.github.com/Clon1998/mobileraker\n\n\Error:\n$e'),
+            ),
+          );
+        },
         child: ThemeBuilder(
           builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme,
               ThemeMode? themeMode) {
