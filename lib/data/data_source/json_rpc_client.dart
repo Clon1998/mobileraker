@@ -61,7 +61,6 @@ class JsonRpcClientBuilder {
     return JsonRpcClientBuilder()
       ..headers = machine.headerWithApiKey
       ..uri = machine.wsUri
-      ..apiKey = machine.apiKey
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
       ..clientType = ClientType.local;
   }

@@ -48,24 +48,19 @@ class ToolheadInfo with _$ToolheadInfo {
       if (currentFile.filamentTotal != null) {
         usedFilament = printer.print.filamentUsed / 1000;
         totalFilament = currentFile.filamentTotal! / 1000;
-        usedFilamentPerc = min(100,
-            (printer.print.filamentUsed / currentFile.filamentTotal! * 100));
+        usedFilamentPerc =
+            min(100, (printer.print.filamentUsed / currentFile.filamentTotal! * 100));
       }
-      double crossSection = pow(
-              (printer.configFile.primaryExtruder?.filamentDiameter ?? 1.75) /
-                  2,
-              2) *
-          pi;
-      currentFlow = (crossSection * printer.motionReport.liveExtruderVelocity)
-          .toPrecision(1)
-          .abs();
+      double crossSection =
+          pow((printer.configFile.primaryExtruder?.filamentDiameter ?? 1.75) / 2, 2) * pi;
+      currentFlow = (crossSection * printer.motionReport.liveExtruderVelocity).toPrecision(1).abs();
     }
 
     return ToolheadInfo(
         livePosition: printer.motionReport.livePosition.toList(growable: false),
         postion: printer.gCodeMove.gcodePosition.toList(growable: false),
-        printingOrPaused: const {PrintState.printing, PrintState.paused}
-            .contains(printer.print.state),
+        printingOrPaused:
+            const {PrintState.printing, PrintState.paused}.contains(printer.print.state),
         mmSpeed: printer.gCodeMove.mmSpeed,
         currentLayer: curLayer,
         maxLayers: maxLayer,
@@ -74,8 +69,7 @@ class ToolheadInfo with _$ToolheadInfo {
         totalFilament: totalFilament,
         usedFilamentPerc: usedFilamentPerc,
         eta: printer.eta,
-        remaining:
-            printer.eta?.let((v) => v.difference(DateTime.now()).inSeconds),
+        remaining: printer.eta?.let((v) => v.difference(DateTime.now()).inSeconds),
         totalDuration: printer.print.totalDuration.toInt());
   }
 
@@ -88,17 +82,14 @@ class ToolheadInfo with _$ToolheadInfo {
 
     if (totalLayer != null) return totalLayer;
     if (fileLayerCount != null) return fileLayerCount;
-    if (objectHeight == null ||
-        firstLayerHeight == null ||
-        layerHeight == null) {
+    if (objectHeight == null || firstLayerHeight == null || layerHeight == null) {
       return 0;
     }
 
     return max(0, ((objectHeight - firstLayerHeight) / layerHeight + 1).ceil());
   }
 
-  static int _calculateCurrentLayer(
-      Printer printer, GCodeFile? currentFile, int totalLayers) {
+  static int _calculateCurrentLayer(Printer printer, GCodeFile? currentFile, int totalLayers) {
     final currentLayer = printer.print.currentLayer;
     final firstLayerHeight = currentFile?.firstLayerHeight;
     final layerHeight = currentFile?.layerHeight;
@@ -110,25 +101,26 @@ class ToolheadInfo with _$ToolheadInfo {
     }
 
     return max(
-        0,
-        min(totalLayers,
-            ((toolheadZPosition - firstLayerHeight) / layerHeight + 1).ceil()));
+        0, min(totalLayers, ((toolheadZPosition - firstLayerHeight) / layerHeight + 1).ceil()));
   }
 }
 
 @riverpod
 Future<ToolheadInfo> toolheadInfo(ToolheadInfoRef ref) async {
-  String? currentFilePrinting = ref.watch(printerSelectedProvider
-      .select((data) => data.valueOrNull?.print.filename));
-
   var res = await Future.wait([
     ref.watch(printerSelectedProvider.future),
-    if (currentFilePrinting != null && currentFilePrinting.isNotEmpty)
-      ref
-          .watch(fileServiceSelectedProvider)
-          .getGCodeMetadata(currentFilePrinting)
+    ref.watch(_currentFileProvider.future),
   ]);
 
-  return ToolheadInfo.byComponents(
-      res[0] as Printer, res.elementAtOrNull(1) as GCodeFile?);
+  return ToolheadInfo.byComponents(res[0] as Printer, res.elementAtOrNull(1) as GCodeFile?);
+}
+
+@riverpod
+Future<GCodeFile?> _currentFile(_CurrentFileRef ref) async {
+  String? currentFilePrinting =
+      ref.watch(printerSelectedProvider.select((data) => data.valueOrNull?.print.filename));
+
+  if (currentFilePrinting == null || currentFilePrinting.isEmpty) return null;
+
+  return ref.watch(fileServiceSelectedProvider).getGCodeMetadata(currentFilePrinting);
 }
