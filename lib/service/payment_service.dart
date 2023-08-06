@@ -172,7 +172,7 @@ class PaymentService {
           Map<dynamic, dynamic> name = _boxSettings.get(_key);
           var supporter = Supporter.fromJson(name.cast<String, dynamic>());
           logger.i(
-              'Read Supporter from local storage local: ${supporter.expirationDate}, customer ${entitlementInfo.expirationDate}');
+              'Read Supporter from local storage local: ${supporter.expirationDate}, ${supporter.fcmToken}, customer ${entitlementInfo.expirationDate},$token} ');
           if (supporter.expirationDate != null &&
               DateTime.now().isBefore(supporter.expirationDate!) &&
               supporter.fcmToken == token) {
