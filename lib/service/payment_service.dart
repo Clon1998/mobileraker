@@ -15,6 +15,7 @@ import 'package:mobileraker/service/firebase/firestore.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -173,16 +174,14 @@ class PaymentService {
           logger.i(
               'Read Supporter from local storage local: ${supporter.expirationDate}, customer ${entitlementInfo.expirationDate}');
           if (supporter.expirationDate != null &&
-              DateTime.now().isBefore(supporter.expirationDate!)) {
+              DateTime.now().isBefore(supporter.expirationDate!) &&
+              supporter.fcmToken == token) {
             logger.i('No need to write to firebase, its expected to still have a valid sub!');
             return;
           }
         }
 
-        DateTime? dt = null;
-        if (entitlementInfo.expirationDate != null) {
-          dt = DateTime.parse(entitlementInfo.expirationDate!);
-        }
+        DateTime? dt = entitlementInfo.expirationDate?.let(DateTime.parse);
 
         try {
           var supporter = Supporter(fcmToken: token, expirationDate: dt);
