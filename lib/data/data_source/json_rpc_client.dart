@@ -47,9 +47,8 @@ class JsonRpcClientBuilder {
     var octoUri = Uri.parse(octoEverywhere.url);
 
     return JsonRpcClientBuilder()
-      ..headers = machine.httpHeaders
+      ..headers = machine.headerWithApiKey
       ..timeout = const Duration(seconds: 5)
-      ..apiKey = machine.apiKey
       ..uri = localWsUir.replace(
           scheme: 'wss',
           port: 0, // OE automatically redirects the ports
@@ -60,7 +59,7 @@ class JsonRpcClientBuilder {
 
   factory JsonRpcClientBuilder.fromMachine(Machine machine) {
     return JsonRpcClientBuilder()
-      ..headers = machine.httpHeaders
+      ..headers = machine.headerWithApiKey
       ..uri = machine.wsUri
       ..apiKey = machine.apiKey
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
@@ -68,7 +67,6 @@ class JsonRpcClientBuilder {
   }
 
   ClientType clientType = ClientType.local;
-  String? apiKey;
   Uri? uri;
   bool trustSelfSignedCertificate = false;
   Duration timeout = const Duration(seconds: 3);
@@ -76,11 +74,6 @@ class JsonRpcClientBuilder {
 
   JsonRpcClient build() {
     assert(uri != null, 'Provided URI was null');
-
-    if (apiKey != null) {
-      headers = {...headers, 'X-Api-Key': apiKey};
-    }
-
     return JsonRpcClient(
       uri: uri!,
       timeout: timeout,

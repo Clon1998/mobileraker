@@ -6,6 +6,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/util/extensions/provider_extension.dart';
@@ -23,6 +24,7 @@ void setupLogger() {
         methodCount: 0,
         errorMethodCount: 200,
         noBoxingByDefault: true,
+        printTime: !kDebugMode,
         colors: !Platform.isIOS),
     output: memoryOutput,
     filter: ProductionFilter(),

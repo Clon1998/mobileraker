@@ -63,6 +63,9 @@ class Machine extends HiveObject {
 
   String get debugStr => '$name ($uuid)';
 
+  Map<String, String> get headerWithApiKey =>
+      {...httpHeaders, if (apiKey?.isNotEmpty == true) 'X-Api-Key': apiKey!};
+
   Machine({
     required String name,
     required this.wsUri,

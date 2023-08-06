@@ -249,6 +249,7 @@ class TestConnectionController extends _$TestConnectionController {
   StreamSubscription? _testConnectionRPCState;
   late JsonRpcClient _client;
   late HttpClient _httpClient;
+  late Map<String, String> _httpHeaders;
 
   @override
   TestConnectionState build() {
@@ -268,7 +269,6 @@ class TestConnectionController extends _$TestConnectionController {
       ..headers = machineToAdd.httpHeaders
       ..timeout = httpClient.connectionTimeout!
       ..uri = machineToAdd.wsUri
-      ..apiKey = machineToAdd.apiKey
       ..trustSelfSignedCertificate = machineToAdd.trustUntrustedCertificate;
     // ..headers = machineToAdd.headers;
 
@@ -279,6 +279,7 @@ class TestConnectionController extends _$TestConnectionController {
 
     _httpClient = httpClient;
     _client = jsonRpcClientBuilder.build();
+    _httpHeaders = machineToAdd.headerWithApiKey;
     _testWebsocket();
     _testHttp(s.httpUri);
     return s;
@@ -310,6 +311,9 @@ class TestConnectionController extends _$TestConnectionController {
     if (httpUri == null) return;
     try {
       var request = await _httpClient.getUrl(httpUri.appendPath('/access/info'));
+      _httpHeaders.forEach((key, value) {
+        request.headers.add(key, value);
+      });
       var response = await request.close();
 
       var isSuccess = response.statusCode == 200;
@@ -398,8 +402,7 @@ class TestConnectionState with _$TestConnectionState {
         _ => 'general.unknown'
       });
 
-  Color wsStateColor(ThemeData theme) =>
-      switch (wsState) {
+  Color wsStateColor(ThemeData theme) => switch (wsState) {
         ClientState.connected => theme.extension<CustomColors>()?.success ?? Colors.green,
         ClientState.error => theme.extension<CustomColors>()?.danger ?? Colors.yellow,
         _ => theme.extension<CustomColors>()?.info ?? Colors.lightBlue
