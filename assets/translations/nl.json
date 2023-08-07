@@ -58,8 +58,7 @@
           "elapsed": "Verlopen",
           "flow": "Stroom",
           "filament": "Filament",
-          "filament_tooltip": "{} % Filament gebruikt, dat is {} m van de verwachtte {} m",
-          "eta_tooltip": "Resterende Tijd: {} "
+          "filament_tooltip": "{} % Filament gebruikt, dat is {} m van de verwachtte {} m"
         },
         "cam_card": {
           "webcam": "Camera",

@@ -159,21 +159,58 @@ class Printer with _$Printer {
   double get zOffset => gCodeMove.homingOrigin[2];
 
   DateTime? get eta {
-    if ((this.print.printDuration) > 0 && (virtualSdCard.progress) > 0) {
-      var est = this.print.printDuration / virtualSdCard.progress - this.print.printDuration;
-      return DateTime.now().add(Duration(seconds: est.round()));
-    }
-    return null;
+    final remaining = remainingTimeAvg ?? 0;
+    if (remaining <= 0) return null;
+    return DateTime.now().add(Duration(seconds: remaining));
   }
 
-  int? get remainingTimeByFile {}
+  int? get remainingTimeByFile {
+    final printDuration = this.print.printDuration;
+    if (printDuration <= 0 || printProgress <= 0) return null;
+    return (printDuration / printProgress - printDuration).toInt();
+  }
 
-  int? get remainingTimeByFilament {}
+  int? get remainingTimeByFilament {
+    final printDuration = this.print.printDuration;
+    final filamentUsed = this.print.filamentUsed;
+    final filamentTotal = currentFile?.filamentTotal;
+    if (printDuration <= 0 || filamentTotal == null || filamentTotal <= filamentUsed) return null;
+
+    return (printDuration / (filamentUsed / filamentTotal) - printDuration).toInt();
+  }
 
   int? get remainingTimeBySlicer {
-    // this.print.
+    final printDuration = this.print.printDuration;
+    final slicerEstimate = currentFile?.estimatedTime;
+    if (slicerEstimate == null || printDuration <= 0 || slicerEstimate <= 0) return null;
 
-    // return (state.current_file.estimated_time - state.print_stats.print_duration).toFixed(0)
+    return (slicerEstimate - printDuration).toInt();
+  }
+
+  int? get remainingTimeAvg {
+    var remaining = 0;
+    var cnt = 0;
+
+    final rFile = remainingTimeByFile ?? 0;
+    if (rFile > 0) {
+      remaining += rFile;
+      cnt++;
+    }
+
+    final rFilament = remainingTimeByFilament ?? 0;
+    if (rFilament > 0) {
+      remaining += rFilament;
+      cnt++;
+    }
+
+    final rSlicer = remainingTimeBySlicer ?? 0;
+    if (rSlicer > 0) {
+      remaining += rSlicer;
+      cnt++;
+    }
+    if (cnt == 0) return null;
+
+    return remaining ~/ cnt;
   }
 
   // Relative file position progress
@@ -195,25 +232,6 @@ class Printer with _$Printer {
 
     return virtualSdCard.progress;
   }
-
-  // getPrintPercentByFilepositionRelative: (state) => {
-  // if (
-  // state.current_file?.filename &&
-  // state.current_file?.gcode_start_byte &&
-  // state.current_file?.gcode_end_byte &&
-  // state.current_file.filename === state.print_stats.filename
-  // ) {
-  // if (state.virtual_sdcard.file_position <= state.current_file.gcode_start_byte) return 0
-  // if (state.virtual_sdcard.file_position >= state.current_file.gcode_end_byte) return 1
-  //
-  // const currentPosition = state.virtual_sdcard.file_position - state.current_file.gcode_start_byte
-  // const maxPosition = state.current_file.gcode_end_byte - state.current_file.gcode_start_byte
-  //
-  // if (currentPosition > 0 && maxPosition > 0) return (1 / maxPosition) * currentPosition
-  // }
-  //
-  // return state.virtual_sdcard?.progress ?? 0
-  // },
 
   bool get isPrintFanAvailable => printFan != null;
 }

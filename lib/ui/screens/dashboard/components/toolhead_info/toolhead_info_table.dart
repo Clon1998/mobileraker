@@ -19,9 +19,7 @@ class ToolheadInfoTable extends ConsumerWidget {
 
   final List<String> rowsToShow;
 
-  const ToolheadInfoTable(
-      {Key? key, this.rowsToShow = const [POS_ROW, MOV_ROW]})
-      : super(key: key);
+  const ToolheadInfoTable({Key? key, this.rowsToShow = const [POS_ROW, MOV_ROW]}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,8 +35,7 @@ class ToolheadInfoTable extends ConsumerWidget {
               child: child,
             )),
         child: toolheadInfo.hasValue
-            ? _ToolheadData(
-                toolheadInfo: toolheadInfo.value!, rowsToShow: rowsToShow)
+            ? _ToolheadData(toolheadInfo: toolheadInfo.value!, rowsToShow: rowsToShow)
             : const LinearProgressIndicator());
   }
 }
@@ -55,17 +52,15 @@ class _ToolheadData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var position = ref
-            .watch(settingServiceProvider)
-            .readBool(AppSettingKeys.applyOffsetsToPostion)
+    var labelStyle = Theme.of(context).textTheme.bodySmall;
+
+    var position = ref.watch(settingServiceProvider).readBool(AppSettingKeys.applyOffsetsToPostion)
         ? toolheadInfo.postion
         : toolheadInfo.livePosition;
     return Table(
       border: TableBorder(
           horizontalInside: BorderSide(
-              width: 1,
-              color: Theme.of(context).dividerColor,
-              style: BorderStyle.solid)),
+              width: 1, color: Theme.of(context).dividerColor, style: BorderStyle.solid)),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
       columnWidths: const {
         0: FractionColumnWidth(.1),
@@ -77,76 +72,26 @@ class _ToolheadData extends ConsumerWidget {
               padding: EdgeInsets.all(8.0),
               child: Icon(FlutterIcons.axis_arrow_mco),
             ),
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('X'),
-                    Text(position[0].toStringAsFixed(2)),
-                  ],
-                )),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text('Y'),
-                  Text(position[1].toStringAsFixed(2)),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text('Z'),
-                  Text(position[2].toStringAsFixed(2)),
-                ],
-              ),
-            ),
+            _TableCell(label: 'X', value: position[0].toStringAsFixed(2)),
+            _TableCell(label: 'Y', value: position[1].toStringAsFixed(2)),
+            _TableCell(label: 'Z', value: position[2].toStringAsFixed(2)),
           ]),
-        if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW) &&
-            toolheadInfo.printingOrPaused) ...[
+        if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW) && toolheadInfo.printingOrPaused) ...[
           TableRow(
             children: [
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Icon(FlutterIcons.layers_fea),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('pages.dashboard.general.print_card.speed').tr(),
-                    Text('${toolheadInfo.mmSpeed} mm/s'),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('pages.dashboard.general.print_card.layer').tr(),
-                    Text(
-                        '${toolheadInfo.currentLayer}/${toolheadInfo.maxLayers}'),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('pages.dashboard.general.print_card.elapsed')
-                        .tr(),
-                    Text(secondsToDurationText(toolheadInfo.totalDuration)),
-                  ],
-                ),
-              ),
+              _TableCell(
+                  label: tr('pages.dashboard.general.print_card.speed'),
+                  value: '${toolheadInfo.mmSpeed} mm/s'),
+              _TableCell(
+                  label: tr('pages.dashboard.general.print_card.layer'),
+                  value: '${toolheadInfo.currentLayer}/${toolheadInfo.maxLayers}'),
+              _TableCell(
+                  label: tr('pages.dashboard.general.print_card.elapsed'),
+                  value: secondsToDurationText(toolheadInfo.totalDuration)),
             ],
           ),
           TableRow(
@@ -155,64 +100,61 @@ class _ToolheadData extends ConsumerWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Icon(FlutterIcons.printer_3d_mco),
               ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text('pages.dashboard.general.print_card.flow').tr(),
-                    Text('${toolheadInfo.currentFlow ?? 0} mm³/s'),
-                  ],
-                ),
-              ),
+              _TableCell(
+                  label: tr('pages.dashboard.general.print_card.flow'),
+                  value: '${toolheadInfo.currentFlow ?? 0} mm³/s'),
               Tooltip(
                 textAlign: TextAlign.center,
-                message: tr(
-                    'pages.dashboard.general.print_card.filament_tooltip',
-                    args: [
-                      toolheadInfo.usedFilamentPerc.toStringAsFixed(0),
-                      toolheadInfo.usedFilament?.toStringAsFixed(1) ?? '0',
-                      toolheadInfo.totalFilament?.toStringAsFixed(1) ?? '-'
-                    ]),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text('pages.dashboard.general.print_card.filament')
-                          .tr(),
-                      Text(
-                          '${toolheadInfo.usedFilament?.toStringAsFixed(1) ?? 0} m'),
-                    ],
-                  ),
-                ),
+                message: tr('pages.dashboard.general.print_card.filament_tooltip', args: [
+                  toolheadInfo.usedFilamentPerc.toStringAsFixed(0),
+                  toolheadInfo.usedFilament?.toStringAsFixed(1) ?? '0',
+                  toolheadInfo.totalFilament?.toStringAsFixed(1) ?? '-'
+                ]),
+                child: _TableCell(
+                    label: tr('pages.dashboard.general.print_card.filament'),
+                    value: '${toolheadInfo.usedFilament?.toStringAsFixed(1) ?? 0} m'),
               ),
               Tooltip(
-                textAlign: TextAlign.center,
-                message: tr('pages.dashboard.general.print_card.eta_tooltip',
-                    args: [
-                      toolheadInfo.remaining?.let(secondsToDurationText) ?? '--'
-                    ]),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text('pages.dashboard.general.print_card.eta').tr(),
-                      Text((toolheadInfo.eta != null)
-                          ? ref
-                              .read(dateFormatServiceProvider)
-                              .Hm()
-                              .format(toolheadInfo.eta!)
-                          : '--:--'),
-                    ],
-                  ),
-                ),
-              ),
+                  textAlign: TextAlign.end,
+                  message: tr('pages.dashboard.general.print_card.eta_tooltip', namedArgs: {
+                    'avg': toolheadInfo.remaining?.let(secondsToDurationText) ?? '--',
+                    'slicer': toolheadInfo.remainingSlicer?.let(secondsToDurationText) ?? '--',
+                    'file': toolheadInfo.remainingFile?.let(secondsToDurationText) ?? '--',
+                    'filament': toolheadInfo.remainingFilament?.let(secondsToDurationText) ?? '--',
+                  }),
+                  child: _TableCell(
+                      label: tr('pages.dashboard.general.print_card.eta'),
+                      value: toolheadInfo.eta?.let(
+                              (eta) => ref.read(dateFormatServiceProvider).Hm().format(eta)) ??
+                          '--:--')),
             ],
           ),
         ]
       ],
     );
+  }
+}
+
+class _TableCell extends StatelessWidget {
+  const _TableCell({
+    super.key,
+    required this.label,
+    required this.value,
+  });
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(label),
+            Text(value),
+          ],
+        ));
   }
 }

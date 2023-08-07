@@ -65,7 +65,7 @@
           "flow": "Flow",
           "filament": "Filament",
           "filament_tooltip": "Used {} % of Filament, that is {} m of the {} m predicted.",
-          "eta_tooltip": "Remaining time: {} "
+          "eta_tooltip": "Remaining time:\nAVG: {avg}\nSlicer: {slicer}\nFile: {file}\nFilament: {filament}"
         },
         "cam_card": {
           "webcam": "Webcam",

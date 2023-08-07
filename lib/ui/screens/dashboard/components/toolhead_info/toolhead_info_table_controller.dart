@@ -12,7 +12,6 @@ import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'toolhead_info_table_controller.freezed.dart';
@@ -35,6 +34,9 @@ class ToolheadInfo with _$ToolheadInfo {
     DateTime? eta,
     required int totalDuration,
     int? remaining,
+    int? remainingFile,
+    int? remainingFilament,
+    int? remainingSlicer,
   }) = _ToolheadInfo;
 
   factory ToolheadInfo.byComponents(Printer printer) {
@@ -70,7 +72,10 @@ class ToolheadInfo with _$ToolheadInfo {
         totalFilament: totalFilament,
         usedFilamentPerc: usedFilamentPerc,
         eta: printer.eta,
-        remaining: printer.eta?.let((v) => v.difference(DateTime.now()).inSeconds),
+        remaining: printer.remainingTimeAvg,
+        remainingFile: printer.remainingTimeByFile,
+        remainingFilament: printer.remainingTimeByFilament,
+        remainingSlicer: printer.remainingTimeBySlicer,
         totalDuration: printer.print.totalDuration.toInt());
   }
 
