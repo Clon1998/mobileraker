@@ -95,7 +95,7 @@ class PrinterBuilder {
     }
 
     var printer = Printer(
-        toolhead: toolhead!,
+      toolhead: toolhead!,
       extruders: extruders,
       heaterBed: heaterBed,
       printFan: printFan,
@@ -147,8 +147,7 @@ class Printer with _$Printer {
     @Default({}) Map<String, GenericHeater> genericHeaters,
   }) = _Printer;
 
-  Extruder get extruder =>
-      extruders[0]; // Fast way for first extruder -> always present!
+  Extruder get extruder => extruders[0]; // Fast way for first extruder -> always present!
 
   int get extruderCount => extruders.length;
 
@@ -156,12 +155,11 @@ class Printer with _$Printer {
 
   DateTime? get eta {
     if ((this.print.printDuration) > 0 && (virtualSdCard.progress) > 0) {
-      var est = this.print.printDuration / virtualSdCard.progress -
-          this.print.printDuration;
+      var est = this.print.printDuration / virtualSdCard.progress - this.print.printDuration;
       return DateTime.now().add(Duration(seconds: est.round()));
     }
     return null;
   }
 
-  bool get hasPrintFan => printFan != null;
+  bool get isPrintFanAvailable => printFan != null;
 }

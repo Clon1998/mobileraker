@@ -167,7 +167,7 @@ class FansCard extends ConsumerWidget {
             AdaptiveHorizontalScroll(pageStorageKey: 'fans', children: [
               if (ref
                       .watch(machinePrinterKlippySettingsProvider
-                          .selectAs((data) => data.printerData.hasPrintFan))
+                          .selectAs((data) => data.printerData.isPrintFanAvailable))
                       .valueOrNull ==
                   true)
                 const _PrintFan(),
