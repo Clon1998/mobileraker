@@ -183,7 +183,7 @@ class JsonRpcClient {
 
   // removes the method that was previously added by addMethodListeners
   bool removeMethodListener(RpcMethodListener callback, [String? method]) {
-    if (method != null) {
+    if (method == null) {
       var foundListeners = _methodListeners.values.where((element) => element.contains(callback));
       if (foundListeners.isEmpty) return true;
       return foundListeners
