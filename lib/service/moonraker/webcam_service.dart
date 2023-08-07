@@ -19,17 +19,18 @@ import '../../data/model/moonraker_db/webcam_info.dart';
 
 part 'webcam_service.g.dart';
 
-
 @riverpod
 WebcamService webcamService(WebcamServiceRef ref, String machineUUID) {
   return WebcamService(ref, machineUUID);
 }
 
 @riverpod
-Future<List<WebcamInfo>> allWebcamInfos(
-    AllWebcamInfosRef ref, String machineUUID) async {
-  await ref.watchWhere(jrpcClientStateProvider(machineUUID),
-      (c) => c == ClientState.connected, false);
+Future<List<WebcamInfo>> allWebcamInfos(AllWebcamInfosRef ref, String machineUUID) async {
+  await ref.watchWhere(
+      jrpcClientStateProvider(machineUUID), (c) => c == ClientState.connected, false);
+  ref.listen(jrpcMethodEventProvider(machineUUID, 'notify_webcams_changed'),
+      (previous, next) => ref.invalidateSelf());
+
   return ref.watch(webcamServiceProvider(machineUUID)).listWebcamInfos();
 }
 
@@ -41,21 +42,12 @@ Future<List<WebcamInfo>> allSupportedWebcamInfos(
       .toList(growable: false);
 }
 
-@riverpod
-Future<WebcamInfo> webcamInfo(
-    WebcamInfoRef ref, String machineUUID, String camUUID) async {
-  await ref.watchWhere(jrpcClientStateProvider(machineUUID),
-      (c) => c == ClientState.connected, false);
-  return ref.watch(webcamServiceProvider(machineUUID)).getWebcamInfo(camUUID);
-}
-
 /// The WebcamService handles all things related to the webcam API of moonraker.
 /// For more information check out
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#webcam-apis
 class WebcamService {
   WebcamService(this.ref, this.machineUUID)
-      : _webcamInfoRepository =
-            ref.watch(webcamInfoRepositoryProvider(machineUUID));
+      : _webcamInfoRepository = ref.watch(webcamInfoRepositoryProvider(machineUUID));
 
   final String machineUUID;
   final AutoDisposeRef ref;
@@ -70,8 +62,7 @@ class WebcamService {
       return cams;
     } catch (e, s) {
       logger.e('Error while listing cams', e, s);
-      throw MobilerakerException('Unable to list all webcams',
-          parentException: e);
+      throw MobilerakerException('Unable to list all webcams', parentException: e);
     }
   }
 
@@ -80,8 +71,7 @@ class WebcamService {
     try {
       await Future.wait(cams.map((e) => addOrModifyWebcamInfo(e)));
     } catch (e) {
-      throw MobilerakerException(
-          'Error while trying to add or modify webcams in bulk!',
+      throw MobilerakerException('Error while trying to add or modify webcams in bulk!',
           parentException: e);
     }
   }
@@ -92,8 +82,7 @@ class WebcamService {
     try {
       return await _webcamInfoRepository.get(uuid);
     } catch (e) {
-      throw MobilerakerException('Unable to get webcam info for $uuid',
-          parentException: e);
+      throw MobilerakerException('Unable to get webcam info for $uuid', parentException: e);
     }
   }
 
@@ -102,11 +91,10 @@ class WebcamService {
     try {
       await _webcamInfoRepository.addOrUpdate(cam);
       logger.e(cam);
-      ref.invalidate(webcamInfoProvider(machineUUID, cam.uuid));
+      ref.invalidate(allWebcamInfosProvider(machineUUID));
     } catch (e) {
       logger.e('Error while saving cam', e);
-      throw MobilerakerException(
-          'Unable to add/update webcam info for ${cam.uuid}',
+      throw MobilerakerException('Unable to add/update webcam info for ${cam.uuid}',
           parentException: e);
     }
   }
@@ -116,8 +104,7 @@ class WebcamService {
     try {
       return Future.wait(cams.map((e) => deleteWebcamInfo(e)));
     } catch (e) {
-      throw MobilerakerException(
-          'Error while trying to add or modify webcams in bulk!',
+      throw MobilerakerException('Error while trying to add or modify webcams in bulk!',
           parentException: e);
     }
   }

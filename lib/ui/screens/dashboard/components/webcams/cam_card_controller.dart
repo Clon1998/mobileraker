@@ -56,8 +56,7 @@ class CamCardController extends _$CamCardController {
     if (filteredCams.isNotEmpty) {
       var selIndex = min(filteredCams.length - 1,
           max(0, ref.read(settingServiceProvider).readInt(UtilityKeys.webcamIndex, 0)));
-      activeCam = await ref.watch(
-          webcamInfoProvider(machine.uuid, filteredCams[selIndex].uuid).future);
+      activeCam = filteredCams[selIndex];
     }
 
     return CamCardState(
@@ -68,16 +67,12 @@ class CamCardController extends _$CamCardController {
   }
 
   onSelectedChange(String? camUUID) async {
-    if (camUUID == null ||
-        !state.hasValue ||
-        state.value?.activeCam?.uuid == camUUID) return;
+    if (camUUID == null || !state.hasValue || state.value?.activeCam?.uuid == camUUID) return;
 
-    var c = await ref
-        .watch(webcamInfoProvider(state.value!.machine.uuid, camUUID).future);
-
-    var indexOf = state.value!.allCams.indexOf(c);
+    var cams = state.value!.allCams;
+    var indexOf = cams.indexWhere((cam) => cam.uuid == camUUID);
     ref.read(settingServiceProvider).writeInt(UtilityKeys.webcamIndex, indexOf);
-    state = AsyncValue.data(state.value!.copyWith(activeCam: c));
+    state = AsyncValue.data(state.value!.copyWith(activeCam: cams[indexOf]));
   }
 
   onFullScreenTap() {
@@ -88,8 +83,7 @@ class CamCardController extends _$CamCardController {
 
   onRetry() {
     if (state.hasValue && state.value!.activeCam != null) {
-      ref.invalidate(webcamInfoProvider(
-          state.value!.machine.uuid, state.value!.activeCam!.uuid));
+      ref.invalidate(allWebcamInfosProvider(state.value!.machine.uuid));
     }
   }
 }

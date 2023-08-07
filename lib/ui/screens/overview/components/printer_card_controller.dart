@@ -40,9 +40,7 @@ class PrinterCardController extends _$PrinterCardController {
     }
 
     var filteredCams = await filteredCamsFuture;
-    if (filteredCams.isEmpty) return null;
-
-    return ref.watch(webcamInfoProvider(machine.uuid, filteredCams.first.uuid).future);
+    return filteredCams.firstOrNull;
   }
 
   onTapTile() {
