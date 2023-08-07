@@ -64,7 +64,7 @@ Uri? previewImageUri(PreviewImageUriRef ref) {
 @riverpod
 Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
   var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
-  Map<String, String> headers = {};
+  Map<String, String> headers = machine?.headerWithApiKey ?? {};
   var clientType =
       (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
   if (machine != null) {
