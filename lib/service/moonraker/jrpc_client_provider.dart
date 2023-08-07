@@ -18,13 +18,11 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'jrpc_client_provider.g.dart';
 
 @riverpod
-JsonRpcClient _jsonRpcClient(
-    _JsonRpcClientRef ref, String machineUUID, ClientType type) {
+JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientType type) {
   var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
 
   if (machine == null) {
-    throw MobilerakerException(
-        'Machine with UUID "$machineUUID" was not found!');
+    throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
   }
 
   JsonRpcClient jsonRpcClient;
@@ -32,8 +30,7 @@ JsonRpcClient _jsonRpcClient(
     jsonRpcClient = JsonRpcClientBuilder.fromMachine(machine).build();
   } else if (type == ClientType.octo) {
     if (machine.octoEverywhere == null) {
-      throw ArgumentError(
-          'The provided machine,$machineUUID does not offer OctoEverywhere');
+      throw ArgumentError('The provided machine,$machineUUID does not offer OctoEverywhere');
     }
     jsonRpcClient = JsonRpcClientBuilder.fromOcto(machine).build();
   } else {
@@ -51,10 +48,8 @@ JsonRpcClient _jsonRpcClient(
 }
 
 @riverpod
-Stream<ClientState> _jsonRpcState(
-    _JsonRpcStateRef ref, String machineUUID, ClientType type) {
-  JsonRpcClient activeClient =
-      ref.watch(_jsonRpcClientProvider(machineUUID, type));
+Stream<ClientState> _jsonRpcState(_JsonRpcStateRef ref, String machineUUID, ClientType type) {
+  JsonRpcClient activeClient = ref.watch(_jsonRpcClientProvider(machineUUID, type));
 
   return activeClient.stateStream;
 }
@@ -71,8 +66,7 @@ class JrpcClientManager extends _$JrpcClientManager {
   AutoDisposeProvider<JsonRpcClient> build(String machineUUID) {
     var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
     if (machine == null) {
-      throw MobilerakerException(
-          'Machine with UUID "$machineUUID" was not found!');
+      throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
     }
 
     OctoEverywhere? octoEverywhere = machine.octoEverywhere;
@@ -106,18 +100,15 @@ class JrpcClientManager extends _$JrpcClientManager {
 }
 
 @riverpod
-Stream<ClientState> jrpcClientState(
-    JrpcClientStateRef ref, String machineUUID) {
+Stream<ClientState> jrpcClientState(JrpcClientStateRef ref, String machineUUID) {
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
-  return ref.watchAsSubject(
-      _jsonRpcStateProvider(machineUUID, jsonRpcClient.clientType));
+  return ref.watchAsSubject(_jsonRpcStateProvider(machineUUID, jsonRpcClient.clientType));
 }
 
 @riverpod
 ClientType jrpcClientType(JrpcClientTypeRef ref, String machineUUID) {
-  return ref.watch(
-      jrpcClientProvider(machineUUID).select((value) => value.clientType));
+  return ref.watch(jrpcClientProvider(machineUUID).select((value) => value.clientType));
 }
 
 // final jrpcClientProvider = Provider.autoDispose.family<JsonRpcClient, String>(
@@ -146,12 +137,27 @@ JsonRpcClient jrpcClientSelected(JrpcClientSelectedRef ref) {
 }
 
 @riverpod
-Stream<ClientState> jrpcClientStateSelected(
-    JrpcClientStateSelectedRef ref) async* {
+Stream<ClientState> jrpcClientStateSelected(JrpcClientStateSelectedRef ref) async* {
   try {
     Machine machine = await ref.watchWhereNotNull(selectedMachineProvider);
     yield* ref.watchAsSubject(jrpcClientStateProvider(machine.uuid));
   } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!
   }
+}
+
+@riverpod
+Stream<Map<String, dynamic>> jrpcMethodEvent(JrpcMethodEventRef ref, String machineUUID,
+    [String method = WILDCARD_METHOD]) {
+  StreamController<Map<String, dynamic>> streamController = StreamController.broadcast();
+  JsonRpcClient jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
+
+  listener(Map<String, dynamic> map) => streamController.add(map);
+  jsonRpcClient.addMethodListener(listener, method);
+
+  ref.onDispose(() {
+    jsonRpcClient.removeMethodListener(listener);
+    streamController.close();
+  });
+  return streamController.stream;
 }
