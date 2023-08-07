@@ -112,8 +112,7 @@ class _PrintProgressBar extends ConsumerWidget {
           alignment: Alignment.bottomCenter,
           child: LinearProgressIndicator(
             value: ref
-                    .watch(printerProvider(machine.uuid)
-                        .selectAs((data) => data.virtualSdCard.progress))
+                    .watch(printerProvider(machine.uuid).selectAs((data) => data.printProgress))
                     .valueOrFullNull ??
                 0,
           )),

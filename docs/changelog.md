@@ -18,6 +18,8 @@
 - Modified the behavior of the Confirm EMS setting to be an opt-out setting instead of opt-in.
 - Improved the accuracy of the current and max layer display by utilizing moonraker's info.layer
   fields. [#138](https://github.com/Clon1998/mobileraker/issues/138)
+- Enhanced print progress accuracy by implementing the relative file
+  method. ([#138](https://github.com/Clon1998/mobileraker/issues/138))
 - Added support for a 12-hour time
   format. [#192](https://github.com/Clon1998/mobileraker/issues/197)
 - Updated Mobileraker's notification icon for

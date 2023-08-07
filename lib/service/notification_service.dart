@@ -472,7 +472,7 @@ class NotificationService {
 
     if (state == PrintState.printing && !Platform.isIOS) {
       await _updatePrintProgressNotification(
-          machine, printer.virtualSdCard.progress, printer.print.printDuration, false);
+          machine, printer.printProgress, printer.print.printDuration, false);
     }
     await machine.save();
   }

@@ -19,7 +19,6 @@ import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
-import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/logger.dart';
@@ -158,7 +157,6 @@ class PrintCard extends ConsumerWidget {
         generalTabViewControllerProvider.select((data) => data.value!.printerData.excludeObject));
 
     var themeData = Theme.of(context);
-    logger.wtf('klippy instance $klippyInstance');
     var klippyCanReceiveCommands = klippyInstance.klippyCanReceiveCommands;
     return Card(
       child: Column(
@@ -178,7 +176,7 @@ class PrintCard extends ConsumerWidget {
                 style: TextStyle(
                     color: !klippyCanReceiveCommands ? themeData.colorScheme.error : null)),
             subtitle: _subTitle(ref),
-            trailing: _trailing(ref, themeData, klippyCanReceiveCommands),
+            trailing: _trailing(context, ref, themeData, klippyCanReceiveCommands),
           ),
           if (const {KlipperState.shutdown, KlipperState.error}
               .contains(klippyInstance.klippyState))
@@ -252,20 +250,21 @@ class PrintCard extends ConsumerWidget {
     );
   }
 
-  Widget? _trailing(WidgetRef ref, ThemeData themeData, bool klippyCanReceiveCommands) {
+  Widget? _trailing(
+      BuildContext context, WidgetRef ref, ThemeData themeData, bool klippyCanReceiveCommands) {
     PrintState printState = ref.watch(
         generalTabViewControllerProvider.select((data) => data.value!.printerData.print.state));
 
-    VirtualSdCard virtualSdCard = ref.watch(
-        generalTabViewControllerProvider.select((data) => data.value!.printerData.virtualSdCard));
+    var progress = ref.watch(
+        generalTabViewControllerProvider.select((data) => data.value!.printerData.printProgress));
 
     switch (printState) {
       case PrintState.printing:
         return CircularPercentIndicator(
           radius: 25,
           lineWidth: 4,
-          percent: virtualSdCard.progress,
-          center: Text('${(virtualSdCard.progress * 100).round()}%'),
+          percent: progress,
+          center: Text(NumberFormat.percentPattern(context.locale.languageCode).format(progress)),
           progressColor: (printState == PrintState.complete) ? Colors.green : Colors.deepOrange,
         );
       case PrintState.complete:

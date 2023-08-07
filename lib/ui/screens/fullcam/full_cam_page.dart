@@ -135,7 +135,7 @@ class StackContent extends ConsumerWidget {
                     child: Align(
                         alignment: Alignment.bottomCenter,
                         child: LinearProgressIndicator(
-                          value: d.virtualSdCard.progress,
+                          value: d.printProgress,
                         )),
                   )
               ];

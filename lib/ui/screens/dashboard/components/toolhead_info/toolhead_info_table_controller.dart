@@ -10,7 +10,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/printer.dart';
-import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/util/extensions/double_extension.dart';
 import 'package:mobileraker/util/extensions/object_extension.dart';
@@ -19,6 +18,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'toolhead_info_table_controller.freezed.dart';
 part 'toolhead_info_table_controller.g.dart';
 
+//TODO: This can be removed and merged into the main printer class as getters since all components required for this info are now merged into the printer object
 @freezed
 class ToolheadInfo with _$ToolheadInfo {
   const factory ToolheadInfo({
@@ -37,7 +37,8 @@ class ToolheadInfo with _$ToolheadInfo {
     int? remaining,
   }) = _ToolheadInfo;
 
-  factory ToolheadInfo.byComponents(Printer printer, GCodeFile? currentFile) {
+  factory ToolheadInfo.byComponents(Printer printer) {
+    final GCodeFile? currentFile = printer.currentFile;
     int maxLayer = _calculateMaxLayer(printer, currentFile);
     int curLayer = _calculateCurrentLayer(printer, currentFile, maxLayer);
     double currentFlow = 0;
@@ -107,20 +108,7 @@ class ToolheadInfo with _$ToolheadInfo {
 
 @riverpod
 Future<ToolheadInfo> toolheadInfo(ToolheadInfoRef ref) async {
-  var res = await Future.wait([
-    ref.watch(printerSelectedProvider.future),
-    ref.watch(_currentFileProvider.future),
-  ]);
+  var printer = await ref.watch(printerSelectedProvider.future);
 
-  return ToolheadInfo.byComponents(res[0] as Printer, res.elementAtOrNull(1) as GCodeFile?);
-}
-
-@riverpod
-Future<GCodeFile?> _currentFile(_CurrentFileRef ref) async {
-  String? currentFilePrinting =
-      ref.watch(printerSelectedProvider.select((data) => data.valueOrNull?.print.filename));
-
-  if (currentFilePrinting == null || currentFilePrinting.isEmpty) return null;
-
-  return ref.watch(fileServiceSelectedProvider).getGCodeMetadata(currentFilePrinting);
+  return ToolheadInfo.byComponents(printer);
 }

@@ -5,6 +5,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
+import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/machine/bed_screw.dart';
 import 'package:mobileraker/data/dto/machine/display_status.dart';
 import 'package:mobileraker/data/dto/machine/heaters/generic_heater.dart';
@@ -50,7 +51,8 @@ class PrinterBuilder {
         motionReport = printer.motionReport,
         displayStatus = printer.displayStatus,
         leds = printer.leds,
-        genericHeaters = printer.genericHeaters;
+        genericHeaters = printer.genericHeaters,
+        currentFile = printer.currentFile;
 
   Toolhead? toolhead;
   List<Extruder> extruders = [];
@@ -65,6 +67,7 @@ class PrinterBuilder {
   VirtualSdCard? virtualSdCard;
   ManualProbe? manualProbe;
   BedScrew? bedScrew;
+  GCodeFile? currentFile;
   Map<String, NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
@@ -108,6 +111,7 @@ class PrinterBuilder {
       virtualSdCard: virtualSdCard!,
       manualProbe: manualProbe,
       bedScrew: bedScrew,
+      currentFile: currentFile,
       fans: Map.unmodifiable(fans),
       temperatureSensors: Map.unmodifiable(temperatureSensors),
       outputPins: Map.unmodifiable(outputPins),
@@ -138,6 +142,7 @@ class Printer with _$Printer {
     required VirtualSdCard virtualSdCard,
     ManualProbe? manualProbe,
     BedScrew? bedScrew,
+    GCodeFile? currentFile,
     @Default({}) Map<String, NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
     @Default({}) Map<String, OutputPin> outputPins,
@@ -160,6 +165,55 @@ class Printer with _$Printer {
     }
     return null;
   }
+
+  int? get remainingTimeByFile {}
+
+  int? get remainingTimeByFilament {}
+
+  int? get remainingTimeBySlicer {
+    // this.print.
+
+    // return (state.current_file.estimated_time - state.print_stats.print_duration).toFixed(0)
+  }
+
+  // Relative file position progress
+  double get printProgress {
+    if (currentFile?.gcodeStartByte != null &&
+        currentFile?.gcodeEndByte != null &&
+        currentFile?.name == this.print.filename) {
+      final gcodeStartByte = currentFile!.gcodeStartByte!;
+      final gcodeEndByte = currentFile!.gcodeEndByte!;
+      if (virtualSdCard.filePosition <= gcodeStartByte) return 0;
+      if (virtualSdCard.filePosition >= gcodeEndByte) return 1;
+
+      final currentPosition = virtualSdCard.filePosition - gcodeStartByte;
+      final maxPosition = gcodeEndByte - gcodeStartByte;
+      if (currentPosition > 0 && maxPosition > 0) {
+        return currentPosition / maxPosition;
+      }
+    }
+
+    return virtualSdCard.progress;
+  }
+
+  // getPrintPercentByFilepositionRelative: (state) => {
+  // if (
+  // state.current_file?.filename &&
+  // state.current_file?.gcode_start_byte &&
+  // state.current_file?.gcode_end_byte &&
+  // state.current_file.filename === state.print_stats.filename
+  // ) {
+  // if (state.virtual_sdcard.file_position <= state.current_file.gcode_start_byte) return 0
+  // if (state.virtual_sdcard.file_position >= state.current_file.gcode_end_byte) return 1
+  //
+  // const currentPosition = state.virtual_sdcard.file_position - state.current_file.gcode_start_byte
+  // const maxPosition = state.current_file.gcode_end_byte - state.current_file.gcode_start_byte
+  //
+  // if (currentPosition > 0 && maxPosition > 0) return (1 / maxPosition) * currentPosition
+  // }
+  //
+  // return state.virtual_sdcard?.progress ?? 0
+  // },
 
   bool get isPrintFanAvailable => printFan != null;
 }

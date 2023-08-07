@@ -43,6 +43,7 @@ import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
+import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
@@ -65,7 +66,19 @@ PrinterService printerService(PrinterServiceRef ref, String machineUUID) {
 @riverpod
 Stream<Printer> printer(PrinterRef ref, String machineUUID) {
   ref.keepAlive();
-  return ref.watch(printerServiceProvider(machineUUID)).printerStream;
+  var printerService = ref.watch(printerServiceProvider(machineUUID));
+  ref.listenSelf((previous, next) {
+    var previousFileName = previous?.valueOrNull?.print.filename;
+    var nextFileName = next.valueOrNull?.print.filename;
+    // The 2nd case is to cover rare race conditions where a printer update was issued at the same time as this code was executed
+    if (previousFileName != nextFileName ||
+        next.hasValue &&
+            (nextFileName?.isNotEmpty == true && next.value?.currentFile == null ||
+                nextFileName?.isEmpty == true && next.value?.currentFile != null)) {
+      printerService.updateCurrentFile(nextFileName);
+    }
+  });
+  return printerService.printerStream;
 }
 
 @riverpod
@@ -87,6 +100,7 @@ Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
 class PrinterService {
   PrinterService(AutoDisposeRef ref, this.ownerUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)),
+        _fileService = ref.watch(fileServiceProvider(ownerUUID)),
         _machineService = ref.watch(machineServiceProvider),
         _snackBarService = ref.watch(snackBarServiceProvider),
         _dialogService = ref.watch(dialogServiceProvider) {
@@ -115,6 +129,8 @@ class PrinterService {
   final DialogService _dialogService;
 
   final JsonRpcClient _jRpcClient;
+
+  final FileService _fileService;
 
   final MachineService _machineService;
 
@@ -433,6 +449,17 @@ class PrinterService {
 
   excludeObject(ParsedObject objToExc) {
     gCode('EXCLUDE_OBJECT NAME=${objToExc.name}');
+  }
+
+  updateCurrentFile(String? file) async {
+    logger.i('Also requesting an update for current_file: $file');
+
+    var gCodeMeta = (file?.isNotEmpty == true) ? await _fileService.getGCodeMetadata(file!) : null;
+
+    if (hasCurrent) {
+      logger.i('UPDATED current_file: $gCodeMeta');
+      current = current.copyWith(currentFile: gCodeMeta);
+    }
   }
 
   Future<void> _temperatureStore(PrinterBuilder printer) async {
