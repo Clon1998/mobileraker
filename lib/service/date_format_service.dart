@@ -9,7 +9,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'date_format_service.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 DateFormatService dateFormatService(DateFormatServiceRef ref) {
   var settingService = ref.watch(settingServiceProvider);
   return DateFormatService(settingService);

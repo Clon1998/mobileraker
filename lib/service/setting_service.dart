@@ -8,7 +8,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'setting_service.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 SettingService settingService(SettingServiceRef ref) {
   return SettingService();
 }
