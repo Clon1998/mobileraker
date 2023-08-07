@@ -97,17 +97,17 @@ class ToolheadInfo with _$ToolheadInfo {
 
   static int _calculateCurrentLayer(Printer printer, GCodeFile? currentFile, int totalLayers) {
     final currentLayer = printer.print.currentLayer;
+    final printDuration = printer.print.printDuration;
     final firstLayerHeight = currentFile?.firstLayerHeight;
     final layerHeight = currentFile?.layerHeight;
-    final toolheadZPosition = printer.toolhead.position[2];
+    final gCodeZPosition = printer.gCodeMove.gcodePosition[2];
 
     if (currentLayer != null) return currentLayer;
-    if (firstLayerHeight == null || layerHeight == null) {
+    if (firstLayerHeight == null || layerHeight == null || printDuration <= 0) {
       return 0;
     }
-
-    return max(
-        0, min(totalLayers, ((toolheadZPosition - firstLayerHeight) / layerHeight + 1).ceil()));
+    var layer = ((gCodeZPosition - firstLayerHeight) / layerHeight + 1).ceil();
+    return max(0, min(totalLayers, layer));
   }
 }
 
