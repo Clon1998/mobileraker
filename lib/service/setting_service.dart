@@ -18,6 +18,10 @@ SettingService settingService(SettingServiceRef ref) {
 class SettingService {
   late final _boxSettings = Hive.box('settingsbox'); // maybe move it to the repo ?
 
+  bool containsKey(KeyValueStoreKey key) {
+    return _boxSettings.containsKey(key.key);
+  }
+
   Future<void> writeBool(KeyValueStoreKey key, bool val) {
     return _boxSettings.put(key.key, val);
   }
@@ -87,10 +91,24 @@ enum UtilityKeys implements KeyValueStoreKey {
   recentColors('selectedColors'),
   nonSupporterDismiss('nSWDismiss'),
   nonSupporterMachineCleanup('nSMachCleanDate'),
+  supporterTokenDate('supTknDate'),
   ;
 
   @override
   final String key;
 
   const UtilityKeys(this.key);
+}
+
+class CompositeKey implements KeyValueStoreKey {
+  CompositeKey._(this._key);
+
+  final String _key;
+
+  @override
+  String get key => _key;
+
+  factory CompositeKey.keyWithString(KeyValueStoreKey key, String str) {
+    return CompositeKey._("${key.key}_$str");
+  }
 }
