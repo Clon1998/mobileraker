@@ -21,7 +21,7 @@
 - Enhanced print progress accuracy by implementing the relative file
   method. ([#138](https://github.com/Clon1998/mobileraker/issues/138))
 - Improved ETA accuracy and added tooltips to the ETA table cells, displaying Slicer, File, and
-  Filament remaining time information. ([#138](https://github.com/Clon1998/mobileraker/issues/138))
+  Filament remaining time information. [#138](https://github.com/Clon1998/mobileraker/issues/138)
 - Added support for a 12-hour time
   format. [#192](https://github.com/Clon1998/mobileraker/issues/197)
 - Updated Mobileraker's notification icon for
