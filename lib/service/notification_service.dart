@@ -51,6 +51,11 @@ NotificationService notificationService(NotificationServiceRef ref) {
   return notificationService;
 }
 
+@riverpod
+Future<String> fcmToken(FcmTokenRef ref) {
+  return ref.watch(notificationServiceProvider).fetchCurrentFcmToken();
+}
+
 class NotificationService {
   static const String _portName = 'onNoti';
 

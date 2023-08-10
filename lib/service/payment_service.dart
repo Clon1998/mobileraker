@@ -167,41 +167,46 @@ class PaymentService {
       isSupporterProvider,
       (previous, next) async {
         if (next) {
-          CustomerInfo customerInfo = await _ref.read(customerInfoProvider.future);
-          String token = await _ref.read(notificationServiceProvider).fetchCurrentFcmToken();
-          var supporterEntitlement = customerInfo.entitlements.active['Supporter']!;
-          final settingKey = CompositeKey.keyWithString(
-              UtilityKeys.supporterTokenDate, customerInfo.originalAppUserId);
-
-          if (_settingService.containsKey(settingKey)) {
-            Map<dynamic, dynamic> name = _settingService.read(settingKey, {});
-            var supporter = Supporter.fromJson(name.cast<String, dynamic>());
-
-            logger.i(
-                'Read Supporter storage local: ${supporter.expirationDate}, ${supporter.fcmToken}. Customer.expirationDate: ${supporterEntitlement.expirationDate}, FcmToken: $token');
-            if (supporter.expirationDate != null &&
-                DateTime.now().isBefore(supporter.expirationDate!) &&
-                supporter.fcmToken == token) {
-              logger.i('No need to write to firebase, its expected to still have a valid sub!');
-              return;
-            }
-          }
-
-          // entitlement.expirationDate can be null if it is a lifetime sub
-          DateTime dt = supporterEntitlement.expirationDate?.let(DateTime.parse) ??
-              DateTime.now().add(const Duration(days: 30));
-
           try {
-            var supporter = Supporter(fcmToken: token, expirationDate: dt);
-            await _ref
-                .read(firestoreProvider)
-                .collection('sup')
-                .doc(customerInfo.originalAppUserId)
-                .set(supporter.toFirebase());
-            logger.i('Added fcmToken to fireStore... now writing it to local storage');
-            _settingService.write(settingKey, supporter.toJson());
-          } catch (e) {
-            logger.w('Error while trying to register FCM token with firebase:', e);
+            CustomerInfo customerInfo = await _ref.read(customerInfoProvider.future);
+            String token = await _ref.read(fcmTokenProvider.future);
+            var supporterEntitlement = customerInfo.entitlements.active['Supporter']!;
+            final settingKey = CompositeKey.keyWithString(
+                UtilityKeys.supporterTokenDate, customerInfo.originalAppUserId);
+
+            if (_settingService.containsKey(settingKey)) {
+              Map<dynamic, dynamic> name = _settingService.read(settingKey, {});
+              var supporter = Supporter.fromJson(name.cast<String, dynamic>());
+
+              logger.i(
+                  'Read Supporter storage local: ${supporter.expirationDate}, ${supporter.fcmToken}. Customer.expirationDate: ${supporterEntitlement.expirationDate}, FcmToken: $token');
+              if (supporter.expirationDate != null &&
+                  DateTime.now().isBefore(supporter.expirationDate!) &&
+                  supporter.fcmToken == token) {
+                logger.i('No need to write to firebase, its expected to still have a valid sub!');
+                return;
+              }
+            }
+
+            // entitlement.expirationDate can be null if it is a lifetime sub
+            DateTime dt = supporterEntitlement.expirationDate?.let(DateTime.parse) ??
+                DateTime.now().add(const Duration(days: 30));
+
+            try {
+              var supporter = Supporter(fcmToken: token, expirationDate: dt);
+              await _ref
+                  .read(firestoreProvider)
+                  .collection('sup')
+                  .doc(customerInfo.originalAppUserId)
+                  .set(supporter.toFirebase());
+              logger.i('Added fcmToken to fireStore... now writing it to local storage');
+              _settingService.write(settingKey, supporter.toJson());
+            } catch (e) {
+              logger.w('Error while trying to register FCM token with firebase:', e);
+            }
+          } catch (e, s) {
+            logger.e(
+                'Error while trying to register supporter status/fcm token in firebase:', e, s);
           }
         }
       },
