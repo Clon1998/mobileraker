@@ -68,6 +68,7 @@ class _BottomNav extends ConsumerWidget {
         BottomNavigationBarItem(
             label: 'GCodes', icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
         BottomNavigationBarItem(label: 'Configs', icon: Icon(FlutterIcons.file_code_faw5)),
+        // BottomNavigationBarItem(label: 'Logs', icon: Icon(FlutterIcons.file_eye_outline_mco)),
       ],
     );
   }

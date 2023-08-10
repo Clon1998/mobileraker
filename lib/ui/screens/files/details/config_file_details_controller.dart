@@ -19,12 +19,12 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'config_file_details_controller.freezed.dart';
 part 'config_file_details_controller.g.dart';
 
-@riverpod
+@Riverpod(dependencies: [])
 GenericFile configFile(ConfigFileRef ref) => throw UnimplementedError();
 
-final configFileDetailsControllerProvider = StateNotifierProvider.autoDispose<
-    ConfigFileDetailsController,
-    ConfigDetailPageState>((ref) => ConfigFileDetailsController(ref));
+final configFileDetailsControllerProvider =
+    StateNotifierProvider.autoDispose<ConfigFileDetailsController, ConfigDetailPageState>(
+        (ref) => ConfigFileDetailsController(ref));
 
 class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   ConfigFileDetailsController(this.ref)
@@ -42,8 +42,7 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
 
   _init() async {
     try {
-      var downloadFile = await fileService
-          .downloadFile(ref.read(configFileProvider).absolutPath);
+      var downloadFile = await fileService.downloadFile(ref.read(configFileProvider).absolutPath);
       var content = await downloadFile.readAsString();
       if (mounted) {
         state = state.copyWith(config: AsyncValue.data(content));
@@ -58,8 +57,7 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   Future<void> onSaveTapped(String code) async {
     state = state.copyWith(isUploading: true);
     try {
-      await fileService.uploadAsFile(
-          ref.read(configFileProvider).absolutPath, code);
+      await fileService.uploadAsFile(ref.read(configFileProvider).absolutPath, code);
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
       snackBarService.show(SnackBarConfig(
@@ -77,8 +75,7 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
     state = state.copyWith(isUploading: true);
 
     try {
-      await fileService.uploadAsFile(
-          ref.read(configFileProvider).absolutPath, code);
+      await fileService.uploadAsFile(ref.read(configFileProvider).absolutPath, code);
       klippyService.restartMCUs();
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {

@@ -201,7 +201,7 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
     return true;
   };
   yield StartUpStep.firebaseAnalytics;
-  await ref.read(analyticsProvider).logAppOpen();
+  ref.read(analyticsProvider).logAppOpen().ignore();
 
   setupLicenseRegistry();
 

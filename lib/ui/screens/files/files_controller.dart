@@ -41,7 +41,8 @@ class FilesPageController extends StateNotifier<FilePageState> {
       : _snackBarService = ref.watch(snackBarServiceProvider),
         super(FilePageState.loading()) {
     ref.listen(filePageProvider, (previous, int next) {
-      fetchDirectoryData((next == 0) ? ['gcodes'] : ['config'], true);
+      var dir = switch (next) { 1 => 'config', 2 => 'logs', _ => 'gcodes' };
+      fetchDirectoryData([dir], true);
     }, fireImmediately: true);
 
     ref.listen(isSearchingProvider, (previous, bool next) {
@@ -52,13 +53,11 @@ class FilesPageController extends StateNotifier<FilePageState> {
       _filterAndSortResult();
     });
 
-    ref.listen(searchTextEditingControllerProvider,
-        (previous, TextEditingController next) {
+    ref.listen(searchTextEditingControllerProvider, (previous, TextEditingController next) {
       _filterAndSortResult();
     });
 
-    ref.listen(fileNotificationsSelectedProvider,
-            (previous, AsyncValue<FileActionResponse> next) {
+    ref.listen(fileNotificationsSelectedProvider, (previous, AsyncValue<FileActionResponse> next) {
       next.whenData(handleFileListChanged);
     });
   }
@@ -68,22 +67,19 @@ class FilesPageController extends StateNotifier<FilePageState> {
 
   String get pathAsString => state.path.join('/');
 
-  fetchDirectoryData(
-      [List<String> newPath = const ['gcodes'], bool force = false]) async {
+  fetchDirectoryData([List<String> newPath = const ['gcodes'], bool force = false]) async {
     try {
       if (state.apiResult.isLoading && !force) {
         return;
       } // Prevent dublicate fetches!
       state = FilePageState.loading(newPath);
-      var result = await ref
-          .read(fileServiceSelectedProvider)
-          .fetchDirectoryInfo(pathAsString, true);
+      var result =
+          await ref.read(fileServiceSelectedProvider).fetchDirectoryInfo(pathAsString, true);
       if (pathAsString != result.folderPath) return;
       state = state.copyWith(apiResult: result);
       _filterAndSortResult();
     } catch (e, s) {
-      state = FilePageState(
-          newPath, AsyncValue.error(e, s), AsyncValue.error(e, s));
+      state = FilePageState(newPath, AsyncValue.error(e, s), AsyncValue.error(e, s));
     }
   }
 
@@ -92,19 +88,16 @@ class FilesPageController extends StateNotifier<FilePageState> {
     FolderContentWrapper rawContent = state.apiResult.value!;
     List<Folder> folders = rawContent.folders.toList();
     List<RemoteFile> files = rawContent.files.toList();
-    String queryTerm =
-        ref.read(searchTextEditingControllerProvider).text.toLowerCase();
+    String queryTerm = ref.read(searchTextEditingControllerProvider).text.toLowerCase();
 
     if (queryTerm.isNotEmpty && ref.read(isSearchingProvider)) {
       List<String> terms = queryTerm.split(RegExp(r'\W+'));
       folders = folders
-          .where((element) =>
-              terms.every((t) => element.name.toLowerCase().contains(t)))
+          .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
           .toList(growable: false);
 
       files = files
-          .where((element) =>
-              terms.every((t) => element.name.toLowerCase().contains(t)))
+          .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
           .toList(growable: false);
     }
 
@@ -113,8 +106,7 @@ class FilesPageController extends StateNotifier<FilePageState> {
     files.sort(sortMode.comparatorFile);
 
     state = state.copyWith(
-        filteredAndSorted:
-            FolderContentWrapper(rawContent.folderPath, folders, files));
+        filteredAndSorted: FolderContentWrapper(rawContent.folderPath, folders, files));
   }
 
   handleFileListChanged(FileActionResponse fileListChangedNotification) {
@@ -158,8 +150,7 @@ class FilesPageController extends StateNotifier<FilePageState> {
     return true;
   }
 
-  onDeleteFileTapped(
-      MaterialLocalizations materialLocalizations, String fileName) async {
+  onDeleteFileTapped(MaterialLocalizations materialLocalizations, String fileName) async {
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
           title: tr('dialogs.delete_folder.title'),
           body: tr('dialogs.delete_file.description', args: [fileName]),
@@ -169,21 +160,17 @@ class FilesPageController extends StateNotifier<FilePageState> {
     if (dialogResponse?.confirmed == true) {
       state = FilePageState.loading(state.path);
       try {
-        await ref
-            .read(fileServiceSelectedProvider)
-            .deleteFile('$pathAsString/$fileName');
+        await ref.read(fileServiceSelectedProvider).deleteFile('$pathAsString/$fileName');
       } on JRpcError catch (e) {
         _snackBarService.show(SnackBarConfig(
-            type: SnackbarType.error,
-            message: 'Could not perform rename.\n${e.message}'));
+            type: SnackbarType.error, message: 'Could not perform rename.\n${e.message}'));
       } finally {
         fetchDirectoryData(state.path, true);
       }
     }
   }
 
-  onDeleteDirTapped(
-      MaterialLocalizations materialLocalizations, String folder) async {
+  onDeleteDirTapped(MaterialLocalizations materialLocalizations, String folder) async {
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
           title: tr('dialogs.delete_folder.title'),
           body: tr('dialogs.delete_folder.description', args: [folder]),
@@ -193,13 +180,10 @@ class FilesPageController extends StateNotifier<FilePageState> {
     if (dialogResponse?.confirmed == true) {
       state = FilePageState.loading(state.path);
       try {
-        await ref
-            .read(fileServiceSelectedProvider)
-            .deleteDirForced('$pathAsString/$folder');
+        await ref.read(fileServiceSelectedProvider).deleteDirForced('$pathAsString/$folder');
       } on JRpcError catch (e) {
         _snackBarService.show(SnackBarConfig(
-            type: SnackbarType.error,
-            message: 'Could not delete dir.\n${e.message}'));
+            type: SnackbarType.error, message: 'Could not delete dir.\n${e.message}'));
       } finally {
         fetchDirectoryData(state.path, true);
       }
@@ -214,15 +198,13 @@ class FilesPageController extends StateNotifier<FilePageState> {
     fileNames.remove(fileName);
 
     var dialogResponse = await ref.read(dialogServiceProvider).show(
-          DialogRequest(
+      DialogRequest(
               type: DialogType.renameFile,
               title: tr('dialogs.rename_file.title'),
               body: tr('dialogs.rename_file.label'),
               confirmBtn: tr('general.rename'),
               data: RenameFileDialogArguments(
-                  initialValue: fileName,
-                  blocklist: fileNames,
-                  matchPattern: '^[\\w.#+_\\- ]+\$')),
+                  initialValue: fileName, blocklist: fileNames, matchPattern: '^[\\w.#+_\\- ]+\$')),
         );
 
     _handleRenameResult(dialogResponse, fileName);
@@ -236,21 +218,18 @@ class FilesPageController extends StateNotifier<FilePageState> {
     fileNames.remove(fileName);
 
     var dialogResponse = await ref.read(dialogServiceProvider).show(
-          DialogRequest(
+      DialogRequest(
               type: DialogType.renameFile,
               title: tr('dialogs.rename_folder.title'),
               body: tr('dialogs.rename_folder.label'),
               confirmBtn: tr('general.rename'),
               data: RenameFileDialogArguments(
-                  initialValue: fileName,
-                  blocklist: fileNames,
-                  matchPattern: '^[\\w.-]+\$')),
+                  initialValue: fileName, blocklist: fileNames, matchPattern: '^[\\w.-]+\$')),
         );
     _handleRenameResult(dialogResponse, fileName);
   }
 
-  _handleRenameResult(
-      DialogResponse? dialogResponse, String originalName) async {
+  _handleRenameResult(DialogResponse? dialogResponse, String originalName) async {
     if (dialogResponse?.confirmed == true) {
       state = FilePageState.loading(state.path);
       String newName = dialogResponse!.data;
@@ -283,9 +262,8 @@ class FilesPageController extends StateNotifier<FilePageState> {
               confirmBtn: tr('general.create'),
               data: RenameFileDialogArguments(
                   initialValue: '',
-                  blocklist: state.apiResult.value!.folders
-                      .map((e) => e.name)
-                      .toList(growable: false),
+                  blocklist:
+                      state.apiResult.value!.folders.map((e) => e.name).toList(growable: false),
                   matchPattern: '^[\\w.\\-]+\$')),
         );
 
@@ -294,9 +272,7 @@ class FilesPageController extends StateNotifier<FilePageState> {
       String newName = dialogResponse!.data;
 
       try {
-        await ref
-            .read(fileServiceSelectedProvider)
-            .createDir('$pathAsString/$newName');
+        await ref.read(fileServiceSelectedProvider).createDir('$pathAsString/$newName');
       } on JRpcError catch (e) {
         // _snackBarService.showCustomSnackBar(
         //     variant: SnackbarType.error,
@@ -311,13 +287,9 @@ class FilesPageController extends StateNotifier<FilePageState> {
 
   onFileTapped(RemoteFile file) {
     if (file is GCodeFile) {
-      ref
-          .read(goRouterProvider)
-          .goNamed(AppRoute.gcodeDetail.name, extra: file);
+      ref.read(goRouterProvider).goNamed(AppRoute.gcodeDetail.name, extra: file);
     } else {
-      ref
-          .read(goRouterProvider)
-          .goNamed(AppRoute.configDetail.name, extra: file);
+      ref.read(goRouterProvider).goNamed(AppRoute.configDetail.name, extra: file);
     }
   }
 }
@@ -330,8 +302,7 @@ class FilePageState {
   FilePageState(this.path, this.apiResult, this.filteredAndSorted);
 
   factory FilePageState.loading([List<String> p = const ['gcodes']]) {
-    return FilePageState(
-        p, const AsyncValue.loading(), const AsyncValue.loading());
+    return FilePageState(p, const AsyncValue.loading(), const AsyncValue.loading());
   }
 
   FilePageState copyWith({
@@ -342,8 +313,6 @@ class FilePageState {
     return FilePageState(
         path ?? this.path,
         (apiResult != null) ? AsyncValue.data(apiResult) : this.apiResult,
-        (filteredAndSorted != null)
-            ? AsyncValue.data(filteredAndSorted)
-            : this.filteredAndSorted);
+        (filteredAndSorted != null) ? AsyncValue.data(filteredAndSorted) : this.filteredAndSorted);
   }
 }

@@ -157,14 +157,18 @@ class FileService {
       RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.get_directory',
           params: {'path': path, 'extended': extended});
 
-      Set<String> allowedFileType = {
-        '.gcode',
-        '.g',
-        '.gc',
-        '.gco',
-      };
+      Set<String>? allowedFileType;
 
-      if (path.startsWith('config')) allowedFileType = {'.conf', '.cfg', '.md'};
+      if (path.startsWith('gcodes')) {
+        allowedFileType = {
+          '.gcode',
+          '.g',
+          '.gc',
+          '.gco',
+        };
+      } else if (path.startsWith('config')) {
+        allowedFileType = {'.conf', '.cfg', '.md'};
+      }
 
       return _parseDirectory(blockingResp, path, allowedFileType);
     } on JRpcError catch (e) {
@@ -236,6 +240,7 @@ class FileService {
       //   return s;
       // }).pipe(sink);
       await writer.close();
+      logger.i('Download completed!');
       return file;
     } on TimeoutException catch (e) {
       logger.w('Timeout reached while trying to download file: $filePath', e);
@@ -274,7 +279,7 @@ class FileService {
   }
 
   FolderContentWrapper _parseDirectory(RpcResponse blockingResponse, String forPath,
-      [Set<String> allowedFileType = const {'.gcode'}]) {
+      [Set<String>? allowedFileType]) {
     Map<String, dynamic> response = blockingResponse.result;
     List<dynamic> filesResponse = response['files'] ?? []; // Just add an type
     List<dynamic> directoriesResponse = response['dirs'] ?? []; // Just add an type
@@ -289,17 +294,19 @@ class FileService {
       return Folder.fromJson(element, forPath);
     });
 
-    filesResponse.removeWhere((element) {
-      String name = element['filename'];
-      var regExp =
-          RegExp('^.*(${allowedFileType.join('|')})\$', multiLine: true, caseSensitive: false);
-      return !regExp.hasMatch(name);
-    });
+    if (allowedFileType != null) {
+      filesResponse.removeWhere((element) {
+        String name = element['filename'];
+        var regExp =
+            RegExp('^.*(${allowedFileType.join('|')})\$', multiLine: true, caseSensitive: false);
+        return !regExp.hasMatch(name);
+      });
+    }
 
     List<RemoteFile> listOfFiles = List.generate(filesResponse.length, (index) {
       var element = filesResponse[index];
       String name = element['filename'];
-      if (RegExp(r'^.*\.(gcode|g|gc|gco)$').hasMatch(name)) {
+      if (RegExp(r'^.*\.(gcode|g|gc|gco)$', caseSensitive: false).hasMatch(name)) {
         return GCodeFile.fromJson(element, forPath);
       } else {
         return GenericFile.fromJson(element, forPath);

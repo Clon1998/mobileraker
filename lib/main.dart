@@ -156,7 +156,13 @@ class _LoadingSplashScreen extends HookWidget {
             const Flexible(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [_EmojiIndicator(), Text('Created by Patrick Schmidt')],
+                children: [
+                  _EmojiIndicator(),
+                  Text(
+                    'Created by Patrick Schmidt',
+                    style: TextStyle(color: Color(0xff777777)),
+                  )
+                ],
               ),
             )
           ],
