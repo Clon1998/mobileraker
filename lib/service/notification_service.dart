@@ -92,14 +92,8 @@ class NotificationService {
 
       _initializedPortForTask();
       await _initializeNotificationListeners();
+      _initializeRemoteMessaging(allMachines).ignore();
 
-      if (await isFirebaseAvailable()) {
-        await _initializeRemoteMessaging();
-
-        for (var e in allMachines) {
-          _setupFCMOnPrinterOnceConnected(e).ignore();
-        }
-      }
       logger.i('Completed NotificationService init');
     } catch (e, s) {
       FirebaseCrashlytics.instance.recordError(
@@ -187,12 +181,16 @@ class NotificationService {
     logger.i('Setup notification channels');
   }
 
-  Future<void> _initializeRemoteMessaging() async {
-    await _notifyFCM.initialize(
-        onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
-        onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
-        licenseKeys: [AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
-    await fetchCurrentFcmToken();
+  Future<void> _initializeRemoteMessaging(List<Machine> allMachines) async {
+    if (await isFirebaseAvailable()) {
+      await _notifyFCM.initialize(
+          onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
+          onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
+          licenseKeys: [AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
+      for (var e in allMachines) {
+        _setupFCMOnPrinterOnceConnected(e).ignore();
+      }
+    }
   }
 
   Future<void> updatePrintStateOnce() async {
