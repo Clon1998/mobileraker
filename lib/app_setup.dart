@@ -170,7 +170,7 @@ initializeAvailableMachines(Ref ref) async {
 }
 
 @riverpod
-Future<bool> warmupProvider(WarmupProviderRef ref) async {
+Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   ref.listenSelf((previous, next) {
     if (next.hasError) {
       var error = next.asError!;
@@ -183,8 +183,13 @@ Future<bool> warmupProvider(WarmupProviderRef ref) async {
     }
   });
   // Firebase stuff
+  yield StartUpStep.firebaseCore;
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  yield StartUpStep.firebaseAppCheck;
   await FirebaseAppCheck.instance.activate();
+
+  yield StartUpStep.firebaseRemoteConfig;
   await ref.read(remoteConfigProvider).initialize();
   if (kDebugMode) {
     FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
@@ -195,27 +200,50 @@ Future<bool> warmupProvider(WarmupProviderRef ref) async {
     FirebaseCrashlytics.instance.recordError(error, stack);
     return true;
   };
+  yield StartUpStep.firebaseAnalytics;
   await ref.read(analyticsProvider).logAppOpen();
 
   setupLicenseRegistry();
 
   // Prepare "Database"
+  yield StartUpStep.hiveBoxes;
   await setupBoxes();
 
   // Prepare Translations
+  yield StartUpStep.easyLocalization;
   await EasyLocalization.ensureInitialized();
 
+  yield StartUpStep.paymentService;
   await ref.read(paymentServiceProvider).initialize();
 
   // await for the initial rout provider to be ready and setup!
+  yield StartUpStep.goRouter;
   await ref.read(initialRouteProvider.future);
   logger.i('Completed initialRoute init');
-
   // Wait for the machines to be ready
+  yield StartUpStep.initMachines;
   await initializeAvailableMachines(ref);
+
+  yield StartUpStep.notificationService;
   await ref.read(notificationServiceProvider).initialize();
 
-  // await Future.delayed(Duration(seconds: 3));
-  // throw Exception("bas");
-  return true;
+  yield StartUpStep.complete;
+}
+
+enum StartUpStep {
+  firebaseCore('🔥'),
+  firebaseAppCheck('🔎'),
+  firebaseRemoteConfig('🌐'),
+  firebaseAnalytics('📈'),
+  hiveBoxes('📂'),
+  easyLocalization('🌍'),
+  paymentService('💸'),
+  goRouter('🗺'),
+  initMachines('⚙️'),
+  notificationService('📢'),
+  complete('🌟');
+
+  final String emoji;
+
+  const StartUpStep(this.emoji);
 }

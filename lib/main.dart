@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart' as widget;
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -105,8 +106,12 @@ class WarmUp extends HookConsumerWidget {
     return Container(
       color: splashBgColorForBrightness(brightness),
       child: ref.watch(warmupProviderProvider).when(
-            data: (_) {
-              return const MyApp();
+            data: (step) {
+              if (step == StartUpStep.complete) {
+                return const MyApp();
+              } else {
+                return const _LoadingSplashScreen();
+              }
             },
             error: (e, s) {
               return MaterialApp(
@@ -132,15 +137,45 @@ class _LoadingSplashScreen extends HookWidget {
         duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1)
       ..repeat(reverse: true);
 
-    return Center(
-      child: ScaleTransition(
-        scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
-        child: SvgPicture.asset(
-          'assets/vector/mr_logo.svg',
-          height: 120,
+    return SafeArea(
+      child: Directionality(
+        textDirection: widget.TextDirection.ltr,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Spacer(),
+            Flexible(
+              child: ScaleTransition(
+                scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+                child: SvgPicture.asset(
+                  'assets/vector/mr_logo.svg',
+                  height: 120,
+                ),
+              ),
+            ),
+            const Flexible(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [_EmojiIndicator(), Text('Created by Patrick Schmidt')],
+              ),
+            )
+          ],
         ),
       ),
     );
+  }
+}
+
+class _EmojiIndicator extends ConsumerWidget {
+  const _EmojiIndicator({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var step = ref.watch(warmupProviderProvider).valueOrNull;
+    if (step == null) return const SizedBox.shrink();
+    return Text(step.emoji);
   }
 }
 
