@@ -75,7 +75,10 @@ class NotificationService {
       await _initialRequestPermission();
 
       List<Machine> allMachines = await ref.read(allMachinesProvider.future);
-      List<Machine> hiddenMachines = await ref.read(hiddenMachinesProvider.future);
+      ref
+          .read(hiddenMachinesProvider.future)
+          .then((res) => Future.wait(res.map(_wipeFCMOnPrinterOnceConnected)))
+          .ignore();
 
       await _initializeNotificationChannels(allMachines);
 
@@ -86,12 +89,9 @@ class NotificationService {
       }
 
       _hiveStreamListener = _setupHiveBoxListener();
+
       _initializedPortForTask();
       await _initializeNotificationListeners();
-
-      for (var e in hiddenMachines) {
-        _wipeFCMOnPrinterOnceConnected(e).ignore();
-      }
 
       if (await isFirebaseAvailable()) {
         await _initializeRemoteMessaging();
@@ -184,6 +184,7 @@ class NotificationService {
         null,
         channels,
         channelGroups: groups);
+    logger.i('Setup notification channels');
   }
 
   Future<void> _initializeRemoteMessaging() async {
