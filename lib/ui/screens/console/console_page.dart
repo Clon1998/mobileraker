@@ -35,8 +35,7 @@ class ConsolePage extends ConsumerWidget {
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
         actions: [
-          MachineStateIndicator(
-              ref.watch(selectedMachineProvider).valueOrFullNull),
+          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
           const EmergencyStopBtn(),
         ],
       ),
@@ -56,11 +55,8 @@ class _ConsoleBody extends HookConsumerWidget {
     var consoleTextEditor = useTextEditingController();
     var focusNode = useFocusNode();
 
-    var klippyCanReceiveCommands = ref
-            .watch(klipperSelectedProvider)
-            .valueOrFullNull
-            ?.klippyCanReceiveCommands ??
-        false;
+    var klippyCanReceiveCommands =
+        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
 
     var theme = Theme.of(context);
     return SafeArea(
@@ -68,8 +64,7 @@ class _ConsoleBody extends HookConsumerWidget {
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius:
-              const BorderRadius.vertical(bottom: Radius.circular(10)),
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
           boxShadow: [
             if (theme.brightness == Brightness.light)
               BoxShadow(
@@ -90,8 +85,7 @@ class _ConsoleBody extends HookConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                 child: Text(
                   'GCode Console',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(color: theme.colorScheme.onPrimary),
+                  style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
                 ),
               ),
             ),
@@ -130,16 +124,14 @@ class _ConsoleBody extends HookConsumerWidget {
                         icon: const Icon(Icons.send),
                         onPressed: klippyCanReceiveCommands
                             ? () {
-                          ref
-                                    .read(
-                                        consoleListControllerProvider.notifier)
+                                ref
+                                    .read(consoleListControllerProvider.notifier)
                                     .onCommandSubmit(consoleTextEditor.text);
                                 consoleTextEditor.clear();
                               }
                             : null,
                       ),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       hintText: tr('pages.console.command_input.hint')),
                 ),
               ),
@@ -152,8 +144,7 @@ class _ConsoleBody extends HookConsumerWidget {
 }
 
 class GCodeSuggestionBar extends StatefulHookConsumerWidget {
-  const GCodeSuggestionBar(
-      {Key? key, required this.onMacroTap, required this.consoleInputNotifier})
+  const GCodeSuggestionBar({Key? key, required this.onMacroTap, required this.consoleInputNotifier})
       : super(key: key);
 
   final ValueChanged<String> onMacroTap;
@@ -175,8 +166,9 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
     List<String> potential = [];
     potential.addAll(history);
 
-    Iterable<String> filteredAvailable = available.map((e) => e.cmd).where(
-        (element) => !element.startsWith('_') && !potential.contains(element));
+    Iterable<String> filteredAvailable = available
+        .map((e) => e.cmd)
+        .where((element) => !element.startsWith('_') && !potential.contains(element));
     potential.addAll(additionalCmds);
     potential.addAll(filteredAvailable);
     String text = currentInput.toLowerCase();
@@ -185,8 +177,7 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
     List<String> terms = text.split(RegExp(r'\W+'));
 
     return potential
-        .where(
-            (element) => terms.every((t) => element.toLowerCase().contains(t)))
+        .where((element) => terms.every((t) => element.toLowerCase().contains(t)))
         .toList(growable: false);
   }
 
@@ -198,14 +189,10 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
 
     var history = ref.watch(commandHistoryProvider);
     var available = ref.watch(availableMacrosProvider).valueOrFullNull ?? [];
-    var suggestions =
-        calculateSuggestedMacros(consoleInput, history, available);
+    var suggestions = calculateSuggestedMacros(consoleInput, history, available);
     if (suggestions.isEmpty) return const SizedBox.shrink();
-    var canSend = ref
-            .watch(klipperSelectedProvider)
-            .valueOrFullNull
-            ?.klippyCanReceiveCommands ??
-        false;
+    var canSend =
+        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
     return SizedBox(
       height: 33,
       child: ChipTheme(
@@ -224,9 +211,7 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
               margin: const EdgeInsets.symmetric(horizontal: 2),
               child: RawChip(
                 label: Text(cmd),
-                backgroundColor: canSend
-                    ? themeData.colorScheme.primary
-                    : themeData.disabledColor,
+                backgroundColor: canSend ? themeData.colorScheme.primary : themeData.disabledColor,
                 onPressed: canSend ? () => widget.onMacroTap(cmd) : null,
               ),
             );
@@ -244,8 +229,7 @@ class _Console extends ConsumerWidget {
 
   TextStyle _commandTextStyle(ThemeData theme, ListTileThemeData tileTheme) {
     final TextStyle textStyle;
-    switch (
-        tileTheme.style ?? theme.listTileTheme.style ?? ListTileStyle.list) {
+    switch (tileTheme.style ?? theme.listTileTheme.style ?? ListTileStyle.list) {
       case ListTileStyle.drawer:
         textStyle = theme.textTheme.bodyText1!;
         break;
@@ -260,11 +244,8 @@ class _Console extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var canSend = ref
-            .watch(klipperSelectedProvider)
-            .valueOrFullNull
-            ?.klippyCanReceiveCommands ??
-        false;
+    var canSend =
+        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
     var dateFormatService = ref.read(dateFormatServiceProvider);
 
     return ref.watch(consoleListControllerProvider).when(
@@ -281,10 +262,8 @@ class _Console extends ConsumerWidget {
                   Icons.arrow_upward,
                   color: themeData.colorScheme.onBackground,
                 ),
-                completeIcon:
-                    Icon(Icons.done, color: themeData.colorScheme.onBackground),
-                releaseIcon: Icon(Icons.refresh,
-                    color: themeData.colorScheme.onBackground),
+                completeIcon: Icon(Icons.done, color: themeData.colorScheme.onBackground),
+                releaseIcon: Icon(Icons.refresh, color: themeData.colorScheme.onBackground),
                 idleText: tr('components.pull_to_refresh.pull_up_idle'),
               ),
               controller: ref.watch(consoleRefreshControllerProvider),
@@ -304,14 +283,11 @@ class _Console extends ConsumerWidget {
                     if (entry.type == ConsoleEntryType.COMMAND) {
                       return ListTile(
                         dense: true,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 8),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                         title: Text(entry.message,
-                            style: _commandTextStyle(
-                                themeData, ListTileTheme.of(context))),
+                            style: _commandTextStyle(themeData, ListTileTheme.of(context))),
                         subtitle: Text(dateFormat.format(entry.timestamp)),
-                        onTap:
-                            canSend ? () => onCommandTap(entry.message) : null,
+                        onTap: canSend ? () => onCommandTap(entry.message) : null,
                       );
                     }
 

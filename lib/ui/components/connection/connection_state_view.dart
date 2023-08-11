@@ -24,10 +24,15 @@ import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConnectionStateView extends ConsumerWidget {
-  const ConnectionStateView({Key? key, required this.onConnected}) : super(key: key);
+  const ConnectionStateView({
+    Key? key,
+    required this.onConnected,
+    this.skipKlipperReady = false,
+  }) : super(key: key);
 
   // Widget to show when ws is Connected
   final Widget onConnected;
+  final bool skipKlipperReady;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,6 +43,7 @@ class ConnectionStateView extends ConsumerWidget {
           return machine != null
               ? WebSocketState(
                   onConnected: onConnected,
+                  skipKlipperReady: skipKlipperReady,
                 )
               : Center(
                   child: Padding(
@@ -75,8 +81,14 @@ class ConnectionStateView extends ConsumerWidget {
 }
 
 class WebSocketState extends HookConsumerWidget {
-  const WebSocketState({Key? key, required this.onConnected}) : super(key: key);
+  const WebSocketState({
+    Key? key,
+    required this.onConnected,
+    this.skipKlipperReady = false,
+  }) : super(key: key);
   final Widget onConnected;
+
+  final bool skipKlipperReady;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -94,6 +106,7 @@ class WebSocketState extends HookConsumerWidget {
           case ClientState.connected:
             return KlippyState(
               onConnected: onConnected,
+              skipKlipperReady: skipKlipperReady,
             );
 
           case ClientState.disconnected:
@@ -179,11 +192,19 @@ class WebSocketState extends HookConsumerWidget {
 }
 
 class KlippyState extends ConsumerWidget {
-  const KlippyState({Key? key, required this.onConnected}) : super(key: key);
+  const KlippyState({
+    Key? key,
+    required this.onConnected,
+    this.skipKlipperReady = false,
+  }) : super(key: key);
   final Widget onConnected;
+  final bool skipKlipperReady;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (skipKlipperReady) {
+      return onConnected;
+    }
     if (ref.watch(printerSelectedProvider.select((value) => value.hasValue && !value.isLoading))) {
       return onConnected;
     }
@@ -215,31 +236,31 @@ class KlippyState extends ConsumerWidget {
                         Text(data.klippyStateMessage ?? tr(data.klippyState.name),
                             style: TextStyle(color: themeData.colorScheme.error)),
                         ElevatedButtonTheme(
-                          data: ElevatedButtonThemeData(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: themeData.colorScheme.error,
-                                  foregroundColor: themeData.colorScheme.onError)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton(
-                                onPressed: ref
-                                    .read(connectionStateControllerProvider.notifier)
-                                    .onRestartKlipperPressed,
-                                child: const Text('pages.dashboard.general.restart_klipper').tr(),
+                              data: ElevatedButtonThemeData(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: themeData.colorScheme.error,
+                                      foregroundColor: themeData.colorScheme.onError)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: ref
+                                        .read(connectionStateControllerProvider.notifier)
+                                        .onRestartKlipperPressed,
+                                    child: const Text('pages.dashboard.general.restart_klipper').tr(),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: ref
+                                        .read(connectionStateControllerProvider.notifier)
+                                        .onRestartMCUPressed,
+                                    child: const Text('pages.dashboard.general.restart_mcu').tr(),
+                                  )
+                                ],
                               ),
-                              ElevatedButton(
-                                onPressed: ref
-                                    .read(connectionStateControllerProvider.notifier)
-                                    .onRestartMCUPressed,
-                                child: const Text('pages.dashboard.general.restart_mcu').tr(),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
-                    ),
-                  )),
+                            )
+                          ],
+                        ),
+                      )),
                   if (data.components.contains('power')) const PowerApiCard(),
                 ],
               ),
@@ -263,7 +284,7 @@ class KlippyState extends ConsumerWidget {
                         const Text('components.connection_watcher.server_starting').tr()
                       ],
                     ),
-                  )),
+                      )),
                 ],
               ),
             );

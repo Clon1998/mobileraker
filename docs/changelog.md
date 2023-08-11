@@ -29,6 +29,7 @@
 - Migrated webcams to Moonraker's Webcam API.
 - Added a new splash screen during app startup.
 - Introduced an error widget in case the initial startup fails.
+- Files page now works even if klipper is in an error state
 
 ### Bug Fixes
 

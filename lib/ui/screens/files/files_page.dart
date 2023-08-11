@@ -43,6 +43,7 @@ class FilesPage extends ConsumerWidget {
       bottomNavigationBar: _BottomNav(),
       body: ConnectionStateView(
         onConnected: _FilesBody(),
+        skipKlipperReady: true,
       ),
     );
   }
