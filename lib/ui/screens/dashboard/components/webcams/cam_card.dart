@@ -7,8 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/enums/webcam_service_type.dart';
-import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
+import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/misc.dart';
@@ -38,6 +37,7 @@ class CamCard extends ConsumerWidget {
       child: showCard
           ? Card(
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   ListTile(
                     leading: const Icon(
@@ -47,7 +47,7 @@ class CamCard extends ConsumerWidget {
                         .tr(),
                     trailing: const _Trailing(),
                   ),
-                  Container(
+                  Padding(
                     padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
                     child: watch.when(
                         data: (data) =>
@@ -75,7 +75,7 @@ class CamCard extends ConsumerWidget {
                                   TextButton.icon(
                                       onPressed: () => ref
                                           .read(camCardControllerProvider
-                                              .notifier)
+                                          .notifier)
                                           .onRetry(),
                                       icon: const Icon(
                                           Icons.restart_alt_outlined),
@@ -132,37 +132,26 @@ class _CamCardData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var activeCam = data.activeCam;
-
-    switch (activeCam!.service) {
-      case WebcamServiceType.mjpegStreamer:
-      case WebcamServiceType.mjpegStreamerAdaptive:
-      case WebcamServiceType.uv4lMjpeg:
-        return WebcamMjpeg(
-          machine: data.machine,
-          webcamInfo: activeCam,
-          imageBuilder: _imageBuilder,
-          showFps: true,
-          stackChild: [
-            Positioned.fill(
-              child: Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                  color: Colors.white,
-                  icon: const Icon(Icons.aspect_ratio),
-                  tooltip: 'pages.dashboard.general.cam_card.fullscreen'.tr(),
-                  onPressed: ref
-                      .read(camCardControllerProvider.notifier)
-                      .onFullScreenTap,
-                ),
-              ),
+    return Webcam(
+      machine: data.machine,
+      webcamInfo: data.activeCam!,
+      stackContent: [
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.bottomRight,
+            child: IconButton(
+              color: Colors.white,
+              icon: const Icon(Icons.aspect_ratio),
+              tooltip: 'pages.dashboard.general.cam_card.fullscreen'.tr(),
+              onPressed:
+                  ref.read(camCardControllerProvider.notifier).onFullScreenTap,
             ),
-          ],
-        );
-      default:
-        return Text(
-            'Sorry... the webcam type "${activeCam.service}" is not yet supported!');
-    }
+          ),
+        ),
+      ],
+      imageBuilder: _imageBuilder,
+      showFpsIfAvailable: true,
+    );
   }
 
   Widget _imageBuilder(BuildContext context, Widget imageTransformed) {

@@ -9,33 +9,48 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/exceptions.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:stringr/stringr.dart';
 
-String urlToWebsocketUrl(String enteredURL) {
-  if (enteredURL.isEmpty) return enteredURL;
+Uri? buildMoonrakerWebSocketUri(String? enteredURL,
+    [bool defaultPathIfEmpty = true]) {
+  var normalizedURL = _normalizeURL(enteredURL);
+  if (normalizedURL == null) return null;
 
-  var pattern = RegExp(
-      r'^((https?|http|ws|wss?)://)?([-A-Z0-9.]+)(?::([0-9]{1,5}))?(/[-A-Z0-9+&@#/%=~_|!:,.;]*)?$',
-      caseSensitive: false);
+  var scheme = normalizedURL.scheme == 'wss' || normalizedURL.scheme == 'https'
+      ? 'wss'
+      : 'ws';
+  var path = defaultPathIfEmpty && normalizedURL.hasEmptyPath
+      ? 'websocket'
+      : normalizedURL.path;
 
-  var match = pattern.firstMatch(enteredURL);
+  return normalizedURL.replace(path: path, scheme: scheme);
+}
 
-  var protocol = match?.group(2);
-  var host = match?.group(3);
-  var port = match?.group(4);
-  var path = match?.group(5);
+Uri? buildMoonrakerHttpUri(String? enteredURL) {
+  var normalizedURL = _normalizeURL(enteredURL);
+  if (normalizedURL == null) return null;
 
-  if (match == null || host == null) return enteredURL;
+  var scheme = normalizedURL.scheme == 'wss' || normalizedURL.scheme == 'https'
+      ? 'https'
+      : 'http';
 
-  if (protocol == null) path ??= '/websocket';
+  return normalizedURL.replace(scheme: scheme);
+}
 
-  protocol ??= 'ws';
-  protocol = protocol.replaceAll('https', 'wss').replaceAll('http', 'ws');
+Uri? _normalizeURL(String? enteredURL) {
+  enteredURL = enteredURL?.let((it) => it.trim());
+  if (enteredURL == null || enteredURL.isEmpty) return null;
+  // make sure a schema is available to ensure a host is properly parsed.
+  // This is required because an IP is not parsed into the URI.host otherwise
+  if (!enteredURL.startsWith(RegExp(r'[A-z]+://'))) {
+    enteredURL = 'http://$enteredURL';
+  }
+  if (enteredURL.endsWith('/')) {
+    enteredURL = enteredURL.substring(0, enteredURL.length - 1);
+  }
 
-  var result = '$protocol://$host';
-  if (port != null) result = '$result:$port';
-  if (path != null) result = '$result$path';
-  return result;
+  return Uri.tryParse(enteredURL)?.replace(userInfo: '');
 }
 
 String urlToHttpUrl(String enteredURL) {

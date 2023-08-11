@@ -10,6 +10,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_controller.dart';
 import 'package:mobileraker/util/extensions/gcode_file_extension.dart';
@@ -48,6 +49,9 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
 
     var bigImageUri = gcodeFile.constructBigImageUri(machineUri);
 
+    var dateFormatService = ref.read(dateFormatServiceProvider);
+    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    var dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(
@@ -141,17 +145,14 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                         subtitle: gcodeFile.absolutPath),
                     PropertyTile(
                       title: 'pages.files.details.general_card.last_mod'.tr(),
-                      subtitle: DateFormat.yMMMd()
-                          .add_Hm()
-                          .format(gcodeFile.modifiedDate),
+                      subtitle:
+                          dateFormatGeneral.format(gcodeFile.modifiedDate),
                     ),
                     PropertyTile(
                       title:
                           'pages.files.details.general_card.last_printed'.tr(),
                       subtitle: (gcodeFile.printStartTime != null)
-                          ? DateFormat.yMMMd()
-                              .add_Hm()
-                              .format(gcodeFile.lastPrintDate!)
+                          ? dateFormatGeneral.format(gcodeFile.lastPrintDate!)
                           : 'pages.files.details.general_card.no_data'.tr(),
                     ),
                   ],
@@ -177,7 +178,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                       title:
                           'pages.files.details.meta_card.est_print_time'.tr(),
                       subtitle:
-                          '${secondsToDurationText(gcodeFile.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(gcodeFile)}',
+                          '${secondsToDurationText(gcodeFile.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(gcodeFile, dateFormatEta)}',
                     ),
                     PropertyTile(
                       title: 'pages.files.details.meta_card.slicer'.tr(),
@@ -245,12 +246,12 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
     return '${file.slicer ?? ukwn} (v${file.slicerVersion})';
   }
 
-  String formatPotentialEta(GCodeFile file) {
+  String formatPotentialEta(GCodeFile file, DateFormat dateFormat) {
     if (file.estimatedTime == null) return tr('general.unknown');
     var eta = DateTime.now()
         .add(Duration(seconds: file.estimatedTime!.toInt()))
         .toLocal();
-    return DateFormat.MMMEd().add_Hm().format(eta);
+    return dateFormat.format(eta);
   }
 }
 

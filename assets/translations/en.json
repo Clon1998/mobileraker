@@ -36,7 +36,12 @@
     "restore": "Restore",
     "accept": "Accept",
     "abort": "Abort",
-    "offset": "Offset"
+    "offset": "Offset",
+    "valid": "Valid",
+    "invalid": "Invalid",
+    "free": "Free",
+    "one_time": "One time",
+    "delete": "Delete"
   },
   "pages": {
     "dashboard": {
@@ -50,6 +55,7 @@
       "general": {
         "print_card": {
           "reset": "Reset",
+          "reprint": "Reprint",
           "printing_for": "Printing: {}",
           "speed": "Speed",
           "layer": "Layer",
@@ -59,7 +65,7 @@
           "flow": "Flow",
           "filament": "Filament",
           "filament_tooltip": "Used {} % of Filament, that is {} m of the {} m predicted.",
-          "eta_tooltip": "Remaining time: {} "
+          "eta_tooltip": "Remaining time:\nAVG: {avg}\nSlicer: {slicer}\nFile: {file}\nFilament: {filament}"
         },
         "cam_card": {
           "webcam": "Webcam",
@@ -251,7 +257,25 @@
       "fetch_error_hint": "Ensure the machine is reachable, and Mobileraker is connected to it.",
       "store_error": {
         "title": "Saving failed!",
-        "message": "Some fields contain invalid values!\nPlease make sure all fields are valid."
+        "message": "Some fields contain invalid values!\nPlease make sure all fields are valid.",
+        "unexpected_error": "An unexpected error occurred while trying to save the machine data!"
+      },
+      "confirm_deletion": {
+        "title": "Delete {}?",
+        "body": "You are about to remove the printer '{}' connected at '{}'. \n\nConfirm your action."
+      },
+      "success_oe_link": {
+        "title": "Linked {}",
+        "body": "Successfully linked {} with OctoEverywhere!"
+      },
+      "confirm_oe_unlink": {
+        "title": "Unlink {}?",
+        "body": "Please confirm the unlinking of the printer {} from OctoEverywhere.",
+        "button": "Unlink"
+      },
+      "success_oe_unlink": {
+        "title": "Unlinked {}",
+        "body": "Successfully unlinked {} from OctoEverywhere!"
       },
       "general": {
         "displayname": "Displayname",
@@ -316,13 +340,52 @@
       }
     },
     "printer_add": {
+      "steps": {
+        "mode": "Mode",
+        "input": "Input",
+        "test": "Test",
+        "done": "Done"
+      },
       "title": "Add New Printer",
-      "printer_add_helper": "Host, IP, or full URL",
-      "resulting_ws_url": "Resulting WebSocket-URL: {}",
-      "misc": "Misc",
-      "test_ws": "Test websocket connection",
-      "result_ws_test": "Result: {}",
-      "run_test_btn": "Test"
+      "initial_name": "My Printer",
+      "select_mode": {
+        "title": "Pick an input mode:",
+        "body": "If you are new to this, it's best to stick to the simple mode. However, if you are experienced and need to use custom headers, certificates, etc., then the expert mode is for you. Keep in mind that the mode you choose won't affect the app itself, but it will determine how the input is validated and displayed, and what options are available while you are adding a machine.",
+        "simple": "Simple",
+        "advanced": "Advanced",
+        "add_via_oe": "One-click OctoEverywhere setup"
+      },
+      "simple_form": {
+        "hint_title": "Hint - Simple Mode",
+        "hint_body": "Simple mode allows you to enter the host and port. However, if you need to customize the path, headers, certificates, or other settings, switch to the advanced mode.",
+        "url_hint": "Printer's IP or Hostname"
+      },
+      "advanced_form": {
+        "hint_title": "Hint - Advanced Mode",
+        "hint_body": "Please note that in Advanced mode, validation is mostly disabled. It is important that you take full responsibility for ensuring that the URL you enter is valid.",
+        "http_helper": "Please enter the HTTP endpoint of Moonraker",
+        "ws_helper": "Optional, WebSocket endpoint of Moonraker",
+        "section_security": "Security",
+        "section_headers": "HTTP-Headers",
+        "empty_headers": "No Headers added!"
+      },
+      "test_connection": {
+        "section_connection": "Connection Data",
+        "ws_url_label": "Resulting WebSocket-URL",
+        "http_url_label": "Resulting HTTP-URL",
+        "section_test": "Connection Tests",
+        "http_label": "Http Endpoint - Test",
+        "ws_label": "Websocket Endpoint - Test",
+        "awaiting": "Awaiting result…",
+        "continue": "Continue",
+        "continue_anyway": "Continue Anyway",
+        "proceed_warning": "It seems like the app is having trouble connecting to the machine. This might be because you are not on the same network as the machine or you do not have the necessary permissions to access it. Although you can choose to add the machine despite the issue, please be aware that there is no guarantee that it will connect properly. Please proceed with caution.",
+        "button": "Test Connection"
+      },
+      "confirmed": {
+        "title": "Printer {} added!",
+        "to_dashboard": "To the Dashboard"
+      }
     },
     "console": {
       "title": "Console",
@@ -350,12 +413,11 @@
       "title": "Changelog"
     },
     "paywall": {
-      "title": "Support the Dev!",
-      "calling_store": "Processing request...",
       "manage_view": {
         "title": "Thanks for your Support!",
         "list_title": "Change Supporter Tier:",
-        "store_btn": "Cancel Subscription in {}"
+        "store_btn": "Cancel Subscription in {}",
+        "sub_warning": "Please take note that purchasing the lifetime supporter tier does not automatically cancel any other active subscription. You will need to cancel any active subscriptions manually. However, you have the option to continue supporting the development of Mobileraker on a recurring basis even after purchasing the lifetime supporter tier."
       },
       "subscribe_view": {
         "title": "Become a Mobileraker Supporter!",
@@ -369,7 +431,14 @@
       "contact_dialog": {
         "title": "Developer Contact",
         "body": "Mail: {}\nDiscord: {}"
-      }
+      },
+      "title": "Support the Dev!",
+      "calling_store": "Processing request...",
+      "promo_title": "Promotion",
+      "free_phase": "First {} free",
+      "intro_phase": "Enjoy {} at {} off",
+      "iap_offer": "{} off original price",
+      "tip_developer": "Tip Developer"
     }
   },
   "components": {
@@ -387,7 +456,8 @@
       "trying_connect": "Trying to connect...",
       "trying_connect_remote": "Trying to connect using remote client...",
       "server_starting": "Server is starting...",
-      "more_details": "More Details"
+      "more_details": "More Details",
+      "add_printer": "Hey there,\nI am excited to see you here!\nTo kickstart your experience, kindly add a printer to Mobileraker. Once you've completed this step, you'll be able to take direct control of your printer right from within Mobileraker."
     },
     "octo_indicator": {
       "tooltip": "Using OctoEveryWhere!"
@@ -395,6 +465,15 @@
     "supporter_add": {
       "title": "Like Mobileraker?",
       "subtitle": "Tap me! To learn how you can support the development!"
+    },
+    "supporter_only_feature": {
+      "button": "Become a Mobileraker Supporter",
+      "webcam": "Sorry, Webcams of type {} are only available to Supporters.",
+      "printer_add": "Sorry, managing more than {} machines is only available to Supporters."
+    },
+    "machine_deletion_warning": {
+      "title": "Machine Deletion",
+      "subtitle": "It seems like you are not a Supporter. Only supports can have more than {} machine(s). You have {} days before excess machines will be removed."
     }
   },
   "dialogs": {
@@ -465,6 +544,10 @@
       "notification_perk": {
         "title": "Snapshot Notifications",
         "subtitle": "Status notification include Webcam Snapshot"
+      },
+      "webrtc_perk": {
+        "title": "WebRtc Support",
+        "subtitle": "Allows the usage of WebRtc webcams!"
       }
     },
     "bed_screw_adjust": {
@@ -481,6 +564,19 @@
       "hint_tooltip": "Klipper's Paper Test Documentation",
       "snackbar_title": "Calibration done",
       "snackbar_message": "Make sure to persist offset via the Save Config action."
+    },
+    "tipping": {
+      "title": "Tip the Developer!",
+      "body": "This tip is solely meant to appreciate the developer's efforts and DOES NOT grant access to any additional features.",
+      "amount_label": "Tip amount",
+      "tip": "Tip"
+    },
+    "http_header": {
+      "title": "Http-Header",
+      "header": "Header",
+      "header_hint": "The HTTP-Header nam",
+      "value": "Header-Value",
+      "value_hint": "The value of the header"
     }
   },
   "klipper_state": {
@@ -508,6 +604,46 @@
         "desc": "Notifications regarding the print progress.",
         "title": "Print progress of {}"
       }
+    }
+  },
+  "form_validators": {
+    "simple_url": "Input only allows URL components: Hostname and Port",
+    "disallow_mdns": "MDNs (.local) addresses are not supported"
+  },
+  "date": {
+    "year": {
+      "one": "Year",
+      "other": "Years"
+    },
+    "month": {
+      "one": "Month",
+      "other": "Months"
+    },
+    "week": {
+      "one": "Week",
+      "other": "Weeks"
+    },
+    "day": {
+      "one": "Day",
+      "other": "Days"
+    }
+  },
+  "date_periods": {
+    "year": {
+      "one": "Yearly",
+      "other": "Years"
+    },
+    "month": {
+      "one": "Monthly",
+      "other": "Months"
+    },
+    "week": {
+      "one": "Weekly",
+      "other": "Weeks"
+    },
+    "day": {
+      "one": "Daily",
+      "other": "Days"
     }
   },
   "languages": {

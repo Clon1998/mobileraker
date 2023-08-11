@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
@@ -10,10 +15,10 @@ void main() {
 
     String localUriStr = "ws://192.168.178.135/websocket/AAA";
 
-   var m =  Machine(
+    var m =  Machine(
         name: 'test',
-        wsUrl: localUriStr,
-        httpUrl: localUriStr,
+        wsUri: Uri.parse(localUriStr),
+        httpUri: Uri.parse(localUriStr),
         octoEverywhere: OctoEverywhere(
             url: octoUriStr,
             appApiToken: 'appApiToken',

@@ -13,8 +13,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
@@ -42,6 +43,7 @@ class FilesPage extends ConsumerWidget {
       bottomNavigationBar: _BottomNav(),
       body: ConnectionStateView(
         onConnected: _FilesBody(),
+        skipKlipperReady: true,
       ),
     );
   }
@@ -65,10 +67,9 @@ class _BottomNav extends ConsumerWidget {
       // onTap: model.onBottomItemTapped,
       items: const [
         BottomNavigationBarItem(
-            label: 'GCodes',
-            icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
-        BottomNavigationBarItem(
-            label: 'Configs', icon: Icon(FlutterIcons.file_code_faw5)),
+            label: 'GCodes', icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
+        BottomNavigationBarItem(label: 'Configs', icon: Icon(FlutterIcons.file_code_faw5)),
+        // BottomNavigationBarItem(label: 'Logs', icon: Icon(FlutterIcons.file_eye_outline_mco)),
       ],
     );
   }
@@ -86,8 +87,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
             ? themeData.colorScheme.onSurface
             : themeData.colorScheme.onPrimary);
 
-    TextEditingController textCtler =
-        ref.watch(searchTextEditingControllerProvider);
+    TextEditingController textCtler = ref.watch(searchTextEditingControllerProvider);
 
     if (ref.watch(isSearchingProvider)) {
       return AppBar(
@@ -101,12 +101,11 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
             controller: textCtler,
             autofocus: true,
             cursorColor: onBackground,
-            style:
-                themeData.textTheme.titleLarge?.copyWith(color: onBackground),
+            style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
             decoration: InputDecoration(
               hintText: '${tr('pages.files.search_files')}...',
-              hintStyle: themeData.textTheme.titleLarge
-                  ?.copyWith(color: onBackground.withOpacity(0.4)),
+              hintStyle:
+                  themeData.textTheme.titleLarge?.copyWith(color: onBackground.withOpacity(0.4)),
               border: InputBorder.none,
               suffixIcon: textCtler.text.isEmpty
                   ? null
@@ -121,21 +120,17 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
         ),
       );
     } else {
-      return SwitchPrinterAppBar(
-          title: tr('pages.files.title'),
-          actions: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: MachineStateIndicator(
-                  ref.watch(selectedMachineProvider).valueOrFullNull),
-            ),
-            const FileSortModeSelector(),
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () =>
-                  ref.read(isSearchingProvider.notifier).state = true,
-            ),
-          ]);
+      return SwitchPrinterAppBar(title: tr('pages.files.title'), actions: <Widget>[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
+        ),
+        const FileSortModeSelector(),
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () => ref.read(isSearchingProvider.notifier).state = true,
+        ),
+      ]);
     }
   }
 
@@ -156,8 +151,7 @@ class _FilesBody extends ConsumerWidget {
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          borderRadius:
-              const BorderRadius.vertical(bottom: Radius.circular(10)),
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
           boxShadow: [
             if (theme.brightness == Brightness.light)
               const BoxShadow(
@@ -170,139 +164,137 @@ class _FilesBody extends ConsumerWidget {
         child: Column(
           children: [
             const _BreadCrumb(),
-            ref
-                .watch(filesListControllerProvider.select((value) => value))
-                .filteredAndSorted
-                .when(
-                    data: (folderContent) {
-                      int lenFolders = folderContent.folders.length;
-                      int lenGcodes = folderContent.files.length;
-                      int lenTotal = lenFolders + lenGcodes;
-                      var isSubFolder =
-                          folderContent.folderPath.split('/').length > 1;
+            ref.watch(filesListControllerProvider.select((value) => value)).filteredAndSorted.when(
+                data: (folderContent) {
+                  int lenFolders = folderContent.folders.length;
+                  int lenGcodes = folderContent.files.length;
+                  int lenTotal = lenFolders + lenGcodes;
+                  var isSubFolder = folderContent.folderPath.split('/').length > 1;
 
-                      // Add one of the .. folder to back
-                      if (isSubFolder) lenTotal++;
+                  // Add one of the .. folder to back
+                  if (isSubFolder) lenTotal++;
 
-                      return Expanded(
-                        child: EaseIn(
-                          duration: const Duration(milliseconds: 100),
-                          curve: Curves.easeOutCubic,
-                          child: SmartRefresher(
-                            header: const WaterDropMaterialHeader(),
-                            controller: RefreshController(),
-                            onRefresh: () =>
-                                ref.invalidate(filesListControllerProvider),
-                            child: (lenTotal == 0)
-                                ? ListTile(
-                                    contentPadding: EdgeInsets.zero,
-                                    leading: const SizedBox(
-                                        width: 64,
-                                        height: 64,
-                                        child: Icon(Icons.search_off)),
-                                    title:
-                                        const Text('pages.files.no_files_found')
-                                            .tr(),
-                                  )
-                                : ListView.builder(
-                                    itemCount: lenTotal,
-                                    itemBuilder: (context, index) {
-                                      if (isSubFolder) {
-                                        if (index == 0) {
-                                          return ListTile(
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 5, vertical: 3),
-                                            leading: const SizedBox(
-                                                width: 64,
-                                                height: 64,
-                                                child: Icon(Icons.folder)),
-                                            title: const Text('...'),
-                                            onTap: ref
-                                                .watch(
-                                                    filesListControllerProvider
-                                                        .notifier)
-                                                .popFolder,
-                                          );
-                                        } else {
-                                          index--;
-                                        }
-                                      }
-
-                                      if (index < lenFolders) {
-                                        Folder folder =
-                                            folderContent.folders[index];
-                                        return FolderItem(
-                                          folder: folder,
-                                          key: ValueKey(folder),
-                                        );
-                                      } else {
-                                        RemoteFile file = folderContent
-                                            .files[index - lenFolders];
-                                        if (file is GCodeFile) {
-                                          return GCodeFileItem(
-                                            key: ValueKey(file),
-                                            gCode: file,
-                                          );
-                                        } else {
-                                          return FileItem(
-                                            file: file,
-                                            key: ValueKey(file),
-                                          );
-                                        }
-                                      }
-                                    }),
-                          ),
-                        ),
-                      );
-                    },
-                    error: (e, s) => Expanded(
-                          child: ErrorCard(
-                            title: const Text('Unable to fetch files!'),
-                            body: Column(
-                              children: [
-                                Text(
-                                    'The following error occued while trying to fetch files:n$e'),
-                                TextButton(
-                                    // onPressed: model.showPrinterFetchingErrorDialog,
-                                    onPressed: () => ref
-                                        .read(dialogServiceProvider)
-                                        .show(DialogRequest(
-                                            type: DialogType.stacktrace,
-                                            title: e.runtimeType.toString(),
-                                            body: 'Exception:\n $e\n\n$s')),
-                                    child: const Text('Show Full Error'))
-                              ],
-                            ),
-                          ),
-                        ),
-                    loading: () => Expanded(
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.grey,
-                            highlightColor: theme.colorScheme.background,
-                            child: ListView.builder(
-                                itemCount: 15,
+                  return Expanded(
+                    child: EaseIn(
+                      duration: const Duration(milliseconds: 100),
+                      curve: Curves.easeOutCubic,
+                      child: SmartRefresher(
+                        header: const WaterDropMaterialHeader(),
+                        controller: RefreshController(),
+                        onRefresh: () => ref.invalidate(filesListControllerProvider),
+                        child: (lenTotal == 0)
+                            ? ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: const SizedBox(
+                                    width: 64, height: 64, child: Icon(Icons.search_off)),
+                                title: const Text('pages.files.no_files_found').tr(),
+                              )
+                            : ListView.builder(
+                                itemCount: lenTotal,
                                 itemBuilder: (context, index) {
-                                  return ListTile(
-                                    contentPadding: const EdgeInsets.symmetric(
-                                        horizontal: 5, vertical: 2),
-                                    leading: Container(
-                                      width: 64,
-                                      height: 64,
-                                      color: Colors.white,
-                                      margin: const EdgeInsets.symmetric(
-                                          vertical: 2, horizontal: 2),
-                                    ),
-                                    title: Container(
-                                      width: double.infinity,
-                                      height: 16.0,
-                                      margin: const EdgeInsets.only(right: 5),
-                                      color: Colors.white,
-                                    ),
-                                  );
+                                  if (isSubFolder) {
+                                    if (index == 0) {
+                                      return ListTile(
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                                        leading: const SizedBox(
+                                            width: 64, height: 64, child: Icon(Icons.folder)),
+                                        title: const Text('...'),
+                                        onTap: ref
+                                            .watch(filesListControllerProvider.notifier)
+                                            .popFolder,
+                                      );
+                                    } else {
+                                      index--;
+                                    }
+                                  }
+
+                                  if (index < lenFolders) {
+                                    Folder folder = folderContent.folders[index];
+                                    return FolderItem(
+                                      folder: folder,
+                                      key: ValueKey(folder),
+                                    );
+                                  } else {
+                                    RemoteFile file = folderContent.files[index - lenFolders];
+                                    if (file is GCodeFile) {
+                                      return GCodeFileItem(
+                                        key: ValueKey(file),
+                                        gCode: file,
+                                      );
+                                    } else {
+                                      return FileItem(
+                                        file: file,
+                                        key: ValueKey(file),
+                                      );
+                                    }
+                                  }
                                 }),
-                          ),
-                        )),
+                      ),
+                    ),
+                  );
+                },
+                error: (e, s) => Expanded(
+                      child: ErrorCard(
+                        title: const Text('Unable to fetch files!'),
+                        body: Column(
+                          children: [
+                            Text('The following error occued while trying to fetch files:n$e'),
+                            TextButton(
+                                // onPressed: model.showPrinterFetchingErrorDialog,
+                                onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
+                                    type: DialogType.stacktrace,
+                                    title: e.runtimeType.toString(),
+                                    body: 'Exception:\n $e\n\n$s')),
+                                child: const Text('Show Full Error'))
+                          ],
+                        ),
+                      ),
+                    ),
+                loading: () => Expanded(
+                      child: Shimmer.fromColors(
+                        baseColor: Colors.grey,
+                        highlightColor: theme.colorScheme.background,
+                        child: ListView.builder(
+                            itemCount: 15,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                leading: Container(
+                                  decoration: const BoxDecoration(
+                                    borderRadius: BorderRadius.horizontal(
+                                        left: Radius.circular(15.0), right: Radius.circular(15.0)),
+                                    color: Colors.white,
+                                  ),
+                                  width: 64,
+                                  height: 64,
+                                  margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                                ),
+                                title: Container(
+                                  width: double.infinity,
+                                  height: 16.0,
+                                  margin: const EdgeInsets.only(right: 5),
+                                  color: Colors.white,
+                                ),
+                                subtitle: Row(
+                                  children: [
+                                    Flexible(
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 10.0,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const Spacer(
+                                      flex: 2,
+                                    )
+                                  ],
+                                ),
+                              );
+                            }),
+                      ),
+                    )),
           ],
         ),
       ),
@@ -316,8 +308,7 @@ class _BreadCrumb extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ThemeData theme = Theme.of(context);
-    var curPath =
-        ref.watch(filesListControllerProvider.select((value) => value.path));
+    var curPath = ref.watch(filesListControllerProvider.select((value) => value.path));
 
     return Container(
       width: double.infinity,
@@ -349,8 +340,7 @@ class _BreadCrumb extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
                   child: Text(
                     '/',
-                    style: theme.textTheme.titleSmall
-                        ?.copyWith(color: theme.colorScheme.onPrimary),
+                    style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimary),
                   ),
                 ),
               ),
@@ -358,9 +348,7 @@ class _BreadCrumb extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(left: 4),
               child: InkWell(
-                onTap: ref
-                    .watch(filesListControllerProvider.notifier)
-                    .onCreateDirTapped,
+                onTap: ref.watch(filesListControllerProvider.notifier).onCreateDirTapped,
                 child: Icon(
                   Icons.create_new_folder_outlined,
                   color: theme.colorScheme.onPrimary,
@@ -386,14 +374,10 @@ class FolderItem extends ConsumerWidget {
       fileName: folder.name,
       isFolder: true,
       child: ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-          leading:
-              const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+          leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
           title: Text(folder.name),
-          onTap: () => ref
-              .read(filesListControllerProvider.notifier)
-              .enterFolder(folder)),
+          onTap: () => ref.read(filesListControllerProvider.notifier).enterFolder(folder)),
     );
   }
 }
@@ -409,11 +393,9 @@ class FileItem extends ConsumerWidget {
       fileName: file.name,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-        leading: const SizedBox(
-            width: 64, height: 64, child: Icon(Icons.insert_drive_file)),
+        leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.insert_drive_file)),
         title: Text(file.name),
-        onTap: () =>
-            ref.read(filesListControllerProvider.notifier).onFileTapped(file),
+        onTap: () => ref.read(filesListControllerProvider.notifier).onFileTapped(file),
       ),
     );
   }
@@ -427,8 +409,9 @@ class GCodeFileItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     String? lastPrinted = gCode.lastPrintDate != null
-        ? DateFormat.yMd(context.deviceLocale.languageCode)
-            .add_jm()
+        ? ref
+            .read(dateFormatServiceProvider)
+            .add_Hm(DateFormat.yMd(context.deviceLocale.languageCode))
             .format(gCode.lastPrintDate!)
         : null;
 
@@ -448,14 +431,12 @@ class GCodeFileItem extends ConsumerWidget {
         subtitle: Text((lastPrinted != null)
             ? '${tr('pages.files.last_printed')}: $lastPrinted'
             : tr('pages.files.not_printed')),
-        onTap: () =>
-            ref.read(filesListControllerProvider.notifier).onFileTapped(gCode),
+        onTap: () => ref.read(filesListControllerProvider.notifier).onFileTapped(gCode),
       ),
     );
   }
 
-  Widget buildLeading(
-      GCodeFile gCodeFile, Uri? machineUri, Map<String, String> headers) {
+  Widget buildLeading(GCodeFile gCodeFile, Uri? machineUri, Map<String, String> headers) {
     var bigImageUri = gCodeFile.constructBigImageUri(machineUri);
 
     if (bigImageUri != null) {
@@ -497,8 +478,7 @@ class GCodeFileItem extends ConsumerWidget {
 }
 
 class _Slideable extends ConsumerWidget {
-  const _Slideable(
-      {required this.child, required this.fileName, this.isFolder = false});
+  const _Slideable({required this.child, required this.fileName, this.isFolder = false});
 
   final Widget child;
   final String fileName;
@@ -514,12 +494,8 @@ class _Slideable extends ConsumerWidget {
           SlidableAction(
             // An action can be bigger than the others.
             onPressed: (c) => (isFolder)
-                ? ref
-                    .watch(filesListControllerProvider.notifier)
-                    .onRenameDirTapped(fileName)
-                : ref
-                    .watch(filesListControllerProvider.notifier)
-                    .onRenameFileTapped(fileName),
+                ? ref.watch(filesListControllerProvider.notifier).onRenameDirTapped(fileName)
+                : ref.watch(filesListControllerProvider.notifier).onRenameFileTapped(fileName),
             backgroundColor: themeData.colorScheme.secondaryContainer,
             foregroundColor: themeData.colorScheme.onSecondaryContainer,
             icon: Icons.drive_file_rename_outline,

@@ -99,7 +99,8 @@ class SelectedMachineService {
     selectMachine(list[prev]);
   }
 
-  bool isSelectedMachine(Machine toCheck) => toCheck == _selected;
+  bool isSelectedMachine(Machine toCheck) =>
+      toCheck.uuid == _boxUuid.get('selectedPrinter');
 
   dispose() {
     _selected = null;

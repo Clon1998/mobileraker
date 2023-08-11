@@ -19,7 +19,6 @@ import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
 import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
-import 'package:mobileraker/data/dto/machine/virtual_sd_card.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/logger.dart';
@@ -30,6 +29,7 @@ import 'package:mobileraker/ui/components/IconElevatedButton.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/graph_card_with_button.dart';
+import 'package:mobileraker/ui/components/machine_deletion_warning.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
@@ -60,27 +60,25 @@ class GeneralTab extends ConsumerWidget {
             data: (data) {
               var printState = ref.watch(generalTabViewControllerProvider
                   .select((data) => data.value!.printerData.print.state));
-              var clientType = ref.watch(generalTabViewControllerProvider
-                  .select((data) => data.value!.clientType));
+              var clientType = ref
+                  .watch(generalTabViewControllerProvider.select((data) => data.value!.clientType));
 
               return PullToRefreshPrinter(
                 child: ListView(
                   key: const PageStorageKey('gTab'),
                   padding: const EdgeInsets.only(bottom: 20),
                   children: [
+                    const MachineDeletionWarning(),
                     const SupporterAd(),
-                    if (clientType != ClientType.local)
-                      const DismissibleOctoIndicator(),
+                    if (clientType != ClientType.local) const DismissibleOctoIndicator(),
                     const PrintCard(),
                     const TemperatureCard(),
                     const CamCard(),
-                    if (printState != PrintState.printing)
-                      const ControlXYZCard(),
+                    if (printState != PrintState.printing) const ControlXYZCard(),
                     if (ref
                             .watch(settingServiceProvider)
-                            .readBool(showBabyAlwaysKey) ||
-                        const {PrintState.printing, PrintState.paused}
-                            .contains(printState))
+                            .readBool(AppSettingKeys.alwaysShowBabyStepping) ||
+                        const {PrintState.printing, PrintState.paused}.contains(printState))
                       const _BabySteppingCard(),
                   ],
                 ),
@@ -101,11 +99,10 @@ class GeneralTab extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                     TextButton(
-                        onPressed: () => ref.read(dialogServiceProvider).show(
-                            DialogRequest(
-                                type: DialogType.stacktrace,
-                                title: e.runtimeType.toString(),
-                                body: 'Exception:\n $e\n\n$s')),
+                        onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
+                            type: DialogType.stacktrace,
+                            title: e.runtimeType.toString(),
+                            body: 'Exception:\n $e\n\n$s')),
                         child: const Text('Show Error'))
                   ],
                 ),
@@ -147,43 +144,39 @@ class PrintCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    KlipperInstance klippyInstance = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.klippyData));
+    KlipperInstance klippyInstance =
+        ref.watch(generalTabViewControllerProvider.select((data) => data.value!.klippyData));
 
-    bool isPrintingOrPaused =
-        ref.watch(generalTabViewControllerProvider.select((data) {
+    bool isPrintingOrPaused = ref.watch(generalTabViewControllerProvider.select((data) {
       var printState = data.value!.printerData.print.state;
 
-      return printState == PrintState.printing ||
-          printState == PrintState.paused;
+      return printState == PrintState.printing || printState == PrintState.paused;
     }));
 
-    ExcludeObject? excludeObject = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.printerData.excludeObject));
+    ExcludeObject? excludeObject = ref.watch(
+        generalTabViewControllerProvider.select((data) => data.value!.printerData.excludeObject));
 
     var themeData = Theme.of(context);
-    logger.wtf('klippy instance $klippyInstance');
+    var klippyCanReceiveCommands = klippyInstance.klippyCanReceiveCommands;
     return Card(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListTile(
             contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
-            leading: Icon(klippyInstance.klippyCanReceiveCommands
+            leading: Icon(klippyCanReceiveCommands
                 ? FlutterIcons.monitor_dashboard_mco
                 : FlutterIcons.disconnect_ant),
             title: Text(
-                klippyInstance.klippyCanReceiveCommands
-                    ? ref.watch(generalTabViewControllerProvider.select(
-                        (data) => data.value!.printerData.print.stateName))
+                klippyCanReceiveCommands
+                    ? ref.watch(generalTabViewControllerProvider
+                        .select((data) => data.value!.printerData.print.stateName))
                     : klippyInstance.klippyStateMessage ??
                         'Klipper: ${tr(klippyInstance.klippyState.name)}',
                 style: TextStyle(
-                    color: !klippyInstance.klippyCanReceiveCommands
-                        ? themeData.colorScheme.error
-                        : null)),
+                    color: !klippyCanReceiveCommands ? themeData.colorScheme.error : null)),
             subtitle: _subTitle(ref),
-            trailing: _trailing(ref),
+            trailing: _trailing(context, ref, themeData, klippyCanReceiveCommands),
           ),
           if (const {KlipperState.shutdown, KlipperState.error}
               .contains(klippyInstance.klippyState))
@@ -196,24 +189,20 @@ class PrintCard extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    onPressed: ref
-                        .read(generalTabViewControllerProvider.notifier)
-                        .onRestartKlipperPressed,
-                    child: const Text('pages.dashboard.general.restart_klipper')
-                        .tr(),
+                    onPressed:
+                        ref.read(generalTabViewControllerProvider.notifier).onRestartKlipperPressed,
+                    child: const Text('pages.dashboard.general.restart_klipper').tr(),
                   ),
                   ElevatedButton(
-                    onPressed: ref
-                        .read(generalTabViewControllerProvider.notifier)
-                        .onRestartMCUPressed,
-                    child:
-                        const Text('pages.dashboard.general.restart_mcu').tr(),
+                    onPressed:
+                        ref.read(generalTabViewControllerProvider.notifier).onRestartMCUPressed,
+                    child: const Text('pages.dashboard.general.restart_mcu').tr(),
                   )
                 ],
               ),
             ),
           const M117Message(),
-          if (klippyInstance.klippyCanReceiveCommands &&
+          if (klippyCanReceiveCommands &&
               isPrintingOrPaused &&
               excludeObject != null &&
               excludeObject.available) ...[
@@ -229,21 +218,18 @@ class PrintCard extends ConsumerWidget {
                     color: themeData.colorScheme.primary,
                     icon: const Icon(FlutterIcons.object_group_faw5),
                     tooltip: 'dialogs.exclude_object.title'.tr(),
-                    onPressed: ref
-                        .read(generalTabViewControllerProvider.notifier)
-                        .onExcludeObjectPressed,
+                    onPressed:
+                        ref.read(generalTabViewControllerProvider.notifier).onExcludeObjectPressed,
                   ),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text(
-                                'pages.dashboard.general.print_card.current_object')
-                            .tr(),
+                        const Text('pages.dashboard.general.print_card.current_object').tr(),
                         Text(
                           excludeObject.currentObject ?? 'general.none'.tr(),
-                          style: themeData.textTheme.bodyMedium?.copyWith(
-                              color: themeData.textTheme.bodySmall?.color),
+                          style: themeData.textTheme.bodyMedium
+                              ?.copyWith(color: themeData.textTheme.bodySmall?.color),
                         ),
                       ],
                     ),
@@ -252,8 +238,7 @@ class PrintCard extends ConsumerWidget {
               ),
             ),
           ],
-          if (klippyInstance.klippyCanReceiveCommands &&
-              isPrintingOrPaused) ...[
+          if (klippyCanReceiveCommands && isPrintingOrPaused) ...[
             const Divider(
               thickness: 1,
               height: 0,
@@ -265,39 +250,85 @@ class PrintCard extends ConsumerWidget {
     );
   }
 
-  Widget? _trailing(WidgetRef ref) {
-    PrintState printState = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.printerData.print.state));
+  Widget? _trailing(
+      BuildContext context, WidgetRef ref, ThemeData themeData, bool klippyCanReceiveCommands) {
+    PrintState printState = ref.watch(
+        generalTabViewControllerProvider.select((data) => data.value!.printerData.print.state));
 
-    VirtualSdCard virtualSdCard = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.printerData.virtualSdCard));
+    var progress = ref.watch(
+        generalTabViewControllerProvider.select((data) => data.value!.printerData.printProgress));
 
     switch (printState) {
       case PrintState.printing:
         return CircularPercentIndicator(
           radius: 25,
           lineWidth: 4,
-          percent: virtualSdCard.progress,
-          center: Text('${(virtualSdCard.progress * 100).round()}%'),
-          progressColor: (printState == PrintState.complete)
-              ? Colors.green
-              : Colors.deepOrange,
+          percent: progress,
+          center: Text(NumberFormat.percentPattern(context.locale.languageCode).format(progress)),
+          progressColor: (printState == PrintState.complete) ? Colors.green : Colors.deepOrange,
         );
       case PrintState.complete:
-        return TextButton.icon(
-            onPressed: ref
-                .read(generalTabViewControllerProvider.notifier)
-                .onResetPrintTap,
-            icon: const Icon(Icons.restart_alt_outlined),
-            label: const Text('pages.dashboard.general.print_card.reset').tr());
+        return PopupMenuButton(
+          enabled: klippyCanReceiveCommands,
+          padding: EdgeInsets.zero,
+          position: PopupMenuPosition.over,
+          itemBuilder: (BuildContext context) => [
+            PopupMenuItem(
+              enabled: klippyCanReceiveCommands,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              onTap: ref.read(generalTabViewControllerProvider.notifier).onResetPrintTap,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.restart_alt_outlined,
+                    color: themeData.colorScheme.primary,
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Text('pages.dashboard.general.print_card.reset',
+                          style: TextStyle(color: themeData.colorScheme.primary))
+                      .tr()
+                ],
+              ),
+            ),
+            PopupMenuItem(
+              enabled: klippyCanReceiveCommands,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              onTap: ref.read(generalTabViewControllerProvider.notifier).onReprintTap,
+              child: Row(
+                children: [
+                  Icon(
+                    FlutterIcons.printer_3d_nozzle_mco,
+                    color: themeData.colorScheme.primary,
+                  ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  Text(
+                    'pages.dashboard.general.print_card.reprint',
+                    style: TextStyle(color: themeData.colorScheme.primary),
+                  ).tr()
+                ],
+              ),
+            )
+          ],
+          child: TextButton.icon(
+              style: klippyCanReceiveCommands
+                  ? TextButton.styleFrom(disabledForegroundColor: themeData.colorScheme.primary)
+                  : null,
+              onPressed: null,
+              icon: const Icon(Icons.more_vert),
+              label: const Text('pages.dashboard.general.move_card.more_btn').tr()),
+        );
       default:
         return null;
     }
   }
 
   Widget? _subTitle(WidgetRef ref) {
-    var print = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.printerData.print));
+    var print =
+        ref.watch(generalTabViewControllerProvider.select((data) => data.value!.printerData.print));
 
     switch (print.state) {
       case PrintState.paused:
@@ -330,8 +361,7 @@ class TemperatureCard extends ConsumerWidget {
 }
 
 class _TemperatureCardTitle extends ConsumerWidget {
-  const _TemperatureCardTitle({Key? key, required this.title})
-      : super(key: key);
+  const _TemperatureCardTitle({Key? key, required this.title}) : super(key: key);
 
   final Widget? title;
 
@@ -349,9 +379,7 @@ class _TemperatureCardTitle extends ConsumerWidget {
       ),
       title: title,
       trailing: TextButton(
-        onPressed: ref
-            .read(generalTabViewControllerProvider.notifier)
-            .flipTemperatureCard,
+        onPressed: ref.read(generalTabViewControllerProvider.notifier).flipTemperatureCard,
         child: const Text('pages.dashboard.general.temp_card.presets_btn').tr(),
       ),
     );
@@ -368,9 +396,7 @@ class _Presets extends ConsumerWidget {
           child: Column(
             children: [
               _TemperatureCardTitle(
-                  title: const Text(
-                          'pages.dashboard.general.temp_card.temp_presets')
-                      .tr()),
+                  title: const Text('pages.dashboard.general.temp_card.temp_presets').tr()),
               const _TemperaturePresetsHorizontalScroll()
             ],
           ),
@@ -391,8 +417,7 @@ class _Heaters extends ConsumerWidget {
         child: Column(
           children: [
             _TemperatureCardTitle(
-                title:
-                    const Text('pages.dashboard.general.temp_card.title').tr()),
+                title: const Text('pages.dashboard.general.temp_card.title').tr()),
             const _HeatersHorizontalScroll(),
           ],
         ),
@@ -409,14 +434,12 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
     bool hasHeaterBed = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.printerData.heaterBed != null));
 
-    int extruderCnt = ref.watch(generalTabViewControllerProvider
-        .select((data) => data.value!.printerData.extruderCount));
+    int extruderCnt = ref.watch(
+        generalTabViewControllerProvider.select((data) => data.value!.printerData.extruderCount));
 
     int genericHeateCnt = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.genericHeaters.values
-            .where((e) => !e.name.startsWith('_'))
-            .length))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.printerData.genericHeaters.values.where((e) => !e.name.startsWith('_')).length))
         .valueOrFullNull!;
 
     int sensorsCnt = ref
@@ -450,33 +473,32 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
         ...List.generate(
             genericHeateCnt,
             (index) => _HeaterMixinCard(
-                heaterProvider: machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.genericHeaters.values
-                        .where((element) => !element.name.startsWith('_'))
-                        .elementAt(index)))),
+                heaterProvider: machinePrinterKlippySettingsProvider.selectAs((value) => value
+                    .printerData.genericHeaters.values
+                    .where((element) => !element.name.startsWith('_'))
+                    .elementAt(index)))),
         ...List.generate(
             sensorsCnt,
             (index) => _SensorCard(
-                sensorProvider: machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.temperatureSensors.values
-                        .where((element) => !element.name.startsWith('_'))
-                        .elementAt(index)))),
+                sensorProvider: machinePrinterKlippySettingsProvider.selectAs((value) => value
+                    .printerData.temperatureSensors.values
+                    .where((element) => !element.name.startsWith('_'))
+                    .elementAt(index)))),
         ...List.generate(
             temperatureFanCnt,
             (index) => _TemperatureFanCard(
-                tempFanProvider: machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.fans.values
-                        .where((element) => !element.name.startsWith('_'))
-                        .whereType<TemperatureFan>()
-                        .elementAt(index)))),
+                tempFanProvider: machinePrinterKlippySettingsProvider.selectAs((value) => value
+                    .printerData.fans.values
+                    .where((element) => !element.name.startsWith('_'))
+                    .whereType<TemperatureFan>()
+                    .elementAt(index)))),
       ],
     );
   }
 }
 
 class _HeaterMixinCard extends HookConsumerWidget {
-  const _HeaterMixinCard({Key? key, required this.heaterProvider})
-      : super(key: key);
+  const _HeaterMixinCard({Key? key, required this.heaterProvider}) : super(key: key);
   final ProviderListenable<AsyncValue<HeaterMixin>> heaterProvider;
 
   @override
@@ -489,8 +511,7 @@ class _HeaterMixinCard extends HookConsumerWidget {
 
     var temperatureHistory = genericHeater.temperatureHistory;
     if (temperatureHistory != null) {
-      List<double> sublist =
-          temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
+      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
       spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
@@ -500,11 +521,9 @@ class _HeaterMixinCard extends HookConsumerWidget {
       current: genericHeater.temperature,
       target: genericHeater.target,
       spots: spots.value,
-      onTap: ref.watch(generalTabViewControllerProvider.select(
-              (data) => data.value!.klippyData.klippyCanReceiveCommands))
-          ? () => ref
-              .read(generalTabViewControllerProvider.notifier)
-              .editHHHeater(genericHeater)
+      onTap: ref.watch(generalTabViewControllerProvider
+              .select((data) => data.value!.klippyData.klippyCanReceiveCommands))
+          ? () => ref.read(generalTabViewControllerProvider.notifier).editHHHeater(genericHeater)
           : null,
     );
   }
@@ -516,15 +535,13 @@ class _SensorCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TemperatureSensor temperatureSensor =
-        ref.watch(sensorProvider).valueOrFullNull!;
+    TemperatureSensor temperatureSensor = ref.watch(sensorProvider).valueOrFullNull!;
 
     var spots = useState(<FlSpot>[]);
     var temperatureHistory = temperatureSensor.temperatureHistory;
 
     if (temperatureHistory != null) {
-      List<double> sublist =
-          temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
+      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
       spots.value.clear();
       spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
@@ -532,8 +549,7 @@ class _SensorCard extends HookConsumerWidget {
 
     return GraphCardWithButton(
       plotSpots: spots.value,
-      buttonChild:
-          const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
+      buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       builder: (context) => Tooltip(
         message: beautifiedNamed,
@@ -578,19 +594,15 @@ class _HeaterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    NumberFormat numberFormat =
-        NumberFormat('0.0', context.locale.languageCode);
+    NumberFormat numberFormat = NumberFormat('0.0', context.locale.languageCode);
     ThemeData themeData = Theme.of(context);
     Color colorBg = themeData.colorScheme.surfaceVariant;
     if (target > 0 && onTap != null) {
       colorBg = Color.alphaBlend(
-          const Color.fromRGBO(178, 24, 24, 1)
-              .withOpacity(min(current / target, 1)),
-          colorBg);
+          const Color.fromRGBO(178, 24, 24, 1).withOpacity(min(current / target, 1)), colorBg);
     } else if (current > _stillHotTemp) {
       colorBg = Color.alphaBlend(
-          const Color.fromRGBO(243, 106, 65, 1.0)
-              .withOpacity(min(current / _stillHotTemp - 1, 1)),
+          const Color.fromRGBO(243, 106, 65, 1.0).withOpacity(min(current / _stillHotTemp - 1, 1)),
           colorBg);
     }
     return GraphCardWithButton(
@@ -638,8 +650,7 @@ class _HeaterCard extends StatelessWidget {
 }
 
 class _TemperatureFanCard extends HookConsumerWidget {
-  const _TemperatureFanCard({Key? key, required this.tempFanProvider})
-      : super(key: key);
+  const _TemperatureFanCard({Key? key, required this.tempFanProvider}) : super(key: key);
   final ProviderListenable<AsyncValue<TemperatureFan>> tempFanProvider;
   static const double icoSize = 30;
 
@@ -660,11 +671,10 @@ class _TemperatureFanCard extends HookConsumerWidget {
 
     return CardWithButton(
       buttonChild: const Text('general.set').tr(),
-      onTap: ref.watch(generalTabViewControllerProvider.select(
-              (data) => data.value!.klippyData.klippyCanReceiveCommands))
-          ? () => ref
-              .read(generalTabViewControllerProvider.notifier)
-              .editTemperatureFan(temperatureFan)
+      onTap: ref.watch(generalTabViewControllerProvider
+              .select((data) => data.value!.klippyData.klippyCanReceiveCommands))
+          ? () =>
+              ref.read(generalTabViewControllerProvider.notifier).editTemperatureFan(temperatureFan)
           : null,
       builder: (context) => Tooltip(
         message: beautifiedNamed,
@@ -722,9 +732,8 @@ class _TemperaturePresetsHorizontalScroll extends ConsumerWidget {
           : null,
     );
 
-    List<TemperaturePreset> tempPresets = ref.watch(
-        generalTabViewControllerProvider.select(
-            (data) => data.value?.settings.temperaturePresets ?? const []));
+    List<TemperaturePreset> tempPresets = ref.watch(generalTabViewControllerProvider
+        .select((data) => data.value?.settings.temperaturePresets ?? const []));
     var presetWidgets = List.generate(tempPresets.length, (index) {
       TemperaturePreset preset = tempPresets[index];
       return _TemperaturePresetCard(
@@ -795,8 +804,7 @@ class _BabySteppingCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var zOffset = ref
-        .watch(printerSelectedProvider.select((data) => data.value!.zOffset));
+    var zOffset = ref.watch(printerSelectedProvider.select((data) => data.value!.zOffset));
     var klippyCanReceiveCommands = ref
         .watch(generalTabViewControllerProvider
             .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
@@ -807,8 +815,7 @@ class _BabySteppingCard extends ConsumerWidget {
         children: <Widget>[
           ListTile(
               leading: const Icon(FlutterIcons.align_vertical_middle_ent),
-              title: const Text('pages.dashboard.general.baby_step_card.title')
-                  .tr(),
+              title: const Text('pages.dashboard.general.baby_step_card.title').tr(),
               trailing: Chip(
                 avatar: Icon(
                   FlutterIcons.progress_wrench_mco,
@@ -827,17 +834,14 @@ class _BabySteppingCard extends ConsumerWidget {
                     SquareElevatedIconButton(
                         margin: const EdgeInsets.all(10),
                         onPressed: klippyCanReceiveCommands
-                            ? () => ref
-                                .read(babyStepControllerProvider.notifier)
-                                .onBabyStepping()
+                            ? () => ref.read(babyStepControllerProvider.notifier).onBabyStepping()
                             : null,
                         child: const Icon(FlutterIcons.upsquare_ant)),
                     SquareElevatedIconButton(
                         margin: const EdgeInsets.all(10),
                         onPressed: klippyCanReceiveCommands
-                            ? () => ref
-                                .read(babyStepControllerProvider.notifier)
-                                .onBabyStepping(false)
+                            ? () =>
+                                ref.read(babyStepControllerProvider.notifier).onBabyStepping(false)
                             : null,
                         child: const Icon(FlutterIcons.downsquare_ant)),
                   ],
@@ -846,8 +850,7 @@ class _BabySteppingCard extends ConsumerWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                          '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]'),
+                      child: Text('${'pages.dashboard.general.move_card.step_size'.tr()} [mm]'),
                     ),
                     RangeSelector(
                         selectedIndex: ref.watch(babyStepControllerProvider),
@@ -855,8 +858,8 @@ class _BabySteppingCard extends ConsumerWidget {
                             .read(babyStepControllerProvider.notifier)
                             .onSelectedBabySteppingSizeChanged,
                         values: ref
-                            .read(generalTabViewControllerProvider.select(
-                                (data) => data.value!.settings.babySteps))
+                            .read(generalTabViewControllerProvider
+                                .select((data) => data.value!.settings.babySteps))
                             .map((e) => e.toString())
                             .toList()),
                   ],
@@ -901,8 +904,7 @@ class M117Message extends ConsumerWidget {
             ),
           ),
           IconButton(
-            onPressed:
-                ref.read(generalTabViewControllerProvider.notifier).onClearM117,
+            onPressed: ref.read(generalTabViewControllerProvider.notifier).onClearM117,
             icon: const Icon(Icons.clear),
             iconSize: 16,
             color: themeData.colorScheme.primary,

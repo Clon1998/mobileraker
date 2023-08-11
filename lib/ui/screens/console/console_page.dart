@@ -11,6 +11,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
+import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
@@ -20,6 +21,7 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/console/console_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:mobileraker/util/extensions/text_editing_controller_extension.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -33,8 +35,7 @@ class ConsolePage extends ConsumerWidget {
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
         actions: [
-          MachineStateIndicator(
-              ref.watch(selectedMachineProvider).valueOrFullNull),
+          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
           const EmergencyStopBtn(),
         ],
       ),
@@ -54,11 +55,8 @@ class _ConsoleBody extends HookConsumerWidget {
     var consoleTextEditor = useTextEditingController();
     var focusNode = useFocusNode();
 
-    var klippyCanReceiveCommands = ref
-            .watch(klipperSelectedProvider)
-            .valueOrFullNull
-            ?.klippyCanReceiveCommands ??
-        false;
+    var klippyCanReceiveCommands =
+        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
 
     var theme = Theme.of(context);
     return SafeArea(
@@ -87,8 +85,7 @@ class _ConsoleBody extends HookConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                 child: Text(
                   'GCode Console',
-                  style: theme.textTheme.titleMedium
-                      ?.copyWith(color: theme.colorScheme.onPrimary),
+                  style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
                 ),
               ),
             ),
@@ -134,8 +131,7 @@ class _ConsoleBody extends HookConsumerWidget {
                               }
                             : null,
                       ),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                       hintText: tr('pages.console.command_input.hint')),
                 ),
               ),
@@ -148,8 +144,7 @@ class _ConsoleBody extends HookConsumerWidget {
 }
 
 class GCodeSuggestionBar extends StatefulHookConsumerWidget {
-  const GCodeSuggestionBar(
-      {Key? key, required this.onMacroTap, required this.consoleInputNotifier})
+  const GCodeSuggestionBar({Key? key, required this.onMacroTap, required this.consoleInputNotifier})
       : super(key: key);
 
   final ValueChanged<String> onMacroTap;
@@ -171,8 +166,9 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
     List<String> potential = [];
     potential.addAll(history);
 
-    Iterable<String> filteredAvailable = available.map((e) => e.cmd).where(
-        (element) => !element.startsWith('_') && !potential.contains(element));
+    Iterable<String> filteredAvailable = available
+        .map((e) => e.cmd)
+        .where((element) => !element.startsWith('_') && !potential.contains(element));
     potential.addAll(additionalCmds);
     potential.addAll(filteredAvailable);
     String text = currentInput.toLowerCase();
@@ -181,8 +177,7 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
     List<String> terms = text.split(RegExp(r'\W+'));
 
     return potential
-        .where(
-            (element) => terms.every((t) => element.toLowerCase().contains(t)))
+        .where((element) => terms.every((t) => element.toLowerCase().contains(t)))
         .toList(growable: false);
   }
 
@@ -194,14 +189,10 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
 
     var history = ref.watch(commandHistoryProvider);
     var available = ref.watch(availableMacrosProvider).valueOrFullNull ?? [];
-    var suggestions =
-        calculateSuggestedMacros(consoleInput, history, available);
+    var suggestions = calculateSuggestedMacros(consoleInput, history, available);
     if (suggestions.isEmpty) return const SizedBox.shrink();
-    var canSend = ref
-            .watch(klipperSelectedProvider)
-            .valueOrFullNull
-            ?.klippyCanReceiveCommands ??
-        false;
+    var canSend =
+        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
     return SizedBox(
       height: 33,
       child: ChipTheme(
@@ -220,9 +211,7 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
               margin: const EdgeInsets.symmetric(horizontal: 2),
               child: RawChip(
                 label: Text(cmd),
-                backgroundColor: canSend
-                    ? themeData.colorScheme.primary
-                    : themeData.disabledColor,
+                backgroundColor: canSend ? themeData.colorScheme.primary : themeData.disabledColor,
                 onPressed: canSend ? () => widget.onMacroTap(cmd) : null,
               ),
             );
@@ -240,8 +229,7 @@ class _Console extends ConsumerWidget {
 
   TextStyle _commandTextStyle(ThemeData theme, ListTileThemeData tileTheme) {
     final TextStyle textStyle;
-    switch (
-        tileTheme.style ?? theme.listTileTheme.style ?? ListTileStyle.list) {
+    switch (tileTheme.style ?? theme.listTileTheme.style ?? ListTileStyle.list) {
       case ListTileStyle.drawer:
         textStyle = theme.textTheme.bodyText1!;
         break;
@@ -256,11 +244,10 @@ class _Console extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var canSend = ref
-            .watch(klipperSelectedProvider)
-            .valueOrFullNull
-            ?.klippyCanReceiveCommands ??
-        false;
+    var canSend =
+        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
+    var dateFormatService = ref.read(dateFormatServiceProvider);
+
     return ref.watch(consoleListControllerProvider).when(
         data: (entries) {
           if (entries.isEmpty) {
@@ -268,7 +255,6 @@ class _Console extends ConsumerWidget {
                 leading: const Icon(Icons.browser_not_supported_sharp),
                 title: const Text('pages.console.no_entries').tr());
           }
-          var now = DateTime.now();
           return SmartRefresher(
               header: ClassicHeader(
                 textStyle: TextStyle(color: themeData.colorScheme.onBackground),
@@ -276,10 +262,8 @@ class _Console extends ConsumerWidget {
                   Icons.arrow_upward,
                   color: themeData.colorScheme.onBackground,
                 ),
-                completeIcon:
-                    Icon(Icons.done, color: themeData.colorScheme.onBackground),
-                releaseIcon: Icon(Icons.refresh,
-                    color: themeData.colorScheme.onBackground),
+                completeIcon: Icon(Icons.done, color: themeData.colorScheme.onBackground),
+                releaseIcon: Icon(Icons.refresh, color: themeData.colorScheme.onBackground),
                 idleText: tr('components.pull_to_refresh.pull_up_idle'),
               ),
               controller: ref.watch(consoleRefreshControllerProvider),
@@ -291,24 +275,19 @@ class _Console extends ConsumerWidget {
                     int correctedIndex = entries.length - 1 - index;
                     ConsoleEntry entry = entries[correctedIndex];
 
-                    DateFormat dateFormat = DateFormat.Hms();
-                    if (now.difference(entry.timestamp).inDays != 0) {
+                    DateFormat dateFormat = dateFormatService.Hms();
+                    if (entry.timestamp.isNotToday()) {
                       dateFormat.addPattern('MMMd', ', ');
                     }
-
 
                     if (entry.type == ConsoleEntryType.COMMAND) {
                       return ListTile(
                         dense: true,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 8),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                         title: Text(entry.message,
-                            style: _commandTextStyle(
-                                themeData, ListTileTheme.of(context))),
-                        subtitle:
-                            Text(dateFormat.format(entry.timestamp)),
-                        onTap:
-                            canSend ? () => onCommandTap(entry.message) : null,
+                            style: _commandTextStyle(themeData, ListTileTheme.of(context))),
+                        subtitle: Text(dateFormat.format(entry.timestamp)),
+                        onTap: canSend ? () => onCommandTap(entry.message) : null,
                       );
                     }
 

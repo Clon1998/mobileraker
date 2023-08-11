@@ -5,6 +5,8 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../converters/integer_converter.dart';
+
 part 'print_stats.freezed.dart';
 part 'print_stats.g.dart';
 
@@ -33,6 +35,12 @@ class PrintStats with _$PrintStats {
     @JsonKey(name: 'filament_used') @Default(0) double filamentUsed,
     @Default('') String message,
     @Default('') String filename,
+    @IntegerConverter()
+    @JsonKey(name: 'current_layer', readValue: _flattenInfoObject)
+    int? currentLayer,
+    @IntegerConverter()
+    @JsonKey(name: 'total_layer', readValue: _flattenInfoObject)
+    int? totalLayer,
   }) = _PrintStats;
 
   factory PrintStats.fromJson(Map<String, dynamic> json) =>
@@ -46,4 +54,9 @@ class PrintStats with _$PrintStats {
   }
 
   String get stateName => state.displayName;
+}
+
+/// Helper to avoid having to create a boilerplate Info class that only holds the current and total layer.
+Object? _flattenInfoObject(Map<dynamic, dynamic> json, String field) {
+  return json['info']?[field];
 }

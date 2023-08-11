@@ -11,19 +11,17 @@ import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/ui/components/mjpeg.dart';
-import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/util/misc.dart';
 
 class WebcamMjpeg extends ConsumerWidget {
-  const WebcamMjpeg(
-      {Key? key,
-      required this.webcamInfo,
-      required this.machine,
-      this.imageBuilder,
-      this.stackChild = const [],
-      this.showFps = false,
-      this.showRemoteIndicator = true})
-      : super(key: key);
+  const WebcamMjpeg({
+    Key? key,
+    required this.webcamInfo,
+    required this.machine,
+    this.imageBuilder,
+    this.stackChild = const [],
+    this.showFps = false,
+  }) : super(key: key);
 
   final WebcamInfo webcamInfo;
 
@@ -35,13 +33,11 @@ class WebcamMjpeg extends ConsumerWidget {
 
   final bool showFps;
 
-  final bool showRemoteIndicator;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
     var octoEverywhere = machine.octoEverywhere;
-    var machineUri = Uri.parse(machine.wsUrl);
+    var machineUri = machine.wsUri;
 
     var camStreamUrl = webcamInfo.streamUrl;
     var camSnapshotUrl = webcamInfo.snapshotUrl;
@@ -59,11 +55,11 @@ class WebcamMjpeg extends ConsumerWidget {
         ..streamUri = camStreamUrl.isAbsolute
             ? camStreamUrl
             : substituteProtocols(machineUri.resolveUri(camStreamUrl))
-                .replace(port: null)
+                .replace(port: 0)
         ..snapshotUri = camSnapshotUrl.isAbsolute
             ? camSnapshotUrl
             : substituteProtocols(machineUri.resolveUri(camSnapshotUrl))
-                .replace(port: null);
+                .replace(port: 0);
     } else {
       configBuilder.timeout = const Duration(seconds: 30);
       var baseUri = octoEverywhere!.uri.replace(
@@ -84,15 +80,6 @@ class WebcamMjpeg extends ConsumerWidget {
       showFps: showFps,
       stackChild: [
         ...stackChild,
-        if (showRemoteIndicator && clientType != ClientType.local)
-          const Positioned.fill(
-              child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: OctoIndicator(),
-            ),
-          )),
       ],
     );
   }

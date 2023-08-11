@@ -55,9 +55,7 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
     var themeData = Theme.of(context);
 
     return WillPopScope(
-      onWillPop: ref
-          .read(bedScrewAdjustDialogControllerProvider.notifier)
-          .onPopTriggered,
+      onWillPop: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onPopTriggered,
       child: Dialog(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15),
@@ -71,98 +69,93 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
                   style: themeData.textTheme.headlineSmall,
                 ),
               ),
-              AnimatedSwitcher(
-                switchInCurve: Curves.easeInCirc,
-                switchOutCurve: Curves.easeOutExpo,
-                transitionBuilder: (child, anim) => SizeAndFadeTransition(
-                  sizeAndFadeFactor: anim,
-                  child: child,
-                ),
-                duration: kThemeAnimationDuration,
-                child: ref.watch(bedScrewAdjustDialogControllerProvider).when(
-                  data: (data) => Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Column(
+              Flexible(
+                child: AnimatedSwitcher(
+                  switchInCurve: Curves.easeInCirc,
+                  switchOutCurve: Curves.easeOutExpo,
+                  transitionBuilder: (child, anim) => SizeAndFadeTransition(
+                    sizeAndFadeFactor: anim,
+                    child: child,
+                  ),
+                  duration: kThemeAnimationDuration,
+                  child: ref.watch(bedScrewAdjustDialogControllerProvider).when(
+                        data: (data) => Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const ScrewLocationIndicator(),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  contentPadding:
-                                  const EdgeInsets.only(top: 8),
-                                  floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
-                                  label: const Text(
-                                      'dialogs.bed_screw_adjust.active_screw_title')
-                                      .tr(),
-                                  border: InputBorder.none,
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Flexible(
+                                      child: ScrewLocationIndicator(),
+                                    ),
+                                    InputDecorator(
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding: const EdgeInsets.only(top: 8),
+                                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                                        label: const Text(
+                                                'dialogs.bed_screw_adjust.active_screw_title')
+                                            .tr(),
+                                        border: InputBorder.none,
+                                      ),
+                                      child: Text(data.config.configBedScrews!
+                                          .screws[data.bedScrew.currentScrew].name),
+                                    ),
+                                    InputDecorator(
+                                      decoration: InputDecoration(
+                                        isDense: true,
+                                        contentPadding: const EdgeInsets.only(top: 8),
+                                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                                        label: const Text(
+                                                'dialogs.bed_screw_adjust.accept_screw_title')
+                                            .tr(),
+                                        border: InputBorder.none,
+                                      ),
+                                      child:
+                                          const Text('dialogs.bed_screw_adjust.accept_screw_value')
+                                              .tr(args: [
+                                        data.bedScrew.acceptedScrews.toString(),
+                                        data.config.configBedScrews!.screws.length.toString()
+                                      ]),
+                                    ),
+                                  ],
                                 ),
-                                child: Text(data
-                                    .config
-                                    .configBedScrews!
-                                    .screws[data.bedScrew.currentScrew]
-                                    .name),
                               ),
                             ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: InputDecorator(
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  contentPadding:
-                                  const EdgeInsets.only(top: 8),
-                                  floatingLabelBehavior:
-                                  FloatingLabelBehavior.always,
-                                  label: const Text(
-                                      'dialogs.bed_screw_adjust.accept_screw_title')
-                                      .tr(),
-                                  border: InputBorder.none,
-                                ),
-                                child: const Text(
-                                    'dialogs.bed_screw_adjust.accept_screw_value')
-                                    .tr(args: [
-                                  data.bedScrew.acceptedScrews.toString(),
-                                  data.config.configBedScrews!.screws.length
-                                      .toString()
-                                ]),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0),
+                              child: LinearProgressIndicator(
+                                minHeight: 6,
+                                backgroundColor: themeData.colorScheme.primaryContainer,
+                                value: data.bedScrew.acceptedScrews /
+                                    data.config.configBedScrews!.screws.length,
                               ),
                             ),
+                            Text(
+                              'dialogs.bed_screw_adjust.hint',
+                              textAlign: TextAlign.center,
+                              style: themeData.textTheme.bodySmall,
+                            ).tr(),
                           ],
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: LinearProgressIndicator(
-                          minHeight: 6,
-                          backgroundColor:
-                          themeData.colorScheme.primaryContainer,
-                          value: data.bedScrew.acceptedScrews /
-                              data.config.configBedScrews!.screws.length,
+                        error: (e, s) => IntrinsicHeight(
+                          child: ErrorCard(
+                            title: const Text('Error loading Bed Screw'),
+                            body: Text(e.toString()),
+                          ),
                         ),
+                        loading: () => IntrinsicHeight(
+                          child: SpinKitWave(
+                            size: 33,
+                            color: themeData.colorScheme.primary,
+                          ),
+                        ),
+                        skipLoadingOnReload: true,
                       ),
-                      Text(
-                        'dialogs.bed_screw_adjust.hint',
-                        textAlign: TextAlign.center,
-                        style: themeData.textTheme.bodySmall,
-                      ).tr(),
-                    ],
-                  ),
-                  error: (e, s) => ErrorCard(
-                    title: const Text('Error loading Bed Screw'),
-                    body: Text(e.toString()),
-                  ),
-                  loading: () => SpinKitWave(
-                    size: 33,
-                    color: themeData.colorScheme.primary,
-                  ),
-                  skipLoadingOnReload: true,
                 ),
               ),
               _Footer(dialogCompleter: completer),
@@ -181,8 +174,7 @@ class _Footer extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // var controller = manualOffsetDialogControllerProvider(dialogCompleter);
-    var bedScrewAndConfig =
-        ref.watch(bedScrewAdjustDialogControllerProvider).valueOrNull;
+    var bedScrewAndConfig = ref.watch(bedScrewAdjustDialogControllerProvider).valueOrNull;
 
     var themeData = Theme.of(context);
     return Padding(
@@ -191,9 +183,7 @@ class _Footer extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
-            onPressed: ref
-                .read(bedScrewAdjustDialogControllerProvider.notifier)
-                .onAbortPressed,
+            onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAbortPressed,
             child: const Text('general.abort').tr(),
           ),
           // IconButton(
@@ -209,18 +199,14 @@ class _Footer extends ConsumerWidget {
               child: Row(
                 children: [
                   TextButton(
-                    onPressed: ref
-                        .read(bedScrewAdjustDialogControllerProvider.notifier)
-                        .onAdjustedPressed,
-                    child: const Text('dialogs.bed_screw_adjust.adjusted_btn')
-                        .tr(),
+                    onPressed:
+                        ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAdjustedPressed,
+                    child: const Text('dialogs.bed_screw_adjust.adjusted_btn').tr(),
                   ),
                   TextButton(
-                    style: TextButton.styleFrom(
-                        foregroundColor: themeData.colorScheme.secondary),
-                    onPressed: ref
-                        .read(bedScrewAdjustDialogControllerProvider.notifier)
-                        .onAcceptPressed,
+                    style: TextButton.styleFrom(foregroundColor: themeData.colorScheme.secondary),
+                    onPressed:
+                        ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAcceptPressed,
                     child: const Text('general.accept').tr(),
                   ),
                 ],
@@ -249,11 +235,17 @@ class ScrewLocationIndicator extends ConsumerWidget {
           'dialogs.bed_screw_adjust.xy_plane',
           style: Theme.of(context).textTheme.titleMedium,
         ).tr(),
-        AspectRatio(
-            aspectRatio: data.config.sizeX / data.config.sizeY,
-            child: CustomPaint(
-                painter: BedScrewIndicatorPainter(
-                    context, data.bedScrew.currentScrew, data.config))),
+        Flexible(
+          child: IntrinsicHeight(
+            child: Center(
+              child: AspectRatio(
+                  aspectRatio: data.config.sizeX / data.config.sizeY,
+                  child: CustomPaint(
+                      painter: BedScrewIndicatorPainter(
+                          context, data.bedScrew.currentScrew, data.config))),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -313,8 +305,7 @@ class BedScrewIndicatorPainter extends CustomPainter {
     }
     config.configBedScrews!.screws.forEachIndexed((index, screw) {
       canvas.drawCircle(
-          Offset(
-              screw.x / _maxXBed * maxX, correctY(screw.y) / _maxYBed * maxY),
+          Offset(screw.x / _maxXBed * maxX, correctY(screw.y) / _maxYBed * maxY),
           (index == activeScrew) ? 12 : 8,
           (index == activeScrew) ? paintSelectedScrew : paintScrew);
     });
@@ -324,9 +315,8 @@ class BedScrewIndicatorPainter extends CustomPainter {
     var themeData = Theme.of(context);
     TextSpan span = TextSpan(
       text: text,
-      style: themeData.textTheme.bodyLarge?.copyWith(
-          fontWeight: FontWeight.w900,
-          backgroundColor: themeData.colorScheme.surface),
+      style: themeData.textTheme.bodyLarge
+          ?.copyWith(fontWeight: FontWeight.w900, backgroundColor: themeData.colorScheme.surface),
     );
     TextPainter tp = TextPainter(
       text: span,

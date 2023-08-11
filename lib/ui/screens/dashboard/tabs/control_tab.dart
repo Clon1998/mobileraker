@@ -167,7 +167,7 @@ class FansCard extends ConsumerWidget {
             AdaptiveHorizontalScroll(pageStorageKey: 'fans', children: [
               if (ref
                       .watch(machinePrinterKlippySettingsProvider
-                          .selectAs((data) => data.printerData.hasPrintFan))
+                          .selectAs((data) => data.printerData.isPrintFanAvailable))
                       .valueOrNull ==
                   true)
                 const _PrintFan(),
@@ -503,7 +503,7 @@ class GcodeMacroCard extends HookConsumerWidget {
             0,
             ref
                 .watch(settingServiceProvider)
-                .readInt(selectedGCodeGrpIndex, 0)));
+                .readInt(UtilityKeys.gCodeIndex, 0)));
 
     var selected = useState(idx);
     var themeData = Theme.of(context);
@@ -521,9 +521,9 @@ class GcodeMacroCard extends HookConsumerWidget {
                     value: selected.value,
                     onChanged: klippyCanReceiveCommands
                         ? (e) {
-                            ref
+                      ref
                                 .read(settingServiceProvider)
-                                .writeInt(selectedGCodeGrpIndex, e!);
+                                .writeInt(UtilityKeys.gCodeIndex, e!);
                             selected.value = e;
                           }
                         : null,

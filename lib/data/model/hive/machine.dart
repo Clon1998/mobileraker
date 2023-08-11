@@ -8,29 +8,32 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
+import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/util/misc.dart';
 import 'package:uuid/uuid.dart';
 
 import 'temperature_preset.dart';
 
-part 'machine.g.dart';
+part 'machine_adapter.dart';
+
+// part 'machine.g.dart';
 
 @HiveType(typeId: 1)
 class Machine extends HiveObject {
   @HiveField(0)
   String name;
   @HiveField(1)
-  String wsUrl;
+  Uri wsUri;
+  @HiveField(6)
+  Uri httpUri;
   @HiveField(2)
   String uuid = const Uuid().v4();
-
-  // @HiveField(3, defaultValue: [])
-  // List<WebcamSetting> cams;
   @HiveField(4)
   String? apiKey;
+  @HiveField(22, defaultValue: {})
+  Map<String, String> httpHeaders;
   @HiveField(5, defaultValue: [])
   List<TemperaturePreset> temperaturePresets;
-  @HiveField(6)
-  String httpUrl;
   @HiveField(14, defaultValue: 0)
   double? lastPrintProgress;
   @HiveField(15)
@@ -60,15 +63,21 @@ class Machine extends HiveObject {
 
   String get debugStr => '$name ($uuid)';
 
-  Machine(
-      {required this.name,
-      required this.wsUrl,
-      required this.httpUrl,
-      this.apiKey,
-      this.temperaturePresets = const [],
-      this.trustUntrustedCertificate = false,
-      this.octoEverywhere,
-      this.camOrdering = const []});
+  Map<String, String> get headerWithApiKey =>
+      {...httpHeaders, if (apiKey?.isNotEmpty == true) 'X-Api-Key': apiKey!};
+
+  Machine({
+    required String name,
+    required this.wsUri,
+    required this.httpUri,
+    String? apiKey,
+    this.temperaturePresets = const [],
+    this.trustUntrustedCertificate = false,
+    this.octoEverywhere,
+    this.camOrdering = const [],
+    this.httpHeaders = const {},
+  })  : name = name.trim(),
+        apiKey = apiKey?.trim();
 
   @override
   Future<void> save() async {
@@ -88,33 +97,35 @@ class Machine extends HiveObject {
       other is Machine &&
           runtimeType == other.runtimeType &&
           name == other.name &&
-          wsUrl == other.wsUrl &&
+          wsUri == other.wsUri &&
           uuid == other.uuid &&
           apiKey == other.apiKey &&
           listEquals(temperaturePresets, other.temperaturePresets) &&
-          httpUrl == other.httpUrl &&
+          httpUri == other.httpUri &&
           lastPrintProgress == other.lastPrintProgress &&
           _lastPrintState == other._lastPrintState &&
           fcmIdentifier == other.fcmIdentifier &&
           lastModified == other.lastModified &&
-          octoEverywhere == other.octoEverywhere;
+          octoEverywhere == other.octoEverywhere &&
+          listEquals(camOrdering, other.camOrdering);
 
   @override
   int get hashCode =>
       name.hashCode ^
-      wsUrl.hashCode ^
+      wsUri.hashCode ^
       uuid.hashCode ^
       apiKey.hashCode ^
       temperaturePresets.hashCode ^
-      httpUrl.hashCode ^
+      httpUri.hashCode ^
       lastPrintProgress.hashCode ^
       _lastPrintState.hashCode ^
       fcmIdentifier.hashCode ^
       lastModified.hashCode ^
-      octoEverywhere.hashCode;
+      octoEverywhere.hashCode ^
+      camOrdering.hashCode;
 
   @override
   String toString() {
-    return 'Machine{name: $name, wsUrl: $wsUrl, uuid: $uuid, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUrl: $httpUrl, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
+    return 'Machine{name: $name, wsUri: $wsUri, uuid: $uuid, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUri: $httpUri, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
   }
 }

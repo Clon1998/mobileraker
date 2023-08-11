@@ -1,5 +1,46 @@
 # Mobileraker - Changelog
 
+## [2.5.0] - 2023-08-11
+
+### Major Changes
+
+- Reworked the printer setup flow to provide a more user-friendly experience for beginners and offer
+  additional
+  customization options for advanced
+  users. [#153](https://github.com/Clon1998/mobileraker/issues/153) [#134](https://github.com/Clon1998/mobileraker/issues/134) [#182](https://github.com/Clon1998/mobileraker/issues/182) [#193](https://github.com/Clon1998/mobileraker/issues/193)
+- Added support for WebRTC, enabling real-time communication between
+  devices. [#167](https://github.com/Clon1998/mobileraker/issues/167), [#191](https://github.com/Clon1998/mobileraker/issues/191)
+- Introduced the option to directly reprint the last file if the printer is still in a complete
+  state.
+
+### Changed Features
+
+- Modified the behavior of the Confirm EMS setting to be an opt-out setting instead of opt-in.
+- Improved the accuracy of the current and max layer display by utilizing moonraker's info.layer
+  fields. [#138](https://github.com/Clon1998/mobileraker/issues/138)
+- Enhanced print progress accuracy by implementing the relative file
+  method. ([#138](https://github.com/Clon1998/mobileraker/issues/138))
+- Improved ETA accuracy and added tooltips to the ETA table cells, displaying Slicer, File, and
+  Filament remaining time information. [#138](https://github.com/Clon1998/mobileraker/issues/138)
+- Added support for a 12-hour time
+  format. [#192](https://github.com/Clon1998/mobileraker/issues/197)
+- Updated Mobileraker's notification icon for
+  Android. [#194](https://github.com/Clon1998/mobileraker/issues/194)
+- Migrated webcams to Moonraker's Webcam API.
+- Added a new splash screen during app startup.
+- Introduced an error widget in case the initial startup fails.
+- Files page now works even if klipper is in an error state
+
+### Bug Fixes
+
+- Fixed the QR reader functionality, resolving issues with scanning QR codes.
+- Enhanced the reliability of the JRpc client, ensuring smoother communication with the server.
+- Addressed several minor errors in the background, improving overall app stability.
+- Fixed an issue where Webcam Service type could not be
+  edited. [#198](https://github.com/Clon1998/mobileraker/issues/198)
+- Resolved potential parsing errors, ensuring proper data
+  handling. [#205](https://github.com/Clon1998/mobileraker/issues/205)
+
 ## [2.4.3] - 2023-07-27
 
 ### Major Changes
@@ -21,9 +62,11 @@
 ### Bug Fixes
 
 - Fixed app not starting on ios [#186](https://github.com/Clon1998/mobileraker/pull/186)
-- Fixed printer refresh if klipper is not in ready state [#187](https://github.com/Clon1998/mobileraker/pull/187)
+- Fixed printer refresh if klipper is not in ready
+  state [#187](https://github.com/Clon1998/mobileraker/pull/187)
 - Fixed parsing of print_states [#181](https://github.com/Clon1998/mobileraker/pull/181)
-- Fixed QR scanner not populating API key field. [#189](https://github.com/Clon1998/mobileraker/pull/181)
+- Fixed QR scanner not populating API key
+  field. [#189](https://github.com/Clon1998/mobileraker/pull/181)
 
 ## [2.4.1] - 2023-06-25
 
@@ -44,15 +87,18 @@
 - Tapping a notification now brings up the correct printer in a multi-printer
   setup [#128](https://github.com/Clon1998/mobileraker/issues/128)
 - Added `[heater_generic]` support [#140](https://github.com/Clon1998/mobileraker/issues/140)
-- Revamped the parsing and update mechanism of printer objects for improved efficiency and functionality.
+- Revamped the parsing and update mechanism of printer objects for improved efficiency and
+  functionality.
 - Refactored Handover Mechanism between Local and OctoEverywhere Connection
 - Added Calibration actions to **Move Axis** card
-- Added Manual Probe and Bed Screw Adjust Dialogs [#169](https://github.com/Clon1998/mobileraker/issues/169)
+- Added Manual Probe and Bed Screw Adjust
+  Dialogs [#169](https://github.com/Clon1998/mobileraker/issues/169)
 - Added VzBot theme
 
 ### Changed Features
 
-- Enhanced the reliability of printer refresh on the dashboard, ensuring it now reliably refreshes both the printer and
+- Enhanced the reliability of printer refresh on the dashboard, ensuring it now reliably refreshes
+  both the printer and
   klippy.
 - Info Snackbars make use of tenary color
 - Step selectors should work better on smaller screens
@@ -64,7 +110,8 @@
 
 - The utilization of the printer port should be avoided for relative path
   webcams ([#168](https://github.com/Clon1998/mobileraker/issues/168))
-- Resolved the "Stream has been listened to" error ([#174](https://github.com/Clon1998/mobileraker/issues/174))
+- Resolved the "Stream has been listened to"
+  error ([#174](https://github.com/Clon1998/mobileraker/issues/174))
 - Fixed min Ios Version ([#171](https://github.com/Clon1998/mobileraker/issues/171))
 - Fixed void in Fans card if cooling fan is not configured
 
@@ -113,15 +160,23 @@
 
 ## [2.3.0] - 2023-05-19
 
-This release signifies a significant shift in the philosophy governing the future of Mobileraker, particularly regarding
-its monetization strategy. However, let me begin by addressing the most crucial aspect. Currently, there are no plans to
-restrict major functional features behind paywalls or subscriptions—Mobileraker will remain open source. Nevertheless,
-due to the unsuccessful reliance on donations as the sole funding source and the absence of long-term sponsorship from
-any company or shop, the decision has been made to incorporate monetization directly within Mobileraker.
+This release signifies a significant shift in the philosophy governing the future of Mobileraker,
+particularly regarding
+its monetization strategy. However, let me begin by addressing the most crucial aspect. Currently,
+there are no plans to
+restrict major functional features behind paywalls or subscriptions—Mobileraker will remain open
+source. Nevertheless,
+due to the unsuccessful reliance on donations as the sole funding source and the absence of
+long-term sponsorship from
+any company or shop, the decision has been made to incorporate monetization directly within
+Mobileraker.
 
-With the introduction of this version, users now have the option to support the ongoing development of Mobileraker
-through in-app subscriptions. As a token of appreciation, supporters will gain access to an exclusive Material 3-based
-theme. In the future, additional perks such as UI enhancements or minor functional features may be introduced.
+With the introduction of this version, users now have the option to support the ongoing development
+of Mobileraker
+through in-app subscriptions. As a token of appreciation, supporters will gain access to an
+exclusive Material 3-based
+theme. In the future, additional perks such as UI enhancements or minor functional features may be
+introduced.
 
 ### Major Changes
 
@@ -129,7 +184,8 @@ theme. In the future, additional perks such as UI enhancements or minor function
 - Improved integration by sharing webcam configuration with Mainsail/Fluidd
 - Introduced a setting to automatically switch the fullscreen webcam to landscape
   mode ([#95](https://github.com/Clon1998/mobileraker/issues/95))
-- Implemented a "Printer Switch" dialog that opens when users tap the page's titlt (Note: Rapid printer switching can be
+- Implemented a "Printer Switch" dialog that opens when users tap the page's titlt (Note: Rapid
+  printer switching can be
   done by swiping the title)
 - Provided a helpful hint in the app settings
   if [mobileraker_companion](https://github.com/Clon1998/mobileraker_companion) is not detected
@@ -140,7 +196,8 @@ theme. In the future, additional perks such as UI enhancements or minor function
 
 - Added support for printers that do not utilize a print
   fan ([#158](https://github.com/Clon1998/mobileraker/issues/158))
-- Streamlined `Restart MCU` to `Restart Firmeware` ([#145](https://github.com/Clon1998/mobileraker/issues/145))
+- Streamlined `Restart MCU`
+  to `Restart Firmeware` ([#145](https://github.com/Clon1998/mobileraker/issues/145))
 - Enhanced the webcam animation for smoother transitions from loading to normal operation
 - Console entries now display the date if they are older than 24 hours
 - Tapping a macro/command in the console now moves the cursor to the end of the input field
@@ -150,7 +207,8 @@ theme. In the future, additional perks such as UI enhancements or minor function
 - Resolved issue where webcams were not functioning on all screens when OctoEverywhere is used
 - Fixed ConfigView and GCode preview loading problems when OctoEverywhere is
   used ([#148](https://github.com/Clon1998/mobileraker/issues/148))
-- Ensured proper transmission of API Key to OctoEverywhere ([#146](https://github.com/Clon1998/mobileraker/issues/146))
+- Ensured proper transmission of API Key to
+  OctoEverywhere ([#146](https://github.com/Clon1998/mobileraker/issues/146))
 - Addressed duplicated notifications caused by duplicate FCM
   entries ([#133](https://github.com/Clon1998/mobileraker/issues/133))
 - Fixed the ability to set fans higher than their respective `max_temp`
@@ -159,8 +217,10 @@ theme. In the future, additional perks such as UI enhancements or minor function
   complete ([#159](https://github.com/Clon1998/mobileraker/issues/159))
 - Fixed `[output_pin]` config not getting parsed, finally making binary pins
   switchable ([#146](https://github.com/Clon1998/mobileraker/issues/70))
-- Fixed Importing of settings from other printers ([#161](https://github.com/Clon1998/mobileraker/issues/161))
-- Fixed NotificationService not registering remote-id for notifications on machines with multiple printers managed by
+- Fixed Importing of settings from other
+  printers ([#161](https://github.com/Clon1998/mobileraker/issues/161))
+- Fixed NotificationService not registering remote-id for notifications on machines with multiple
+  printers managed by
   Mobileraker
 - Resolved overflow issue on the `Dashboard` in the `MoveAxis` card
 - Fixed changes in the printer edit page not getting reflected on the dashboard!

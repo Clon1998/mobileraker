@@ -4,11 +4,11 @@
  */
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
@@ -24,11 +24,15 @@ import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConnectionStateView extends ConsumerWidget {
-  const ConnectionStateView({Key? key, required this.onConnected})
-      : super(key: key);
+  const ConnectionStateView({
+    Key? key,
+    required this.onConnected,
+    this.skipKlipperReady = false,
+  }) : super(key: key);
 
   // Widget to show when ws is Connected
   final Widget onConnected;
+  final bool skipKlipperReady;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,67 +43,61 @@ class ConnectionStateView extends ConsumerWidget {
           return machine != null
               ? WebSocketState(
                   onConnected: onConnected,
+                  skipKlipperReady: skipKlipperReady,
                 )
               : Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.info_outline),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          text: 'You will have to ',
-                          style: DefaultTextStyle.of(context).style,
-                          children: <TextSpan>[
-                            TextSpan(
-                                text: 'add',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    decoration: TextDecoration.underline),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    ref
-                                        .read(goRouterProvider)
-                                        .pushNamed(AppRoute.printerAdd.name);
-                                  }),
-                            const TextSpan(
-                              text: ' a printer first!',
-                            ),
-                          ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(child: SvgPicture.asset('assets/vector/undraw_hello_re_3evm.svg')),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 24.0),
+                          child: Text(
+                            'components.connection_watcher.add_printer',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ).tr(),
                         ),
-                      )
-                    ],
+                        FilledButton.tonalIcon(
+                            onPressed: () =>
+                                ref.read(goRouterProvider).pushNamed(AppRoute.printerAdd.name),
+                            icon: const Icon(Icons.add),
+                            label: const Text('pages.overview.add_machine').tr()),
+                        const Spacer(),
+                      ],
+                    ),
                   ),
                 );
         },
         error: (e, _) => ErrorCard(
-              title: Text('Error selecting active machine'),
+              title: const Text('Error selecting active machine'),
               body: Text(e.toString()),
             ),
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator.adaptive()),
         skipLoadingOnRefresh: false);
   }
 }
 
 class WebSocketState extends HookConsumerWidget {
-  const WebSocketState({Key? key, required this.onConnected}) : super(key: key);
+  const WebSocketState({
+    Key? key,
+    required this.onConnected,
+    this.skipKlipperReady = false,
+  }) : super(key: key);
   final Widget onConnected;
+
+  final bool skipKlipperReady;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    AsyncValue<ClientState> connectionState =
-        ref.watch(connectionStateControllerProvider);
-    ClientType clientType = ref
-        .watch(jrpcClientSelectedProvider.select((value) => value.clientType));
+    AsyncValue<ClientState> connectionState = ref.watch(connectionStateControllerProvider);
+    ClientType clientType =
+        ref.watch(jrpcClientSelectedProvider.select((value) => value.clientType));
 
-    var connectionStateController =
-        ref.read(connectionStateControllerProvider.notifier);
-    useOnAppLifecycleStateChange(
-        connectionStateController.onChangeAppLifecycleState);
+    var connectionStateController = ref.read(connectionStateControllerProvider.notifier);
+    useOnAppLifecycleStateChange(connectionStateController.onChangeAppLifecycleState);
 
     return AsyncValueWidget(
       value: connectionState,
@@ -108,6 +106,7 @@ class WebSocketState extends HookConsumerWidget {
           case ClientState.connected:
             return KlippyState(
               onConnected: onConnected,
+              skipKlipperReady: skipKlipperReady,
             );
 
           case ClientState.disconnected:
@@ -124,9 +123,7 @@ class WebSocketState extends HookConsumerWidget {
                   TextButton.icon(
                       onPressed: connectionStateController.onRetryPressed,
                       icon: const Icon(Icons.restart_alt_outlined),
-                      label:
-                          const Text('components.connection_watcher.reconnect')
-                              .tr())
+                      label: const Text('components.connection_watcher.reconnect').tr())
                 ],
               ),
             );
@@ -179,16 +176,12 @@ class WebSocketState extends HookConsumerWidget {
                     TextButton.icon(
                         onPressed: connectionStateController.onRetryPressed,
                         icon: const Icon(Icons.restart_alt_outlined),
-                        label: const Text(
-                                'components.connection_watcher.reconnect')
-                            .tr()),
+                        label: const Text('components.connection_watcher.reconnect').tr()),
                   if (connectionStateController.errorIsOctoSupportedExpired)
                     TextButton.icon(
                         onPressed: connectionStateController.onGoToOE,
                         icon: const Icon(Icons.open_in_browser),
-                        label: const Text(
-                                'components.connection_watcher.more_details')
-                            .tr()),
+                        label: const Text('components.connection_watcher.more_details').tr()),
                 ],
               ),
             );
@@ -199,13 +192,20 @@ class WebSocketState extends HookConsumerWidget {
 }
 
 class KlippyState extends ConsumerWidget {
-  const KlippyState({Key? key, required this.onConnected}) : super(key: key);
+  const KlippyState({
+    Key? key,
+    required this.onConnected,
+    this.skipKlipperReady = false,
+  }) : super(key: key);
   final Widget onConnected;
+  final bool skipKlipperReady;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(printerSelectedProvider
-        .select((value) => value.hasValue && !value.isLoading))) {
+    if (skipKlipperReady) {
+      return onConnected;
+    }
+    if (ref.watch(printerSelectedProvider.select((value) => value.hasValue && !value.isLoading))) {
       return onConnected;
     }
 
@@ -224,52 +224,41 @@ class KlippyState extends ConsumerWidget {
                 children: [
                   Card(
                       child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: Column(
-                          children: [
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Column(
+                      children: [
                         ListTile(
                           leading: const Icon(
                             FlutterIcons.disconnect_ant,
                           ),
                           title: Text(data.klippyState.name).tr(),
                         ),
-                        Text(
-                            data.klippyStateMessage ??
-                                tr(data.klippyState.name),
-                            style:
-                                TextStyle(color: themeData.colorScheme.error)),
+                        Text(data.klippyStateMessage ?? tr(data.klippyState.name),
+                            style: TextStyle(color: themeData.colorScheme.error)),
                         ElevatedButtonTheme(
-                          data: ElevatedButtonThemeData(
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: themeData.colorScheme.error,
-                                  foregroundColor:
-                                      themeData.colorScheme.onError)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton(
-                                onPressed: ref
-                                    .read(connectionStateControllerProvider
-                                        .notifier)
-                                    .onRestartKlipperPressed,
-                                child: const Text(
-                                        'pages.dashboard.general.restart_klipper')
-                                    .tr(),
+                              data: ElevatedButtonThemeData(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: themeData.colorScheme.error,
+                                      foregroundColor: themeData.colorScheme.onError)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: ref
+                                        .read(connectionStateControllerProvider.notifier)
+                                        .onRestartKlipperPressed,
+                                    child: const Text('pages.dashboard.general.restart_klipper').tr(),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: ref
+                                        .read(connectionStateControllerProvider.notifier)
+                                        .onRestartMCUPressed,
+                                    child: const Text('pages.dashboard.general.restart_mcu').tr(),
+                                  )
+                                ],
                               ),
-                              ElevatedButton(
-                                onPressed: ref
-                                    .read(connectionStateControllerProvider
-                                        .notifier)
-                                    .onRestartMCUPressed,
-                                child: const Text(
-                                        'pages.dashboard.general.restart_mcu')
-                                    .tr(),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
+                            )
+                          ],
                         ),
                       )),
                   if (data.components.contains('power')) const PowerApiCard(),
@@ -283,21 +272,18 @@ class KlippyState extends ConsumerWidget {
                 children: [
                   Card(
                       child: Padding(
-                        padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                        child: Column(
-                          children: [
-                            ListTile(
-                              leading: const Icon(
-                                FlutterIcons.disconnect_ant,
-                              ),
-                              title: Text(data.klippyState.name).tr(),
-                            ),
-                            const Text(
-                                'components.connection_watcher.server_starting')
-                                .tr()
-                          ],
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(
+                            FlutterIcons.disconnect_ant,
+                          ),
+                          title: Text(data.klippyState.name).tr(),
                         ),
+                        const Text('components.connection_watcher.server_starting').tr()
+                      ],
+                    ),
                       )),
                 ],
               ),
@@ -319,11 +305,8 @@ class KlippyState extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                   TextButton(
-                      onPressed: ref
-                          .read(connectionStateControllerProvider.notifier)
-                          .onEditPrinter,
-                      child:
-                      Text('components.nav_drawer.printer_settings'.tr()))
+                      onPressed: ref.read(connectionStateControllerProvider.notifier).onEditPrinter,
+                      child: Text('components.nav_drawer.printer_settings'.tr()))
                 ],
               ),
             );

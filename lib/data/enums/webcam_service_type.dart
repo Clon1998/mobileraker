@@ -7,23 +7,25 @@ import 'package:json_annotation/json_annotation.dart';
 
 enum WebcamServiceType {
   @JsonValue('mjpegstreamer')
-  mjpegStreamer(true),
+  mjpegStreamer(true, false),
   @JsonValue('mjpegstreamer-adaptive')
-  mjpegStreamerAdaptive(true),
+  mjpegStreamerAdaptive(true, false),
   @JsonValue('uv4l-mjpeg')
-  uv4lMjpeg(true),
+  uv4lMjpeg(true, false),
   @JsonValue('ipstream')
-  ipStream(false),
+  ipStream(false, false),
   @JsonValue('hlsstream')
-  hlsStream(false),
+  hlsStream(false, false),
   @JsonValue('ipstream')
-  ipSream(false),
+  ipSream(false, false),
   @JsonValue('webrtc-camerastreamer')
-  webRtc(false),
+  webRtc(true, true),
   @JsonValue('unknown')
-  unknown(false);
+  unknown(false, false);
 
   final bool supported;
 
-  const WebcamServiceType(this.supported);
+  final bool forSupporters;
+
+  const WebcamServiceType(this.supported, this.forSupporters);
 }

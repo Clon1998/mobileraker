@@ -12,7 +12,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:highlight/languages/properties.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/generic_file.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
@@ -22,7 +22,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 
 class ConfigFileDetailPage extends ConsumerWidget {
   const ConfigFileDetailPage({Key? key, required this.file}) : super(key: key);
-  final RemoteFile file;
+  final GenericFile file;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,8 +42,7 @@ class _ConfigFileDetail extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var codeController = useValueNotifier(CodeController(language: properties));
     var file = ref.watch(configFileProvider);
-    ref.listen(
-        configFileDetailsControllerProvider.select((value) => value.config),
+    ref.listen(configFileDetailsControllerProvider.select((value) => value.config),
         (previous, AsyncValue<String> next) {
       next.whenData((value) => codeController.value.text = value);
     });
@@ -67,12 +66,10 @@ class _ConfigFileDetail extends HookConsumerWidget {
           )),
         ],
       ),
-      floatingActionButton: (ref
-              .watch(configFileDetailsControllerProvider
-                  .select((value) => value.config))
-              .hasValue)
-          ? _Fab(codeController: codeController)
-          : null,
+      floatingActionButton:
+          (ref.watch(configFileDetailsControllerProvider.select((value) => value.config)).hasValue)
+              ? _Fab(codeController: codeController)
+              : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
@@ -86,55 +83,49 @@ class _Editor extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData themeData = Theme.of(context);
-    var textStyleOnError =
-        TextStyle(color: themeData.colorScheme.onErrorContainer);
-    return ref
-        .watch(
-            configFileDetailsControllerProvider.select((value) => value.config))
-        .when(
-            error: (e, _) => ErrorCard(
-                    child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ListTile(
-                      leading: Icon(
-                        FlutterIcons.issue_opened_oct,
-                        color: themeData.colorScheme.onErrorContainer,
-                      ),
-                      title: Text('Error while loading file!',
-                          style: textStyleOnError),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                      ),
-                      child: Text(
-                        e.toString(),
-                        style: textStyleOnError,
-                      ),
-                    ),
-                  ],
-                )),
-            loading: () => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SpinKitRipple(
-                        color: themeData.colorScheme.secondary,
-                        size: 100,
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      FadingText(
-                          'Downloading file ${ref.watch(configFileProvider).name}'),
-                      // Text('Fetching printer ...')
-                    ],
+    var textStyleOnError = TextStyle(color: themeData.colorScheme.onErrorContainer);
+    return ref.watch(configFileDetailsControllerProvider.select((value) => value.config)).when(
+        error: (e, _) => ErrorCard(
+                child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(
+                    FlutterIcons.issue_opened_oct,
+                    color: themeData.colorScheme.onErrorContainer,
+                  ),
+                  title: Text('Error while loading file!', style: textStyleOnError),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                  ),
+                  child: Text(
+                    e.toString(),
+                    style: textStyleOnError,
                   ),
                 ),
-            data: (file) => _FileReadyBody(
-                  codeController: codeController.value,
-                ));
+              ],
+            )),
+        loading: () => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SpinKitRipple(
+                    color: themeData.colorScheme.secondary,
+                    size: 100,
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  FadingText('Downloading file ${ref.watch(configFileProvider).name}'),
+                  // Text('Fetching printer ...')
+                ],
+              ),
+            ),
+        data: (file) => _FileReadyBody(
+              codeController: codeController.value,
+            ));
   }
 }
 
@@ -166,9 +157,8 @@ class _Fab extends ConsumerWidget {
                     .read(configFileDetailsControllerProvider.notifier)
                     .onSaveTapped(codeController.value.text),
               ),
-              if (!{PrintState.paused, PrintState.printing}.contains(ref.watch(
-                  printerSelectedProvider
-                      .select((value) => value.valueOrFullNull?.print.state))))
+        if (!{PrintState.paused, PrintState.printing}.contains(ref.watch(
+                  printerSelectedProvider.select((value) => value.valueOrFullNull?.print.state))))
                 SpeedDialChild(
                   child: const Icon(Icons.restart_alt),
                   backgroundColor: themeData.colorScheme.primary,
@@ -182,14 +172,13 @@ class _Fab extends ConsumerWidget {
       spacing: 5,
       overlayOpacity: 0.5,
       backgroundColor: uploading ? themeData.disabledColor : null,
-      child: uploading ? const CircularProgressIndicator() : null,
+      child: uploading ? const CircularProgressIndicator.adaptive() : null,
     );
   }
 }
 
 class _FileReadyBody extends ConsumerWidget {
-  const _FileReadyBody({Key? key, required this.codeController})
-      : super(key: key);
+  const _FileReadyBody({Key? key, required this.codeController}) : super(key: key);
 
   final CodeController codeController;
 
@@ -202,8 +191,7 @@ class _FileReadyBody extends ConsumerWidget {
             data: const CodeThemeData(styles: atomOneDarkTheme),
             child: CodeField(
               controller: codeController,
-              enabled:
-                  !ref.watch(configFileDetailsControllerProvider).isUploading,
+              enabled: !ref.watch(configFileDetailsControllerProvider).isUploading,
               // expands: true,
               // wrap: true,
             ),

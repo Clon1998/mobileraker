@@ -2,7 +2,6 @@
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
  */
-
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +12,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
@@ -46,13 +46,16 @@ class SettingPage extends ConsumerWidget {
             children: <Widget>[
               _SectionHeader(title: 'pages.setting.general.title'.tr()),
               const _LanguageSelector(),
+              const _TimeFormatSelector(),
               const _ThemeSelector(),
               const _ThemeModeSelector(),
               FormBuilderSwitch(
                 name: 'emsConfirmation',
                 title: const Text('pages.setting.general.ems_confirm').tr(),
-                onChanged: (b) => settingService.writeBool(emsKey, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(emsKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.confirmEmergencyStop, b ?? false),
+                initialValue: ref.watch(boolSettingProvider(
+                    AppSettingKeys.confirmEmergencyStop, true)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -60,9 +63,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'alwaysShowBaby',
                 title: const Text('pages.setting.general.always_baby').tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(showBabyAlwaysKey, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(showBabyAlwaysKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.alwaysShowBabyStepping, b ?? false),
+                initialValue: ref.watch(
+                    boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -70,10 +74,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'useTextInputForNum',
                 title: const Text('pages.setting.general.num_edit').tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(useTextInputForNumKey, b ?? false),
-                initialValue:
-                    ref.watch(boolSettingProvider(useTextInputForNumKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.defaultNumEditMode, b ?? false),
+                initialValue: ref.watch(
+                    boolSettingProvider(AppSettingKeys.defaultNumEditMode)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -82,10 +86,10 @@ class SettingPage extends ConsumerWidget {
                 name: 'startWithOverview',
                 title: const Text('pages.setting.general.start_with_overview')
                     .tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(startWithOverviewKey, b ?? false),
-                initialValue:
-                    ref.watch(boolSettingProvider(startWithOverviewKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.overviewIsHomescreen, b ?? false),
+                initialValue: ref.watch(
+                    boolSettingProvider(AppSettingKeys.overviewIsHomescreen)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -93,9 +97,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'useLivePos',
                 title: const Text('pages.setting.general.use_offset_pos').tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(useOffsetPosKey, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(useOffsetPosKey)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.applyOffsetsToPostion, b ?? false),
+                initialValue: ref.watch(
+                    boolSettingProvider(AppSettingKeys.applyOffsetsToPostion)),
                 decoration: const InputDecoration(
                     border: InputBorder.none, isCollapsed: true),
                 activeColor: themeData.colorScheme.primary,
@@ -103,10 +108,10 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'lcFullCam',
                 title: const Text('pages.setting.general.lcFullCam').tr(),
-                onChanged: (b) =>
-                    settingService.writeBool(landscapeFullWebCam, b ?? false),
-                initialValue:
-                    ref.watch(boolSettingProvider(landscapeFullWebCam)),
+                onChanged: (b) => settingService.writeBool(
+                    AppSettingKeys.fullscreenCamOrientation, b ?? false),
+                initialValue: ref.watch(boolSettingProvider(
+                    AppSettingKeys.fullscreenCamOrientation)),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,
@@ -153,11 +158,12 @@ class SettingPage extends ConsumerWidget {
                       applicationVersion: version,
                       applicationLegalese:
                           'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
-                      applicationIcon: const Center(
-                        child: Image(
-                            height: 80,
-                            width: 80,
-                            image: AssetImage('assets/icon/mr_logo.png')),
+                      applicationIcon: Center(
+                        child: SvgPicture.asset(
+                          'assets/vector/mr_logo.svg',
+                          width: 80,
+                          height: 80,
+                        ),
                       ));
                 },
               ),
@@ -330,6 +336,35 @@ class _LanguageSelector extends ConsumerWidget {
       onChanged: (Locale? local) =>
           context.setLocale(local ?? context.fallbackLocale!),
     );
+  }
+}
+
+class _TimeFormatSelector extends ConsumerWidget {
+  const _TimeFormatSelector({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // context.locale.
+    // DateFormat
+    // initializeDateFormatting()
+    var now = DateTime.now();
+
+    return FormBuilderDropdown(
+        initialValue: ref.watch(boolSettingProvider(AppSettingKeys.timeFormat)),
+        name: 'timeMode',
+        items: [
+          DropdownMenuItem(
+              value: false, child: Text(DateFormat.Hm().format(now))),
+          DropdownMenuItem(
+              value: true, child: Text(DateFormat('h:mm a').format(now)))
+        ],
+        decoration: InputDecoration(
+          labelStyle: Theme.of(context).textTheme.labelLarge,
+          labelText: 'Time Format',
+        ),
+        onChanged: (bool? b) => ref
+            .read(settingServiceProvider)
+            .writeBool(AppSettingKeys.timeFormat, b ?? false));
   }
 }
 

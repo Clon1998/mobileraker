@@ -5,11 +5,16 @@
 
 import 'dart:convert';
 
+import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/data/adapters/uri_adapter.dart';
 import 'package:mobileraker/data/model/hive/gcode_macro.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/hive/macro_group.dart';
@@ -19,14 +24,18 @@ import 'package:mobileraker/data/model/hive/temperature_preset.dart';
 import 'package:mobileraker/data/model/hive/webcam_mode.dart';
 import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
 import 'package:mobileraker/data/model/hive/webcam_setting.dart';
-import 'package:mobileraker/data/repository/machine_hive_repository.dart';
+import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
+import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/util/extensions/analytics_extension.dart';
+import 'package:mobileraker/service/notification_service.dart';
+import 'package:mobileraker/service/payment_service.dart';
+import 'package:mobileraker_pro/mobileraker_pro.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'logger.dart';
+
+part 'app_setup.g.dart';
 
 setupBoxes() async {
   await Hive.initFlutter();
@@ -95,26 +104,45 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId)) {
     Hive.registerAdapter(webcamSettingAdapter);
   }
+
+  var uriAdapter = UriAdapter();
+  if (!Hive.isAdapterRegistered(uriAdapter.typeId)) {
+    Hive.registerAdapter(uriAdapter);
+  }
+
   // Hive.deleteBoxFromDisk('printers');
 
   try {
     await openBoxes(keyMaterial);
+    Hive.box<Machine>("printers").values.forEach((element) {
+      logger.i('Machine in box is ${element.debugStr}#${element.hashCode}');
+    });
   } catch (e) {
+    logger.e('There was an error while trying to init Hive. Resetting all Hive data...');
     await Hive.deleteBoxFromDisk('printers');
     await Hive.deleteBoxFromDisk('uuidbox');
     await Hive.deleteBoxFromDisk('settingsbox');
     await openBoxes(keyMaterial);
   }
+  logger.i('Completed Hive init');
 }
 
 Future<List<Box>> openBoxes(Uint8List keyMaterial) {
   return Future.wait([
-    Hive.openBox<Machine>('printers'),
+    Hive.openBox<Machine>('printers').then(_migrateMachine),
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
-    Hive.openBox<OctoEverywhere>('octo',
-        encryptionCipher: HiveAesCipher(keyMaterial))
+    Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
   ]);
+}
+
+Future<Box<Machine>> _migrateMachine(Box<Machine> box) async {
+  var allMigratedPrinters = box.values.toList();
+  await box.clear();
+  await box.putAll({
+    for (var p in allMigratedPrinters) p.uuid: p,
+  });
+  return box;
 }
 
 setupLicenseRegistry() {
@@ -125,33 +153,97 @@ setupLicenseRegistry() {
 }
 
 /// Ensure all services are setup/available/connected if they are also read just once!
-initializeAvailableMachines(ProviderContainer container) async {
+initializeAvailableMachines(Ref ref) async {
   logger.i('Started initializeAvailableMachines');
-  List<Machine> all = await container.read(allMachinesProvider.future);
-  List<Future> futures = [];
+  List<Machine> machines = await ref.read(allMachinesProvider.future);
+  logger.i('Received all machines');
 
-  for (var machine in all) {
-    futures.add(container.read(machineProvider(machine.uuid).future));
-  }
-
-  await Future.wait(futures);
+  await Future.wait(machines.map((e) => ref.read(machineProvider(e.uuid).future)));
   logger.i('initialized all machineProviders');
-  for (var machine in all) {
-    logger.i('Init for ${machine.name}(${machine.uuid})');
-    container.read(klipperServiceProvider(machine.uuid));
-    container.read(printerServiceProvider(machine.uuid));
-  }
+  // for (var machine in machines) {
+  //   logger.i('Init for ${machine.name}(${machine.uuid})');
+  //   container.read(klipperServiceProvider(machine.uuid));
+  //   container.read(printerServiceProvider(machine.uuid));
+  // }
 
-  logger.i('Finished initializeAvailableMachines');
+  logger.i('Completed initializeAvailableMachines');
 }
 
-trackInitialMachineCount(ProviderContainer container) async {
-  var boxSettings = Hive.box('settingsbox');
-  var key = 'iMacCnt';
-  if (!boxSettings.get(key, defaultValue: false)) {
-    logger.i('Set initial machine count with analytics');
-    await boxSettings.put(key, true);
-    var count = await container.read(machineRepositoryProvider).count();
-    container.read(analyticsProvider).updateMachineCount(count);
+@riverpod
+Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
+  ref.listenSelf((previous, next) {
+    if (next.hasError) {
+      var error = next.asError!;
+      FirebaseCrashlytics.instance.recordError(
+        error.error,
+        error.stackTrace,
+        fatal: true,
+        reason: 'Error during WarmUp!',
+      );
+    }
+  });
+  // Firebase stuff
+  yield StartUpStep.firebaseCore;
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  yield StartUpStep.firebaseAppCheck;
+  await FirebaseAppCheck.instance.activate();
+
+  yield StartUpStep.firebaseRemoteConfig;
+  await ref.read(remoteConfigProvider).initialize();
+  if (kDebugMode) {
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
   }
+
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack);
+    return true;
+  };
+  yield StartUpStep.firebaseAnalytics;
+  ref.read(analyticsProvider).logAppOpen().ignore();
+
+  setupLicenseRegistry();
+
+  // Prepare "Database"
+  yield StartUpStep.hiveBoxes;
+  await setupBoxes();
+
+  // Prepare Translations
+  yield StartUpStep.easyLocalization;
+  await EasyLocalization.ensureInitialized();
+
+  yield StartUpStep.paymentService;
+  await ref.read(paymentServiceProvider).initialize();
+
+  // await for the initial rout provider to be ready and setup!
+  yield StartUpStep.goRouter;
+  await ref.read(initialRouteProvider.future);
+  logger.i('Completed initialRoute init');
+  // Wait for the machines to be ready
+  yield StartUpStep.initMachines;
+  await initializeAvailableMachines(ref);
+
+  yield StartUpStep.notificationService;
+  await ref.read(notificationServiceProvider).initialize();
+
+  yield StartUpStep.complete;
+}
+
+enum StartUpStep {
+  firebaseCore('🔥'),
+  firebaseAppCheck('🔎'),
+  firebaseRemoteConfig('🌐'),
+  firebaseAnalytics('📈'),
+  hiveBoxes('📂'),
+  easyLocalization('🌍'),
+  paymentService('💸'),
+  goRouter('🗺'),
+  initMachines('⚙️'),
+  notificationService('📢'),
+  complete('🌟');
+
+  final String emoji;
+
+  const StartUpStep(this.emoji);
 }
