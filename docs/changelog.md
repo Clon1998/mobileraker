@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.5.x] - 2023-0x-xx
+## [2.5.0] - 2023-08-11
 
 ### Major Changes
 
