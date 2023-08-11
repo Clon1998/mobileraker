@@ -22,9 +22,9 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'logger.dart';
 
 Future<void> main() async {
-  setupLogger();
-  EasyLocalization.logger.enableLevels = [LevelMessages.error];
   var widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  await setupLogger();
+  EasyLocalization.logger.enableLevels = [LevelMessages.error];
 
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(const ProviderScope(

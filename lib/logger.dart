@@ -6,37 +6,73 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:logger/logger.dart';
 import 'package:mobileraker/util/extensions/provider_extension.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:stringr/stringr.dart';
 
 late final Logger logger;
 late final MemoryOutput memoryOutput;
 const String logFile = 'mobileraker.log';
 
-void setupLogger() {
+Future<void> setupLogger() async {
   Logger.level = Level.info;
   memoryOutput = MemoryOutput(bufferSize: 200, secondOutput: ConsoleOutput());
+  LogOutput logOutput;
+  try {
+    final logDir = await logFileDirectory();
+    final logFiles = logDir.listSync();
+
+    // handle log rotation!
+    if (logFiles.length >= 5) {
+      logFiles.sort((a, b) => a.statSync().modified.compareTo(b.statSync().modified));
+      await Future.wait(
+          logFiles.sublist(0, logFiles.length - 4).map((element) => element.delete()));
+    }
+
+    String timeStamp = _logFileTimestamp();
+    final logFile = await File('${logDir.path}/mobileraker_$timeStamp.log').create();
+    logOutput = FileOutput(
+      file: logFile,
+      secondOutput: memoryOutput,
+    );
+  } catch (e) {
+    logOutput = memoryOutput;
+    debugPrint('Error while setting up file-logger, falling back to memory only solution: $e');
+  }
+
   logger = Logger(
     printer: PrettyPrinter(
         methodCount: 0,
         errorMethodCount: 200,
         noBoxingByDefault: true,
-        printTime: !kDebugMode,
-        colors: !Platform.isIOS),
-    output: memoryOutput,
+        // printTime: !kDebugMode,
+        colors: kDebugMode && !Platform.isIOS),
+    output: logOutput,
     filter: ProductionFilter(),
   );
+}
+
+Future<Directory> logFileDirectory() async {
+  final temporaryDirectory = await getApplicationSupportDirectory();
+  return Directory('${temporaryDirectory.path}/logs').create(recursive: true);
+}
+
+String _logFileTimestamp() {
+  final now = DateTime.now();
+  var format = DateFormat('yyyy-MM-ddTHH-mm-ss').format(now);
+  return format;
 }
 
 class RiverPodLogger extends ProviderObserver {
   const RiverPodLogger();
 
   @override
-  void providerDidFail(ProviderBase provider, Object error,
-      StackTrace stackTrace, ProviderContainer container) {
+  void providerDidFail(
+      ProviderBase provider, Object error, StackTrace stackTrace, ProviderContainer container) {
     logger.e(' ${provider.toIdentityString()} failed with', error, stackTrace);
   }
 
@@ -53,10 +89,9 @@ class RiverPodLogger extends ProviderObserver {
   }
 
   @override
-  void didAddProvider(
-      ProviderBase provider, Object? value, ProviderContainer container) {
-    logger.wtf(
-        'RiverPod::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth}');
+  void didAddProvider(ProviderBase provider, Object? value, ProviderContainer container) {
+    logger
+        .wtf('RiverPod::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth}');
   }
 
   @override
@@ -86,6 +121,7 @@ class RiverPodLogger extends ProviderObserver {
 }
 
 class FileOutput extends LogOutput {
+  final LogOutput? secondOutput;
   final File file;
   final bool overrideExisting;
   final Encoding encoding;
@@ -93,6 +129,7 @@ class FileOutput extends LogOutput {
 
   FileOutput({
     required this.file,
+    this.secondOutput,
     this.overrideExisting = false,
     this.encoding = utf8,
   });
@@ -103,17 +140,21 @@ class FileOutput extends LogOutput {
       mode: overrideExisting ? FileMode.writeOnly : FileMode.writeOnlyAppend,
       encoding: encoding,
     );
+    secondOutput?.init();
   }
 
   @override
   void output(OutputEvent event) {
     _sink?.writeAll(event.lines, '\n');
     _sink?.writeln();
+    secondOutput?.output(event);
+    // _sink?.flush();
   }
 
   @override
   void destroy() async {
     await _sink?.flush();
     await _sink?.close();
+    secondOutput?.destroy();
   }
 }

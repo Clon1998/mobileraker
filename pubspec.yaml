@@ -66,13 +66,15 @@ dependencies:
   package_info_plus: ^3.0.1
   flutter_web_auth: ^0.5.0
   collection: ^1.17.0
-#  connectivity_plus: ^3.0.3
+  #  connectivity_plus: ^3.0.3
 
   #persisstent
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   file: ^6.1.2
   flutter_secure_storage: ^8.0.0
+  share_plus: ^7.1.0
+  path_provider: ^2.1.0
 
   #theme
   cupertino_icons: ^1.0.2
