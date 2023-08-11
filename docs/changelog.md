@@ -19,7 +19,7 @@
 - Improved the accuracy of the current and max layer display by utilizing moonraker's info.layer
   fields. [#138](https://github.com/Clon1998/mobileraker/issues/138)
 - Enhanced print progress accuracy by implementing the relative file
-  method. ([#138](https://github.com/Clon1998/mobileraker/issues/138))
+  method. [#138](https://github.com/Clon1998/mobileraker/issues/138)
 - Improved ETA accuracy and added tooltips to the ETA table cells, displaying Slicer, File, and
   Filament remaining time information. [#138](https://github.com/Clon1998/mobileraker/issues/138)
 - Added support for a 12-hour time
@@ -29,7 +29,7 @@
 - Migrated webcams to Moonraker's Webcam API.
 - Added a new splash screen during app startup.
 - Introduced an error widget in case the initial startup fails.
-- Files page now works even if klipper is in an error state
+- Files page now works even if klipper is in an error state [#163](https://github.com/Clon1998/mobileraker/issues/163)
 
 ### Bug Fixes
 
