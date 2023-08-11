@@ -2,6 +2,8 @@
 
 ## [2.5.0] - 2023-08-11
 
+Mobileraker now offers a lifetime Supporter Tier. As part of the new tier launch, I am offering an introductory promotion with lifetime tier prices discounted up to 35%.
+
 ### Major Changes
 
 - Reworked the printer setup flow to provide a more user-friendly experience for beginners and offer
