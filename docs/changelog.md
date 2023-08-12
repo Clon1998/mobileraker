@@ -1,8 +1,21 @@
 # Mobileraker - Changelog
 
+## [2.5.1] - 2023-08-12
+
+### Enhanced User Experience
+
+- Reduced the aggressiveness of printer refresh when the app is reopened from the background
+  [#184](https://github.com/Clon1998/mobileraker/issues/184)
+
+### Bug Fixes
+
+- Resolved the issue where offerings on the "Support the Dev" page were not appearing as active
+  after users purchased promotional offerings.
+
 ## [2.5.0] - 2023-08-11
 
-Mobileraker now offers a lifetime Supporter Tier. As part of the new tier launch, I am offering an introductory promotion with lifetime tier prices discounted up to 35% until the end of August.
+Mobileraker now offers a lifetime Supporter Tier. As part of the new tier launch, I am offering an
+introductory promotion with lifetime tier prices discounted up to 35% until the end of August.
 
 ### Major Changes
 
@@ -31,7 +44,8 @@ Mobileraker now offers a lifetime Supporter Tier. As part of the new tier launch
 - Migrated webcams to Moonraker's Webcam API.
 - Added a new splash screen during app startup.
 - Introduced an error widget in case the initial startup fails.
-- Files page now works even if klipper is in an error state [#163](https://github.com/Clon1998/mobileraker/issues/163)
+- Files page now works even if klipper is in an error
+  state [#163](https://github.com/Clon1998/mobileraker/issues/163)
 
 ### Bug Fixes
 
@@ -52,7 +66,8 @@ Mobileraker now offers a lifetime Supporter Tier. As part of the new tier launch
 
 ### Bug Fixes
 
-- Fixed displayStatus being a mandatory field [#202](https://github.com/Clon1998/mobileraker/pull/202)
+- Fixed displayStatus being a mandatory
+  field [#202](https://github.com/Clon1998/mobileraker/pull/202)
 
 ## [2.4.2] - 2023-06-28
 
