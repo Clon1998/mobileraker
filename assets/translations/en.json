@@ -442,6 +442,10 @@
     }
   },
   "components": {
+    "app_version_display": {
+      "version": "Version:",
+      "installed_version": "Installed Version:"
+    },
     "pull_to_refresh": {
       "pull_up_idle": "Pull up to Refresh"
     },

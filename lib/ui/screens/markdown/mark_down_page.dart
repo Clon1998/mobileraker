@@ -31,16 +31,16 @@ Future<String> _markdownData(_MarkdownDataRef ref, Uri mdRoot) async {
 }
 
 class MarkDownPage extends StatelessWidget {
-  const MarkDownPage({
-    Key? key,
-    required this.title,
-    required this.mdRoot,
-    required this.mdHuman,
-  }) : super(key: key);
+  const MarkDownPage(
+      {Key? key, required this.title, required this.mdRoot, required this.mdHuman, this.topWidget})
+      : super(key: key);
 
   final String title;
   final Uri mdRoot;
   final Uri mdHuman;
+
+  /// Widget placed at the top of the markdown page
+  final Widget? topWidget;
 
   @override
   Widget build(BuildContext context) {
@@ -50,17 +50,23 @@ class MarkDownPage extends StatelessWidget {
         actions: [
           IconButton(
             tooltip: tr('pages.markdown.open_in_browser', args: [title]),
-            onPressed: () =>
-                launchUrl(mdHuman, mode: LaunchMode.externalApplication),
+            onPressed: () => launchUrl(mdHuman, mode: LaunchMode.externalApplication),
             icon: const Icon(Icons.open_in_browser),
           )
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: _MarkDownBody(
-        mdHuman: mdHuman,
-        mdRoot: mdRoot,
-        title: title,
+      body: Column(
+        children: [
+          if (topWidget != null) topWidget!,
+          Expanded(
+            child: _MarkDownBody(
+              mdHuman: mdHuman,
+              mdRoot: mdRoot,
+              title: title,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -124,19 +130,16 @@ class _ErrorWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.warning_amber_outlined,
-                size: 50, color: theme.colorScheme.error),
+            Icon(Icons.warning_amber_outlined, size: 50, color: theme.colorScheme.error),
             const SizedBox(
               height: 20,
             ),
             const Text('pages.markdown.error').tr(args: [title]),
             Text(error?.toString() ?? 'Unknown cause'),
             TextButton.icon(
-                onPressed: () =>
-                    launchUrl(mdHuman, mode: LaunchMode.externalApplication),
+                onPressed: () => launchUrl(mdHuman, mode: LaunchMode.externalApplication),
                 icon: const Icon(Icons.open_in_browser),
-                label: const Text('pages.markdown.open_in_browser')
-                    .tr(args: [title]))
+                label: const Text('pages.markdown.open_in_browser').tr(args: [title]))
           ],
         ),
       ),
@@ -173,13 +176,11 @@ class _MakrdownViewer extends StatelessWidget {
     var theme = Theme.of(context);
 
     var base = MarkdownStyleSheet(
-        blockquote: theme.textTheme.labelMedium
-            ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        blockquote:
+            theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         blockquoteDecoration: BoxDecoration(
             color: theme.colorScheme.surfaceVariant.withOpacity(0.8),
-            border: Border(
-                left: BorderSide(
-                    width: 3.0, color: theme.colorScheme.secondary))));
+            border: Border(left: BorderSide(width: 3.0, color: theme.colorScheme.secondary))));
 
     return Markdown(
       styleSheet: MarkdownStyleSheet.fromTheme(theme).merge(base),
