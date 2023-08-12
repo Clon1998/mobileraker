@@ -116,9 +116,9 @@ class PaymentService {
 
       var customerInfo = await _ref.refresh(customerInfoProvider.future);
       logger.i('Successful bought package... $customerInfo');
-      _ref.read(snackBarServiceProvider).show(SnackBarConfig(
-          title: 'Subscribed!',
-          message: 'You just subscribed to Mobileraker! Thanks a lot for the support!'));
+      // _ref.read(snackBarServiceProvider).show(SnackBarConfig(
+      //     title: 'Confirmed!',
+      //     message: 'You just subscribed to Mobileraker! Thanks a lot for the support!'));
     } on PlatformException catch (e) {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
