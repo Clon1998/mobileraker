@@ -62,19 +62,20 @@ String periodUnitToText(PeriodUnit? periodUnit, int cycles) {
 extension MobilerakerCustomerInfo on CustomerInfo {
   bool isSubscriptionActive(Package subPackage) {
     var productIdentifier = subPackage.storeProduct.identifier;
-    if (subPackage.storeProduct.productCategory ==
-        ProductCategory.subscription) {
+    if (subPackage.storeProduct.productCategory == ProductCategory.subscription) {
       return activeSubscriptions.contains(productIdentifier);
     }
 
-    return nonSubscriptionTransactions
-        .any((tx) => tx.productIdentifier == productIdentifier);
+    return nonSubscriptionTransactions.any((tx) =>
+        tx.productIdentifier == productIdentifier ||
+        tx.productIdentifier == '${productIdentifier}_promo');
   }
 
   EntitlementInfo? getActiveEntitlementForPackage(Package package) {
     var productIdentifier = package.storeProduct.identifier.split(':').first;
 
-    return entitlements.active.values
-        .firstWhereOrNull((e) => e.productIdentifier == productIdentifier);
+    return entitlements.active.values.firstWhereOrNull((e) =>
+        e.productIdentifier == productIdentifier ||
+        e.productIdentifier == '${productIdentifier}_promo');
   }
 }
