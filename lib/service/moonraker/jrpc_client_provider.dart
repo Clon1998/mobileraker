@@ -156,7 +156,7 @@ Stream<Map<String, dynamic>> jrpcMethodEvent(JrpcMethodEventRef ref, String mach
   jsonRpcClient.addMethodListener(listener, method);
 
   ref.onDispose(() {
-    jsonRpcClient.removeMethodListener(listener);
+    jsonRpcClient.removeMethodListener(listener, method);
     streamController.close();
   });
   return streamController.stream;

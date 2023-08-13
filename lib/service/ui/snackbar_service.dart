@@ -17,7 +17,10 @@ part 'snackbar_service.g.dart';
 enum SnackbarType { error, warning, info }
 
 @riverpod
-SnackBarService snackBarService(SnackBarServiceRef ref) => SnackBarService(ref);
+SnackBarService snackBarService(SnackBarServiceRef ref) {
+  ref.keepAlive();
+  return SnackBarService(ref);
+}
 
 class SnackBarService {
   const SnackBarService(this.ref);
