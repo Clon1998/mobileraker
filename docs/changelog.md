@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.5.2] - 2023-08-
+
+### Bug Fixes
+
+- Fixed webcams did not render if they used an absolut path with a
+  port [#213](https://github.com/Clon1998/mobileraker/issues/213)
+
 ## [2.5.1] - 2023-08-12
 
 ### Enhanced User Experience

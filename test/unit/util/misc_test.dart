@@ -68,8 +68,7 @@ void main() {
       });
 
       test('host, port and path', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -81,8 +80,7 @@ void main() {
       });
 
       test('host, port, path and ending with /', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('192.1.1.1:123/to/moon/raker/');
+        var moonrakerUri = buildMoonrakerWebSocketUri('192.1.1.1:123/to/moon/raker/');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -139,8 +137,7 @@ void main() {
       });
 
       test('protocol, port and path', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ws://192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ws://192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -152,8 +149,7 @@ void main() {
       });
 
       test('protocol, port, path and ending with /', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ws://192.1.1.1:123/to/moon/raker/');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ws://192.1.1.1:123/to/moon/raker/');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -165,8 +161,7 @@ void main() {
       });
 
       test('https', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('https://192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('https://192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -178,8 +173,7 @@ void main() {
       });
 
       test('wss', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('wss://192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('wss://192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -191,8 +185,7 @@ void main() {
       });
 
       test('Other protocol', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ftp://192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ftp://192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -252,8 +245,7 @@ void main() {
       });
 
       test('host, port and path', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -265,8 +257,7 @@ void main() {
       });
 
       test('host, port, path and ending with /', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('myprinter:123/to/moon/raker/');
+        var moonrakerUri = buildMoonrakerWebSocketUri('myprinter:123/to/moon/raker/');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -322,8 +313,7 @@ void main() {
       });
 
       test('protocol, port and path', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ws://myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ws://myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -335,8 +325,7 @@ void main() {
       });
 
       test('protocol, port, path and ending with /', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ws://myprinter:123/to/moon/raker/');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ws://myprinter:123/to/moon/raker/');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -348,8 +337,7 @@ void main() {
       });
 
       test('wss', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('wss://myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('wss://myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -361,8 +349,7 @@ void main() {
       });
 
       test('https', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('https://myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('https://myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -374,8 +361,7 @@ void main() {
       });
 
       test('Other protocol', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ftp://myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ftp://myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -389,8 +375,7 @@ void main() {
 
     group('for url with TLD', () {
       test('host', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('myprinter.co.com.zj.shop');
+        var moonrakerUri = buildMoonrakerWebSocketUri('myprinter.co.com.zj.shop');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -401,8 +386,7 @@ void main() {
       });
 
       test('host and port', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('myprinter.co.com.zj.shop:222');
+        var moonrakerUri = buildMoonrakerWebSocketUri('myprinter.co.com.zj.shop:222');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -414,8 +398,7 @@ void main() {
       });
 
       test('host, port and path', () {
-        var moonrakerUri = buildMoonrakerWebSocketUri(
-            'myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -427,8 +410,7 @@ void main() {
       });
 
       test('protocol and host ', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ws://myprinter.co.com.zj.shop');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ws://myprinter.co.com.zj.shop');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -439,8 +421,7 @@ void main() {
       });
 
       test('protocol, host and port', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ws://myprinter.co.com.zj.shop:123');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ws://myprinter.co.com.zj.shop:123');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -452,8 +433,8 @@ void main() {
       });
 
       test('protocol, port and path', () {
-        var moonrakerUri = buildMoonrakerWebSocketUri(
-            'ws://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri =
+            buildMoonrakerWebSocketUri('ws://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -465,8 +446,8 @@ void main() {
       });
 
       test('wss', () {
-        var moonrakerUri = buildMoonrakerWebSocketUri(
-            'wss://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri =
+            buildMoonrakerWebSocketUri('wss://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -478,8 +459,8 @@ void main() {
       });
 
       test('https', () {
-        var moonrakerUri = buildMoonrakerWebSocketUri(
-            'https://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri =
+            buildMoonrakerWebSocketUri('https://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -491,8 +472,8 @@ void main() {
       });
 
       test('Other protocol', () {
-        var moonrakerUri = buildMoonrakerWebSocketUri(
-            'ftp://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri =
+            buildMoonrakerWebSocketUri('ftp://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -574,8 +555,7 @@ void main() {
       });
 
       test('host, port, path and ending with /', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('192.1.1.1:123/to/moon/raker/');
+        var moonrakerUri = buildMoonrakerHttpUri('192.1.1.1:123/to/moon/raker/');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -628,8 +608,7 @@ void main() {
       });
 
       test('protocol, port and path', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ws://192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('ws://192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -641,8 +620,7 @@ void main() {
       });
 
       test('protocol, port, path and ending with /', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ws://192.1.1.1:123/to/moon/raker/');
+        var moonrakerUri = buildMoonrakerHttpUri('ws://192.1.1.1:123/to/moon/raker/');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -654,8 +632,7 @@ void main() {
       });
 
       test('https', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('https://192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('https://192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -667,8 +644,7 @@ void main() {
       });
 
       test('wss', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('wss://192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('wss://192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -680,8 +656,7 @@ void main() {
       });
 
       test('Other protocol', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ftp://192.1.1.1:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('ftp://192.1.1.1:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -749,8 +724,7 @@ void main() {
       });
 
       test('host, port, path and ending with /', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('myprinter:123/to/moon/raker/');
+        var moonrakerUri = buildMoonrakerHttpUri('myprinter:123/to/moon/raker/');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -802,8 +776,7 @@ void main() {
       });
 
       test('protocol, port and path', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ws://myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('ws://myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -815,8 +788,7 @@ void main() {
       });
 
       test('protocol, port, path and ending with /', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ws://myprinter:123/to/moon/raker/');
+        var moonrakerUri = buildMoonrakerHttpUri('ws://myprinter:123/to/moon/raker/');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -828,8 +800,7 @@ void main() {
       });
 
       test('wss', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('wss://myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('wss://myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -841,8 +812,7 @@ void main() {
       });
 
       test('https', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('https://myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('https://myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -854,8 +824,7 @@ void main() {
       });
 
       test('Other protocol', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ftp://myprinter:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('ftp://myprinter:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -879,8 +848,7 @@ void main() {
       });
 
       test('host and port', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('myprinter.co.com.zj.shop:222');
+        var moonrakerUri = buildMoonrakerHttpUri('myprinter.co.com.zj.shop:222');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -891,8 +859,7 @@ void main() {
       });
 
       test('host, port and path', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -904,8 +871,7 @@ void main() {
       });
 
       test('protocol and host ', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ws://myprinter.co.com.zj.shop');
+        var moonrakerUri = buildMoonrakerHttpUri('ws://myprinter.co.com.zj.shop');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -915,8 +881,7 @@ void main() {
       });
 
       test('protocol, host and port', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ws://myprinter.co.com.zj.shop:123');
+        var moonrakerUri = buildMoonrakerHttpUri('ws://myprinter.co.com.zj.shop:123');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -927,8 +892,7 @@ void main() {
       });
 
       test('protocol, port and path', () {
-        var moonrakerUri = buildMoonrakerHttpUri(
-            'ws://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('ws://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -940,8 +904,8 @@ void main() {
       });
 
       test('wss', () {
-        var moonrakerUri = buildMoonrakerHttpUri(
-            'wss://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri =
+            buildMoonrakerHttpUri('wss://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -953,8 +917,8 @@ void main() {
       });
 
       test('https', () {
-        var moonrakerUri = buildMoonrakerHttpUri(
-            'https://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri =
+            buildMoonrakerHttpUri('https://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -966,8 +930,8 @@ void main() {
       });
 
       test('Other protocol', () {
-        var moonrakerUri = buildMoonrakerHttpUri(
-            'ftp://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri =
+            buildMoonrakerHttpUri('ftp://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -977,6 +941,122 @@ void main() {
               path: 'to/moon/raker',
             )));
       });
+    });
+  });
+
+  group('test buildWebCamUri', () {
+    group('Relative Cam URI', () {
+      test('machine(WS, IP) and cam(PATH)', () {
+        var moonrakerUri = buildWebCamUri(Uri.parse('ws://192.1.1.0'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
+      });
+
+      test('machine(WS, IP, PORT) and cam(PATH)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('ws://192.1.1.0:212'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
+      });
+
+      test('machine(WSS, IP) and cam(PATH)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('wss://192.1.1.0'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('https://192.1.1.0/webcam/webrtc'));
+      });
+
+      test('machine(WSS, IP, PORT) and cam(PATH)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('wss://192.1.1.0:212'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('https://192.1.1.0/webcam/webrtc'));
+      });
+
+      ///
+      test('machine(WS, DNS) and cam(PATH)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('ws://mobileraker.test'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://mobileraker.test/webcam/webrtc'));
+      });
+
+      test('machine(WS, DNS, PORT) and cam(PATH)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('ws://mobileraker.test:212'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://mobileraker.test/webcam/webrtc'));
+      });
+
+      test('machine(WSS, DNS) and cam(PATH)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('wss://mobileraker.test'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('https://mobileraker.test/webcam/webrtc'));
+      });
+
+      test('machine(WSS, DNS, PORT) and cam(PATH)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('wss://mobileraker.test:212'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('https://mobileraker.test/webcam/webrtc'));
+      });
+    });
+
+    group('Absolut Cam URI', () {
+      test('machine(WS, IP) and cam(HTTP, IP)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('http://192.168.178.135'), Uri.parse('http://192.1.1.0'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0'));
+      });
+
+      test('machine(WS, IP, PORT) and cam(HTTP, IP, PATH)', () {
+        var moonrakerUri = buildWebCamUri(
+            Uri.parse('ws://192.1.1.0:212'), Uri.parse('http://192.1.1.0/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
+      });
+
+      test('machine(WSS, IP) and cam(HTTP, IP, PORT)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('wss://192.1.1.0'), Uri.parse('http://192.1.1.0:212'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0:212'));
+      });
+
+      test('machine(WSS, IP, PORT) and cam(HTTP, IP, PORT, Path)', () {
+        var moonrakerUri = buildWebCamUri(
+            Uri.parse('wss://192.1.1.0:212'), Uri.parse('http://192.1.1.0:212/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0:212/webcam/webrtc'));
+      });
+
+      test('machine(WS, DNS) and cam(HTTP, IP)', () {
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('http://mobileraker.test'), Uri.parse('http://192.1.1.0'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0'));
+      });
+
+      test('machine(WS, DNS, PORT) and cam(HTTP, IP, PATH)', () {
+        var moonrakerUri = buildWebCamUri(
+            Uri.parse('ws://mobileraker.test:212'), Uri.parse('http://192.1.1.0/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
+      });
+
+      test('machine(WS, DNS, PORT,PATH) and cam(HTTP, IP, PATH)', () {
+        var moonrakerUri = buildWebCamUri(Uri.parse('ws://mobileraker.test:212/test'),
+            Uri.parse('http://192.1.1.0/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
+      });
+    });
+  });
+
+  group('test buildRemoteWebCamUri', () {
+    test('Absolut cam and matches machine URI', () {
+      var moonrakerUri = buildRemoteWebCamUri(
+        Uri.parse('http://my.remote'),
+        Uri.parse('ws://192.1.1.0:212/test'),
+        Uri.parse('http://192.1.1.0/webcam/webrtc'),
+      );
+      expect(moonrakerUri, Uri.parse('http://my.remote/webcam/webrtc'));
+    });
+
+    test('Absolut cam and not matches machine URI', () {
+      var moonrakerUri = buildRemoteWebCamUri(
+        Uri.parse('http://my.remote'),
+        Uri.parse('ws://192.1.1.1:212/test'),
+        Uri.parse('http://192.1.1.0/webcam/webrtc'),
+      );
+      expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
     });
   });
 }
