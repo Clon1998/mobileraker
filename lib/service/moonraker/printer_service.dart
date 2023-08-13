@@ -49,6 +49,7 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
+import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:mobileraker/util/extensions/string_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -106,19 +107,18 @@ class PrinterService {
         _dialogService = ref.watch(dialogServiceProvider) {
     ref.onDispose(dispose);
 
-    ref.listen<AsyncValue<KlipperInstance>>(klipperProvider(ownerUUID), (previous, next) {
-      next.whenOrNull(data: (value) {
-        switch (value.klippyState) {
-          case KlipperState.ready:
-            if (!_queriedForSession) {
-              _queriedForSession = true;
-              refreshPrinter();
-            }
-            break;
-          default:
-            _queriedForSession = false;
-        }
-      });
+    ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyState), (previous, next) {
+      logger.i('Printer Service received klippyState: ${next.valueOrNull}');
+      switch (next.valueOrFullNull) {
+        case KlipperState.ready:
+          if (!_queriedForSession) {
+            _queriedForSession = true;
+            refreshPrinter();
+          }
+          break;
+        default:
+          _queriedForSession = false;
+      }
     }, fireImmediately: true);
   }
 
