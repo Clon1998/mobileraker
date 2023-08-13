@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/util/extensions/object_extension.dart';
+import 'package:mobileraker/util/extensions/uri_extension.dart';
 import 'package:stringr/stringr.dart';
 
 Uri? buildMoonrakerWebSocketUri(String? enteredURL, [bool defaultPathIfEmpty = true]) {
@@ -34,18 +35,19 @@ Uri? buildMoonrakerHttpUri(String? enteredURL) {
 ///Returns a URI that is either based from the machineURI or the camURI if it is absolute.
 Uri buildWebCamUri(Uri machineUri, Uri camUri) {
   if (camUri.isAbsolute) return camUri;
-  return substituteWsProtocols(machineUri.replace(port: 0).resolveUri(camUri));
+  return substituteWsProtocols(machineUri.resolveUri(camUri)).removePort();
 }
 
 Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri) {
   if (camUri.isAbsolute) {
     if (camUri.host.toLowerCase() == machineUri.host.toLowerCase()) {
-      return remoteUri.replace(path: camUri.path, query: camUri.query);
+      return remoteUri.replace(
+          path: camUri.path, query: camUri.query.isEmpty ? null : camUri.query);
     } else {
       return camUri;
     }
   } else {
-    return buildWebCamUri(remoteUri, camUri);
+    return substituteWsProtocols(remoteUri.resolveUri(camUri));
   }
 }
 

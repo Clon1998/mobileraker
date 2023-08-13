@@ -11,6 +11,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/util/extensions/uri_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
@@ -49,11 +50,13 @@ class JsonRpcClientBuilder {
     return JsonRpcClientBuilder()
       ..headers = machine.headerWithApiKey
       ..timeout = const Duration(seconds: 5)
-      ..uri = localWsUir.replace(
-          scheme: 'wss',
-          port: 0, // OE automatically redirects the ports
-          host: octoUri.host,
-          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
+      ..uri = localWsUir
+          .replace(
+              scheme: 'wss',
+              host: octoUri.host,
+              userInfo:
+                  '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
+          .removePort() // OE automatically redirects the ports
       ..clientType = ClientType.octo;
   }
 

@@ -1041,6 +1041,24 @@ void main() {
   });
 
   group('test buildRemoteWebCamUri', () {
+    test('Relative cam and matches machine URI', () {
+      var moonrakerUri = buildRemoteWebCamUri(
+        Uri.parse('http://my.remote'),
+        Uri.parse('ws://192.1.1.0:212/test'),
+        Uri.parse('/webcam/webrtc'),
+      );
+      expect(moonrakerUri, Uri.parse('http://my.remote/webcam/webrtc'));
+    });
+
+    test('Relative cam and matches machine URI remote uri has port', () {
+      var moonrakerUri = buildRemoteWebCamUri(
+        Uri.parse('http://my.remote:22'),
+        Uri.parse('ws://192.1.1.0:212/test'),
+        Uri.parse('/webcam/webrtc'),
+      );
+      expect(moonrakerUri, Uri.parse('http://my.remote:22/webcam/webrtc'));
+    });
+
     test('Absolut cam and matches machine URI', () {
       var moonrakerUri = buildRemoteWebCamUri(
         Uri.parse('http://my.remote'),
