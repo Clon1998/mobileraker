@@ -59,17 +59,15 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   /// This method returns a future of type [T] that resolves with the data when the condition is met.
   /// If an error occurs during the watch operation, the future completes with an error.
   ///
-  Future<T> watchWhere<T>(ProviderListenable<AsyncValue<T>> provider,
-      bool Function(T) evaluatePredicate,
+  Future<T> watchWhere<T>(
+      ProviderListenable<AsyncValue<T>> provider, bool Function(T) evaluatePredicate,
       [bool throwIfDisposeBeforeComplete = true]) {
     final completer = Completer<T>();
     onDispose(() {
       if (!completer.isCompleted && throwIfDisposeBeforeComplete) {
-        logger
-            .e('Provider with ref $this diposed before `where` could complete');
+        logger.e('Provider with ref $this diposed before `where` could complete');
         completer.completeError(
-            StateError('provider disposed before `where` could complete'),
-            StackTrace.current);
+            StateError('provider disposed before `where` could complete'), StackTrace.current);
       }
     });
     listen<AsyncValue<T>>(provider, (prev, next) {
@@ -79,8 +77,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
             if (evaluatePredicate(d)) {
               if (completer.isCompleted) {
                 // ToDo:Reduce log level after investigating effect of it
-                logger
-                    .w('watchWhere just forces owner to invalidate! Ref:$this');
+                logger.w('watchWhere just forces owner to invalidate! Ref:$this');
                 invalidateSelf();
               } else {
                 completer.complete(d);
@@ -105,11 +102,9 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
     final completer = Completer<T>();
     onDispose(() {
       if (!completer.isCompleted) {
-        logger.e(
-            'Provider with ref $this diposed before `whereNotNull` could complete');
+        logger.e('Provider with ref $this diposed before `whereNotNull` could complete');
         completer.completeError(
-            StateError(
-                'provider disposed before `whereNotNull` could complete'),
+            StateError('provider disposed before `whereNotNull` could complete'),
             StackTrace.current);
       }
     });
@@ -122,8 +117,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
             if (d != null) {
               if (completer.isCompleted) {
                 invalidateSelf();
-                logger.w(
-                    'watchWhereNotNull just forces owner to invalidate! Ref: $this');
+                logger.w('watchWhereNotNull just forces owner to invalidate! Ref: $this');
               } else {
                 completer.complete(d);
               }
@@ -145,17 +139,15 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   /// This method returns a future that completes with the current value of the provider
   /// when the condition specified by [evaluatePredicate] is met. The method immediately reads the
   /// initial value from the provider and stops listening for changes once the condition is met.
-  Future<T> readWhere<T>(ProviderListenable<AsyncValue<T>> provider,
-      bool Function(T) evaluatePredicate,
+  Future<T> readWhere<T>(
+      ProviderListenable<AsyncValue<T>> provider, bool Function(T) evaluatePredicate,
       [bool throwIfDisposeBeforeComplete = true]) {
     final completer = Completer<T>();
     onDispose(() {
       if (!completer.isCompleted && throwIfDisposeBeforeComplete) {
-        logger
-            .e('Provider with ref $this diposed before `read` could complete');
+        logger.e('Provider with ref $this diposed before `read` could complete');
         completer.completeError(
-            StateError(
-                'provider disposed before `read` could complete for ref:$this'),
+            StateError('provider disposed before `read` could complete for ref:$this'),
             StackTrace.current);
       }
     });

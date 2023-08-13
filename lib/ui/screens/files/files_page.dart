@@ -145,8 +145,11 @@ class _FilesBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = Theme.of(context);
 
+    var model = ref.watch(filesPageControllerProvider);
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
     return WillPopScope(
-      onWillPop: ref.watch(filesListControllerProvider.notifier).onWillPop,
+      onWillPop: controller.onWillPop,
       child: Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
@@ -164,15 +167,16 @@ class _FilesBody extends ConsumerWidget {
         child: Column(
           children: [
             const _BreadCrumb(),
-            ref.watch(filesListControllerProvider.select((value) => value)).filteredAndSorted.when(
-                data: (folderContent) {
-                  int lenFolders = folderContent.folders.length;
-                  int lenGcodes = folderContent.files.length;
+            ref.watch(filesPageControllerProvider.select((value) => value.files)).when(
+                skipLoadingOnReload: true,
+                skipLoadingOnRefresh: false,
+                data: (files) {
+                  int lenFolders = files.folders.length;
+                  int lenGcodes = files.files.length;
                   int lenTotal = lenFolders + lenGcodes;
-                  var isSubFolder = folderContent.folderPath.split('/').length > 1;
 
                   // Add one of the .. folder to back
-                  if (isSubFolder) lenTotal++;
+                  if (model.isInSubFolder) lenTotal++;
 
                   return Expanded(
                     child: EaseIn(
@@ -181,7 +185,7 @@ class _FilesBody extends ConsumerWidget {
                       child: SmartRefresher(
                         header: const WaterDropMaterialHeader(),
                         controller: RefreshController(),
-                        onRefresh: () => ref.invalidate(filesListControllerProvider),
+                        onRefresh: controller.refreshFiles,
                         child: (lenTotal == 0)
                             ? ListTile(
                                 contentPadding: EdgeInsets.zero,
@@ -192,7 +196,7 @@ class _FilesBody extends ConsumerWidget {
                             : ListView.builder(
                                 itemCount: lenTotal,
                                 itemBuilder: (context, index) {
-                                  if (isSubFolder) {
+                                  if (model.isInSubFolder) {
                                     if (index == 0) {
                                       return ListTile(
                                         contentPadding:
@@ -200,9 +204,7 @@ class _FilesBody extends ConsumerWidget {
                                         leading: const SizedBox(
                                             width: 64, height: 64, child: Icon(Icons.folder)),
                                         title: const Text('...'),
-                                        onTap: ref
-                                            .watch(filesListControllerProvider.notifier)
-                                            .popFolder,
+                                        onTap: controller.popFolder,
                                       );
                                     } else {
                                       index--;
@@ -210,13 +212,13 @@ class _FilesBody extends ConsumerWidget {
                                   }
 
                                   if (index < lenFolders) {
-                                    Folder folder = folderContent.folders[index];
+                                    Folder folder = files.folders[index];
                                     return FolderItem(
                                       folder: folder,
                                       key: ValueKey(folder),
                                     );
                                   } else {
-                                    RemoteFile file = folderContent.files[index - lenFolders];
+                                    RemoteFile file = files.files[index - lenFolders];
                                     if (file is GCodeFile) {
                                       return GCodeFileItem(
                                         key: ValueKey(file),
@@ -308,7 +310,8 @@ class _BreadCrumb extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ThemeData theme = Theme.of(context);
-    var curPath = ref.watch(filesListControllerProvider.select((value) => value.path));
+    var model = ref.watch(filesPageControllerProvider.select((value) => value.path));
+    var controller = ref.watch(filesPageControllerProvider.notifier);
 
     return Container(
       width: double.infinity,
@@ -322,19 +325,17 @@ class _BreadCrumb extends ConsumerWidget {
           children: [
             Flexible(
               child: BreadCrumb.builder(
-                itemCount: curPath.length,
+                itemCount: model.length,
                 builder: (index) {
-                  String p = curPath[index];
-                  List<String> target = curPath.sublist(0, index + 1);
+                  String p = model[index];
+                  List<String> target = model.sublist(0, index + 1);
                   return BreadCrumbItem(
                       content: Text(
                         p.toUpperCase(),
                         style: theme.textTheme.titleSmall
                             ?.copyWith(color: theme.colorScheme.onPrimary),
                       ),
-                      onTap: () => ref
-                          .read(filesListControllerProvider.notifier)
-                          .fetchDirectoryData(target));
+                      onTap: () => controller.goToPath(target));
                 },
                 divider: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -348,7 +349,7 @@ class _BreadCrumb extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(left: 4),
               child: InkWell(
-                onTap: ref.watch(filesListControllerProvider.notifier).onCreateDirTapped,
+                onTap: ref.watch(filesPageControllerProvider.notifier).onCreateDirTapped,
                 child: Icon(
                   Icons.create_new_folder_outlined,
                   color: theme.colorScheme.onPrimary,
@@ -370,14 +371,15 @@ class FolderItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
     return _Slideable(
-      fileName: folder.name,
-      isFolder: true,
+      file: folder,
       child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
           leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
           title: Text(folder.name),
-          onTap: () => ref.read(filesListControllerProvider.notifier).enterFolder(folder)),
+          onTap: () => controller.enterFolder(folder)),
     );
   }
 }
@@ -389,13 +391,15 @@ class FileItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
     return _Slideable(
-      fileName: file.name,
+      file: file,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.insert_drive_file)),
         title: Text(file.name),
-        onTap: () => ref.read(filesListControllerProvider.notifier).onFileTapped(file),
+        onTap: () => controller.onFileTapped(file),
       ),
     );
   }
@@ -416,7 +420,17 @@ class GCodeFileItem extends ConsumerWidget {
         : null;
 
     return _Slideable(
-      fileName: gCode.name,
+      file: gCode,
+      // startActionPane: ActionPane(motion: const StretchMotion(), children: [
+      //   SlidableAction(
+      //     // An action can be bigger than the others.
+      //     onPressed: (_) => controller.onRenameTapped(file),
+      //     backgroundColor: themeData.colorScheme.secondaryContainer,
+      //     foregroundColor: themeData.colorScheme.onSecondaryContainer,
+      //     icon: Icons.drive_file_rename_outline,
+      //     label: tr('general.rename'),
+      //   ),
+      // ]),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         leading: SizedBox(
@@ -431,7 +445,7 @@ class GCodeFileItem extends ConsumerWidget {
         subtitle: Text((lastPrinted != null)
             ? '${tr('pages.files.last_printed')}: $lastPrinted'
             : tr('pages.files.not_printed')),
-        onTap: () => ref.read(filesListControllerProvider.notifier).onFileTapped(gCode),
+        onTap: () => ref.read(filesPageControllerProvider.notifier).onFileTapped(gCode),
       ),
     );
   }
@@ -478,41 +492,40 @@ class GCodeFileItem extends ConsumerWidget {
 }
 
 class _Slideable extends ConsumerWidget {
-  const _Slideable({required this.child, required this.fileName, this.isFolder = false});
+  const _Slideable({
+    required this.file,
+    required this.child,
+    this.startActionPane,
+  });
 
   final Widget child;
-  final String fileName;
-  final bool isFolder;
+  final RemoteFile file;
+  final ActionPane? startActionPane;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
     return Slidable(
+      startActionPane: startActionPane,
       endActionPane: ActionPane(
-        motion: const ScrollMotion(),
+        motion: const StretchMotion(),
         children: [
           SlidableAction(
             // An action can be bigger than the others.
-            onPressed: (c) => (isFolder)
-                ? ref.watch(filesListControllerProvider.notifier).onRenameDirTapped(fileName)
-                : ref.watch(filesListControllerProvider.notifier).onRenameFileTapped(fileName),
+            onPressed: (_) => controller.onRenameTapped(file),
             backgroundColor: themeData.colorScheme.secondaryContainer,
             foregroundColor: themeData.colorScheme.onSecondaryContainer,
             icon: Icons.drive_file_rename_outline,
-            label: 'Rename',
+            label: tr('general.rename'),
           ),
           SlidableAction(
-            onPressed: (c) => (isFolder)
-                ? ref
-                    .read(filesListControllerProvider.notifier)
-                    .onDeleteDirTapped(MaterialLocalizations.of(c), fileName)
-                : ref
-                    .read(filesListControllerProvider.notifier)
-                    .onDeleteFileTapped(MaterialLocalizations.of(c), fileName),
+            onPressed: (_) => controller.onDeleteTapped(file),
             backgroundColor: themeData.colorScheme.secondaryContainer.darken(5),
             foregroundColor: themeData.colorScheme.onSecondaryContainer,
             icon: Icons.delete_outline,
-            label: 'Delete',
+            label: tr('general.delete'),
           ),
         ],
       ),

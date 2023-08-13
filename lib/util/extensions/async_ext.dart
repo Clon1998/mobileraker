@@ -23,4 +23,8 @@ extension AsyncValueX<T> on AsyncValue<T> {
     if (hasValue && !isLoading && !hasError) return value;
     return null;
   }
+
+  AsyncValue<T> toLoading() {
+    return AsyncValue<T>.loading().copyWithPrevious(this);
+  }
 }
