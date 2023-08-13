@@ -12,17 +12,12 @@ import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:stringr/stringr.dart';
 
-Uri? buildMoonrakerWebSocketUri(String? enteredURL,
-    [bool defaultPathIfEmpty = true]) {
+Uri? buildMoonrakerWebSocketUri(String? enteredURL, [bool defaultPathIfEmpty = true]) {
   var normalizedURL = _normalizeURL(enteredURL);
   if (normalizedURL == null) return null;
 
-  var scheme = normalizedURL.scheme == 'wss' || normalizedURL.scheme == 'https'
-      ? 'wss'
-      : 'ws';
-  var path = defaultPathIfEmpty && normalizedURL.hasEmptyPath
-      ? 'websocket'
-      : normalizedURL.path;
+  var scheme = normalizedURL.scheme == 'wss' || normalizedURL.scheme == 'https' ? 'wss' : 'ws';
+  var path = defaultPathIfEmpty && normalizedURL.hasEmptyPath ? 'websocket' : normalizedURL.path;
 
   return normalizedURL.replace(path: path, scheme: scheme);
 }
@@ -31,11 +26,27 @@ Uri? buildMoonrakerHttpUri(String? enteredURL) {
   var normalizedURL = _normalizeURL(enteredURL);
   if (normalizedURL == null) return null;
 
-  var scheme = normalizedURL.scheme == 'wss' || normalizedURL.scheme == 'https'
-      ? 'https'
-      : 'http';
+  var scheme = normalizedURL.scheme == 'wss' || normalizedURL.scheme == 'https' ? 'https' : 'http';
 
   return normalizedURL.replace(scheme: scheme);
+}
+
+///Returns a URI that is either based from the machineURI or the camURI if it is absolute.
+Uri buildWebCamUri(Uri machineUri, Uri camUri) {
+  if (camUri.isAbsolute) return camUri;
+  return substituteWsProtocols(machineUri.replace(port: 0).resolveUri(camUri));
+}
+
+Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri) {
+  if (camUri.isAbsolute) {
+    if (camUri.host.toLowerCase() == machineUri.host.toLowerCase()) {
+      return remoteUri.replace(path: camUri.path, query: camUri.query);
+    } else {
+      return camUri;
+    }
+  } else {
+    return buildWebCamUri(remoteUri, camUri);
+  }
 }
 
 Uri? _normalizeURL(String? enteredURL) {
@@ -78,9 +89,7 @@ FormFieldValidator<T> notContains<T>(
 }) {
   return (T? valueCandidate) {
     if (valueCandidate != null) {
-      assert(valueCandidate is! List &&
-          valueCandidate is! Map &&
-          valueCandidate is! Set);
+      assert(valueCandidate is! List && valueCandidate is! Map && valueCandidate is! Set);
 
       if (blockList.contains(valueCandidate)) {
         return errorText ?? 'Value in Blocklist!';
@@ -95,8 +104,7 @@ int hashAllNullable(Iterable<dynamic>? list) {
   return Object.hashAll(list);
 }
 
-verifyHttpResponseCodes(int statusCode,
-    [ClientType clientType = ClientType.local]) {
+verifyHttpResponseCodes(int statusCode, [ClientType clientType = ClientType.local]) {
   if (clientType == ClientType.octo) {
     _verifyOctoHttpResponseCodes(statusCode);
   } else {
@@ -110,37 +118,30 @@ _verifyOctoHttpResponseCodes(int statusCode) {
       return;
     case 400:
       throw const OctoEverywhereHttpException(
-          'Internal App error while trying too fetch info. No AppToken was found!',
-          400);
+          'Internal App error while trying too fetch info. No AppToken was found!', 400);
     case 600:
       throw const OctoEverywhereHttpException(
           'Unknown Error - Something went wrong, try again later.', 600);
     case 601:
-      throw const OctoEverywhereHttpException(
-          'Printer is Not Connected To OctoEverywhere', 601);
+      throw const OctoEverywhereHttpException('Printer is Not Connected To OctoEverywhere', 601);
     case 602:
       throw const OctoEverywhereHttpException(
           'OctoEverywhere\'s Connection to Klipper Timed Out.', 602);
     case 603:
       throw const OctoEverywhereHttpException('App Connection Not Found', 603);
     case 604:
-      throw const OctoEverywhereHttpException(
-          'App Connection Revoked/Expired', 604);
+      throw const OctoEverywhereHttpException('App Connection Revoked/Expired', 604);
     case 605:
       throw const OctoEverywhereHttpException(
           'App Connection Owner\'s Account Is No Longer a Supporter.', 605);
     case 606:
-      throw const OctoEverywhereHttpException(
-          'Invalid App Connection Credentials', 606);
+      throw const OctoEverywhereHttpException('Invalid App Connection Credentials', 606);
     case 607:
-      throw const OctoEverywhereHttpException(
-          'File Download Limit Exceeded', 607);
+      throw const OctoEverywhereHttpException('File Download Limit Exceeded', 607);
     case 608:
-      throw const OctoEverywhereHttpException(
-          'File Upload Limit Exceeded', 608);
+      throw const OctoEverywhereHttpException('File Upload Limit Exceeded', 608);
     case 609:
-      throw const OctoEverywhereHttpException(
-          'Webcam Back to Back Limit Exceeded', 609);
+      throw const OctoEverywhereHttpException('Webcam Back to Back Limit Exceeded', 609);
     default:
       throw MobilerakerException(
           'Unknown Error - Response from octoeverywhere could not be parsed. StatusCode $statusCode');
@@ -156,8 +157,7 @@ _verifyLocalHttpResponseCodes(int statusCode) {
   }
 }
 
-Uri substituteProtocols(Uri wsUri,
-    [String protocol = 'http', String secureProtocol = 'https']) {
+Uri substituteWsProtocols(Uri wsUri, [String protocol = 'http', String secureProtocol = 'https']) {
   if ([protocol, secureProtocol].contains(wsUri.scheme.toLowerCase())) {
     return wsUri;
   }
@@ -166,8 +166,7 @@ Uri substituteProtocols(Uri wsUri,
     throw ArgumentError('Provided uri is not a WS-Uri. Given: ${wsUri.scheme}');
   }
 
-  return wsUri.replace(
-      scheme: wsUri.isScheme('wss') ? secureProtocol : protocol);
+  return wsUri.replace(scheme: wsUri.isScheme('wss') ? secureProtocol : protocol);
 }
 
 String storeName() {

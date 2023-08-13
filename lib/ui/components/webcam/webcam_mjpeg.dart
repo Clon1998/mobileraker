@@ -52,25 +52,16 @@ class WebcamMjpeg extends ConsumerWidget {
 
     if (clientType == ClientType.local) {
       configBuilder
-        ..streamUri = camStreamUrl.isAbsolute
-            ? camStreamUrl
-            : substituteProtocols(machineUri.resolveUri(camStreamUrl))
-                .replace(port: 0)
-        ..snapshotUri = camSnapshotUrl.isAbsolute
-            ? camSnapshotUrl
-            : substituteProtocols(machineUri.resolveUri(camSnapshotUrl))
-                .replace(port: 0);
+        ..streamUri = buildWebCamUri(machineUri, camStreamUrl)
+        ..snapshotUri = buildWebCamUri(machineUri, camSnapshotUrl);
     } else {
       configBuilder.timeout = const Duration(seconds: 30);
       var baseUri = octoEverywhere!.uri.replace(
-          userInfo:
-              '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
+          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
 
       configBuilder
-        ..streamUri =
-            _adjustCamUriForRemoteUsage(baseUri, machineUri, camStreamUrl)
-        ..snapshotUri =
-            _adjustCamUriForRemoteUsage(baseUri, machineUri, camSnapshotUrl);
+        ..streamUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl)
+        ..snapshotUri = buildRemoteWebCamUri(baseUri, machineUri, camSnapshotUrl);
     }
 
     return Mjpeg(
@@ -82,17 +73,5 @@ class WebcamMjpeg extends ConsumerWidget {
         ...stackChild,
       ],
     );
-  }
-}
-
-Uri _adjustCamUriForRemoteUsage(Uri baseRemoteUri, Uri machineUri, Uri camUri) {
-  if (camUri.isAbsolute) {
-    if (camUri.host.toLowerCase() == machineUri.host.toLowerCase()) {
-      return baseRemoteUri.replace(path: camUri.path, query: camUri.query);
-    } else {
-      return camUri;
-    }
-  } else {
-    return substituteProtocols(baseRemoteUri.resolveUri(camUri));
   }
 }

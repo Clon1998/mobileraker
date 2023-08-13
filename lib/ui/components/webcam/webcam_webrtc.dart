@@ -39,15 +39,12 @@ class WebcamWebRtc extends ConsumerWidget {
     // var camSnapshotUrl = webcamInfo.snapshotUrl;
 
     Uri webRtcUri;
-    if ((clientType == ClientType.local)) {
-      webRtcUri = substituteProtocols(machineUri.resolveUri(camStreamUrl))
-          .replace(port: 0);
+    if (clientType == ClientType.local) {
+      webRtcUri = buildWebCamUri(machineUri, camStreamUrl);
     } else {
       var baseUri = octoEverywhere!.uri.replace(
-          userInfo:
-              '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
-      webRtcUri =
-          _adjustCamUriForRemoteUsage(baseUri, machineUri, camStreamUrl);
+          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
+      webRtcUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl);
     }
 
     return WebRtc(
@@ -59,17 +56,5 @@ class WebcamWebRtc extends ConsumerWidget {
       imageBuilder: imageBuilder,
       // headers: machine.hea,
     );
-  }
-}
-
-Uri _adjustCamUriForRemoteUsage(Uri baseRemoteUri, Uri machineUri, Uri camUri) {
-  if (camUri.isAbsolute) {
-    if (camUri.host.toLowerCase() == machineUri.host.toLowerCase()) {
-      return baseRemoteUri.replace(path: camUri.path, query: camUri.query);
-    } else {
-      return camUri;
-    }
-  } else {
-    return substituteProtocols(baseRemoteUri.resolveUri(camUri));
   }
 }
