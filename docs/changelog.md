@@ -1,15 +1,21 @@
 # Mobileraker - Changelog
 
-## [2.5.2] - 2023-08-
+## [2.5.2] - 2023-08-14
+
+### Changed Features
+
+- The current app version is now also shown on the changelog page
 
 ### Bug Fixes
 
 - Fixed webcams did not render if they used an absolut path with a
   port [#213](https://github.com/Clon1998/mobileraker/issues/213)
+- Made klippy connection a little bit more reliable
+- Dashboard should refresh more reliably if the printer/klipper restarts
 
 ## [2.5.1] - 2023-08-12
 
-### Enhanced User Experience
+### Changed Features
 
 - Reduced the aggressiveness of printer refresh when the app is reopened from the background
   [#184](https://github.com/Clon1998/mobileraker/issues/184)
