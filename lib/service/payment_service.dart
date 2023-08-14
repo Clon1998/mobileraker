@@ -27,7 +27,6 @@ part 'payment_service.g.dart';
 @Riverpod(keepAlive: true)
 Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
   try {
-    return const CustomerInfo(EntitlementInfos({}, {}), {}, [], [], [], "", "", {}, "");
     var customerInfo = await Purchases.getCustomerInfo();
     logger.i('Got customerInfo: $customerInfo');
 
