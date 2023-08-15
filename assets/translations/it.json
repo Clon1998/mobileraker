@@ -5,7 +5,7 @@
     "connected": "Connesso",
     "off": "Off",
     "on": "On",
-    "none": "NESSUNO",
+    "none": "Nessuno",
     "add": "Aggiungi",
     "create": "Crea",
     "rename": "Rinomina",
@@ -22,7 +22,26 @@
     "confirm": "Conferma",
     "cancel": "Annulla",
     "close": "Chiudi",
-    "edit": "Modifica"
+    "edit": "Modifica",
+    "preview": "Anteprima",
+    "retry": "Riprova",
+    "supported": "Supportato",
+    "unsupported": "Non Supportato",
+    "details": "Dettagli",
+    "google_play": "GooglePlay",
+    "ios_store": "AppStore",
+    "active": "Attivo",
+    "canceled": "Cancellato",
+    "monthly": "Mensile",
+    "restore": "Ripristino",
+    "accept": "Accetta",
+    "abort": "Abortire",
+    "offset": "Offset",
+    "valid": "Valido",
+    "invalid": "Non Valido",
+    "free": "Gratis",
+    "one_time": "Una volta",
+    "delete": "Elimina"
   },
   "pages": {
     "dashboard": {
@@ -36,6 +55,7 @@
       "general": {
         "print_card": {
           "reset": "Ripristina",
+          "reprint": "Ristampa",
           "printing_for": "Stampa in corso: {}",
           "speed": "Velocità",
           "layer": "Strato",
@@ -44,7 +64,8 @@
           "elapsed": "Trascorso",
           "flow": "Flusso",
           "filament": "Filamento",
-          "filament_tooltip": "Usato {} % del Filamento, che è {} m dei {} m previsti."
+          "filament_tooltip": "Usato {} % del Filamento, che è {} m dei {} m previsti.",
+          "eta_tooltip": "Tempo restante:\nMedia: {avg}\nSlicer: {slicer}\nFile: {file}\nFilamento: {filament}"
         },
         "cam_card": {
           "webcam": "Webcam",
@@ -53,11 +74,11 @@
         "temp_card": {
           "title": "Controllo Temperature",
           "presets_btn": "Presets",
-          "hotend": "Hotend",
+          "hotend": "Ugello",
           "bed": "Piatto",
           "temp_presets": "Preset Temperature",
           "sensors": "Sensori",
-          "heater_on": "{} °C obbiettivo",
+          "heater_on": "{}°C obbiettivo",
           "btn_thermistor": "Sensore"
         },
         "temp_preset_card": {
@@ -67,21 +88,30 @@
         },
         "move_card": {
           "title": "Muovi Assi",
-          "home_xy_tooltip": "Home assi X e Y",
-          "home_z_tooltip": "Home asse Z",
-          "home_all_tooltip": "Home tutti gli assi",
+          "home_xy_tooltip": "Posiziona assi X e Y",
+          "home_z_tooltip": "Posiziona asse Z",
+          "home_all_tooltip": "Posiziona tutti gli assi",
           "home_all_btn": "Tutti",
-          "qgl_tooltip": "Run Quad-Gantry leveling",
+          "qgl_tooltip": "Avvia livellamento quattro angoli",
           "qgl_btn": "QGL",
-          "mesh_tooltip": "Avvia calibrazuone Bed-Mesh",
+          "mesh_tooltip": "Avvia calibrazione Bed-Mesh",
           "mesh_btn": "Mesh",
           "m84_tooltip": "Disabilita Motori",
           "m84_btn": "M84",
           "step_size": "Dimensioni Step",
-          "stc_tooltip": "Avvia calcolo Inclinazione-Viti",
+          "stc_tooltip": "Avvia calcolo Rotazione-Viti",
           "stc_btn": "STC",
-          "ztilt_tooltip": "Avvia calibrazuone Inclinazione-Z",
-          "ztilt_btn": "zTilt"
+          "ztilt_tooltip": "Avvia calibrazione Inclinazione-Z",
+          "ztilt_btn": "zTilt",
+          "poff_tooltip": "Avvia calibrazione Offset con Sonda",
+          "poff_btn": "Calibrazione Sonda",
+          "zoff_tooltip": "Avvia calibrazione Offset Finecorsa Z",
+          "zoff_btn": "Calibrazione Finecorsa-Z",
+          "bsa_tooltip": "Avvia calibrazione Bed Screw Adjust",
+          "bsa_btn": "Bed Screw Adjust",
+          "save_tooltip": "Salva risultati di calibrazione",
+          "save_btn": "Salva Config",
+          "more_btn": "Altro"
         },
         "baby_step_card": {
           "title": "Babystepping Asse-Z"
@@ -190,23 +220,30 @@
         "ems_confirm": "Conferma Stop-Emergenza",
         "always_baby": "Mostra opzioni Babystepping",
         "num_edit": "Utilizza la tastiera per l'inserimento dei numeri",
-        "start_with_overview": "Mostra @:pages.overview.title predefiniti",
+        "start_with_overview": "Mostra @:pages.overview.title predefinita",
         "use_offset_pos": "Mostra le coordinate con l'offset applicato.",
+        "lcFullCam": "Webcam a Schermo Intero in Orizzontale",
         "language": "Lingua",
         "companion": "Vuoi ricevere una notifica remota?\nScopri come configurare Mobileraker's Companion"
       },
       "notification": {
         "title": "Notifiche",
         "progress_label": "Notifica di Avanzamento",
-        "progress_helper": "Aggiorna l'intervallo della notifica di avanzamento di stampa",
-        "state_label": "Notifica sullo Stato",
-        "state_helper": "States that issue a state changed notification",
+        "progress_helper": "Scegli la percentuale di avanzamento di stampa da mostrare nella notifica",
+        "state_label": "Notifica degli Stati",
+        "state_helper": "Scegli quali Stati della stampa vuoi mostrare nella notifica",
         "no_permission_title": "Nessun Autorizzazione di Notifica!",
         "no_permission_desc": "Impossibile visualizzare le notifiche.\nRichiedi il permesso cliccando!",
         "no_firebase_title": "Impossibile visualizzare le notifiche",
         "no_firebase_desc": "Mobileraker non è in grado di inviare alcuna notifica al dispositivo.\nSembra che sul tuo dispositivo manchino i servizi Google Play o che blocchi la connessione Firebase!",
         "ios_notifications_title": "Consegna delle notifiche IOS",
-        "ios_notifications_desc": "Le notifiche richiedono che mobileraker sia aperto almeno una volta e sia in background.\nAlcune notifiche potrebbero essere bloccate dal sistema operativo!"
+        "ios_notifications_desc": "Le notifiche richiedono che mobileraker sia aperto almeno una volta e sia in background.\nAlcune notifiche potrebbero essere bloccate dal sistema operativo!",
+        "missing_companion_title": "Companion non trovata!",
+        "missing_companion_body": "Sembra che la Companion non sia stata installata, pertanto la stampante non può inviare le notifiche: {}\nClicca per saperne di piu!"
+      },
+      "developer": {
+        "title": "Sviluppatore",
+        "crashlytics": "Attiva la segnalazione dei Crashlytics"
       },
       "imprint": "Privacy/Impressum"
     },
@@ -217,7 +254,29 @@
       "no_values_found": "Nessun valore Trovato!",
       "fetching_additional_settings": "@:general.fetching impostazioni aggiuntive dalla rete...",
       "could_not_fetch_additional": "Impossibile recuperare impostazioni aggiuntive!",
-      "fetch_error_hint": "Assicurati che la macchina sia raggiungibile e che Mobileraker sia connesso.",
+      "fetch_error_hint": "Assicurati che la stampante sia raggiungibile e che Mobileraker sia connesso.",
+      "store_error": {
+        "title": "Salvataggio fallito!",
+        "message": "Alcuni campi contengono valori non validi!\nAssicurati che tutti i campi siano validi.",
+        "unexpected_error": "Si è verificato un errore imprevisto durante il tentativo di salvare i dati della stampante!"
+      },
+      "confirm_deletion": {
+        "title": "Cancella {}?",
+        "body": "Stai per rimuovere la stampante '{}' connessa a '{}'. \n\nConferma la tua azione."
+      },
+      "success_oe_link": {
+        "title": "Connessa {}",
+        "body": "Connessa con successo {} con OctoEverywhere!"
+      },
+      "confirm_oe_unlink": {
+        "title": "Disconnettere {}?",
+        "body": "Confermare la disconnessione della stampante {} da OctoEverywhere.",
+        "button": "Disconnetti"
+      },
+      "success_oe_unlink": {
+        "title": "Disconnessa {}",
+        "body": "Disconnessa con successo {} da OctoEverywhere!"
+      },
       "general": {
         "displayname": "Nome da visualizzare",
         "printer_addr": "Stampante - Indirizzo",
@@ -255,13 +314,13 @@
         "target_fps": "Obbiettivo FPS",
         "new_cam": "Nuova Webcam",
         "no_webcams": "Nessuna Webcam aggiunta!",
-        "webcam_addr": "Webcam - Indirizzo",
-        "default_addr": "Indirizzo Predefinito",
-        "flip_vertical": "Capovolgi Verticalmente",
-        "flip_horizontal": "Capovolgi Orizzontalmente",
+        "stream_url": "Indirizzo di Streaming",
+        "snapshot_url": "Indirizzo di Snapshot",
+        "default_url": "Indirizzo Predefinito",
+        "flip_vertical": "Ruota in Verticale",
+        "flip_horizontal": "Ruota in Orizzontale",
         "cam_mode": "Modalità Videocamera",
-        "cam_mofde": "Fasff Videocamera",
-        "cam_rotate": "Ruota"
+        "cam_rotate": "Rotazione"
       },
       "macros": {
         "new_macro_grp": "Nuova Macro - Gruppo",
@@ -281,13 +340,52 @@
       }
     },
     "printer_add": {
-      "title": "Aggiungi Nuovo Printer",
-      "printer_add_helper": "Host, IP, o URL completo",
-      "resulting_ws_url": "Risultato WebSocket-URL: {}",
-      "misc": "Misc",
-      "test_ws": "Testare la connessione websocket",
-      "result_ws_test": "Risultato: {}",
-      "run_test_btn": "Test"
+      "steps": {
+        "mode": "Modalità",
+        "input": "Input",
+        "test": "Test",
+        "done": "Fatto"
+      },
+      "title": "Aggiungi Nuova Stampante",
+      "initial_name": "La mia Stampante",
+      "select_mode": {
+        "title": "Scegli una modalità di input:",
+        "body": "Se sei alle prime armi, è meglio attenersi alla modalità semplice. Tuttavia, se sei esperto e hai bisogno di utilizzare intestazioni personalizzate, certificati, ecc., allora la modalità esperto fa per te. Tieni presente che la modalità che scegli non influirà sull'app stessa, ma determinerà come l'input viene convalidato e visualizzato e quali opzioni sono disponibili mentre aggiungi una stampante.",
+        "simple": "semplice",
+        "advanced": "Avanzata",
+        "add_via_oe": "Installa OctoEverywhere in un Click"
+      },
+      "simple_form": {
+        "hint_title": "Suggerimento - modalità Semplice",
+        "hint_body": "La modalità semplice consente di inserire l'host e la porta. Tuttavia, se devi personalizzare il percorso, le intestazioni, i certificati o altre impostazioni, passa alla modalità avanzata.",
+        "url_hint": "Indirizzo IP o Hostname della Stampante"
+      },
+      "advanced_form": {
+        "hint_title": "Suggerimento - modalità Avanzata",
+        "hint_body": "Tieni presente che in modalità avanzata, la convalida è per lo più disabilitata. È importante che tu ti assuma la piena responsabilità di garantire che l'URL inserito sia valido.",
+        "http_helper": "Inserisci l'endpoint HTTP di Moonraker",
+        "ws_helper": "Facoltativo, endpoint WebSocket di Moonraker",
+        "section_security": "Sicurezza",
+        "section_headers": "HTTP-Intestazioni",
+        "empty_headers": "Nessuna intestazione aggiunta!"
+      },
+      "test_connection": {
+        "section_connection": "Dati di connessione",
+        "ws_url_label": "Risultato WebSocket-URL",
+        "http_url_label": "Risultato HTTP-URL",
+        "section_test": "Test di connessione",
+        "http_label": "Http Endpoint - Test",
+        "ws_label": "Websocket Endpoint - Test",
+        "awaiting": "In attesa dei risultati...",
+        "continue": "Continua",
+        "continue_anyway": "Continua Comunque",
+        "proceed_warning": "Sembra che l'app abbia problemi a connettersi alla Stampante. Ciò potrebbe essere dovuto al fatto che non sei sulla stessa rete della macchina o non disponi delle autorizzazioni necessarie per accedervi. Sebbene sia possibile scegliere di aggiungere la stampante nonostante il problema, tenere presente che non vi è alcuna garanzia che si collegherà correttamente. Si prega di procedere con cautela.",
+        "button": "Test di connessione"
+      },
+      "confirmed": {
+        "title": "Stampante {} aggiunta!",
+        "to_dashboard": "Al Pannello di controllo"
+      }
     },
     "console": {
       "title": "Console",
@@ -300,37 +398,91 @@
     "overview": {
       "title": "Panoramica",
       "fetching_machines": "@:general.fetching macchine...",
-      "no_entries": "Nessuna macchina trovata",
-      "add_machine": "Aggiungi Macchina"
+      "no_entries": "Nessuna stampante trovata",
+      "add_machine": "Aggiungi Stampante"
+    },
+    "markdown": {
+      "loading": "@:general.loading {}...",
+      "error": "Si è verificato un errore durante il tentativo di recupero {};",
+      "open_in_browser": "Apri @:pages.faq.title nel Browser"
     },
     "faq": {
-      "title": "FAQ",
-      "loading": "@:general.loading FAQ...",
-      "error":"Si è verificato un errore durante il tentativo di recuperare le FAQ",
-      "open_in_browser": "Apri @:pages.faq.title nel Browser"
+      "title": "FAQ"
+    },
+    "changelog": {
+      "title": "Registro delle modifiche"
+    },
+    "paywall": {
+      "manage_view": {
+        "title": "Grazie per il tuo Supporto!",
+        "list_title": "Cambia livello di Sostenitore:",
+        "store_btn": "Annulla Abbonamento in {}",
+        "sub_warning": "Tieni presente che l'acquisto del livello di sostenitore a vita non annulla automaticamente nessun altro abbonamento attivo. Dovrai annullare manualmente eventuali abbonamenti attivi. Tuttavia, hai la possibilità di continuare a supportare lo sviluppo di Mobileraker su base ricorrente anche dopo aver acquistato il livello di supporto a vita."
+      },
+      "subscribe_view": {
+        "title": "Diventa un Sostenitore di Mobileraker!",
+        "info": "Mobileraker mira a fornire un'interfaccia utente mobile veloce e affidabile per Klipper, guidata dallo spirito di RepRap, che software e hardware open source possono avere un impatto positivo.\nPoiché Mobileraker è sviluppato da un singolo sviluppatore e offerto gratuitamente, si basa su finanziamenti comunitari per coprire i costi operativi e di sviluppo.",
+        "list_title": "Scegli il livello di Sostenitore:"
+      },
+      "supporter_tier_list": {
+        "error_title": "Errore durante il caricamento dei livelli di Sostenitore!",
+        "error_body": "Spiacenti, si è verificato un errore imprevisto. Impossibile caricare SupporterTiers. Si prega di riprovare più tardi!"
+      },
+      "contact_dialog": {
+        "title": "Contatta Sviluppatore",
+        "body": "Mail: {}\nDiscord: {}"
+      },
+      "title": "Sostieni lo Sviluppatore!",
+      "calling_store": "Elaborazione richiesta...",
+      "promo_title": "Promozione",
+      "free_phase": "Primo {} gratis",
+      "intro_phase": "Godi {} con {} di sconto",
+      "iap_offer": "{} di sconto sul prezzo originale",
+      "tip_developer": "Suggerimento Sviluppatore"
     }
   },
   "components": {
+    "app_version_display": {
+      "version": "Versione:",
+      "installed_version": "Versione Installata:"
+    },
     "pull_to_refresh": {
       "pull_up_idle": "Trascina verso l'alto per aggiornare"
     },
     "nav_drawer": {
       "printer_settings": "Impostazioni Stampante",
-      "manage_printers": "Gestisci stampanti",
+      "manage_printers": "Gestisci Stampanti",
       "fetching_printers": "@:general.fetching stampanti...",
-      "footer": "Realizzato con ❤️ da Patrick Schmidt\nDai un occhiata al progetto"
+      "footer": "Realizzato col ❤️ da Patrick Schmidt\nDai un occhiata al progetto"
     },
     "connection_watcher": {
       "reconnect": "Riconnetti",
       "trying_connect": "Tentativo di connessione...",
       "trying_connect_remote": "Tentativo di connessione tramite client remoto...",
-      "server_starting": "Avvio Server...",
-      "more_details": "Più dettagli"
+      "server_starting": "Avvio del Server...",
+      "more_details": "Più dettagli",
+      "add_printer": "Ciao,\nSono entusiasta di vederti qui!\nPer dare il via alla tua esperienza, aggiungi gentilmente una stampante a Mobileraker. Una volta completato questo passaggio, sarai in grado di assumere il controllo diretto della tua stampante da Mobileraker."
+    },
+    "octo_indicator": {
+      "tooltip": "Utilizza OctoEveryWhere!"
+    },
+    "supporter_add": {
+      "title": "Ti Piace Mobileraker?",
+      "subtitle": "Clicca qui! Per sapere come puoi sostenere lo sviluppo!"
+    },
+    "supporter_only_feature": {
+      "button": "Diventa un Sostenitore di Mobileraker",
+      "webcam": "Siamo spiacenti, le Webcam di tipo {} sono disponibili solo per i Sostenitori.",
+      "printer_add": "Spiacenti, la gestione di più di {} stampanti è disponibile solo per i Sostenitori."
+    },
+    "machine_deletion_warning": {
+      "title": "Cancellazione Stampante",
+      "subtitle": "Sembra che tu non sia un Sostenitore. Solo i sostenitori possono avere più di {} stampanti. Hai {} giorni prima che le stampanti in eccesso vengano rimosse."
     }
   },
   "dialogs": {
     "rate_my_app": {
-      "title": "Valutare Mobileraker?",
+      "title": "Vota Mobileraker?",
       "message": "Se ti piace Mobileraker e vuoi supportare lo sviluppo open source, considera la possibilità di valutare Mobileraker!"
     },
     "import_setting": {
@@ -375,6 +527,60 @@
     },
     "rgbw": {
       "recent_colors": "Colori Recenti"
+    },
+    "select_machine": {
+      "title": "Seleziona Stampante",
+      "active_machine": "Stampanti attive: {}",
+      "hint": "Tocca una stampante per impostarla come attiva."
+    },
+    "supporter_perks": {
+      "title": "Vantaggi del Sostenitore",
+      "body": "Supportando Mobileraker, ti assicuri che l'app possa rimanere gratuita per la community. Inoltre, i sostenitori ottengono il seguente elenco di vantaggi.",
+      "hint": "Suggerimento: a partire da ora, i vantaggi sono basati sul dispositivo. Questo potrebbe cambiare in futuro.",
+      "theme_perk": {
+        "title": "Tema Sostenitore",
+        "subtitle": "Tema esclusivo utilizzando Material 3"
+      },
+      "contact_perk": {
+        "title": "Contatto Sviluppatore",
+        "subtitle": "Facile contatto con lo Sviluppatore!"
+      },
+      "notification_perk": {
+        "title": "Notifiche con Snapshot",
+        "subtitle": "La notifica di stato include l'istantanea della Webcam"
+      },
+      "webrtc_perk": {
+        "title": "Supporto WebRtc",
+        "subtitle": "Consente l'utilizzo delle webcam WebRtc!"
+      }
+    },
+    "bed_screw_adjust": {
+      "title": "Bed Screw Adjust",
+      "xy_plane": "Piano X/Y della Stampante:",
+      "active_screw_title": "Vite attiva:",
+      "accept_screw_title": "Viti accettate:",
+      "accept_screw_value": "{} di {}",
+      "hint": "Cliccare su Regolato se è necessaria una regolazione significativa sulla vite corrente; in caso contrario, cliccare su Accetta per continuare.",
+      "adjusted_btn": "Regolato"
+    },
+    "manual_offset": {
+      "title": "@:general.offset Calibrazione",
+      "hint_tooltip": "Documentazione del Paper Test di Klipper",
+      "snackbar_title": "Calibrazione eseguita",
+      "snackbar_message": "Assicurarsi di mantenere l'offset tramite l'azione Salva Config."
+    },
+    "tipping": {
+      "title": "Mancia allo Sviluppatore!",
+      "body": "Questa mancia ha il solo scopo di apprezzare gli sforzi dello sviluppatore e NON garantisce l'accesso a funzionalità aggiuntive.",
+      "amount_label": "Importo della mancia",
+      "tip": "Mancia"
+    },
+    "http_header": {
+      "title": "Http-Header",
+      "header": "Header",
+      "header_hint": "The HTTP-Header nam",
+      "value": "Header-Value",
+      "value_hint": "The value of the header"
     }
   },
   "klipper_state": {
@@ -402,6 +608,46 @@
         "desc": "Notifiche relative allo stato della stampa.",
         "title": "Avanzamento stampa di {}"
       }
+    }
+  },
+  "form_validators": {
+    "simple_url": "Input only allows URL components: Hostname and Port",
+    "disallow_mdns": "MDNs (.local) addresses are not supported"
+  },
+  "date": {
+    "year": {
+      "one": "Anno",
+      "other": "Anni"
+    },
+    "month": {
+      "one": "Mese",
+      "other": "Mesi"
+    },
+    "week": {
+      "one": "Settimana",
+      "other": "Settimane"
+    },
+    "day": {
+      "one": "Giorno",
+      "other": "Giorni"
+    }
+  },
+  "date_periods": {
+    "year": {
+      "one": "Annuale",
+      "other": "Anni"
+    },
+    "month": {
+      "one": "Mensile",
+      "other": "Mesi"
+    },
+    "week": {
+      "one": "Settimanale",
+      "other": "Settimane"
+    },
+    "day": {
+      "one": "Quotidiano",
+      "other": "Giorni"
     }
   },
   "languages": {
