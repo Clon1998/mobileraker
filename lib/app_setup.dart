@@ -30,6 +30,7 @@ import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/payment_service.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -40,20 +41,7 @@ part 'app_setup.g.dart';
 setupBoxes() async {
   await Hive.initFlutter();
 
-  var secureStorage = const FlutterSecureStorage();
-
-  final encryptionKey = await secureStorage.read(key: 'hive_key');
-  if (encryptionKey == null) {
-    final key = Hive.generateSecureKey();
-    await secureStorage.write(
-      key: 'hive_key',
-      value: base64UrlEncode(key),
-    );
-  }
-
-  final key = await secureStorage.read(key: 'hive_key');
-
-  final keyMaterial = base64Url.decode(key!);
+  Uint8List keyMaterial = await _hiveKey();
 
   // Ignore old/deperecates types!
   // 2 - WebcamSetting
@@ -125,6 +113,42 @@ setupBoxes() async {
     await openBoxes(keyMaterial);
   }
   logger.i('Completed Hive init');
+}
+
+Future<Uint8List> _hiveKey() async {
+  const keyName = 'hive_key';
+
+  /// due to the move to encSharedPref it could be that the hive_key is still in the normmal shared pref
+  /// Therfore first try to load it from the secureShared pref else try the normal one else generate a new one
+  var secureStorage =
+      const FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true));
+  const nonEncSharedPrefSecureStorage = FlutterSecureStorage();
+
+  Uint8List? encryptionKey;
+  try {
+    encryptionKey =
+        await secureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
+  } on PlatformException catch (e) {
+    logger.e('Error while reading hive_key from secure storage', e);
+    encryptionKey = await nonEncSharedPrefSecureStorage
+        .read(key: keyName)
+        .then((value) => value?.let(base64Decode));
+    await nonEncSharedPrefSecureStorage.delete(key: keyName);
+    await secureStorage.write(key: keyName, value: encryptionKey?.let(base64Encode));
+    logger.e(
+        'Transfered hive_key from non-encryptedSharedPreferences to secureStorage using encryptedSharedPreferences');
+  }
+
+  if (encryptionKey != null) {
+    return encryptionKey;
+  }
+
+  final key = Hive.generateSecureKey();
+  await secureStorage.write(
+    key: keyName,
+    value: base64UrlEncode(key),
+  );
+  return Uint8List.fromList(key);
 }
 
 Future<List<Box>> openBoxes(Uint8List keyMaterial) {
