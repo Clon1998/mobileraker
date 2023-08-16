@@ -396,7 +396,7 @@ class NotificationService {
   List<NotificationChannel> _channelsOfmachines(Machine machine) {
     return [
       NotificationChannel(
-          icon: 'resource://drawable/mobileraker_logo',
+          icon: 'resource://drawable/res_mobileraker_logo',
           channelKey: machine.statusUpdatedChannelKey,
           channelName: 'Print Status Updates - ${machine.name}',
           channelDescription: 'Notifications regarding the print status.',
@@ -406,7 +406,7 @@ class NotificationService {
           playSound: true,
           enableVibration: true),
       NotificationChannel(
-          icon: 'resource://drawable/mobileraker_logo',
+          icon: 'resource://drawable/res_mobileraker_logo',
           channelKey: machine.m117ChannelKey,
           channelName: 'User M117 Notifications - ${machine.name}',
           channelDescription: 'Notifications issued by M117 with prefix "\$MR\$:".',
@@ -416,7 +416,7 @@ class NotificationService {
           playSound: true,
           enableVibration: true),
       NotificationChannel(
-        icon: 'resource://drawable/mobileraker_logo',
+        icon: 'resource://drawable/res_mobileraker_logo',
         channelKey: machine.printProgressChannelKey,
         channelName: 'Print Progress Updates - ${machine.name}',
         channelDescription: 'Notifications regarding the print progress.',
