@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.5.3] - 2023-08-14
+
+### Bug Fixes
+
+- Fixed missing resource for notification on Android preventing the delivery of push notifications
+- Fixed issue on some devices that prevented the app from starting and required a reinstall
+
 ## [2.5.2] - 2023-08-14
 
 ### Changed Features
