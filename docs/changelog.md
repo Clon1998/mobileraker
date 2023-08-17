@@ -1,11 +1,18 @@
 # Mobileraker - Changelog
 
-## [2.5.3] - 2023-08-16
+## [2.5.4] - 2023-08-
 
 ### Bug Fixes
 
 - Fixed missing resource for notification on Android preventing the delivery of push notifications
 - Fixed issue on some devices that prevented the app from starting and required a reinstall
+
+## [2.5.3] - 2023-08-16
+
+### Bug Fixes
+
+- Resolved an issue where saving webcam and remote settings was not working when the user was
+  connected via OE. [#219](https://github.com/Clon1998/mobileraker/issues/219)
 
 ## [2.5.2] - 2023-08-14
 

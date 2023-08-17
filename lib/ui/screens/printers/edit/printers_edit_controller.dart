@@ -96,23 +96,13 @@ class PrinterEditController extends _$PrinterEditController {
 
       Map<String, dynamic> storedValues = Map.unmodifiable(formBuilderState.value);
 
+      if (isConnected) {
+        logger.i('Can store remoteSettings, machine is connected!');
+
+        await _saveWebcamInfos(storedValues);
+        await _saveMachineRemoteSettings(storedValues);
+      }
       await _saveMachine(storedValues);
-      if (!isConnected) {
-        logger.i('Saved only local settings, machine was not connected via JRPC');
-        return; // If machine was not connected, no need to store remote data hence it was not shown in the first place!
-      }
-      var jrpcState = await ref.readWhere(jrpcClientStateProvider(_machine.uuid),
-          (c) => c == ClientState.connected || c == ClientState.error);
-
-      if (jrpcState == ClientState.error) {
-        throw const MobilerakerException(
-            'Unable to store remote settings, machine is not connected!');
-      }
-      logger.i('Can store remoteSettings, machine is connected!');
-
-      await _saveWebcamInfos(storedValues);
-
-      await _saveMachineRemoteSettings(storedValues);
     } on Error catch (e, s) {
       state = false;
       logger.e('Error while trying to save printer data', e, s);
