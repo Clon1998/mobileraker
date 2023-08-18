@@ -25,10 +25,11 @@ part 'config_bed_screws.g.dart';
 
 @freezed
 class ConfigBedScrews with _$ConfigBedScrews {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigBedScrews({
-    @JsonKey(name: 'horizontal_move_z') @Default(5) double horizontalMoveZ,
-    @JsonKey(name: 'probe_height') @Default(0) double probeHeight,
-    @JsonKey(name: 'probe_speed') @Default(50) double probeSpeed,
+    @Default(5) double horizontalMoveZ,
+    @Default(0) double probeHeight,
+    @Default(50) double probeSpeed,
     @Default(5) double speed,
     @JsonKey(readValue: _constructScrews) required List<ConfigScrew> screws,
   }) = _ConfigBedScrews;

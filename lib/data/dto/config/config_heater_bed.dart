@@ -3,49 +3,24 @@
  * All rights reserved.
  */
 
-class ConfigHeaterBed {
-  final String heaterPin;
-  final String sensorType;
-  final String sensorPin;
-  final String control;
-  final double minTemp;
-  final double maxTemp;
-  final double maxPower;
+import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  ConfigHeaterBed.parse(Map<String, dynamic> json)
-      : heaterPin = json['heater_pin'],
-        sensorType = json['sensor_type'],
-        sensorPin = json['sensor_pin'] ?? '',
-        control = json['control'],
-        minTemp = json['min_temp'],
-        maxTemp = json['max_temp'],
-        maxPower = json['max_power'];
+part 'config_heater_bed.freezed.dart';
+part 'config_heater_bed.g.dart';
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ConfigHeaterBed &&
-          runtimeType == other.runtimeType &&
-          heaterPin == other.heaterPin &&
-          sensorType == other.sensorType &&
-          sensorPin == other.sensorPin &&
-          control == other.control &&
-          minTemp == other.minTemp &&
-          maxTemp == other.maxTemp &&
-          maxPower == other.maxPower;
+@freezed
+class ConfigHeaterBed with _$ConfigHeaterBed {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory ConfigHeaterBed({
+    required String heaterPin,
+    required String sensorType,
+    required String sensorPin,
+    required String control,
+    required double minTemp,
+    required double maxTemp,
+    @Default(1) double maxPower,
+  }) = _ConfigHeaterBed;
 
-  @override
-  int get hashCode =>
-      heaterPin.hashCode ^
-      sensorType.hashCode ^
-      sensorPin.hashCode ^
-      control.hashCode ^
-      minTemp.hashCode ^
-      maxTemp.hashCode ^
-      maxPower.hashCode;
-
-  @override
-  String toString() {
-    return 'ConfigHeaterBed{heaterPin: $heaterPin, sensorType: $sensorType, sensorPin: $sensorPin, control: $control, minTemp: $minTemp, maxTemp: $maxTemp, maxPower: $maxPower}';
-  }
+  factory ConfigHeaterBed.fromJson(Map<String, dynamic> json) => _$ConfigHeaterBedFromJson(json);
 }

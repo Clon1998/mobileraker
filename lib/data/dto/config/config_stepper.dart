@@ -40,4 +40,5 @@ class ConfigStepper with _$ConfigStepper {
       _$ConfigStepperFromJson({'name': name, ...json});
 }
 
-List<int> _unpackGearRatio(List<dynamic> e) => e.unpackAndCast<int>();
+List<int> _unpackGearRatio(List<dynamic> e) =>
+    e.unpackAndCast<num>().map((x) => x.toInt()).toList();

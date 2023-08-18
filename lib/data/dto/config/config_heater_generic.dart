@@ -31,14 +31,16 @@ part 'config_heater_generic.g.dart';
 
 @freezed
 class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
+  @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ConfigHeaterGeneric({
+    required String name,
     required String control,
-    @JsonKey(name: 'heater_pin') required String heaterPin,
-    @JsonKey(name: 'sensor_pin') required String sensorPin,
-    @JsonKey(name: 'sensor_type') required String sensorType,
-    @JsonKey(name: 'max_power') required double maxPower,
-    @JsonKey(name: 'max_temp') required double maxTemp,
-    @JsonKey(name: 'min_temp') required double minTemp,
+    required String heaterPin,
+    required String sensorPin,
+    required String sensorType,
+    required double maxPower,
+    required double maxTemp,
+    required double minTemp,
   }) = _ConfigHeaterGeneric;
 
   factory ConfigHeaterGeneric.fromJson(String name, Map<String, dynamic> json) =>

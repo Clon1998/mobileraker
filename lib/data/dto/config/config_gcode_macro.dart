@@ -3,15 +3,20 @@
  * All rights reserved.
  */
 
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'config_gcode_macro.freezed.dart';
+part 'config_gcode_macro.g.dart';
+
 final RegExp paramsRegex = RegExp(r'params\.(\w+)(.*)', caseSensitive: false);
 
 final RegExp defaultReg = RegExp(
     "\\|\\s*default\\s*\\(\\s*(([\"'])(?:\\\\.|[^\\2])*\\2|-?[0-9][^,)]*|(?:true|false))",
     caseSensitive: false);
 
-Map<String, String> _parseParams(String gcode) {
+Map<String, String> _parseParams(Map input, String key) {
   Map<String, String> paramsWithDefaults = {};
-
+  String gcode = input['gcode'];
   for (RegExpMatch paramMatch in paramsRegex.allMatches(gcode)) {
     String? paramName = paramMatch.group(1);
     if (paramName == null) {
@@ -26,14 +31,15 @@ Map<String, String> _parseParams(String gcode) {
   return paramsWithDefaults;
 }
 
-class ConfigGcodeMacro {
-  final String macroName;
-  final String gcode;
-  final String? description;
-  final Map<String, String> params;
+@freezed
+class ConfigGcodeMacro with _$ConfigGcodeMacro {
+  const factory ConfigGcodeMacro({
+    @JsonKey(name: 'name') required String macroName,
+    required String gcode,
+    required String? description,
+    @JsonKey(readValue: _parseParams) required Map<String, String> params,
+  }) = _ConfigGcodeMacro;
 
-  ConfigGcodeMacro.parse(this.macroName, Map<String, dynamic> json)
-      : gcode = json['gcode'],
-        description = json['description'],
-        params = _parseParams(json['gcode']);
+  factory ConfigGcodeMacro.fromJson(String name, Map<String, dynamic> json) =>
+      _$ConfigGcodeMacroFromJson({'name': name, ...json});
 }

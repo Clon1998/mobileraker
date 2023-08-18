@@ -3,52 +3,25 @@
  * All rights reserved.
  */
 
-class ConfigExtruder {
-  final String name;
-  final double nozzleDiameter;
-  final double maxExtrudeOnlyDistance;
-  final double minTemp;
-  final double minExtrudeTemp;
-  final double maxTemp;
-  final double maxPower;
-  final double filamentDiameter;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  ConfigExtruder.parse(this.name, Map<String, dynamic> json)
-      : nozzleDiameter = json['nozzle_diameter'],
-        maxExtrudeOnlyDistance = json['max_extrude_only_distance'],
-        minExtrudeTemp = json['min_extrude_temp'],
-        minTemp = json['min_temp'],
-        maxTemp = json['max_temp'],
-        maxPower = json['max_power'],
-        filamentDiameter = json['filament_diameter'];
+part 'config_extruder.freezed.dart';
+part 'config_extruder.g.dart';
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ConfigExtruder &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          nozzleDiameter == other.nozzleDiameter &&
-          maxExtrudeOnlyDistance == other.maxExtrudeOnlyDistance &&
-          minTemp == other.minTemp &&
-          maxTemp == other.maxTemp &&
-          maxPower == other.maxPower &&
-          minExtrudeTemp == other.minExtrudeTemp &&
-          filamentDiameter == other.filamentDiameter;
+@freezed
+class ConfigExtruder with _$ConfigExtruder {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory ConfigExtruder({
+    required String name,
+    required double nozzleDiameter,
+    required double maxExtrudeOnlyDistance,
+    required double minTemp,
+    required double minExtrudeTemp,
+    required double maxTemp,
+    required double maxPower,
+    required double filamentDiameter,
+  }) = _ConfigExtruder;
 
-  @override
-  int get hashCode =>
-      name.hashCode ^
-      nozzleDiameter.hashCode ^
-      maxExtrudeOnlyDistance.hashCode ^
-      minTemp.hashCode ^
-      maxTemp.hashCode ^
-      maxPower.hashCode ^
-      minExtrudeTemp.hashCode ^
-      filamentDiameter.hashCode;
-
-  @override
-  String toString() {
-    return 'ConfigExtruder{name: $name, nozzleDiameter: $nozzleDiameter, maxExtrudeOnlyDistance: $maxExtrudeOnlyDistance, minTemp: $minTemp, maxTemp: $maxTemp, maxPower: $maxPower, filamentDiameter: $filamentDiameter}';
-  }
+  factory ConfigExtruder.fromJson(String name, Map<String, dynamic> json) =>
+      _$ConfigExtruderFromJson({'name': name, ...json});
 }

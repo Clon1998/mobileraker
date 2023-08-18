@@ -12,6 +12,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/config/config_file.dart';
+import 'package:mobileraker/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:mobileraker/data/dto/console/command.dart';
 import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
@@ -516,23 +517,23 @@ class PrinterService {
   _parseObjectType(String key, Map<String, dynamic> json, PrinterBuilder printer) {
     // Splitting here the stuff e.g. for 'temperature_sensor sensor_name'
     var klipperObjectIdentifier = key.toKlipperObjectIdentifier();
-    var objectType = klipperObjectIdentifier.$1;
+    var objectIdentifier = klipperObjectIdentifier.$1;
     var objectName = klipperObjectIdentifier.$2;
 
     try {
-      if (_subToPrinterObjects.containsKey(objectType)) {
-        var method = _subToPrinterObjects[objectType];
+      if (_subToPrinterObjects.containsKey(objectIdentifier)) {
+        var method = _subToPrinterObjects[objectIdentifier];
         if (method != null) {
           if (objectName != null) {
-            method(key, json[key], printer: printer);
+            method(objectName, json[key], printer: printer);
           } else {
             method(json[key], printer: printer);
           }
         }
-      } else if (objectType.startsWith('extruder')) {
+      } else if (objectIdentifier.startsWith('extruder')) {
         // Note that extruder will be handled above!
         _updateExtruder(json[key],
-            printer: printer, num: int.tryParse(objectType.substring(8)) ?? 0);
+            printer: printer, num: int.tryParse(objectIdentifier.substring(8)) ?? 0);
       }
     } catch (e, s) {
       logger.e('Error while parsing $key object', e, s);
@@ -553,46 +554,48 @@ class PrinterService {
     List<String> gCodeMacros = [];
     int extruderCnt = 0;
 
-    for (String objectName in objects) {
-      qObjects.add(objectName);
+    for (String rawObject in objects) {
+      qObjects.add(rawObject);
+      var klipperObjectIdentifier = rawObject.toKlipperObjectIdentifier();
+      String objectIdentifier = klipperObjectIdentifier.$1;
+      String objectName = klipperObjectIdentifier.$2 ?? klipperObjectIdentifier.$1;
 
-      if (objectName.startsWith('gcode_macro ')) {
-        String macro = objectName.substring(12);
-        if (!skipGCodes.contains(macro)) gCodeMacros.add(macro);
-      } else if (objectName.startsWith('extruder')) {
-        int extNum = int.tryParse(objectName.substring(8)) ?? 0;
+      if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.gcode_macro)) {
+        if (!skipGCodes.contains(objectName)) gCodeMacros.add(objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.extruder)) {
+        int extNum = int.tryParse(objectIdentifier.substring(8)) ?? 0;
         extruderCnt = max(extNum + 1, extruderCnt);
-      } else if (objectName.startsWith('heater_fan ')) {
-        printerBuilder.fans[objectName] = HeaterFan(name: objectName.substring(11));
-      } else if (objectName.startsWith('controller_fan ')) {
-        printerBuilder.fans[objectName] = ControllerFan(name: objectName.substring(15));
-      } else if (objectName.startsWith('temperature_fan ')) {
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.heater_fan)) {
+        printerBuilder.fans[objectName] = HeaterFan(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.controller_fan)) {
+        printerBuilder.fans[objectName] = ControllerFan(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.temperature_fan)) {
         printerBuilder.fans[objectName] = TemperatureFan(
-          name: objectName.substring(16),
+          name: objectName,
           lastHistory: DateTime(1990),
         );
-      } else if (objectName.startsWith('fan_generic ')) {
-        printerBuilder.fans[objectName] = GenericFan(name: objectName.substring(12));
-      } else if (objectName.startsWith('output_pin ')) {
-        printerBuilder.outputPins[objectName] = OutputPin(name: objectName.substring(11));
-      } else if (objectName.startsWith('temperature_sensor ')) {
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.fan_generic)) {
+        printerBuilder.fans[objectName] = GenericFan(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.output_pin)) {
+        printerBuilder.outputPins[objectName] = OutputPin(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.temperature_sensor)) {
         printerBuilder.temperatureSensors[objectName] = TemperatureSensor(
-          name: objectName.substring(19),
+          name: objectName,
           lastHistory: DateTime(1990),
         );
-      } else if (objectName.startsWith('led ')) {
-        printerBuilder.leds[objectName] = DumbLed(name: objectName.substring(4));
-      } else if (objectName.startsWith('pca9533 ')) {
-        printerBuilder.leds[objectName] = DumbLed(name: objectName.substring(8));
-      } else if (objectName.startsWith('pca9632 ')) {
-        printerBuilder.leds[objectName] = DumbLed(name: objectName.substring(8));
-      } else if (objectName.startsWith('neopixel ')) {
-        printerBuilder.leds[objectName] = AddressableLed(name: objectName.substring(9));
-      } else if (objectName.startsWith('dotstar ')) {
-        printerBuilder.leds[objectName] = AddressableLed(name: objectName.substring(8));
-      } else if (objectName.startsWith('heater_generic ')) {
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.led)) {
+        printerBuilder.leds[objectName] = DumbLed(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.pca9533)) {
+        printerBuilder.leds[objectName] = DumbLed(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.pca9632)) {
+        printerBuilder.leds[objectName] = DumbLed(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.neopixel)) {
+        printerBuilder.leds[objectName] = AddressableLed(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.dotstar)) {
+        printerBuilder.leds[objectName] = AddressableLed(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.heater_generic)) {
         printerBuilder.genericHeaters[objectName] = GenericHeater(
-          name: objectName.substring(15),
+          name: objectName,
           lastHistory: DateTime(1990),
         );
       }
@@ -648,13 +651,13 @@ class PrinterService {
     printer.fans = {...printer.fans, fanName: GenericFan.partialUpdate(curFan, fanJson)};
   }
 
-  _updateTemperatureSensor(String configName, Map<String, dynamic> sensorJson,
+  _updateTemperatureSensor(String sensorName, Map<String, dynamic> sensorJson,
       {required PrinterBuilder printer}) {
-    TemperatureSensor current = printer.temperatureSensors[configName]!;
+    TemperatureSensor current = printer.temperatureSensors[sensorName]!;
 
     printer.temperatureSensors = {
       ...printer.temperatureSensors,
-      configName: TemperatureSensor.partialUpdate(current, sensorJson)
+      sensorName: TemperatureSensor.partialUpdate(current, sensorJson)
     };
   }
 

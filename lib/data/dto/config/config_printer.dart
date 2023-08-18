@@ -3,17 +3,28 @@
  * All rights reserved.
  */
 
-class ConfigPrinter {
-  final String kinematics;
-  final double maxVelocity;
-  final double maxAccel;
-  final double maxAccelToDecel;
-  final double squareCornerVelocity;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  ConfigPrinter.parse(Map<String, dynamic> json)
-      : kinematics = json['kinematics'],
-        maxVelocity = json['max_velocity'],
-        maxAccel = json['max_accel'],
-        maxAccelToDecel = json['max_accel_to_decel'] ?? json['max_accel'] / 2,
-        squareCornerVelocity = json['square_corner_velocity'] ?? 5;
+part 'config_printer.freezed.dart';
+part 'config_printer.g.dart';
+
+@freezed
+class ConfigPrinter with _$ConfigPrinter {
+  @JsonSerializable(fieldRename: FieldRename.snake)
+  const factory ConfigPrinter(
+      {required String kinematics,
+      required double maxVelocity,
+      required double maxAccel,
+      @JsonKey(readValue: _calculateMaxAccelToDecel) required double maxAccelToDecel,
+      @Default(5) double squareCornerVelocity}) = _ConfigPrinter;
+
+  factory ConfigPrinter.fromJson(Map<String, dynamic> json) => _$ConfigPrinterFromJson(json);
+}
+
+num _calculateMaxAccelToDecel(Map input, String key) {
+  var json = input.cast<String, dynamic>();
+
+  if (json.containsKey(key)) return json[key];
+
+  return (json['max_accel'] as num).toDouble() / 2;
 }
