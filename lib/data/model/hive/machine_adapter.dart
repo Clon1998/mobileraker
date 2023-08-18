@@ -29,8 +29,7 @@ class MachineAdapter extends TypeAdapter<Machine> {
 
     Uri httpUri;
     if (fields[6] is String?) {
-      httpUri = buildMoonrakerHttpUri(fields[6] as String) ??
-          Uri.parse('http://127.0.0.1');
+      httpUri = buildMoonrakerHttpUri(fields[6] as String) ?? Uri.parse('http://127.0.0.1');
 
       logger.w(
           'Found a legacy Printer httpUri for ${fields[0]}(${fields[2]}). "${fields[6]}" migrated to "$httpUri"');
@@ -48,6 +47,7 @@ class MachineAdapter extends TypeAdapter<Machine> {
       octoEverywhere: fields[20] as OctoEverywhere?,
       camOrdering: fields[21] == null ? [] : (fields[21] as List).cast<String>(),
       httpHeaders: fields[22] == null ? {} : (fields[22] as Map).cast<String, String>(),
+      timeout: fields[23] == null ? 3 : fields[23] as int,
     )
       ..uuid = fields[2] as String
       ..lastPrintProgress = fields[14] == null ? 0 : fields[14] as double?
@@ -59,7 +59,8 @@ class MachineAdapter extends TypeAdapter<Machine> {
   @override
   void write(BinaryWriter writer, Machine obj) {
     writer
-      ..writeByte(13)..writeByte(0)
+      ..writeByte(15)
+      ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
       ..write(obj.wsUri)
@@ -71,6 +72,8 @@ class MachineAdapter extends TypeAdapter<Machine> {
       ..write(obj.apiKey)
       ..writeByte(22)
       ..write(obj.httpHeaders)
+      ..writeByte(23)
+      ..write(obj.timeout)
       ..writeByte(5)
       ..write(obj.temperaturePresets)
       ..writeByte(14)
@@ -95,7 +98,5 @@ class MachineAdapter extends TypeAdapter<Machine> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MachineAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+      other is MachineAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

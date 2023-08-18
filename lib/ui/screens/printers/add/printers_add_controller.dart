@@ -221,17 +221,18 @@ class AdvancedFormController extends _$AdvancedFormController {
   proceed() {
     if (!_formState.saveAndValidate()) return;
 
+    bool wsInputEmpty = _wsField.transformedValue?.isEmpty ?? true;
     var httpInput = _httpField.transformedValue;
-    var wsInput =
-        (_wsField.transformedValue?.isEmpty ?? true) ? httpInput : _wsField.transformedValue;
+    var wsInput = (wsInputEmpty) ? httpInput : _wsField.transformedValue;
 
     var headers = ref.read(headersControllerProvider(state.headers));
 
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
           name: _displayNameField.transformedValue,
           httpUri: buildMoonrakerHttpUri(httpInput)!,
-          wsUri: buildMoonrakerWebSocketUri(wsInput, false)!,
+          wsUri: buildMoonrakerWebSocketUri(wsInput, wsInputEmpty)!,
           apiKey: _apiKeyField.transformedValue,
+          timeout: _localTimeoutField.transformedValue,
           httpHeaders: headers,
         ));
   }
