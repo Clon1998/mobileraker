@@ -52,8 +52,10 @@ NotificationService notificationService(NotificationServiceRef ref) {
 }
 
 @riverpod
-Future<String> fcmToken(FcmTokenRef ref) {
-  return ref.watch(notificationServiceProvider).fetchCurrentFcmToken();
+Future<String> fcmToken(FcmTokenRef ref) async {
+  var notificationService = ref.watch(notificationServiceProvider);
+  await notificationService.initialized;
+  return notificationService.fetchCurrentFcmToken();
 }
 
 class NotificationService {
@@ -74,6 +76,9 @@ class NotificationService {
   final ReceivePort _notificationTapPort = ReceivePort();
 
   StreamSubscription<BoxEvent>? _hiveStreamListener;
+  final Completer<bool> _initialized = Completer<bool>();
+
+  Future<bool> get initialized => _initialized.future;
 
   Future<void> initialize() async {
     try {
@@ -108,6 +113,7 @@ class NotificationService {
       );
       logger.w('Error encountered while trying to setup the Notification Service.', e, s);
     }
+    _initialized.complete(true);
   }
 
   Future<bool> _initialRequestPermission() async {
@@ -607,5 +613,7 @@ class NotificationService {
     for (var element in _printerStreamMap.values) {
       element.close();
     }
+    _initialized
+        .completeError(StateError('Disposed notification service before it was initialized!'));
   }
 }
