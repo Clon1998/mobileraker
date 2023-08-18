@@ -5,6 +5,7 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/data/dto/machine/manual_probe.dart';
+import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
@@ -27,7 +28,15 @@ class ManualOffsetDialogController extends _$ManualOffsetDialogController {
     // also prevents opening the dialog by mistake!
     ref.listenSelf((previous, next) {
       if (next.valueOrFullNull?.isActive == false) {
-        _complete(DialogResponse.aborted());
+        logger.i('Dialog closed externally since manual_probe is not active anymore!');
+        _complete(DialogResponse.confirmed());
+        ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            duration: const Duration(seconds: 30),
+            title: tr('dialogs.manual_offset.snackbar_title'),
+            message: tr('dialogs.manual_offset.snackbar_message'),
+            mainButtonTitle: 'Save_Config',
+            closeOnMainButtonTapped: true,
+            onMainButtonTapped: ref.read(printerServiceSelectedProvider).saveConfig));
       }
     });
 
@@ -58,16 +67,7 @@ class ManualOffsetDialogController extends _$ManualOffsetDialogController {
   }
 
   onAcceptPressed() {
-    _complete(DialogResponse.confirmed());
     ref.read(printerServiceSelectedProvider).gCode('ACCEPT');
-    ref.read(snackBarServiceProvider).show(SnackBarConfig(
-        duration: const Duration(seconds: 30),
-        title: tr('dialogs.manual_offset.snackbar_title'),
-        message: tr('dialogs.manual_offset.snackbar_message'),
-        mainButtonTitle: 'Save_Config',
-        closeOnMainButtonTapped: true,
-        onMainButtonTapped:
-        ref.read(printerServiceSelectedProvider).saveConfig));
   }
 
   onHelpPressed() {
