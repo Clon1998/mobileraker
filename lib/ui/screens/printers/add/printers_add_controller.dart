@@ -197,6 +197,8 @@ class AdvancedFormController extends _$AdvancedFormController {
 
   FormBuilderFieldState get _apiKeyField => _formState.fields['advanced.apikey']!;
 
+  FormBuilderFieldState get _localTimeoutField => _formState.fields['advanced.localTimeout']!;
+
   @override
   AdvancedFormState build() {
     var pState = ref.read(printerAddViewControllerProvider);
@@ -265,7 +267,8 @@ class TestConnectionController extends _$TestConnectionController {
     }
 
     TestConnectionState s;
-    HttpClient httpClient = HttpClient()..connectionTimeout = const Duration(seconds: 10);
+    HttpClient httpClient = HttpClient()
+      ..connectionTimeout = Duration(seconds: min(10, machineToAdd.timeout));
     JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder()
       ..headers = machineToAdd.httpHeaders
       ..timeout = httpClient.connectionTimeout!

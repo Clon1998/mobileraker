@@ -189,6 +189,7 @@ class PrinterEditController extends _$PrinterEditController {
   Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
     _machine.name = storedValues['printerName'];
     _machine.apiKey = storedValues['printerApiKey'];
+    _machine.timeout = storedValues['printerLocalTimeout'];
     var httpUri = buildMoonrakerHttpUri(storedValues['printerUrl']);
     if (httpUri != null) {
       _machine.httpUri = httpUri;

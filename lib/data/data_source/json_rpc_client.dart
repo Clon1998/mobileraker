@@ -65,7 +65,8 @@ class JsonRpcClientBuilder {
       ..headers = machine.headerWithApiKey
       ..uri = machine.wsUri
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
-      ..clientType = ClientType.local;
+      ..clientType = ClientType.local
+      ..timeout = Duration(seconds: machine.timeout);
   }
 
   ClientType clientType = ClientType.local;
@@ -208,6 +209,7 @@ class JsonRpcClient {
 
       HttpClient httpClient = _constructHttpClient();
       logger.i('Using headers $headers');
+      logger.i('Using timeout $timeout');
       WebSocket socket = await WebSocket.connect(
         uri.toString(),
         headers: headers,

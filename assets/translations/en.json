@@ -284,7 +284,9 @@
         "moonraker_api_key": "Moonraker - API Key",
         "moonraker_api_desc": "Only needed if youre using trusted clients. FluiddPI enforces this!",
         "full_url": "Full URL",
-        "self_signed": "Trust Self-Signed Certificates"
+        "self_signed": "Trust Self-Signed Certificates",
+        "timeout_label": "Client timeout",
+        "timeout_helper": "The timeout for the client connection in seconds"
       },
       "motion_system": {
         "title": "Motion System",

@@ -19,6 +19,7 @@ import 'package:mobileraker/ui/components/supporter_only_feature.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_controller.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
@@ -91,8 +92,7 @@ class _StepperBody extends ConsumerWidget {
     );
   }
 
-  Widget stepperBody(int stepperIndex, bool isExpert) =>
-      switch (stepperIndex) {
+  Widget stepperBody(int stepperIndex, bool isExpert) => switch (stepperIndex) {
         0 => const _InputModeStepScreen(),
         1 => (isExpert) ? const _AdvancedInputStepScreen() : const _SimpleUrlInputStepScreen(),
         2 => const _TestConnectionStepScreen(),
@@ -398,6 +398,23 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             ]),
           ]),
         ),
+        FormBuilderTextField(
+          keyboardType: const TextInputType.numberWithOptions(),
+          decoration: InputDecoration(
+              labelText: 'pages.printer_edit.general.timeout_label'.tr(),
+              helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
+              helperMaxLines: 3,
+              suffixText: 's'),
+          name: 'advanced.localTimeout',
+          initialValue: "3",
+          valueTransformer: (String? text) => text?.let(int.tryParse) ?? 3,
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.min(0),
+            FormBuilderValidators.max(600),
+            FormBuilderValidators.integer(),
+          ]),
+        ),
         SectionHeader(
           title: tr('pages.printer_add.advanced_form.section_security'),
         ),
@@ -610,4 +627,3 @@ class _FlowControlButtons extends ConsumerWidget {
     );
   }
 }
-
