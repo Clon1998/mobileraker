@@ -6,6 +6,7 @@
 
 - Improved printer and config file parsing to ensure the app is more resilient to unexpected
   content in the config section definitions.
+- Added the option to configure a custom HTTP/WS Client timeout in the printer edit and add flows.
 
 ### Bug Fixes
 
@@ -14,6 +15,8 @@
 - The Manual Offset dialog now only closes if klipper is done with the manual_offset. This ensures
   manual bed leveling is working as
   expected [#214](https://github.com/Clon1998/mobileraker/issues/214)
+- The advanced printer add flow now correctly adds the default websocket path if the user does not
+  specify a websocket URI.
 
 ## [2.5.3] - 2023-08-16
 
