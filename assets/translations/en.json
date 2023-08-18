@@ -612,7 +612,7 @@
   },
   "form_validators": {
     "simple_url": "Input only allows URL components: Hostname and Port",
-    "disallow_mdns": "MDNs (.local) addresses are not supported"
+    "disallow_mdns": "mDNS (.local) addresses are not supported"
   },
   "date": {
     "year": {
