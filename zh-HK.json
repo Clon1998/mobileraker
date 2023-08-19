@@ -1,0 +1,1396 @@
+{
+  "general": {
+    "pause": "暫停",
+    "resume": "恢復",
+    "connected": "已連接",
+    "off": "關",
+    "on": "開",
+    "none": "無",
+    "add": "新增",
+    "create": "建立",
+    "rename": "重新命名",
+    "remove": "移除",
+    "set": "設定",
+    "use": "使用",
+    "restart": "重新啟動",
+    "shutdown": "關機",
+    "firmware": "韌體",
+    "fetching": "正在取得",
+    "loading": "載入中",
+    "unknown": "未知",
+    "disabled": "已停用",
+    "confirm": "確認",
+    "cancel": "取消",
+    "close": "關閉",
+    "edit": "編輯",
+    "preview": "預覽",
+    "retry": "重試",
+    "supported": "支援",
+    "unsupported": "不支援",
+    "details": "詳細資訊",
+    "google_play": "Google Play",
+    "ios_store": "App Store",
+    "active": "啟用",
+    "canceled": "已取消",
+    "monthly": "每月",
+    "restore": "還原",
+    "accept": "接受",
+    "abort": "中止",
+    "offset": "偏移",
+    "valid": "有效",
+    "invalid": "無效",
+    "free": "免費",
+    "one_time": "一次性",
+    "delete": "刪除"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "儀表板",
+      "ems_btn": "緊急停止",
+      "server_status": {
+        "unavailable": "無可用伺服器",
+        "available": "伺服器狀態為 {}，Klippy 狀態為 {}"
+      },
+      "fetching_printer": "@:general.取得印表機中...",
+      "general": {
+        "print_card": {
+          "reset": "重置",
+          "reprint": "重新列印",
+          "printing_for": "正在列印：{}",
+          "speed": "速度",
+          "layer": "層數",
+          "eta": "預計剩餘時間",
+          "current_object": "目前物件",
+          "elapsed": "已過時間",
+          "flow": "流量",
+          "filament": "線料",
+          "filament_tooltip": "已使用線料的 {}%，即 {} 公尺（預測總共 {} 公尺）。",
+          "eta_tooltip": "剩餘時間：\n平均：{avg}\n剖析器：{slicer}\n檔案：{file}\n線料：{filament}"
+        },
+        "cam_card": {
+          "webcam": "網路攝影機",
+          "fullscreen": "全螢幕"
+        },
+        "temp_card": {
+          "title": "溫度控制",
+          "presets_btn": "預設值",
+          "hotend": "熱端",
+          "bed": "熱床",
+          "temp_presets": "溫度預設值",
+          "sensors": "感測器",
+          "heater_on": "目標溫度：{}°C",
+          "btn_thermistor": "感測器"
+        },
+        "temp_preset_card": {
+          "cooloff": "冷卻",
+          "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
+          "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+        },
+        "move_card": {
+          "title": "移動軸",
+          "home_xy_tooltip": "歸位 X 軸和 Y 軸",
+          "home_z_tooltip": "歸位 Z 軸",
+          "home_all_tooltip": "歸位所有軸",
+          "home_all_btn": "全部",
+          "qgl_tooltip": "執行四柱升降平台校正",
+          "qgl_btn": "QGL",
+          "general": {
+            "pause": "暫停",
+            "resume": "繼續",
+            "m84_btn": "M84",
+            "step_size": "步進尺寸",
+            "stc_tooltip": "執行螺絲傾斜計算",
+            "stc_btn": "STC",
+            "ztilt_tooltip": "執行 Z-傾斜校準",
+            "ztilt_btn": "Z-傾斜",
+            "poff_tooltip": "執行探針偏移校準",
+            "poff_btn": "探針校準",
+            "zoff_tooltip": "執行 Z 行程開關偏移校準",
+            "zoff_btn": "Z 行程開關校準",
+            "bsa_tooltip": "執行床螺絲調整校準",
+            "bsa_btn": "床螺絲調整",
+            "save_tooltip": "儲存校準結果",
+            "save_btn": "儲存設定",
+            "more_btn": "更多"
+          },
+          "baby_step_card": {
+            "title": "微調 Z 軸"
+          },
+          "restart_klipper": "重新啟動 Klipper",
+          "restart_mcu": "重新啟動 @:general.firmware"
+        },
+        "control": {
+          "fan_card": {
+            "title": {
+              "zero": "風扇",
+              "one": "風扇",
+              "other": "風扇"
+            },
+            "part_fan": "部分風扇",
+            "static_fan_btn": "風扇"
+          },
+          "extrude_card": {
+            "title": "擠出",
+            "extrude": "擠出",
+            "retract": "撤退",
+            "extrude_len": "擠出長度",
+            "cold_extrude_error": "擠出器尚未達到最低擠出溫度 {}°C！"
+          },
+          "macro_card": {
+            "title": "Gcode - 宏指令"
+          },
+          "pin_card": {
+            "title": {
+              "zero": "輸出引腳",
+              "one": "輸出引腳",
+              "two": "輸出引腳",
+              "other": "輸出引腳"
+            },
+            "pin_btn": "引腳"
+          },
+          "power_card": {
+            "title": "電源面板",
+            "pin_btn": "引腳"
+          },
+          "multipl_card": {
+            "title": "倍率",
+            "flow": "流量",
+            "press_adv": "壓力提前",
+            "smooth_time": "平滑時間"
+          },
+          "limit_card": {
+            "title": "限制",
+            "velocity": "速度",
+            "accel": "加速度",
+            "sq_corn_vel": "直角轉彎速度",
+            "accel_to_decel": "加速到減速"
+          }
+        }
+      },
+      "files": {
+        "title": "檔案",
+        "search_files": "搜尋檔案",
+        "clear_search": "清除搜尋",
+        "name": "名稱",
+        "last_mod": "最後修改",
+        "last_printed": "上次列印",
+        "not_printed": "未列印",
+        "fetching_files": "@:general.fetching 檔案...",
+        "no_files_found": "找不到檔案！",
+        "details": {
+          "preheat": "預熱",
+          "print": "列印",
+          "general_card": {
+            "path": "路徑",
+            "last_mod": "最後修改",
+            "last_printed": "上次列印",
+            "no_data": "無資料"
+          },
+          "meta_card": {
+            "title": "GCode 元資料",
+            "filament": "線料",
+            "filament_type": "線料類型",
+            "filament_name": "線料名稱",
+            "est_print_time": "預估列印時間",
+            "slicer": "使用的切片軟體",
+            "nozzle_diameter": "噴嘴直徑",
+            "layer_higher": "層高",
+            "first_layer": "首層",
+            "others": "其他",
+            "first_layer_temps": "@:pages.files.details.meta_card.first_layer - 溫度",
+            "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
+          },
+          "stat_card": {
+            "title": "統計數據"
+          },
+          "preheat_dialog": {
+            "title": "@:pages.files.details.preheat ?",
+            "body": "目標溫度\n擠出器: {}°C\n熱床: {}°C"
+          },
+          "preheat_snackbar": {
+            "title": "開始預熱",
+            "body": "擠出器: {}°C\n熱床: {}°C"
+          }
+        }
+      },
+      "setting": {
+        "title": "應用程式設定",
+        "general": {
+          "title": "一般",
+          "ems_confirm": "確認緊急停止",
+          "always_baby": "始終顯示微調卡片",
+          "num_edit": "使用鍵盤輸入數字",
+          "start_with_overview": "預設顯示 @:pages.overview.title",
+          "use_offset_pos": "顯示已套用位移的座標。",
+          "lcFullCam": "橫向全螢幕攝影機",
+          "language": "語言",
+          "companion": "想要接收遠端通知嗎？\n了解如何在 Mobileraker 的 Companion 上設定"
+        },
+        "notification": {
+          "title": "通知",
+          "progress_label": "列印進度通知",
+          "progress_helper": "列印進度通知的更新間隔",
+          "state_label": "狀態通知",
+          "state_helper": "發出狀態變更通知的狀態",
+          "no_permission_title": "沒有通知權限！",
+          "no_permission_desc": "無法顯示通知。\n請點擊以求取權限！",
+          "no_firebase_title": "無法顯示通知",
+          "no_firebase_desc": "Mobileraker 無法將任何通知傳送到裝置。\n看起來您的裝置缺少 Google Play 服務或阻擋了 Firebase 連線！",
+          "ios_notifications_title": "iOS 通知傳遞",
+          "ios_notifications_desc": "通知需要至少開啟一次並在背景執行。\n仍然有些通知可能會被作業系統封鎖！",
+          "missing_companion_title": "找不到 Companion！",
+          "missing_companion_body": "看起來 Companion 未安裝，因此以下機器無法發送通知：{}\n點擊以瞭解更多！"
+        },
+        "developer": {
+          "title": "開發者",
+          "crashlytics": "啟用 Crashlytics 報告"
+        },
+        "imprint": "隱私權/版權聲明"
+      },
+      "printer_edit": {
+        "title": "編輯 {}",
+        "import_settings": "匯入設定",
+        "remove_printer": "移除印表機",
+        "no_values_found": "找不到任何值！",
+        "fetching_additional_settings": "@:general.fetching 從網路取得其他設定...",
+        "could_not_fetch_additional": "無法取得其他設定！",
+        "fetch_error_hint": "確保機器可連線，並確保 Mobileraker 已連接至該機器。",
+        "store_error": {
+          "title": "儲存失敗！",
+          "message": "某些欄位包含無效值！\n請確保所有欄位都是有效的。",
+          "unexpected_error": "儲存機器資料時發生意外錯誤！"
+        },
+        "confirm_deletion": {
+          "title": "刪除 {}？",
+          "body": "您即將刪除位於 '{}' 的連接印表機 '{}'。\n\n請確認您的操作。"
+        },
+        "success_oe_link": {
+          "title": "已連結 {}",
+          "body": "成功將 {} 與 OctoEverywhere 連結！"
+        },
+        "confirm_oe_unlink": {
+          "title": "解除連結 {}？",
+          "body": "請確認解除連結印表機 {} 與 OctoEverywhere。",
+          "button": "解除連結"
+        },
+        "success_oe_unlink": {
+          "title": "已解除連結 {}",
+          "body": "成功將 {} 從 OctoEverywhere 解除連結！"
+        },
+        "general": {
+          "displayname": "顯示名稱",
+          "printer_addr": "印表機 - 位址",
+          "ws_addr": "Websocket - 位址",
+          "moonraker_api_key": "Moonraker - API 金鑰",
+          "moonraker_api_desc": "僅在使用受信任的客戶端時需要。FluiddPI 強制執行此項！",
+          "full_url": "完整網址",
+          "self_signed": "信任自簽名憑證"
+        },
+        "motion_system": {
+          "title": "運動系統",
+          "invert_x": "反轉 X 軸",
+          "invert_x_short": "反轉 X",
+          "invert_y": "反轉 Y 軸",
+          "invert_y_short": "反轉 Y",
+          "invert_z": "反轉 Z 軸",
+          "invert_z_short": "反轉 Z",
+          "speed_xy": "X/Y 軸速度",
+          "speed_xy_short": "X/Y 速度",
+          "speed_z": "Z 軸速度",
+          "speed_z_short": "Z 速度",
+          "steps_move": "移動步數",
+          "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+          "steps_baby": "Babystepping Z 步數",
+          "steps_baby_short": "Baby Steps"
+        },
+        "extruders": {
+          "title": "擠出器",
+          "feedrate": "擠出器進給速度",
+          "feedrate_short": "進給速度",
+          "steps_extrude": "擠出步數",
+          "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        },
+        "cams": {
+          "target_fps": "目標 FPS",
+          "new_cam": "新攝影機",
+          "no_webcams": "未添加攝影機！",
+          "stream_url": "串流網址",
+          "snapshot_url": "快照網址",
+          "default_url": "預設網址",
+          "flip_vertical": "垂直翻轉",
+          "flip_horizontal": "水平翻轉",
+          "cam_mode": "攝影機模式",
+          "cam_rotate": "旋轉"
+        },
+        "macros": {
+          "new_macro_grp": "新巨集 - 群組",
+          "no_macros_available": "沒有可用的巨集！",
+          "no_macros_found": "找不到巨集！",
+          "macros_to_default": {
+            "one": "將一個巨集移至預設群組！",
+            "two": "將兩個巨集移至預設群組！",
+            "other": "將 {} 個巨集移至預設群組！"
+          }
+        },
+        "presets": {
+          "no_presets": "未添加預設！",
+          "hotend_temp": "@:pages.dashboard.general.temp_card.hotend 溫度",
+          "bed_temp": "@:pages.dashboard.general.temp_card.bed 溫度",
+          "new_preset": "新預設"
+        }
+      },
+      "printer_add": {
+        "steps": {
+          "mode": "模式",
+          "input": "輸入",
+          "test": "測試",
+          "done": "完成"
+        },
+        "title": "新增新印表機",
+        "initial_name": "我的印表機",
+        "select_mode": {
+          "title": "選擇輸入模式：",
+          "body": "如果您是初次使用，最好選擇簡單模式。然而，如果您具有經驗並需要使用自訂標頭、憑證等，那麼專家模式適合您。請注意，您選擇的模式不會影響應用本身，但它將決定如何驗證和顯示輸入，以及在添加機器時提供哪些選項。",
+          "simple": "簡單模式",
+          "advanced": "進階模式",
+          "add_via_oe": "一鍵 OctoEverywhere 設定"
+        },
+        "simple_form": {
+          "hint_title": "提示 - 簡單模式",
+          "hint_body": "簡單模式允許您輸入主機和埠。但是，如果您需要自訂路徑、標頭、憑證或其他設定，請切換到進階模式。",
+          "url_hint": "印表機的 IP 或主機名稱"
+        },
+        "advanced_form": {
+          "hint_title": "提示 - 進階模式",
+          "hint_body": "在進階模式中，大部分驗證都被禁用。請注意，您需要對輸入的 URL 進行完全負責，以確保其有效。",
+          "http_helper": "請輸入 Moonraker 的 HTTP 端點",
+          "ws_helper": "選填，Moonraker 的 WebSocket 端點",
+          "section_security": "安全",
+          "section_headers": "HTTP 標頭",
+          "empty_headers": "未添加標頭！"
+        },
+        "test_connection": {
+          "section_connection": "連線資料",
+          "ws_url_label": "生成的 WebSocket 網址",
+          "http_url_label": "生成的 HTTP 網址",
+          "section_test": "連線測試",
+          "http_label": "HTTP 端點 - 測試",
+          "ws_label": "WebSocket 端點 - 測試",
+          "awaiting": "等待結果...",
+          "continue": "繼續",
+          "continue_anyway": "仍然繼續",
+          "proceed_warning": "似乎應用程式無法連線到機器。這可能是因為您不在與機器相同的網路上，或者您沒有訪問它所需的權限。儘管您可以選擇忽略此問題並添加機器，但請注意無法保證它能正確連線。請謹慎操作。",
+          "button": "測試連線"
+        },
+        "confirmed": {
+          "title": "已新增印表機 {}！",
+          "to_dashboard": "前往儀表板"
+        }
+      },
+      "console": {
+        "title": "控制台",
+        "no_entries": "找不到快取的命令",
+        "fetching_console": "正在獲取控制台輸入...",
+        "command_input": {
+          "hint": "輸入控制台命令"
+        }
+      },
+      "overview": {
+        "title": "概述",
+        "fetching_machines": "正在獲取機器...",
+        "no_entries": "找不到機器",
+        "add_machine": "添加機器"
+      },
+      "markdown": {
+        "loading": "正在載入 {}...",
+        "error": "在嘗試獲取{}時出現錯誤；",
+        "open_in_browser": "在瀏覽器中打開 @:pages.faq.title"
+      },
+      "faq": {
+        "title": "常見問題"
+      },
+      "changelog": {
+        "title": "更新日誌"
+      },
+      "paywall": {
+        "manage_view": {
+          "title": "感謝您的支持！",
+          "list_title": "更改支持者等級：",
+          "store_btn": "在{}中取消訂閱",
+          "sub_warning": "請注意，購買終身支持者等級不會自動取消任何其他活躍的訂閱。您需要手動取消任何活躍的訂閱。然而，您可以在購買終身支持者等級後選擇繼續定期支持Mobileraker的開發。"
+        },
+        "subscribe_view": {
+          "title": "成為Mobileraker支持者！",
+          "info": "Mobileraker旨在提供快速可靠的Klipper移動界面，以RepRap的精神為驅動，開源軟件和硬件可以產生積極影響。\n由於Mobileraker由一位開發人員單獨開發並免費提供，因此它依賴於社區資金來支付運營和開發成本。",
+          "list_title": "選擇支持者等級："
+        },
+        "supporter_tier_list": {
+          "error_title": "加載支持者等級時出錯！",
+          "error_body": "很抱歉，發生了意外錯誤。無法加載支持者等級。請稍後重試！"
+        },
+        "contact_dialog": {
+          "title": "開發人員聯繫",
+          "body": "郵件：{}\nDiscord：{}"
+        },
+        "title": "支持開發者！",
+        "calling_store": "處理請求...",
+        "promo_title": "促銷",
+        "free_phase": "首次{}免費",
+        "intro_phase": "享受{}折扣",
+        "iap_offer": "{}折扣原價",
+        "tip_developer": "給開發者小費"
+      }
+    },
+    "components": {
+      "app_version_display": {
+        "version": "版本：",
+        "installed_version": "已安裝版本："
+      },
+      "pull_to_refresh": {
+        "pull_up_idle": "上拉刷新"
+      },
+      "nav_drawer": {
+        "printer_settings": "打印機設置",
+        "manage_printers": "管理打印機",
+        "fetching_printers": "@:general.fetching printers...",
+        "footer": "由Patrick Schmidt製作\n查看項目的"
+      },
+      "connection_watcher": {
+        "reconnect": "重新連接",
+        "trying_connect": "正在嘗試連接...",
+        "trying_connect_remote": "正在嘗試使用遠程客戶端連接...",
+        "server_starting": "服務器正在啟動...",
+        "more_details": "更多詳情",
+        "add_printer": "嘿，\n很高興見到你在這裡！\n為了開始你的體驗，請將打印機添加到Mobileraker中。完成此步驟後，您將能夠直接控制打印機，而無需離開Mobileraker。"
+      },
+      "octo_indicator": {
+        "tooltip": "使用OctoEveryWhere！"
+      },
+      "supporter_add": {
+        "title": "喜歡Mobileraker嗎？",
+        "subtitle": "點擊我！了解如何支持開發！"
+      },
+      "supporter_only_feature": {
+        "button": "成為Mobileraker支持者",
+        "webcam": "抱歉，只有支持者才能使用{}類型的攝像頭。",
+        "printer_add": "抱歉，只有支持者才能管理超過{}台打印機。"
+      },
+      "machine_deletion_warning": {
+        "title": "刪除機器",
+        "subtitle": "看起來您不是支持者。只有支持者才能擁有超過{}台機器。在超過{}天之前，多餘的機器將被刪除。"
+      }
+    },
+    "dialogs": {
+      "rate_my_app": {
+        "title": "評價Mobileraker？",
+        "message": "如果您喜歡Mobileraker並希望支持開源開發，請考慮給Mobileraker評價！"
+      },
+      "import_setting": {
+        "fetching": "正在獲取源...",
+        "fetching_error_title": "無法獲取設置！",
+        "fetching_error_sub": "確保其他機器已連接。",
+        "select_source": "選擇源"
+      },
+      "create_folder": {
+        "title": "創建文件夾",
+        "label": "文件夾名稱"
+      },
+      "delete_folder": {
+        "title": "您確定嗎？",
+        "description": "文件夾中的所有文件也將被刪除！\n\n確認刪除文件夾'/{}'."
+      },
+      "rename_folder": {
+        "title": "重命名文件夾",
+        "label": "文件夾名稱"
+      },
+      "delete_file": {
+        "description": "確認刪除文件'{}'."
+      },
+      "rename_file": {
+        "title": "重命名文件",
+        "label": "文件名稱"
+      },
+      "exclude_object": {
+        "title": "從打印中排除對象",
+        "label": "要排除的對象",
+        "confirm_tile_title": "您確定嗎？",
+        "confirm_tile_subtitle": "此操作無法撤消！",
+        "exclude": "排除",
+        "no_visualization": "沒有可用的可視化數據！"
+      },
+      "ws_input_help": {
+        "title": "URL輸入幫助",
+        "body": "您可以輸入IP、URL或完整的URI到您的Web界面或直接到moonraker提供的WebSocket實例。\n\n有效示例："
+      },
+      "gcode_params": {
+        "hint": "提示：如果要使用默認值提交宏，您也可以長按！"
+      },
+      "rgbw": {
+        "recent_colors": "最近的顏色"
+      },
+      "select_machine": {
+        "title": "選擇機器",
+        "active_machine": "活躍機器：{}",
+        "hint": "點擊機器以設置為活躍機器。"
+      },
+      "supporter_perks": {
+        "title": "支持者特權",
+        "body": "通過支持Mobileraker，您確保該應用程序可以為社區提供免費。此外，支持者還可以獲得以下特權列表。",
+        "hint": "提示：目前，特權基於設備。這可能會在將來改變。",
+        "theme_perk": {
+          "title": "支持者主題",
+          "subtitle": "使用Material 3的獨家主題"
+        },
+        "contact_perk": {
+          "title": "開發者聯繫",
+          "subtitle": "與開發者輕松聯繫！"
+        },
+        "notification_perk": {
+          "title": "快照通知",
+          "subtitle": "狀態通知包括Webcam快照"
+        },
+        "webrtc_perk": {
+          "title": "WebRtc支持",
+          "subtitle": "允許使用WebRtc攝像頭！"
+        }
+      },
+      "bed_screw_adjust": {
+        "title": "調整床螺絲",
+        "xy_plane": "打印機X/Y平面：",
+        "active_screw_title": "當前螺絲：",
+        "accept_screw_title": "已接受的螺絲：",
+        "accept_screw_value": "{} / {}",
+        "hint": "如果在當前螺絲上需要進行重大調整，請點擊已調整；否則，點擊接受繼續。",
+        "adjusted_btn": "已調整"
+      },
+      "manual_offset": {
+        "title": "手動偏移校準",
+        "hint_tooltip": "Klipper的紙張測試文檔",
+        "snackbar_title": "校準完成",
+        "snackbar_message": "請通過保存配置操作來保存偏移值。"
+      },
+      "tipping": {
+        "title": "給開發者打賞！",
+        "body": "此打賞僅用於感謝開發者的努力，並且不授予任何額外功能的訪問權限。",
+        "amount_label": "打賞金額",
+        "tip": "打賞"
+      },
+      "http_header": {
+        "title": "HTTP標頭",
+        "header": "標頭",
+        "header_hint": "HTTP標頭名稱",
+        "value": "標頭值",
+        "value_hint": "標頭的值"
+      }
+    },
+    "klipper_state": {
+      "ready": "就緒",
+      "shutdown": "關機",
+      "starting": "正在啟動",
+      "disconnected": "已斷開連接",
+      "error": "錯誤",
+      "unauthorized": "未授權"
+    },
+    "notifications": {
+      "channel_printer_grp": "打印機{}",
+      "channels": {
+        "status": {
+          "name": "打印狀態更新-{}",
+          "desc": "有關打印狀態的通知。",
+          "title": "{}的打印狀態已變更！",
+          "body_printing": "開始打印文件：“{}”",
+          "body_paused": "暫停打印文件：“{}”",
+          "body_complete": "完成打印：“{}”",
+          "body_error": "打印文件時出錯：“{}”"
+        },
+        "progress": {
+          "name": "打印進度更新-{}",
+          "desc": "有關打印進度的通知。",
+          "title": "{}的打印進度"
+        }
+      }
+    },
+    "form_validators": {
+      "simple_url": "輸入僅允許URL組件：主機名和端口",
+      "disallow_mdns": "不支持MDNs（.local）地址"
+    },
+    "date": {
+      "year": {
+        "one": "年",
+        "other": "年"
+      },
+      "month": {
+        "one": "月",
+        "other": "月"
+      },
+      "week": {
+        "one": "週",
+        "other": "週"
+      },
+      "day": {
+        "one": "天",
+        "other": "天"
+      }
+    },
+    "date_periods": {
+      "year": {
+        "one": "每年",
+        "other": "每年"
+      },
+      "month": {
+        "one": "每月",
+        "other": "每月"
+      },
+      "week": {
+        "one": "每週",
+        "other": "每週"
+      },
+      "day": {
+        "one": "每天",
+        "other": "每天"
+      }
+    },
+    "languages": {
+      "languageCode": {
+        "ab": {
+          "name": "Abkhaz",
+          "nativeName": "аҧсуа"
+        },
+        "aa": {
+          "name": "Afar",
+          "nativeName": "Afaraf"
+        },
+        "af": {
+          "name": "Afrikaans",
+          "nativeName": "Afrikaans"
+        },
+        "ak": {
+          "name": "Akan",
+          "nativeName": "Akan"
+        },
+        "sq": {
+          "name": "Albanian",
+          "nativeName": "Shqip"
+        },
+        "am": {
+          "name": "Amharic",
+          "nativeName": "አማርኛ"
+        },
+        "ar": {
+          "name": "Arabic",
+          "nativeName": "العربية"
+        },
+        "an": {
+          "name": "Aragonese",
+          "nativeName": "Aragonés"
+        },
+        "hy": {
+          "name": "Armenian",
+          "nativeName": "Հայերեն"
+        },
+        "as": {
+          "name": "Assamese",
+          "nativeName": "অসমীয়া"
+        },
+        "av": {
+          "name": "Avaric",
+          "nativeName": "авар мацӀ, магӀарул мацӀ"
+        },
+        "ae": {
+          "name": "Avestan",
+          "nativeName": "avesta"
+        },
+        "ay": {
+          "name": "Aymara",
+          "nativeName": "aymar aru"
+        },
+        "az": {
+          "name": "Azerbaijani",
+          "nativeName": "azərbaycan dili"
+        },
+        "bm": {
+          "name": "Bambara",
+          "nativeName": "bamanankan"
+        },
+        "ba": {
+          "name": "Bashkir",
+          "nativeName": "башҡорт теле"
+        },
+        "eu": {
+          "name": "Basque",
+          "nativeName": "euskara, euskera"
+        },
+        "be": {
+          "name": "Belarusian",
+          "nativeName": "Беларуская"
+        },
+        "bn": {
+          "name": "Bengali",
+          "nativeName": "বাংলা"
+        },
+        "bh": {
+          "name": "Bihari",
+          "nativeName": "भोजपुरी"
+        },
+        "bi": {
+          "name": "Bislama",
+          "nativeName": "Bislama"
+        },
+        "bs": {
+          "name": "Bosnian",
+          "nativeName": "bosanski jezik"
+        },
+        "br": {
+          "name": "Breton",
+          "nativeName": "brezhoneg"
+        },
+        "bg": {
+          "name": "Bulgarian",
+          "nativeName": "български език"
+        },
+        "my": {
+          "name": "Burmese",
+          "nativeName": "ဗမာစာ"
+        },
+        "ca": {
+          "name": "Catalan; Valencian",
+          "nativeName": "Català"
+        },
+        "ch": {
+          "name": "Chamorro",
+          "nativeName": "Chamoru"
+        },
+        "ce": {
+          "name": "Chechen",
+          "nativeName": "нохчийн мотт"
+        },
+        "ny": {
+          "name": "Chichewa; Chewa; Nyanja",
+          "nativeName": "chiCheŵa, chinyanja"
+        },
+        "zh": {
+          "name": "Chinese",
+          "nativeName": "中文"
+        },
+        "cv": {
+          "name": "Chuvash",
+          "nativeName": "чӑваш чӗлхи"
+        },
+        "kw": {
+          "name": "Cornish",
+          "nativeName": "Kernewek"
+        },
+        "co": {
+          "name": "Corsican",
+          "nativeName": "corsu, lingua corsa"
+        },
+        "cr": {
+          "name": "Cree",
+          "nativeName": "ᓀᐦᐃᔭᐍᐏᐣ"
+        },
+        "hr": {
+          "name": "Croatian",
+          "nativeName": "hrvatski"
+        },
+        "cs": {
+          "name": "Czech",
+          "nativeName": "česky, čeština"
+        },
+        "da": {
+          "name": "Danish",
+          "nativeName": "dansk"
+        },
+        "dv": {
+          "name": "Divehi; Dhivehi; Maldivian;",
+          "nativeName": "ދިވެހި"
+        },
+        "nl": {
+          "name": "Dutch",
+          "nativeName": "Nederlands, Vlaams"
+        },
+        "en": {
+          "name": "English",
+          "nativeName": "English"
+        },
+        "eo": {
+          "name": "Esperanto",
+          "nativeName": "Esperanto"
+        },
+        "et": {
+          "name": "Estonian",
+          "nativeName": "eesti, eesti keel"
+        },
+        "ee": {
+          "name": "Ewe",
+          "nativeName": "Eʋegbe"
+        },
+        "fo": {
+          "name": "Faroese",
+          "nativeName": "føroyskt"
+        },
+        "fj": {
+          "name": "Fijian",
+          "nativeName": "vosa Vakaviti"
+        },
+        "fi": {
+          "name": "Finnish",
+          "nativeName": "suomi, suomen kieli"
+        },
+        "fr": {
+          "name": "French",
+          "nativeName": "français, langue française"
+        },
+        "ff": {
+          "name": "Fula; Fulah; Pulaar; Pular",
+          "nativeName": "Fulfulde, Pulaar, Pular"
+        },
+        "gl": {
+          "name": "Galician",
+          "nativeName": "Galego"
+        },
+        "ka": {
+          "name": "Georgian",
+          "nativeName": "ქართული"
+        },
+        "de": {
+          "name": "German",
+          "nativeName": "Deutsch"
+        },
+        "el": {
+          "name": "Greek, Modern",
+          "nativeName": "Ελληνικά"
+        },
+        "gn": {
+          "name": "Guaraní",
+          "nativeName": "Avañeẽ"
+        },
+        "gu": {
+          "name": "Gujarati",
+          "nativeName": "ગુજરાતી"
+        },
+        "ht": {
+          "name": "Haitian; Haitian Creole",
+          "nativeName": "Kreyòl ayisyen"
+        },
+        "ha": {
+          "name": "Hausa",
+          "nativeName": "Hausa, هَوُسَ"
+        },
+        "he": {
+          "name": "Hebrew (modern)",
+          "nativeName": "עברית"
+        },
+        "hz": {
+          "name": "Herero",
+          "nativeName": "Otjiherero"
+        },
+        "hi": {
+          "name": "Hindi",
+          "nativeName": "हिन्दी, हिंदी"
+        },
+        "ho": {
+          "name": "Hiri Motu",
+          "nativeName": "Hiri Motu"
+        },
+        "hu": {
+          "name": "Hungarian",
+          "nativeName": "Magyar"
+        },
+        "ia": {
+          "name": "Interlingua",
+          "nativeName": "Interlingua"
+        },
+        "id": {
+          "name": "Indonesian",
+          "nativeName": "Bahasa Indonesia"
+        },
+        "ie": {
+          "name": "Interlingue",
+          "nativeName": "Originally called Occidental; then Interlingue after WWII"
+        },
+        "ga": {
+          "name": "Irish",
+          "nativeName": "Gaeilge"
+        },
+        "ig": {
+          "name": "Igbo",
+          "nativeName": "Asụsụ Igbo"
+        },
+        "ik": {
+          "name": "Inupiaq",
+          "nativeName": "Iñupiaq, Iñupiatun"
+        },
+        "io": {
+          "name": "Ido",
+          "nativeName": "Ido"
+        },
+        "is": {
+          "name": "Icelandic",
+          "nativeName": "Íslenska"
+        },
+        "it": {
+          "name": "Italian",
+          "nativeName": "Italiano"
+        },
+        "iu": {
+          "name": "Inuktitut",
+          "nativeName": "ᐃᓄᒃᑎᑐᑦ"
+        },
+        "ja": {
+          "name": "Japanese",
+          "nativeName": "日本語 (にほんご／にっぽんご)"
+        },
+        "jv": {
+          "name": "Javanese",
+          "nativeName": "basa Jawa"
+        },
+        "kl": {
+          "name": "Kalaallisut, Greenlandic",
+          "nativeName": "kalaallisut, kalaallit oqaasii"
+        },
+        "kn": {
+          "name": "Kannada",
+          "nativeName": "ಕನ್ನಡ"
+        },
+        "kr": {
+          "name": "Kanuri",
+          "nativeName": "Kanuri"
+        },
+        "ks": {
+          "name": "Kashmiri",
+          "nativeName": "कश्मीरी, كشميري‎"
+        },
+        "kk": {
+          "name": "Kazakh",
+          "nativeName": "Қазақ тілі"
+        },
+        "km": {
+          "name": "Khmer",
+          "nativeName": "ភាសាខ្មែរ"
+        },
+        "ki": {
+          "name": "Kikuyu, Gikuyu",
+          "nativeName": "Gĩkũyũ"
+        },
+        "rw": {
+          "name": "Kinyarwanda",
+          "nativeName": "Ikinyarwanda"
+        },
+        "ky": {
+          "name": "Kirghiz, Kyrgyz",
+          "nativeName": "кыргыз тили"
+        },
+        "kv": {
+          "name": "Komi",
+          "nativeName": "коми кыв"
+        },
+        "kg": {
+          "name": "Kongo",
+          "nativeName": "KiKongo"
+        },
+        "ko": {
+          "name": "Korean",
+          "nativeName": "한국어 (韓國語), 조선말 (朝鮮語)"
+        },
+        "ku": {
+          "name": "Kurdish",
+          "nativeName": "Kurdî, كوردی‎"
+        },
+        "kj": {
+          "name": "Kwanyama, Kuanyama",
+          "nativeName": "Kuanyama"
+        },
+        "la": {
+          "name": "Latin",
+          "nativeName": "latine, lingua latina"
+        },
+        "lb": {
+          "name": "Luxembourgish, Letzeburgesch",
+          "nativeName": "Lëtzebuergesch"
+        },
+        "lg": {
+          "name": "Luganda",
+          "nativeName": "Luganda"
+        },
+        "li": {
+          "name": "Limburgish, Limburgan, Limburger",
+          "nativeName": "Limburgs"
+        },
+        "ln": {
+          "name": "Lingala",
+          "nativeName": "Lingála"
+        },
+        "lo": {
+          "name": "Lao",
+          "nativeName": "ພາສາລາວ"
+        },
+        "lt": {
+          "name": "Lithuanian",
+          "nativeName": "lietuvių kalba"
+        },
+        "lu": {
+          "name": "Luba-Katanga",
+          "nativeName": ""
+        },
+        "lv": {
+          "name": "Latvian",
+          "nativeName": "latviešu valoda"
+        },
+        "gv": {
+          "name": "Manx",
+          "nativeName": "Gaelg, Gailck"
+        },
+        "mk": {
+          "name": "Macedonian",
+          "nativeName": "македонски јазик"
+        },
+        "mg": {
+          "name": "Malagasy",
+          "nativeName": "Malagasy fiteny"
+        },
+        "ms": {
+          "name": "Malay",
+          "nativeName": "bahasa Melayu, بهاس ملايو‎"
+        },
+        "ml": {
+          "name": "Malayalam",
+          "nativeName": "മലയാളം"
+        },
+        "mt": {
+          "name": "Maltese",
+          "nativeName": "Malti"
+        },
+        "mi": {
+          "name": "Māori",
+          "nativeName": "te reo Māori"
+        },
+        "mr": {
+          "name": "Marathi (Marāṭhī)",
+          "nativeName": "मराठी"
+        },
+        "mh": {
+          "name": "Marshallese",
+          "nativeName": "Kajin M̧ajeļ"
+        },
+        "mn": {
+          "name": "Mongolian",
+          "nativeName": "монгол"
+        },
+        "na": {
+          "name": "Nauru",
+          "nativeName": "Ekakairũ Naoero"
+        },
+        "nv": {
+          "name": "Navajo, Navaho",
+          "nativeName": "Diné bizaad, Dinékʼehǰí"
+        },
+        "nb": {
+          "name": "Norwegian Bokmål",
+          "nativeName": "Norsk bokmål"
+        },
+        "nd": {
+          "name": "North Ndebele",
+          "nativeName": "isiNdebele"
+        },
+        "ne": {
+          "name": "Nepali",
+          "nativeName": "नेपाली"
+        },
+        "ng": {
+          "name": "Ndonga",
+          "nativeName": "Owambo"
+        },
+        "nn": {
+          "name": "Norwegian Nynorsk",
+          "nativeName": "Norsk nynorsk"
+        },
+        "no": {
+          "name": "Norwegian",
+          "nativeName": "Norsk"
+        },
+        "ii": {
+          "name": "Nuosu",
+          "nativeName": "ꆈꌠ꒿ Nuosuhxop"
+        },
+        "nr": {
+          "name": "South Ndebele",
+          "nativeName": "isiNdebele"
+        },
+        "oc": {
+          "name": "Occitan",
+          "nativeName": "Occitan"
+        },
+        "oj": {
+          "name": "Ojibwe, Ojibwa",
+          "nativeName": "ᐊᓂᔑᓈᐯᒧᐎᓐ"
+        },
+        "cu": {
+          "name": "Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic",
+          "nativeName": "ѩзыкъ словѣньскъ"
+        },
+        "om": {
+          "name": "Oromo",
+          "nativeName": "Afaan Oromoo"
+        },
+        "or": {
+          "name": "Oriya",
+          "nativeName": "ଓଡ଼ିଆ"
+        },
+        "os": {
+          "name": "Ossetian, Ossetic",
+          "nativeName": "ирон æвзаг"
+        },
+        "pa": {
+          "name": "Panjabi, Punjabi",
+          "nativeName": "ਪੰਜਾਬੀ, پنجابی‎"
+        },
+        "pi": {
+          "name": "Pāli",
+          "nativeName": "पाऴि"
+        },
+        "fa": {
+          "name": "Persian",
+          "nativeName": "فارسی"
+        },
+        "pl": {
+          "name": "Polish",
+          "nativeName": "polski"
+        },
+        "ps": {
+          "name": "Pashto, Pushto",
+          "nativeName": "پښتو"
+        },
+        "pt": {
+          "name": "Portuguese",
+          "nativeName": "Português"
+        },
+        "qu": {
+          "name": "Quechua",
+          "nativeName": "Runa Simi, Kichwa"
+        },
+        "rm": {
+          "name": "Romansh",
+          "nativeName": "rumantsch grischun"
+        },
+        "rn": {
+          "name": "Kirundi",
+          "nativeName": "kiRundi"
+        },
+        "ro": {
+          "name": "Romanian, Moldavian, Moldovan",
+          "nativeName": "română"
+        },
+        "ru": {
+          "name": "Russian",
+          "nativeName": "русский язык"
+        },
+        "sa": {
+          "name": "Sanskrit (Saṁskṛta)",
+          "nativeName": "संस्कृतम्"
+        },
+        "sc": {
+          "name": "Sardinian",
+          "nativeName": "sardu"
+        },
+        "sd": {
+          "name": "Sindhi",
+          "nativeName": "सिन्धी, سنڌي، سندھی‎"
+        },
+        "se": {
+          "name": "Northern Sami",
+          "nativeName": "Davvisámegiella"
+        },
+        "sm": {
+          "name": "Samoan",
+          "nativeName": "gagana faa Samoa"
+        },
+        "sg": {
+          "name": "Sango",
+          "nativeName": "yângâ tî sängö"
+        },
+        "sr": {
+          "name": "Serbian",
+          "nativeName": "српски језик"
+        },
+        "gd": {
+          "name": "Scottish Gaelic; Gaelic",
+          "nativeName": "Gàidhlig"
+        },
+        "sn": {
+          "name": "Shona",
+          "nativeName": "chiShona"
+        },
+        "si": {
+          "name": "Sinhala, Sinhalese",
+          "nativeName": "සිංහල"
+        },
+        "sk": {
+          "name": "Slovak",
+          "nativeName": "slovenčina"
+        },
+        "sl": {
+          "name": "Slovene",
+          "nativeName": "slovenščina"
+        },
+        "so": {
+          "name": "Somali",
+          "nativeName": "Soomaaliga, af Soomaali"
+        },
+        "st": {
+          "name": "Southern Sotho",
+          "nativeName": "Sesotho"
+        },
+        "es": {
+          "name": "Spanish; Castilian",
+          "nativeName": "español, castellano"
+        },
+        "su": {
+          "name": "Sundanese",
+          "nativeName": "Basa Sunda"
+        },
+        "sw": {
+          "name": "Swahili",
+          "nativeName": "Kiswahili"
+        },
+        "ss": {
+          "name": "Swati",
+          "nativeName": "SiSwati"
+        },
+        "sv": {
+          "name": "Swedish",
+          "nativeName": "svenska"
+        },
+        "ta": {
+          "name": "Tamil",
+          "nativeName": "தமிழ்"
+        },
+        "te": {
+          "name": "Telugu",
+          "nativeName": "తెలుగు"
+        },
+        "tg": {
+          "name": "Tajik",
+          "nativeName": "тоҷикӣ, toğikī, تاجیکی‎"
+        },
+        "th": {
+          "name": "Thai",
+          "nativeName": "ไทย"
+        },
+        "ti": {
+          "name": "Tigrinya",
+          "nativeName": "ትግርኛ"
+        },
+        "bo": {
+          "name": "Tibetan Standard, Tibetan, Central",
+          "nativeName": "བོད་ཡིག"
+        },
+        "tk": {
+          "name": "Turkmen",
+          "nativeName": "Türkmen, Түркмен"
+        },
+        "tl": {
+          "name": "Tagalog",
+          "nativeName": "Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔"
+        },
+        "tn": {
+          "name": "Tswana",
+          "nativeName": "Setswana"
+        },
+        "to": {
+          "name": "Tonga (Tonga Islands)",
+          "nativeName": "faka Tonga"
+        },
+        "tr": {
+          "name": "Turkish",
+          "nativeName": "Türkçe"
+        },
+        "ts": {
+          "name": "Tsonga",
+          "nativeName": "Xitsonga"
+        },
+        "tt": {
+          "name": "Tatar",
+          "nativeName": "татарча, tatarça, تاتارچا‎"
+        },
+        "tw": {
+          "name": "Twi",
+          "nativeName": "Twi"
+        },
+        "ty": {
+          "name": "Tahitian",
+          "nativeName": "Reo Tahiti"
+        },
+        "ug": {
+          "name": "Uighur, Uyghur",
+          "nativeName": "Uyƣurqə, ئۇيغۇرچە‎"
+        },
+        "uk": {
+          "name": "Ukrainian",
+          "nativeName": "українська"
+        },
+        "ur": {
+          "name": "Urdu",
+          "nativeName": "اردو"
+        },
+        "uz": {
+          "name": "Uzbek",
+          "nativeName": "zbek, Ўзбек, أۇزبېك‎"
+        },
+        "ve": {
+          "name": "Venda",
+          "nativeName": "Tshivenḓa"
+        },
+        "vi": {
+          "name": "Vietnamese",
+          "nativeName": "Tiếng Việt"
+        },
+        "vo": {
+          "name": "Volapük",
+          "nativeName": "Volapük"
+        },
+        "wa": {
+          "name": "Walloon",
+          "nativeName": "Walon"
+        },
+        "cy": {
+          "name": "Welsh",
+          "nativeName": "Cymraeg"
+        },
+        "wo": {
+          "name": "Wolof",
+          "nativeName": "Wollof"
+        },
+        "fy": {
+          "name": "Western Frisian",
+          "nativeName": "Frysk"
+        },
+        "xh": {
+          "name": "Xhosa",
+          "nativeName": "isiXhosa"
+        },
+        "yi": {
+          "name": "Yiddish",
+          "nativeName": "ייִדיש"
+        },
+        "yo": {
+          "name": "Yoruba",
+          "nativeName": "Yorùbá"
+        },
+        "za": {
+          "name": "Zhuang, Chuang",
+          "nativeName": "Saɯ cueŋƅ, Saw cuengh"
+        }
+      },
+      "countryCode": {
+        "CN": {
+          "name": "Simplified",
+          "nativeName": "简体"
+        },
+        "HK": {
+          "name": "Traditional",
+          "nativeName": "繁體"
+        }
+      }
+    }
+  }
+}
