@@ -7,6 +7,10 @@ environment:
   sdk: '>=3.0.0 <4.0.0'
   flutter: '>=3.7.2'
 
+dependency_overrides:
+  intl: ^0.18.1 # required due to awesome notifications and formbuilder
+
+
 dependencies:
   flutter:
     sdk: flutter
