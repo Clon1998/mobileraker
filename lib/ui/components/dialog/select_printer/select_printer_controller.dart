@@ -4,8 +4,8 @@
  */
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'select_printer_controller.g.dart';

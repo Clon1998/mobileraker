@@ -68,7 +68,7 @@ dependencies:
   json_annotation: ^4.7.0
   logger: ^1.3.0
   package_info_plus: ^3.0.1
-  flutter_web_auth: ^0.5.0
+
   collection: ^1.17.0
 #  connectivity_plus: ^4.0.2
 
@@ -104,6 +104,7 @@ dependencies:
   rate_my_app: ^1.1.4
 
   #ui
+  badges: ^3.1.1
   easy_stepper: ^0.7.2
   flutter_colorpicker: ^1.0.3
   percent_indicator: ^4.0.1

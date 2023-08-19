@@ -5,7 +5,7 @@
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'file_action_enum.dart';
+import '../../../enums/file_action_enum.dart';
 import 'file_item.dart';
 
 part 'file_action_response.freezed.dart';

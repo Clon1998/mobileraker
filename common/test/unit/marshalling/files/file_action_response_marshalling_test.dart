@@ -5,8 +5,8 @@
 
 import 'dart:convert';
 
-import 'package:common/data/dto/files/moonraker/file_action_enum.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
+import 'package:common/data/enums/file_action_enum.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

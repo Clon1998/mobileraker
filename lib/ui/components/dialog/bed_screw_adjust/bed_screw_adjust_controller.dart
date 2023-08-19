@@ -5,10 +5,11 @@
 
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/bed_screw.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

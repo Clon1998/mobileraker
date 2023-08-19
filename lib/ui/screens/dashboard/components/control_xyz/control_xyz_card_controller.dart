@@ -7,14 +7,14 @@ import 'dart:math';
 
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
+import 'package:common/data/model/moonraker_db/machine_settings.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

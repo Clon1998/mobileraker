@@ -10,7 +10,12 @@ import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
 import 'package:common/data/dto/files/moonraker/file_item.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
+import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -18,17 +23,13 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/job_queue/job_queue_status.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/moonraker/file_service.dart';
-import 'package:mobileraker/service/moonraker/job_queue_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/service/ui/snackbar_service.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:mobileraker/util/path_utils.dart';
+import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'files_controller.freezed.dart';
@@ -244,19 +245,16 @@ class FilesPageController extends _$FilesPageController {
     }
   }
 
-  //
-  // onAddToQueueTapped(GCodeFile file) async {
-  //   try {
-  //     await _fileService.moveFile('$pathAsString/${file.name}', '$pathAsString/$newName');
-  //   } on JRpcError catch (e) {
-  //     _snackBarService.show(SnackBarConfig(
-  //       type: SnackbarType.error,
-  //       message: 'Could not add File to Queue.\n${e.message}',
-  //     ));
-  //   } finally {
-  //     fetchDirectoryData(state.path, true);
-  //   }
-  // }
+  onAddToQueueTapped(GCodeFile file) async {
+    try {
+      await _jobQueueService.enqueueJob(file.pathForPrint);
+    } on JRpcError catch (e) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        message: 'Could not add File to Queue.\n${e.message}',
+      ));
+    }
+  }
 
   onCreateDirTapped() async {
     var dialogResponse = await _dialogService.show(
@@ -308,238 +306,6 @@ class FilesPageController extends _$FilesPageController {
     ref.invalidate(_fileApiResponseProvider(state.pathAsString));
   }
 }
-//
-// class FilesPageController extends StateNotifier<FilePageState> {
-//   FilesPageController(this.ref)
-//       : _snackBarService = ref.watch(snackBarServiceProvider),
-//         _jobQueueService = ref.watch(jobQueueServiceSelectedProvider),
-//         super(FilePageState.loading()) {
-//
-//   }
-//
-//   final AutoDisposeRef ref;
-//   final SnackBarService _snackBarService;
-//   final JobQueueService _jobQueueService;
-//   final FileService _fileService;
-//
-//   String get pathAsString => state.path.join('/');
-//
-//   fetchDirectoryData([List<String> newPath = const ['gcodes'], bool force = false]) async {
-//     try {
-//       if (state.apiResult.isLoading && !force) {
-//         return;
-//       } // Prevent dublicate fetches!
-//       state = FilePageState.loading(newPath);
-//       var result =
-//           await ref.read(fileServiceSelectedProvider).fetchDirectoryInfo(pathAsString, true);
-//       if (pathAsString != result.folderPath) return;
-//       state = state.copyWith(apiResult: result);
-//       _filterAndSortResult();
-//     } catch (e, s) {
-//       state = FilePageState(newPath, AsyncValue.error(e, s), AsyncValue.error(e, s));
-//     }
-//   }
-//
-//   _filterAndSortResult() {
-//     if (state.apiResult.isLoading) return;
-//     FolderContentWrapper rawContent = state.apiResult.value!;
-//     List<Folder> folders = rawContent.folders.toList();
-//     List<RemoteFile> files = rawContent.files.toList();
-//     String queryTerm = ref.read(searchTextEditingControllerProvider).text.toLowerCase();
-//
-//     if (queryTerm.isNotEmpty && ref.read(isSearchingProvider)) {
-//       List<String> terms = queryTerm.split(RegExp(r'\W+'));
-//       folders = folders
-//           .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
-//           .toList(growable: false);
-//
-//       files = files
-//           .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
-//           .toList(growable: false);
-//     }
-//
-//     var sortMode = ref.read(fileSortControllerProvider);
-//     folders.sort(sortMode.comparatorFile);
-//     files.sort(sortMode.comparatorFile);
-//
-//     state = state.copyWith(
-//         filteredAndSorted: FolderContentWrapper(rawContent.folderPath, folders, files));
-//   }
-//
-//   handleFileListChanged(FileActionResponse fileListChangedNotification) {
-//     FileItem item = fileListChangedNotification.item;
-//     var itemWithInLevel = isWithin(pathAsString, item.fullPath);
-//
-//     FileItem? srcItem = fileListChangedNotification.sourceItem;
-//     var srcItemWithInLevel = isWithin(pathAsString, srcItem?.fullPath ?? '');
-//
-//     if (itemWithInLevel != 0 && srcItemWithInLevel != 0) {
-//       return;
-//     }
-//
-//     fetchDirectoryData(state.path);
-//   }
-//
-//   enterFolder(Folder folder) {
-//     List<String> newPath = [...state.path, folder.name];
-//     fetchDirectoryData(newPath);
-//   }
-//
-//   popFolder() {
-//     List<String> newPath = state.path.toList();
-//     if (newPath.length > 1) {
-//       newPath.removeLast();
-//       fetchDirectoryData(newPath);
-//     }
-//   }
-//
-//   Future<bool> onWillPop() async {
-//     List<String> newPath = state.path.toList();
-//
-//     if (ref.read(isSearchingProvider)) {
-//       ref.read(isSearchingProvider.notifier).state = false;
-//       return false;
-//     } else if (newPath.length > 1) {
-//       newPath.removeLast();
-//       fetchDirectoryData(newPath);
-//       return false;
-//     }
-//     return true;
-//   }
-//
-//   onDeleteTapped(RemoteFile file) async {
-//     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
-//           title: tr('dialogs.delete_folder.title'),
-//           body: tr(
-//               file is Folder
-//                   ? 'dialogs.delete_folder.description'
-//                   : 'dialogs.delete_file.description',
-//               args: [file.name]),
-//           confirmBtn: tr('general.delete'),
-//         );
-//
-//     if (dialogResponse?.confirmed == true) {
-//       state = FilePageState.loading(state.path);
-//       try {
-//         if (file is Folder) {
-//           await ref.read(fileServiceSelectedProvider).deleteDirForced('$pathAsString/${file.name}');
-//         } else {
-//           await ref.read(fileServiceSelectedProvider).deleteFile('$pathAsString/${file.name}');
-//         }
-//       } on JRpcError catch (e) {
-//         _snackBarService.show(SnackBarConfig(
-//           type: SnackbarType.error,
-//           message: 'Could not delete File.\n${e.message}',
-//         ));
-//       } finally {
-//         fetchDirectoryData(state.path, true);
-//       }
-//     }
-//   }
-//
-//   onRenameTapped(RemoteFile file) async {
-//     var folderContentWrapper = state.apiResult.value!;
-//     List<String> fileNames = [
-//       ...folderContentWrapper.folders,
-//       ...folderContentWrapper.files,
-//     ].map((e) => e.name).toList();
-//     fileNames.remove(file.name);
-//
-//     var dialogResponse = await ref.read(dialogServiceProvider).show(
-//           DialogRequest(
-//               type: DialogType.renameFile,
-//               title: file is Folder
-//                   ? tr('dialogs.rename_folder.title')
-//                   : tr('dialogs.rename_file.title'),
-//               body: file is Folder
-//                   ? tr('dialogs.rename_folder.label')
-//                   : tr('dialogs.rename_file.label'),
-//               confirmBtn: tr('general.rename'),
-//               data: RenameFileDialogArguments(
-//                 initialValue: file.name,
-//                 blocklist: fileNames,
-//                 matchPattern: '^[\\w.-]+\$',
-//               )),
-//         );
-//
-//     if (dialogResponse?.confirmed == true) {
-//       state = FilePageState.loading(state.path);
-//       String newName = dialogResponse!.data;
-//       if (newName == file.name) return;
-//
-//       try {
-//         await ref
-//             .read(fileServiceSelectedProvider)
-//             .moveFile('$pathAsString/${file.name}', '$pathAsString/$newName');
-//       } on JRpcError catch (e) {
-//         logger.e('Could not perform rename.', e);
-//         _snackBarService.show(SnackBarConfig(
-//           type: SnackbarType.error,
-//           message: 'Could not rename File.\n${e.message}',
-//         ));
-//       } finally {
-//         fetchDirectoryData(state.path, true);
-//       }
-//     }
-//   }
-//
-//   onAddToQueueTapped(GCodeFile file) async {
-//     try {
-//       await ref
-//           .read(fileServiceSelectedProvider)
-//           .moveFile('$pathAsString/${file.name}', '$pathAsString/$newName');
-//     } on JRpcError catch (e) {
-//       _snackBarService.show(SnackBarConfig(
-//         type: SnackbarType.error,
-//         message: 'Could not add File to Queue.\n${e.message}',
-//       ));
-//     } finally {
-//       fetchDirectoryData(state.path, true);
-//     }
-//   }
-//
-//   onCreateDirTapped() async {
-//     if (state.apiResult.isLoading) return;
-//
-//     var dialogResponse = await ref.read(dialogServiceProvider).show(
-//           DialogRequest(
-//               type: DialogType.renameFile,
-//               title: tr('dialogs.create_folder.title'),
-//               body: tr('dialogs.create_folder.label'),
-//               confirmBtn: tr('general.create'),
-//               data: RenameFileDialogArguments(
-//                   initialValue: '',
-//                   blocklist:
-//                       state.apiResult.value!.folders.map((e) => e.name).toList(growable: false),
-//                   matchPattern: '^[\\w.\\-]+\$')),
-//         );
-//
-//     if (dialogResponse?.confirmed == true) {
-//       state = FilePageState.loading(state.path);
-//       String newName = dialogResponse!.data;
-//
-//       try {
-//         await ref.read(fileServiceSelectedProvider).createDir('$pathAsString/$newName');
-//       } on JRpcError catch (e) {
-//         // _snackBarService.showCustomSnackBar(
-//         //     variant: SnackbarType.error,
-//         //     duration: const Duration(seconds: 5),
-//         //     title: 'Error',
-//         //     message: 'Could not create folder!\n${e.message}');
-//       } finally {
-//         fetchDirectoryData(state.path, true);
-//       }
-//     }
-//   }
-//
-//   onFileTapped(RemoteFile file) {
-//     if (file is GCodeFile) {
-//       ref.read(goRouterProvider).goNamed(AppRoute.gcodeDetail.name, extra: file);
-//     } else {
-//       ref.read(goRouterProvider).goNamed(AppRoute.configDetail.name, extra: file);
-//     }
-//   }
-// }
 
 @freezed
 class FilePageState with _$FilePageState {
@@ -548,6 +314,7 @@ class FilePageState with _$FilePageState {
   const factory FilePageState({
     required List<String> path,
     required AsyncValue<FolderContentWrapper> files,
+    required AsyncValue<JobQueueStatus> jobQueueStatus,
   }) = _FilePageState;
 
   bool get isInSubFolder => path.length > 1;

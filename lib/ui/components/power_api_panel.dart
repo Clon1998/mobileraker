@@ -4,16 +4,16 @@
  */
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/power/power_device.dart';
+import 'package:common/data/enums/power_state_enum.dart';
+import 'package:common/service/moonraker/power_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/power/power_device.dart';
-import 'package:mobileraker/data/dto/power/power_state.dart';
-import 'package:mobileraker/service/moonraker/power_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_switch.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';

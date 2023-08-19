@@ -5,6 +5,12 @@
 
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -12,12 +18,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/service/ui/bottom_sheet_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
@@ -207,7 +208,7 @@ class _DashboardBody extends ConsumerWidget {
                   ),
                   TextButton(
                       onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                          type: DialogType.stacktrace,
+                          type: CommonDialogs.stacktrace,
                           title: e.runtimeType.toString(),
                           body: 'Exception:\n $e\n\n$s')),
                       child: const Text('Show Error'))

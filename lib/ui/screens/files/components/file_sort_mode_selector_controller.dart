@@ -5,7 +5,7 @@
 
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
-import 'package:mobileraker/service/setting_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'file_sort_mode_selector_controller.g.dart';

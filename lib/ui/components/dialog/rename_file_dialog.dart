@@ -3,13 +3,13 @@
  * All rights reserved.
  */
 
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 
 class RenameFileDialogArguments {
   final String initialValue;
@@ -17,9 +17,7 @@ class RenameFileDialogArguments {
   final String? matchPattern;
 
   RenameFileDialogArguments(
-      {required this.initialValue,
-      this.blocklist = const [],
-      this.matchPattern});
+      {required this.initialValue, this.blocklist = const [], this.matchPattern});
 }
 
 class RenameFileDialog extends HookWidget {
@@ -28,8 +26,7 @@ class RenameFileDialog extends HookWidget {
   late final String? fileExt;
   late final String fileName;
 
-  RenameFileDialog({Key? key, required this.request, required this.completer})
-      : super(key: key) {
+  RenameFileDialog({Key? key, required this.request, required this.completer}) : super(key: key) {
     RenameFileDialogArguments arg = request.data;
     var split = arg.initialValue.split(r'.');
     if (split.length > 1) {
@@ -64,10 +61,8 @@ class RenameFileDialog extends HookWidget {
                 autofocus: true,
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
-                  if (args.matchPattern != null)
-                    FormBuilderValidators.match(args.matchPattern!),
-                  notContains(context, args.blocklist,
-                      errorText: 'Name already in use!')
+                  if (args.matchPattern != null) FormBuilderValidators.match(args.matchPattern!),
+                  notContains(context, args.blocklist, errorText: 'Name already in use!')
                 ]),
                 initialValue: fileName,
                 name: 'newValue',
@@ -82,18 +77,15 @@ class RenameFileDialog extends HookWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextButton(
-                    onPressed: () =>
-                        completer(DialogResponse(confirmed: false)),
+                    onPressed: () => completer(DialogResponse(confirmed: false)),
                     child: Text(request.cancelBtn ?? tr('general.cancel')),
                   ),
                   TextButton(
                     onPressed: () {
                       if (formKey.value.currentState!.saveAndValidate()) {
-                        String formValue =
-                            formKey.value.currentState!.value['newValue'];
+                        String formValue = formKey.value.currentState!.value['newValue'];
                         if (fileExt != null) formValue += fileExt!;
-                        completer(
-                            DialogResponse(confirmed: true, data: formValue));
+                        completer(DialogResponse(confirmed: true, data: formValue));
                       }
                     },
                     child: Text(request.confirmBtn!),

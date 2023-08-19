@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/date_format_service.dart';
-import 'package:mobileraker/service/setting_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table_controller.dart';
 import 'package:mobileraker/util/time_util.dart';
 

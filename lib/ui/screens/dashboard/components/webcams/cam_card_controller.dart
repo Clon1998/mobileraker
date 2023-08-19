@@ -9,15 +9,16 @@ import 'dart:math';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/service/moonraker/webcam_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/service/setting_service.dart';
+import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/service/moonraker/webcam_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'cam_card_controller.freezed.dart';
+
 part 'cam_card_controller.g.dart';
 
 @freezed

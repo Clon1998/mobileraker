@@ -4,21 +4,22 @@
  */
 
 import 'package:common/data/dto/machine/printer.dart';
+import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/machine_settings.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 

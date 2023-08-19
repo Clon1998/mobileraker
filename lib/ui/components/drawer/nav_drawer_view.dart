@@ -4,6 +4,8 @@
  */
 
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -12,8 +14,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/theme_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';

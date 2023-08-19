@@ -5,12 +5,12 @@
 
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

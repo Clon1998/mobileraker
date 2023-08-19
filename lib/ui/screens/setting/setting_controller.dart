@@ -6,13 +6,13 @@
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/notification_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/notification_service.dart';
-import 'package:mobileraker/service/setting_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';

@@ -15,6 +15,9 @@ import 'package:common/data/dto/machine/leds/dumb_led.dart';
 import 'package:common/data/dto/machine/leds/led.dart';
 import 'package:common/data/dto/machine/output_pin.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/model/moonraker_db/gcode_macro.dart';
+import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -26,9 +29,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:form_builder_validators/localization/l10n.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
-import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/card_with_switch.dart';
@@ -103,7 +103,7 @@ class ControlTab extends ConsumerWidget {
                 TextButton(
                     // onPressed: model.showPrinterFetchingErrorDialog,
                     onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                        type: DialogType.stacktrace,
+                        type: CommonDialogs.stacktrace,
                         title: e.runtimeType.toString(),
                         body: 'Exception:\n $e\n\n$s')),
                     child: const Text('Show Error'))

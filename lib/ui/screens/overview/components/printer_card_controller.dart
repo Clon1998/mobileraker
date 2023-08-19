@@ -3,16 +3,16 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/webcam_service.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/webcam_service.dart';
-import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'printer_card_controller.g.dart';

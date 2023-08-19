@@ -3,7 +3,12 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -11,12 +16,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
 import 'package:mobileraker/ui/components/error_card.dart';

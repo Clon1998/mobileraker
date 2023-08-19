@@ -8,8 +8,8 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 
 class WebcamWebRtc extends ConsumerWidget {

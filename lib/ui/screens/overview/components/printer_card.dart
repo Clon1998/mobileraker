@@ -5,14 +5,14 @@
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/moonraker/printer_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/overview/components/printer_card_controller.dart';

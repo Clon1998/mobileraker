@@ -3,22 +3,21 @@
  * All rights reserved.
  */
 
+import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/led_rgbw/led_rgbw_dialog_controller.dart';
 
 class LedRGBWDialog extends ConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const LedRGBWDialog(
-      {Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const LedRGBWDialog({Key? key, required this.request, required this.completer}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

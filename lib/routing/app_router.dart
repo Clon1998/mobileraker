@@ -6,13 +6,13 @@
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';

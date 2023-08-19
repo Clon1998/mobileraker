@@ -3,10 +3,14 @@
  * All rights reserved.
  */
 
+import 'package:badges/badges.dart' as badges;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
+import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -16,9 +20,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/date_format_service.dart';
-import 'package:mobileraker/service/moonraker/file_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
@@ -41,6 +42,7 @@ class FilesPage extends ConsumerWidget {
       appBar: _AppBar(),
       drawer: NavigationDrawerWidget(),
       bottomNavigationBar: _BottomNav(),
+      floatingActionButton: _Fab(),
       body: ConnectionStateView(
         onConnected: _FilesBody(),
         skipKlipperReady: true,
@@ -284,7 +286,7 @@ class _FilesBody extends ConsumerWidget {
                             TextButton(
                                 // onPressed: model.showPrinterFetchingErrorDialog,
                                 onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                                    type: DialogType.stacktrace,
+                                    type: CommonDialogs.stacktrace,
                                     title: e.runtimeType.toString(),
                                     body: 'Exception:\n $e\n\n$s')),
                                 child: const Text('Show Full Error'))
@@ -457,19 +459,20 @@ class GCodeFileItem extends ConsumerWidget {
             .add_Hm(DateFormat.yMd(context.deviceLocale.languageCode))
             .format(gCode.lastPrintDate!)
         : null;
-
+    var themeData = Theme.of(context);
     return _Slideable(
       file: gCode,
-      // startActionPane: ActionPane(motion: const StretchMotion(), children: [
-      //   SlidableAction(
-      //     // An action can be bigger than the others.
-      //     onPressed: (_) => controller.onRenameTapped(file),
-      //     backgroundColor: themeData.colorScheme.secondaryContainer,
-      //     foregroundColor: themeData.colorScheme.onSecondaryContainer,
-      //     icon: Icons.drive_file_rename_outline,
-      //     label: tr('general.rename'),
-      //   ),
-      // ]),
+      startActionPane: ActionPane(motion: const StretchMotion(), children: [
+        SlidableAction(
+          // An action can be bigger than the others.
+          onPressed: (_) =>
+              ref.read(filesPageControllerProvider.notifier).onAddToQueueTapped(gCode),
+          backgroundColor: themeData.colorScheme.primaryContainer,
+          foregroundColor: themeData.colorScheme.onPrimaryContainer,
+          icon: Icons.queue_outlined,
+          label: 'Queue',
+        ),
+      ]),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         leading: SizedBox(

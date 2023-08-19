@@ -12,6 +12,11 @@ import 'package:common/data/model/hive/macro_group.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/temperature_preset.dart';
+import 'package:common/service/firebase/analytics.dart';
+import 'package:common/service/firebase/remote_config.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/notification_service.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -24,11 +29,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/firebase/analytics.dart';
-import 'package:mobileraker/service/firebase/remote_config.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/notification_service.dart';
-import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -230,7 +230,9 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   await initializeAvailableMachines(ref);
 
   yield StartUpStep.notificationService;
-  await ref.read(notificationServiceProvider).initialize();
+  await ref
+      .read(notificationServiceProvider)
+      .initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
 
   yield StartUpStep.complete;
 }

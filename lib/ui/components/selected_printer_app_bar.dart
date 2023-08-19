@@ -3,11 +3,12 @@
  * All rights reserved.
  */
 
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 
 final selectedPrinterAppBarController =
