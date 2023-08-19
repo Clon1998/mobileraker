@@ -4,6 +4,7 @@
  */
 
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -46,8 +46,7 @@ class DashboardPage extends StatelessWidget {
       onInitialized: (context, rateMyApp) {
         if (rateMyApp.shouldOpenDialog) {
           rateMyApp.showRateDialog(context,
-              title: tr('dialogs.rate_my_app.title'),
-              message: tr('dialogs.rate_my_app.message'));
+              title: tr('dialogs.rate_my_app.title'), message: tr('dialogs.rate_my_app.message'));
         }
       },
       builder: (context) => const _DashboardView(),
@@ -64,8 +63,7 @@ class _DashboardView extends ConsumerWidget {
       appBar: SwitchPrinterAppBar(
         title: tr('pages.dashboard.title'),
         actions: <Widget>[
-          MachineStateIndicator(
-              ref.watch(selectedMachineProvider).valueOrFullNull),
+          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
           const EmergencyStopBtn(),
         ],
       ),
@@ -107,8 +105,7 @@ class _FloatingActionBtn extends ConsumerWidget {
       children: [
         SpeedDialChild(
           child: const Icon(Icons.cleaning_services),
-          backgroundColor:
-              themeData.extension<CustomColors>()?.danger ?? Colors.red,
+          backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
           label: tr('general.cancel'),
           onTap: ref.watch(printerServiceSelectedProvider).cancelPrint,
         ),
@@ -147,10 +144,7 @@ class _BottomNavigationBar extends ConsumerWidget {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
-    if (ref
-            .watch(
-                machinePrinterKlippySettingsProvider.selectAs((data) => true))
-            .valueOrFullNull !=
+    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).valueOrFullNull !=
         true) {
       return const SizedBox.shrink();
     }
@@ -169,16 +163,13 @@ class _BottomNavigationBar extends ConsumerWidget {
         FlutterIcons.tachometer_faw,
         FlutterIcons.settings_oct,
       ],
-      activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ??
-          colorScheme.onPrimary,
+      activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
       inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor,
       gapLocation: GapLocation.end,
-      backgroundColor: themeData.bottomNavigationBarTheme.backgroundColor ??
-          colorScheme.primary,
+      backgroundColor: themeData.bottomNavigationBarTheme.backgroundColor ?? colorScheme.primary,
       notchSmoothness: NotchSmoothness.softEdge,
       activeIndex: ref.watch(dashBoardViewControllerProvider),
-      onTap:
-          ref.watch(dashBoardViewControllerProvider.notifier).onBottomNavTapped,
+      onTap: ref.watch(dashBoardViewControllerProvider.notifier).onBottomNavTapped,
     );
   }
 }
@@ -195,9 +186,7 @@ class _DashboardBody extends ConsumerWidget {
           data: (d) => PageView(
             key: const PageStorageKey<String>('dashboardPages'),
             controller: ref.watch(pageControllerProvider),
-            onPageChanged: ref
-                .watch(dashBoardViewControllerProvider.notifier)
-                .onPageChanged,
+            onPageChanged: ref.watch(dashBoardViewControllerProvider.notifier).onPageChanged,
             children: const [GeneralTab(), ControlTab()],
             // children: [const GeneralTab(), const ControlTab()],
           ),
@@ -217,11 +206,10 @@ class _DashboardBody extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                   TextButton(
-                      onPressed: () => ref.read(dialogServiceProvider).show(
-                          DialogRequest(
-                              type: DialogType.stacktrace,
-                              title: e.runtimeType.toString(),
-                              body: 'Exception:\n $e\n\n$s')),
+                      onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
+                          type: DialogType.stacktrace,
+                          title: e.runtimeType.toString(),
+                          body: 'Exception:\n $e\n\n$s')),
                       child: const Text('Show Error'))
                 ],
               ),

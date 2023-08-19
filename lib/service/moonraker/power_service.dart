@@ -5,11 +5,11 @@
 
 import 'dart:async';
 
+import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/dto/power/power_device.dart';
 import 'package:mobileraker/data/dto/power/power_state.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -26,20 +26,17 @@ PowerService powerService(PowerServiceRef ref, String machineUUID) {
 }
 
 @riverpod
-Stream<List<PowerDevice>> powerDevices(
-    PowerDevicesRef ref, String machineUUID) {
+Stream<List<PowerDevice>> powerDevices(PowerDevicesRef ref, String machineUUID) {
   return ref.watch(powerServiceProvider(machineUUID)).devices;
 }
 
 @riverpod
 PowerService powerServiceSelected(PowerServiceSelectedRef ref) {
-  return ref.watch(powerServiceProvider(
-      ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+  return ref.watch(powerServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 }
 
 @riverpod
-Stream<List<PowerDevice>> powerDevicesSelected(
-    PowerDevicesSelectedRef ref) async* {
+Stream<List<PowerDevice>> powerDevicesSelected(PowerDevicesSelectedRef ref) async* {
   try {
     var machine = await ref.watchWhereNotNull(selectedMachineProvider);
     yield* ref.watchAsSubject(powerDevicesProvider(machine.uuid));
@@ -65,8 +62,7 @@ class PowerService {
     }, fireImmediately: true);
   }
 
-  final StreamController<List<PowerDevice>> _devicesStreamCtler =
-      StreamController();
+  final StreamController<List<PowerDevice>> _devicesStreamCtler = StreamController();
 
   List<PowerDevice>? __current;
 
@@ -82,13 +78,11 @@ class PowerService {
   /// https://moonraker.readthedocs.io/en/latest/web_api/#get-device-list
   Future<List<PowerDevice>> getDeviceList() async {
     try {
-      RpcResponse rpcResponse =
-          await _jRpcClient.sendJRpcMethod('machine.device_power.devices');
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('machine.device_power.devices');
       logger.i('Fetching [power] devices!');
       List<Map<String, dynamic>> devices =
           rpcResponse.result['devices'].cast<Map<String, dynamic>>();
-      return List.generate(
-          devices.length, (index) => PowerDevice.fromJson(devices[index]),
+      return List.generate(devices.length, (index) => PowerDevice.fromJson(devices[index]),
           growable: false);
     } on JRpcError catch (e, s) {
       logger.e('Error while trying to fetch [power] devices!', e, s);
@@ -97,21 +91,16 @@ class PowerService {
   }
 
   /// https://moonraker.readthedocs.io/en/latest/web_api/#set-device-state
-  Future<PowerState> setDeviceStatus(
-      String deviceName, PowerState state) async {
+  Future<PowerState> setDeviceStatus(String deviceName, PowerState state) async {
     try {
-      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
-          'machine.device_power.post_device',
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('machine.device_power.post_device',
           params: {'device': deviceName, 'action': state.name});
       logger.i('Setting [power] device "$deviceName" -> $state!');
 
       Map<String, dynamic> result = rpcResponse.result;
-      return EnumToString.fromString(PowerState.values, result[deviceName]) ??
-          PowerState.off;
+      return EnumToString.fromString(PowerState.values, result[deviceName]) ?? PowerState.off;
     } on JRpcError catch (e, s) {
-      logger.e(
-          'Error while trying to set state of [power] device with name "$deviceName"!',
-          s);
+      logger.e('Error while trying to set state of [power] device with name "$deviceName"!', s);
       return PowerState.off;
     }
   }
@@ -119,18 +108,14 @@ class PowerService {
   /// https://moonraker.readthedocs.io/en/latest/web_api/#get-device-status
   Future<PowerState> getDeviceStatus(String deviceName) async {
     try {
-      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
-          'machine.device_power.get_device',
-          params: {'device': deviceName});
+      RpcResponse rpcResponse = await _jRpcClient
+          .sendJRpcMethod('machine.device_power.get_device', params: {'device': deviceName});
       logger.i('Fetching [power] device state of "$deviceName" !');
 
       Map<String, dynamic> result = rpcResponse.result;
-      return EnumToString.fromString(PowerState.values, result[deviceName]) ??
-          PowerState.off;
+      return EnumToString.fromString(PowerState.values, result[deviceName]) ?? PowerState.off;
     } on JRpcError catch (e, s) {
-      logger.e(
-          'Error while trying to fetch state of [power] device with name "$deviceName"!',
-          s);
+      logger.e('Error while trying to fetch state of [power] device with name "$deviceName"!', s);
       return PowerState.off;
     }
   }
@@ -141,8 +126,7 @@ class PowerService {
   }
 
   _onPowerChanged(Map<String, dynamic> rawMessage) {
-    List<Map<String, dynamic>> devices =
-        rawMessage['params'].cast<Map<String, dynamic>>();
+    List<Map<String, dynamic>> devices = rawMessage['params'].cast<Map<String, dynamic>>();
 
     List<PowerDevice> parsed = List.generate(
         devices.length, (index) => PowerDevice.fromJson(devices[index]),

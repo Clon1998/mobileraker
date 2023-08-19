@@ -3,13 +3,13 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/printer.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/machine/printer.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -45,13 +45,8 @@ Stream<PrinterKlippySettingsMachineWrapper> machinePrinterKlippySettings(
       printer,
       klippy,
       machineSettings,
-      (Printer a, KlipperInstance b, MachineSettings c) =>
-          PrinterKlippySettingsMachineWrapper(
-              printerData: a,
-              klippyData: b,
-              settings: c,
-              machine: selMachine,
-              clientType: clientType));
+      (Printer a, KlipperInstance b, MachineSettings c) => PrinterKlippySettingsMachineWrapper(
+          printerData: a, klippyData: b, settings: c, machine: selMachine, clientType: clientType));
 }
 
 class PrinterKlippySettingsMachineWrapper {
@@ -85,27 +80,26 @@ class DashBoardViewController extends StateNotifier<int> {
     // Manual Probe Dialog
     ref.listen(
         machinePrinterKlippySettingsProvider
-            .selectAs((data) => data.printerData.manualProbe?.isActive),
-        (previous, next) {
+            .selectAs((data) => data.printerData.manualProbe?.isActive), (previous, next) {
       var dialogService = ref.read(dialogServiceProvider);
 
       if (next.valueOrFullNull == true && !dialogService.isDialogOpen) {
         logger.i('Detected manualProbe... opening Dialog');
-        dialogService.show(DialogRequest(
-            barrierDismissible: false, type: DialogType.manualOffset));
+        dialogService.show(DialogRequest(barrierDismissible: false, type: DialogType.manualOffset));
       }
     }, fireImmediately: true);
 
     // Bed Screw Adjust
     ref.listen(
-        machinePrinterKlippySettingsProvider.selectAs(
-            (data) => data.printerData.bedScrew?.isActive), (previous, next) {
+        machinePrinterKlippySettingsProvider
+            .selectAs((data) => data.printerData.bedScrew?.isActive), (previous, next) {
       var dialogService = ref.read(dialogServiceProvider);
 
       if (next.valueOrFullNull == true && !dialogService.isDialogOpen) {
         logger.i('Detected bedScrew... opening Dialog');
-        ref.read(dialogServiceProvider).show(DialogRequest(
-            barrierDismissible: false, type: DialogType.bedScrewAdjust));
+        ref
+            .read(dialogServiceProvider)
+            .show(DialogRequest(barrierDismissible: false, type: DialogType.bedScrewAdjust));
       }
     }, fireImmediately: true);
   }

@@ -5,10 +5,10 @@
 
 import 'dart:async';
 
+import 'package:common/data/model/hive/machine.dart';
 import 'package:common/util/logger.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -38,8 +38,7 @@ class SelectedMachineService {
 
   final Box<String> _boxUuid;
   Machine? _selected;
-  final StreamController<Machine?> _selectedMachineCtrler =
-      StreamController<Machine?>();
+  final StreamController<Machine?> _selectedMachineCtrler = StreamController<Machine?>();
 
   Stream<Machine?> get selectedMachine => _selectedMachineCtrler.stream;
 
@@ -83,8 +82,7 @@ class SelectedMachineService {
 
     if (list.length < 2) return;
     logger.i('Selecting next machine');
-    int indexSelected =
-        list.indexWhere((element) => element.uuid == _selected?.uuid);
+    int indexSelected = list.indexWhere((element) => element.uuid == _selected?.uuid);
     int next = (indexSelected + 1) % list.length;
     selectMachine(list[next]);
   }
@@ -93,14 +91,12 @@ class SelectedMachineService {
     List<Machine> list = await _machineRepo.fetchAll();
     if (list.length < 2) return;
     logger.i('Selecting previous machine');
-    int indexSelected =
-        list.indexWhere((element) => element.uuid == _selected?.uuid);
+    int indexSelected = list.indexWhere((element) => element.uuid == _selected?.uuid);
     int prev = (indexSelected - 1 < 0) ? list.length - 1 : indexSelected - 1;
     selectMachine(list[prev]);
   }
 
-  bool isSelectedMachine(Machine toCheck) =>
-      toCheck.uuid == _boxUuid.get('selectedPrinter');
+  bool isSelectedMachine(Machine toCheck) => toCheck.uuid == _boxUuid.get('selectedPrinter');
 
   dispose() {
     _selected = null;

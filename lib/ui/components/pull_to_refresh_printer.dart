@@ -3,11 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -50,18 +50,13 @@ class PullToRefreshPrinterConsumer extends _$PullToRefreshPrinterConsumer {
     ProviderSubscription<PrinterService>? printerServiceKeepAlive;
     ProviderSubscription<KlippyService>? klippyServiceKeepAlive;
     try {
-      printerServiceKeepAlive =
-          ref.keepAliveExternally(printerServiceProvider(selMachine.uuid));
-      klippyServiceKeepAlive =
-          ref.keepAliveExternally(klipperServiceProvider(selMachine.uuid));
+      printerServiceKeepAlive = ref.keepAliveExternally(printerServiceProvider(selMachine.uuid));
+      klippyServiceKeepAlive = ref.keepAliveExternally(klipperServiceProvider(selMachine.uuid));
 
       await klippyServiceKeepAlive.read().refreshKlippy();
       var read = ref.read(klipperProvider(selMachine.uuid));
-      if (!read.hasError &&
-          read.hasValue &&
-          read.value!.klippyCanReceiveCommands) {
-        logger.i(
-            'Klippy reported ready and connected, will try to refresh printer');
+      if (!read.hasError && read.hasValue && read.value!.klippyCanReceiveCommands) {
+        logger.i('Klippy reported ready and connected, will try to refresh printer');
         await printerServiceKeepAlive.read().refreshPrinter();
       }
 
@@ -86,8 +81,7 @@ class PullToRefreshPrinter extends ConsumerStatefulWidget {
 }
 
 class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
-  final RefreshController refreshController =
-      RefreshController(initialRefresh: false);
+  final RefreshController refreshController = RefreshController(initialRefresh: false);
 
   @override
   Widget build(BuildContext context) {
@@ -101,9 +95,8 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
         releaseIcon: Icon(Icons.refresh, color: onBackground),
       ),
       controller: refreshController,
-      onRefresh: () => ref
-          .watch(pullToRefreshPrinterConsumerProvider.notifier)
-          .onRefresh(refreshController),
+      onRefresh: () =>
+          ref.watch(pullToRefreshPrinterConsumerProvider.notifier).onRefresh(refreshController),
       child: widget.child,
     );
   }

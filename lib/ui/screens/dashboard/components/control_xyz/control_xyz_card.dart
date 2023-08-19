@@ -3,11 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/printer_axis_enum.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/ui/components/IconElevatedButton.dart';
 import 'package:mobileraker/ui/components/homed_axis_chip.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
@@ -52,9 +52,9 @@ class ControlXYZCard extends HookConsumerWidget {
                             SquareElevatedIconButton(
                                 margin: marginForBtns,
                                 onPressed: klippyCanReceiveCommands
-                                    ? () => ref
-                                        .read(controlXYZCardControllerProvider
-                                            .notifier)
+                                    ? () =>
+                                    ref
+                                        .read(controlXYZCardControllerProvider.notifier)
                                         .onMoveBtn(PrinterAxis.Y)
                                     : null,
                                 child: const Icon(FlutterIcons.upsquare_ant)),
@@ -65,24 +65,20 @@ class ControlXYZCard extends HookConsumerWidget {
                             SquareElevatedIconButton(
                                 margin: marginForBtns,
                                 onPressed: klippyCanReceiveCommands
-                                    ? () => ref
-                                        .read(controlXYZCardControllerProvider
-                                            .notifier)
+                                    ? () =>
+                                    ref
+                                        .read(controlXYZCardControllerProvider.notifier)
                                         .onMoveBtn(PrinterAxis.X, false)
                                     : null,
                                 child: const Icon(FlutterIcons.leftsquare_ant)),
                             Tooltip(
-                              message:
-                                  'pages.dashboard.general.move_card.home_xy_tooltip'
-                                      .tr(),
+                              message: 'pages.dashboard.general.move_card.home_xy_tooltip'.tr(),
                               child: AsyncElevatedButton.squareIcon(
                                 margin: marginForBtns,
                                 onPressed: klippyCanReceiveCommands
                                     ? () => ref
-                                        .read(controlXYZCardControllerProvider
-                                            .notifier)
-                                        .onHomeAxisBtn(
-                                            {PrinterAxis.X, PrinterAxis.Y})
+                                        .read(controlXYZCardControllerProvider.notifier)
+                                        .onHomeAxisBtn({PrinterAxis.X, PrinterAxis.Y})
                                     : null,
                                 icon: const Icon(Icons.home),
                               ),
@@ -91,12 +87,10 @@ class ControlXYZCard extends HookConsumerWidget {
                                 margin: marginForBtns,
                                 onPressed: klippyCanReceiveCommands
                                     ? () => ref
-                                        .read(controlXYZCardControllerProvider
-                                            .notifier)
+                                        .read(controlXYZCardControllerProvider.notifier)
                                         .onMoveBtn(PrinterAxis.X)
                                     : null,
-                                child:
-                                    const Icon(FlutterIcons.rightsquare_ant)),
+                                child: const Icon(FlutterIcons.rightsquare_ant)),
                           ],
                         ),
                         Row(
@@ -104,9 +98,9 @@ class ControlXYZCard extends HookConsumerWidget {
                             SquareElevatedIconButton(
                               margin: marginForBtns,
                               onPressed: klippyCanReceiveCommands
-                                  ? () => ref
-                                      .read(controlXYZCardControllerProvider
-                                          .notifier)
+                                  ? () =>
+                                  ref
+                                      .read(controlXYZCardControllerProvider.notifier)
                                       .onMoveBtn(PrinterAxis.Y, false)
                                   : null,
                               child: const Icon(FlutterIcons.downsquare_ant),
@@ -120,22 +114,19 @@ class ControlXYZCard extends HookConsumerWidget {
                         SquareElevatedIconButton(
                             margin: marginForBtns,
                             onPressed: klippyCanReceiveCommands
-                                ? () => ref
-                                    .read(controlXYZCardControllerProvider
-                                        .notifier)
+                                ? () =>
+                                ref
+                                    .read(controlXYZCardControllerProvider.notifier)
                                     .onMoveBtn(PrinterAxis.Z)
                                 : null,
                             child: const Icon(FlutterIcons.upsquare_ant)),
                         Tooltip(
-                          message:
-                              'pages.dashboard.general.move_card.home_z_tooltip'
-                                  .tr(),
+                          message: 'pages.dashboard.general.move_card.home_z_tooltip'.tr(),
                           child: AsyncElevatedButton.squareIcon(
                               margin: marginForBtns,
                               onPressed: klippyCanReceiveCommands
                                   ? () => ref
-                                      .read(controlXYZCardControllerProvider
-                                          .notifier)
+                                      .read(controlXYZCardControllerProvider.notifier)
                                       .onHomeAxisBtn({PrinterAxis.Z})
                                   : null,
                               icon: const Icon(Icons.home)),
@@ -143,9 +134,9 @@ class ControlXYZCard extends HookConsumerWidget {
                         SquareElevatedIconButton(
                             margin: marginForBtns,
                             onPressed: klippyCanReceiveCommands
-                                ? () => ref
-                                    .read(controlXYZCardControllerProvider
-                                        .notifier)
+                                ? () =>
+                                ref
+                                    .read(controlXYZCardControllerProvider.notifier)
                                     .onMoveBtn(PrinterAxis.Z, false)
                                 : null,
                             child: const Icon(FlutterIcons.downsquare_ant)),
@@ -170,14 +161,12 @@ class ControlXYZCard extends HookConsumerWidget {
                       ),
                     ),
                     RangeSelector(
-                        selectedIndex: ref.watch(
-                            controlXYZCardControllerProvider
-                                .select((value) => value.index)),
+                        selectedIndex: ref
+                            .watch(controlXYZCardControllerProvider.select((value) => value.index)),
                         onSelected: ref
                             .read(controlXYZCardControllerProvider.notifier)
                             .onSelectedAxisStepSizeChanged,
-                        values: ref.watch(
-                            generalTabViewControllerProvider.select((data) {
+                        values: ref.watch(generalTabViewControllerProvider.select((data) {
                           return data.valueOrNull!.settings.moveSteps;
                         })).map((e) {
                           return numberFormat.format(e);
@@ -203,10 +192,10 @@ class _ShortCuts extends ConsumerWidget {
     var klippyCanReceiveCommands = ref.watch(generalTabViewControllerProvider
         .select((data) => data.value!.klippyData.klippyCanReceiveCommands));
 
-    var directActions = ref.watch(controlXYZCardControllerProvider
-        .select((value) => value.directActions));
-    var moreActions = ref.watch(
-        controlXYZCardControllerProvider.select((value) => value.moreActions));
+    var directActions =
+        ref.watch(controlXYZCardControllerProvider.select((value) => value.directActions));
+    var moreActions =
+        ref.watch(controlXYZCardControllerProvider.select((value) => value.moreActions));
 
     return Wrap(
       runSpacing: 4,
@@ -247,8 +236,7 @@ class _MoreActionsPopup extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
 
-    bool enabled =
-        klippyCanReceiveCommands && entries.any((e) => e.callback != null);
+    bool enabled = klippyCanReceiveCommands && entries.any((e) => e.callback != null);
 
     return PopupMenuButton(
         enabled: enabled,
@@ -278,8 +266,6 @@ class _MoreActionsPopup extends ConsumerWidget {
                 : null,
             onPressed: null,
             icon: const Icon(Icons.more_vert),
-            label:
-                const Text('@.upper:pages.dashboard.general.move_card.more_btn')
-                    .tr()));
+            label: const Text('@.upper:pages.dashboard.general.move_card.more_btn').tr()));
   }
 }

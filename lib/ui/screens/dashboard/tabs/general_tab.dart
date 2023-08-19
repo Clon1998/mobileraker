@@ -5,7 +5,14 @@
 
 import 'dart:math';
 
+import 'package:common/data/dto/machine/exclude_object.dart';
+import 'package:common/data/dto/machine/fans/temperature_fan.dart';
+import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/machine/temperature_sensor.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flip_card/flip_card.dart';
@@ -14,12 +21,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/machine/exclude_object.dart';
-import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
-import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/dto/machine/temperature_sensor.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -41,7 +42,6 @@ import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';

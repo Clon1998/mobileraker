@@ -5,8 +5,8 @@
 
 import 'dart:math';
 
+import 'package:common/data/converters/integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/data/converters/integer_converter.dart';
 import 'package:mobileraker/data/enums/webcam_service_type.dart';
 import 'package:vector_math/vector_math_64.dart';
 
@@ -96,8 +96,7 @@ class WebcamInfo with _$WebcamInfo {
   const factory WebcamInfo({
     @JsonKey(name: 'name', includeToJson: false) required String uuid,
     required String name,
-    @JsonKey(unknownEnumValue: WebcamServiceType.unknown)
-    required WebcamServiceType service,
+    @JsonKey(unknownEnumValue: WebcamServiceType.unknown) required WebcamServiceType service,
     required Uri streamUrl,
     required Uri snapshotUrl,
     @Default(false) @JsonKey(fromJson: _boolOrInt) bool enabled,
@@ -112,8 +111,7 @@ class WebcamInfo with _$WebcamInfo {
     @Default('unknown') String source,
   }) = _WebcamInfo;
 
-  factory WebcamInfo.fromJson(Map<String, dynamic> json) =>
-      _$WebcamInfoFromJson(json);
+  factory WebcamInfo.fromJson(Map<String, dynamic> json) => _$WebcamInfoFromJson(json);
 
   factory WebcamInfo.mjpegDefault() {
     return WebcamInfo(

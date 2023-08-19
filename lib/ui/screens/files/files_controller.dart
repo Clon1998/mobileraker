@@ -5,6 +5,12 @@
 
 import 'dart:async';
 
+import 'package:common/data/dto/files/folder.dart';
+import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/moonraker/file_action_response.dart';
+import 'package:common/data/dto/files/moonraker/file_item.dart';
+import 'package:common/data/dto/files/remote_file_mixin.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -12,12 +18,6 @@ import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/files/folder.dart';
-import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/moonraker/file_action_response.dart';
-import 'package:mobileraker/data/dto/files/moonraker/file_item.dart';
-import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/data/dto/job_queue/job_queue_status.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
@@ -113,6 +113,8 @@ class FilesPageController extends _$FilesPageController {
 
   FileService get _fileService => ref.read(fileServiceSelectedProvider);
 
+  JobQueueService get _jobQueueService => ref.read(jobQueueServiceSelectedProvider);
+
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
   List<String> get _usedFileNames {
@@ -136,9 +138,12 @@ class FilesPageController extends _$FilesPageController {
 
     final files = ref.watch(_procssedContentProvider);
 
+    var jobQueueStatus = ref.watch(jobQueueSelectedProvider);
+
     return FilePageState(
       path: path,
       files: apiLoading ? files.toLoading() : files,
+      jobQueueStatus: apiLoading ? jobQueueStatus.toLoading() : jobQueueStatus,
     );
   }
 

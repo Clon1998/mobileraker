@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/network/json_rpc_client.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -10,7 +11,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -236,31 +236,31 @@ class KlippyState extends ConsumerWidget {
                         Text(data.klippyStateMessage ?? tr(data.klippyState.name),
                             style: TextStyle(color: themeData.colorScheme.error)),
                         ElevatedButtonTheme(
-                              data: ElevatedButtonThemeData(
-                                  style: ElevatedButton.styleFrom(
-                                      backgroundColor: themeData.colorScheme.error,
-                                      foregroundColor: themeData.colorScheme.onError)),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: ref
-                                        .read(connectionStateControllerProvider.notifier)
-                                        .onRestartKlipperPressed,
-                                    child: const Text('pages.dashboard.general.restart_klipper').tr(),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: ref
-                                        .read(connectionStateControllerProvider.notifier)
-                                        .onRestartMCUPressed,
-                                    child: const Text('pages.dashboard.general.restart_mcu').tr(),
-                                  )
-                                ],
+                          data: ElevatedButtonThemeData(
+                              style: ElevatedButton.styleFrom(
+                                  backgroundColor: themeData.colorScheme.error,
+                                  foregroundColor: themeData.colorScheme.onError)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton(
+                                onPressed: ref
+                                    .read(connectionStateControllerProvider.notifier)
+                                    .onRestartKlipperPressed,
+                                child: const Text('pages.dashboard.general.restart_klipper').tr(),
                               ),
-                            )
-                          ],
-                        ),
-                      )),
+                              ElevatedButton(
+                                onPressed: ref
+                                    .read(connectionStateControllerProvider.notifier)
+                                    .onRestartMCUPressed,
+                                child: const Text('pages.dashboard.general.restart_mcu').tr(),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                  )),
                   if (data.components.contains('power')) const PowerApiCard(),
                 ],
               ),
@@ -284,7 +284,7 @@ class KlippyState extends ConsumerWidget {
                         const Text('components.connection_watcher.server_starting').tr()
                       ],
                     ),
-                      )),
+                  )),
                 ],
               ),
             );

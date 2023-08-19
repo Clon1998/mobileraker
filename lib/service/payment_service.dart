@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
@@ -15,7 +16,6 @@ import 'package:mobileraker/service/firebase/firestore.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

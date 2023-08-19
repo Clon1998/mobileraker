@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
-import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
+import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

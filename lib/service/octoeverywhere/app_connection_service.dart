@@ -5,16 +5,16 @@
 
 import 'dart:convert';
 
+import 'package:common/data/dto/octoeverywhere/app_connection_info_response.dart';
+import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
+import 'package:common/exceptions/octo_everywhere_exception.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response.dart';
-import 'package:mobileraker/data/dto/octoeverywhere/app_portal_result.dart';
-import 'package:mobileraker/exceptions.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'app_connection_service.g.dart';
@@ -66,8 +66,7 @@ class AppConnectionService {
   Future<AppConnectionInfoResponse> getInfo(String appToken) async {
     var actualUri = _octoURI.replace(path: 'api/appconnection/info');
 
-    http.Response response =
-        await http.get(actualUri, headers: {'AppToken': appToken});
+    http.Response response = await http.get(actualUri, headers: {'AppToken': appToken});
 
     logger.i('OctoInfoAPI: Result code: ${response.statusCode}');
     verifyHttpResponseCodes(response.statusCode, ClientType.octo);

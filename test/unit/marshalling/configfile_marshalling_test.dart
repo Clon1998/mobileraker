@@ -6,8 +6,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:common/data/dto/config/config_file.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobileraker/data/dto/config/config_file.dart';
 
 void main() {
   test('Test ConfigFile parsing, multi extruder one one nozzle!', () {

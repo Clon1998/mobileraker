@@ -3,21 +3,23 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/exceptions/octo_everywhere_exception.dart';
+import 'package:common/network/json_rpc_client.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/enums/webcam_service_type.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -29,9 +31,7 @@ import 'package:mobileraker/ui/components/dialog/import_settings/import_settings
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'printers_edit_controller.g.dart';

@@ -13,7 +13,6 @@
 },
  */
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/data/converters/unix_datetime_converter.dart';
 
 part 'job_queue_entry.freezed.dart';
 part 'job_queue_entry.g.dart';

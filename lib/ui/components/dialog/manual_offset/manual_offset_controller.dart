@@ -3,9 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/manual_probe.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:mobileraker/data/dto/machine/manual_probe.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/service/ui/snackbar_service.dart';

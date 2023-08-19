@@ -5,29 +5,25 @@
 
 import 'dart:async';
 
+import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/announcement/announcement_entry.dart';
-import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
-import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'announcement_service.g.dart';
 
 @riverpod
-AnnouncementService announcementService(
-    AnnouncementServiceRef ref, String machineUUID) {
+AnnouncementService announcementService(AnnouncementServiceRef ref, String machineUUID) {
   return AnnouncementService(ref, machineUUID);
 }
 
 @riverpod
-Stream<List<AnnouncementEntry>> announcement(
-    AnnouncementRef ref, String machineUUID) {
-  return ref
-      .watch(announcementServiceProvider(machineUUID))
-      .announcementNotificationStream;
+Stream<List<AnnouncementEntry>> announcement(AnnouncementRef ref, String machineUUID) {
+  return ref.watch(announcementServiceProvider(machineUUID)).announcementNotificationStream;
 }
 
 /// The AnnouncementService handles different notifications/announcements from feed api.
@@ -37,29 +33,23 @@ class AnnouncementService {
   AnnouncementService(AutoDisposeRef ref, String machineUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
     ref.onDispose(dispose);
-    _jRpcClient.addMethodListener(
-        _onNotifyAnnouncementUpdate, "notify_announcement_update");
-    _jRpcClient.addMethodListener(
-        _onNotifyAnnouncementDismissed, "notify_announcement_dismissed");
-    _jRpcClient.addMethodListener(
-        _onNotifyAnnouncementWake, "notify_announcement_wake");
+    _jRpcClient.addMethodListener(_onNotifyAnnouncementUpdate, "notify_announcement_update");
+    _jRpcClient.addMethodListener(_onNotifyAnnouncementDismissed, "notify_announcement_dismissed");
+    _jRpcClient.addMethodListener(_onNotifyAnnouncementWake, "notify_announcement_wake");
   }
 
-  final StreamController<List<AnnouncementEntry>> _announcementsStreamCtrler =
-      StreamController();
+  final StreamController<List<AnnouncementEntry>> _announcementsStreamCtrler = StreamController();
 
   Stream<List<AnnouncementEntry>> get announcementNotificationStream =>
       _announcementsStreamCtrler.stream;
 
   final JsonRpcClient _jRpcClient;
 
-  Future<List<AnnouncementEntry>> listAnnouncements(
-      [bool includeDismissed = false]) async {
+  Future<List<AnnouncementEntry>> listAnnouncements([bool includeDismissed = false]) async {
     logger.i('List Announcements request...');
 
     try {
-      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
-          'server.announcements.list',
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.announcements.list',
           params: {'include_dismissed': includeDismissed});
 
       List<Map<String, dynamic>> entries = rpcResponse.result['entries'];
@@ -74,15 +64,13 @@ class AnnouncementService {
     logger.i('Trying to dismiss announcement `$entryId`');
 
     try {
-      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod(
-          'server.announcements.list',
+      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.announcements.list',
           params: {'entry_id': entryId, 'wake_time': wakeTime});
 
       String respEntryId = rpcResponse.result['entry_id'];
       return respEntryId;
     } on JRpcError catch (e) {
-      throw MobilerakerException(
-          'Unable to dismiss announcement $entryId. Err: $e');
+      throw MobilerakerException('Unable to dismiss announcement $entryId. Err: $e');
     }
   }
 
@@ -102,18 +90,15 @@ class AnnouncementService {
     listAnnouncements().then(_announcementsStreamCtrler.add);
   }
 
-  List<AnnouncementEntry> _parseAnnouncementsList(
-      List<Map<String, dynamic>> entries) {
+  List<AnnouncementEntry> _parseAnnouncementsList(List<Map<String, dynamic>> entries) {
     return entries.map((e) => AnnouncementEntry.parse(e)).toList();
   }
 
   dispose() {
-    _jRpcClient.removeMethodListener(
-        _onNotifyAnnouncementUpdate, "notify_announcement_update");
+    _jRpcClient.removeMethodListener(_onNotifyAnnouncementUpdate, "notify_announcement_update");
     _jRpcClient.removeMethodListener(
         _onNotifyAnnouncementDismissed, "notify_announcement_dismissed");
-    _jRpcClient.removeMethodListener(
-        _onNotifyAnnouncementWake, "notify_announcement_wake");
+    _jRpcClient.removeMethodListener(_onNotifyAnnouncementWake, "notify_announcement_wake");
 
     _announcementsStreamCtrler.close();
   }

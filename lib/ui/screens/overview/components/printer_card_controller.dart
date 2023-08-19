@@ -3,9 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';

@@ -5,6 +5,14 @@
 
 import 'dart:convert';
 
+import 'package:common/data/adapters/uri_adapter.dart';
+import 'package:common/data/model/hive/gcode_macro.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/hive/macro_group.dart';
+import 'package:common/data/model/hive/octoeverywhere.dart';
+import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:common/data/model/hive/temperature_preset.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
@@ -15,23 +23,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/adapters/uri_adapter.dart';
-import 'package:mobileraker/data/model/hive/gcode_macro.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/macro_group.dart';
-import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
-import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
-import 'package:mobileraker/data/model/hive/temperature_preset.dart';
-import 'package:mobileraker/data/model/hive/webcam_mode.dart';
-import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
-import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -46,9 +43,9 @@ setupBoxes() async {
   // 2 - WebcamSetting
   // 6 - WebCamMode
   // 9 - WebCamRotation
-  // Hive.ignoreTypeId(2);// WebcamSetting
-  // Hive.ignoreTypeId(6);// WebCamMode
-  // Hive.ignoreTypeId(9);// WebCamRotation
+  Hive.ignoreTypeId(2); // WebcamSetting
+  Hive.ignoreTypeId(6); // WebCamMode
+  Hive.ignoreTypeId(9); // WebCamRotation
 
   var machineAdapter = MachineAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
@@ -76,20 +73,6 @@ setupBoxes() async {
   var octoAdapater = OctoEverywhereAdapter();
   if (!Hive.isAdapterRegistered(octoAdapater.typeId)) {
     Hive.registerAdapter(octoAdapater);
-  }
-
-  // TODO: Remove adapters and enable ignoreType again! after x months!
-  final wModeAdapater = WebCamModeAdapter();
-  if (!Hive.isAdapterRegistered(wModeAdapater.typeId)) {
-    Hive.registerAdapter(wModeAdapater);
-  }
-  var webCamRotationAdapter = WebCamRotationAdapter();
-  if (!Hive.isAdapterRegistered(webCamRotationAdapter.typeId)) {
-    Hive.registerAdapter(webCamRotationAdapter);
-  }
-  var webcamSettingAdapter = WebcamSettingAdapter();
-  if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId)) {
-    Hive.registerAdapter(webcamSettingAdapter);
   }
 
   var uriAdapter = UriAdapter();

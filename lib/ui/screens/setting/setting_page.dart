@@ -4,6 +4,8 @@
  */
 import 'dart:io';
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -14,8 +16,6 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/theme_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';

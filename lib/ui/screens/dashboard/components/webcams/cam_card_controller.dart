@@ -6,9 +6,9 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';

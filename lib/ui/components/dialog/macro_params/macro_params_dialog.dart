@@ -3,12 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_gcode_macro.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:stringr/stringr.dart';
 

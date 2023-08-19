@@ -3,14 +3,14 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/led/config_led.dart';
+import 'package:common/data/dto/machine/leds/addressable_led.dart';
+import 'package:common/data/dto/machine/leds/dumb_led.dart';
+import 'package:common/data/dto/machine/leds/led.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/data/dto/config/led/config_led.dart';
-import 'package:mobileraker/data/dto/machine/leds/addressable_led.dart';
-import 'package:mobileraker/data/dto/machine/leds/dumb_led.dart';
-import 'package:mobileraker/data/dto/machine/leds/led.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/util/extensions/pixel_extension.dart';

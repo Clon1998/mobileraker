@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:common/network/json_rpc_client.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_stepper/easy_stepper.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +14,12 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/components/supporter_only_feature.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_controller.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 

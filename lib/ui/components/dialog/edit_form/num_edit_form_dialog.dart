@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/util/extensions/double_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -10,7 +11,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/util/extensions/double_extension.dart';
 
 import 'num_edit_form_controller.dart';
 

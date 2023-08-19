@@ -3,13 +3,13 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
@@ -46,8 +46,7 @@ class _PrinterCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var singlePrinterCardController =
-        ref.watch(printerCardControllerProvider.notifier);
+    var singlePrinterCardController = ref.watch(printerCardControllerProvider.notifier);
     var machine = ref.watch(printerCardMachineProvider);
     return Card(
       child: Column(
@@ -126,12 +125,10 @@ class _Cam extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(printerCardMachineProvider);
-    var printState = ref
-        .watch(printerProvider(machine.uuid).selectAs((d) => d.print.state))
-        .valueOrFullNull;
+    var printState =
+        ref.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state)).valueOrFullNull;
 
-    WebcamInfo? webcamInfo =
-        ref.watch(printerCardControllerProvider).valueOrFullNull;
+    WebcamInfo? webcamInfo = ref.watch(printerCardControllerProvider).valueOrFullNull;
 
     return AnimatedSwitcher(
       switchInCurve: Curves.easeInOutBack,
@@ -156,11 +153,8 @@ class _Cam extends ConsumerWidget {
                     child: IconButton(
                       color: Colors.white,
                       icon: const Icon(Icons.aspect_ratio),
-                      tooltip:
-                          tr('pages.dashboard.general.cam_card.fullscreen'),
-                      onPressed: ref
-                          .read(printerCardControllerProvider.notifier)
-                          .onFullScreenTap,
+                      tooltip: tr('pages.dashboard.general.cam_card.fullscreen'),
+                      onPressed: ref.read(printerCardControllerProvider.notifier).onFullScreenTap,
                     ),
                   ),
                 ),

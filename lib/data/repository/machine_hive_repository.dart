@@ -3,17 +3,16 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
 import 'package:hive/hive.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'machine_repository.dart';
+
 part 'machine_hive_repository.g.dart';
 
 @Riverpod(keepAlive: true)
 MachineHiveRepository machineRepository(MachineRepositoryRef ref) => MachineHiveRepository();
-
 
 class MachineHiveRepository implements MachineRepository {
   MachineHiveRepository() : _boxMachines = Hive.box<Machine>('printers');
@@ -35,8 +34,7 @@ class MachineHiveRepository implements MachineRepository {
 
   @override
   Future<Machine?> get({String? uuid, int index = -1}) async {
-    assert(
-        uuid != null || index >= 0, 'Either provide an uuid or an index >= 0');
+    assert(uuid != null || index >= 0, 'Either provide an uuid or an index >= 0');
     if (uuid != null) {
       return _boxMachines.get(uuid);
     } else {

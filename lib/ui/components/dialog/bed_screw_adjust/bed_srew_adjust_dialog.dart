@@ -4,12 +4,12 @@
  */
 
 import 'package:collection/collection.dart';
+import 'package:common/data/dto/config/config_file.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/config/config_file.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';

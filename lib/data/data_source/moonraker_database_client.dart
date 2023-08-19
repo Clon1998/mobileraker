@@ -5,13 +5,12 @@
 
 import 'dart:io';
 
+import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import 'json_rpc_client.dart';
 
 part 'moonraker_database_client.g.dart';
 
@@ -33,11 +32,9 @@ class MoonrakerDatabaseClient {
   Future<List<String>> listNamespaces() async {
     _validateClientConnection();
     try {
-      RpcResponse blockingResponse =
-          await _jsonRpcClient.sendJRpcMethod("server.database.list");
+      RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod("server.database.list");
 
-      List<String> nameSpaces =
-          List.from(blockingResponse.result['namespaces']);
+      List<String> nameSpaces = List.from(blockingResponse.result['namespaces']);
       return nameSpaces;
     } on JRpcError catch (e) {
       logger.e('Error while listing Namespaces $e', e);
@@ -53,8 +50,8 @@ class MoonrakerDatabaseClient {
     var params = {"namespace": namespace};
     if (key != null) params["key"] = key;
     try {
-      RpcResponse blockingResponse = await _jsonRpcClient
-          .sendJRpcMethod("server.database.get_item", params: params);
+      RpcResponse blockingResponse =
+          await _jsonRpcClient.sendJRpcMethod("server.database.get_item", params: params);
       return blockingResponse.result['value'];
     } on JRpcError catch (e, s) {
       logger.w("Could not retrieve key: $key", e, StackTrace.current);
@@ -63,8 +60,7 @@ class MoonrakerDatabaseClient {
   }
 
   /// see: https://moonraker.readthedocs.io/en/latest/web_api/#add-database-item
-  Future<dynamic> addDatabaseItem<T>(
-      String namespace, String key, T value) async {
+  Future<dynamic> addDatabaseItem<T>(String namespace, String key, T value) async {
     _validateClientConnection();
     logger.d('Adding $key => $value');
     try {
@@ -104,8 +100,7 @@ class MoonrakerDatabaseClient {
 
   _validateClientConnection() {
     if (_jsonRpcClient.curState != ClientState.connected) {
-      throw WebSocketException(
-          'JsonRpcClient is not connected. Target-URL: ${_jsonRpcClient.uri}');
+      throw WebSocketException('JsonRpcClient is not connected. Target-URL: ${_jsonRpcClient.uri}');
     }
   }
 }

@@ -3,6 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_extruder.dart';
+import 'package:common/data/dto/config/config_heater_bed.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -11,10 +16,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/config/config_extruder.dart';
-import 'package:mobileraker/data/dto/config/config_heater_bed.dart';
 import 'package:mobileraker/data/enums/webcam_service_type.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/model/moonraker_db/macro_group.dart';
 import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
 import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
@@ -28,8 +30,6 @@ import 'package:mobileraker/ui/components/supporter_only_feature.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:stringr/stringr.dart';
@@ -560,8 +560,7 @@ class RemoteSettings extends ConsumerWidget {
                     subtitle: const Text('pages.printer_edit.fetch_error_hint').tr(),
                   ),
                 ],
-            loading: () =>
-            [
+            loading: () => [
                   FadingText('pages.printer_edit.fetching_additional_settings'.tr()),
                 ]),
         const Divider(),
@@ -885,20 +884,18 @@ class _TempPresetItem extends HookConsumerWidget {
             decoration: InputDecoration(
                 labelText: 'pages.printer_edit.general.displayname'.tr(),
                 suffix: IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: ref.watch(printerEditControllerProvider)
-                          ? null
-                          : () =>
-                          ref
-                              .read(temperaturePresetListControllerProvider.notifier)
-                              .removeTemperaturePreset(preset),
-                    )),
-                name: '${preset.uuid}-presetName',
-                initialValue: name.value,
-                onChanged: (v) =>
-                name.value =
+                  icon: const Icon(Icons.delete),
+                  onPressed: ref.watch(printerEditControllerProvider)
+                      ? null
+                      : () => ref
+                          .read(temperaturePresetListControllerProvider.notifier)
+                          .removeTemperaturePreset(preset),
+                )),
+            name: '${preset.uuid}-presetName',
+            initialValue: name.value,
+            onChanged: (v) => name.value =
                 ((v?.isEmpty ?? true) ? 'pages.printer_edit.presets.new_preset'.tr() : v!),
-                validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+            validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
           ),
           FormBuilderTextField(
             decoration: InputDecoration(

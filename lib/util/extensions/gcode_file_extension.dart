@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:mobileraker/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/gcode_file.dart';
 
 extension UriExtension on GCodeFile {
   /// Constructs the Uri of the BigImage, if it is available!

@@ -3,13 +3,13 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/setting_service.dart';

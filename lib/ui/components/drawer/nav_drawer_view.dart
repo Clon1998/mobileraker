@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';

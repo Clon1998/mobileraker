@@ -5,7 +5,18 @@
 
 import 'dart:math';
 
+import 'package:common/data/dto/config/config_gcode_macro.dart';
+import 'package:common/data/dto/config/led/config_dumb_led.dart';
+import 'package:common/data/dto/config/led/config_led.dart';
+import 'package:common/data/dto/machine/fans/generic_fan.dart';
+import 'package:common/data/dto/machine/fans/named_fan.dart';
+import 'package:common/data/dto/machine/leds/addressable_led.dart';
+import 'package:common/data/dto/machine/leds/dumb_led.dart';
+import 'package:common/data/dto/machine/leds/led.dart';
+import 'package:common/data/dto/machine/output_pin.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -15,16 +26,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:form_builder_validators/localization/l10n.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
-import 'package:mobileraker/data/dto/config/led/config_dumb_led.dart';
-import 'package:mobileraker/data/dto/config/led/config_led.dart';
-import 'package:mobileraker/data/dto/machine/fans/generic_fan.dart';
-import 'package:mobileraker/data/dto/machine/fans/named_fan.dart';
-import 'package:mobileraker/data/dto/machine/leds/addressable_led.dart';
-import 'package:mobileraker/data/dto/machine/leds/dumb_led.dart';
-import 'package:mobileraker/data/dto/machine/leds/led.dart';
-import 'package:mobileraker/data/dto/machine/output_pin.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/moonraker_db/gcode_macro.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
@@ -38,7 +39,6 @@ import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/pixel_extension.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 
@@ -47,94 +47,86 @@ class ControlTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((data) => true))
-        .when(
-            data: (data) {
-              return PullToRefreshPrinter(
-                child: ListView(
-                  key: const PageStorageKey<String>('cTab'),
-                  padding: const EdgeInsets.only(bottom: 20),
-                  children: [
-                    if (ref
-                            .watch(machinePrinterKlippySettingsProvider
-                                .selectAs((value) =>
-                                    value.settings.macroGroups.isNotEmpty))
-                            .valueOrFullNull ??
-                        false)
-                      const GcodeMacroCard(),
-                    if (ref
-                            .watch(machinePrinterKlippySettingsProvider
-                                .selectAs((value) =>
-                                    value.printerData.print.state !=
-                                    PrintState.printing))
-                            .valueOrFullNull ??
-                        false)
-                      const ExtruderControlCard(),
-                    const FansCard(),
-                    if (ref
-                            .watch(machinePrinterKlippySettingsProvider
-                                .selectAs((value) =>
-                                    value.printerData.outputPins.isNotEmpty ||
-                                    value.printerData.leds.isNotEmpty))
-                            .valueOrFullNull ??
-                        false)
-                      const PinsCard(),
-                    if (ref
-                            .watch(machinePrinterKlippySettingsProvider
-                                .selectAs((value) => value.klippyData.components
-                                    .contains('power')))
-                            .valueOrFullNull ??
-                        false)
-                      const PowerApiCard(),
-                    const MultipliersCard(),
-                    const LimitsCard(),
-                  ],
+    return ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).when(
+        data: (data) {
+          return PullToRefreshPrinter(
+            child: ListView(
+              key: const PageStorageKey<String>('cTab'),
+              padding: const EdgeInsets.only(bottom: 20),
+              children: [
+                if (ref
+                        .watch(machinePrinterKlippySettingsProvider
+                            .selectAs((value) => value.settings.macroGroups.isNotEmpty))
+                        .valueOrFullNull ??
+                    false)
+                  const GcodeMacroCard(),
+                if (ref
+                        .watch(machinePrinterKlippySettingsProvider.selectAs(
+                            (value) => value.printerData.print.state != PrintState.printing))
+                        .valueOrFullNull ??
+                    false)
+                  const ExtruderControlCard(),
+                const FansCard(),
+                if (ref
+                        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
+                            value.printerData.outputPins.isNotEmpty ||
+                            value.printerData.leds.isNotEmpty))
+                        .valueOrFullNull ??
+                    false)
+                  const PinsCard(),
+                if (ref
+                        .watch(machinePrinterKlippySettingsProvider
+                            .selectAs((value) => value.klippyData.components.contains('power')))
+                        .valueOrFullNull ??
+                    false)
+                  const PowerApiCard(),
+                const MultipliersCard(),
+                const LimitsCard(),
+              ],
+            ),
+          );
+        },
+        error: (e, s) {
+          logger.e('Cought error in Controller tab', e, s);
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
+                const SizedBox(
+                  height: 22,
                 ),
-              );
-            },
-            error: (e, s) {
-              logger.e('Cought error in Controller tab', e, s);
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
-                    const SizedBox(
-                      height: 22,
-                    ),
-                    const Text(
-                      'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
-                      textAlign: TextAlign.center,
-                    ),
-                    TextButton(
-                        // onPressed: model.showPrinterFetchingErrorDialog,
-                        onPressed: () => ref.read(dialogServiceProvider).show(
-                            DialogRequest(
-                                type: DialogType.stacktrace,
-                                title: e.runtimeType.toString(),
-                                body: 'Exception:\n $e\n\n$s')),
-                        child: const Text('Show Error'))
-                  ],
+                const Text(
+                  'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
+                  textAlign: TextAlign.center,
                 ),
-              );
-            },
-            loading: () => Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SpinKitRipple(
-                        color: Theme.of(context).colorScheme.secondary,
-                        size: 100,
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      FadingText('Fetching printer data'),
-                      // Text('Fetching printer ...')
-                    ],
+                TextButton(
+                    // onPressed: model.showPrinterFetchingErrorDialog,
+                    onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
+                        type: DialogType.stacktrace,
+                        title: e.runtimeType.toString(),
+                        body: 'Exception:\n $e\n\n$s')),
+                    child: const Text('Show Error'))
+              ],
+            ),
+          );
+        },
+        loading: () => Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SpinKitRipple(
+                    color: Theme.of(context).colorScheme.secondary,
+                    size: 100,
                   ),
-                ));
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  FadingText('Fetching printer data'),
+                  // Text('Fetching printer ...')
+                ],
+              ),
+            ));
   }
 }
 
@@ -146,10 +138,8 @@ class FansCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var fanLen = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.fans.values
-            .where((element) => !element.name.startsWith('_'))
-            .length))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.printerData.fans.values.where((element) => !element.name.startsWith('_')).length))
         .valueOrFullNull!;
 
     return Card(
@@ -161,8 +151,7 @@ class FansCard extends ConsumerWidget {
               leading: const Icon(
                 FlutterIcons.fan_mco,
               ),
-              title: const Text('pages.dashboard.control.fan_card.title')
-                  .plural(fanLen),
+              title: const Text('pages.dashboard.control.fan_card.title').plural(fanLen),
             ),
             AdaptiveHorizontalScroll(pageStorageKey: 'fans', children: [
               if (ref
@@ -172,10 +161,10 @@ class FansCard extends ConsumerWidget {
                   true)
                 const _PrintFan(),
               ...List.generate(fanLen, (index) {
-                var fanProvider = machinePrinterKlippySettingsProvider.selectAs(
-                    (value) => value.printerData.fans.values
-                        .where((element) => !element.name.startsWith('_'))
-                        .elementAt(index));
+                var fanProvider = machinePrinterKlippySettingsProvider.selectAs((value) => value
+                    .printerData.fans.values
+                    .where((element) => !element.name.startsWith('_'))
+                    .elementAt(index));
 
                 return _Fan(
                   fanProvider: fanProvider,
@@ -195,8 +184,7 @@ class _PrintFan extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var fan = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.printerData.printFan))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.printerData.printFan))
         .valueOrFullNull;
     var klippyCanReceiveCommands = ref
         .watch(machinePrinterKlippySettingsProvider
@@ -211,8 +199,7 @@ class _PrintFan extends ConsumerWidget {
       name: 'pages.dashboard.control.fan_card.part_fan'.tr(),
       speed: fan.speed,
       onTap: klippyCanReceiveCommands
-          ? () =>
-              ref.read(controlTabControllerProvider.notifier).onEditPartFan(fan)
+          ? () => ref.read(controlTabControllerProvider.notifier).onEditPartFan(fan)
           : null,
     );
   }
@@ -234,9 +221,7 @@ class _Fan extends ConsumerWidget {
       name: beautifyName(fan.name),
       speed: fan.speed,
       onTap: klippyCanReceiveCommands && (fan is GenericFan)
-          ? () => ref
-              .read(controlTabControllerProvider.notifier)
-              .onEditGenericFan(fan)
+          ? () => ref.read(controlTabControllerProvider.notifier).onEditGenericFan(fan)
           : null,
     );
   }
@@ -284,8 +269,7 @@ class _FanCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(fanSpeed,
-                        style: Theme.of(context).textTheme.headlineSmall),
+                    Text(fanSpeed, style: Theme.of(context).textTheme.headlineSmall),
                   ],
                 ),
                 speed > 0
@@ -324,24 +308,20 @@ class ExtruderControlCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var activeExtruderIdx =
-        ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) {
+    var activeExtruderIdx = ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) {
       String activeIdx = value.printerData.toolhead.activeExtruder.substring(8);
       return int.tryParse(activeIdx) ?? 0;
     })).valueOrFullNull!;
 
     var minExtrudeTemp = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
-            value.printerData.configFile
-                .extruderForIndex(activeExtruderIdx)
-                ?.minExtrudeTemp ??
+    value.printerData.configFile.extruderForIndex(activeExtruderIdx)?.minExtrudeTemp ??
             170))
         .valueOrFullNull!;
 
     var canExtrude = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
-            value.printerData.extruders[activeExtruderIdx].temperature >=
-            minExtrudeTemp))
+            value.printerData.extruders[activeExtruderIdx].temperature >= minExtrudeTemp))
         .valueOrFullNull!;
 
     var klippyCanReceiveCommands = ref
@@ -350,8 +330,8 @@ class ExtruderControlCard extends HookConsumerWidget {
         .valueOrFullNull!;
 
     var extruderSteps = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.settings.extrudeSteps))
+        .watch(
+            machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.extrudeSteps))
         .valueOrFullNull!;
 
     return Card(
@@ -369,8 +349,7 @@ class ExtruderControlCard extends HookConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 5),
                     child: Tooltip(
-                      message: tr(
-                          'pages.dashboard.control.extrude_card.cold_extrude_error',
+                      message: tr('pages.dashboard.control.extrude_card.cold_extrude_error',
                           args: [minExtrudeTemp.toStringAsFixed(0)]),
                       child: Icon(
                         Icons.severe_cold,
@@ -382,24 +361,20 @@ class ExtruderControlCard extends HookConsumerWidget {
               ],
             ),
             trailing: (ref
-                    .watch(machinePrinterKlippySettingsProvider.selectAs(
-                        (value) => value.printerData.extruderCount > 1))
+                    .watch(machinePrinterKlippySettingsProvider
+                        .selectAs((value) => value.printerData.extruderCount > 1))
                     .valueOrFullNull!)
                 ? DropdownButton(
                     value: activeExtruderIdx,
                     onChanged: klippyCanReceiveCommands
-                        ? ref
-                            .watch(controlTabControllerProvider.notifier)
-                            .onExtruderSelected
+                        ? ref.watch(controlTabControllerProvider.notifier).onExtruderSelected
                         : null,
                     items: List.generate(
                         ref
-                            .watch(
-                                machinePrinterKlippySettingsProvider.selectAs(
-                                    (value) => value.printerData.extruderCount))
+                            .watch(machinePrinterKlippySettingsProvider
+                                .selectAs((value) => value.printerData.extruderCount))
                             .valueOrFullNull!, (index) {
-                      String name =
-                          tr('pages.dashboard.control.extrude_card.title');
+                      String name = tr('pages.dashboard.control.extrude_card.title');
                       if (index > 0) name += ' $index';
                       return DropdownMenuItem(
                         value: index,
@@ -420,30 +395,20 @@ class ExtruderControlCard extends HookConsumerWidget {
                       margin: const EdgeInsets.all(5),
                       child: ElevatedButton.icon(
                         onPressed: klippyCanReceiveCommands && canExtrude
-                            ? ref
-                                .watch(extruderControlCardControllerProvider
-                                    .notifier)
-                                .onRetractBtn
+                            ? ref.watch(extruderControlCardControllerProvider.notifier).onRetractBtn
                             : null,
                         icon: const Icon(FlutterIcons.minus_ant),
-                        label: const Text(
-                                'pages.dashboard.control.extrude_card.retract')
-                            .tr(),
+                        label: const Text('pages.dashboard.control.extrude_card.retract').tr(),
                       ),
                     ),
                     Container(
                       margin: const EdgeInsets.all(5),
                       child: ElevatedButton.icon(
                         onPressed: klippyCanReceiveCommands && canExtrude
-                            ? ref
-                                .watch(extruderControlCardControllerProvider
-                                    .notifier)
-                                .onExtrudeBtn
+                            ? ref.watch(extruderControlCardControllerProvider.notifier).onExtrudeBtn
                             : null,
                         icon: const Icon(FlutterIcons.plus_ant),
-                        label: const Text(
-                                'pages.dashboard.control.extrude_card.extrude')
-                            .tr(),
+                        label: const Text('pages.dashboard.control.extrude_card.extrude').tr(),
                       ),
                     ),
                   ],
@@ -452,18 +417,13 @@ class ExtruderControlCard extends HookConsumerWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                          '${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]'),
+                      child: Text('${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]'),
                     ),
                     RangeSelector(
-                        selectedIndex:
-                            ref.watch(extruderControlCardControllerProvider),
-                        onSelected: ref
-                            .watch(
-                                extruderControlCardControllerProvider.notifier)
-                            .stepChanged,
-                        values:
-                            extruderSteps.map((e) => e.toString()).toList()),
+                        selectedIndex: ref.watch(extruderControlCardControllerProvider),
+                        onSelected:
+                            ref.watch(extruderControlCardControllerProvider.notifier).stepChanged,
+                        values: extruderSteps.map((e) => e.toString()).toList()),
                   ],
                 ),
               ],
@@ -488,22 +448,16 @@ class GcodeMacroCard extends HookConsumerWidget {
         .valueOrFullNull!;
 
     var macroGroups = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.settings.macroGroups))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.macroGroups))
         .valueOrFullNull!;
 
     var isPrinting = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs(
-            (value) => value.printerData.print.state == PrintState.printing))
+        .watch(machinePrinterKlippySettingsProvider
+            .selectAs((value) => value.printerData.print.state == PrintState.printing))
         .valueOrFullNull!;
 
-    int idx = min(
-        macroGroups.length - 1,
-        max(
-            0,
-            ref
-                .watch(settingServiceProvider)
-                .readInt(UtilityKeys.gCodeIndex, 0)));
+    int idx = min(macroGroups.length - 1,
+        max(0, ref.watch(settingServiceProvider).readInt(UtilityKeys.gCodeIndex, 0)));
 
     var selected = useState(idx);
     var themeData = Theme.of(context);
@@ -521,9 +475,7 @@ class GcodeMacroCard extends HookConsumerWidget {
                     value: selected.value,
                     onChanged: klippyCanReceiveCommands
                         ? (e) {
-                      ref
-                                .read(settingServiceProvider)
-                                .writeInt(UtilityKeys.gCodeIndex, e!);
+                      ref.read(settingServiceProvider).writeInt(UtilityKeys.gCodeIndex, e!);
                             selected.value = e;
                           }
                         : null,
@@ -544,31 +496,25 @@ class GcodeMacroCard extends HookConsumerWidget {
                 (int index) {
                   GCodeMacro macro = macrosOfGrp[index];
                   ConfigGcodeMacro? configGcodeMacro = ref
-                      .watch(machinePrinterKlippySettingsProvider.selectAs(
-                          (data) => data.printerData.configFile
-                              .gcodeMacros[macro.name.toLowerCase()]))
+                      .watch(machinePrinterKlippySettingsProvider.selectAs((data) =>
+                          data.printerData.configFile.gcodeMacros[macro.name.toLowerCase()]))
                       .valueOrFullNull;
-                  bool disabled = (!klippyCanReceiveCommands ||
-                      (isPrinting && !macro.showWhilePrinting));
+                  bool disabled =
+                      (!klippyCanReceiveCommands || (isPrinting && !macro.showWhilePrinting));
                   return Visibility(
                     visible: ref
-                            .watch(
-                                machinePrinterKlippySettingsProvider.selectAs(
-                                    (value) => value.printerData.gcodeMacros
-                                        .contains(macro.name)))
+                            .watch(machinePrinterKlippySettingsProvider.selectAs(
+                                (value) => value.printerData.gcodeMacros.contains(macro.name)))
                             .valueOrFullNull! &&
                         macro.visible,
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                         minimumSize: const Size(0, 32),
                         foregroundColor: themeData.colorScheme.onPrimary,
                         backgroundColor: themeData.colorScheme.primary,
-                        disabledBackgroundColor:
-                            themeData.colorScheme.onSurface.withOpacity(0.12),
-                        disabledForegroundColor:
-                            themeData.colorScheme.onSurface.withOpacity(0.38),
+                        disabledBackgroundColor: themeData.colorScheme.onSurface.withOpacity(0.12),
+                        disabledForegroundColor: themeData.colorScheme.onSurface.withOpacity(0.38),
                         textStyle: themeData.chipTheme.labelStyle,
                         shape: const StadiumBorder(),
                       ),
@@ -580,11 +526,10 @@ class GcodeMacroCard extends HookConsumerWidget {
 
                       onLongPress: disabled
                           ? null
-                          : () => ref
-                              .watch(controlTabControllerProvider.notifier)
-                              .onMacroLongPressed(
-                                macro.name,
-                              ),
+                          : () =>
+                              ref.watch(controlTabControllerProvider.notifier).onMacroLongPressed(
+                                    macro.name,
+                                  ),
                       child: Text(macro.beautifiedName),
 
                       // Chip(
@@ -621,10 +566,8 @@ class PinsCard extends ConsumerWidget {
         .valueOrFullNull!;
 
     var ledLen = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.leds.values
-            .where((element) => !element.name.startsWith('_'))
-            .length))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
+            value.printerData.leds.values.where((element) => !element.name.startsWith('_')).length))
         .valueOrFullNull!;
     return Card(
       child: Padding(
@@ -635,25 +578,24 @@ class PinsCard extends ConsumerWidget {
               leading: const Icon(
                 FlutterIcons.led_outline_mco,
               ),
-              title: Text(plural(
-                  'pages.dashboard.control.pin_card.title', pinLen + ledLen)),
+              title: Text(plural('pages.dashboard.control.pin_card.title', pinLen + ledLen)),
             ),
             AdaptiveHorizontalScroll(
               pageStorageKey: 'pins',
               children: [
                 ...List.generate(pinLen, (index) {
-                  var pinProvider = machinePrinterKlippySettingsProvider
-                      .selectAs((value) => value.printerData.outputPins.values
-                          .where((element) => !element.name.startsWith('_'))
-                          .elementAt(index));
+                  var pinProvider = machinePrinterKlippySettingsProvider.selectAs((value) => value
+                      .printerData.outputPins.values
+                      .where((element) => !element.name.startsWith('_'))
+                      .elementAt(index));
 
                   return _PinTile(pinProvider: pinProvider);
                 }),
                 ...List.generate(ledLen, (index) {
-                  var ledProvider = machinePrinterKlippySettingsProvider
-                      .selectAs((value) => value.printerData.leds.values
-                          .where((element) => !element.name.startsWith('_'))
-                          .elementAt(index));
+                  var ledProvider = machinePrinterKlippySettingsProvider.selectAs((value) => value
+                      .printerData.leds.values
+                      .where((element) => !element.name.startsWith('_'))
+                      .elementAt(index));
 
                   return _Led(
                     ledProvider: ledProvider,
@@ -682,8 +624,8 @@ class _PinTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var pin = ref.watch(pinProvider).valueOrFullNull!;
     var pinConfig = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs(
-            (value) => value.printerData.configFile.outputs[pin.name]))
+        .watch(machinePrinterKlippySettingsProvider
+            .selectAs((value) => value.printerData.configFile.outputs[pin.name]))
         .valueOrFullNull;
     var klippyCanReceiveCommands = ref
         .watch(machinePrinterKlippySettingsProvider
@@ -693,9 +635,8 @@ class _PinTile extends ConsumerWidget {
     if (pinConfig?.pwm == false) {
       return CardWithSwitch(
           value: pin.value > 0,
-          onChanged: (v) => ref
-              .read(controlTabControllerProvider.notifier)
-              .onUpdateBinaryPin(pin, v),
+          onChanged: (v) =>
+              ref.read(controlTabControllerProvider.notifier).onUpdateBinaryPin(pin, v),
           builder: (context) {
             var textTheme = Theme.of(context).textTheme;
             var beautifiedName = beautifyName(pin.name);
@@ -721,9 +662,7 @@ class _PinTile extends ConsumerWidget {
     return CardWithButton(
         buttonChild: const Text('general.set').tr(),
         onTap: klippyCanReceiveCommands
-            ? () => ref
-                .read(controlTabControllerProvider.notifier)
-                .onEditPin(pin, pinConfig)
+            ? () => ref.read(controlTabControllerProvider.notifier).onEditPin(pin, pinConfig)
             : null,
         builder: (context) {
           var textTheme = Theme.of(context).textTheme;
@@ -739,9 +678,7 @@ class _PinTile extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(
-                    pinValue(pin.value * (pinConfig?.scale ?? 1),
-                        context.locale.languageCode),
+                Text(pinValue(pin.value * (pinConfig?.scale ?? 1), context.locale.languageCode),
                     style: textTheme.headlineSmall),
               ],
             ),
@@ -780,9 +717,7 @@ class _Led extends ConsumerWidget {
   }
 
   String statusText(Led led, ConfigLed? ledConfig, String locale) {
-    if (led is DumbLed &&
-            ledConfig?.isSingleColor == false &&
-            led.color.hasColor ||
+    if (led is DumbLed && ledConfig?.isSingleColor == false && led.color.hasColor ||
         led is AddressableLed && led.pixels.any((e) => e.hasColor)) {
       return 'general.on'.tr();
     }
@@ -847,8 +782,7 @@ class _Led extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     Led led = ref.watch(ledProvider).valueOrFullNull!;
     var ledConfig = ref.watch(machinePrinterKlippySettingsProvider.select(
-        (value) => value.valueOrFullNull?.printerData.configFile
-            .leds[led.name.toLowerCase()]));
+        (value) => value.valueOrFullNull?.printerData.configFile.leds[led.name.toLowerCase()]));
     var klippyCanReceiveCommands = ref
         .watch(machinePrinterKlippySettingsProvider
             .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
@@ -857,9 +791,7 @@ class _Led extends ConsumerWidget {
     return CardWithButton(
         buttonChild: const Text('general.set').tr(),
         onTap: klippyCanReceiveCommands
-            ? () => ref
-                .read(controlTabControllerProvider.notifier)
-                .onEditLed(led, ledConfig)
+            ? () => ref.read(controlTabControllerProvider.notifier).onEditLed(led, ledConfig)
             : null,
         builder: (context) {
           var textTheme = Theme.of(context).textTheme;
@@ -878,8 +810,7 @@ class _Led extends ConsumerWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Text(
-                        statusText(led, ledConfig, context.locale.languageCode),
+                    Text(statusText(led, ledConfig, context.locale.languageCode),
                         style: Theme.of(context).textTheme.headlineSmall),
                   ],
                 ),
@@ -911,12 +842,10 @@ class MultipliersCard extends HookConsumerWidget {
         children: <Widget>[
           ListTile(
             leading: const Icon(FlutterIcons.speedometer_slow_mco),
-            title:
-                const Text('pages.dashboard.control.multipl_card.title').tr(),
+            title: const Text('pages.dashboard.control.multipl_card.title').tr(),
             trailing: IconButton(
-                onPressed: klippyCanReceiveCommands
-                    ? () => inputLocked.value = !inputLocked.value
-                    : null,
+                onPressed:
+                    klippyCanReceiveCommands ? () => inputLocked.value = !inputLocked.value : null,
                 icon: AnimatedSwitcher(
                   duration: kThemeAnimationDuration,
                   transitionBuilder: (child, anim) => RotationTransition(
@@ -925,8 +854,7 @@ class MultipliersCard extends HookConsumerWidget {
                   ),
                   child: inputLocked.value
                       ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
-                      : const Icon(FlutterIcons.unlock_faw,
-                          key: ValueKey('unlock')),
+                      : const Icon(FlutterIcons.unlock_faw, key: ValueKey('unlock')),
                 )),
           ),
           Padding(
@@ -934,55 +862,38 @@ class MultipliersCard extends HookConsumerWidget {
             child: Column(
               children: [
                 _SliderOrTextInput(
-                  initialValue: ref.watch(
-                      machinePrinterKlippySettingsProvider.select((value) =>
-                          value.value!.printerData.gCodeMove.speedFactor)),
+                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
+                      .select((value) => value.value!.printerData.gCodeMove.speedFactor)),
                   prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref
-                          .watch(controlTabControllerProvider.notifier)
-                          .onEditedSpeedMultiplier
+                      ? ref.watch(controlTabControllerProvider.notifier).onEditedSpeedMultiplier
                       : null,
                 ),
                 _SliderOrTextInput(
-                    initialValue: ref.watch(
-                        machinePrinterKlippySettingsProvider.select((value) =>
-                            value.value!.printerData.gCodeMove.extrudeFactor)),
-                    prefixText:
-                        'pages.dashboard.control.multipl_card.flow'.tr(),
+                    initialValue: ref.watch(machinePrinterKlippySettingsProvider
+                        .select((value) => value.value!.printerData.gCodeMove.extrudeFactor)),
+                    prefixText: 'pages.dashboard.control.multipl_card.flow'.tr(),
                     onChange: klippyCanReceiveCommands && !inputLocked.value
-                        ? ref
-                            .watch(controlTabControllerProvider.notifier)
-                            .onEditedFlowMultiplier
+                        ? ref.watch(controlTabControllerProvider.notifier).onEditedFlowMultiplier
                         : null),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(
-                      machinePrinterKlippySettingsProvider.select((value) =>
-                          value.value!.printerData.extruder.pressureAdvance)),
-                  prefixText:
-                      'pages.dashboard.control.multipl_card.press_adv'.tr(),
+                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
+                      .select((value) => value.value!.printerData.extruder.pressureAdvance)),
+                  prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref
-                          .watch(controlTabControllerProvider.notifier)
-                          .onEditedPressureAdvanced
+                      ? ref.watch(controlTabControllerProvider.notifier).onEditedPressureAdvanced
                       : null,
-                  numberFormat:
-                      NumberFormat('0.##### mm/s', context.locale.languageCode),
+                  numberFormat: NumberFormat('0.##### mm/s', context.locale.languageCode),
                   unit: 'mm/s',
                 ),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(
-                      machinePrinterKlippySettingsProvider.select((value) =>
-                          value.value!.printerData.extruder.smoothTime)),
-                  prefixText:
-                      'pages.dashboard.control.multipl_card.smooth_time'.tr(),
+                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
+                      .select((value) => value.value!.printerData.extruder.smoothTime)),
+                  prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref
-                          .watch(controlTabControllerProvider.notifier)
-                          .onEditedSmoothTime
+                      ? ref.watch(controlTabControllerProvider.notifier).onEditedSmoothTime
                       : null,
-                  numberFormat:
-                      NumberFormat('0.### s', context.locale.languageCode),
+                  numberFormat: NumberFormat('0.### s', context.locale.languageCode),
                   maxValue: 0.2,
                   unit: 's',
                 ),
@@ -1028,8 +939,7 @@ class LimitsCard extends HookConsumerWidget {
                   ),
                   child: inputLocked.value
                       ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
-                      : const Icon(FlutterIcons.unlock_faw,
-                          key: ValueKey('unlock')),
+                      : const Icon(FlutterIcons.unlock_faw, key: ValueKey('unlock')),
                 )),
           ),
           Padding(
@@ -1037,64 +947,48 @@ class LimitsCard extends HookConsumerWidget {
             child: Column(
               children: [
                 _SliderOrTextInput(
-                  initialValue: ref.watch(
-                      machinePrinterKlippySettingsProvider.select((value) =>
-                          value.value!.printerData.toolhead.maxVelocity)),
+                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
+                      .select((value) => value.value!.printerData.toolhead.maxVelocity)),
                   prefixText: tr('pages.dashboard.control.limit_card.velocity'),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref
-                          .watch(controlTabControllerProvider.notifier)
-                          .onEditedMaxVelocity
+                      ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxVelocity
                       : null,
-                  numberFormat:
-                      NumberFormat('0 mm/s', context.locale.languageCode),
+                  numberFormat: NumberFormat('0 mm/s', context.locale.languageCode),
                   unit: 'mm/s',
                   maxValue: 500,
                 ),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(
-                      machinePrinterKlippySettingsProvider.select((value) =>
-                          value.value!.printerData.toolhead.maxAccel)),
+                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
+                      .select((value) => value.value!.printerData.toolhead.maxAccel)),
                   prefixText: tr('pages.dashboard.control.limit_card.accel'),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref
-                          .watch(controlTabControllerProvider.notifier)
-                          .onEditedMaxAccel
+                      ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxAccel
                       : null,
-                  numberFormat:
-                      NumberFormat('0 mm/s²', context.locale.languageCode),
+                  numberFormat: NumberFormat('0 mm/s²', context.locale.languageCode),
                   unit: 'mm/s²',
                   maxValue: 5000,
                 ),
                 _SliderOrTextInput(
                   initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                      .select((value) => value
-                          .value!.printerData.toolhead.squareCornerVelocity)),
-                  prefixText:
-                      tr('pages.dashboard.control.limit_card.sq_corn_vel'),
+                      .select((value) => value.value!.printerData.toolhead.squareCornerVelocity)),
+                  prefixText: tr('pages.dashboard.control.limit_card.sq_corn_vel'),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
                       ? ref
                           .watch(controlTabControllerProvider.notifier)
                           .onEditedMaxSquareCornerVelocity
                       : null,
-                  numberFormat:
-                      NumberFormat('0.# mm/s', context.locale.languageCode),
+                  numberFormat: NumberFormat('0.# mm/s', context.locale.languageCode),
                   unit: 'mm/s',
                   maxValue: 8,
                 ),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(
-                      machinePrinterKlippySettingsProvider.select((value) =>
-                          value.value!.printerData.toolhead.maxAccelToDecel)),
-                  prefixText:
-                      tr('pages.dashboard.control.limit_card.accel_to_decel'),
+                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
+                      .select((value) => value.value!.printerData.toolhead.maxAccelToDecel)),
+                  prefixText: tr('pages.dashboard.control.limit_card.accel_to_decel'),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref
-                          .watch(controlTabControllerProvider.notifier)
-                          .onEditedMaxAccelToDecel
+                      ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxAccelToDecel
                       : null,
-                  numberFormat:
-                      NumberFormat('0 mm/s²', context.locale.languageCode),
+                  numberFormat: NumberFormat('0 mm/s²', context.locale.languageCode),
                   unit: 'mm/s²',
                   maxValue: 3500,
                 ),
@@ -1165,8 +1059,7 @@ class _SliderOrTextInput extends HookWidget {
           child: AnimatedCrossFade(
             firstChild: InputDecorator(
                 decoration: InputDecoration(
-                  label:
-                      Text('$prefixText: ${numFormat.format(sliderPos.value)}'),
+                  label: Text('$prefixText: ${numFormat.format(sliderPos.value)}'),
                   isCollapsed: true,
                   border: InputBorder.none,
                 ),
@@ -1185,8 +1078,7 @@ class _SliderOrTextInput extends HookWidget {
               enabled: onChange != null,
               onSubmitted: (String value) {
                 if (!inputValid.value) return;
-                double perc =
-                    numFormat.parse(textEditingController.text).toDouble();
+                double perc = numFormat.parse(textEditingController.text).toDouble();
                 onChange!(perc);
               },
               focusNode: focusText,
@@ -1201,16 +1093,13 @@ class _SliderOrTextInput extends HookWidget {
               },
               textAlign: TextAlign.end,
               keyboardType: const TextInputType.numberWithOptions(),
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))
-              ],
+              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))],
               decoration: InputDecoration(
                   prefixText: '$prefixText:',
                   border: InputBorder.none,
                   suffix: suffixText,
-                  errorText: !inputValid.value
-                      ? FormBuilderLocalizations.current.numericErrorText
-                      : null),
+                  errorText:
+                      !inputValid.value ? FormBuilderLocalizations.current.numericErrorText : null),
             ),
             duration: kThemeAnimationDuration,
             crossFadeState: fadeState.value,
@@ -1222,14 +1111,12 @@ class _SliderOrTextInput extends HookWidget {
               ? null
               : () {
                   if (fadeState.value == CrossFadeState.showFirst) {
-                    textEditingController.text = numFormat
-                        .format(sliderPos.value)
-                        .replaceAll(RegExp(r'[^0-9.,]'), '');
+                    textEditingController.text =
+                        numFormat.format(sliderPos.value).replaceAll(RegExp(r'[^0-9.,]'), '');
                     fadeState.value = CrossFadeState.showSecond;
                     focusRequested.value = false;
                   } else {
-                    sliderPos.value =
-                        numFormat.parse(textEditingController.text).toDouble();
+                    sliderPos.value = numFormat.parse(textEditingController.text).toDouble();
                     fadeState.value = CrossFadeState.showFirst;
                     focusText.unfocus();
                   }

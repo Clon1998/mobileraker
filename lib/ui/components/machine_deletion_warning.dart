@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +14,6 @@ import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'machine_deletion_warning.g.dart';

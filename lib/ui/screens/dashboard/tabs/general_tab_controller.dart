@@ -3,17 +3,18 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/fan/config_temperature_fan.dart';
+import 'package:common/data/dto/machine/fans/temperature_fan.dart';
+import 'package:common/data/dto/machine/heaters/extruder.dart';
+import 'package:common/data/dto/machine/heaters/generic_heater.dart';
+import 'package:common/data/dto/machine/heaters/heater_bed.dart';
+import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
+import 'package:common/data/dto/machine/printer_axis_enum.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card_controller.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/config/fan/config_temperature_fan.dart';
-import 'package:mobileraker/data/dto/machine/fans/temperature_fan.dart';
-import 'package:mobileraker/data/dto/machine/heaters/extruder.dart';
-import 'package:mobileraker/data/dto/machine/heaters/generic_heater.dart';
-import 'package:mobileraker/data/dto/machine/heaters/heater_bed.dart';
-import 'package:mobileraker/data/dto/machine/heaters/heater_mixin.dart';
-import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -23,23 +24,18 @@ import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/misc.dart';
 
 // part 'general_tab_controller.g.dart';
 
-final flipCardControllerProvider =
-    Provider<FlipCardController>((ref) => FlipCardController());
+final flipCardControllerProvider = Provider<FlipCardController>((ref) => FlipCardController());
 
-final generalTabViewControllerProvider = StateNotifierProvider.autoDispose<
-        GeneralTabViewController,
+final generalTabViewControllerProvider = StateNotifierProvider.autoDispose<GeneralTabViewController,
         AsyncValue<PrinterKlippySettingsMachineWrapper>>(
-    name: 'generalTabViewControllerProvider',
-    (ref) => GeneralTabViewController(ref));
+    name: 'generalTabViewControllerProvider', (ref) => GeneralTabViewController(ref));
 
 class GeneralTabViewController
     extends StateNotifier<AsyncValue<PrinterKlippySettingsMachineWrapper>> {
-  GeneralTabViewController(this.ref)
-      : super(ref.read(machinePrinterKlippySettingsProvider)) {
+  GeneralTabViewController(this.ref) : super(ref.read(machinePrinterKlippySettingsProvider)) {
     ref.listen<AsyncValue<PrinterKlippySettingsMachineWrapper>>(
         machinePrinterKlippySettingsProvider, (previous, next) {
       // if (next.isRefreshing) state = const AsyncValue.loading();
@@ -100,48 +96,36 @@ class GeneralTabViewController
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type:
-                ref
-                    .read(settingServiceProvider)
-                    .readBool(AppSettingKeys.defaultNumEditMode)
+            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
                 ? DialogType.numEdit
-                    : DialogType.rangeEdit,
+                : DialogType.rangeEdit,
             title: "Edit ${beautifyName(heater.name)} Temperature",
             cancelBtn: tr('general.cancel'),
             confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(
-                current: heater.target, min: 0, max: maxValue ?? 150)))
+            data: NumberEditDialogArguments(current: heater.target, min: 0, max: maxValue ?? 150)))
         .then((value) {
       if (value == null || !value.confirmed || value.data == null) return;
 
       num v = value.data;
-      ref
-          .read(printerServiceSelectedProvider)
-          .setHeaterTemperature(heater.name, v.toInt());
+      ref.read(printerServiceSelectedProvider).setHeaterTemperature(heater.name, v.toInt());
     });
   }
 
   editTemperatureFan(TemperatureFan temperatureFan) {
-    var configFan =
-        state.value?.printerData.configFile.fans[temperatureFan.name];
+    var configFan = state.value?.printerData.configFile.fans[temperatureFan.name];
 
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type:
-            ref
-                    .read(settingServiceProvider)
-                    .readBool(AppSettingKeys.defaultNumEditMode)
+            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
                 ? DialogType.numEdit
-                    : DialogType.rangeEdit,
+                : DialogType.rangeEdit,
             title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
             cancelBtn: tr('general.cancel'),
             confirmBtn: tr('general.confirm'),
             data: NumberEditDialogArguments(
               current: temperatureFan.target.round(),
-              min: (configFan != null && configFan is ConfigTemperatureFan)
-                  ? configFan.minTemp
-                  : 0,
+              min: (configFan != null && configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,
               max: (configFan != null && configFan is ConfigTemperatureFan)
                   ? configFan.maxTemp
                   : 100,
@@ -172,8 +156,7 @@ class BabyStepCardController extends StateNotifier<int> {
   final Ref ref;
 
   onBabyStepping([bool positive = true]) {
-    MachineSettings machineSettings =
-        ref.read(selectedMachineSettingsProvider).value!;
+    MachineSettings machineSettings = ref.read(selectedMachineSettingsProvider).value!;
     var printerService = ref.read(printerServiceSelectedProvider);
 
     double step = machineSettings.babySteps[state].toDouble();

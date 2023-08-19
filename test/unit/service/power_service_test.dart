@@ -1,10 +1,14 @@
-import 'dart:async';
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:convert';
 
+import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/dto/power/power_device.dart';
 import 'package:mobileraker/data/dto/power/power_state.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
@@ -20,8 +24,7 @@ void main() {
     String uuid = "test";
     var mockRpc = MockJsonRpcClient();
 
-    when(mockRpc.addMethodListener(any, 'notify_power_changed'))
-        .thenReturn(null);
+    when(mockRpc.addMethodListener(any, 'notify_power_changed')).thenReturn(null);
     when(mockRpc.sendJRpcMethod('machine.device_power.devices'))
         .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
           "jsonrpc": "2.0",
@@ -59,10 +62,8 @@ void main() {
     String uuid = "test";
     var mockRpc = MockJsonRpcClient();
 
-    when(mockRpc.addMethodListener(any, 'notify_power_changed'))
-        .thenReturn(null);
-    when(mockRpc.sendJRpcMethod('machine.device_power.get_device',
-            params: {'device': 'WTF'}))
+    when(mockRpc.addMethodListener(any, 'notify_power_changed')).thenReturn(null);
+    when(mockRpc.sendJRpcMethod('machine.device_power.get_device', params: {'device': 'WTF'}))
         .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
       "jsonrpc": "2.0",
       "id":1,
@@ -84,8 +85,7 @@ void main() {
     String uuid = "test";
     var mockRpc = MockJsonRpcClient();
 
-    when(mockRpc.addMethodListener(any, 'notify_power_changed'))
-        .thenReturn(null);
+    when(mockRpc.addMethodListener(any, 'notify_power_changed')).thenReturn(null);
     when(mockRpc.sendJRpcMethod('machine.device_power.post_device',
             params: {'device': 'WTF', 'action': 'off'}))
         .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{
@@ -110,8 +110,7 @@ void main() {
     var mockRpc = MockJsonRpcClient();
 
     ///TODO!!
-    when(mockRpc.addMethodListener(any, 'notify_power_changed'))
-        .thenReturn(null);
+    when(mockRpc.addMethodListener(any, 'notify_power_changed')).thenReturn(null);
     when(mockRpc.sendJRpcMethod('machine.device_power.post_device',
             params: {'device': 'WTF', 'action': 'off'}))
         .thenAnswer((realInvocation) async => RpcResponse.fromJson(jsonDecode('''{

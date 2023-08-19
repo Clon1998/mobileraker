@@ -5,13 +5,13 @@
 
 import 'dart:async';
 
+import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/job_queue/job_queue_event.dart';
 import 'package:mobileraker/data/dto/job_queue/job_queue_status.dart';
-import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
-import 'package:mobileraker/exceptions.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -34,6 +34,17 @@ JobQueueService jobQueueServiceSelected(JobQueueServiceSelectedRef ref) {
   return ref.watch(jobQueueServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
 }
 
+@riverpod
+Stream<JobQueueStatus> jobQueueSelected(JobQueueSelectedRef ref) async* {
+  try {
+    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+
+    yield* ref.watchAsSubject(jobQueueProvider(machine.uuid));
+  } on StateError catch (_) {
+    // Just catch it. It is expected that the future/where might not complete!
+  }
+}
+
 /// The JobQueueService is responsible for all interactions with the job API of Moonraker.
 /// For more information check out
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#job-queue-apis
@@ -41,7 +52,7 @@ class JobQueueService {
   JobQueueService(AutoDisposeRef ref, String machineUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
     ref.onDispose(dispose);
-    ref.listen(jrpcMethodEventProvider('job_queue_changed'), onJobQueueChanged);
+    ref.listen(jrpcMethodEventProvider(machineUUID, 'notify_job_queue_changed'), onJobQueueChanged);
   }
 
   final StreamController<JobQueueStatus> _queueStatusStreamCtrler = StreamController();
