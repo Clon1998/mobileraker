@@ -453,7 +453,7 @@
         "printer_settings": "打印機設置",
         "manage_printers": "管理打印機",
         "fetching_printers": "@:general.fetching printers...",
-        "footer": "由Patrick Schmidt製作\n查看項目的"
+        "footer": "由Patrick Schmidt製作\n由oldcookie翻譯查看項目"
       },
       "connection_watcher": {
         "reconnect": "重新連接",
