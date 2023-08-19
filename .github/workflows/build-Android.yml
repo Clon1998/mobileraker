@@ -36,6 +36,11 @@ jobs:
         run: |
           flutter pub get || true
           flutter packages pub run build_runner build
+      - name: Build Mobileraker Common Module
+        working-directory: ./mobileraker/common
+        run: |
+          flutter pub get || true
+          flutter packages pub run build_runner build
       - name: Build Mobileraker
         working-directory: ./mobileraker
         run: |
