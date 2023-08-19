@@ -16,6 +16,7 @@ import 'temperature_preset.dart';
 
 part 'machine_adapter.dart';
 
+// Also delete the machine.save line in app_setup
 // part 'machine.g.dart';
 
 @HiveType(typeId: 1)

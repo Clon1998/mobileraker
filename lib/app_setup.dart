@@ -46,9 +46,6 @@ setupBoxes() async {
   // 2 - WebcamSetting
   // 6 - WebCamMode
   // 9 - WebCamRotation
-  // Hive.ignoreTypeId(2); // WebcamSetting
-  // Hive.ignoreTypeId(6); // WebCamMode
-  // Hive.ignoreTypeId(9); // WebCamRotation
 
   var machineAdapter = MachineAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
@@ -83,27 +80,14 @@ setupBoxes() async {
     Hive.registerAdapter(uriAdapter);
   }
 
-  // TODO: Remove adapters and enable ignoreType again! after x months!
-  // Last time i tried to remove this, the app was able to start once, but any other restart would throw an error and delete all fiels :(
-  final wModeAdapater = WebCamModeAdapter();
-  if (!Hive.isAdapterRegistered(wModeAdapater.typeId)) {
-    Hive.registerAdapter(wModeAdapater);
-  }
-  var webCamRotationAdapter = WebCamRotationAdapter();
-  if (!Hive.isAdapterRegistered(webCamRotationAdapter.typeId)) {
-    Hive.registerAdapter(webCamRotationAdapter);
-  }
-  var webcamSettingAdapter = WebcamSettingAdapter();
-  if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId)) {
-    Hive.registerAdapter(webcamSettingAdapter);
-  }
-
   // Hive.deleteBoxFromDisk('printers');
 
   try {
     await openBoxes(keyMaterial);
     Hive.box<Machine>("printers").values.forEach((element) {
       logger.i('Machine in box is ${element.debugStr}#${element.hashCode}');
+      // ToDo remove after machine migration!
+      element.save();
     });
   } catch (e) {
     logger.e('There was an error while trying to init Hive. Resetting all Hive data...');
