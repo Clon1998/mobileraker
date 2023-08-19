@@ -12,6 +12,9 @@ import 'package:common/data/model/hive/macro_group.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/temperature_preset.dart';
+import 'package:common/data/model/hive/webcam_mode.dart';
+import 'package:common/data/model/hive/webcam_rotation.dart';
+import 'package:common/data/model/hive/webcam_setting.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -43,9 +46,9 @@ setupBoxes() async {
   // 2 - WebcamSetting
   // 6 - WebCamMode
   // 9 - WebCamRotation
-  Hive.ignoreTypeId(2); // WebcamSetting
-  Hive.ignoreTypeId(6); // WebCamMode
-  Hive.ignoreTypeId(9); // WebCamRotation
+  // Hive.ignoreTypeId(2); // WebcamSetting
+  // Hive.ignoreTypeId(6); // WebCamMode
+  // Hive.ignoreTypeId(9); // WebCamRotation
 
   var machineAdapter = MachineAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
@@ -78,6 +81,21 @@ setupBoxes() async {
   var uriAdapter = UriAdapter();
   if (!Hive.isAdapterRegistered(uriAdapter.typeId)) {
     Hive.registerAdapter(uriAdapter);
+  }
+
+  // TODO: Remove adapters and enable ignoreType again! after x months!
+  // Last time i tried to remove this, the app was able to start once, but any other restart would throw an error and delete all fiels :(
+  final wModeAdapater = WebCamModeAdapter();
+  if (!Hive.isAdapterRegistered(wModeAdapater.typeId)) {
+    Hive.registerAdapter(wModeAdapater);
+  }
+  var webCamRotationAdapter = WebCamRotationAdapter();
+  if (!Hive.isAdapterRegistered(webCamRotationAdapter.typeId)) {
+    Hive.registerAdapter(webCamRotationAdapter);
+  }
+  var webcamSettingAdapter = WebcamSettingAdapter();
+  if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId)) {
+    Hive.registerAdapter(webcamSettingAdapter);
   }
 
   // Hive.deleteBoxFromDisk('printers');
