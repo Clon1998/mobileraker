@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:common/util/logger.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:file/memory.dart';
 import 'package:flutter/foundation.dart';
@@ -22,7 +23,6 @@ import 'package:mobileraker/data/dto/files/moonraker/file_action_response.dart';
 import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/exceptions.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';

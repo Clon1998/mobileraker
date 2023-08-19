@@ -6,8 +6,8 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/ui/theme/theme_setup.dart';

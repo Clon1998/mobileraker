@@ -3,10 +3,10 @@
  * All rights reserved.
  */
 
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';

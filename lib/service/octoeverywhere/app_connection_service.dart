@@ -4,8 +4,8 @@
  */
 
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:common/util/logger.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -14,7 +14,6 @@ import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/data/dto/octoeverywhere/app_connection_info_response.dart';
 import 'package:mobileraker/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:mobileraker/exceptions.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

@@ -4,6 +4,7 @@
  */
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/files/folder.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
@@ -46,6 +46,45 @@ class FilesPage extends ConsumerWidget {
         skipKlipperReady: true,
       ),
     );
+  }
+}
+
+class _Fab extends ConsumerWidget {
+  const _Fab({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var jobQueueStatusAsync =
+        ref.watch(filesPageControllerProvider.select((value) => value.jobQueueStatus));
+    if (jobQueueStatusAsync.isLoading || jobQueueStatusAsync.hasError) {
+      return const SizedBox.shrink();
+    }
+    var jobQueueStatus = jobQueueStatusAsync.value!;
+
+    if (jobQueueStatus.queuedJobs.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    var themeData = Theme.of(context);
+    return FloatingActionButton(
+        onPressed: () async {
+          // ref
+          //     .read(bottomSheetServiceProvider)
+          //     .show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
+        },
+        // onPressed: mdodel.showNonPrintingMenu,
+
+        child: badges.Badge(
+          badgeStyle: badges.BadgeStyle(
+            badgeColor: themeData.colorScheme.onSecondary,
+          ),
+          badgeAnimation: const badges.BadgeAnimation.rotation(),
+          position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
+          badgeContent: Text('${jobQueueStatus.queuedJobs.length}',
+              style: TextStyle(color: themeData.colorScheme.secondary)),
+          child: const Icon(Icons.content_paste),
+        ));
   }
 }
 

@@ -5,9 +5,9 @@
 
 import 'dart:async';
 
+import 'package:common/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/logger.dart';
 
 extension MobilerakerAutoDispose on AutoDisposeRef {
   // Returns a stream that alwways issues the latest/cached value of the provider

@@ -5,11 +5,11 @@
 
 import 'dart:async';
 
+import 'package:common/util/logger.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/data/repository/machine_hive_repository.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'selected_machine_service.g.dart';

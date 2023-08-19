@@ -6,11 +6,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:common/util/logger.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:mobileraker/data/model/firestore/supporters.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/firebase/firestore.dart';
 import 'package:mobileraker/service/notification_service.dart';
 import 'package:mobileraker/service/setting_service.dart';

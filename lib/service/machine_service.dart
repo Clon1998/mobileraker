@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:common/util/logger.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -29,7 +30,6 @@ import 'package:mobileraker/data/repository/machine_hive_repository.dart';
 import 'package:mobileraker/data/repository/machine_settings_moonraker_repository.dart';
 import 'package:mobileraker/data/repository/notification_settings_repository_impl.dart';
 import 'package:mobileraker/exceptions.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/firebase/analytics.dart';
 import 'package:mobileraker/service/firebase/remote_config.dart';
 import 'package:mobileraker/service/moonraker/announcement_service.dart';

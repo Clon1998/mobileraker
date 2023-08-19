@@ -7,10 +7,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:common/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/util/extensions/uri_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:rxdart/rxdart.dart';

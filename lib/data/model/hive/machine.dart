@@ -3,12 +3,12 @@
  * All rights reserved.
  */
 
+import 'package:common/util/logger.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:uuid/uuid.dart';
 

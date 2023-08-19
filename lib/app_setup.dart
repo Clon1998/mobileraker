@@ -5,6 +5,7 @@
 
 import 'dart:convert';
 
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -33,8 +34,6 @@ import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import 'logger.dart';
 
 part 'app_setup.g.dart';
 

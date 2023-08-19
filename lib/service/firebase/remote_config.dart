@@ -2,10 +2,10 @@
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
  */
+import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'remote_config.g.dart';

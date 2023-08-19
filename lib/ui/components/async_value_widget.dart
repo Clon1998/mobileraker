@@ -3,11 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/util/logger.dart';
 // Generic AsyncValueWidget to work with values of type T
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/logger.dart';
 
 class AsyncValueWidget<T> extends StatelessWidget {
   const AsyncValueWidget(

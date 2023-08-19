@@ -29,8 +29,12 @@ dependencies:
   flutter:
     sdk: flutter
 
+  #packages maintained by mobileraker
   mobileraker_pro:
     path: ../mobileraker_pro
+
+  common:
+    path: common
 
   web_socket_channel: ^2.1.0
   http: ^0.13.4

@@ -5,11 +5,11 @@
 
 import 'dart:io';
 
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
