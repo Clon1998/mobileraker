@@ -28,11 +28,13 @@ class OctoEveryWhereBtn extends StatelessWidget {
               width: 30,
               image: AssetImage('assets/images/octo_everywhere.png'),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Text(
-                title,
-                style: Theme.of(context).textTheme.titleLarge,
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
             ),
           ],
