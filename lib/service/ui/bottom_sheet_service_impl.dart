@@ -8,9 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
+import 'package:mobileraker_pro/ui/components/bottomsheet/job_queue_sheet.dart';
 
 enum SheetType implements BottomSheetIdentifierMixin {
-  nonPrintingMenu;
+  nonPrintingMenu,
+  jobQueueMenu,
+  ;
 }
 
 BottomSheetService bottomSheetServiceImpl(BottomSheetServiceRef ref) => BottomSheetServiceImpl(ref);
@@ -22,13 +25,15 @@ class BottomSheetServiceImpl implements BottomSheetService {
 
   @override
   final Map<BottomSheetIdentifierMixin, Widget Function(BuildContext)> availableSheets = {
-    SheetType.nonPrintingMenu: (ctx) => const NonPrintingBottomSheet()
+    SheetType.nonPrintingMenu: (ctx) => const NonPrintingBottomSheet(),
+    SheetType.jobQueueMenu: (ctx) => const JobQueueBottomSheet(),
   };
 
   @override
   show(BottomSheetConfig config) {
     BuildContext? ctx = ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
-    showModalBottomSheet(context: ctx!, builder: availableSheets[config.type]!);
+    showModalBottomSheet(
+        context: ctx!, builder: availableSheets[config.type]!, backgroundColor: Colors.transparent);
   }
 }
