@@ -52,12 +52,11 @@ Uri? previewImageUri(PreviewImageUriRef ref) {
   var clientType =
       (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
   if (machine != null) {
-    if (clientType == ClientType.local) {
-      return machine.httpUri;
-    } else {
-      var octoEverywhere = machine.octoEverywhere;
-      return octoEverywhere!.uri;
-    }
+    return switch (clientType) {
+      ClientType.octo => machine.octoEverywhere?.uri,
+      ClientType.manual => machine.remoteInterface?.remoteUri,
+      ClientType.local || _ => machine.httpUri,
+    };
   }
   return null;
 }
@@ -65,15 +64,23 @@ Uri? previewImageUri(PreviewImageUriRef ref) {
 @riverpod
 Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
   var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
-  Map<String, String> headers = machine?.headerWithApiKey ?? {};
+
   var clientType =
       (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
   if (machine != null) {
-    if (clientType == ClientType.octo) {
-      headers[HttpHeaders.authorizationHeader] = machine.octoEverywhere!.basicAuthorizationHeader;
-    }
+    return switch (clientType) {
+      ClientType.manual => {
+          ...machine.remoteInterface!.httpHeaders,
+          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!
+        },
+      ClientType.octo => {
+          ...machine.headerWithApiKey,
+          HttpHeaders.authorizationHeader: machine.octoEverywhere!.basicAuthorizationHeader,
+        },
+      _ => machine.headerWithApiKey,
+    };
   }
-  return headers;
+  return {};
 }
 
 @riverpod

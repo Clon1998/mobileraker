@@ -24,7 +24,8 @@ bool canStartPrint(CanStartPrintRef ref) {
   var canPrint = ref.watch(printerSelectedProvider.select((value) => {
         PrintState.complete,
         PrintState.error,
-        PrintState.standby
+        PrintState.standby,
+        PrintState.cancelled,
       }.contains(value.valueOrFullNull?.print.state)));
 
   var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider

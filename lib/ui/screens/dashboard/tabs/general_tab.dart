@@ -272,6 +272,7 @@ class PrintCard extends ConsumerWidget {
           progressColor: (printState == PrintState.complete) ? Colors.green : Colors.deepOrange,
         );
       case PrintState.complete:
+      case PrintState.cancelled:
         return PopupMenuButton(
           enabled: klippyCanReceiveCommands,
           padding: EdgeInsets.zero,
@@ -291,7 +292,7 @@ class PrintCard extends ConsumerWidget {
                     width: 8,
                   ),
                   Text('pages.dashboard.general.print_card.reset',
-                          style: TextStyle(color: themeData.colorScheme.primary))
+                      style: TextStyle(color: themeData.colorScheme.primary))
                       .tr()
                 ],
               ),

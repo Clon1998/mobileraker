@@ -18,4 +18,15 @@ extension UriExtension on GCodeFile {
       ...bigImagePath!.split('/')
     ]);
   }
+
+  Uri? constructSmallImageUri(Uri? baseUri) {
+    if (baseUri == null || smallImagePath == null) return null;
+    return baseUri.replace(pathSegments: [
+      ...baseUri.pathSegments,
+      'server',
+      'files',
+      ...parentPath.split('/'),
+      ...smallImagePath!.split('/')
+    ]);
+  }
 }
