@@ -8,9 +8,8 @@ import 'dart:io';
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/generic_file.dart';
 import 'package:mobileraker/exceptions.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
@@ -18,15 +17,14 @@ import 'package:mobileraker/service/ui/snackbar_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'config_file_details_controller.freezed.dart';
-
 part 'config_file_details_controller.g.dart';
 
-@riverpod
-RemoteFile configFile(ConfigFileRef ref) => throw UnimplementedError();
+@Riverpod(dependencies: [])
+GenericFile configFile(ConfigFileRef ref) => throw UnimplementedError();
 
-final configFileDetailsControllerProvider = StateNotifierProvider.autoDispose<
-    ConfigFileDetailsController,
-    ConfigDetailPageState>((ref) => ConfigFileDetailsController(ref));
+final configFileDetailsControllerProvider =
+    StateNotifierProvider.autoDispose<ConfigFileDetailsController, ConfigDetailPageState>(
+        (ref) => ConfigFileDetailsController(ref));
 
 class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   ConfigFileDetailsController(this.ref)
@@ -44,8 +42,7 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
 
   _init() async {
     try {
-      var downloadFile = await fileService
-          .downloadFile(ref.read(configFileProvider).absolutPath);
+      var downloadFile = await fileService.downloadFile(ref.read(configFileProvider).absolutPath);
       var content = await downloadFile.readAsString();
       if (mounted) {
         state = state.copyWith(config: AsyncValue.data(content));
@@ -60,8 +57,7 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   Future<void> onSaveTapped(String code) async {
     state = state.copyWith(isUploading: true);
     try {
-      await fileService.uploadAsFile(
-          ref.read(configFileProvider).absolutPath, code);
+      await fileService.uploadAsFile(ref.read(configFileProvider).absolutPath, code);
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
       snackBarService.show(SnackBarConfig(
@@ -79,8 +75,7 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
     state = state.copyWith(isUploading: true);
 
     try {
-      await fileService.uploadAsFile(
-          ref.read(configFileProvider).absolutPath, code);
+      await fileService.uploadAsFile(ref.read(configFileProvider).absolutPath, code);
       klippyService.restartMCUs();
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {

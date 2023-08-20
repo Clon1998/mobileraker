@@ -115,8 +115,10 @@ class DashBoardViewController extends StateNotifier<int> {
   final PageController pageController;
 
   onBottomNavTapped(int value) {
-    pageController.animateToPage(value,
-        duration: kThemeChangeDuration, curve: Curves.easeOutCubic);
+    if (mounted) {
+      pageController.animateToPage(value,
+          duration: kThemeChangeDuration, curve: Curves.easeOutCubic);
+    }
   }
 
   onPageChanged(int index) {

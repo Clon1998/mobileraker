@@ -1,32 +1,31 @@
-
 /*
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
  */
 
-class Folder {
-  static int modifiedComparator(folderA, folderB) => folderB.modified.compareTo(folderA.modified);
-  static int nameComparator(folderA, folderB) => folderA.name.compareTo(folderB.name);
+import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/converters/integer_converter.dart';
+import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 
+part 'folder.freezed.dart';
+part 'folder.g.dart';
 
-  Folder({required this.name, required this.modified, required this.size});
+@freezed
+class Folder with _$Folder, RemoteFile {
+  const Folder._();
 
-  final double modified;
+  @JsonSerializable(
+    fieldRename: FieldRename.snake,
+  )
+  const factory Folder({
+    required String parentPath,
+    required double modified,
+    @JsonKey(name: 'dirname') required String name,
+    @IntegerConverter() required int size,
+    @Default('') String permissions,
+  }) = _Folder;
 
-  final String name;
-
-  final int size;
-
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Folder &&
-          runtimeType == other.runtimeType &&
-          modified == other.modified &&
-          name == other.name &&
-          size == other.size;
-
-  @override
-  int get hashCode => modified.hashCode ^ name.hashCode ^ size.hashCode;
+  factory Folder.fromJson(Map<String, dynamic> json, String parentPath) =>
+      _$FolderFromJson({...json, 'parent_path': parentPath});
 }

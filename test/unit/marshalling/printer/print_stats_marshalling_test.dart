@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobileraker/data/dto/machine/print_stats.dart';
 
@@ -14,6 +19,8 @@ void main() {
     expect(obj.filamentUsed, equals(123.4));
     expect(obj.message, equals(''));
     expect(obj.filename, equals(''));
+    expect(obj.currentLayer, isNull);
+    expect(obj.totalLayer, isNull);
   });
 
   group('PrintStats partialUpdate', () {
@@ -31,6 +38,8 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
+      expect(updatedObj.currentLayer, isNull);
+      expect(updatedObj.totalLayer, isNull);
     });
 
     test('total_duration', () {
@@ -47,6 +56,8 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
+      expect(updatedObj.currentLayer, isNull);
+      expect(updatedObj.totalLayer, isNull);
     });
 
     test('print_duration', () {
@@ -63,6 +74,8 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
+      expect(updatedObj.currentLayer, isNull);
+      expect(updatedObj.totalLayer, isNull);
     });
 
     test('filament_used', () {
@@ -79,6 +92,8 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123123.5));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals(''));
+      expect(updatedObj.currentLayer, isNull);
+      expect(updatedObj.totalLayer, isNull);
     });
 
     test('message', () {
@@ -95,6 +110,8 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals('Abababab'));
       expect(updatedObj.filename, equals(''));
+      expect(updatedObj.currentLayer, isNull);
+      expect(updatedObj.totalLayer, isNull);
     });
 
     test('filename', () {
@@ -111,12 +128,54 @@ void main() {
       expect(updatedObj.filamentUsed, equals(123.4));
       expect(updatedObj.message, equals(''));
       expect(updatedObj.filename, equals('abc/root.gcode'));
+      expect(updatedObj.currentLayer, isNull);
+      expect(updatedObj.totalLayer, isNull);
+    });
+
+    test('currentLayer', () {
+      var old = PrintStatsObject();
+
+      var updateJson = {
+        "info": {'current_layer': 22}
+      };
+
+      var updatedObj = PrintStats.partialUpdate(old, updateJson);
+
+      expect(updatedObj, isNotNull);
+      expect(updatedObj.state, equals(PrintState.standby));
+      expect(updatedObj.totalDuration, equals(100.00));
+      expect(updatedObj.printDuration, equals(0));
+      expect(updatedObj.filamentUsed, equals(123.4));
+      expect(updatedObj.message, equals(''));
+      expect(updatedObj.filename, equals(''));
+      expect(updatedObj.currentLayer, equals(22));
+      expect(updatedObj.totalLayer, isNull);
+    });
+
+    test('totalLayer', () {
+      var old = PrintStatsObject();
+
+      var updateJson = {
+        "info": {'total_layer': 22}
+      };
+
+      var updatedObj = PrintStats.partialUpdate(old, updateJson);
+
+      expect(updatedObj, isNotNull);
+      expect(updatedObj.state, equals(PrintState.standby));
+      expect(updatedObj.totalDuration, equals(100.00));
+      expect(updatedObj.printDuration, equals(0));
+      expect(updatedObj.filamentUsed, equals(123.4));
+      expect(updatedObj.message, equals(''));
+      expect(updatedObj.filename, equals(''));
+      expect(updatedObj.currentLayer, isNull);
+      expect(updatedObj.totalLayer, equals(22));
     });
 
     test('Full update', () {
       PrintStats old = PrintStatsObject();
       String input =
-          '{"result": {"status": {"print_stats": {"info": {"total_layer": null, "current_layer": null}, "print_duration": 1.0, "total_duration": 4.0, "filament_used": 12.4, "filename": "ff", "state": "complete", "message": "Done"}}, "eventtime": 3798698.261748828}}';
+          '{"result": {"status": {"print_stats": {"info": {"total_layer": 55, "current_layer": 1}, "print_duration": 1.0, "total_duration": 4.0, "filament_used": 12.4, "filename": "ff", "state": "complete", "message": "Done"}}, "eventtime": 3798698.261748828}}';
 
       var updateJson = objectFromHttpApiResult(input, "print_stats");
 
@@ -129,6 +188,8 @@ void main() {
       expect(updatedObj.filamentUsed, equals(12.4));
       expect(updatedObj.message, equals('Done'));
       expect(updatedObj.filename, equals('ff'));
+      expect(updatedObj.currentLayer, equals(1));
+      expect(updatedObj.totalLayer, equals(55));
     });
   });
 }

@@ -5,21 +5,24 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/remote_file.dart';
+import 'package:mobileraker/data/dto/files/generic_file.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/service/machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
+import 'package:mobileraker/ui/components/app_version_text.dart';
+import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
-import 'package:mobileraker/ui/screens/faq/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/files_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
+import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
 import 'package:mobileraker/ui/screens/overview/overview_page.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_page.dart';
@@ -56,11 +59,10 @@ Future<String> initialRoute(InitialRouteRef ref) async {
   ref.keepAlive();
   SettingService settingService = ref.watch(settingServiceProvider);
 
-  if (!settingService.readBool(startWithOverviewKey)) {
+  if (!settingService.readBool(AppSettingKeys.overviewIsHomescreen)) {
     return '/';
   }
-  int printerCnt =
-      await ref.watch(allMachinesProvider.selectAsync((data) => data.length));
+  int printerCnt = await ref.watch(allMachinesProvider.selectAsync((data) => data.length));
 
   if (printerCnt > 1) {
     return '/overview';
@@ -140,8 +142,7 @@ GoRouter goRouter(GoRouterRef ref) {
             GoRoute(
               path: 'config-details',
               name: AppRoute.configDetail.name,
-              builder: (context, state) =>
-                  ConfigFileDetailPage(file: state.extra! as RemoteFile),
+              builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
             ),
           ]),
       GoRoute(
@@ -163,30 +164,34 @@ GoRouter goRouter(GoRouterRef ref) {
           path: '/faq',
           name: AppRoute.faq.name,
           builder: (context, state) => MarkDownPage(
-                title: tr('pages.faq.title'),
+            title: tr('pages.faq.title'),
                 mdRoot: Uri.parse(
                     'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/faq.md'),
-                mdHuman: Uri.parse(
-                    'https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md'),
+                mdHuman:
+                    Uri.parse('https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md'),
               )),
       GoRoute(
           path: '/changelog',
           name: AppRoute.changelog.name,
           builder: (context, state) => MarkDownPage(
-                title: tr('pages.changelog.title'),
+            title: tr('pages.changelog.title'),
                 mdRoot: Uri.parse(
                     'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/changelog.md'),
                 mdHuman: Uri.parse(
                     'https://github.com/Clon1998/mobileraker/blob/master/docs/changelog.md'),
+                topWidget: InfoCard(
+                  leading: const Icon(FlutterIcons.code_fork_faw),
+                  title: const Text('components.app_version_display.installed_version').tr(),
+                  body: const AppVersionText(
+                    prefix: 'Mobileraker',
+                  ),
+                ),
               )),
       GoRoute(
           path: '/paywall',
           name: AppRoute.supportDev.name,
           builder: (context, state) => const PaywallPage()),
-      GoRoute(
-          path: '/dev',
-          name: AppRoute.dev.name,
-          builder: (context, state) => DevPage()),
+      GoRoute(path: '/dev', name: AppRoute.dev.name, builder: (context, state) => const DevPage()),
       // GoRoute(
       //   path: 'cart',
       //   name: AppRoute.cart.name,

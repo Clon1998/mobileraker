@@ -16,6 +16,7 @@ import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -60,10 +61,13 @@ class ConnectionStateController extends _$ConnectionStateController {
       case AppLifecycleState.resumed:
         logger.i("App forgrounded");
         var selMachine = ref.read(selectedMachineProvider).valueOrFullNull;
+        var jrpcClientState =
+            selMachine?.let((m) => ref.read(jrpcClientStateProvider(m.uuid)).valueOrNull);
+        var jrpcClientType = selMachine?.let((m) => ref.read(jrpcClientTypeProvider(m.uuid)));
 
-        if (selMachine != null) {
+        if (jrpcClientState != ClientState.connected && jrpcClientType == ClientType.octo) {
           logger.i('Refreshing selectedPrinter...');
-          ref.invalidate(machineProvider(selMachine.uuid));
+          ref.invalidate(machineProvider(selMachine!.uuid));
         }
 
         break;
@@ -87,9 +91,7 @@ class ConnectionStateController extends _$ConnectionStateController {
   onEditPrinter() async {
     Machine? machine = await ref.read(selectedMachineProvider.future);
     if (machine != null) {
-      ref
-          .read(goRouterProvider)
-          .pushNamed(AppRoute.printerEdit.name, extra: machine);
+      ref.read(goRouterProvider).pushNamed(AppRoute.printerEdit.name, extra: machine);
     }
   }
 

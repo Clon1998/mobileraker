@@ -6,6 +6,7 @@
 import 'dart:io';
 
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/logger.dart';
@@ -22,25 +23,40 @@ part 'paywall_page_controller.g.dart';
 @riverpod
 class PaywallPageController extends _$PaywallPageController {
   @override
-  PaywallPageState build() {
-    _fetchOfferings();
-    return const PaywallPageState();
-  }
-
-  _fetchOfferings() async {
+  FutureOr<PaywallPageState> build() async {
     try {
-      Offerings offerings =
-          await ref.watch(paymentServiceProvider).getOfferings();
-      if (offerings.current != null &&
-          offerings.current!.availablePackages.isNotEmpty) {
-        state = state.copyWith(offering: AsyncValue.data(offerings.current));
-        return;
-      }
-      state = state.copyWith(offering: const AsyncValue.data(null));
+      return _fetchPaywallState();
     } on PlatformException catch (e, s) {
       logger.e('Error while trying to fetch offerings from revenue cat!', e, s);
-      state = state.copyWith(offering: AsyncValue.error(e, s));
+      rethrow;
     }
+  }
+
+  Future<PaywallPageState> _fetchPaywallState() async {
+    Offerings offerings = await ref.watch(paymentServiceProvider).getOfferings();
+    logger.wtf('Got offerings:${offerings.all.keys}');
+    logger.wtf('Got offerings detailed:$offerings');
+
+    Offering? activeOffering = offerings.current;
+    // if (kDebugMode) activeOffering = offerings.getOffering('default_v2');
+    final offerMetadata = activeOffering?.metadata ?? {};
+    final excludeFromPaywall =
+        (offerMetadata['exclude_package'] as String? ?? '').split(',').map((e) => e.trim());
+
+    // final iapOffers = offerMetadata.
+    final List<Package> packetsToOffer = activeOffering?.availablePackages
+            .where((p) => !excludeFromPaywall.contains(p.identifier))
+            .toList(growable: false) ??
+        [];
+
+    // Due to the lack of ability to buy things multiple times, I need to put this into a seperate offer group
+    final List<Package> tipPackets = offerings.getOffering('tip')?.availablePackages ?? [];
+
+    // Due to lack of support in the stores to offer IAP discouts I created a new offer group that is used to detect offers for IAP
+    final List<Package> iapOffers = offerings.getOffering('iap_promos')?.availablePackages ?? [];
+
+    return PaywallPageState(
+        paywallOfferings: packetsToOffer, tipPackages: tipPackets, iapPromos: iapOffers);
   }
 
   openGithub() async {
@@ -52,41 +68,60 @@ class PaywallPageController extends _$PaywallPageController {
     }
   }
 
+  onTippingPressed() async {
+    // var tipPacket = state.valueOrNull?.tipPackage;
+    if (state.valueOrNull?.tipAvailable != true) {
+      logger.w('Tip package is not available');
+      return;
+    }
+
+    var dialogResponse = await ref
+        .read(dialogServiceProvider)
+        .show(DialogRequest(type: DialogType.tipping, data: state.valueOrNull?.tipPackages ?? []));
+    if (dialogResponse?.confirmed == true) {
+      logger.i('User selected tip package: ${dialogResponse?.data}');
+      makePurchase(dialogResponse!.data as Package);
+    }
+  }
+
+  copyRCatIdToClipboard() {
+    var customerInfo = ref.read(customerInfoProvider).valueOrNull;
+    Clipboard.setData(ClipboardData(text: customerInfo?.originalAppUserId ?? ''));
+  }
+
   makePurchase(Package packageToBuy) async {
     // state = const AsyncLoading();
-    state = state.copyWith(makingPurchase: true);
+    state = state.whenData((value) => value.copyWith(makingPurchase: true));
     CustomerInfo customerInfo = await ref.read(customerInfoProvider.future);
 
-    UpgradeInfo? upgradeInfo;
-    if (Platform.isAndroid && customerInfo.activeSubscriptions.isNotEmpty) {
-      EntitlementInfo activeEnt = customerInfo.entitlements.active.values.first;
-      if (activeEnt.willRenew) {
-        upgradeInfo = UpgradeInfo(customerInfo.activeSubscriptions.first);
+    GoogleProductChangeInfo? googleProductChangeInfo;
+    if (Platform.isAndroid &&
+        customerInfo.activeSubscriptions.isNotEmpty &&
+        packageToBuy.storeProduct.productCategory == ProductCategory.subscription) {
+      EntitlementInfo? activeEnt = customerInfo.entitlements.active['supporter_subscription'];
+      if (activeEnt?.willRenew == true) {
+        googleProductChangeInfo = GoogleProductChangeInfo(activeEnt!.productIdentifier);
       }
     }
 
-    await ref
-        .read(paymentServiceProvider)
-        .purchasePackage(packageToBuy, upgradeInfo);
-    state = state.copyWith(makingPurchase: false);
+    await ref.read(paymentServiceProvider).purchasePackage(packageToBuy, googleProductChangeInfo);
+    state = state.whenData((value) => value.copyWith(makingPurchase: false));
   }
 
   restore() async {
-    state = state.copyWith(makingPurchase: true);
+    state = state.whenData((value) => value.copyWith(makingPurchase: true));
     await ref.read(paymentServiceProvider).restorePurchases();
-    state = state.copyWith(makingPurchase: false);
+    state = state.whenData((value) => value.copyWith(makingPurchase: false));
   }
 
   openManagement() async {
-    var managementUrl = ref
-        .read(customerInfoProvider.selectAs((data) => data.managementURL))
-        .valueOrNull;
-    logger.wtf(managementUrl);
+    var managementUrl =
+        ref.read(customerInfoProvider.selectAs((data) => data.managementURL)).valueOrNull;
+    // logger.wtf(managementUrl);
     if (managementUrl == null) return;
 
     if (await canLaunchUrlString(managementUrl)) {
-      await launchUrlString(managementUrl,
-          mode: LaunchMode.externalApplication);
+      await launchUrlString(managementUrl, mode: LaunchMode.externalApplication);
     } else {
       throw 'Could not launch $managementUrl';
     }
@@ -102,15 +137,21 @@ class PaywallPageController extends _$PaywallPageController {
     ref.read(dialogServiceProvider).show(DialogRequest(
         type: DialogType.info,
         title: 'pages.paywall.contact_dialog.title'.tr(),
-        body: 'pages.paywall.contact_dialog.body'
-            .tr(args: ['dev@mobileraker.com', 'Pad#3489'])));
+        body: 'pages.paywall.contact_dialog.body'.tr(args: ['dev@mobileraker.com', 'Pad#3489'])));
   }
 }
 
 @freezed
 class PaywallPageState with _$PaywallPageState {
-  const factory PaywallPageState(
-          {@Default(false) bool makingPurchase,
-          @Default(AsyncValue.loading()) AsyncValue<Offering?> offering}) =
-      _PaywallPageState;
+  const PaywallPageState._();
+
+  const factory PaywallPageState({
+    @Default(false) bool makingPurchase,
+    @Default([]) List<Package> paywallOfferings,
+    @Default([]) List<Package> tipPackages,
+    @Default([]) List<Package> iapPromos,
+    // @Default(AsyncValue.loading()) AsyncValue<Offerings?> offerings,
+  }) = _PaywallPageState;
+
+  bool get tipAvailable => tipPackages.isNotEmpty;
 }

@@ -2,19 +2,32 @@
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-labels: ''
+labels: feature-request
 assignees: ''
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Feature Request
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+### Problem Description
+A clear and concise description of the problem or pain point you're experiencing. For example: "I'm always frustrated when..."
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+### Proposed Solution
+A clear and concise description of the feature you'd like to see implemented.
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+### Alternatives Considered
+If you've thought of any alternative solutions or features, please briefly describe them here.
+
+### Additional Context
+Add any screenshots, examples, or additional context to help us understand your feature request better.
+
+---
+
+**Checklist**
+To help us understand your feature request, please ensure you've covered the following points:
+- [ ] Provided a clear description of the problem you're facing.
+- [ ] Clearly outlined the proposed solution or feature.
+- [ ] Mentioned any alternative solutions or ideas you've considered.
+- [ ] Included any relevant context or supporting materials.
+
+Your input is valuable in shaping the development of our project. Thank you for taking the time to submit your feature request!

@@ -8,5 +8,6 @@ enum PowerState {
   off,
   error,
   unknown,
+  unavailable,
   init;
 }

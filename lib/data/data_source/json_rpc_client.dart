@@ -6,22 +6,25 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:mobileraker/data/dto/jrpc/rpc_response.dart';
 import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/logger.dart';
+import 'package:mobileraker/util/extensions/uri_extension.dart';
 import 'package:mobileraker/util/misc.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
+
+const String WILDCARD_METHOD = '*';
 
 enum ClientState { disconnected, connecting, connected, error }
 
 enum ClientType { local, octo }
 
-typedef RpcCallback = Function(Map<String, dynamic> response,
-    {Map<String, dynamic>? err});
+typedef RpcCallback = Function(Map<String, dynamic> response, {Map<String, dynamic>? err});
+
+typedef RpcMethodListener = Function(Map<String, dynamic> response);
 
 class JRpcError implements Exception {
   JRpcError(this.code, this.message);
@@ -41,43 +44,38 @@ class JsonRpcClientBuilder {
 
   factory JsonRpcClientBuilder.fromOcto(Machine machine) {
     var octoEverywhere = machine.octoEverywhere!;
-    var localWsUir = Uri.parse(machine.wsUrl);
+    var localWsUir = machine.wsUri;
     var octoUri = Uri.parse(octoEverywhere.url);
 
     return JsonRpcClientBuilder()
+      ..headers = machine.headerWithApiKey
       ..timeout = const Duration(seconds: 5)
-      ..apiKey = machine.apiKey
-      ..uri = localWsUir.replace(
-          scheme: 'wss',
-          port: null, // OE automatically redirects the ports
-          host: octoUri.host,
-          userInfo:
-              '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
+      ..uri = localWsUir
+          .replace(
+              scheme: 'wss',
+              host: octoUri.host,
+              userInfo:
+                  '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
+          .removePort() // OE automatically redirects the ports
       ..clientType = ClientType.octo;
   }
 
   factory JsonRpcClientBuilder.fromMachine(Machine machine) {
     return JsonRpcClientBuilder()
-      ..uri = Uri.parse(machine.wsUrl)
-      ..apiKey = machine.apiKey
+      ..headers = machine.headerWithApiKey
+      ..uri = machine.wsUri
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
       ..clientType = ClientType.local;
   }
 
   ClientType clientType = ClientType.local;
-  String? apiKey;
   Uri? uri;
   bool trustSelfSignedCertificate = false;
   Duration timeout = const Duration(seconds: 3);
+  Map<String, dynamic> headers = {};
 
   JsonRpcClient build() {
     assert(uri != null, 'Provided URI was null');
-
-    Map<String, dynamic> headers = {};
-    if (apiKey != null) {
-      headers['X-Api-Key'] = apiKey;
-    }
-
     return JsonRpcClient(
       uri: uri!,
       timeout: timeout,
@@ -88,7 +86,6 @@ class JsonRpcClientBuilder {
   }
 }
 
-// await Future.delayed(Duration(seconds: 5));
 class JsonRpcClient {
   JsonRpcClient({
     required this.uri,
@@ -97,8 +94,7 @@ class JsonRpcClient {
     this.headers = const {},
     this.clientType = ClientType.local,
   })  : timeout = timeout ?? const Duration(seconds: 3),
-        assert(['ws', 'wss'].contains(uri.scheme),
-            'Scheme of provided URI must be WS or WSS!');
+        assert(['ws', 'wss'].contains(uri.scheme), 'Scheme of provided URI must be WS or WSS!');
 
   final ClientType clientType;
 
@@ -120,6 +116,8 @@ class JsonRpcClient {
 
   StreamSubscription? _channelSub;
 
+  int _idCounter = 0;
+
   final BehaviorSubject<ClientState> _stateStream =
       BehaviorSubject.seeded(ClientState.disconnected);
 
@@ -132,12 +130,10 @@ class JsonRpcClient {
   /// Example Resp: {jsonrpc: '2.0', method: <method>, params: [<status_data>]}
   ///
   /// key ->  method, value -> callbacks to be called ince the method arrives
-  /// key ='ALL' will be called with all notification messages
-  final Map<String, ObserverList<Function>> _methodListeners = {};
+  /// key ='*' will be called with all notification messages
+  final Map<String, ObserverList<RpcMethodListener>> _methodListeners = {};
 
-  final Map<int, RpcCallback> _requests = {};
-
-  final Map<int, Completer<RpcResponse>> _requestsBlocking = {};
+  final Map<int, _Request> _pendingRequests = {};
 
   ClientState _curState = ClientState.disconnected;
 
@@ -164,49 +160,34 @@ class JsonRpcClient {
   /// returns a future that completes to true if the WS is connected or false once the
   /// reconnection try, if needded is completed!
   Future<bool> ensureConnection() async {
-    if (curState != ClientState.connected &&
-        curState != ClientState.connecting) {
+    if (curState != ClientState.connected && curState != ClientState.connecting) {
       logger.i('[$uri] WS not connected! connecting...');
       return openChannel();
     }
     return true;
   }
 
-  /// Send a Json-Rpc to server using callback for receiving
-  sendJsonRpcWithCallback(String method,
-      {RpcCallback? onReceive, dynamic params}) {
-    var jsonRpc = _constructJsonRPCMessage(method, params: params);
-    var mId = jsonRpc['id'];
-    if (onReceive != null) _requests[mId] = onReceive;
-    logger.d('[$uri] Sending for method "$method" with ID $mId');
-
-    _send(jsonEncode(jsonRpc));
-  }
-
   /// Send a JsonRpc using futures
-  Future<RpcResponse> sendJRpcMethod(String method, {dynamic params}) async {
+  Future<RpcResponse> sendJRpcMethod(String method, {dynamic params}) {
     var jsonRpc = _constructJsonRPCMessage(method, params: params);
     var mId = jsonRpc['id'];
-    _requests[mId] = _completerCallback;
     var completer = Completer<RpcResponse>();
-    _requestsBlocking[mId] = completer;
+    _pendingRequests[mId] = _Request(method, completer, StackTrace.current);
+
     logger.d('[$uri] Sending(Blocking) for method "$method" with ID $mId');
     _send(jsonEncode(jsonRpc));
     return completer.future;
   }
 
   /// add a method listener for all(all=*) or given [method]
-  addMethodListener(Function(Map<String, dynamic> rawMessage) callback,
-      [String method = '*']) {
+  addMethodListener(RpcMethodListener callback, [String method = WILDCARD_METHOD]) {
     _methodListeners.putIfAbsent(method, () => ObserverList()).add(callback);
   }
 
   // removes the method that was previously added by addMethodListeners
-  bool removeMethodListener(Function(Map<String, dynamic> rawMessage) callback,
-      [String? method]) {
-    if (method != null) {
-      var foundListeners = _methodListeners.values
-          .where((element) => element.contains(callback));
+  bool removeMethodListener(RpcMethodListener callback, [String? method]) {
+    if (method == null) {
+      var foundListeners = _methodListeners.values.where((element) => element.contains(callback));
       if (foundListeners.isEmpty) return true;
       return foundListeners
           .map((element) => element.remove(callback))
@@ -226,7 +207,7 @@ class JsonRpcClient {
       // }
 
       HttpClient httpClient = _constructHttpClient();
-
+      logger.i('Using headers $headers');
       WebSocket socket = await WebSocket.connect(
         uri.toString(),
         headers: headers,
@@ -248,8 +229,7 @@ class JsonRpcClient {
       _channelSub = ioChannel.stream.listen(
         _onChannelMessage,
         onError: _onChannelError,
-        onDone: () =>
-            _onChannelClosesNormal(socket.closeCode, socket.closeReason),
+        onDone: () => _onChannelClosesNormal(socket.closeCode, socket.closeReason),
       );
 
       curState = ClientState.connected;
@@ -265,25 +245,17 @@ class JsonRpcClient {
     httpClient.connectionTimeout = timeout;
     if (trustSelfSignedCertificate) {
       // only allow self signed certificates!
-      httpClient.badCertificateCallback =
-          (cert, host, port) => true;
+      httpClient.badCertificateCallback = (cert, host, port) => true;
     }
     return httpClient;
   }
 
-  Map<String, dynamic> _constructJsonRPCMessage(String method,
-      {dynamic params}) {
-    Map<String, dynamic> json = {};
-    json['jsonrpc'] = '2.0';
-    // Make sure ID is only used once
-    do {
-      json['id'] = Random.secure().nextInt(10000);
-    } while (_requests.containsKey(json['id']));
-
-    json['method'] = method;
-    if (params != null) json['params'] = params;
-    return json;
-  }
+  Map<String, dynamic> _constructJsonRPCMessage(String method, {dynamic params}) => {
+        'jsonrpc': '2.0',
+        'id': _idCounter++,
+        'method': method,
+        if (params != null) 'params': params
+      };
 
   /// Sends a message to the server
   _send(String message) {
@@ -294,49 +266,29 @@ class JsonRpcClient {
   /// CB for called for each new message from the channel/ws
   _onChannelMessage(message) {
     Map<String, dynamic> result = jsonDecode(message);
-    var mId = result['id'];
+    int? mId = result['id'];
+    String? method = result['method'];
+    Map<String, dynamic>? error = result['error'];
+
     logger.d('[$uri] @Rec (messageId: $mId): $message');
 
-    if (result['error'] != null && result['error']['message'] != null) {
-      logger.e('[$uri] Error message received: $message');
-      if (mId != null && _requests.containsKey(mId)) {
-        RpcCallback foundHandler = _requests.remove(mId)!;
-        foundHandler(result, err: result['error']);
-      }
-    } else {
-      var method = result['method'];
-
-      if (mId != null && _requests.containsKey(mId)) {
-        RpcCallback foundHandler = _requests.remove(mId)!;
-        foundHandler(result);
-      } else if (method != null &&
-          (_methodListeners.containsKey(method) ||
-              _methodListeners.containsKey('*'))) {
-        if (_methodListeners.containsKey(method)) {
-          for (var element in _methodListeners[method]!) {
-            element(result);
-          }
-        }
-        if (_methodListeners.containsKey('*')) {
-          for (var element in _methodListeners['*']!) {
-            element(result);
-          }
-        }
-      }
+    if (method != null) {
+      _methodListeners[method]?.forEach((e) => e(result));
+      _methodListeners[WILDCARD_METHOD]?.forEach((e) => e(result));
+    } else if (error != null || mId != null) {
+      _completerCallback(result, err: error);
     }
   }
 
   /// Helper method used as callback if a normal async/future send is requested
-  _completerCallback(Map<String, dynamic> response,
-      {Map<String, dynamic>? err}) {
+  _completerCallback(Map<String, dynamic> response, {Map<String, dynamic>? err}) {
     var mId = response['id'];
     logger.d('[$uri] Received(Blocking) for id: "$mId"');
-    if (_requestsBlocking.containsKey(mId)) {
-      Completer completer = _requestsBlocking.remove(mId)!;
+    if (_pendingRequests.containsKey(mId)) {
+      var request = _pendingRequests.remove(mId)!;
       if (err != null) {
         // logger.e('Completing $mId with error $err,\n${StackTrace.current}',);
-        completer.completeError(
-            JRpcError(err['code'], err['message']), StackTrace.current);
+        request.completer.completeError(JRpcError(err['code'], err['message']), request.stacktrace);
       } else {
         if (response['result'] == 'ok') {
           response = {
@@ -344,7 +296,7 @@ class JsonRpcClient {
             'result': <String, dynamic>{}
           }; // do some trickery here because the gcode response (Why idk) returns `result:ok` instead of an empty map/wrapped in a map..
         }
-        completer.complete(RpcResponse.fromJson(response));
+        request.completer.complete(RpcResponse.fromJson(response));
       }
     } else {
       logger.w('Received response for unknown id "$mId"');
@@ -353,8 +305,7 @@ class JsonRpcClient {
 
   _onChannelClosesNormal(int? closeCode, String? closeReason) {
     if (_disposed) {
-      logger
-          .i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
+      logger.i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
       return;
     }
 
@@ -393,7 +344,8 @@ class JsonRpcClient {
       HttpClientResponse response = await request.close();
       logger.wtf('Got Response: ${response.statusCode}');
       verifyHttpResponseCodes(response.statusCode, clientType);
-      openChannel(); // If no exception was thrown, we just try again!
+      // openChannel(); // If no exception was thrown, we just try again!
+      _updateError(error);
     } catch (e) {
       _updateError(e);
     }
@@ -409,26 +361,25 @@ class JsonRpcClient {
   dispose() async {
     _disposed = true;
 
-    if (_requestsBlocking.isNotEmpty) {
+    if (_pendingRequests.isNotEmpty) {
       logger.i(
-          '$uri${identityHashCode(this)}] Found hanging requests, waiting for them before completly disposing client');
+          '$uri${identityHashCode(this)}] Found ${_pendingRequests.length} hanging requests, waiting for them before completly disposing client');
       try {
-        await Future.wait(_requestsBlocking.values.map((e) => e.future))
+        await Future.wait(_pendingRequests.values.map((e) => e.completer.future))
             .timeout(const Duration(seconds: 30));
       } on TimeoutException catch (_) {
         logger.i(
             '$uri${identityHashCode(this)}] Was unable to complete all hanging JRPC requests after 30sec...');
-      } on JRpcError catch(_) {
+      } on JRpcError catch (_) {
         // Just catch the JRPC errors that might be returned in the futures to prevent async gap errors...
         // These errors should be handled in the respective caller!
       } finally {
-        logger.i(
-            '$uri${identityHashCode(this)}] All hanging requests finished!');
+        logger.i('$uri${identityHashCode(this)}] All hanging requests finished!');
       }
     }
 
-    _requestsBlocking.forEach((key, value) => value.completeError(Future.error(
-        'Websocket is closing, request id=$key never got an response!')));
+    _pendingRequests.forEach((key, value) => value.completer.completeError(StateError(
+        'Websocket is closing, request id=$key, method ${value.method} never got an response!')));
     _methodListeners.clear();
     _channelSub?.cancel();
 
@@ -453,8 +404,7 @@ class JsonRpcClient {
           _channelSub == other._channelSub &&
           _stateStream == other._stateStream &&
           mapEquals(_methodListeners, other._methodListeners) &&
-          mapEquals(_requests, other._requests) &&
-          mapEquals(_requestsBlocking, other._requestsBlocking) &&
+          mapEquals(_pendingRequests, other._pendingRequests) &&
           _curState == other._curState;
 
   @override
@@ -470,7 +420,14 @@ class JsonRpcClient {
       _channelSub.hashCode ^
       _stateStream.hashCode ^
       _methodListeners.hashCode ^
-      _requests.hashCode ^
-      _requestsBlocking.hashCode ^
+      _pendingRequests.hashCode ^
       _curState.hashCode;
+}
+
+class _Request {
+  final String method;
+  final Completer<RpcResponse> completer;
+  final StackTrace stacktrace;
+
+  _Request(this.method, this.completer, this.stacktrace);
 }

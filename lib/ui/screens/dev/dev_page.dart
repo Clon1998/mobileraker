@@ -5,6 +5,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card.dart';
 
 class DevPage extends StatelessWidget {
   const DevPage({
@@ -14,13 +15,15 @@ class DevPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Colors.blueGrey,
         appBar: AppBar(
-          title: Text('Dev'),
+          title: const Text('Dev'),
         ),
         drawer: const NavigationDrawerWidget(),
-        body: Column(
+        body: ListView(
           children: [
             Text('One'),
+            CamCard(),
             // Expanded(child: WebRtcCam()),
           ],
         ));

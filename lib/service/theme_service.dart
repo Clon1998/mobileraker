@@ -32,7 +32,7 @@ class ThemeService {
   }
 
   _init() {
-    var selIndex = _settingService.readInt(selectedThemePackKey);
+    var selIndex = _settingService.readInt(AppSettingKeys.themePack);
     int themeIndex = selIndex;
 
     logger.i(
@@ -40,7 +40,8 @@ class ThemeService {
     if (selIndex > themePacks.length - 1) themeIndex = 0;
 
     var mode = ThemeMode.values[min(
-        _settingService.readInt(selectedThemeModeKey), themePacks.length - 1)];
+        _settingService.readInt(AppSettingKeys.themeMode),
+        themePacks.length - 1)];
     activeTheme = ThemeModel(themePacks[themeIndex], mode);
   }
 
@@ -62,13 +63,13 @@ class ThemeService {
   selectThemePack(ThemePack themePack) {
     activeTheme = activeTheme.copyWith(themePack: themePack);
     _settingService.writeInt(
-        selectedThemePackKey, themePacks.indexOf(themePack));
+        AppSettingKeys.themePack, themePacks.indexOf(themePack));
   }
 
   selectThemeMode(ThemeMode mode) {
     activeTheme = activeTheme.copyWith(themeMode: mode);
     _settingService.writeInt(
-        selectedThemeModeKey, ThemeMode.values.indexOf(mode));
+        AppSettingKeys.themeMode, ThemeMode.values.indexOf(mode));
   }
 }
 

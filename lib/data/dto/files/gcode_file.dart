@@ -3,114 +3,103 @@
  * All rights reserved.
  */
 
-import 'package:flutter/foundation.dart';
-import 'package:mobileraker/util/extensions/iterable_extension.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/data/converters/integer_converter.dart';
+import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
 
 import 'gcode_thumbnail.dart';
-import 'remote_file.dart';
 
-class GCodeFile extends RemoteFile {
+part 'gcode_file.freezed.dart';
+part 'gcode_file.g.dart';
+
+// {
+// "size": 11237514,
+// "modified": 1687267390.7120593,
+// "uuid": "2bf26f54-eca6-491e-bfb7-6e65ad220a77",
+// "slicer": "SuperSlicer",
+// "slicer_version": "2.5.59",
+// "gcode_start_byte": 65968,
+// "gcode_end_byte": 11222275,
+// "layer_count": 83,
+// "object_height": 16.6,
+// "estimated_time": 5624,
+// "nozzle_diameter": 0.4,
+// "layer_height": 0.2,
+// "first_layer_height": 0.2,
+// "first_layer_extr_temp": 285,
+// "first_layer_bed_temp": 110,
+// "chamber_temp": 50,
+// "filament_name": "AzurFilm ABS+ @VORON",
+// "filament_type": "ABS",
+// "filament_total": 7251.81,
+// "filament_weight_total": 18.84,
+// "thumbnails": [
+// {
+// "width": 32,
+// "height": 24,
+// "size": 2201,
+// "relative_path": ".thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-32x32.png"
+// },
+// {
+// "width": 64,
+// "height": 64,
+// "size": 5495,
+// "relative_path": ".thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-64x64.png"
+// },
+// {
+// "width": 400,
+// "height": 300,
+// "size": 40658,
+// "relative_path": ".thumbs/TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m-400x300.png"
+// }
+// ],
+// "print_start_time": null,
+// "job_id": null,
+// "filename": "TAP_UPPER_PCB_RC8_18.4613g_0.2mm_ABS-1h34m.gcode"
+// }
+
+@freezed
+class GCodeFile with _$GCodeFile, RemoteFile {
   static int lastPrintedComparator(RemoteFile a, RemoteFile b) {
     if (a is! GCodeFile || b is! GCodeFile) return 0;
 
     return b.printStartTime?.compareTo(a.printStartTime ?? 0) ?? -1;
   }
 
-  double? printStartTime;
+  const GCodeFile._();
 
-  String? jobID;
+  @JsonSerializable(
+    fieldRename: FieldRename.snake,
+  )
+  const factory GCodeFile({
+    @JsonKey(name: 'filename') required String name,
+    required String parentPath,
+    required double modified,
+    @IntegerConverter() required int size,
+    double? printStartTime,
+    String? jobId,
+    String? slicer,
+    String? slicerVersion,
+    @IntegerConverter() int? gcodeStartByte,
+    @IntegerConverter() int? gcodeEndByte,
+    @IntegerConverter() int? layerCount,
+    double? objectHeight,
+    double? estimatedTime,
+    double? nozzleDiameter,
+    double? layerHeight,
+    double? firstLayerHeight,
+    @JsonKey(name: 'first_layer_extr_temp') double? firstLayerTempBed,
+    @JsonKey(name: 'first_layer_bed_temp') double? firstLayerTempExtruder,
+    double? chamberTemp,
+    String? filamentName,
+    String? filamentType,
+    double? filamentTotal,
+    double? filamentWeightTotal,
+    @Default([]) List<GCodeThumbnail> thumbnails,
+  }) = _GCodeFile;
 
-  String? slicer;
-
-  String? slicerVersion;
-
-  double? layerHeight;
-
-  double? firstLayerHeight;
-
-  double? objectHeight;
-
-  double? filamentTotal;
-
-  double? estimatedTime;
-
-  double? firstLayerTempBed;
-
-  double? firstLayerTempExtruder;
-
-  int? gcodeStartByte;
-
-  int? gcodeEndByte;
-
-  List<GCodeThumbnail> thumbnails = List.empty();
-
-  String? filamentType;
-
-  String? filamentName;
-
-  double? nozzleDiameter;
-
-  /// CUSTOM FIELDS:
-
-  GCodeFile(
-      {required String name,
-      required double modified,
-      required int size,
-      required String parentPath})
-      : super(name, modified, size, parentPath);
-
-  GCodeFile.fromJson(Map<String, dynamic> json, String parentPath)
-      : super.fromJson(json, parentPath) {
-    if (json.containsKey('print_start_time')) {
-      printStartTime = json['print_start_time'];
-    }
-    if (json.containsKey('job_id')) jobID = json['job_id'];
-    if (json.containsKey('slicer')) slicer = json['slicer'];
-    if (json.containsKey('slicer_version')) {
-      slicerVersion = json['slicer_version'];
-    }
-    if (json.containsKey('layer_height')) {
-      layerHeight = json['layer_height'];
-    }
-    if (json.containsKey('first_layer_height')) {
-      firstLayerHeight = json['first_layer_height'];
-    }
-    if (json.containsKey('object_height')) {
-      objectHeight = json['object_height'];
-    }
-    if (json.containsKey('filament_total')) {
-      filamentTotal = json['filament_total'];
-    }
-    if (json.containsKey('estimated_time')) {
-      estimatedTime = double.tryParse(json['estimated_time'].toString());
-    }
-    if (json.containsKey('first_layer_bed_temp')) {
-      firstLayerTempBed = json['first_layer_bed_temp'];
-    }
-    if (json.containsKey('first_layer_extr_temp')) {
-      firstLayerTempExtruder = json['first_layer_extr_temp'];
-    }
-    if (json.containsKey('gcode_start_byte')) {
-      gcodeEndByte = json['gcode_start_byte'];
-    }
-    if (json.containsKey('gcode_end_byte')) {
-      gcodeEndByte = json['gcode_end_byte'];
-    }
-    if (json.containsKey('filament_type')) {
-      filamentType = json['filament_type'];
-    }
-    if (json.containsKey('filament_name')) {
-      filamentName = json['filament_name'];
-    }
-    if (json.containsKey('nozzle_diameter')) {
-      nozzleDiameter = json['nozzle_diameter'];
-    }
-
-    if (json.containsKey('thumbnails')) {
-      List<dynamic> thumbs = json['thumbnails'];
-      thumbnails = thumbs.map((e) => GCodeThumbnail.fromJson(e)).toList();
-    }
-  }
+  factory GCodeFile.fromJson(Map<String, dynamic> json, String parentPath) =>
+      _$GCodeFileFromJson({...json, 'parent_path': parentPath});
 
   String? get smallImagePath {
     //ToDo: Filter for small <.<
@@ -138,48 +127,4 @@ class GCodeFile extends RemoteFile {
     split.add(name);
     return split.join('/');
   }
-
-  @override
-  String toString() {
-    return 'GCodeFile{printStartTime: $printStartTime, jobID: $jobID, slicer: $slicer, slicerVersion: $slicerVersion, layerHeight: $layerHeight, firstLayerHeight: $firstLayerHeight, objectHeight: $objectHeight, filamentTotal: $filamentTotal, estimatedTime: $estimatedTime, firstLayerTempBed: $firstLayerTempBed, firstLayerTempExtruder: $firstLayerTempExtruder, gcodeStartByte: $gcodeStartByte, gcodeEndByte: $gcodeEndByte, thumbnails: $thumbnails}';
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      super == other &&
-          other is GCodeFile &&
-          runtimeType == other.runtimeType &&
-          printStartTime == other.printStartTime &&
-          jobID == other.jobID &&
-          slicer == other.slicer &&
-          slicerVersion == other.slicerVersion &&
-          layerHeight == other.layerHeight &&
-          firstLayerHeight == other.firstLayerHeight &&
-          objectHeight == other.objectHeight &&
-          filamentTotal == other.filamentTotal &&
-          estimatedTime == other.estimatedTime &&
-          firstLayerTempBed == other.firstLayerTempBed &&
-          firstLayerTempExtruder == other.firstLayerTempExtruder &&
-          gcodeStartByte == other.gcodeStartByte &&
-          gcodeEndByte == other.gcodeEndByte &&
-          listEquals(thumbnails, other.thumbnails);
-
-  @override
-  int get hashCode =>
-      super.hashCode ^
-      printStartTime.hashCode ^
-      jobID.hashCode ^
-      slicer.hashCode ^
-      slicerVersion.hashCode ^
-      layerHeight.hashCode ^
-      firstLayerHeight.hashCode ^
-      objectHeight.hashCode ^
-      filamentTotal.hashCode ^
-      estimatedTime.hashCode ^
-      firstLayerTempBed.hashCode ^
-      firstLayerTempExtruder.hashCode ^
-      gcodeStartByte.hashCode ^
-      gcodeEndByte.hashCode ^
-      thumbnails.hashIterable;
 }

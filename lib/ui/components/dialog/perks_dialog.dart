@@ -26,12 +26,13 @@ class PerksDialog extends StatelessWidget {
               'dialogs.supporter_perks.title',
               style: Theme.of(context).textTheme.headlineSmall,
             ).tr(),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'dialogs.supporter_perks.body',
-                style: Theme.of(context).textTheme.bodySmall,
-              ).tr(),
+            Text(
+              'dialogs.supporter_perks.body',
+              style: Theme.of(context).textTheme.bodySmall,
+              textAlign: TextAlign.justify,
+            ).tr(),
+            const SizedBox(
+              height: 8,
             ),
             Flexible(
               child: ListView(
@@ -43,6 +44,15 @@ class PerksDialog extends StatelessWidget {
                         .tr(),
                     subtitle: const Text(
                             'dialogs.supporter_perks.notification_perk.subtitle')
+                        .tr(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  ListTile(
+                    title:
+                        const Text('dialogs.supporter_perks.webrtc_perk.title')
+                            .tr(),
+                    subtitle: const Text(
+                            'dialogs.supporter_perks.webrtc_perk.subtitle')
                         .tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
@@ -68,12 +78,12 @@ class PerksDialog extends StatelessWidget {
               ),
             ),
             const Divider(),
-            Text(
-              "dialogs.supporter_perks.hint",
-              textAlign: TextAlign.center,
-              style:
-                  Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9),
-            ).tr(),
+            // Text(
+            //   "dialogs.supporter_perks.hint",
+            //   textAlign: TextAlign.center,
+            //   style:
+            //       Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 9),
+            // ).tr(),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

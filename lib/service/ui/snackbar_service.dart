@@ -25,11 +25,10 @@ class SnackBarService {
   final Ref ref;
 
   show(SnackBarConfig config) {
-    var context =
-        ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext!;
-
-    ScaffoldMessenger.of(context)
-        .showSnackBar(_constructSnackbar(context, config));
+    var context = ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
+    if (context != null) {
+      ScaffoldMessenger.of(context).showSnackBar(_constructSnackbar(context, config));
+    }
   }
 
   SnackBar _constructSnackbar(BuildContext context, SnackBarConfig config) {
@@ -73,8 +72,10 @@ class SnackBarService {
                   children: [
                     Text(
                       config.title ?? config.type.name.titleCase(),
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: txtCol, fontWeight: FontWeight.w900),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleLarge
+                          ?.copyWith(color: txtCol, fontWeight: FontWeight.w900),
                     ),
                     Text(
                       config.message ?? '',
@@ -85,13 +86,12 @@ class SnackBarService {
               ),
               if (config.mainButtonTitle != null)
                 ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: btnBg, foregroundColor: btnOnBg),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: btnBg, foregroundColor: btnOnBg),
                     onPressed: config.onMainButtonTapped != null
                         ? () {
                             if (config.closeOnMainButtonTapped == true) {
-                              ScaffoldMessenger.of(context)
-                                  .hideCurrentSnackBar();
+                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
                             }
                             config.onMainButtonTapped!();
                           }
@@ -142,8 +142,7 @@ class SnackBarConfig {
         mainButtonTitle: tr('general.details'),
         closeOnMainButtonTapped: true,
         onMainButtonTapped: () {
-          var prefix =
-              (dialogExceptionPrefix != null) ? '$dialogExceptionPrefix\n' : '';
+          var prefix = (dialogExceptionPrefix != null) ? '$dialogExceptionPrefix\n' : '';
 
           dialogService.show(DialogRequest(
               type: DialogType.stacktrace,

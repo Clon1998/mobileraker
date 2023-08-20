@@ -10,50 +10,51 @@ import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/webcam_service.dart';
+import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'printer_card_controller.g.dart';
 
-
-
-@riverpod
+@Riverpod(dependencies: [])
 Machine printerCardMachine(PrinterCardMachineRef ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [goRouter, printerCardMachine, klipper, selectedMachineService])
 class PrinterCardController extends _$PrinterCardController {
-  SelectedMachineService get _selectedMachineService =>
-      ref.read(selectedMachineServiceProvider);
+  SelectedMachineService get _selectedMachineService => ref.read(selectedMachineServiceProvider);
 
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
-  Machine get machine => ref.read(printerCardMachineProvider);
+  Machine get _machine => ref.read(printerCardMachineProvider);
 
   @override
   FutureOr<WebcamInfo?> build() async {
     var machine = ref.watch(printerCardMachineProvider);
-    await ref.watchWhere<KlipperInstance>(klipperProvider(machine.uuid),
-        (c) => c.klippyState == KlipperState.ready, false);
-    var filteredCams =
-        await ref.watch(filteredWebcamInfosProvider(machine.uuid).future);
-    if (filteredCams.isEmpty) return null;
-    return ref.watch(
-        webcamInfoProvider(machine.uuid, filteredCams.first.uuid).future);
+    await ref.watchWhere<KlipperInstance>(
+        klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready, false);
+    var filteredCamsFuture = ref.watch(allSupportedWebcamInfosProvider(machine.uuid).future);
+    if (!ref.watch(isSupporterProvider)) {
+      filteredCamsFuture = filteredCamsFuture.then((value) =>
+          value.where((element) => !element.service.forSupporters).toList(growable: false));
+    }
+
+    var filteredCams = await filteredCamsFuture;
+    return filteredCams.firstOrNull;
   }
 
   onTapTile() {
-    ref.read(selectedMachineServiceProvider).selectMachine(machine);
+    ref.read(selectedMachineServiceProvider).selectMachine(_machine);
     _goRouter.goNamed(AppRoute.dashBoard.name);
   }
 
   onLongPressTile() {
-    _selectedMachineService.selectMachine(machine);
-    _goRouter.pushNamed(AppRoute.printerEdit.name, extra: machine);
+    _selectedMachineService.selectMachine(_machine);
+    _goRouter.pushNamed(AppRoute.printerEdit.name, extra: _machine);
   }
 
   onFullScreenTap() {
     _goRouter.pushNamed(AppRoute.fullCam.name,
-        extra: {'machine': machine, 'selectedCam': state.value!});
+        extra: {'machine': _machine, 'selectedCam': state.value!});
   }
 }

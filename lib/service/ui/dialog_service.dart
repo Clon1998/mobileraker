@@ -14,6 +14,7 @@ import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_srew_adjus
 import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/http_headers/http_header_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/info_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/led_rgbw/led_rgbw_dialog.dart';
@@ -24,6 +25,7 @@ import 'package:mobileraker/ui/components/dialog/perks_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/select_printer/select_printer_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/tipping_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -49,28 +51,28 @@ enum DialogType {
   perks,
   manualOffset,
   bedScrewAdjust,
+  tipping,
+  httpHeader,
 }
 
 typedef DialogCompleter = Function(DialogResponse);
 
 class DialogService {
-  DialogService(this.ref);
+  DialogService(this._ref);
 
-  final DialogServiceRef ref;
+  final DialogServiceRef _ref;
 
-  DialogRequest? _currentDialogRequest = null;
+  DialogRequest? _currentDialogRequest;
 
   bool get isDialogOpen => _currentDialogRequest != null;
 
-  final Map<DialogType, Widget Function(DialogRequest, DialogCompleter)>
-      availableDialogs = {
+  final Map<DialogType, Widget Function(DialogRequest, DialogCompleter)> availableDialogs = {
     DialogType.info: (r, c) => InfoDialog(dialogRequest: r, completer: c),
     DialogType.confirm: (request, completer) => ConfirmationDialog(
           dialogRequest: request,
           completer: completer,
         ),
-    DialogType.importSettings: (r, c) =>
-        ImportSettingsDialog(request: r, completer: c),
+    DialogType.importSettings: (r, c) => ImportSettingsDialog(request: r, completer: c),
     DialogType.numEdit: (r, c) => NumEditFormDialog(request: r, completer: c),
     DialogType.rangeEdit: (r, c) => NumEditFormDialog(request: r, completer: c),
     DialogType.excludeObject: (r, c) => ExcludeObjectDialog(
@@ -79,22 +81,19 @@ class DialogService {
         ),
     DialogType.stacktrace: (r, c) => StackTraceDialog(request: r, completer: c),
     DialogType.renameFile: (r, c) => RenameFileDialog(request: r, completer: c),
-    DialogType.gcodeParams: (r, c) =>
-        MacroParamsDialog(request: r, completer: c),
+    DialogType.gcodeParams: (r, c) => MacroParamsDialog(request: r, completer: c),
     DialogType.ledRGBW: (r, c) => LedRGBWDialog(
           request: r,
           completer: c,
         ),
     DialogType.logging: (r, c) => LoggerDialog(request: r, completer: c),
-    DialogType.webcamPreview: (r, c) =>
-        WebcamPreviewDialog(request: r, completer: c),
-    DialogType.activeMachine: (r, c) =>
-        SelectPrinterDialog(request: r, completer: c),
+    DialogType.webcamPreview: (r, c) => WebcamPreviewDialog(request: r, completer: c),
+    DialogType.activeMachine: (r, c) => SelectPrinterDialog(request: r, completer: c),
     DialogType.perks: (r, c) => PerksDialog(request: r, completer: c),
-    DialogType.manualOffset: (r, c) =>
-        ManualOffsetDialog(request: r, completer: c),
-    DialogType.bedScrewAdjust: (r, c) =>
-        BedScrewAdjustDialog(request: r, completer: c),
+    DialogType.manualOffset: (r, c) => ManualOffsetDialog(request: r, completer: c),
+    DialogType.bedScrewAdjust: (r, c) => BedScrewAdjustDialog(request: r, completer: c),
+    DialogType.tipping: (r, c) => TippingDialog(request: r, completer: c),
+    DialogType.httpHeader: (r, c) => HttpHeaderDialog(request: r, completer: c),
   };
 
   Future<DialogResponse?> showConfirm({
@@ -117,8 +116,7 @@ class DialogService {
   }
 
   Future<DialogResponse?> show(DialogRequest request) async {
-    BuildContext? ctx =
-        ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
+    BuildContext? ctx = _ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
     logger.i('Show Dialog request for ${request.type}');
     if (_currentDialogRequest != null) {
@@ -143,8 +141,7 @@ class DialogService {
   }
 
   void _completeDialog(DialogResponse response) {
-    BuildContext? ctx =
-        ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
+    BuildContext? ctx = _ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
     Navigator.of(ctx!).pop(response);
   }
 }

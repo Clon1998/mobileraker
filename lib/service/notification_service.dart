@@ -12,6 +12,7 @@ import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -27,7 +28,6 @@ import 'package:mobileraker/service/moonraker/klippy_service.dart';
 import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/service/setting_service.dart';
-import 'package:mobileraker/ui/theme/theme_setup.dart';
 import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -37,8 +37,7 @@ import 'machine_service.dart';
 part 'notification_service.g.dart';
 
 @riverpod
-AwesomeNotifications awesomeNotification(AwesomeNotificationRef ref) =>
-    AwesomeNotifications();
+AwesomeNotifications awesomeNotification(AwesomeNotificationRef ref) => AwesomeNotifications();
 
 @riverpod
 AwesomeNotificationsFcm awesomeNotificationFcm(AwesomeNotificationFcmRef ref) =>
@@ -50,6 +49,11 @@ NotificationService notificationService(NotificationServiceRef ref) {
   ref.onDispose(notificationService.dispose);
   ref.keepAlive();
   return notificationService;
+}
+
+@riverpod
+Future<String> fcmToken(FcmTokenRef ref) {
+  return ref.watch(notificationServiceProvider).fetchCurrentFcmToken();
 }
 
 class NotificationService {
@@ -66,40 +70,43 @@ class NotificationService {
   final SettingService _settingsService;
   final AwesomeNotifications _notifyAPI;
   final AwesomeNotificationsFcm _notifyFCM;
-  final Map<String, ProviderSubscription<AsyncValue<Printer>>>
-      _printerStreamMap = {};
+  final Map<String, ProviderSubscription<AsyncValue<Printer>>> _printerStreamMap = {};
   final ReceivePort _notificationTapPort = ReceivePort();
 
   StreamSubscription<BoxEvent>? _hiveStreamListener;
 
   Future<void> initialize() async {
     try {
-      List<Machine> allMachines = await _machineService.fetchAll();
+      await _initialRequestPermission();
+
+      List<Machine> allMachines = await ref.read(allMachinesProvider.future);
+      ref
+          .read(hiddenMachinesProvider.future)
+          .then((res) => Future.wait(res.map(_wipeFCMOnPrinterOnceConnected)))
+          .ignore();
 
       await _initializeNotificationChannels(allMachines);
 
-      await _initialRequestPermission();
-
       // ToDo: Add listener to token update to clear fcm.cfg!
-
       // ToDo: Implement local notification handling again!
       for (Machine setting in allMachines) {
         _registerLocalMessageHandling(setting);
       }
 
       _hiveStreamListener = _setupHiveBoxListener();
+
       _initializedPortForTask();
       await _initializeNotificationListeners();
-      if (await isFirebaseAvailable()) {
-        await _initializeRemoteMessaging();
+      _initializeRemoteMessaging(allMachines).ignore();
 
-        allMachines.forEach(_setupFCMOnPrinterOnceConnected);
-      }
+      logger.i('Completed NotificationService init');
     } catch (e, s) {
-      logger.w(
-          'Error encountered while trying to setup the Notification Service.',
-          e,
-          s);
+      FirebaseCrashlytics.instance.recordError(
+        e,
+        s,
+        reason: 'Error while setting up notificationService',
+      );
+      logger.w('Error encountered while trying to setup the Notification Service.', e, s);
     }
   }
 
@@ -107,7 +114,7 @@ class NotificationService {
     bool notificationAllowed = await hasNotificationPermission();
     logger.i('Notifications are permitted: $notificationAllowed');
 
-    if (_settingsService.readBool(requestedNotifyPermission, true)) {
+    if (_settingsService.readBool(UtilityKeys.requestedNotifyPermission, true)) {
       return notificationAllowed;
     }
     if (!notificationAllowed) {
@@ -117,7 +124,7 @@ class NotificationService {
   }
 
   Future<bool> requestNotificationPermission() async {
-    await _settingsService.writeBool(requestedNotifyPermission, true);
+    await _settingsService.writeBool(UtilityKeys.requestedNotifyPermission, true);
     return _notifyAPI.requestPermissionToSendNotifications();
   }
 
@@ -129,21 +136,20 @@ class NotificationService {
   void _registerLocalMessageHandling(Machine setting) {
     // ToDo: Implement local notification handling again!
     return;
-    _printerStreamMap[setting.uuid] = ref.listen(printerProvider(setting.uuid),
-        (previous, AsyncValue<Printer> next) {
+    _printerStreamMap[setting.uuid] =
+        ref.listen(printerProvider(setting.uuid), (previous, AsyncValue<Printer> next) {
       next.whenData((value) => _processPrinterUpdate(setting, value));
     });
   }
 
   Future<void> _initializeNotificationListeners() {
-    return _notifyAPI.setListeners(
-        onActionReceivedMethod: _onActionReceivedMethod);
+    return _notifyAPI.setListeners(onActionReceivedMethod: _onActionReceivedMethod);
   }
 
   StreamSubscription<BoxEvent> _setupHiveBoxListener() {
     return _machineService.machineEventStream.listen((event) {
-      logger.d(
-          "Received Box-Event<machine>: event(${event.key}:${event.value} del=${event.deleted}");
+      logger
+          .d("Received Box-Event<machine>: event(${event.key}:${event.value} del=${event.deleted}");
       if (event.deleted) {
         onMachineRemoved(event.key);
       } else if (!_printerStreamMap.containsKey(event.key)) {
@@ -156,15 +162,13 @@ class NotificationService {
     // Always have a basic channel!
     List<NotificationChannelGroup> groups = [
       NotificationChannelGroup(
-          channelGroupKey: 'mobileraker_default_grp',
-          channelGroupName: 'Mobileraker')
+          channelGroupKey: 'mobileraker_default_grp', channelGroupName: 'Mobileraker')
     ];
     List<NotificationChannel> channels = [
       NotificationChannel(
         channelKey: 'basic_channel',
         channelName: 'General Notifications',
-        channelDescription:
-            'Notifications regarding updates and infos about Mobileraker!',
+        channelDescription: 'Notifications regarding updates and infos about Mobileraker!',
         channelGroupKey: 'mobileraker_default_grp',
       )
     ];
@@ -175,18 +179,23 @@ class NotificationService {
     }
 
     await _notifyAPI.initialize(
-      // set the icon to null if you want to use the default app icon
+        // set the icon to null if you want to use the default app icon
         null,
         channels,
         channelGroups: groups);
+    logger.i('Setup notification channels');
   }
 
-  Future<void> _initializeRemoteMessaging() async {
-    await _notifyFCM.initialize(
-        onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
-        onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
-        licenseKeys: [AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
-    await fetchCurrentFcmToken();
+  Future<void> _initializeRemoteMessaging(List<Machine> allMachines) async {
+    if (await isFirebaseAvailable()) {
+      await _notifyFCM.initialize(
+          onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
+          onFcmSilentDataHandle: _awesomeNotificationFCMBackgroundHandler,
+          licenseKeys: [AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
+      for (var e in allMachines) {
+        _setupFCMOnPrinterOnceConnected(e).ignore();
+      }
+    }
   }
 
   Future<void> updatePrintStateOnce() async {
@@ -198,12 +207,11 @@ class NotificationService {
     }
   }
 
-  Future<void> _initializedPortForTask() async {
+  void _initializedPortForTask() {
     // This might create a Race Condition, However in my case doing it like that is fine
     // Since AwesomeFCM  creates an Isolate only once the notification is tapped!
     IsolateNameServer.removePortNameMapping(_portName);
-    IsolateNameServer.registerPortWithName(
-        _notificationTapPort.sendPort, _portName);
+    IsolateNameServer.registerPortWithName(_notificationTapPort.sendPort, _portName);
 
     // No need to close this sub, since I close the port!
     _notificationTapPort.listen(_onNotificationTapPortMessage,
@@ -264,13 +272,11 @@ class NotificationService {
     _notifyAPI.removeChannel('$uuid-statusUpdates');
     _notifyAPI.removeChannel('$uuid-progressUpdates');
     _printerStreamMap.remove(uuid)?.close();
-    logger
-        .i("Removed notifications channels and stream-listener for UUID=$uuid");
+    logger.i("Removed notifications channels and stream-listener for UUID=$uuid");
   }
 
   @pragma("vm:entry-point")
-  static Future<void> _onActionReceivedMethod(
-      ReceivedAction receivedAction) async {
+  static Future<void> _onActionReceivedMethod(ReceivedAction receivedAction) async {
     SendPort? uiSendPort = IsolateNameServer.lookupPortByName(_portName);
     if (uiSendPort != null) {
       logger.e(
@@ -312,16 +318,14 @@ class NotificationService {
   }
 
   @pragma("vm:entry-point")
-  static Future<void> _awesomeNotificationFCMTokenHandler(
-      String firebaseToken) async {
+  static Future<void> _awesomeNotificationFCMTokenHandler(String firebaseToken) async {
     logger.i('Token from FCM $firebaseToken');
 
     // ToDo: Add listener to token update to clear fcm.cfg!
   }
 
   @pragma("vm:entry-point")
-  static Future<void> _awesomeNotificationFCMBackgroundHandler(
-      FcmSilentData message) async {
+  static Future<void> _awesomeNotificationFCMBackgroundHandler(FcmSilentData message) async {
     // Todo: Do I even need background stuff ?
     // logger.i('Receieved a notif Message');
     // print('I-AM-COOL');
@@ -392,57 +396,76 @@ class NotificationService {
   List<NotificationChannel> _channelsOfmachines(Machine machine) {
     return [
       NotificationChannel(
+          icon: 'resource://drawable/res_mobileraker_logo',
           channelKey: machine.statusUpdatedChannelKey,
           channelName: 'Print Status Updates - ${machine.name}',
           channelDescription: 'Notifications regarding the print status.',
           channelGroupKey: machine.uuid,
           // importance: NotificationImportance.Default,
-          defaultColor: brownish.shade500,
+          defaultColor: Colors.white,
           playSound: true,
           enableVibration: true),
       NotificationChannel(
+          icon: 'resource://drawable/res_mobileraker_logo',
           channelKey: machine.m117ChannelKey,
           channelName: 'User M117 Notifications - ${machine.name}',
-          channelDescription:
-              'Notifications issued by M117 with prefix "\$MR\$:".',
+          channelDescription: 'Notifications issued by M117 with prefix "\$MR\$:".',
           channelGroupKey: machine.uuid,
           // importance: NotificationImportance.Max,
-          defaultColor: brownish.shade500,
+          defaultColor: Colors.white,
           playSound: true,
           enableVibration: true),
       NotificationChannel(
-          channelKey: machine.printProgressChannelKey,
-          channelName: 'Print Progress Updates - ${machine.name}',
-          channelDescription: 'Notifications regarding the print progress.',
-          channelGroupKey: machine.uuid,
-          playSound: false,
-          enableVibration: false,
-          enableLights: false,
-          importance: NotificationImportance.Low,
-          defaultColor: brownish.shade500)
+        icon: 'resource://drawable/res_mobileraker_logo',
+        channelKey: machine.printProgressChannelKey,
+        channelName: 'Print Progress Updates - ${machine.name}',
+        channelDescription: 'Notifications regarding the print progress.',
+        channelGroupKey: machine.uuid,
+        playSound: false,
+        enableVibration: false,
+        enableLights: false,
+        importance: NotificationImportance.Low,
+        defaultColor: Colors.white,
+      )
     ];
   }
 
   NotificationChannelGroup _channelGroupOfmachines(Machine machine) {
     return NotificationChannelGroup(
-        channelGroupKey: machine.uuid,
-        channelGroupName: 'Printer ${machine.name}');
+        channelGroupKey: machine.uuid, channelGroupName: 'Printer ${machine.name}');
   }
 
-  void _setupFCMOnPrinterOnceConnected(Machine machine) async {
-    String fcmToken =
-        await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
-    logger
-        .i('${machine.name}(${machine.wsUrl})  Device\'s FCM token: $fcmToken');
+  Future<void> _setupFCMOnPrinterOnceConnected(Machine machine) async {
+    String fcmToken = await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
+    logger.i('${machine.name}(${machine.wsUri})  Device\'s FCM token: $fcmToken');
     try {
       // Wait until connected
-      await ref.readWhere<KlipperInstance>(klipperProvider(machine.uuid),
-          (c) => c.klippyState == KlipperState.ready);
+      await ref.readWhere<KlipperInstance>(
+          klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready);
       logger.i(
-          'Jrpc Client of ${machine.name}(${machine.wsUrl}) is connected, can Setup FCM on printer now!');
+          'Jrpc Client of ${machine.name}(${machine.wsUri}) is connected, can Setup FCM on printer now!');
       await _machineService.updateMachineFcmConfig(machine, fcmToken);
     } catch (e, s) {
-      logger.w('Could not setupFCM on ${machine.name}(${machine.wsUrl})', e, s);
+      logger.w('Could not setupFCM on ${machine.name}(${machine.wsUri})', e, s);
+    }
+  }
+
+  Future<void> _wipeFCMOnPrinterOnceConnected(Machine machine) async {
+    try {
+      // Ensure a machine provider is available for JRPC, Klippy....
+      // Kinda meh to put this here but I also dont care lol
+      var mProvider = machineProvider(machine.uuid);
+      await ref.read(mProvider.future);
+      // Wait until connected
+      await ref.readWhere<KlipperInstance>(
+          klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready);
+      logger.i(
+          'Jrpc Client of ${machine.name}(${machine.wsUri}) is connected, WIPING FCM data on printer now!');
+      await _machineService.removeFCMCapability(machine);
+      // Since I initited the provider before and all hidden machines dont have a machineProvider setup, also remove it again!
+      ref.invalidate(mProvider);
+    } catch (e, s) {
+      logger.w('Could not WIPE fcm data on ${machine.name}(${machine.wsUri})', e, s);
     }
   }
 
@@ -452,8 +475,8 @@ class NotificationService {
         machine, printer.print.state, printer.print.filename, false);
 
     if (state == PrintState.printing && !Platform.isIOS) {
-      await _updatePrintProgressNotification(machine,
-          printer.virtualSdCard.progress, printer.print.printDuration, false);
+      await _updatePrintProgressNotification(
+          machine, printer.printProgress, printer.print.printDuration, false);
     }
     await machine.save();
   }
@@ -464,7 +487,7 @@ class NotificationService {
     PrintState? oldState = machine.lastPrintState;
 
     var allowed = _settingsService.read(
-        activeStateNotifyMode, 'standby,printing,paused,complete,error');
+        AppSettingKeys.statesTriggeringNotification, 'standby,printing,paused,complete,error');
 
     if (updatedState == oldState) return updatedState;
     machine.lastPrintState = updatedState;
@@ -491,6 +514,9 @@ class NotificationService {
       case PrintState.printing:
         body = 'Started to print file: "$file"';
         machine.lastPrintProgress = null;
+        break;
+      case PrintState.cancelled:
+        body = 'Cancelled printing of file: "$file"';
         break;
       case PrintState.paused:
         body = 'Paused printing file: "$file"';
@@ -523,15 +549,15 @@ class NotificationService {
     return updatedState;
   }
 
-  Future<void> _removePrintProgressNotification(Machine machine) => _notifyAPI
-      .cancelNotificationsByChannelKey(machine.printProgressChannelKey);
+  Future<void> _removePrintProgressNotification(Machine machine) =>
+      _notifyAPI.cancelNotificationsByChannelKey(machine.printProgressChannelKey);
 
   Future<void> _updatePrintProgressNotification(
       Machine machine, double progress, double printDuration,
       [bool normalize = true]) async {
     if (progress >= 100) return;
 
-    int readInt = _settingsService.readInt(selectedProgressNotifyMode, -1);
+    int readInt = _settingsService.readInt(AppSettingKeys.progressNotificationMode, -1);
 
     ProgressNotificationMode progMode = readInt >= 0
         ? ProgressNotificationMode.values[readInt]
@@ -539,8 +565,7 @@ class NotificationService {
 
     if (progMode == ProgressNotificationMode.DISABLED) return;
 
-    double normalizedProgress =
-        normalize ? normalizeProgress(progMode, progress) : progress;
+    double normalizedProgress = normalize ? normalizeProgress(progMode, progress) : progress;
 
     if (machine.lastPrintProgress == normalizedProgress) return;
     machine.lastPrintProgress = normalizedProgress;

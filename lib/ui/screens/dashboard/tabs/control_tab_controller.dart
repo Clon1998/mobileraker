@@ -6,7 +6,6 @@
 import 'dart:math';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/data/dto/config/config_gcode_macro.dart';
@@ -105,8 +104,10 @@ class ControlTabController extends StateNotifier<void> {
         .read(dialogServiceProvider)
         .show(DialogRequest(
             type:
-                ref.read(settingServiceProvider).readBool(useTextInputForNumKey)
-                    ? DialogType.numEdit
+                ref
+                    .read(settingServiceProvider)
+                    .readBool(AppSettingKeys.defaultNumEditMode)
+                ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: 'Edit Part Cooling fan %',
             cancelBtn: tr('general.cancel'),
@@ -126,8 +127,10 @@ class ControlTabController extends StateNotifier<void> {
         .read(dialogServiceProvider)
         .show(DialogRequest(
             type:
-                ref.read(settingServiceProvider).readBool(useTextInputForNumKey)
-                    ? DialogType.numEdit
+            ref
+                    .read(settingServiceProvider)
+                    .readBool(AppSettingKeys.defaultNumEditMode)
+                ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: 'Edit ${beautifyName(namedFan.name)} %',
             cancelBtn: tr('general.cancel'),
@@ -149,8 +152,10 @@ class ControlTabController extends StateNotifier<void> {
         .read(dialogServiceProvider)
         .show(DialogRequest(
             type:
-                ref.read(settingServiceProvider).readBool(useTextInputForNumKey)
-                    ? DialogType.numEdit
+            ref
+                    .read(settingServiceProvider)
+                    .readBool(AppSettingKeys.defaultNumEditMode)
+                ? DialogType.numEdit
                     : DialogType.rangeEdit,
             title: 'Edit ${beautifyName(pin.name)} value!',
             cancelBtn: tr('general.cancel'),
@@ -182,7 +187,7 @@ class ControlTabController extends StateNotifier<void> {
           .show(DialogRequest(
               type: ref
                       .read(settingServiceProvider)
-                      .readBool(useTextInputForNumKey)
+                      .readBool(AppSettingKeys.defaultNumEditMode)
                   ? DialogType.numEdit
                   : DialogType.rangeEdit,
               title: '${tr('general.edit')} $name %',

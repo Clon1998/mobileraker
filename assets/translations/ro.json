@@ -259,11 +259,7 @@
         "flip_horizontal": "Răstoarnă orizontal",
         "cam_mode": "Mod cameră",
         "cam_mofde": "Cam fasff",
-        "cam_rotate": {
-          "label": "Rotește",
-          "landscape": "Peisaj",
-          "portrait": "Portret"
-        }
+        "cam_rotate": "Rotește"
       },
       "macros": {
         "new_macro_grp": "Grup macro nou",

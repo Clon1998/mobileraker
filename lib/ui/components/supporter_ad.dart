@@ -11,7 +11,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'supporter_ad.g.dart';
@@ -24,13 +23,7 @@ class _SupporterAdController extends _$SupporterAdController {
 
   @override
   bool build() {
-    var isSupporter = ref
-        .watch(customerInfoProvider)
-            .valueOrFullNull
-            ?.entitlements
-            .active
-            .isNotEmpty ??
-        false;
+    var isSupporter = ref.watch(isSupporterProvider);
 
     if (isSupporter) return false;
 
@@ -38,7 +31,7 @@ class _SupporterAdController extends _$SupporterAdController {
 
     logger.i('Last dismiss of Supporter AD: $stamp');
 
-    return stamp == null || DateTime.now().difference(stamp).inDays > 25;
+    return stamp == null || DateTime.now().difference(stamp).inDays > 20;
   }
 
   dismissAd() {
@@ -63,18 +56,18 @@ class SupporterAd extends ConsumerWidget {
         switchInCurve: Curves.easeInCubic,
         switchOutCurve: Curves.easeOutCubic,
         transitionBuilder: (child, anim) => SizeTransition(
-          sizeFactor: anim,
-          child: FadeTransition(
-            opacity: anim,
-            child: child,
-          ),
-        ),
+              sizeFactor: anim,
+              child: FadeTransition(
+                opacity: anim,
+                child: child,
+              ),
+            ),
         child: (ref.watch(_supporterAdControllerProvider))
             ? Card(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ListTile(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
                       onTap: ref
                           .read(_supporterAdControllerProvider.notifier)
                           .navigateToSupporterPage,
@@ -91,9 +84,9 @@ class SupporterAd extends ConsumerWidget {
                               .dismissAd,
                           icon: const Icon(Icons.close)),
                     ),
-            ],
-          ),
-        )
+                  ],
+                ),
+              )
             : const SizedBox.shrink());
   }
 }

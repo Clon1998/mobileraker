@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -62,9 +67,8 @@ void main() {
         (realInvocation) async =>
             RpcResponse.fromJson(jsonDecode(respTemp.readAsStringSync())));
 
-    when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
-            params: queryAbleObjects))
-        .thenReturn(null);
+    when(mockRpc.sendJRpcMethod('printer.objects.subscribe',
+        params: queryAbleObjects));
 
     var mockMachineService = MockMachineService();
 
@@ -92,7 +96,7 @@ void main() {
       "MEASURE_COREXY_BELT_TENSION",
       "COMPILE_FIRMWARE",
       "CHANGE_HOSTNAME"
-    ])).thenReturn(null);
+    ])).thenAnswer((_) async {});
 
     var mockSnackBarService = MockSnackBarService();
     var mockDialogService = MockDialogService();
@@ -122,7 +126,7 @@ void main() {
     final respList = File(
         'test_resources/service/printer_service/exclude_object_list_resp.json');
     when(mockRpc.sendJRpcMethod('printer.objects.list')).thenAnswer(
-        (realInvocation) async =>
+            (realInvocation) async =>
             RpcResponse.fromJson(jsonDecode(respList.readAsStringSync())));
     final respQuery = File(
         'test_resources/service/printer_service/exclude_object_query_response.json');
@@ -150,8 +154,9 @@ void main() {
             params: queryAbleObjects))
         .thenAnswer((realInvocation) async =>
             RpcResponse.fromJson(jsonDecode(respQuery.readAsStringSync())));
-    when(mockRpc.sendJRpcMethod('server.temperature_store'))
-        .thenAnswer((realInvocation) async => const RpcResponse(jsonrpc: "2.0",id: 212,result: {}));
+    when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
+        (realInvocation) async =>
+            const RpcResponse(jsonrpc: "2.0", id: 212, result: {}));
 
     when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
             params: queryAbleObjects))
@@ -183,7 +188,7 @@ void main() {
       "MEASURE_COREXY_BELT_TENSION",
       "COMPILE_FIRMWARE",
       "CHANGE_HOSTNAME"
-    ])).thenReturn(null);
+    ])).thenAnswer((_) async {});
 
     var mockSnackBarService = MockSnackBarService();
     var mockDialogService = MockDialogService();
@@ -272,7 +277,8 @@ void main() {
     when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe',
         params: ['toolhead'])).thenReturn(null);
 
-    when(mockMachineService.updateMacrosInSettings(uuid, any)).thenReturn(null);
+    when(mockMachineService.updateMacrosInSettings(uuid, any))
+        .thenAnswer((_) async {});
 
     mockKlipyyStreamCtl.add(const KlipperInstance(
         klippyConnected: true, klippyState: KlipperState.ready));
