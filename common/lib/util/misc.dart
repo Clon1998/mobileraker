@@ -137,7 +137,7 @@ _verifyOctoHttpResponseCodes(int statusCode) {
       throw const OctoEverywhereHttpException('App Connection Revoked/Expired', 604);
     case 605:
       throw const OctoEverywhereHttpException(
-          'App Connection Owner\'s Account Is No Longer a Supporter.', 605);
+          'App Connection Owner\'s Account Is No Longer a Octoeverywhere-Supporter.', 605);
     case 606:
       throw const OctoEverywhereHttpException('Invalid App Connection Credentials', 606);
     case 607:

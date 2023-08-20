@@ -85,22 +85,37 @@ FileService _fileServicee(_FileServiceeRef ref, String machineUUID, ClientType t
   }
 
   var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
-  if (type == ClientType.local) {
-    return FileService(ref, jsonRpcClient, machine.httpUri, machine.headerWithApiKey);
-  } else if (type == ClientType.octo) {
-    var octoEverywhere = machine.octoEverywhere;
-    if (octoEverywhere == null) {
-      throw ArgumentError('The provided machine,$machineUUID does not offer OctoEverywhere');
-    }
-    return FileService(
-      ref,
-      jsonRpcClient,
-      octoEverywhere.uri.replace(
-          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'),
-      machine.headerWithApiKey,
-    );
-  } else {
-    throw ArgumentError('Unknown Client type $type');
+
+  switch (type) {
+    case ClientType.octo:
+      var octoEverywhere = machine.octoEverywhere;
+      if (octoEverywhere == null) {
+        throw ArgumentError('The provided machine,$machineUUID does not offer OctoEverywhere');
+      }
+      return FileService(
+        ref,
+        jsonRpcClient,
+        octoEverywhere.uri.replace(
+            userInfo:
+                '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'),
+        machine.headerWithApiKey,
+      );
+    case ClientType.manual:
+      var remoteInterface = machine.remoteInterface!;
+
+      return FileService(
+        ref,
+        jsonRpcClient,
+        remoteInterface.remoteUri.replace(path: machine.httpUri.path, query: machine.httpUri.query),
+        {
+          ...remoteInterface.httpHeaders,
+          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!
+        },
+      );
+
+    case ClientType.local:
+    default:
+      return FileService(ref, jsonRpcClient, machine.httpUri, machine.headerWithApiKey);
   }
 }
 

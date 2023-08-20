@@ -21,7 +21,7 @@ const String WILDCARD_METHOD = '*';
 
 enum ClientState { disconnected, connecting, connected, error }
 
-enum ClientType { local, octo }
+enum ClientType { local, octo, manual }
 
 typedef RpcCallback = Function(Map<String, dynamic> response, {Map<String, dynamic>? err});
 
@@ -44,6 +44,10 @@ class JsonRpcClientBuilder {
   JsonRpcClientBuilder();
 
   factory JsonRpcClientBuilder.fromOcto(Machine machine) {
+    if (machine.octoEverywhere == null) {
+      throw ArgumentError('The provided machine,${machine.uuid} does not offer OctoEverywhere');
+    }
+
     var octoEverywhere = machine.octoEverywhere!;
     var localWsUir = machine.wsUri;
     var octoUri = Uri.parse(octoEverywhere.url);
@@ -54,20 +58,48 @@ class JsonRpcClientBuilder {
       ..uri = localWsUir
           .replace(
               scheme: 'wss',
-              host: octoUri.host,
-              userInfo:
-                  '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
+          host: octoUri.host,
+          userInfo:
+          '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
           .removePort() // OE automatically redirects the ports
       ..clientType = ClientType.octo;
   }
 
-  factory JsonRpcClientBuilder.fromMachine(Machine machine) {
+  factory JsonRpcClientBuilder.fromLocal(Machine machine) {
     return JsonRpcClientBuilder()
       ..headers = machine.headerWithApiKey
       ..uri = machine.wsUri
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
       ..clientType = ClientType.local
       ..timeout = Duration(seconds: machine.timeout);
+  }
+
+  factory JsonRpcClientBuilder.fromRemoteInterface(Machine machine) {
+    if (machine.remoteInterface == null) {
+      throw ArgumentError('The provided machine,${machine.uuid} does not offer a remoteInterface');
+    }
+    var localWsUir = machine.wsUri;
+    var remoteInterface = machine.remoteInterface!;
+
+    return JsonRpcClientBuilder()
+      ..headers = {
+        ...remoteInterface.httpHeaders,
+        if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!
+      }
+      ..uri = remoteInterface.remoteUri
+          .replace(path: localWsUir.path, query: localWsUir.query)
+          .toWebsocketUri()
+      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
+      ..clientType = ClientType.manual
+      ..timeout = Duration(seconds: remoteInterface.timeout + 10);
+  }
+
+  factory JsonRpcClientBuilder.fromClientType(ClientType clientType, Machine machine) {
+    return switch (clientType) {
+      ClientType.local => JsonRpcClientBuilder.fromLocal(machine),
+      ClientType.octo => JsonRpcClientBuilder.fromOcto(machine),
+      ClientType.manual => JsonRpcClientBuilder.fromRemoteInterface(machine),
+    };
   }
 
   ClientType clientType = ClientType.local;

@@ -12,6 +12,7 @@ import 'package:uuid/uuid.dart';
 import '../../../util/misc.dart';
 import '../../dto/machine/print_state_enum.dart';
 import 'octoeverywhere.dart';
+import 'remote_interface.dart';
 import 'temperature_preset.dart';
 
 part 'machine_adapter.dart';
@@ -51,6 +52,8 @@ class Machine extends HiveObject {
   OctoEverywhere? octoEverywhere;
   @HiveField(21, defaultValue: [])
   List<String> camOrdering;
+  @HiveField(24)
+  RemoteInterface? remoteInterface;
 
   PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
 

@@ -480,6 +480,9 @@
     "machine_deletion_warning": {
       "title": "Machine Deletion",
       "subtitle": "It seems like you are not a Supporter. Only supports can have more than {} machine(s). You have {} days before excess machines will be removed."
+    },
+    "remote_connection_indicator": {
+      "title": "Using remote connection!"
     }
   },
   "dialogs": {

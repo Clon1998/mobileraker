@@ -16,4 +16,17 @@ extension MobilerakerUri on Uri {
         'https' => 443,
         _ => 0,
       });
+
+  Uri toWebsocketUri() {
+    return replace(
+        scheme: switch (scheme) {
+          'http' => 'ws',
+          'https' => 'wss',
+          _ => scheme,
+        },
+        port: switch (port) {
+          80 || 443 => 0,
+          _ => port,
+        });
+  }
 }

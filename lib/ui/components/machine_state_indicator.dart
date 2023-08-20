@@ -14,6 +14,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 
+import 'octo_widgets.dart';
+
 class MachineStateIndicator extends ConsumerWidget {
   const MachineStateIndicator(this.machine, {Key? key}) : super(key: key);
   final Machine? machine;
@@ -36,22 +38,23 @@ class MachineStateIndicator extends ConsumerWidget {
     switch (clientState) {
       case ClientState.connected:
         return Tooltip(
-          padding: const EdgeInsets.all(8.0),
-          message: 'pages.dashboard.server_status'.tr(args: [
-            serverState.name.tr(),
-            klippyData?.klippyConnected ?? false
-                ? tr('general.connected').toLowerCase()
-                : tr('klipper_state.disconnected').toLowerCase()
-          ], gender: 'available'),
-          child: (clientType == ClientType.local)
-              ? Icon(Icons.radio_button_on,
-                  size: 10, color: _klippyStateToColor(context, serverState))
-              : const Image(
-                  height: 20,
-                  width: 20,
-                  image: AssetImage('assets/images/octo_everywhere.png'),
+            padding: const EdgeInsets.all(8.0),
+            message: 'pages.dashboard.server_status'.tr(args: [
+              serverState.name.tr(),
+              klippyData?.klippyConnected ?? false
+                  ? tr('general.connected').toLowerCase()
+                  : tr('klipper_state.disconnected').toLowerCase()
+            ], gender: 'available'),
+            child: switch (clientType) {
+              ClientType.octo => const OctoIndicator(),
+              ClientType.manual => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 2),
+                  child:
+                      Icon(Icons.cloud, size: 15, color: _klippyStateToColor(context, serverState)),
                 ),
-        );
+              _ => Icon(Icons.radio_button_on,
+                  size: 10, color: _klippyStateToColor(context, serverState))
+            });
       default:
         return Icon(Icons.radio_button_on, size: 10, color: _stateToColor(context, clientState));
     }

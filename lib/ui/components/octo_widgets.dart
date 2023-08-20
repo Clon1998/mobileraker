@@ -5,7 +5,6 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class OctoEveryWhereBtn extends StatelessWidget {
   const OctoEveryWhereBtn({Key? key, this.onPressed, required this.title})
@@ -55,48 +54,5 @@ class OctoIndicator extends StatelessWidget {
         image: AssetImage('assets/images/octo_everywhere.png'),
       ),
     );
-  }
-}
-
-final dismissiedRemoteInfoProvider = StateProvider<bool>((ref) => false);
-
-class DismissibleOctoIndicator extends ConsumerWidget {
-  const DismissibleOctoIndicator({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return AnimatedSwitcher(
-        duration: kThemeAnimationDuration,
-        switchInCurve: Curves.easeInCubic,
-        switchOutCurve: Curves.easeOutCubic,
-        transitionBuilder: (child, anim) => SizeTransition(
-              sizeFactor: anim,
-              child: FadeTransition(
-                opacity: anim,
-                child: child,
-              ),
-            ),
-        child: (ref.watch(dismissiedRemoteInfoProvider))
-            ? const SizedBox.shrink()
-            : Card(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      contentPadding:
-                          const EdgeInsets.only(top: 3, left: 16, right: 16),
-                      leading: const OctoIndicator(),
-                      title: Text('Using remote connection!'),
-                      trailing: IconButton(
-                          onPressed: () => ref
-                              .read(dismissiedRemoteInfoProvider.notifier)
-                              .state = true,
-                          icon: const Icon(Icons.close)),
-                    ),
-                  ],
-                ),
-              ));
   }
 }

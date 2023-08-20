@@ -57,13 +57,14 @@ class MachineAdapter extends TypeAdapter<Machine> {
       ..lastPrintProgress = fields[14] == null ? 0 : fields[14] as double?
       .._lastPrintState = fields[15] as String?
       ..fcmIdentifier = fields[17] as String?
-      ..lastModified = fields[18] as DateTime?;
+      ..lastModified = fields[18] as DateTime?
+      ..remoteInterface = fields[24] as RemoteInterface?;
   }
 
   @override
   void write(BinaryWriter writer, Machine obj) {
     writer
-      ..writeByte(15)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -93,7 +94,9 @@ class MachineAdapter extends TypeAdapter<Machine> {
       ..writeByte(20)
       ..write(obj.octoEverywhere)
       ..writeByte(21)
-      ..write(obj.camOrdering);
+      ..write(obj.camOrdering)
+      ..writeByte(24)
+      ..write(obj.remoteInterface);
   }
 
   @override

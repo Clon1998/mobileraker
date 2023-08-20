@@ -31,7 +31,6 @@ import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/graph_card_with_button.dart';
 import 'package:mobileraker/ui/components/machine_deletion_warning.dart';
-import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
 import 'package:mobileraker/ui/components/supporter_ad.dart';
@@ -45,6 +44,8 @@ import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
+
+import '../../../remote_connection_indicator.dart';
 
 class GeneralTab extends ConsumerWidget {
   const GeneralTab({Key? key}) : super(key: key);
@@ -70,7 +71,10 @@ class GeneralTab extends ConsumerWidget {
                   children: [
                     const MachineDeletionWarning(),
                     const SupporterAd(),
-                    if (clientType != ClientType.local) const DismissibleOctoIndicator(),
+                    if (clientType != ClientType.local)
+                      RemoteConnectionIndicator(
+                        clientType: clientType,
+                      ),
                     const PrintCard(),
                     const TemperatureCard(),
                     const CamCard(),

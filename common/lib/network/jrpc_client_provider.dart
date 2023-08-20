@@ -6,7 +6,6 @@
 import 'dart:async';
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -26,18 +25,7 @@ JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientTy
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
   }
 
-  JsonRpcClient jsonRpcClient;
-  if (type == ClientType.local) {
-    jsonRpcClient = JsonRpcClientBuilder.fromMachine(machine).build();
-  } else if (type == ClientType.octo) {
-    if (machine.octoEverywhere == null) {
-      throw ArgumentError('The provided machine,$machineUUID does not offer OctoEverywhere');
-    }
-    jsonRpcClient = JsonRpcClientBuilder.fromOcto(machine).build();
-  } else {
-    throw ArgumentError('Unknown Client type $type');
-  }
-
+  JsonRpcClient jsonRpcClient = JsonRpcClientBuilder.fromClientType(type, machine).build();
   logger.i('JsonRpcClient (${jsonRpcClient.uri} , $type) CREATED!!');
   ref.onDispose(jsonRpcClient.dispose);
 
@@ -70,27 +58,25 @@ class JrpcClientManager extends _$JrpcClientManager {
       throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
     }
 
-    OctoEverywhere? octoEverywhere = machine.octoEverywhere;
-    if (octoEverywhere == null) {
+    if (machine.octoEverywhere != null || machine.remoteInterface != null) {
+      var clientType = machine.remoteInterface != null ? ClientType.manual : ClientType.octo;
+
       logger.i(
-          'No OE config was found! Will only rely on local client. ref:${identityHashCode(ref)}');
-      return _jsonRpcClientProvider(machineUUID, ClientType.local);
+          'A ${clientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
+      ref
+          .readWhere(_jsonRpcStateProvider(machineUUID, ClientType.local),
+              (clientState) => clientState == ClientState.error, false)
+          .then((value) {
+        logger.i(
+            'Local clientState is $value. Will switch to octo remoteClient. ref:${identityHashCode(ref)}');
+
+        // ref.state = remoteClinet;
+        state = _jsonRpcClientProvider(machineUUID, clientType);
+        logger.w('Returned ${clientType.name}-RemoteClient');
+      }).ignore();
     }
-    logger.i(
-        'An OE config is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
 
-    ref
-        .readWhere(_jsonRpcStateProvider(machineUUID, ClientType.local),
-            (clientState) => clientState == ClientState.error, false)
-        .then((value) {
-      var remoteClinet = logger.i(
-          'Local clientState is $value. Will switch to remoteClient. ref:${identityHashCode(ref)}');
-
-      // ref.state = remoteClinet;
-      state = _jsonRpcClientProvider(machineUUID, ClientType.octo);
-      logger.w('Returned RemoteClient');
-    });
-    logger.w('Returning LocalClient');
+    logger.i('Returning LocalClient');
     return _jsonRpcClientProvider(machineUUID, ClientType.local);
   }
 
