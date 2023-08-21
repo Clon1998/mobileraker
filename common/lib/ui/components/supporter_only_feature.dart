@@ -36,7 +36,7 @@ class SupporterOnlyFeature extends StatelessWidget {
             child: text),
         TextButton(
             onPressed: () {
-              context.pushNamed(AppRoute.supportDev.name);
+              context.pushNamed('supportDev');
             },
             child: const Text('components.supporter_only_feature.button').tr())
       ],

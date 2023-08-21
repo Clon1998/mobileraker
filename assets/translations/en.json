@@ -475,7 +475,8 @@
     "supporter_only_feature": {
       "button": "Become a Mobileraker Supporter",
       "webcam": "Sorry, Webcams of type {} are only available to Supporters.",
-      "printer_add": "Sorry, managing more than {} machines is only available to Supporters."
+      "printer_add": "Sorry, managing more than {} machines is only available to Supporters.",
+      "job_queue": "Sorry, the Job Queue is only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",
@@ -557,6 +558,10 @@
       "webrtc_perk": {
         "title": "WebRtc Support",
         "subtitle": "Allows the usage of WebRtc webcams!"
+      },
+      "job_queue_perk": {
+        "title": "Job Queue",
+        "subtitle": "Manage Moonraker's job queue from within Mobileraker!"
       }
     },
     "bed_screw_adjust": {

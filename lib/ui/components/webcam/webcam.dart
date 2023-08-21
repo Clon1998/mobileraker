@@ -3,18 +3,18 @@
  * All rights reserved.
  */
 
+import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:common/data/enums/webcam_service_type.dart';
-import 'package:common/data/model/moonraker_db/webcam_info.dart';
-import 'package:common/network/jrpc_client_provider.dart';
-import 'package:common/service/payment_service.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
-import 'package:mobileraker/ui/components/supporter_only_feature.dart';
 import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
 import 'package:mobileraker/ui/components/webcam/webcam_webrtc.dart';
 import 'package:stringr/stringr.dart';

@@ -42,27 +42,22 @@ class PerksDialog extends StatelessWidget {
                     title: const Text(
                             'dialogs.supporter_perks.notification_perk.title')
                         .tr(),
-                    subtitle: const Text(
-                            'dialogs.supporter_perks.notification_perk.subtitle')
-                        .tr(),
+                    subtitle: const Text('dialogs.supporter_perks.notification_perk.subtitle').tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                   ListTile(
-                    title:
-                        const Text('dialogs.supporter_perks.webrtc_perk.title')
-                            .tr(),
-                    subtitle: const Text(
-                            'dialogs.supporter_perks.webrtc_perk.subtitle')
-                        .tr(),
+                    title: const Text('dialogs.supporter_perks.webrtc_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.webrtc_perk.subtitle').tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                   ListTile(
-                    title:
-                        const Text('dialogs.supporter_perks.theme_perk.title')
-                            .tr(),
-                    subtitle: const Text(
-                            'dialogs.supporter_perks.theme_perk.subtitle')
-                        .tr(),
+                    title: const Text('dialogs.supporter_perks.job_queue_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.job_queue_perk.subtitle').tr(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  ListTile(
+                    title: const Text('dialogs.supporter_perks.theme_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.theme_perk.subtitle').tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                   ListTile(
