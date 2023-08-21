@@ -36,7 +36,7 @@ class JobQueueEvent with _$JobQueueEvent {
   factory JobQueueEvent({
     required QueueState queueState,
     required JobQueueAction action,
-    @Default([]) List<JobQueueEntry> updatedQueue,
+    List<JobQueueEntry>? updatedQueue,
   }) = _JobQueueEvent;
 
   factory JobQueueEvent.fromJson(Map<String, dynamic> json) => _$JobQueueEventFromJson(json);

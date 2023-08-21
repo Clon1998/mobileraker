@@ -24,12 +24,13 @@ class AsyncElevatedButton extends HookConsumerWidget {
   })  : label = null,
         super(key: key);
 
-  const AsyncElevatedButton.icon({Key? key,
-    required Icon icon,
-    required Widget this.label,
-    required this.onPressed,
-    this.margin,
-    this.style})
+  const AsyncElevatedButton.icon(
+      {Key? key,
+      required Icon icon,
+      required Widget this.label,
+      required this.onPressed,
+      this.margin,
+      this.style})
       : child = icon,
         super(key: key);
 
@@ -56,10 +57,7 @@ class AsyncElevatedButton extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var animCtrler = useAnimationController(
-        duration: const Duration(seconds: 1),
-        lowerBound: 0.5,
-        upperBound: 1,
-        initialValue: 1);
+        duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1);
     var actionRunning = useState(false);
 
     if (actionRunning.value) {
@@ -78,16 +76,16 @@ class AsyncElevatedButton extends HookConsumerWidget {
         : null;
     var btn = (label == null)
         ? ElevatedButton(
-      onPressed: onPressedWrapped,
-      style: style,
-      child: ico,
-    )
+            onPressed: onPressedWrapped,
+            style: style,
+            child: ico,
+          )
         : ElevatedButton.icon(
-      style: style,
-      onPressed: onPressedWrapped,
-      icon: ico,
-      label: label!,
-    );
+            style: style,
+            onPressed: onPressedWrapped,
+            icon: ico,
+            label: label!,
+          );
     if (margin == null) {
       return btn;
     }
@@ -98,8 +96,61 @@ class AsyncElevatedButton extends HookConsumerWidget {
     );
   }
 
-  _onPressedWrapper(BuildContext context,
-      ValueNotifier<bool> valueNotifier) async {
+  _onPressedWrapper(BuildContext context, ValueNotifier<bool> valueNotifier) async {
+    FutureOr<void>? ftr = onPressed!();
+    if (ftr == null) return;
+    valueNotifier.value = true;
+    await ftr;
+    if (context.mounted) valueNotifier.value = false;
+  }
+}
+
+class AsyncIconButton extends HookConsumerWidget {
+  const AsyncIconButton(
+      {Key? key,
+      required this.icon,
+      required this.onPressed,
+      this.style,
+      this.iconSize,
+      this.tooltip})
+      : super(key: key);
+
+  final Icon icon;
+  final FutureOr<void>? Function()? onPressed;
+  final ButtonStyle? style;
+  final double? iconSize;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var animCtrler = useAnimationController(
+        duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1);
+    var actionRunning = useState(false);
+
+    if (actionRunning.value) {
+      animCtrler.repeat(reverse: true);
+    } else {
+      animCtrler.value = 1;
+    }
+
+    Widget ico = ScaleTransition(
+      scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+      child: icon,
+    );
+
+    var onPressedWrapped = onPressed != null && !actionRunning.value
+        ? () => _onPressedWrapper(context, actionRunning)
+        : null;
+
+    return IconButton(
+      onPressed: onPressedWrapped,
+      icon: ico,
+      iconSize: iconSize,
+      tooltip: tooltip,
+    );
+  }
+
+  _onPressedWrapper(BuildContext context, ValueNotifier<bool> valueNotifier) async {
     FutureOr<void>? ftr = onPressed!();
     if (ftr == null) return;
     valueNotifier.value = true;

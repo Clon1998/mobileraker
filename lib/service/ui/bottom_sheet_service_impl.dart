@@ -33,7 +33,6 @@ class BottomSheetServiceImpl implements BottomSheetService {
   show(BottomSheetConfig config) {
     BuildContext? ctx = ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
-    showModalBottomSheet(
-        context: ctx!, builder: availableSheets[config.type]!, backgroundColor: Colors.transparent);
+    showModalBottomSheet(context: ctx!, builder: availableSheets[config.type]!);
   }
 }

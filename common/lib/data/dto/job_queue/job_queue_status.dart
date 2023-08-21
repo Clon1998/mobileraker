@@ -15,7 +15,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'job_queue_entry.dart';
-import 'job_queue_event.dart';
 
 part 'job_queue_status.freezed.dart';
 part 'job_queue_status.g.dart';
@@ -56,9 +55,4 @@ class JobQueueStatus with _$JobQueueStatus {
   }) = _JobQueueStatus;
 
   factory JobQueueStatus.fromJson(Map<String, dynamic> json) => _$JobQueueStatusFromJson(json);
-
-  factory JobQueueStatus.fromEvent(JobQueueEvent event) => JobQueueStatus(
-        queuedJobs: event.updatedQueue,
-        queueState: event.queueState,
-      );
 }

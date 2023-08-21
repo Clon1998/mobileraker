@@ -4,6 +4,7 @@
  */
 
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
+import 'package:common/ui/components/async_button_.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -11,7 +12,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/IconElevatedButton.dart';
 import 'package:mobileraker/ui/components/homed_axis_chip.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/async_button_.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
@@ -52,8 +52,7 @@ class ControlXYZCard extends HookConsumerWidget {
                             SquareElevatedIconButton(
                                 margin: marginForBtns,
                                 onPressed: klippyCanReceiveCommands
-                                    ? () =>
-                                    ref
+                                    ? () => ref
                                         .read(controlXYZCardControllerProvider.notifier)
                                         .onMoveBtn(PrinterAxis.Y)
                                     : null,
@@ -65,8 +64,7 @@ class ControlXYZCard extends HookConsumerWidget {
                             SquareElevatedIconButton(
                                 margin: marginForBtns,
                                 onPressed: klippyCanReceiveCommands
-                                    ? () =>
-                                    ref
+                                    ? () => ref
                                         .read(controlXYZCardControllerProvider.notifier)
                                         .onMoveBtn(PrinterAxis.X, false)
                                     : null,
@@ -98,8 +96,7 @@ class ControlXYZCard extends HookConsumerWidget {
                             SquareElevatedIconButton(
                               margin: marginForBtns,
                               onPressed: klippyCanReceiveCommands
-                                  ? () =>
-                                  ref
+                                  ? () => ref
                                       .read(controlXYZCardControllerProvider.notifier)
                                       .onMoveBtn(PrinterAxis.Y, false)
                                   : null,
@@ -114,8 +111,7 @@ class ControlXYZCard extends HookConsumerWidget {
                         SquareElevatedIconButton(
                             margin: marginForBtns,
                             onPressed: klippyCanReceiveCommands
-                                ? () =>
-                                ref
+                                ? () => ref
                                     .read(controlXYZCardControllerProvider.notifier)
                                     .onMoveBtn(PrinterAxis.Z)
                                 : null,
@@ -134,8 +130,7 @@ class ControlXYZCard extends HookConsumerWidget {
                         SquareElevatedIconButton(
                             margin: marginForBtns,
                             onPressed: klippyCanReceiveCommands
-                                ? () =>
-                                ref
+                                ? () => ref
                                     .read(controlXYZCardControllerProvider.notifier)
                                     .onMoveBtn(PrinterAxis.Z, false)
                                 : null,

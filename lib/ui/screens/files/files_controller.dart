@@ -13,6 +13,7 @@ import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -24,6 +25,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_controller.dart';
@@ -150,6 +152,10 @@ class FilesPageController extends _$FilesPageController {
 
   refreshFiles() {
     ref.invalidate(_fileApiResponseProvider(state.pathAsString));
+  }
+
+  jobQueueBottomSheet() {
+    ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu));
   }
 
   goToPath(List<String> path) {

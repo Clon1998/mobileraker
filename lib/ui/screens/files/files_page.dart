@@ -11,6 +11,7 @@ import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/gcode_file_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -29,7 +30,6 @@ import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/gcode_file_extension.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -70,13 +70,7 @@ class _Fab extends ConsumerWidget {
     }
     var themeData = Theme.of(context);
     return FloatingActionButton(
-        onPressed: () async {
-          // ref
-          //     .read(bottomSheetServiceProvider)
-          //     .show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
-        },
-        // onPressed: mdodel.showNonPrintingMenu,
-
+        onPressed: ref.read(filesPageControllerProvider.notifier).jobQueueBottomSheet,
         child: badges.Badge(
           badgeStyle: badges.BadgeStyle(
             badgeColor: themeData.colorScheme.onSecondary,
@@ -235,6 +229,7 @@ class _FilesBody extends ConsumerWidget {
                                 title: const Text('pages.files.no_files_found').tr(),
                               )
                             : ListView.builder(
+                            physics: const BouncingScrollPhysics(),
                                 itemCount: lenTotal,
                                 itemBuilder: (context, index) {
                                   if (model.isInSubFolder) {
@@ -246,33 +241,33 @@ class _FilesBody extends ConsumerWidget {
                                             width: 64, height: 64, child: Icon(Icons.folder)),
                                         title: const Text('...'),
                                         onTap: controller.popFolder,
-                                      );
-                                    } else {
-                                      index--;
-                                    }
-                                  }
+                                  );
+                                } else {
+                                  index--;
+                                }
+                              }
 
-                                  if (index < lenFolders) {
-                                    Folder folder = files.folders[index];
-                                    return FolderItem(
-                                      folder: folder,
-                                      key: ValueKey(folder),
-                                    );
-                                  } else {
-                                    RemoteFile file = files.files[index - lenFolders];
-                                    if (file is GCodeFile) {
-                                      return GCodeFileItem(
-                                        key: ValueKey(file),
-                                        gCode: file,
-                                      );
-                                    } else {
-                                      return FileItem(
-                                        file: file,
-                                        key: ValueKey(file),
-                                      );
-                                    }
-                                  }
-                                }),
+                              if (index < lenFolders) {
+                                Folder folder = files.folders[index];
+                                return FolderItem(
+                                  folder: folder,
+                                  key: ValueKey(folder),
+                                );
+                              } else {
+                                RemoteFile file = files.files[index - lenFolders];
+                                if (file is GCodeFile) {
+                                  return GCodeFileItem(
+                                    key: ValueKey(file),
+                                    gCode: file,
+                                  );
+                                } else {
+                                  return FileItem(
+                                    file: file,
+                                    key: ValueKey(file),
+                                  );
+                                }
+                              }
+                            }),
                       ),
                     ),
                   );

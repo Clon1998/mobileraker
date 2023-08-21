@@ -5,6 +5,7 @@
 
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/data/model/moonraker_db/gcode_macro.dart';
 import 'package:common/data/model/moonraker_db/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/macro_group.dart';
@@ -188,6 +189,9 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
+    _machine.remoteInterface = RemoteInterface(
+        remoteUri: Uri.parse('https://a9f6-2003-e5-3f2e-d200-384b-2ac8-49e0-ea5a.ngrok-free.app'));
+
     _machine.name = storedValues['printerName'];
     _machine.apiKey = storedValues['printerApiKey'];
     _machine.timeout = storedValues['printerLocalTimeout'];

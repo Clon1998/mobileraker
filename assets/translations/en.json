@@ -588,6 +588,15 @@
       "value_hint": "The value of the header"
     }
   },
+  "bottom_sheets": {
+    "job_queue_sheet": {
+      "empty": "The job queue is empty. You can add jobs via the file browser.",
+      "start_queue": "Start Queue",
+      "pause_queue": "Pause Queue",
+      "remove_all": "Clear Queue",
+      "remove_all_confirm": "This operation will remove all jobs from the queue."
+    }
+  },
   "klipper_state": {
     "ready": "Ready",
     "shutdown": "Shutdown",

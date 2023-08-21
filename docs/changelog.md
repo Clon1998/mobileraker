@@ -2,6 +2,10 @@
 
 ## [2.5.4] - 2023-08-
 
+### Major Changes
+
+- Added support for moonraker's Jobqueue API. The jobqueue is available on the files page.
+
 ### Changed Features
 
 - Improved printer and config file parsing to ensure the app is more resilient to unexpected
@@ -17,6 +21,8 @@
   expected [#214](https://github.com/Clon1998/mobileraker/issues/214)
 - The advanced printer add flow now correctly adds the default websocket path if the user does not
   specify a websocket URI.
+- It is possible now to start a print, if the machine is in the cancelled
+  state. [#224](https://github.com/Clon1998/mobileraker/issues/224)
 
 ## [2.5.3] - 2023-08-16
 

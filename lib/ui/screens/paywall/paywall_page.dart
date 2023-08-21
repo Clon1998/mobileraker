@@ -10,6 +10,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
+import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,6 @@ import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/revenuecat_extension.dart';
-import 'package:mobileraker/util/time_util.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
