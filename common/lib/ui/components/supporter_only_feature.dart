@@ -7,7 +7,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobileraker/routing/app_router.dart';
 
 class SupporterOnlyFeature extends StatelessWidget {
   const SupporterOnlyFeature({

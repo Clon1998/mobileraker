@@ -328,7 +328,7 @@ class _ManageTiers extends ConsumerWidget {
             icon: const Icon(Icons.contact_support_outlined),
             onPressed: ref.read(paywallPageControllerProvider.notifier).openDevContact,
             label: const Text('pages.paywall.contact_dialog.title').tr()),
-        widget(child: _BenefitOverview()),
+        const _BenefitOverview(),
         Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -796,7 +796,7 @@ class _RestoreButton extends ConsumerWidget {
         Icons.restore,
         size: 18,
       ),
-      label: Text(
+      label: const Text(
         'general.restore',
         style: TextStyle(fontSize: 12),
       ).tr());
