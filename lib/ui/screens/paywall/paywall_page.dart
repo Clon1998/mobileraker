@@ -261,18 +261,7 @@ class _SubscribeTiers extends ConsumerWidget {
         Text('pages.paywall.subscribe_view.info',
                 textAlign: TextAlign.center, style: textTheme.bodySmall)
             .tr(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Learn about Supporter Perks',
-              style: textTheme.displaySmall?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            IconButton(
-                onPressed: ref.read(paywallPageControllerProvider.notifier).openPerksInfo,
-                icon: const Icon(Icons.info_outline))
-          ],
-        ),
+        const _BenefitOverview(),
         Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -289,6 +278,31 @@ class _SubscribeTiers extends ConsumerWidget {
         if (model.tipAvailable) const _TippingButton(),
         const _RestoreButton(),
         // const _TippingButton(),
+      ],
+    );
+  }
+}
+
+class _BenefitOverview extends ConsumerWidget {
+  const _BenefitOverview({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Learn about Supporter Perks',
+          style: Theme.of(context)
+              .textTheme
+              .displaySmall
+              ?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        IconButton(
+            onPressed: ref.read(paywallPageControllerProvider.notifier).openPerksInfo,
+            icon: const Icon(Icons.info_outline))
       ],
     );
   }
@@ -314,6 +328,7 @@ class _ManageTiers extends ConsumerWidget {
             icon: const Icon(Icons.contact_support_outlined),
             onPressed: ref.read(paywallPageControllerProvider.notifier).openDevContact,
             label: const Text('pages.paywall.contact_dialog.title').tr()),
+        widget(child: _BenefitOverview()),
         Align(
             alignment: Alignment.centerLeft,
             child: Padding(
