@@ -238,13 +238,15 @@ class PrinterEditController extends _$PrinterEditController {
 
     try {
       if (dialogResponse?.confirmed ?? false) {
+        state = true;
         _machineService.resetFcmTokens(_machine);
         var fcmToken = await ref.read(fcmTokenProvider.future);
-        _machineService.updateMachineFcmConfig(_machine, fcmToken);
+        await _machineService.updateMachineFcmConfig(_machine, fcmToken);
       }
     } catch (e) {
       logger.w('Error while resetting FCM cache on machine ${_machine.name}', e);
     }
+    state = false;
   }
 
   deleteIt() async {
@@ -256,6 +258,7 @@ class PrinterEditController extends _$PrinterEditController {
         confirmBtnColor: Colors.red);
 
     if (dialogResponse?.confirmed ?? false) {
+      state = true;
       await ref.read(machineServiceProvider).removeMachine(_machine);
       ref.read(goRouterProvider).pop();
     }
