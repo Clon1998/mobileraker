@@ -25,6 +25,7 @@ extension MobilerakerString on String {
   }
 
   String obfuscate([int nonObfuscated = 4]) {
-    return replaceRange((length >= nonObfuscated * 1.5) ? nonObfuscated : 0, null, '*');
+    if (isEmpty) return this;
+    return replaceRange((length >= nonObfuscated * 1.5) ? nonObfuscated : 0, null, '********');
   }
 }
