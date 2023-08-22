@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:common/util/extensions/string_extension.dart';
+
 extension MobilerakerUri on Uri {
   String skipScheme() =>
       (hasScheme) ? toString().replaceRange(0, scheme.length - 1, '') : toString();
@@ -29,4 +31,7 @@ extension MobilerakerUri on Uri {
           _ => port,
         });
   }
+
+  /// Hide the userInfo to ensure we can safely log the uri
+  Uri obfuscate() => replace(userInfo: userInfo.obfuscate());
 }

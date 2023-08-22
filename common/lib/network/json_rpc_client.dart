@@ -175,7 +175,7 @@ class JsonRpcClient {
 
   set curState(ClientState newState) {
     if (curState == newState) return;
-    logger.i('[${identityHashCode(this)}-$uri] $curState ➝ $newState');
+    logger.i('$logPrefix $curState ➝ $newState');
     if (!_stateStream.isClosed) _stateStream.add(newState);
     _curState = newState;
   }
@@ -195,7 +195,7 @@ class JsonRpcClient {
   /// reconnection try, if needded is completed!
   Future<bool> ensureConnection() async {
     if (curState != ClientState.connected && curState != ClientState.connecting) {
-      logger.i('[$uri] WS not connected! connecting...');
+      logger.i('$logPrefix WS not connected! connecting...');
       return openChannel();
     }
     return true;
@@ -208,7 +208,7 @@ class JsonRpcClient {
     var completer = Completer<RpcResponse>();
     _pendingRequests[mId] = _Request(method, completer, StackTrace.current);
 
-    logger.d('[$uri] Sending(Blocking) for method "$method" with ID $mId');
+    logger.d('$logPrefix Sending(Blocking) for method "$method" with ID $mId');
     _send(jsonEncode(jsonRpc));
     return completer.future;
   }
@@ -231,7 +231,7 @@ class JsonRpcClient {
   }
 
   Future<bool> _tryConnect() async {
-    logger.i('[${identityHashCode(this)}]Trying to connect to $uri');
+    logger.i('$logPrefix Trying to connect');
     curState = ClientState.connecting;
     _resetChannel();
     try {
@@ -241,8 +241,8 @@ class JsonRpcClient {
       // }
 
       HttpClient httpClient = _constructHttpClient();
-      logger.i('Using headers $headers');
-      logger.i('Using timeout $timeout');
+      logger.i('$logPrefix Using headers $headers');
+      logger.i('$logPrefix Using timeout $timeout');
       WebSocket socket = await WebSocket.connect(
         uri.toString(),
         headers: headers,
@@ -294,7 +294,7 @@ class JsonRpcClient {
 
   /// Sends a message to the server
   _send(String message) {
-    logger.d('[$uri] >>> $message');
+    logger.d('$logPrefix >>> $message');
     _channel?.sink.add(message);
   }
 
@@ -305,7 +305,7 @@ class JsonRpcClient {
     String? method = result['method'];
     Map<String, dynamic>? error = result['error'];
 
-    logger.d('[$uri] @Rec (messageId: $mId): $message');
+    logger.d('$logPrefix @Rec (messageId: $mId): $message');
 
     if (method != null) {
       _methodListeners[method]?.forEach((e) => e(result));
@@ -318,7 +318,7 @@ class JsonRpcClient {
   /// Helper method used as callback if a normal async/future send is requested
   _completerCallback(Map<String, dynamic> response, {Map<String, dynamic>? err}) {
     var mId = response['id'];
-    logger.d('[$uri] Received(Blocking) for id: "$mId"');
+    logger.d('$logPrefix Received(Blocking) for id: "$mId"');
     if (_pendingRequests.containsKey(mId)) {
       var request = _pendingRequests.remove(mId)!;
       if (err != null) {
@@ -334,18 +334,17 @@ class JsonRpcClient {
         request.completer.complete(RpcResponse.fromJson(response));
       }
     } else {
-      logger.w('Received response for unknown id "$mId"');
+      logger.w('$logPrefix Received response for unknown id "$mId"');
     }
   }
 
   _onChannelClosesNormal(int? closeCode, String? closeReason) {
     if (_disposed) {
-      logger.i('[$uri${identityHashCode(this)}] WS-Stream Subscription is DONE!');
+      logger.i('$logPrefix WS-Stream Subscription is DONE!');
       return;
     }
 
-    logger.i(
-        '[$uri${identityHashCode(this)}] WS-Stream closed normal! Code: $closeCode, Reason: $closeReason');
+    logger.i('$logPrefix WS-Stream closed normal! Code: $closeCode, Reason: $closeReason');
 
     ClientState t = curState;
     if (t != ClientState.error) {
@@ -356,7 +355,7 @@ class JsonRpcClient {
   }
 
   _onChannelError(error) async {
-    logger.w('Got channel error $error');
+    logger.w('$logPrefix Got channel error $error');
     if (error is! WebSocketException) {
       _updateError(error);
       return;
@@ -367,7 +366,7 @@ class JsonRpcClient {
     );
     var httpClient = _constructHttpClient();
     try {
-      logger.w('Sending GET to $httpUri to determine error reason');
+      logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine error reason');
       var request = await httpClient.openUrl("GET", httpUri);
 
       if (uri.userInfo.isNotEmpty) {
@@ -377,7 +376,7 @@ class JsonRpcClient {
         request.headers.set(HttpHeaders.authorizationHeader, "Basic $auth");
       }
       HttpClientResponse response = await request.close();
-      logger.wtf('Got Response: ${response.statusCode}');
+      logger.i('$logPrefix Got Response to determine error reason: ${response.statusCode}');
       verifyHttpResponseCodes(response.statusCode, clientType);
       // openChannel(); // If no exception was thrown, we just try again!
       _updateError(error);
@@ -388,7 +387,7 @@ class JsonRpcClient {
 
   _updateError(error) {
     if (_disposed) return;
-    logger.e('[$uri${identityHashCode(this)}] WS-Stream error: $error');
+    logger.e('$logPrefix WS-Stream error: $error');
     errorReason = error;
     curState = ClientState.error;
   }
@@ -398,18 +397,17 @@ class JsonRpcClient {
 
     if (_pendingRequests.isNotEmpty) {
       logger.i(
-          '$uri${identityHashCode(this)}] Found ${_pendingRequests.length} hanging requests, waiting for them before completly disposing client');
+          '$logPrefix Found ${_pendingRequests.length} hanging requests, waiting for them before completly disposing client');
       try {
         await Future.wait(_pendingRequests.values.map((e) => e.completer.future))
             .timeout(const Duration(seconds: 30));
       } on TimeoutException catch (_) {
-        logger.i(
-            '$uri${identityHashCode(this)}] Was unable to complete all hanging JRPC requests after 30sec...');
+        logger.i('$logPrefix Was unable to complete all hanging JRPC requests after 30sec...');
       } on JRpcError catch (_) {
         // Just catch the JRPC errors that might be returned in the futures to prevent async gap errors...
         // These errors should be handled in the respective caller!
       } finally {
-        logger.i('$uri${identityHashCode(this)}] All hanging requests finished!');
+        logger.i('$logPrefix All hanging requests finished!');
       }
     }
 
@@ -420,8 +418,10 @@ class JsonRpcClient {
 
     _resetChannel();
     _stateStream.close();
-    logger.i('JsonRpcClient ($uri, $clientType) disposed!');
+    logger.i('$logPrefix JsonRpcClient disposed!');
   }
+
+  String get logPrefix => '[$clientType@${uri.obfuscate()} #${identityHashCode(this)}]';
 
   @override
   bool operator ==(Object other) =>
@@ -437,6 +437,7 @@ class JsonRpcClient {
           _disposed == other._disposed &&
           _channel == other._channel &&
           _channelSub == other._channelSub &&
+          _idCounter == other._idCounter &&
           _stateStream == other._stateStream &&
           mapEquals(_methodListeners, other._methodListeners) &&
           mapEquals(_pendingRequests, other._pendingRequests) &&
@@ -453,6 +454,7 @@ class JsonRpcClient {
       _disposed.hashCode ^
       _channel.hashCode ^
       _channelSub.hashCode ^
+      _idCounter.hashCode ^
       _stateStream.hashCode ^
       _methodListeners.hashCode ^
       _pendingRequests.hashCode ^

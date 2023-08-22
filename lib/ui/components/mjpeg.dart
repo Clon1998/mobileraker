@@ -8,6 +8,7 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -585,7 +586,7 @@ class _AdaptiveMjpegManager implements _MjpegManager {
   @override
   start() {
     active = true;
-    logger.i('Start MJPEG - targFps: $targetFps - $_uri');
+    logger.i('Start MJPEG - targFps: $targetFps - ${_uri.obfuscate()}');
     if (_timer?.isActive ?? false) return;
     _timer = Timer(const Duration(milliseconds: 0), _timerCallback);
   }

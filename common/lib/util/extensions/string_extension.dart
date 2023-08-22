@@ -23,4 +23,8 @@ extension MobilerakerString on String {
 
     return this == objectIdentifier.name;
   }
+
+  String obfuscate([int nonObfuscated = 4]) {
+    return replaceRange((length >= nonObfuscated * 1.5) ? nonObfuscated : 0, null, '*');
+  }
 }

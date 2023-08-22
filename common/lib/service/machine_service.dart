@@ -15,6 +15,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
@@ -340,7 +341,8 @@ class MachineService {
         updateReq.add(future);
       }
       if (updateReq.isNotEmpty) await Future.wait(updateReq);
-      logger.i('[${machine.name}@${machine.wsUri}] Propagated new notification settings');
+      logger
+          .i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new notification settings');
     } finally {
       keepAliveExternally.close();
     }
@@ -408,7 +410,7 @@ class MachineService {
       logger.e('Could not update macros, machine $machineUUID not found!');
       return;
     }
-    logger.i('Updating Default Macros for "${machine.name}(${machine.wsUri})"!');
+    logger.i('Updating Default Macros for "${machine.name}(${machine.wsUri.obfuscate()})"!');
     MachineSettings machineSettings = await fetchSettings(machine);
     List<String> filteredMacros = macros.where((element) => !element.startsWith('_')).toList();
     List<MacroGroup> modifiableMacroGrps = machineSettings.macroGroups.toList();

@@ -26,7 +26,7 @@ JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientTy
   }
 
   JsonRpcClient jsonRpcClient = JsonRpcClientBuilder.fromClientType(type, machine).build();
-  logger.i('JsonRpcClient (${jsonRpcClient.uri} , $type) CREATED!!');
+  logger.i('${jsonRpcClient.logPrefix} JsonRpcClient CREATED!!');
   ref.onDispose(jsonRpcClient.dispose);
 
   // ref.onDispose(() {

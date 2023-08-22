@@ -23,6 +23,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
@@ -442,16 +443,16 @@ class NotificationService {
 
   Future<void> _setupFCMOnPrinterOnceConnected(Machine machine) async {
     String fcmToken = await fetchCurrentFcmToken(); // TODO: Extract to seperate provider
-    logger.i('${machine.name}(${machine.wsUri})  Device\'s FCM token: $fcmToken');
+    logger.i('${machine.name}(${machine.wsUri.obfuscate()})  Device\'s FCM token: $fcmToken');
     try {
       // Wait until connected
       await ref.readWhere<KlipperInstance>(
           klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready);
       logger.i(
-          'Jrpc Client of ${machine.name}(${machine.wsUri}) is connected, can Setup FCM on printer now!');
+          'Jrpc Client of ${machine.name}(${machine.wsUri.obfuscate()}) is connected, can Setup FCM on printer now!');
       await _machineService.updateMachineFcmConfig(machine, fcmToken);
     } catch (e, s) {
-      logger.w('Could not setupFCM on ${machine.name}(${machine.wsUri})', e, s);
+      logger.w('Could not setupFCM on ${machine.name}(${machine.wsUri.obfuscate()})', e, s);
     }
   }
 
@@ -470,7 +471,7 @@ class NotificationService {
       // Since I initited the provider before and all hidden machines dont have a machineProvider setup, also remove it again!
       ref.invalidate(mProvider);
     } catch (e, s) {
-      logger.w('Could not WIPE fcm data on ${machine.name}(${machine.wsUri})', e, s);
+      logger.w('Could not WIPE fcm data on ${machine.name}(${machine.wsUri.obfuscate()})', e, s);
     }
   }
 

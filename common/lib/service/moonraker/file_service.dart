@@ -19,6 +19,7 @@ import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:file/memory.dart';
 import 'package:flutter/foundation.dart';
@@ -248,7 +249,7 @@ class FileService {
   Future<File> downloadFile(String filePath, [Duration? timeout]) async {
     timeout ??= const Duration(seconds: 15);
     Uri uri = httpUri.replace(path: 'server/files/$filePath');
-    logger.i('Trying download of $uri');
+    logger.i('Trying download of ${uri.obfuscate()}');
     try {
       HttpClientRequest clientRequest = await HttpClient().getUrl(uri).timeout(timeout);
       HttpClientResponse clientResponse = await clientRequest.close().timeout(timeout);
