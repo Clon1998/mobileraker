@@ -352,7 +352,16 @@ class MachineService {
     try {
       await ref.read(fcmSettingsRepositoryProvider(machine.uuid)).delete(machine.uuid);
     } catch (e) {
-      logger.w('Was unable to delete FCM settings from machine that is about to get deleted...', e);
+      logger.w('Was unable to delete FCM settings from machine', e);
+    }
+  }
+
+  /// Removes all stored fcm tokens+configs from the machines moonraker database
+  Future<void> resetFcmTokens(Machine machine) async {
+    try {
+      await ref.read(fcmSettingsRepositoryProvider(machine.uuid)).deleteAll();
+    } catch (e) {
+      logger.w('Was unable to reset/deletaAll FCM settings from machine', e);
     }
   }
 

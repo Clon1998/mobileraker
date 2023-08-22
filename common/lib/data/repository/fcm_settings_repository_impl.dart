@@ -24,8 +24,7 @@ class FcmSettingsRepositoryImpl extends FcmSettingsRepository {
 
   @override
   Future<Map<String, DeviceFcmSettings>> all() async {
-    Map<String, dynamic>? json =
-        await _databaseService.getDatabaseItem('mobileraker', key: 'fcm');
+    Map<String, dynamic>? json = await _databaseService.getDatabaseItem('mobileraker', key: 'fcm');
 
     if (json == null) return {};
 
@@ -40,8 +39,7 @@ class FcmSettingsRepositoryImpl extends FcmSettingsRepository {
 
   @override
   Future<DeviceFcmSettings?> get(String machineId) async {
-    var json = await _databaseService.getDatabaseItem('mobileraker',
-        key: 'fcm.$machineId');
+    var json = await _databaseService.getDatabaseItem('mobileraker', key: 'fcm.$machineId');
     if (json == null) return null;
     return DeviceFcmSettings.fromJson(json);
   }
@@ -50,11 +48,19 @@ class FcmSettingsRepositoryImpl extends FcmSettingsRepository {
   Future<void> update(String machineId, DeviceFcmSettings fcmSettings) async {
     fcmSettings.lastModified = DateTime.now();
 
-    await _databaseService.addDatabaseItem(
-        'mobileraker', 'fcm.$machineId', fcmSettings);
+    await _databaseService.addDatabaseItem('mobileraker', 'fcm.$machineId', fcmSettings);
   }
 
   @override
-  Future<void> delete(String machineId) async => await _databaseService
-      .deleteDatabaseItem('mobileraker', 'fcm.$machineId');
+  Future<void> delete(String machineId) async =>
+      await _databaseService.deleteDatabaseItem('mobileraker', 'fcm.$machineId');
+
+  @override
+  Future<void> deleteAll() async {
+    var entries = await all();
+
+    await Future.wait(entries.keys.map((uuid) async {
+      await _databaseService.deleteDatabaseItem('mobileraker', 'fcm.$uuid');
+    }));
+  }
 }

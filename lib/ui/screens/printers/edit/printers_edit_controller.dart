@@ -16,6 +16,7 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
+import 'package:common/service/notification_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -224,6 +225,25 @@ class PrinterEditController extends _$PrinterEditController {
       await webcamService.addOrModifyWebcamInfoInBulk(camsToStore);
       await webcamService.deleteWebcamInfoInBulk(camsToDelete);
       await ref.refresh(allWebcamInfosProvider(_machine.uuid).future);
+    }
+  }
+
+  resetFcmCache() async {
+    var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
+        title: tr('pages.printer_edit.confirm_fcm_reset.title', args: [_machine.name]),
+        body: tr('pages.printer_edit.confirm_fcm_reset.body',
+            args: [_machine.name, _machine.httpUri.toString()]),
+        confirmBtn: tr('general.clear'),
+        confirmBtnColor: Colors.red);
+
+    try {
+      if (dialogResponse?.confirmed ?? false) {
+        _machineService.resetFcmTokens(_machine);
+        var fcmToken = await ref.read(fcmTokenProvider.future);
+        _machineService.updateMachineFcmConfig(_machine, fcmToken);
+      }
+    } catch (e) {
+      logger.w('Error while resetting FCM cache on machine ${_machine.name}', e);
     }
   }
 

@@ -13,4 +13,6 @@ abstract class FcmSettingsRepository {
   Future<DeviceFcmSettings?> get(String machineId);
 
   Future<void> delete(String machineId);
+
+  Future<void> deleteAll();
 }

@@ -41,7 +41,8 @@
     "invalid": "Invalid",
     "free": "Free",
     "one_time": "One time",
-    "delete": "Delete"
+    "delete": "Delete",
+    "clear": "Clear"
   },
   "pages": {
     "dashboard": {
@@ -255,6 +256,7 @@
       "fetching_additional_settings": "@:general.fetching additional settings from network...",
       "could_not_fetch_additional": "Could not fetch additional settings!",
       "fetch_error_hint": "Ensure the machine is reachable, and Mobileraker is connected to it.",
+      "reset_notification_registry": "Clear Notification Device Registry",
       "store_error": {
         "title": "Saving failed!",
         "message": "Some fields contain invalid values!\nPlease make sure all fields are valid.",
@@ -339,6 +341,10 @@
         "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperature",
         "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperature",
         "new_preset": "New Preset"
+      },
+      "confirm_fcm_reset": {
+        "title": "Clear Notification Device Registry?",
+        "body": "You are about to reset the device registry, which is used to determine the devices to which the companion sends notifications.\nTo re-establish push notifications, you will need to restart the app on all devices and connect them to the machine once again. \n\nConfirm your action."
       }
     },
     "printer_add": {

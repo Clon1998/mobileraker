@@ -215,7 +215,16 @@ class PrinterSettingScrollView extends ConsumerWidget {
                   onPressed: ref.read(printerEditControllerProvider.notifier).unlinkOctoeverwhere,
                 ),
               const Divider(),
-              const RemoteSettings()
+              const RemoteSettings(),
+              const Divider(),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: TextButton.icon(
+                    onPressed:
+                        isSaving ? null : ref.read(printerEditControllerProvider.notifier).deleteIt,
+                    icon: const Icon(Icons.delete_forever_outlined),
+                    label: const Text('pages.printer_edit.remove_printer').tr()),
+              )
             ],
           ),
         ),
@@ -438,141 +447,136 @@ class RemoteSettings extends ConsumerWidget {
     var isSaving = ref.watch(printerEditControllerProvider);
 
     return Column(
-      children: [
-        ...ref.watch(machineRemoteSettingsProvider).when(
-            data: (machineSettings) {
-              return [
-                _SectionHeaderWithAction(
-                    title: 'pages.dashboard.general.cam_card.webcam'.tr(),
-                    action: TextButton.icon(
-                      onPressed: isSaving
-                          ? null
-                          : ref.read(webcamListControllerProvider.notifier).addNewWebCam,
-                      label: const Text('general.add').tr(),
-                      icon: const Icon(FlutterIcons.webcam_mco),
-                    )),
-                const WebcamList(),
-                const Divider(),
-                SectionHeader(title: 'pages.printer_edit.motion_system.title'.tr()),
-                FormBuilderSwitch(
-                  name: 'invertX',
-                  initialValue: machineSettings.inverts[0],
-                  title: const Text('pages.printer_edit.motion_system.invert_x').tr(),
-                  decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
-                  activeColor: themeData.colorScheme.primary,
-                ),
-                FormBuilderSwitch(
-                  name: 'invertY',
-                  initialValue: machineSettings.inverts[1],
-                  title: const Text('pages.printer_edit.motion_system.invert_y').tr(),
-                  decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
-                  activeColor: themeData.colorScheme.primary,
-                ),
-                FormBuilderSwitch(
-                  name: 'invertZ',
-                  initialValue: machineSettings.inverts[2],
-                  title: const Text('pages.printer_edit.motion_system.invert_z').tr(),
-                  decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
-                  activeColor: themeData.colorScheme.primary,
-                ),
-                FormBuilderTextField(
-                  name: 'speedXY',
-                  initialValue: machineSettings.speedXY.toString(),
-                  valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
-                  decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.motion_system.speed_xy'.tr(),
-                      suffixText: 'mm/s',
-                      isDense: true),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator: FormBuilderValidators.compose(
-                      [FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
-                ),
-                FormBuilderTextField(
-                  name: 'speedZ',
-                  initialValue: machineSettings.speedZ.toString(),
-                  valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
-                  decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.motion_system.speed_z'.tr(),
-                      suffixText: 'mm/s',
-                      isDense: true),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator: FormBuilderValidators.compose(
-                      [FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
-                ),
-                const MoveStepSegmentInput(),
-                const BabyStepSegmentInput(),
-                const Divider(),
-                SectionHeader(title: 'pages.printer_edit.extruders.title'.tr()),
-                FormBuilderTextField(
-                  name: 'extrudeSpeed',
-                  initialValue: machineSettings.extrudeFeedrate.toString(),
-                  valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
-                  decoration: InputDecoration(
-                      labelText: 'pages.printer_edit.extruders.feedrate'.tr(),
-                      suffixText: 'mm/s',
-                      isDense: true),
-                  keyboardType:
-                      const TextInputType.numberWithOptions(signed: false, decimal: false),
-                  validator: FormBuilderValidators.compose(
-                      [FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
-                ),
-                const ExtruderStepSegmentInput(),
-                const Divider(),
-                _SectionHeaderWithAction(
-                    title: 'pages.dashboard.control.macro_card.title'.tr(),
-                    action: TextButton.icon(
-                      onPressed: isSaving
-                          ? null
-                          : ref.read(macroGroupListControllerProvider.notifier).addNewMacroGroup,
-                      label: const Text('general.add').tr(),
-                      icon: const Icon(Icons.source_outlined),
-                    )),
-                const MacroGroupList(),
-                const Divider(),
-                _SectionHeaderWithAction(
-                    title: 'pages.dashboard.general.temp_card.temp_presets'.tr(),
-                    action: TextButton.icon(
-                      onPressed: isSaving
-                          ? null
-                          : ref
-                              .watch(temperaturePresetListControllerProvider.notifier)
-                              .addNewTemperaturePreset,
-                      label: const Text('general.add').tr(),
-                      icon: const Icon(FlutterIcons.thermometer_lines_mco),
-                    )),
-                const TemperaturePresetList(),
-              ];
-            },
-            error: (e, s) => [
-                  ListTile(
-                    tileColor: themeData.colorScheme.errorContainer,
-                    textColor: themeData.colorScheme.onErrorContainer,
-                    iconColor: themeData.colorScheme.onErrorContainer,
-                    leading: const Icon(
-                      Icons.error_outline,
-                      size: 40,
-                    ),
-                    title: const Text(
-                      'pages.printer_edit.could_not_fetch_additional',
-                    ).tr(),
-                    subtitle: const Text('pages.printer_edit.fetch_error_hint').tr(),
+      children: ref.watch(machineRemoteSettingsProvider).when(
+          data: (machineSettings) {
+            return [
+              _SectionHeaderWithAction(
+                  title: 'pages.dashboard.general.cam_card.webcam'.tr(),
+                  action: TextButton.icon(
+                    onPressed: isSaving
+                        ? null
+                        : ref.read(webcamListControllerProvider.notifier).addNewWebCam,
+                    label: const Text('general.add').tr(),
+                    icon: const Icon(FlutterIcons.webcam_mco),
+                  )),
+              const WebcamList(),
+              const Divider(),
+              SectionHeader(title: 'pages.printer_edit.motion_system.title'.tr()),
+              FormBuilderSwitch(
+                name: 'invertX',
+                initialValue: machineSettings.inverts[0],
+                title: const Text('pages.printer_edit.motion_system.invert_x').tr(),
+                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                activeColor: themeData.colorScheme.primary,
+              ),
+              FormBuilderSwitch(
+                name: 'invertY',
+                initialValue: machineSettings.inverts[1],
+                title: const Text('pages.printer_edit.motion_system.invert_y').tr(),
+                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                activeColor: themeData.colorScheme.primary,
+              ),
+              FormBuilderSwitch(
+                name: 'invertZ',
+                initialValue: machineSettings.inverts[2],
+                title: const Text('pages.printer_edit.motion_system.invert_z').tr(),
+                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                activeColor: themeData.colorScheme.primary,
+              ),
+              FormBuilderTextField(
+                name: 'speedXY',
+                initialValue: machineSettings.speedXY.toString(),
+                valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
+                decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.motion_system.speed_xy'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true),
+                keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                validator: FormBuilderValidators.compose(
+                    [FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
+              ),
+              FormBuilderTextField(
+                name: 'speedZ',
+                initialValue: machineSettings.speedZ.toString(),
+                valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
+                decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.motion_system.speed_z'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true),
+                keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                validator: FormBuilderValidators.compose(
+                    [FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
+              ),
+              const MoveStepSegmentInput(),
+              const BabyStepSegmentInput(),
+              const Divider(),
+              SectionHeader(title: 'pages.printer_edit.extruders.title'.tr()),
+              FormBuilderTextField(
+                name: 'extrudeSpeed',
+                initialValue: machineSettings.extrudeFeedrate.toString(),
+                valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
+                decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.extruders.feedrate'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true),
+                keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                validator: FormBuilderValidators.compose(
+                    [FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
+              ),
+              const ExtruderStepSegmentInput(),
+              const Divider(),
+              _SectionHeaderWithAction(
+                  title: 'pages.dashboard.control.macro_card.title'.tr(),
+                  action: TextButton.icon(
+                    onPressed: isSaving
+                        ? null
+                        : ref.read(macroGroupListControllerProvider.notifier).addNewMacroGroup,
+                    label: const Text('general.add').tr(),
+                    icon: const Icon(Icons.source_outlined),
+                  )),
+              const MacroGroupList(),
+              const Divider(),
+              _SectionHeaderWithAction(
+                  title: 'pages.dashboard.general.temp_card.temp_presets'.tr(),
+                  action: TextButton.icon(
+                    onPressed: isSaving
+                        ? null
+                        : ref
+                            .watch(temperaturePresetListControllerProvider.notifier)
+                            .addNewTemperaturePreset,
+                    label: const Text('general.add').tr(),
+                    icon: const Icon(FlutterIcons.thermometer_lines_mco),
+                  )),
+              const TemperaturePresetList(),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: TextButton.icon(
+                    onPressed: isSaving
+                        ? null
+                        : ref.read(printerEditControllerProvider.notifier).resetFcmCache,
+                    icon: const Icon(Icons.notifications_off_outlined),
+                    label: const Text('pages.printer_edit.reset_notification_registry').tr()),
+              )
+            ];
+          },
+          error: (e, s) => [
+                ListTile(
+                  tileColor: themeData.colorScheme.errorContainer,
+                  textColor: themeData.colorScheme.onErrorContainer,
+                  iconColor: themeData.colorScheme.onErrorContainer,
+                  leading: const Icon(
+                    Icons.error_outline,
+                    size: 40,
                   ),
-                ],
-            loading: () => [
-                  FadingText('pages.printer_edit.fetching_additional_settings'.tr()),
-                ]),
-        const Divider(),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: TextButton.icon(
-              onPressed:
-                  isSaving ? null : ref.read(printerEditControllerProvider.notifier).deleteIt,
-              icon: const Icon(Icons.delete_forever_outlined),
-              label: const Text('pages.printer_edit.remove_printer').tr()),
-        )
-      ],
+                  title: const Text(
+                    'pages.printer_edit.could_not_fetch_additional',
+                  ).tr(),
+                  subtitle: const Text('pages.printer_edit.fetch_error_hint').tr(),
+                ),
+              ],
+          loading: () => [
+                FadingText('pages.printer_edit.fetching_additional_settings'.tr()),
+              ]),
     );
   }
 }

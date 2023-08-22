@@ -11,6 +11,7 @@
 - Improved printer and config file parsing to ensure the app is more resilient to unexpected
   content in the config section definitions.
 - Added the option to configure a custom HTTP/WS Client timeout in the printer edit and add flows.
+- The printer's device notification registry can now be cleared in the printer edit flow.
 
 ### Bug Fixes
 
