@@ -4,7 +4,8 @@
 
 ### Major Changes
 
-- Added support for moonraker's Jobqueue API. The jobqueue is available on the files page.
+- Added support for moonraker's Jobqueue API. The jobqueue is available on the files page and on the
+  floating action buttons on the dashboard.
 
 ### Changed Features
 

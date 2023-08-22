@@ -601,6 +601,7 @@
   },
   "bottom_sheets": {
     "job_queue_sheet": {
+      "next": "Next print job",
       "empty": "The job queue is empty. You can add jobs via the file browser.",
       "start_queue": "Start Queue",
       "pause_queue": "Pause Queue",

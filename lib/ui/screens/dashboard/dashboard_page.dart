@@ -4,6 +4,8 @@
  */
 
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -26,8 +28,8 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
-import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 
@@ -87,6 +89,8 @@ class _FloatingActionBtn extends ConsumerWidget {
     AsyncValue<PrintState> printState =
         ref.watch(printerSelectedProvider.selectAs((data) => data.print.state));
 
+    AsyncValue<JobQueueStatus> jobQueueState = ref.watch(jobQueueSelectedProvider);
+
     if (!klippyState.hasValue ||
         !printState.hasValue ||
         klippyState.isLoading ||
@@ -106,7 +110,8 @@ class _FloatingActionBtn extends ConsumerWidget {
       children: [
         SpeedDialChild(
           child: const Icon(Icons.cleaning_services),
-          backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
+          backgroundColor: themeData.colorScheme.error,
+          foregroundColor: themeData.colorScheme.onError,
           label: tr('general.cancel'),
           onTap: ref.watch(printerServiceSelectedProvider).cancelPrint,
         ),
@@ -129,6 +134,25 @@ class _FloatingActionBtn extends ConsumerWidget {
             backgroundColor: themeData.colorScheme.primaryContainer,
             label: tr('general.pause'),
             onTap: ref.watch(printerServiceSelectedProvider).pausePrint,
+          ),
+        if (jobQueueState.valueOrFullNull?.queuedJobs.isNotEmpty ?? false)
+          SpeedDialChild(
+            child: badges.Badge(
+              badgeStyle: badges.BadgeStyle(
+                badgeColor: themeData.colorScheme.onSecondary,
+              ),
+              badgeAnimation: const badges.BadgeAnimation.rotation(),
+              position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
+              badgeContent: Text('${jobQueueState.valueOrNull?.queuedJobs.length ?? 0}',
+                  style: TextStyle(color: themeData.colorScheme.secondary)),
+              child: const Icon(Icons.content_paste),
+            ),
+            backgroundColor: themeData.colorScheme.primary,
+            foregroundColor: themeData.colorScheme.onPrimary,
+            label: tr('dialogs.supporter_perks.job_queue_perk.title'),
+            onTap: () => ref
+                .read(bottomSheetServiceProvider)
+                .show(BottomSheetConfig(type: SheetType.jobQueueMenu)),
           ),
       ],
       spacing: 5,
@@ -248,6 +272,7 @@ class _IdleFAB extends ConsumerWidget {
             .read(bottomSheetServiceProvider)
             .show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
       },
+
       // onPressed: mdodel.showNonPrintingMenu,
       child: const Icon(Icons.menu));
 }

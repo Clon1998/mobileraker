@@ -3,7 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
+import 'package:common/util/extensions/string_extension.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../test_utils.dart';
@@ -69,6 +71,12 @@ void main() {
     expect(extruder.temperatureHistory, orderedEquals([30, 30, 31, 31, 32.5, 44, 45, 45, 9]));
     expect(extruder.targetHistory, orderedEquals([0, 0, 0, 1.4, 2, 3, 4, 5, 6, 7, 8, 8, 9]));
     expect(extruder.powerHistory, orderedEquals([0, 0, 0, 0, 0.5, 0.9, 1.0]));
+  });
+
+  test('config key matching', () {
+    expect('extruder'.isKlipperObject(ConfigFileObjectIdentifiers.extruder), isTrue);
+    expect('extruder1'.isKlipperObject(ConfigFileObjectIdentifiers.extruder), isTrue);
+    expect('extruder2'.isKlipperObject(ConfigFileObjectIdentifiers.extruder), isTrue);
   });
 }
 
