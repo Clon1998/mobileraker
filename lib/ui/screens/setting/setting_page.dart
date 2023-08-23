@@ -557,6 +557,7 @@ class CompanionMissingWarning extends ConsumerWidget {
 
     var themeData = Theme.of(context);
     return Material(
+      type: MaterialType.transparency,
       child: AnimatedSwitcher(
         transitionBuilder: (child, anim) => SizeTransition(
           sizeFactor: anim,
@@ -569,28 +570,28 @@ class CompanionMissingWarning extends ConsumerWidget {
         child: (machineNames.isEmpty)
             ? const SizedBox.shrink()
             : Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: ListTile(
-                  onTap: ref.read(settingPageControllerProvider.notifier).openCompanion,
-                  tileColor: themeData.colorScheme.errorContainer,
-                  textColor: themeData.colorScheme.onErrorContainer,
-                  iconColor: themeData.colorScheme.onErrorContainer,
-                  // onTap: ref
-                  //     .watch(notificationPermissionControllerProvider.notifier)
-                  //     .requestPermission,
-                  shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15))),
-                  leading: const Icon(
-                    FlutterIcons.uninstall_ent,
-                    size: 40,
-                  ),
-                  title: const Text(
-                    'pages.setting.notification.missing_companion_title',
-                  ).tr(),
-                  subtitle: const Text('pages.setting.notification.missing_companion_body')
-                      .tr(args: [machineNames.join(', ')]),
-                ),
-              ),
+          padding: const EdgeInsets.only(top: 16),
+          child: ListTile(
+            onTap: ref.read(settingPageControllerProvider.notifier).openCompanion,
+            tileColor: themeData.colorScheme.errorContainer,
+            textColor: themeData.colorScheme.onErrorContainer,
+            iconColor: themeData.colorScheme.onErrorContainer,
+            // onTap: ref
+            //     .watch(notificationPermissionControllerProvider.notifier)
+            //     .requestPermission,
+            shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15))),
+            leading: const Icon(
+              FlutterIcons.uninstall_ent,
+              size: 40,
+            ),
+            title: const Text(
+              'pages.setting.notification.missing_companion_title',
+            ).tr(),
+            subtitle: const Text('pages.setting.notification.missing_companion_body')
+                .tr(args: [machineNames.join(', ')]),
+          ),
+        ),
       ),
     );
   }
