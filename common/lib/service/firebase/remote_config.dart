@@ -17,6 +17,7 @@ FirebaseRemoteConfig remoteConfig(RemoteConfigRef ref) {
 }
 
 extension MobilerakerFF on FirebaseRemoteConfig {
+  // TODO maybe extract the strings of the FF to seperate consts or enums (But as of now I am only exposing theme from within the service anyway lol
   int get maxNonSupporterMachines => getInt('non_suporters_max_printers');
 
   Future<void> initialize() async {
@@ -25,7 +26,12 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         fetchTimeout: const Duration(minutes: 1),
         minimumFetchInterval: kDebugMode ? const Duration(minutes: 5) : const Duration(hours: 12),
       ));
-      await fetchAndActivate();
+      await setDefaults({
+        'non_suporters_max_printers': -1,
+      });
+      fetchAndActivate().then((value) {
+        logger.i('FirebaseRemote values are fetched and activated!');
+      }).ignore();
       logger.i('Completed FirebaseRemote init');
     } catch (e, s) {
       logger.w('Error while trying to setup Firebase Remote Config', e);
