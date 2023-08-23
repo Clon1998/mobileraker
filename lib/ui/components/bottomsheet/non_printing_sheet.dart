@@ -27,13 +27,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
         ));
 
     var klippyService = ref.read(klipperServiceSelectedProvider);
-    return Container(
+    return Padding(
       padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
-      decoration: BoxDecoration(
-        color: themeData.bottomSheetTheme.modalBackgroundColor,
-        borderRadius:
-            const BorderRadius.only(topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
