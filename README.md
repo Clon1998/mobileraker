@@ -1,4 +1,4 @@
-# Mobileraker - A mobile app for klipper
+# Mobileraker - A free mobile app for klipper
 
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/clon1998/mobileraker?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues/Clon1998/mobileraker?style=for-the-badge)
