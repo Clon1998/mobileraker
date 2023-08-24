@@ -1,6 +1,5 @@
-# Mobileraker - An open source mobile app for klipper
+# Mobileraker - A mobile app for klipper
 
-![GitHub](https://img.shields.io/github/license/Clon1998/mobileraker?style=for-the-badge)
 ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/clon1998/mobileraker?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues/Clon1998/mobileraker?style=for-the-badge)
 
@@ -20,16 +19,11 @@
 5. [App Screenshots](#app-impressions)
 6. [Dev-Setup](#environment-setup)
 7. [Changelog](#changelog)
+8. [License](#license)
 
 ---
 
 ## Get Mobileraker now!
-
-> **Note**  
-> Keep in mind, Mobileraker is **free** and **open source**. However, if you like the app and want to **support** the
-> development for it and cover some of the costs feel free to support via **donations**, through **app store ratings**,
-> or
-> by **starring** the project on GitHub!
 
 [!["PlayStore"](https://img.shields.io/badge/Google_Play-414141?style=for-the-badge&logo=google-play&logoColor=white)](https://play.google.com/store/apps/details?id=com.mobileraker.android)
 [!["AppStore"](https://img.shields.io/badge/App_Store-0D96F6?style=for-the-badge&logo=app-store&logoColor=white)](https://apps.apple.com/us/app/mobileraker/id1581451248)
@@ -110,6 +104,11 @@ Mobileraker allows users to enable push notifications, which are also delivered 
 ## Changelog
 
 The changelog can be found in [docs/changelog.md](docs/changelog.md).
+
+## License
+The project is licensed under a modified MIT license, known as the Mobileraker License v1, crafted by Patrick Schmidt. It allows non-commercial use, redistribution, and modification of the software and documentation, provided that copyright and permission notices are preserved. However, commercial usage is restricted unless explicit written consent is obtained from Patrick Schmidt, who also maintains all intellectual property rights.
+
+The project's license can be found here [LICENSE](LICENSE).
 
 ## Repobeats
 
