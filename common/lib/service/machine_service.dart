@@ -7,8 +7,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
@@ -84,8 +84,7 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
     return machines;
   }
 
-  DateTime? cleanupDate =
-      settingService.read<DateTime?>(UtilityKeys.nonSupporterMachineCleanup, null);
+  DateTime? cleanupDate = settingService.read<DateTime?>(UtilityKeys.nonSupporterMachineCleanup, null);
 
   if (cleanupDate == null) {
     cleanupDate = DateTime.now().add(const Duration(days: 7));
@@ -109,8 +108,7 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
 
 @riverpod
 Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
-  var machinesAvailableToUser =
-      await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
+  var machinesAvailableToUser = await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
   var actualStoredMachines = await ref.watch(machineServiceProvider).fetchAll();
   var hiddenMachines = actualStoredMachines.where((e) => !machinesAvailableToUser.contains(e.uuid));
 
@@ -121,8 +119,7 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 Future<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) async {
   var machine = await ref.watchWhereNotNull(selectedMachineProvider);
 
-  await ref.watchWhere<KlipperInstance>(
-      klipperSelectedProvider, (c) => c.klippyState == KlipperState.ready, false);
+  await ref.watchWhere<KlipperInstance>(klipperSelectedProvider, (c) => c.klippyState == KlipperState.ready, false);
 
   // TODO Refactor the fetchSettings into a new/machine based provider to make updating this easier!
   var fetchSettings = await ref.watch(machineServiceProvider).fetchSettings(machine);
@@ -164,8 +161,7 @@ class MachineService {
   Future<MachineSettings> fetchSettings(Machine machine) async {
     // await _tryMigrateSettings(machine);
     MachineSettings machineSettings =
-        await ref.read(machineSettingsRepositoryProvider(machine.uuid)).get() ??
-            MachineSettings.fallback();
+        await ref.read(machineSettingsRepositoryProvider(machine.uuid)).get() ?? MachineSettings.fallback();
 
     return machineSettings;
   }
@@ -264,13 +260,11 @@ class MachineService {
       var allMachineUUIDs = (await fetchAll()).map((e) => e.uuid);
       // Filter all entries out that dont have the same FCMTOKEN
       // AND Remove all entries where a machine exist for
-      allDeviceSettings.removeWhere(
-          (key, value) => value.fcmToken != deviceFcmToken || allMachineUUIDs.contains(key));
+      allDeviceSettings.removeWhere((key, value) => value.fcmToken != deviceFcmToken || allMachineUUIDs.contains(key));
 
       // Clear all of the DeviceFcmSettings that are left
       for (String uuid in allDeviceSettings.keys) {
-        logger
-            .w('Found an old DeviceFcmSettings entry with uuid $uuid that is not present anymore!');
+        logger.w('Found an old DeviceFcmSettings entry with uuid $uuid that is not present anymore!');
         fcmRepo.delete(uuid);
       }
 
@@ -282,8 +276,7 @@ class MachineService {
           : ProgressNotificationMode.values[progressModeInt];
 
       var states = _settingService
-          .read(
-              AppSettingKeys.statesTriggeringNotification, 'standby,printing,paused,complete,error')
+          .read(AppSettingKeys.statesTriggeringNotification, 'standby,printing,paused,complete,error')
           .split(',')
           .toSet();
 
@@ -310,15 +303,14 @@ class MachineService {
     }
   }
 
-  Future<void> updateMachineFcmNotificationConfig(
-      {required Machine machine,
-      ProgressNotificationMode? mode,
-      Set<PrintState>? printStates}) async {
-    var keepAliveExternally =
-        ref.keepAliveExternally(notificationSettingsRepositoryProvider(machine.uuid));
+  Future<void> updateMachineFcmNotificationConfig({
+    required Machine machine,
+    ProgressNotificationMode? mode,
+    Set<PrintState>? printStates,
+  }) async {
+    var keepAliveExternally = ref.keepAliveExternally(notificationSettingsRepositoryProvider(machine.uuid));
     try {
-      var notificationSettingsRepository =
-          ref.read(notificationSettingsRepositoryProvider(machine.uuid));
+      var notificationSettingsRepository = ref.read(notificationSettingsRepositoryProvider(machine.uuid));
 
       logger.i('Updating FCM Config for machine ${machine.name} (${machine.uuid})');
 
@@ -332,8 +324,7 @@ class MachineService {
 
       List<Future> updateReq = [];
       if (mode != null) {
-        var future =
-            notificationSettingsRepository.updateProgressSettings(machine.uuid, mode.value);
+        var future = notificationSettingsRepository.updateProgressSettings(machine.uuid, mode.value);
         updateReq.add(future);
       }
       if (printStates != null) {
@@ -341,8 +332,7 @@ class MachineService {
         updateReq.add(future);
       }
       if (updateReq.isNotEmpty) await Future.wait(updateReq);
-      logger
-          .i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new notification settings');
+      logger.i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new notification settings');
     } finally {
       keepAliveExternally.close();
     }
@@ -377,8 +367,7 @@ class MachineService {
     }
 
     var databaseClient = ref.read(moonrakerDatabaseClientProvider(machineUUID));
-    Map<String, dynamic>? databaseItem =
-        await databaseClient.getDatabaseItem('mobileraker', key: 'fcm.client');
+    Map<String, dynamic>? databaseItem = await databaseClient.getDatabaseItem('mobileraker', key: 'fcm.client');
 
     if (databaseItem == null) {
       return null;
@@ -395,9 +384,7 @@ class MachineService {
         var meta = await fetchCompanionMetaData(machine);
         if (meta == null) noCompanion.add(machine);
       } catch (e) {
-        logger.w(
-            'Error while trying to fetch CompanionMeta for machine ${machine.name} (${machine.uuid})',
-            e);
+        logger.w('Error while trying to fetch CompanionMeta for machine ${machine.name} (${machine.uuid})', e);
       }
     }
     return noCompanion;
@@ -431,8 +418,7 @@ class MachineService {
 
     if (filteredMacros.isEmpty) return;
     logger.i('Adding ${filteredMacros.length} new macros to default group!');
-    MacroGroup defaultGroup =
-        modifiableMacroGrps.firstWhere((element) => element.name == 'Default', orElse: () {
+    MacroGroup defaultGroup = modifiableMacroGrps.firstWhere((element) => element.name == 'Default', orElse: () {
       MacroGroup group = MacroGroup(name: 'Default');
       modifiableMacroGrps.add(group);
       return group;
@@ -445,20 +431,16 @@ class MachineService {
     await ref.read(machineSettingsRepositoryProvider(machine.uuid)).update(machineSettings);
   }
 
-  Future<Machine> linkMachineWithOctoeverywhere(Machine machineToLink) async {
-    MoonrakerDatabaseClient moonrakerDatabaseClient =
-        ref.read(moonrakerDatabaseClientProvider(machineToLink.uuid));
+  /// Links the machine to the octoEverywhere service
+  Future<AppPortalResult> linkOctoEverywhere(Machine machineToLink) async {
+    MoonrakerDatabaseClient moonrakerDatabaseClient = ref.read(moonrakerDatabaseClientProvider(machineToLink.uuid));
     String? octoPrinterId;
     try {
-      octoPrinterId =
-          await moonrakerDatabaseClient.getDatabaseItem('octoeverywhere', key: 'public.printerId');
+      octoPrinterId = await moonrakerDatabaseClient.getDatabaseItem('octoeverywhere', key: 'public.printerId');
     } on WebSocketException catch (e, s) {
-      logger.w(
-          'Rpc Client was not connected, could not fetch octo.printerId. User can select by himself!');
+      logger.w('Rpc Client was not connected, could not fetch octo.printerId. User can select by himself!');
     }
 
-    var appPortalResult = await _appConnectionService.linkAppWithOcto(printerId: octoPrinterId);
-
-    return machineToLink..octoEverywhere = OctoEverywhere.fromDto(appPortalResult);
+    return _appConnectionService.linkAppWithOcto(printerId: octoPrinterId);
   }
 }

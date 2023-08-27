@@ -10,9 +10,13 @@ import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker_pro/ui/components/bottomsheet/job_queue_sheet.dart';
 
+import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_sheet.dart';
+import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_sheet_controller.dart';
+
 enum SheetType implements BottomSheetIdentifierMixin {
   nonPrintingMenu,
   jobQueueMenu,
+  addRemoteCon,
   ;
 }
 
@@ -24,15 +28,26 @@ class BottomSheetServiceImpl implements BottomSheetService {
   final Ref ref;
 
   @override
-  final Map<BottomSheetIdentifierMixin, Widget Function(BuildContext)> availableSheets = {
-    SheetType.nonPrintingMenu: (ctx) => const NonPrintingBottomSheet(),
-    SheetType.jobQueueMenu: (ctx) => const JobQueueBottomSheet(),
+  final Map<BottomSheetIdentifierMixin, Widget Function(BuildContext, Object?)> availableSheets = {
+    SheetType.nonPrintingMenu: (ctx, data) => const NonPrintingBottomSheet(),
+    SheetType.jobQueueMenu: (ctx, data) => const JobQueueBottomSheet(),
+    SheetType.addRemoteCon: (ctx, data) => AddRemoteConnectionBottomSheet(
+          args: data as AddRemoteConnectionSheetArgs,
+        ),
   };
 
   @override
-  show(BottomSheetConfig config) {
+  Future<BottomSheetResult> show(BottomSheetConfig config) async {
     BuildContext? ctx = ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext;
 
-    showModalBottomSheet(context: ctx!, builder: availableSheets[config.type]!);
+    var result = await showModalBottomSheet<BottomSheetResult>(
+      context: ctx!,
+      builder: (ctx) => availableSheets[config.type]!(ctx, config.data),
+      clipBehavior: Theme.of(ctx).bottomSheetTheme.shape != null ? Clip.antiAlias : Clip.none,
+      isScrollControlled: config.isScrollControlled,
+      useSafeArea: true,
+    );
+
+    return result ?? BottomSheetResult.dismissed();
   }
 }

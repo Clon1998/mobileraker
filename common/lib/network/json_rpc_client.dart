@@ -58,9 +58,8 @@ class JsonRpcClientBuilder {
       ..uri = localWsUir
           .replace(
               scheme: 'wss',
-          host: octoUri.host,
-          userInfo:
-          '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
+              host: octoUri.host,
+              userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
           .removePort() // OE automatically redirects the ports
       ..clientType = ClientType.octo;
   }
@@ -82,16 +81,11 @@ class JsonRpcClientBuilder {
     var remoteInterface = machine.remoteInterface!;
 
     return JsonRpcClientBuilder()
-      ..headers = {
-        ...remoteInterface.httpHeaders,
-        if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!
-      }
-      ..uri = remoteInterface.remoteUri
-          .replace(path: localWsUir.path, query: localWsUir.query)
-          .toWebsocketUri()
+      ..headers = {...remoteInterface.httpHeaders, if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!}
+      ..uri = remoteInterface.remoteUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
       ..clientType = ClientType.manual
-      ..timeout = Duration(seconds: remoteInterface.timeout + 10);
+      ..timeout = Duration(seconds: remoteInterface.timeout);
   }
 
   factory JsonRpcClientBuilder.fromClientType(ClientType clientType, Machine machine) {
@@ -152,8 +146,7 @@ class JsonRpcClient {
 
   int _idCounter = 0;
 
-  final BehaviorSubject<ClientState> _stateStream =
-      BehaviorSubject.seeded(ClientState.disconnected);
+  final BehaviorSubject<ClientState> _stateStream = BehaviorSubject.seeded(ClientState.disconnected);
 
   Stream<ClientState> get stateStream => _stateStream.stream;
 
@@ -223,9 +216,7 @@ class JsonRpcClient {
     if (method == null) {
       var foundListeners = _methodListeners.values.where((element) => element.contains(callback));
       if (foundListeners.isEmpty) return true;
-      return foundListeners
-          .map((element) => element.remove(callback))
-          .reduce((value, element) => value || element);
+      return foundListeners.map((element) => element.remove(callback)).reduce((value, element) => value || element);
     }
     return _methodListeners[method]?.remove(callback) ?? false;
   }
@@ -285,12 +276,8 @@ class JsonRpcClient {
     return httpClient;
   }
 
-  Map<String, dynamic> _constructJsonRPCMessage(String method, {dynamic params}) => {
-        'jsonrpc': '2.0',
-        'id': _idCounter++,
-        'method': method,
-        if (params != null) 'params': params
-      };
+  Map<String, dynamic> _constructJsonRPCMessage(String method, {dynamic params}) =>
+      {'jsonrpc': '2.0', 'id': _idCounter++, 'method': method, if (params != null) 'params': params};
 
   /// Sends a message to the server
   _send(String message) {
@@ -399,8 +386,7 @@ class JsonRpcClient {
       logger.i(
           '$logPrefix Found ${_pendingRequests.length} hanging requests, waiting for them before completly disposing client');
       try {
-        await Future.wait(_pendingRequests.values.map((e) => e.completer.future))
-            .timeout(const Duration(seconds: 30));
+        await Future.wait(_pendingRequests.values.map((e) => e.completer.future)).timeout(const Duration(seconds: 30));
       } on TimeoutException catch (_) {
         logger.i('$logPrefix Was unable to complete all hanging JRPC requests after 30sec...');
       } on JRpcError catch (_) {
@@ -411,8 +397,8 @@ class JsonRpcClient {
       }
     }
 
-    _pendingRequests.forEach((key, value) => value.completer.completeError(StateError(
-        'Websocket is closing, request id=$key, method ${value.method} never got an response!')));
+    _pendingRequests.forEach((key, value) => value.completer.completeError(
+        StateError('Websocket is closing, request id=$key, method ${value.method} never got an response!')));
     _methodListeners.clear();
     _channelSub?.cancel();
 

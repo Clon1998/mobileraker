@@ -3,21 +3,23 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/data/model/moonraker_db/gcode_macro.dart';
 import 'package:common/data/model/moonraker_db/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/macro_group.dart';
 import 'package:common/data/model/moonraker_db/temperature_preset.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
-import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/notification_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -30,6 +32,7 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
@@ -37,11 +40,12 @@ import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../components/bottomsheet/remote_connection/add_remote_connection_sheet_controller.dart';
+
 part 'printers_edit_controller.g.dart';
 
 @riverpod
-GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef ref) =>
-    GlobalKey<FormBuilderState>();
+GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef ref) => GlobalKey<FormBuilderState>();
 
 @Riverpod(dependencies: [])
 Machine currentlyEditing(CurrentlyEditingRef ref) => throw UnimplementedError();
@@ -62,18 +66,18 @@ class PrinterEditController extends _$PrinterEditController {
 
   @override
   bool build() {
+    ref.onDispose(() {
+      ref.invalidate(_remoteInterfaceProvider);
+      ref.invalidate(_octoEverywhereProvider);
+    });
+
     return false;
   }
 
   openQrScanner(BuildContext context) async {
-    Barcode? qr = await Navigator.of(context)
-        .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
+    Barcode? qr = await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr?.rawValue != null) {
-      ref
-          .read(editPrinterFormKeyProvider)
-          .currentState
-          ?.fields['printerApiKey']
-          ?.didChange(qr!.rawValue);
+      ref.read(editPrinterFormKeyProvider).currentState?.fields['printerApiKey']?.didChange(qr!.rawValue);
     }
   }
 
@@ -94,8 +98,7 @@ class PrinterEditController extends _$PrinterEditController {
 
     try {
       state = true;
-      var isConnected =
-          ref.read(jrpcClientStateProvider(_machine.uuid)).valueOrNull == ClientState.connected;
+      var isConnected = ref.read(jrpcClientStateProvider(_machine.uuid)).valueOrNull == ClientState.connected;
 
       Map<String, dynamic> storedValues = Map.unmodifiable(formBuilderState.value);
 
@@ -127,8 +130,8 @@ class PrinterEditController extends _$PrinterEditController {
       jrpcStateKeppAliveLink.close();
 
       // TODo remove this and replace with a invalidate of the machineSettings provider that is based on per machine once it is impl
-      var isSelectedMachine = await ref
-          .read(selectedMachineProvider.selectAsync((data) => data?.uuid == _machine.uuid));
+      var isSelectedMachine =
+          await ref.read(selectedMachineProvider.selectAsync((data) => data?.uuid == _machine.uuid));
       if (isSelectedMachine) ref.invalidate(selectedMachineSettingsProvider);
 
       ref.read(goRouterProvider).pop();
@@ -138,11 +141,7 @@ class PrinterEditController extends _$PrinterEditController {
   Future<void> _saveMachineRemoteSettings(Map<String, dynamic> storedValues) async {
     AsyncValue<MachineSettings> remoteSettings = ref.read(machineRemoteSettingsProvider);
     if (remoteSettings.hasValue && !remoteSettings.hasError) {
-      List<bool> inverts = [
-        storedValues['invertX'],
-        storedValues['invertY'],
-        storedValues['invertZ']
-      ];
+      List<bool> inverts = [storedValues['invertX'], storedValues['invertY'], storedValues['invertZ']];
       var speedXY = storedValues['speedXY'];
       var speedZ = storedValues['speedZ'];
       var extrudeSpeed = storedValues['extrudeSpeed'];
@@ -190,9 +189,8 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
-    _machine.remoteInterface = RemoteInterface(
-        remoteUri: Uri.parse('https://a9f6-2003-e5-3f2e-d200-384b-2ac8-49e0-ea5a.ngrok-free.app'));
-
+    _machine.remoteInterface = ref.read(_remoteInterfaceProvider);
+    _machine.octoEverywhere = ref.read(_octoEverywhereProvider);
     _machine.name = storedValues['printerName'];
     _machine.apiKey = storedValues['printerApiKey'];
     _machine.timeout = storedValues['printerLocalTimeout'];
@@ -231,8 +229,7 @@ class PrinterEditController extends _$PrinterEditController {
   resetFcmCache() async {
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
         title: tr('pages.printer_edit.confirm_fcm_reset.title', args: [_machine.name]),
-        body: tr('pages.printer_edit.confirm_fcm_reset.body',
-            args: [_machine.name, _machine.httpUri.toString()]),
+        body: tr('pages.printer_edit.confirm_fcm_reset.body', args: [_machine.name, _machine.httpUri.toString()]),
         confirmBtn: tr('general.clear'),
         confirmBtnColor: Colors.red);
 
@@ -252,8 +249,7 @@ class PrinterEditController extends _$PrinterEditController {
   deleteIt() async {
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
         title: tr('pages.printer_edit.confirm_deletion.title', args: [_machine.name]),
-        body: tr('pages.printer_edit.confirm_deletion.body',
-            args: [_machine.name, _machine.httpUri.toString()]),
+        body: tr('pages.printer_edit.confirm_deletion.body', args: [_machine.name, _machine.httpUri.toString()]),
         confirmBtn: tr('general.delete'),
         confirmBtnColor: Colors.red);
 
@@ -267,8 +263,7 @@ class PrinterEditController extends _$PrinterEditController {
   openImportSettings() {
     ref
         .read(dialogServiceProvider)
-        .show(DialogRequest(
-            type: DialogType.importSettings, data: ref.read(currentlyEditingProvider)))
+        .show(DialogRequest(type: DialogType.importSettings, data: ref.read(currentlyEditingProvider)))
         .then(onImportSettingsReturns);
   }
 
@@ -317,39 +312,85 @@ class PrinterEditController extends _$PrinterEditController {
     }
   }
 
-  unlinkOctoeverwhere() async {
-    var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
-        title: tr('pages.printer_edit.confirm_oe_unlink.title', args: [_machine.name]),
-        body: tr('pages.printer_edit.confirm_oe_unlink.body', args: [_machine.name]),
-        confirmBtn: tr('pages.printer_edit.confirm_oe_unlink.button'),
-        confirmBtnColor: Colors.red);
+  openRemoteConnectionSheet() async {
+    BottomSheetResult show = await ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
+        type: SheetType.addRemoteCon,
+        isScrollControlled: true,
+        data: AddRemoteConnectionSheetArgs(
+          machine: _machine,
+          octoEverywhere: ref.read(_octoEverywhereProvider),
+          remoteInterface: ref.read(_remoteInterfaceProvider),
+        )));
 
-    if (dialogResponse?.confirmed == true) {
-      _machine.octoEverywhere = null;
-      await ref.read(machineServiceProvider).updateMachine(_machine);
+    logger.i('Received from Bottom sheet $show');
+    if (!show.confirmed) return;
+    state = true;
+
+    // delay a bit to let the bottom sheet animation finish
+    await Future.delayed(kThemeAnimationDuration);
+    //TODO: RI presnet, user adds OE, no error message? (Wtf why?)
+
+    if (show.data == null) {
+      logger.i('BottomSheet result indicates the removal of all remote connecions!');
+
+      _removeRemoteConnections();
+    } else if (_canAddRemoteConnection(show.data)) {
+      _addRemoteConnection(show.data);
+    } else {
       _snackBarService.show(SnackBarConfig(
-        title: tr('pages.printer_edit.success_oe_unlink.title', args: [_machine.name]),
-        message: tr('pages.printer_edit.success_oe_unlink.body', args: [_machine.name]),
+        type: SnackbarType.error,
+        duration: const Duration(seconds: 10),
+        title: tr('pages.printer_edit.remote_interface_exists.title'),
+        message: tr(
+          'pages.printer_edit.remote_interface_exists.body',
+          // Here logic is swapped. If we try to add RI and Oe is present, we show the OE gender
+          gender: (show.data is RemoteInterface) ? 'oe' : 'other',
+        ),
       ));
-      ref.read(goRouterProvider).pop();
     }
+    state = false;
   }
 
-  linkWithOctoeverywhere() async {
-    try {
-      var result = await _machineService.linkMachineWithOctoeverywhere(_machine);
+  void _removeRemoteConnections() {
+    ref.read(_remoteInterfaceProvider.notifier).update(null);
+    ref.read(_octoEverywhereProvider.notifier).update(null);
 
-      await ref.read(machineServiceProvider).updateMachine(result);
-      _snackBarService.show(SnackBarConfig(
-        title: tr('pages.printer_edit.success_oe_link.title', args: [_machine.name]),
-        message: tr('pages.printer_edit.success_oe_link.body', args: [_machine.name]),
-      ));
-      ref.read(goRouterProvider).pop();
-    } on OctoEverywhereException catch (e, s) {
-      logger.e('Error while trying to Link machine with UUID ${_machine.uuid} to Octo', e, s);
-      _snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
+    _snackBarService.show(SnackBarConfig(
+      duration: const Duration(seconds: 10),
+      title: tr(
+        'pages.printer_edit.remote_interface_removed.title',
+      ),
+      message: tr('pages.printer_edit.remote_interface_removed.body'),
+    ));
+  }
+
+  bool _canAddRemoteConnection(dynamic data) {
+    // Remember we return RemoteInterface or the AppPortalResult
+    bool tryingToAddOe = data is AppPortalResult;
+    bool tryingToAddRi = data is RemoteInterface;
+
+    logger.wtf(
+        'tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: ${ref.read(_remoteInterfaceProvider)}');
+    logger
+        .wtf('tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: ${ref.read(_octoEverywhereProvider)}');
+
+    return tryingToAddOe && ref.read(_remoteInterfaceProvider) == null ||
+        tryingToAddRi && ref.read(_octoEverywhereProvider) == null;
+  }
+
+  void _addRemoteConnection(dynamic data) {
+    if (data is AppPortalResult) {
+      ref.read(_octoEverywhereProvider.notifier).update(data);
+    } else if (data is RemoteInterface) {
+      ref.read(_remoteInterfaceProvider.notifier).update(data);
     }
+
+    _snackBarService.show(SnackBarConfig(
+      type: SnackbarType.info,
+      duration: const Duration(seconds: 5),
+      title: tr('pages.printer_edit.remote_interface_added.title', gender: (data is RemoteInterface) ? 'other' : 'oe'),
+      message: tr('pages.printer_edit.remote_interface_added.body'),
+    ));
   }
 }
 
@@ -407,13 +448,11 @@ class WebcamListController extends _$WebcamListController {
   }
 }
 
-final moveStepStateProvider =
-    StateNotifierProvider.autoDispose<DoubleStepSegmentController, List<double>>((ref) {
+final moveStepStateProvider = StateNotifierProvider.autoDispose<DoubleStepSegmentController, List<double>>((ref) {
   return DoubleStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.moveSteps);
 });
 
-final extruderStepStateProvider =
-    StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>((ref) {
+final extruderStepStateProvider = StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>((ref) {
   return IntStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.extrudeSteps);
 });
 
@@ -444,8 +483,7 @@ class IntStepSegmentController extends StateNotifier<List<int>> {
   }
 }
 
-final babyStepStateProvider =
-    StateNotifierProvider.autoDispose<DoubleStepSegmentController, List<double>>((ref) {
+final babyStepStateProvider = StateNotifierProvider.autoDispose<DoubleStepSegmentController, List<double>>((ref) {
   return DoubleStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.babySteps);
 });
 
@@ -527,14 +565,13 @@ class MacroGroupListController extends StateNotifier<List<MacroGroup>> {
   }
 }
 
-final macroGroupControllerProvder = StateNotifierProvider.autoDispose
-    .family<MacroGroupController, List<GCodeMacro>, MacroGroup>((ref, grp) {
+final macroGroupControllerProvder =
+    StateNotifierProvider.autoDispose.family<MacroGroupController, List<GCodeMacro>, MacroGroup>((ref, grp) {
   return MacroGroupController(ref, grp);
 }, name: 'macroGrpCtler');
 
 class MacroGroupController extends StateNotifier<List<GCodeMacro>> {
-  MacroGroupController(this.ref, this.macroGroup)
-      : super(macroGroup.macros.toList(growable: false));
+  MacroGroupController(this.ref, this.macroGroup) : super(macroGroup.macros.toList(growable: false));
 
   final Ref ref;
   final MacroGroup macroGroup;
@@ -611,10 +648,8 @@ class MacroGroupDraggingController extends StateNotifier<MacroGroup?> {
 }
 
 final temperaturePresetListControllerProvider =
-    StateNotifierProvider.autoDispose<TemperaturePresetListController, List<TemperaturePreset>>(
-        (ref) {
-  return TemperaturePresetListController(
-      ref.watch(machineRemoteSettingsProvider).value!.temperaturePresets);
+    StateNotifierProvider.autoDispose<TemperaturePresetListController, List<TemperaturePreset>>((ref) {
+  return TemperaturePresetListController(ref.watch(machineRemoteSettingsProvider).value!.temperaturePresets);
 });
 
 class TemperaturePresetListController extends StateNotifier<List<TemperaturePreset>> {
@@ -644,8 +679,7 @@ class TemperaturePresetListController extends StateNotifier<List<TemperaturePres
 
   importPresets(List<TemperaturePreset> presets) {
     // Since these presets are new to this machine, new dates+uuid!
-    var copies = presets.map(
-        (e) => TemperaturePreset(name: e.name, bedTemp: e.bedTemp, extruderTemp: e.extruderTemp));
+    var copies = presets.map((e) => TemperaturePreset(name: e.name, bedTemp: e.bedTemp, extruderTemp: e.extruderTemp));
 
     state = List.unmodifiable([...state, ...copies]);
   }
@@ -659,9 +693,7 @@ WebcamInfo _applyWebcamFieldsToWebcam(Map<String, dynamic> storedValues, WebcamI
   var fV = storedValues['${cam.uuid}-camFV'];
   var service = storedValues['${cam.uuid}-service'];
   var rotation = storedValues['${cam.uuid}-rotate'];
-  var tFps = (service == WebcamServiceType.mjpegStreamerAdaptive)
-      ? storedValues['${cam.uuid}-tFps']
-      : null;
+  var tFps = (service == WebcamServiceType.mjpegStreamerAdaptive) ? storedValues['${cam.uuid}-tFps'] : null;
 
   return cam.copyWith(
       name: name ?? cam.name,
@@ -672,4 +704,30 @@ WebcamInfo _applyWebcamFieldsToWebcam(Map<String, dynamic> storedValues, WebcamI
       targetFps: tFps ?? cam.targetFps,
       service: service ?? cam.service,
       rotation: rotation ?? cam.rotation);
+}
+
+@Riverpod(dependencies: [currentlyEditing])
+class _RemoteInterface extends _$RemoteInterface {
+  @override
+  RemoteInterface? build() {
+    ref.keepAlive();
+    return ref.watch(currentlyEditingProvider).remoteInterface;
+  }
+
+  update(RemoteInterface? remoteInterface) {
+    state = remoteInterface;
+  }
+}
+
+@Riverpod(dependencies: [currentlyEditing])
+class _OctoEverywhere extends _$OctoEverywhere {
+  @override
+  OctoEverywhere? build() {
+    ref.keepAlive();
+    return ref.watch(currentlyEditingProvider).octoEverywhere;
+  }
+
+  update(AppPortalResult? appPortalResult) {
+    state = appPortalResult?.let(OctoEverywhere.fromDto);
+  }
 }

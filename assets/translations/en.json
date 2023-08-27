@@ -42,7 +42,8 @@
     "free": "Free",
     "one_time": "One time",
     "delete": "Delete",
-    "clear": "Clear"
+    "clear": "Clear",
+    "unlink": "Unlink"
   },
   "pages": {
     "dashboard": {
@@ -240,7 +241,7 @@
         "ios_notifications_title": "IOS Notification Delivery",
         "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!",
         "missing_companion_title": "Companion not found!",
-        "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\nTap to learn more!"
+        "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\n\nTap to learn more!"
       },
       "developer": {
         "title": "Developer",
@@ -265,19 +266,6 @@
       "confirm_deletion": {
         "title": "Delete {}?",
         "body": "You are about to remove the printer '{}' connected at '{}'. \n\nConfirm your action."
-      },
-      "success_oe_link": {
-        "title": "Linked {}",
-        "body": "Successfully linked {} with OctoEverywhere!"
-      },
-      "confirm_oe_unlink": {
-        "title": "Unlink {}?",
-        "body": "Please confirm the unlinking of the printer {} from OctoEverywhere.",
-        "button": "Unlink"
-      },
-      "success_oe_unlink": {
-        "title": "Unlinked {}",
-        "body": "Successfully unlinked {} from OctoEverywhere!"
       },
       "general": {
         "displayname": "Displayname",
@@ -345,6 +333,38 @@
       "confirm_fcm_reset": {
         "title": "Clear Notification Device Registry?",
         "body": "You are about to reset the device registry, which is used to determine the devices to which the companion sends notifications.\nTo re-establish push notifications, you will need to restart the app on all devices and connect them to the machine once again. \n\nConfirm your action."
+      },
+      "confirm_remote_interface_removal": {
+        "title": {
+          "oe": "Unlink {}?",
+          "other": "Remove Connection?"
+        },
+        "body": {
+          "oe": "Please confirm the unlinking of the printer {} from OctoEverywhere.",
+          "other": "Please confirm the removal of the remote connection from  printer {}."
+        },
+        "button": {
+          "oe": "@:general.unlink",
+          "other": "@:general.remove"
+        }
+      },
+      "remote_interface_exists": {
+        "title": "Remote connection found!",
+        "body": {
+          "oe": "This printer is already linked to OctoEverywhere.\nPlease unlink it first.",
+          "other": "This printer is already connected to a remote interface.\nPlease remove the connection first."
+        }
+      },
+      "remote_interface_removed": {
+        "title": "Remote connection removed!",
+        "body": "Make sure to save the printer to apply the changes."
+      },
+      "remote_interface_added": {
+        "title": {
+          "oe": "Linked to OctoEverywhere.",
+          "other": "Remote connection Added."
+        },
+        "body": "Make sure to save the printer to apply the changes."
       }
     },
     "printer_add": {
@@ -607,6 +627,17 @@
       "pause_queue": "Pause Queue",
       "remove_all": "Clear Queue",
       "remove_all_confirm": "This operation will remove all jobs from the queue."
+    },
+    "add_remote_con": {
+      "octoeverywehre": {
+        "description": "OctoEverywhere is a 3rd party service that allows you to connect to your printer from anywhere. Just install the OctoEverywhere plugin on your printer and link the connection here.",
+        "disclosure": "OctoEverywhere is not affiliated with Mobileraker. It requires an additional subscription. Please check the OctoEverywhere website for more information."
+      },
+      "manual": {
+        "description": "If you are an advanced user, you can choose to manually add an alternative connection. The alternative connection comes into play when attempts to connect to the primary address are unsuccessful. This can be useful if you have a reverse proxy connection to your printer, or if you have a secondary IP address that you can use to connect to your printer.",
+        "address_label": "Alternative Address",
+        "address_hint": "The base adress of the remove connection to be used"
+      }
     }
   },
   "klipper_state": {

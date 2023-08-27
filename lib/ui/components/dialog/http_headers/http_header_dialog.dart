@@ -14,8 +14,7 @@ class HttpHeaderDialog extends HookConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const HttpHeaderDialog({Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const HttpHeaderDialog({Key? key, required this.request, required this.completer}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -65,6 +64,7 @@ class _HttpHeaderDialog extends HookConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextField(
+                    autofocus: true,
                     decoration: InputDecoration(
                       labelText: tr('dialogs.http_header.header'),
                       hintText: tr('dialogs.http_header.header_hint'),
