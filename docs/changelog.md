@@ -6,6 +6,9 @@
 
 - Added support for moonraker's Jobqueue API. The jobqueue is available on the files page and on the
   floating action buttons on the dashboard.
+- Users are now able to configure an alternative url (Remote URL) that Mobileraker will use to
+  connect to the printer. This is useful if you want to connect to your printer from outside your
+  local network.
 
 ### Changed Features
 
