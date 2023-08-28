@@ -81,11 +81,14 @@ class JsonRpcClientBuilder {
     var remoteInterface = machine.remoteInterface!;
 
     return JsonRpcClientBuilder()
-      ..headers = {...remoteInterface.httpHeaders, if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!}
+      ..headers = {
+        if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
+        ...remoteInterface.httpHeaders,
+      }
       ..uri = remoteInterface.remoteUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
       ..clientType = ClientType.manual
-      ..timeout = Duration(seconds: remoteInterface.timeout);
+      ..timeout = remoteInterface.timeoutDuration;
   }
 
   factory JsonRpcClientBuilder.fromClientType(ClientType clientType, Machine machine) {

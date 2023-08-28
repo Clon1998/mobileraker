@@ -37,19 +37,21 @@ Uri? buildMoonrakerHttpUri(String? enteredURL) {
 ///Returns a URI that is either based from the machineURI or the camURI if it is absolute.
 Uri buildWebCamUri(Uri machineUri, Uri camUri) {
   if (camUri.isAbsolute) return camUri;
-  return substituteWsProtocols(machineUri.resolveUri(camUri)).removePort();
+  return machineUri.toHttpUri().removePort().resolveUri(camUri);
 }
 
 Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri) {
   if (camUri.isAbsolute) {
     if (camUri.host.toLowerCase() == machineUri.host.toLowerCase()) {
       return remoteUri.replace(
-          path: camUri.path, query: camUri.query.isEmpty ? null : camUri.query);
+          path: camUri.path,
+          query: camUri.query.isEmpty ? null : camUri.query,
+          port: camUri.hasPort ? camUri.port : remoteUri.port);
     } else {
       return camUri;
     }
   } else {
-    return substituteWsProtocols(remoteUri.resolveUri(camUri));
+    return remoteUri.toHttpUri().resolveUri(camUri);
   }
 }
 
@@ -124,13 +126,11 @@ _verifyOctoHttpResponseCodes(int statusCode) {
       throw const OctoEverywhereHttpException(
           'Internal App error while trying too fetch info. No AppToken was found!', 400);
     case 600:
-      throw const OctoEverywhereHttpException(
-          'Unknown Error - Something went wrong, try again later.', 600);
+      throw const OctoEverywhereHttpException('Unknown Error - Something went wrong, try again later.', 600);
     case 601:
       throw const OctoEverywhereHttpException('Printer is Not Connected To OctoEverywhere', 601);
     case 602:
-      throw const OctoEverywhereHttpException(
-          'OctoEverywhere\'s Connection to Klipper Timed Out.', 602);
+      throw const OctoEverywhereHttpException('OctoEverywhere\'s Connection to Klipper Timed Out.', 602);
     case 603:
       throw const OctoEverywhereHttpException('App Connection Not Found', 603);
     case 604:
@@ -159,18 +159,6 @@ _verifyLocalHttpResponseCodes(int statusCode) {
     default:
       throw MobilerakerException('Unknown Error - StatusCode $statusCode');
   }
-}
-
-Uri substituteWsProtocols(Uri wsUri, [String protocol = 'http', String secureProtocol = 'https']) {
-  if ([protocol, secureProtocol].contains(wsUri.scheme.toLowerCase())) {
-    return wsUri;
-  }
-
-  if (!['ws', 'wss'].contains(wsUri.scheme.toLowerCase())) {
-    throw ArgumentError('Provided uri is not a WS-Uri. Given: ${wsUri.scheme}');
-  }
-
-  return wsUri.replace(scheme: wsUri.isScheme('wss') ? secureProtocol : protocol);
 }
 
 String storeName() {

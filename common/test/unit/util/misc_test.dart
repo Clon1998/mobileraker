@@ -1076,5 +1076,14 @@ void main() {
       );
       expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
     });
+
+    test('Absolut cam with PORT and matches machine URI', () {
+      var moonrakerUri = buildRemoteWebCamUri(
+        Uri.parse('http://my.remote'),
+        Uri.parse('ws://192.1.1.0:212/test'),
+        Uri.parse('http://192.1.1.0:4444/webcam/webrtc'),
+      );
+      expect(moonrakerUri, Uri.parse('http://my.remote:4444/webcam/webrtc'));
+    });
   });
 }

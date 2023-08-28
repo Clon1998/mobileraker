@@ -22,6 +22,8 @@ class RemoteInterface extends HiveObject {
   @HiveField(3)
   DateTime? lastModified;
 
+  Duration get timeoutDuration => Duration(seconds: timeout);
+
   RemoteInterface({
     required this.remoteUri,
     this.httpHeaders = const {},

@@ -35,8 +35,7 @@ import '../selected_machine_service.dart';
 part 'file_service.freezed.dart';
 part 'file_service.g.dart';
 
-typedef FileListChangedListener = Function(
-    Map<String, dynamic> item, Map<String, dynamic>? srcItem);
+typedef FileListChangedListener = Function(Map<String, dynamic> item, Map<String, dynamic>? srcItem);
 
 @freezed
 class FolderContentWrapper with _$FolderContentWrapper {
@@ -50,8 +49,7 @@ class FolderContentWrapper with _$FolderContentWrapper {
 @riverpod
 Uri? previewImageUri(PreviewImageUriRef ref) {
   var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
-  var clientType =
-      (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
+  var clientType = (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
   if (machine != null) {
     return switch (clientType) {
       ClientType.octo => machine.octoEverywhere?.uri,
@@ -66,13 +64,12 @@ Uri? previewImageUri(PreviewImageUriRef ref) {
 Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
   var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
 
-  var clientType =
-      (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
+  var clientType = (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
   if (machine != null) {
     return switch (clientType) {
       ClientType.manual => {
+          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
           ...machine.remoteInterface!.httpHeaders,
-          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!
         },
       ClientType.octo => {
           ...machine.headerWithApiKey,
@@ -103,9 +100,8 @@ FileService _fileServicee(_FileServiceeRef ref, String machineUUID, ClientType t
       return FileService(
         ref,
         jsonRpcClient,
-        octoEverywhere.uri.replace(
-            userInfo:
-                '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'),
+        octoEverywhere.uri
+            .replace(userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'),
         machine.headerWithApiKey,
       );
     case ClientType.manual:
@@ -116,8 +112,8 @@ FileService _fileServicee(_FileServiceeRef ref, String machineUUID, ClientType t
         jsonRpcClient,
         remoteInterface.remoteUri.replace(path: machine.httpUri.path, query: machine.httpUri.query),
         {
+          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
           ...remoteInterface.httpHeaders,
-          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!
         },
       );
 
@@ -178,8 +174,8 @@ class FileService {
     logger.i('Fetching for `$path` [extended:$extended]');
 
     try {
-      RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.get_directory',
-          params: {'path': path, 'extended': extended});
+      RpcResponse blockingResp =
+          await _jRpcClient.sendJRpcMethod('server.files.get_directory', params: {'path': path, 'extended': extended});
 
       Set<String>? allowedFileType;
 
@@ -191,7 +187,7 @@ class FileService {
           '.gco',
         };
       } else if (path.startsWith('config')) {
-        allowedFileType = {'.conf', '.cfg', '.md'};
+        allowedFileType = {'.conf', '.cfg', '.md', '.bak', '.txt'};
       }
 
       return _parseDirectory(blockingResp, path, allowedFileType);
@@ -216,32 +212,30 @@ class FileService {
   Future<FileActionResponse> createDir(String filePath) async {
     logger.i('Creating Folder "$filePath"');
 
-    var rpcResponse =
-        await _jRpcClient.sendJRpcMethod('server.files.post_directory', params: {'path': filePath});
+    var rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory', params: {'path': filePath});
     return FileActionResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileActionResponse> deleteFile(String filePath) async {
     logger.i('Deleting File "$filePath"');
 
-    RpcResponse rpcResponse =
-        await _jRpcClient.sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
+    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
     return FileActionResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileActionResponse> deleteDirForced(String filePath) async {
     logger.i('Deleting Folder-Forced "$filePath"');
 
-    RpcResponse rpcResponse = await _jRpcClient
-        .sendJRpcMethod('server.files.delete_directory', params: {'path': filePath, 'force': true});
+    RpcResponse rpcResponse =
+        await _jRpcClient.sendJRpcMethod('server.files.delete_directory', params: {'path': filePath, 'force': true});
     return FileActionResponse.fromJson(rpcResponse.result);
   }
 
   Future<FileActionResponse> moveFile(String origin, String destination) async {
     logger.i('Moving file from $origin to $destination');
 
-    RpcResponse rpcResponse = await _jRpcClient
-        .sendJRpcMethod('server.files.move', params: {'source': origin, 'dest': destination});
+    RpcResponse rpcResponse =
+        await _jRpcClient.sendJRpcMethod('server.files.move', params: {'source': origin, 'dest': destination});
     return FileActionResponse.fromJson(rpcResponse.result);
   }
 
@@ -273,8 +267,7 @@ class FileService {
   }
 
   Future<FileActionResponse> uploadAsFile(String filePath, String content) async {
-    assert(!filePath.startsWith('(gcodes|config)'),
-        'filePath needs to contain root folder config or gcodes!');
+    assert(!filePath.startsWith('(gcodes|config)'), 'filePath needs to contain root folder config or gcodes!');
     List<String> fileSplit = filePath.split('/');
     String root = fileSplit.removeAt(0);
 
@@ -302,8 +295,7 @@ class FileService {
     }
   }
 
-  FolderContentWrapper _parseDirectory(RpcResponse blockingResponse, String forPath,
-      [Set<String>? allowedFileType]) {
+  FolderContentWrapper _parseDirectory(RpcResponse blockingResponse, String forPath, [Set<String>? allowedFileType]) {
     Map<String, dynamic> response = blockingResponse.result;
     List<dynamic> filesResponse = response['files'] ?? []; // Just add an type
     List<dynamic> directoriesResponse = response['dirs'] ?? []; // Just add an type
@@ -321,8 +313,7 @@ class FileService {
     if (allowedFileType != null) {
       filesResponse.removeWhere((element) {
         String name = element['filename'];
-        var regExp =
-            RegExp('^.*(${allowedFileType.join('|')})\$', multiLine: true, caseSensitive: false);
+        var regExp = RegExp('^.*(${allowedFileType.join('|')})\$', multiLine: true, caseSensitive: false);
         return !regExp.hasMatch(name);
       });
     }
@@ -345,8 +336,7 @@ class FileService {
 
     var split = forFile.split('/');
     split.removeLast();
-    split.insert(
-        0, 'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
+    split.insert(0, 'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
 
     return GCodeFile.fromJson(response, split.join('/'));
   }
