@@ -49,7 +49,7 @@ Future<void> setupLogger() async {
         methodCount: 0,
         errorMethodCount: 200,
         noBoxingByDefault: true,
-        // printTime: !kDebugMode,
+        printTime: !kDebugMode,
         colors: kDebugMode && !Platform.isIOS),
     output: logOutput,
     filter: ProductionFilter(),
