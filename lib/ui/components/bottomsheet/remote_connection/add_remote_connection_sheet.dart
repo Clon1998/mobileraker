@@ -28,9 +28,11 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ProviderScope(
-      overrides: [sheetArgsProvider.overrideWithValue(args)],
-      child: const _AddRemoteConnectionBottomSheet(),
+    return SafeArea(
+      child: ProviderScope(
+        overrides: [sheetArgsProvider.overrideWithValue(args)],
+        child: const _AddRemoteConnectionBottomSheet(),
+      ),
     );
   }
 }
@@ -88,19 +90,22 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
             // curve: Curves.easeOutCubic,
             child: ConstraintsTransformBox(
               constraintsTransform: (BoxConstraints x) {
-                double height = x.maxHeight * 0.7 + mediaQuery.viewInsets.bottom;
+                double height = x.maxHeight * 0.8 + mediaQuery.viewInsets.bottom;
 
                 return x.tighten(height: height);
               },
               child: FormBuilder(
                 key: ref.watch(formKeyProvider),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: TabBarView(
-                  controller: tabController,
-                  children: const [
-                    _OctoTab(),
-                    _ManualTab(),
-                  ],
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
+                  child: TabBarView(
+                    controller: tabController,
+                    children: const [
+                      _OctoTab(),
+                      _ManualTab(),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -126,10 +131,11 @@ class _OctoTab extends ConsumerWidget {
       child: Column(
         children: [
           const Spacer(),
-          SvgPicture.asset(
-            'assets/vector/oe_logo.svg',
-            width: 64,
-            height: 64,
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 80, maxWidth: 80, minHeight: 40, minWidth: 40),
+            child: SvgPicture.asset(
+              'assets/vector/oe_logo.svg',
+            ),
           ),
           const SizedBox(height: 32),
           const Text(
