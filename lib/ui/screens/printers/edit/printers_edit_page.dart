@@ -182,7 +182,7 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 name: 'printerLocalTimeout',
                 initialValue: machine.timeout.toString(),
                 contextMenuBuilder: defaultContextMenuBuilder,
-                valueTransformer: (String? text) => text?.let(int.tryParse) ?? 3,
+                valueTransformer: (String? text) => text?.let(int.tryParse) ?? 5,
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.min(0),

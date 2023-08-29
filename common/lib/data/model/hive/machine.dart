@@ -34,7 +34,7 @@ class Machine extends HiveObject {
   String? apiKey;
   @HiveField(22, defaultValue: {})
   Map<String, String> httpHeaders;
-  @HiveField(23, defaultValue: 3)
+  @HiveField(23, defaultValue: 6)
   int timeout;
   @HiveField(5, defaultValue: [])
   List<TemperaturePreset> temperaturePresets;
@@ -80,7 +80,7 @@ class Machine extends HiveObject {
     this.octoEverywhere,
     this.camOrdering = const [],
     this.httpHeaders = const {},
-    this.timeout = 3,
+    this.timeout = 5,
   })  : name = name.trim(),
         apiKey = apiKey?.trim();
 
