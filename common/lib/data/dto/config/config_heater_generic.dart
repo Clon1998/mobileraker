@@ -36,7 +36,7 @@ class ConfigHeaterGeneric with _$ConfigHeaterGeneric {
     required String name,
     required String control,
     required String heaterPin,
-    required String sensorPin,
+    String? sensorPin, // BME280 has no sensor pin since it uses I2C
     required String sensorType,
     required double maxPower,
     required double maxTemp,
