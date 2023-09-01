@@ -138,7 +138,7 @@ class PaywallPageController extends _$PaywallPageController {
     ref.read(dialogServiceProvider).show(DialogRequest(
         type: DialogType.info,
         title: 'pages.paywall.contact_dialog.title'.tr(),
-        body: 'pages.paywall.contact_dialog.body'.tr(args: ['dev@mobileraker.com', 'Pad#3489'])));
+        body: 'pages.paywall.contact_dialog.body'.tr(args: ['dev@mobileraker.com', 'pad_sch'])));
   }
 }
 
