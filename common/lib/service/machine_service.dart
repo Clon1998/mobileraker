@@ -14,7 +14,6 @@ import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
-import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
@@ -177,7 +176,7 @@ class MachineService {
     await _machineRepo.insert(machine);
     var initialSSID = await ref.read(networkInfoServiceProvider).getWifiName();
     // Add the current SSID to the local SSID list, if it is not null
-    initialSSID?.let(machine.localSsids.add);
+    // initialSSID?.let(machine.localSsids.add);
 
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);
