@@ -50,7 +50,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
 
     var tabController = useTabController(initialLength: 2, initialIndex: initalIndex);
 
-    var mediaQuery = MediaQuery.of(context);
+    var viewInsets = MediaQuery.viewInsetsOf(context);
     var themeData = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -90,7 +90,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
             // curve: Curves.easeOutCubic,
             child: ConstraintsTransformBox(
               constraintsTransform: (BoxConstraints x) {
-                double height = x.maxHeight * 0.8 + mediaQuery.viewInsets.bottom;
+                double height = x.maxHeight * 0.8 + viewInsets.bottom;
 
                 return x.tighten(height: height);
               },
@@ -98,7 +98,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                 key: ref.watch(formKeyProvider),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
+                  padding: EdgeInsets.only(bottom: viewInsets.bottom),
                   child: TabBarView(
                     controller: tabController,
                     children: const [
