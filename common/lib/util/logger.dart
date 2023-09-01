@@ -29,8 +29,7 @@ Future<void> setupLogger() async {
     // handle log rotation!
     if (logFiles.length >= 5) {
       logFiles.sort((a, b) => a.statSync().modified.compareTo(b.statSync().modified));
-      await Future.wait(
-          logFiles.sublist(0, logFiles.length - 4).map((element) => element.delete()));
+      await Future.wait(logFiles.sublist(0, logFiles.length - 4).map((element) => element.delete()));
     }
 
     String timeStamp = _logFileTimestamp();
@@ -71,14 +70,13 @@ class RiverPodLogger extends ProviderObserver {
   const RiverPodLogger();
 
   @override
-  void providerDidFail(
-      ProviderBase provider, Object error, StackTrace stackTrace, ProviderContainer container) {
+  void providerDidFail(ProviderBase provider, Object error, StackTrace stackTrace, ProviderContainer container) {
     logger.e(' ${provider.toIdentityString()} failed with', error, stackTrace);
   }
 
   @override
   void didDisposeProvider(ProviderBase provider, ProviderContainer container) {
-    if (['toolheadInfoProvider'].contains(provider.name)) return;
+    if (['toolheadInfoProvider', 'selectedMachineProvider'].contains(provider.name)) return;
 
     var familiy = provider.from?.toString() ?? '';
     logger.wtf('RiverPod::DISPOSED: ${provider.toIdentityString()} $familiy');
@@ -90,8 +88,7 @@ class RiverPodLogger extends ProviderObserver {
 
   @override
   void didAddProvider(ProviderBase provider, Object? value, ProviderContainer container) {
-    logger
-        .wtf('RiverPod::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth}');
+    logger.wtf('RiverPod::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth}');
   }
 
   @override
@@ -106,17 +103,16 @@ class RiverPodLogger extends ProviderObserver {
       'jrpcClientProvider',
       'machineProvider',
       'klipperSelectedProvider',
+      'selectedMachineProvider',
       '_jsonRpcStateProvider',
     ].contains(provider.name)) return;
 
     var familiy = provider.argument?.toString() ?? '';
-    var providerStr =
-        '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)}$familiy';
+    var providerStr = '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)}$familiy';
 
     logger.wtf(
         'RiverPod::UPDATE-old-> $providerStr ${identityHashCode(previousValue)}:${previousValue.toString().truncate(200)}');
-    logger.wtf(
-        'RiverPod::UPDATE-new->$providerStr ${identityHashCode(newValue)}:${newValue.toString().truncate(200)}');
+    logger.wtf('RiverPod::UPDATE-new->$providerStr ${identityHashCode(newValue)}:${newValue.toString().truncate(200)}');
   }
 }
 
