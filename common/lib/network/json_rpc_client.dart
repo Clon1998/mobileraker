@@ -54,7 +54,7 @@ class JsonRpcClientBuilder {
 
     return JsonRpcClientBuilder()
       ..headers = machine.headerWithApiKey
-      ..timeout = const Duration(seconds: 5)
+      ..timeout = const Duration(seconds: 10)
       ..uri = localWsUir
           .replace(
               scheme: 'wss',
@@ -233,6 +233,12 @@ class JsonRpcClient {
       //   await Future.delayed(Duration(seconds: 15));
       //   throw Exception("Teeeest");
       // }
+
+      // Premetive checks for the plausability if the URI is even reachable
+      // If an ip, we check if it is in the same subnet as the machine, if that is not the case we can savely assume it is not reachable
+      // If it is a hostname, we check if it is resolvable
+      // IF it is a dns, we check if it is reachable
+      // Add an overwrite to skip this check, since an IP can be a remote IP, so we would want to connect to it!
 
       HttpClient httpClient = _constructHttpClient();
       logger.i('$logPrefix Using headers $headers');
