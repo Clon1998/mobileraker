@@ -64,6 +64,8 @@ dependencies:
   stringr: ^1.0.0
   collection: ^1.17.0
   uuid: ^3.0.5
+  network_info_plus: ^4.0.2
+
 
 dev_dependencies:
   flutter_test:
