@@ -18,16 +18,18 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
-import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/text_input/text_input_dialog.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_controller.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/path_utils.dart';
@@ -37,8 +39,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'files_controller.freezed.dart';
 part 'files_controller.g.dart';
 
-final searchTextEditingControllerProvider =
-    ChangeNotifierProvider.autoDispose<TextEditingController>((ref) {
+final searchTextEditingControllerProvider = ChangeNotifierProvider.autoDispose<TextEditingController>((ref) {
   var textEditingController = TextEditingController();
   return textEditingController;
 });
@@ -67,8 +68,8 @@ class IsSearching extends _$IsSearching {
 class _FilePath extends _$FilePath {
   @override
   List<String> build() {
-    var baseDir = ref.watch(filePageProvider
-        .select((value) => switch (value) { 1 => 'config', 2 => 'logs', _ => 'gcodes' }));
+    var baseDir =
+        ref.watch(filePageProvider.select((value) => switch (value) { 1 => 'config', 2 => 'logs', _ => 'gcodes' }));
     return [baseDir];
   }
 
@@ -93,13 +94,11 @@ Future<FolderContentWrapper> _procssedContent(_ProcssedContentRef ref) async {
 
   if (isSearching && searchTerm.isNotEmpty) {
     List<String> terms = searchTerm.split(RegExp(r'\W+'));
-    folders = folders
-        .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
-        .toList(growable: false);
+    folders =
+        folders.where((element) => terms.every((t) => element.name.toLowerCase().contains(t))).toList(growable: false);
 
-    files = files
-        .where((element) => terms.every((t) => element.name.toLowerCase().contains(t)))
-        .toList(growable: false);
+    files =
+        files.where((element) => terms.every((t) => element.name.toLowerCase().contains(t))).toList(growable: false);
   }
 
   folders.sort(sortMode.comparatorFile);
@@ -136,8 +135,7 @@ class FilesPageController extends _$FilesPageController {
 
     final path = ref.watch(_filePathProvider);
 
-    var apiLoading =
-        ref.watch(_fileApiResponseProvider(path.join('/')).select((value) => value.isLoading));
+    var apiLoading = ref.watch(_fileApiResponseProvider(path.join('/')).select((value) => value.isLoading));
 
     final files = ref.watch(_procssedContentProvider);
 
@@ -190,8 +188,7 @@ class FilesPageController extends _$FilesPageController {
   onDeleteTapped(RemoteFile file) async {
     var dialogResponse = await _dialogService.showConfirm(
       title: tr('dialogs.delete_folder.title'),
-      body: tr(
-          file is Folder ? 'dialogs.delete_folder.description' : 'dialogs.delete_file.description',
+      body: tr(file is Folder ? 'dialogs.delete_folder.description' : 'dialogs.delete_file.description',
           args: [file.name]),
       confirmBtn: tr('general.delete'),
     );
@@ -220,17 +217,18 @@ class FilesPageController extends _$FilesPageController {
 
     var dialogResponse = await _dialogService.show(
       DialogRequest(
-          type: DialogType.renameFile,
-          title:
-              file is Folder ? tr('dialogs.rename_folder.title') : tr('dialogs.rename_file.title'),
-          body:
-              file is Folder ? tr('dialogs.rename_folder.label') : tr('dialogs.rename_file.label'),
+          type: DialogType.textInput,
+          title: file is Folder ? tr('dialogs.rename_folder.title') : tr('dialogs.rename_file.title'),
           confirmBtn: tr('general.rename'),
-          data: RenameFileDialogArguments(
-            initialValue: file.name,
-            blocklist: fileNames,
-            matchPattern: '^[\\w.-]+\$',
-          )),
+          data: TextInputDialogArguments(
+              initialValue: file.fileName,
+              labelText: file is Folder ? tr('dialogs.rename_folder.label') : tr('dialogs.rename_file.label'),
+              suffixText: file.fileExtension,
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.match('^[\\w.-]+\$', errorText: tr('pages.files.no_matches_file_pattern')),
+                notContains(fileNames, errorText: tr('pages.files.file_name_in_use'))
+              ]))),
     );
 
     if (dialogResponse?.confirmed == true) {
@@ -239,8 +237,7 @@ class FilesPageController extends _$FilesPageController {
       if (newName == file.name) return;
 
       try {
-        await _fileService.moveFile(
-            '${state.pathAsString}/${file.name}', '${state.pathAsString}/$newName');
+        await _fileService.moveFile('${state.pathAsString}/${file.name}', '${state.pathAsString}/$newName');
       } on JRpcError catch (e) {
         logger.e('Could not perform rename.', e);
         _snackBarService.show(SnackBarConfig(
@@ -265,12 +262,17 @@ class FilesPageController extends _$FilesPageController {
   onCreateDirTapped() async {
     var dialogResponse = await _dialogService.show(
       DialogRequest(
-          type: DialogType.renameFile,
+          type: DialogType.textInput,
           title: tr('dialogs.create_folder.title'),
-          body: tr('dialogs.create_folder.label'),
           confirmBtn: tr('general.create'),
-          data: RenameFileDialogArguments(
-              initialValue: '', blocklist: _usedFileNames, matchPattern: '^[\\w.\\-]+\$')),
+          data: TextInputDialogArguments(
+              initialValue: '',
+              labelText: tr('dialogs.create_folder.label'),
+              validator: FormBuilderValidators.compose([
+                FormBuilderValidators.required(),
+                FormBuilderValidators.match('^[\\w.\\-]+\$', errorText: tr('pages.files.no_matches_file_pattern')),
+                notContains(_usedFileNames, errorText: tr('pages.files.file_name_in_use'))
+              ]))),
     );
 
     if (dialogResponse?.confirmed == true) {

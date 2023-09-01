@@ -24,11 +24,12 @@ import 'package:mobileraker/ui/components/dialog/logger_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/macro_params/macro_params_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/manual_offset/manual_offset_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/perks_dialog.dart';
-import 'package:mobileraker/ui/components/dialog/rename_file_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/select_printer/select_printer_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/tipping_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
+
+import '../../ui/components/dialog/text_input/text_input_dialog.dart';
 
 enum DialogType implements DialogIdentifierMixin {
   info,
@@ -37,7 +38,6 @@ enum DialogType implements DialogIdentifierMixin {
   numEdit,
   rangeEdit,
   excludeObject,
-  renameFile,
   gcodeParams,
   ledRGBW,
   logging,
@@ -48,6 +48,7 @@ enum DialogType implements DialogIdentifierMixin {
   bedScrewAdjust,
   tipping,
   httpHeader,
+  textInput,
 }
 
 DialogService dialogServiceImpl(DialogServiceRef ref) => DialogServiceImpl(ref);
@@ -63,8 +64,7 @@ class DialogServiceImpl implements DialogService {
   bool get isDialogOpen => _currentDialogRequest != null;
 
   @override
-  final Map<DialogIdentifierMixin, Widget Function(DialogRequest, DialogCompleter)>
-      availableDialogs = {
+  final Map<DialogIdentifierMixin, Widget Function(DialogRequest, DialogCompleter)> availableDialogs = {
     DialogType.info: (r, c) => InfoDialog(dialogRequest: r, completer: c),
     DialogType.confirm: (request, completer) => ConfirmationDialog(
           dialogRequest: request,
@@ -78,7 +78,6 @@ class DialogServiceImpl implements DialogService {
           completer: c,
         ),
     CommonDialogs.stacktrace: (r, c) => StackTraceDialog(request: r, completer: c),
-    DialogType.renameFile: (r, c) => RenameFileDialog(request: r, completer: c),
     DialogType.gcodeParams: (r, c) => MacroParamsDialog(request: r, completer: c),
     DialogType.ledRGBW: (r, c) => LedRGBWDialog(
           request: r,
@@ -92,6 +91,7 @@ class DialogServiceImpl implements DialogService {
     DialogType.bedScrewAdjust: (r, c) => BedScrewAdjustDialog(request: r, completer: c),
     DialogType.tipping: (r, c) => TippingDialog(request: r, completer: c),
     DialogType.httpHeader: (r, c) => HttpHeaderDialog(request: r, completer: c),
+    DialogType.textInput: (r, c) => TextInputDialog(request: r, completer: c),
   };
 
   @override
@@ -146,5 +146,4 @@ class DialogServiceImpl implements DialogService {
   }
 }
 
-final dialogCompleterProvider =
-    Provider.autoDispose<DialogCompleter>((ref) => throw UnimplementedError());
+final dialogCompleterProvider = Provider.autoDispose<DialogCompleter>((ref) => throw UnimplementedError());

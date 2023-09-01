@@ -89,7 +89,6 @@ String beautifyName(String name) {
 }
 
 FormFieldValidator<T> notContains<T>(
-  BuildContext context,
   List<T> blockList, {
   String? errorText,
 }) {

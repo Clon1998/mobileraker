@@ -43,7 +43,8 @@
     "one_time": "One time",
     "delete": "Delete",
     "clear": "Clear",
-    "unlink": "Unlink"
+    "unlink": "Unlink",
+    "save": "Save"
   },
   "pages": {
     "dashboard": {
@@ -179,6 +180,8 @@
       "not_printed": "Not printed",
       "fetching_files": "@:general.fetching Files...",
       "no_files_found": "No files found!",
+      "no_matches_file_pattern": "Only letters, numbers, underscores, dashes and dots are allowed!",
+      "file_name_in_use": "File name already in use!",
       "details": {
         "preheat": "Preheat",
         "print": "Print",

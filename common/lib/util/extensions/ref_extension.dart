@@ -77,8 +77,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
           data: (d) {
             if (evaluatePredicate(d)) {
               if (completer.isCompleted) {
-                // ToDo:Reduce log level after investigating effect of it
-                logger.w('watchWhere just forces owner to invalidate! Ref:$this');
+                logger.i('watchWhere just forces owner to invalidate! Ref:$this');
                 invalidateSelf();
               } else {
                 completer.complete(d);
@@ -119,7 +118,8 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
             if (d != null) {
               if (completer.isCompleted) {
                 invalidateSelf();
-                logger.w('watchWhereNotNull just forces owner to invalidate! Ref: $this');
+                logger.w(
+                    'watchWhereNotNull just forces owner to invalidate because a updated value is available! Ref: $this');
               } else {
                 completer.complete(d);
               }

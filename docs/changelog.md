@@ -28,6 +28,8 @@
   specify a websocket URI.
 - It is possible now to start a print, if the machine is in the cancelled
   state. [#224](https://github.com/Clon1998/mobileraker/issues/224)
+- Fixed parsing of the `heater_generic` config for some edge
+  cases. [#242](https://github.com/Clon1998/mobileraker/issues/242)
 
 ## [2.5.3] - 2023-08-16
 

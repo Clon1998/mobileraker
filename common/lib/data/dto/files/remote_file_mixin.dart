@@ -18,6 +18,10 @@ mixin RemoteFile {
 
   String get absolutPath => '$parentPath/$name';
 
+  String get fileName => name.split('.').first;
+
+  String? get fileExtension => name.split('.').length > 1 ? name.split('.').last : null;
+
   DateTime get modifiedDate {
     return DateTime.fromMillisecondsSinceEpoch(modified.toInt() * 1000);
   }
