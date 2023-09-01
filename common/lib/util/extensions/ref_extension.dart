@@ -59,6 +59,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   /// This method returns a future of type [T] that resolves with the data when the condition is met.
   /// If an error occurs during the watch operation, the future completes with an error.
   ///
+  @Deprecated('Use a stream and async* instead, see jrpc_client_provider.dart for an example!')
   Future<T> watchWhere<T>(
       ProviderListenable<AsyncValue<T>> provider, bool Function(T) evaluatePredicate,
       [bool throwIfDisposeBeforeComplete = true]) {
@@ -98,6 +99,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   }
 
   /// See [watchWhere], shorthand to ensure provider is not null!
+  @Deprecated('Use a stream and async* instead, see file_service.dart for an example!')
   Future<T> watchWhereNotNull<T>(ProviderListenable<AsyncValue<T?>> provider) {
     final completer = Completer<T>();
     onDispose(() {

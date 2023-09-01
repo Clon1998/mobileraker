@@ -38,7 +38,8 @@ PowerService powerServiceSelected(PowerServiceSelectedRef ref) {
 @riverpod
 Stream<List<PowerDevice>> powerDevicesSelected(PowerDevicesSelectedRef ref) async* {
   try {
-    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+    var machine = await ref.watch(selectedMachineProvider.future);
+    if (machine == null) return;
     yield* ref.watchAsSubject(powerDevicesProvider(machine.uuid));
   } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!

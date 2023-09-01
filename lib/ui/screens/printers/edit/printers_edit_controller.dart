@@ -400,9 +400,10 @@ class WebcamListController extends _$WebcamListController {
   final List<WebcamInfo> _camsToDelete = [];
 
   @override
-  FutureOr<List<WebcamInfo>> build() async {
-    await ref.watchWhere(jrpcClientStateProvider(_machine.uuid), (c) => c == ClientState.connected);
-    return ref.watch(allWebcamInfosProvider(_machine.uuid).future);
+  Stream<List<WebcamInfo>> build() async* {
+    var jrpcState = await ref.watch(jrpcClientStateProvider(_machine.uuid).future);
+    if (jrpcState != ClientState.connected) return;
+    yield await ref.watch(allWebcamInfosProvider(_machine.uuid).future);
   }
 
   onWebCamReorder(int oldIndex, int newIndex) {

@@ -67,8 +67,7 @@ class JrpcClientManager extends _$JrpcClientManager {
           .readWhere(_jsonRpcStateProvider(machineUUID, ClientType.local),
               (clientState) => clientState == ClientState.error, false)
           .then((value) {
-        logger.i(
-            'Local clientState is $value. Will switch to octo remoteClient. ref:${identityHashCode(ref)}');
+        logger.i('Local clientState is $value. Will switch to octo remoteClient. ref:${identityHashCode(ref)}');
 
         // ref.state = remoteClinet;
         state = _jsonRpcClientProvider(machineUUID, clientType);
@@ -126,7 +125,9 @@ JsonRpcClient jrpcClientSelected(JrpcClientSelectedRef ref) {
 @riverpod
 Stream<ClientState> jrpcClientStateSelected(JrpcClientStateSelectedRef ref) async* {
   try {
-    Machine machine = await ref.watchWhereNotNull(selectedMachineProvider);
+    Machine? machine = await ref.watch(selectedMachineProvider.future);
+    if (machine == null) return;
+
     yield* ref.watchAsSubject(jrpcClientStateProvider(machine.uuid));
   } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!

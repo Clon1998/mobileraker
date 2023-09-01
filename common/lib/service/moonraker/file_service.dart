@@ -143,7 +143,8 @@ FileService fileServiceSelected(FileServiceSelectedRef ref) {
 @riverpod
 Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRef ref) async* {
   try {
-    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+    var machine = await ref.watch(selectedMachineProvider.future);
+    if (machine == null) return;
     yield* ref.watchAsSubject(fileNotificationsProvider(machine.uuid));
   } on StateError catch (_) {
 // Just catch it. It is expected that the future/where might not complete!

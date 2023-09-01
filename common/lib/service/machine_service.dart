@@ -116,15 +116,16 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 }
 
 @riverpod
-Future<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) async {
-  var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+Stream<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) async* {
+  var machine = await ref.watch(selectedMachineProvider.future);
+  if (machine == null) return;
 
-  await ref.watchWhere<KlipperInstance>(klipperSelectedProvider, (c) => c.klippyState == KlipperState.ready, false);
+  var klippyState = await ref.watch(klipperSelectedProvider.selectAsync((data) => data.klippyState));
+  if (klippyState != KlipperState.ready) return;
 
-  // TODO Refactor the fetchSettings into a new/machine based provider to make updating this easier!
   var fetchSettings = await ref.watch(machineServiceProvider).fetchSettings(machine);
   ref.keepAlive();
-  return fetchSettings;
+  yield fetchSettings;
 }
 
 /// Service handling the management of a machine
@@ -172,6 +173,9 @@ class MachineService {
 
   Future<Machine> addMachine(Machine machine) async {
     await _machineRepo.insert(machine);
+    var initialSSID = await ref.read(networkInfoServiceProvider).getWifiName();
+    // Add the current SSID to the local SSID list, if it is not null
+    initialSSID?.let(machine.localSsids.add);
 
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);

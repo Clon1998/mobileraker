@@ -93,7 +93,8 @@ PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
 @riverpod
 Stream<Printer> printerSelected(PrinterSelectedRef ref) async* {
   try {
-    var machine = await ref.watchWhereNotNull(selectedMachineProvider);
+    var machine = await ref.watch(selectedMachineProvider.future);
+    if (machine == null) return;
 
     yield* ref.watchAsSubject(printerProvider(machine.uuid));
   } on StateError catch (_) {
