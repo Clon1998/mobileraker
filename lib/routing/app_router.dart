@@ -33,6 +33,8 @@ import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../ui/screens/files/details/video_player_page.dart';
+
 part 'app_router.g.dart';
 
 enum AppRoute {
@@ -51,7 +53,8 @@ enum AppRoute {
   dev,
   faq,
   changelog,
-  supportDev
+  supportDev,
+  videoPlayer
 }
 
 @riverpod
@@ -144,7 +147,12 @@ GoRouter goRouter(GoRouterRef ref) {
               name: AppRoute.configDetail.name,
               builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
             ),
-          ]),
+        GoRoute(
+          path: 'video-player',
+          name: AppRoute.videoPlayer.name,
+          builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
+        ),
+      ]),
       GoRoute(
         path: '/setting',
         name: AppRoute.settings.name,

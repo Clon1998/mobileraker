@@ -11,6 +11,7 @@ import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/dto/files/moonraker/file_action_response.dart';
+import 'package:common/data/dto/files/moonraker/file_roots.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/enums/file_action_enum.dart';
@@ -26,6 +27,7 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:isolated_download_manager/isolated_download_manager.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../network/jrpc_client_provider.dart';
@@ -157,6 +159,11 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
   FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUri, this.headers) {
+    var downloadManager = DownloadManager.instance;
+
+    // We need an mobileraker HTTP client
+    downloadManager.init();
+
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(_onFileListChanged, "notify_filelist_changed");
   }
@@ -170,6 +177,23 @@ class FileService {
   Stream<FileActionResponse> get fileNotificationStream => _fileActionStreamCtrler.stream;
 
   final JsonRpcClient _jRpcClient;
+
+  Future<List<FileRoot>> fetchRoots() async {
+    logger.i('Fetching roots');
+
+    try {
+      RpcResponse blockingResp = await _jRpcClient.sendJRpcMethod('server.files.roots');
+
+      List<dynamic> rootsResponse = blockingResp.result as List;
+      return List.generate(rootsResponse.length, (index) {
+        var element = rootsResponse[index];
+        return FileRoot.fromJson(element);
+      });
+    } on JRpcError catch (e) {
+      logger.w('Error while fetching roots', e);
+      throw FileFetchException(e.toString());
+    }
+  }
 
   Future<FolderContentWrapper> fetchDirectoryInfo(String path, [bool extended = false]) async {
     logger.i('Fetching for `$path` [extended:$extended]');
@@ -244,20 +268,27 @@ class FileService {
   Future<File> downloadFile(String filePath, [Duration? timeout]) async {
     timeout ??= const Duration(seconds: 15);
     Uri uri = httpUri.replace(path: 'server/files/$filePath');
+
+    var file = _fileSystem.file(filePath);
+    if (await file.exists()) {
+      logger.i('File already exists, skipping download');
+      return file;
+    }
+
     logger.i('Trying download of ${uri.obfuscate()}');
     try {
       HttpClientRequest clientRequest = await HttpClient().getUrl(uri).timeout(timeout);
       HttpClientResponse clientResponse = await clientRequest.close().timeout(timeout);
 
-      final File file = _fileSystem.file(filePath)..createSync(recursive: true);
+      await file.create(recursive: true);
       IOSink writer = file.openWrite();
-      await clientResponse.pipe(writer);
-      // clientResponse.contentLength;
-      // await clientResponse.map((s) {
-      //   received += s.length;
-      //   print("${(received / length) * 100} %");
-      //   return s;
-      // }).pipe(sink);
+      var totalLen = clientResponse.contentLength;
+      var received = 0;
+      await clientResponse.map((s) {
+        received += s.length;
+        logger.i('Download progress: ${(received / totalLen) * 100} %');
+        return s;
+      }).pipe(writer);
       await writer.close();
       logger.i('Download completed!');
       return file;
@@ -340,6 +371,10 @@ class FileService {
     split.insert(0, 'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
 
     return GCodeFile.fromJson(response, split.join('/'));
+  }
+
+  Uri composeFileUriForDownload(RemoteFile file) {
+    return httpUri.replace(path: 'server/files/${file.absolutPath}');
   }
 
   dispose() {

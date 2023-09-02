@@ -68,8 +68,8 @@ class IsSearching extends _$IsSearching {
 class _FilePath extends _$FilePath {
   @override
   List<String> build() {
-    var baseDir =
-        ref.watch(filePageProvider.select((value) => switch (value) { 1 => 'config', 2 => 'logs', _ => 'gcodes' }));
+    var baseDir = ref
+        .watch(filePageProvider.select((value) => switch (value) { 1 => 'config', 2 => 'timelapse', _ => 'gcodes' }));
     return [baseDir];
   }
 
@@ -294,6 +294,9 @@ class FilesPageController extends _$FilesPageController {
   onFileTapped(RemoteFile file) {
     if (file is GCodeFile) {
       _goRouter.goNamed(AppRoute.gcodeDetail.name, extra: file);
+    }
+    if (file.isVideo) {
+      _goRouter.goNamed(AppRoute.videoPlayer.name, extra: file);
     } else {
       _goRouter.goNamed(AppRoute.configDetail.name, extra: file);
     }

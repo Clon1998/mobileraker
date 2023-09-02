@@ -22,6 +22,9 @@ mixin RemoteFile {
 
   String? get fileExtension => name.split('.').length > 1 ? name.split('.').last : null;
 
+  // Check if the fileExtension is a video file of common video formats
+  bool get isVideo => fileExtension != null && ['mp4'].contains(fileExtension);
+
   DateTime get modifiedDate {
     return DateTime.fromMillisecondsSinceEpoch(modified.toInt() * 1000);
   }

@@ -32,8 +32,11 @@ class KlipperInstance with _$KlipperInstance {
       {@Default(false) bool klippyConnected,
       @Default(KlipperState.disconnected) KlipperState klippyState,
       @Default([]) List<String> components,
+      @Default([]) List<String> registeredDirectories,
       @Default([]) List<String> warnings,
       @JsonKey(name: 'state_message') String? klippyStateMessage}) = _KlipperInstance;
+
+  bool get hasTimelapseComponent => components.contains('timelapse');
 
   factory KlipperInstance.fromJson(Map<String, dynamic> json) => _$KlipperInstanceFromJson(json);
 

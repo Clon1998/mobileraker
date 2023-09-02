@@ -30,10 +30,7 @@ class SinglePrinterCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-      overrides: [
-        printerCardMachineProvider.overrideWithValue(_machine),
-        printerCardControllerProvider
-      ],
+      overrides: [printerCardMachineProvider.overrideWithValue(_machine), printerCardControllerProvider],
       child: const _PrinterCard(),
     );
   }
@@ -110,10 +107,7 @@ class _PrintProgressBar extends ConsumerWidget {
       child: Align(
           alignment: Alignment.bottomCenter,
           child: LinearProgressIndicator(
-            value: ref
-                    .watch(printerProvider(machine.uuid).selectAs((data) => data.printProgress))
-                    .valueOrFullNull ??
-                0,
+            value: ref.watch(printerProvider(machine.uuid).selectAs((data) => data.printProgress)).valueOrFullNull ?? 0,
           )),
     );
   }
@@ -125,8 +119,7 @@ class _Cam extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(printerCardMachineProvider);
-    var printState =
-        ref.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state)).valueOrFullNull;
+    var printState = ref.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state)).valueOrFullNull;
 
     WebcamInfo? webcamInfo = ref.watch(printerCardControllerProvider).valueOrFullNull;
 
@@ -141,32 +134,32 @@ class _Cam extends ConsumerWidget {
           )),
       child: (webcamInfo == null)
           ? const SizedBox.shrink()
-          : Webcam(
-              key: ValueKey(machine.uuid + webcamInfo.uuid),
-              webcamInfo: webcamInfo,
-              machine: machine,
-              showRemoteIndicator: false,
-              stackContent: [
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.aspect_ratio),
-                      tooltip: tr('pages.dashboard.general.cam_card.fullscreen'),
-                      onPressed: ref.read(printerCardControllerProvider.notifier).onFullScreenTap,
+          : Center(
+              child: Webcam(
+                key: ValueKey(machine.uuid + webcamInfo.uuid),
+                webcamInfo: webcamInfo,
+                machine: machine,
+                showRemoteIndicator: false,
+                stackContent: [
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: IconButton(
+                        color: Colors.white,
+                        icon: const Icon(Icons.aspect_ratio),
+                        tooltip: tr('pages.dashboard.general.cam_card.fullscreen'),
+                        onPressed: ref.read(printerCardControllerProvider.notifier).onFullScreenTap,
+                      ),
                     ),
                   ),
-                ),
-                if (printState == PrintState.printing) const _PrintProgressBar()
-              ],
+                  if (printState == PrintState.printing) const _PrintProgressBar()
+                ],
+              ),
             ),
     );
   }
 
   Widget _imageBuilder(BuildContext context, Widget imageTransformed) {
-    return ClipRRect(
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
-        child: imageTransformed);
+    return ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(5)), child: imageTransformed);
   }
 }

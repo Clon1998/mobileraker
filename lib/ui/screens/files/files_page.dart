@@ -9,6 +9,7 @@ import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
@@ -58,8 +59,7 @@ class _Fab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var jobQueueStatusAsync =
-        ref.watch(filesPageControllerProvider.select((value) => value.jobQueueStatus));
+    var jobQueueStatusAsync = ref.watch(filesPageControllerProvider.select((value) => value.jobQueueStatus));
     if (jobQueueStatusAsync.isLoading || jobQueueStatusAsync.hasError) {
       return const SizedBox.shrink();
     }
@@ -77,8 +77,8 @@ class _Fab extends ConsumerWidget {
           ),
           badgeAnimation: const badges.BadgeAnimation.rotation(),
           position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
-          badgeContent: Text('${jobQueueStatus.queuedJobs.length}',
-              style: TextStyle(color: themeData.colorScheme.secondary)),
+          badgeContent:
+              Text('${jobQueueStatus.queuedJobs.length}', style: TextStyle(color: themeData.colorScheme.secondary)),
           child: const Icon(Icons.content_paste),
         ));
   }
@@ -95,16 +95,18 @@ class _BottomNav extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    // ref.watch(provider)
+
     return BottomNavigationBar(
       showSelectedLabels: true,
       currentIndex: ref.watch(filePageProvider),
       onTap: (i) => ref.read(filePageProvider.notifier).state = i,
       // onTap: model.onBottomItemTapped,
-      items: const [
-        BottomNavigationBarItem(
-            label: 'GCodes', icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
-        BottomNavigationBarItem(label: 'Configs', icon: Icon(FlutterIcons.file_code_faw5)),
-        // BottomNavigationBarItem(label: 'Logs', icon: Icon(FlutterIcons.file_eye_outline_mco)),
+      items: [
+        const BottomNavigationBarItem(label: 'GCodes', icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
+        const BottomNavigationBarItem(label: 'Configs', icon: Icon(FlutterIcons.file_code_faw5)),
+        if (ref.watch(klipperSelectedProvider.selectAs((data) => data.hasTimelapseComponent)).valueOrNull == true)
+          const BottomNavigationBarItem(label: 'Timelaps', icon: Icon(Icons.subscriptions_outlined)),
       ],
     );
   }
@@ -139,8 +141,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
             style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
             decoration: InputDecoration(
               hintText: '${tr('pages.files.search_files')}...',
-              hintStyle:
-                  themeData.textTheme.titleLarge?.copyWith(color: onBackground.withOpacity(0.4)),
+              hintStyle: themeData.textTheme.titleLarge?.copyWith(color: onBackground.withOpacity(0.4)),
               border: InputBorder.none,
               suffixIcon: textCtler.text.isEmpty
                   ? null
@@ -224,50 +225,47 @@ class _FilesBody extends ConsumerWidget {
                         child: (lenTotal == 0)
                             ? ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                leading: const SizedBox(
-                                    width: 64, height: 64, child: Icon(Icons.search_off)),
+                                leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.search_off)),
                                 title: const Text('pages.files.no_files_found').tr(),
                               )
                             : ListView.builder(
-                            physics: const BouncingScrollPhysics(),
+                                physics: const BouncingScrollPhysics(),
                                 itemCount: lenTotal,
                                 itemBuilder: (context, index) {
                                   if (model.isInSubFolder) {
                                     if (index == 0) {
                                       return ListTile(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                                        leading: const SizedBox(
-                                            width: 64, height: 64, child: Icon(Icons.folder)),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                                        leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
                                         title: const Text('...'),
                                         onTap: controller.popFolder,
-                                  );
-                                } else {
-                                  index--;
-                                }
-                              }
+                                      );
+                                    } else {
+                                      index--;
+                                    }
+                                  }
 
-                              if (index < lenFolders) {
-                                Folder folder = files.folders[index];
-                                return FolderItem(
-                                  folder: folder,
-                                  key: ValueKey(folder),
-                                );
-                              } else {
-                                RemoteFile file = files.files[index - lenFolders];
-                                if (file is GCodeFile) {
-                                  return GCodeFileItem(
-                                    key: ValueKey(file),
-                                    gCode: file,
-                                  );
-                                } else {
-                                  return FileItem(
-                                    file: file,
-                                    key: ValueKey(file),
-                                  );
-                                }
-                              }
-                            }),
+                                  if (index < lenFolders) {
+                                    Folder folder = files.folders[index];
+                                    return FolderItem(
+                                      folder: folder,
+                                      key: ValueKey(folder),
+                                    );
+                                  } else {
+                                    RemoteFile file = files.files[index - lenFolders];
+                                    if (file is GCodeFile) {
+                                      return GCodeFileItem(
+                                        key: ValueKey(file),
+                                        gCode: file,
+                                      );
+                                    } else {
+                                      return FileItem(
+                                        file: file,
+                                        key: ValueKey(file),
+                                      );
+                                    }
+                                  }
+                                }),
                       ),
                     ),
                   );
@@ -297,8 +295,7 @@ class _FilesBody extends ConsumerWidget {
                             itemCount: 15,
                             itemBuilder: (context, index) {
                               return ListTile(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                                 leading: Container(
                                   decoration: const BoxDecoration(
                                     borderRadius: BorderRadius.horizontal(
@@ -368,8 +365,7 @@ class _BreadCrumb extends ConsumerWidget {
                   return BreadCrumbItem(
                       content: Text(
                         p.toUpperCase(),
-                        style: theme.textTheme.titleSmall
-                            ?.copyWith(color: theme.colorScheme.onPrimary),
+                        style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimary),
                       ),
                       onTap: () => controller.goToPath(target));
                 },
@@ -460,8 +456,7 @@ class GCodeFileItem extends ConsumerWidget {
       startActionPane: ActionPane(motion: const StretchMotion(), children: [
         SlidableAction(
           // An action can be bigger than the others.
-          onPressed: (_) =>
-              ref.read(filesPageControllerProvider.notifier).onAddToQueueTapped(gCode),
+          onPressed: (_) => ref.read(filesPageControllerProvider.notifier).onAddToQueueTapped(gCode),
           backgroundColor: themeData.colorScheme.primaryContainer,
           foregroundColor: themeData.colorScheme.onPrimaryContainer,
           icon: Icons.queue_outlined,
@@ -475,13 +470,11 @@ class GCodeFileItem extends ConsumerWidget {
             height: 64,
             child: Hero(
               tag: 'gCodeImage-${gCode.hashCode}',
-              child: buildLeading(gCode, ref.watch(previewImageUriProvider),
-                  ref.watch(previewImageHttpHeaderProvider)),
+              child: buildLeading(gCode, ref.watch(previewImageUriProvider), ref.watch(previewImageHttpHeaderProvider)),
             )),
         title: Text(gCode.name),
-        subtitle: Text((lastPrinted != null)
-            ? '${tr('pages.files.last_printed')}: $lastPrinted'
-            : tr('pages.files.not_printed')),
+        subtitle: Text(
+            (lastPrinted != null) ? '${tr('pages.files.last_printed')}: $lastPrinted' : tr('pages.files.not_printed')),
         onTap: () => ref.read(filesPageControllerProvider.notifier).onFileTapped(gCode),
       ),
     );
@@ -496,8 +489,7 @@ class GCodeFileItem extends ConsumerWidget {
         child: CachedNetworkImage(
           imageBuilder: (context, imageProvider) => Container(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(15.0), right: Radius.circular(15.0)),
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(15.0), right: Radius.circular(15.0)),
               image: DecorationImage(
                 image: imageProvider,
                 fit: BoxFit.cover,
