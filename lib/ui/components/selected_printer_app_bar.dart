@@ -6,10 +6,10 @@
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 
 final selectedPrinterAppBarController =
     StateNotifierProvider.autoDispose<SelectedPrinterAppBarController, void>(

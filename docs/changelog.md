@@ -9,6 +9,8 @@
 - Users are now able to configure an alternative url (Remote URL) that Mobileraker will use to
   connect to the printer. This is useful if you want to connect to your printer from outside your
   local network.
+- Made the timelapse folder accessible via the file browser if the timelapse plugin is
+  active. [#241]((https://github.com/Clon1998/mobileraker/issues/241)
 
 ### Changed Features
 

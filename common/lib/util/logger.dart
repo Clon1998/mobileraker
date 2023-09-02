@@ -76,7 +76,7 @@ class RiverPodLogger extends ProviderObserver {
 
   @override
   void didDisposeProvider(ProviderBase provider, ProviderContainer container) {
-    if (['toolheadInfoProvider', 'selectedMachineProvider'].contains(provider.name)) return;
+    if (['toolheadInfoProvider'].contains(provider.name)) return;
 
     var familiy = provider.from?.toString() ?? '';
     logger.wtf('RiverPod::DISPOSED: ${provider.toIdentityString()} $familiy');
@@ -105,6 +105,7 @@ class RiverPodLogger extends ProviderObserver {
       'klipperSelectedProvider',
       'selectedMachineProvider',
       '_jsonRpcStateProvider',
+      // 'machinePrinterKlippySettingsProvider',
     ].contains(provider.name)) return;
 
     var familiy = provider.argument?.toString() ?? '';

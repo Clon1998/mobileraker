@@ -13,6 +13,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +29,6 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
@@ -84,17 +84,12 @@ class _FloatingActionBtn extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    AsyncValue<KlipperState> klippyState =
-        ref.watch(klipperSelectedProvider.selectAs((data) => data.klippyState));
-    AsyncValue<PrintState> printState =
-        ref.watch(printerSelectedProvider.selectAs((data) => data.print.state));
+    AsyncValue<KlipperState> klippyState = ref.watch(klipperSelectedProvider.selectAs((data) => data.klippyState));
+    AsyncValue<PrintState> printState = ref.watch(printerSelectedProvider.selectAs((data) => data.print.state));
 
     AsyncValue<JobQueueStatus> jobQueueState = ref.watch(jobQueueSelectedProvider);
 
-    if (!klippyState.hasValue ||
-        !printState.hasValue ||
-        klippyState.isLoading ||
-        printState.isLoading) {
+    if (!klippyState.hasValue || !printState.hasValue || klippyState.isLoading || printState.isLoading) {
       return const SizedBox.shrink();
     }
 
@@ -150,9 +145,7 @@ class _FloatingActionBtn extends ConsumerWidget {
             backgroundColor: themeData.colorScheme.primary,
             foregroundColor: themeData.colorScheme.onPrimary,
             label: tr('dialogs.supporter_perks.job_queue_perk.title'),
-            onTap: () => ref
-                .read(bottomSheetServiceProvider)
-                .show(BottomSheetConfig(type: SheetType.jobQueueMenu)),
+            onTap: () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu)),
           ),
       ],
       spacing: 5,
@@ -169,8 +162,7 @@ class _BottomNavigationBar extends ConsumerWidget {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
-    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).valueOrFullNull !=
-        true) {
+    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).valueOrFullNull != true) {
       return const SizedBox.shrink();
     }
 
@@ -255,7 +247,6 @@ class _DashboardBody extends ConsumerWidget {
               // Text("Fetching printer ...")
             ],
           )),
-          skipLoadingOnRefresh: false,
         );
   }
 }
@@ -268,9 +259,7 @@ class _IdleFAB extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => FloatingActionButton(
       onPressed: () async {
-        ref
-            .read(bottomSheetServiceProvider)
-            .show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
+        ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
       },
 
       // onPressed: mdodel.showNonPrintingMenu,

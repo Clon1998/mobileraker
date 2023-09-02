@@ -27,7 +27,6 @@ import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
-import 'package:isolated_download_manager/isolated_download_manager.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../network/jrpc_client_provider.dart';
@@ -159,10 +158,10 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
   FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUri, this.headers) {
-    var downloadManager = DownloadManager.instance;
+    // var downloadManager = DownloadManager.instance;
 
     // We need an mobileraker HTTP client
-    downloadManager.init();
+    // downloadManager.init();
 
     ref.onDispose(dispose);
     _jRpcClient.addMethodListener(_onFileListChanged, "notify_filelist_changed");
@@ -265,6 +264,7 @@ class FileService {
   }
 
   // Throws TimeOut exception, if file download took to long!
+  ///TODO: Migrate this code to a approach based off isolates to ensure the UI does not flicker/studders
   Future<File> downloadFile(String filePath, [Duration? timeout]) async {
     timeout ??= const Duration(seconds: 15);
     Uri uri = httpUri.replace(path: 'server/files/$filePath');
@@ -278,6 +278,7 @@ class FileService {
     logger.i('Trying download of ${uri.obfuscate()}');
     try {
       HttpClientRequest clientRequest = await HttpClient().getUrl(uri).timeout(timeout);
+      //TODO: Requires headers from client too ...
       HttpClientResponse clientResponse = await clientRequest.close().timeout(timeout);
 
       await file.create(recursive: true);

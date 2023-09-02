@@ -14,6 +14,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -28,7 +29,7 @@ import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:stringr/stringr.dart';
@@ -227,8 +228,8 @@ class WebcamList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var cams = ref.watch(webcamListControllerProvider);
-
     return cams.when(
+        skipLoadingOnReload: true,
         data: (data) {
           if (data.isEmpty) {
             return Padding(

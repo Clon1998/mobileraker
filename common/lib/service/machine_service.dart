@@ -118,6 +118,7 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 
 @riverpod
 Stream<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) async* {
+  ref.keepAlive();
   var machine = await ref.watch(selectedMachineProvider.future);
   if (machine == null) return;
 
@@ -125,7 +126,6 @@ Stream<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) 
   if (klippyState != KlipperState.ready) return;
 
   var fetchSettings = await ref.watch(machineServiceProvider).fetchSettings(machine);
-  ref.keepAlive();
   yield fetchSettings;
 }
 

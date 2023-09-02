@@ -7,12 +7,12 @@ import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 
 class EmergencyStopBtn extends ConsumerWidget {
   const EmergencyStopBtn({Key? key}) : super(key: key);

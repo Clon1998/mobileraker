@@ -12,7 +12,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 extension MobilerakerAutoDispose on AutoDisposeRef {
   // Returns a stream that alwways issues the latest/cached value of the provider
   // if the provider has one, even if multiple listeners listen to the stream!
-  Stream<T> watchAsSubject<T>(ProviderListenable<AsyncValue<T>> provider) {
+  Stream<T> watchAsSubject<T>(ProviderListenable<AsyncValue<T>> provider,
+      {bool skipLoadingOnReload = false, bool skipLoadingOnRefresh = true}) {
     final ctrler = StreamController<T>();
     onDispose(() {
       ctrler.close();
@@ -20,20 +21,23 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
 
     listen<AsyncValue<T>>(provider, (prev, next) {
       if (next.isRefreshing) {
+        logger.e('isRefreshing SKIPPED');
         return;
       }
       next.when(
-          data: (d) {
-            ctrler.add(d);
-          },
-          error: (e, s) {
-            ctrler.addError(e, s);
-          },
-          // This does not work with all usage rn!...
-          loading: () {
-            if (prev != null) invalidateSelf();
-          },
-          skipLoadingOnReload: false);
+        skipLoadingOnReload: skipLoadingOnReload,
+        skipLoadingOnRefresh: skipLoadingOnRefresh,
+        data: (d) {
+          ctrler.add(d);
+        },
+        error: (e, s) {
+          ctrler.addError(e, s);
+        },
+        // This does not work with all usage rn!...
+        loading: () {
+          if (prev != null) invalidateSelf();
+        },
+      );
       // loading: () => null);
     }, fireImmediately: true);
     return ctrler.stream;
@@ -60,15 +64,13 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   /// If an error occurs during the watch operation, the future completes with an error.
   ///
   @Deprecated('Use a stream and async* instead, see jrpc_client_provider.dart for an example!')
-  Future<T> watchWhere<T>(
-      ProviderListenable<AsyncValue<T>> provider, bool Function(T) evaluatePredicate,
+  Future<T> watchWhere<T>(ProviderListenable<AsyncValue<T>> provider, bool Function(T) evaluatePredicate,
       [bool throwIfDisposeBeforeComplete = true]) {
     final completer = Completer<T>();
     onDispose(() {
       if (!completer.isCompleted && throwIfDisposeBeforeComplete) {
         logger.e('Provider with ref $this diposed before `where` could complete');
-        completer.completeError(
-            StateError('provider disposed before `where` could complete'), StackTrace.current);
+        completer.completeError(StateError('provider disposed before `where` could complete'), StackTrace.current);
       }
     });
     listen<AsyncValue<T>>(provider, (prev, next) {
@@ -105,8 +107,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
       if (!completer.isCompleted) {
         logger.e('Provider with ref $this diposed before `whereNotNull` could complete');
         completer.completeError(
-            StateError('provider disposed before `whereNotNull` could complete'),
-            StackTrace.current);
+            StateError('provider disposed before `whereNotNull` could complete'), StackTrace.current);
       }
     });
 
@@ -141,16 +142,14 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   /// This method returns a future that completes with the current value of the provider
   /// when the condition specified by [evaluatePredicate] is met. The method immediately reads the
   /// initial value from the provider and stops listening for changes once the condition is met.
-  Future<T> readWhere<T>(
-      ProviderListenable<AsyncValue<T>> provider, bool Function(T) evaluatePredicate,
+  Future<T> readWhere<T>(ProviderListenable<AsyncValue<T>> provider, bool Function(T) evaluatePredicate,
       [bool throwIfDisposeBeforeComplete = true]) {
     final completer = Completer<T>();
     onDispose(() {
       if (!completer.isCompleted && throwIfDisposeBeforeComplete) {
         logger.e('Provider with ref $this diposed before `read` could complete');
         completer.completeError(
-            StateError('provider disposed before `read` could complete for ref:$this'),
-            StackTrace.current);
+            StateError('provider disposed before `read` could complete for ref:$this'), StackTrace.current);
       }
     });
 

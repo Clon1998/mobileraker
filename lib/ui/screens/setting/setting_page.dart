@@ -8,6 +8,7 @@ import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -24,7 +25,6 @@ import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:mobileraker/ui/theme/theme_pack.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerWidget {
