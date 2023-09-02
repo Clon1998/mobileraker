@@ -591,6 +591,10 @@
       "job_queue_perk": {
         "title": "Job Queue",
         "subtitle": "Manage Moonraker's job queue from within Mobileraker!"
+      },
+      "unlimited_printers_perk": {
+        "title": "Unlimited Printers",
+        "subtitle": "Control as many printers as you want using Mobileraker!"
       }
     },
     "bed_screw_adjust": {
