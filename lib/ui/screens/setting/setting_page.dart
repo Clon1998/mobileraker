@@ -470,37 +470,38 @@ class NotificationPermissionWarning extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    return AnimatedSwitcher(
-      transitionBuilder: (child, anim) => SizeTransition(
-        sizeFactor: anim,
-        child: FadeTransition(
-          opacity: anim,
-          child: child,
+    return Material(
+      type: MaterialType.transparency,
+      child: AnimatedSwitcher(
+        transitionBuilder: (child, anim) => SizeTransition(
+          sizeFactor: anim,
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
+          ),
         ),
-      ),
-      duration: kThemeAnimationDuration,
-      child: (ref.watch(notificationPermissionControllerProvider))
-          ? const SizedBox.shrink()
-          : Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: ListTile(
-                tileColor: themeData.colorScheme.errorContainer,
-                textColor: themeData.colorScheme.onErrorContainer,
-                iconColor: themeData.colorScheme.onErrorContainer,
-                onTap:
-                    ref.watch(notificationPermissionControllerProvider.notifier).requestPermission,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                leading: const Icon(
-                  Icons.notifications_off_outlined,
-                  size: 40,
+        duration: kThemeAnimationDuration,
+        child: (ref.watch(notificationPermissionControllerProvider))
+            ? const SizedBox.shrink()
+            : Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: ListTile(
+                  tileColor: themeData.colorScheme.errorContainer,
+                  textColor: themeData.colorScheme.onErrorContainer,
+                  iconColor: themeData.colorScheme.onErrorContainer,
+                  onTap: ref.watch(notificationPermissionControllerProvider.notifier).requestPermission,
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                  leading: const Icon(
+                    Icons.notifications_off_outlined,
+                    size: 40,
+                  ),
+                  title: const Text(
+                    'pages.setting.notification.no_permission_title',
+                  ).tr(),
+                  subtitle: const Text('pages.setting.notification.no_permission_desc').tr(),
                 ),
-                title: const Text(
-                  'pages.setting.notification.no_permission_title',
-                ).tr(),
-                subtitle: const Text('pages.setting.notification.no_permission_desc').tr(),
               ),
-            ),
+      ),
     );
   }
 }
@@ -512,36 +513,38 @@ class NotificationFirebaseWarning extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
 
-    return AnimatedSwitcher(
-      transitionBuilder: (child, anim) => SizeTransition(
-        sizeFactor: anim,
-        child: FadeTransition(
-          opacity: anim,
-          child: child,
+    return Material(
+      type: MaterialType.transparency,
+      child: AnimatedSwitcher(
+        transitionBuilder: (child, anim) => SizeTransition(
+          sizeFactor: anim,
+          child: FadeTransition(
+            opacity: anim,
+            child: child,
+          ),
         ),
-      ),
-      duration: kThemeAnimationDuration,
-      child: (ref.watch(notificationFirebaseAvailableProvider))
-          ? const SizedBox.shrink()
-          : Padding(
-              key: UniqueKey(),
-              padding: const EdgeInsets.only(top: 16),
-              child: ListTile(
-                tileColor: themeData.colorScheme.errorContainer,
-                textColor: themeData.colorScheme.onErrorContainer,
-                iconColor: themeData.colorScheme.onErrorContainer,
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15))),
-                leading: const Icon(
-                  FlutterIcons.notifications_paused_mdi,
-                  size: 40,
+        duration: kThemeAnimationDuration,
+        child: (ref.watch(notificationFirebaseAvailableProvider))
+            ? const SizedBox.shrink()
+            : Padding(
+                key: UniqueKey(),
+                padding: const EdgeInsets.only(top: 16),
+                child: ListTile(
+                  tileColor: themeData.colorScheme.errorContainer,
+                  textColor: themeData.colorScheme.onErrorContainer,
+                  iconColor: themeData.colorScheme.onErrorContainer,
+                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                  leading: const Icon(
+                    FlutterIcons.notifications_paused_mdi,
+                    size: 40,
+                  ),
+                  title: const Text(
+                    'pages.setting.notification.no_firebase_title',
+                  ).tr(),
+                  subtitle: const Text('pages.setting.notification.no_firebase_desc').tr(),
                 ),
-                title: const Text(
-                  'pages.setting.notification.no_firebase_title',
-                ).tr(),
-                subtitle: const Text('pages.setting.notification.no_firebase_desc').tr(),
               ),
-            ),
+      ),
     );
   }
 }
