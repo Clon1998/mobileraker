@@ -637,7 +637,7 @@
     },
     "add_remote_con": {
       "octoeverywehre": {
-        "description": "OctoEverywhere is a 3rd party service that allows you to connect to your printer from anywhere. Just install the OctoEverywhere plugin on your printer and link the connection here.",
+        "description": "OctoEverywhere.com is a community project allowing you to securely connect to your printer from anywhere. OctoEverywhere also provides the community free AI print failure detection, notifications, live streaming, and more. Setup only takes 20 seconds!\n To get started press the button below and follow the instructions.",
         "disclosure": "OctoEverywhere is not affiliated with Mobileraker. It requires an additional subscription. Please check the OctoEverywhere website for more information."
       },
       "manual": {
