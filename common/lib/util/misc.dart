@@ -133,7 +133,8 @@ _verifyOctoHttpResponseCodes(int statusCode) {
     case 603:
       throw const OctoEverywhereHttpException('App Connection Not Found', 603);
     case 604:
-      throw const OctoEverywhereHttpException('App Connection Revoked/Expired', 604);
+      throw const OctoEverywhereHttpException(
+          'App Connection Revoked/Expired. Please unlink and link the app again!', 604);
     case 605:
       throw const OctoEverywhereHttpException(
           'App Connection Owner\'s Account Is No Longer a Octoeverywhere-Supporter.', 605);
