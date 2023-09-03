@@ -68,9 +68,8 @@ dependencies:
   json_annotation: ^4.7.0
   logger: ^1.3.0
   package_info_plus: ^3.0.1
-
+  permission_handler: ^10.4.3
   collection: ^1.17.0
-#  connectivity_plus: ^4.0.2
 
   #persisstent
   hive: ^2.2.3

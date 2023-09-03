@@ -23,10 +23,8 @@ class MachineAdapter extends TypeAdapter<Machine> {
     };
     Uri wsUri;
     if (fields[1] is String?) {
-      wsUri = buildMoonrakerWebSocketUri(fields[1] as String?, false) ??
-          Uri.parse('ws://127.0.0.1/websocket');
-      logger.w(
-          'Found a legacy Printer wsUri for ${fields[0]}(${fields[2]}). "${fields[1]}" migrated to "$wsUri"');
+      wsUri = buildMoonrakerWebSocketUri(fields[1] as String?, false) ?? Uri.parse('ws://127.0.0.1/websocket');
+      logger.w('Found a legacy Printer wsUri for ${fields[0]}(${fields[2]}). "${fields[1]}" migrated to "$wsUri"');
     } else {
       wsUri = fields[1] as Uri;
     }
@@ -35,8 +33,7 @@ class MachineAdapter extends TypeAdapter<Machine> {
     if (fields[6] is String?) {
       httpUri = buildMoonrakerHttpUri(fields[6] as String?) ?? Uri.parse('http://127.0.0.1');
 
-      logger.w(
-          'Found a legacy Printer httpUri for ${fields[0]}(${fields[2]}). "${fields[6]}" migrated to "$httpUri"');
+      logger.w('Found a legacy Printer httpUri for ${fields[0]}(${fields[2]}). "${fields[6]}" migrated to "$httpUri"');
     } else {
       httpUri = fields[6] as Uri;
     }
@@ -51,7 +48,8 @@ class MachineAdapter extends TypeAdapter<Machine> {
       octoEverywhere: fields[20] as OctoEverywhere?,
       camOrdering: fields[21] == null ? [] : (fields[21] as List).cast<String>(),
       httpHeaders: fields[22] == null ? {} : (fields[22] as Map).cast<String, String>(),
-      timeout: fields[23] == null ? 3 : fields[23] as int,
+      timeout: fields[23] == null ? 6 : fields[23] as int,
+      localSsids: fields[7] == null ? [] : (fields[7] as List).cast<String>(),
     )
       ..uuid = fields[2] as String
       ..lastPrintProgress = fields[14] == null ? 0 : fields[14] as double?
@@ -64,7 +62,7 @@ class MachineAdapter extends TypeAdapter<Machine> {
   @override
   void write(BinaryWriter writer, Machine obj) {
     writer
-      ..writeByte(16)
+      ..writeByte(17)
       ..writeByte(0)
       ..write(obj.name)
       ..writeByte(1)
@@ -96,7 +94,9 @@ class MachineAdapter extends TypeAdapter<Machine> {
       ..writeByte(21)
       ..write(obj.camOrdering)
       ..writeByte(24)
-      ..write(obj.remoteInterface);
+      ..write(obj.remoteInterface)
+      ..writeByte(7)
+      ..write(obj.localSsids);
   }
 
   @override
@@ -104,6 +104,5 @@ class MachineAdapter extends TypeAdapter<Machine> {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MachineAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+      identical(this, other) || other is MachineAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }

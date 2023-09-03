@@ -54,6 +54,8 @@ class Machine extends HiveObject {
   List<String> camOrdering;
   @HiveField(24)
   RemoteInterface? remoteInterface;
+  @HiveField(7, defaultValue: [])
+  List<String> localSsids;
 
   PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
 
@@ -67,8 +69,9 @@ class Machine extends HiveObject {
 
   String get debugStr => '$name ($uuid)';
 
-  Map<String, String> get headerWithApiKey =>
-      {...httpHeaders, if (apiKey?.isNotEmpty == true) 'X-Api-Key': apiKey!};
+  Map<String, String> get headerWithApiKey => {...httpHeaders, if (apiKey?.isNotEmpty == true) 'X-Api-Key': apiKey!};
+
+  bool get hasRemoteConnection => remoteInterface != null || octoEverywhere != null;
 
   Machine({
     required String name,
@@ -81,6 +84,7 @@ class Machine extends HiveObject {
     this.camOrdering = const [],
     this.httpHeaders = const {},
     this.timeout = 5,
+    this.localSsids = const [],
   })  : name = name.trim(),
         apiKey = apiKey?.trim();
 
@@ -112,7 +116,8 @@ class Machine extends HiveObject {
           fcmIdentifier == other.fcmIdentifier &&
           lastModified == other.lastModified &&
           octoEverywhere == other.octoEverywhere &&
-          listEquals(camOrdering, other.camOrdering);
+          listEquals(camOrdering, other.camOrdering) &&
+          listEquals(localSsids, other.localSsids);
 
   @override
   int get hashCode =>
@@ -127,7 +132,8 @@ class Machine extends HiveObject {
       fcmIdentifier.hashCode ^
       lastModified.hashCode ^
       octoEverywhere.hashCode ^
-      camOrdering.hashCode;
+      camOrdering.hashCode ^
+      localSsids.hashCode;
 
   @override
   String toString() {

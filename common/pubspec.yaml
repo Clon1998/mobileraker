@@ -65,6 +65,7 @@ dependencies:
   collection: ^1.17.0
   uuid: ^3.0.5
   network_info_plus: ^4.0.2
+  permission_handler: ^10.4.3
 
 
 dev_dependencies:

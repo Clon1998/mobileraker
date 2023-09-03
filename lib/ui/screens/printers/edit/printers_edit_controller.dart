@@ -18,6 +18,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/notification_service.dart';
+import 'package:common/service/permission_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -37,7 +38,9 @@ import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/import_settings/import_settings_controllers.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
+import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../components/bottomsheet/remote_connection/add_remote_connection_sheet_controller.dart';
@@ -74,14 +77,14 @@ class PrinterEditController extends _$PrinterEditController {
     return false;
   }
 
-  openQrScanner(BuildContext context) async {
+  void openQrScanner(BuildContext context) async {
     Barcode? qr = await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr?.rawValue != null) {
       ref.read(editPrinterFormKeyProvider).currentState?.fields['printerApiKey']?.didChange(qr!.rawValue);
     }
   }
 
-  saveForm() async {
+  Future<void> saveForm() async {
     var jrpcStateKeppAliveLink = ref.keepAliveExternally(jrpcClientStateProvider(_machine.uuid));
 
     var formBuilderState = ref.read(editPrinterFormKeyProvider).currentState!;
@@ -205,6 +208,7 @@ class PrinterEditController extends _$PrinterEditController {
     }
     _machine.trustUntrustedCertificate = storedValues['trustSelfSigned'];
     _machine.httpHeaders = ref.read(headersControllerProvider(_machine.httpHeaders));
+    _machine.localSsids = ref.read(ssidPreferenceListControllerProvider(_machine.localSsids));
     await ref.read(machineServiceProvider).updateMachine(_machine);
   }
 
@@ -244,6 +248,21 @@ class PrinterEditController extends _$PrinterEditController {
       logger.w('Error while resetting FCM cache on machine ${_machine.name}', e);
     }
     state = false;
+  }
+
+  Future<void> requestLocationPermission() async {
+    var status = await Permission.location.status;
+    if (status.isGranted) return;
+    logger.i('Location permission is not granted ($status), requesting it now');
+    if (status == PermissionStatus.denied) {
+      status = await Permission.location.request();
+    }
+
+    if (!status.isGranted) {
+      await openAppSettings();
+    }
+
+    ref.invalidate(permissionStatusProvider(Permission.location));
   }
 
   deleteIt() async {

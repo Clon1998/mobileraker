@@ -13,6 +13,7 @@ import 'package:common/util/logger.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../service/machine_service.dart';
+import '../service/network_info_service.dart';
 import '../service/selected_machine_service.dart';
 
 part 'jrpc_client_provider.g.dart';
@@ -63,6 +64,17 @@ class JrpcClientManager extends _$JrpcClientManager {
 
       logger.i(
           'A ${clientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
+
+      if (machine.localSsids.isNotEmpty) {
+        logger.i('LOcal SSID are set. Can do rapid remote con switching');
+        ref.read(networkInfoServiceProvider).getWifiName().then((wifiName) {
+          if (wifiName?.isNotEmpty != true) return;
+          if (machine.localSsids.contains(wifiName)) return;
+          logger.i('Not connected to a WiFi in LocalSsid list of machine. Will switch directly to remote con');
+          state = _jsonRpcClientProvider(machineUUID, clientType);
+        }).ignore();
+      }
+
       ref
           .readWhere(_jsonRpcStateProvider(machineUUID, ClientType.local),
               (clientState) => clientState == ClientState.error, false)

@@ -13,6 +13,7 @@ import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/service/permission_service.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -27,9 +28,11 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
+import 'package:mobileraker/ui/components/warning_card.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:stringr/stringr.dart';
@@ -104,6 +107,8 @@ class PrinterSettingScrollView extends ConsumerWidget {
     var machine = ref.watch(currentlyEditingProvider);
 
     var isSaving = ref.watch(printerEditControllerProvider);
+    var controller = ref.watch(printerEditControllerProvider.notifier);
+
     return SingleChildScrollView(
       child: FormBuilder(
         enabled: !isSaving,
@@ -165,7 +170,7 @@ class PrinterSettingScrollView extends ConsumerWidget {
                     labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
                     suffix: IconButton(
                       icon: const Icon(Icons.qr_code_sharp),
-                      onPressed: () => ref.watch(printerEditControllerProvider.notifier).openQrScanner(context),
+                      onPressed: () => controller.openQrScanner(context),
                     ),
                     helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
                     helperMaxLines: 3),
@@ -201,16 +206,33 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 initialValue: machine.httpHeaders,
               ),
               const Divider(),
+              // if (machine.hasRemoteConnection)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: SsidPreferenceList(
+                  initialValue: machine.localSsids,
+                ),
+              ),
+              WarningCard(
+                show: ref
+                        .watch(permissionStatusProvider(Permission.location).selectAs((data) => !data.isGranted))
+                        .valueOrNull ==
+                    true,
+                title: const Text('pages.printer_edit.wifi_access_warning.title').tr(),
+                subtitle: const Text('pages.printer_edit.wifi_access_warning.subtitle').tr(),
+                leadingIcon: const Icon(Icons.wifi_off_outlined),
+                onTap: controller.requestLocationPermission,
+              ),
               FullWidthButton(
-                  onPressed: ref.read(printerEditControllerProvider.notifier).openRemoteConnectionSheet,
-                  child: Text('Configure Remote Connection')),
+                  onPressed: controller.openRemoteConnectionSheet,
+                  child: const Text('pages.printer_edit.configure_remote_connection').tr()),
               const Divider(),
               const RemoteSettings(),
               const Divider(),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: TextButton.icon(
-                    onPressed: isSaving ? null : ref.read(printerEditControllerProvider.notifier).deleteIt,
+                    onPressed: isSaving ? null : controller.deleteIt,
                     icon: const Icon(Icons.delete_forever_outlined),
                     label: const Text('pages.printer_edit.remove_printer').tr()),
               )
