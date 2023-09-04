@@ -108,6 +108,7 @@ class JrpcClientManager extends _$JrpcClientManager {
   }
 
   refreshCurrentClient() {
+    logger.i('Refreshing current client from rpcClientManager');
     var refresh = ref.refresh(state);
     refresh.ensureConnection();
   }

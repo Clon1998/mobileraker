@@ -12,7 +12,6 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
@@ -60,14 +59,20 @@ class ConnectionStateController extends _$ConnectionStateController {
     switch (state) {
       case AppLifecycleState.resumed:
         logger.i("App forgrounded");
-        var selMachine = ref.read(selectedMachineProvider).valueOrFullNull;
+        var selMachine = ref.read(selectedMachineProvider).valueOrNull;
         var jrpcClientState =
             selMachine?.let((m) => ref.read(jrpcClientStateProvider(m.uuid)).valueOrNull);
         var jrpcClientType = selMachine?.let((m) => ref.read(jrpcClientTypeProvider(m.uuid)));
 
-        if (jrpcClientState != ClientState.connected && jrpcClientType == ClientType.octo) {
-          logger.i('Refreshing selectedPrinter...');
-          ref.invalidate(machineProvider(selMachine!.uuid));
+        if (jrpcClientState != ClientState.connected) {
+          if (jrpcClientType == ClientType.octo) {
+            logger.i('Refreshing selectedPrinter...');
+            ref.invalidate(machineProvider(selMachine!.uuid));
+          } else {
+            logger.i('Refreshing selectedPrinter...');
+            ref.invalidate(machineProvider(selMachine!.uuid));
+            // ref.read(jrpcClientManagerProvider(selMachine!.uuid).notifier).refreshCurrentClient();
+          }
         }
 
         break;
