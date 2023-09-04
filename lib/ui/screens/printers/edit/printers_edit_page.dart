@@ -553,19 +553,15 @@ class RemoteSettings extends ConsumerWidget {
             ];
           },
           error: (e, s) => [
-                ListTile(
-                  tileColor: themeData.colorScheme.errorContainer,
-                  textColor: themeData.colorScheme.onErrorContainer,
-                  iconColor: themeData.colorScheme.onErrorContainer,
-                  leading: const Icon(
-                    Icons.error_outline,
-                    size: 40,
-                  ),
+                WarningCard(
                   title: const Text(
                     'pages.printer_edit.could_not_fetch_additional',
                   ).tr(),
                   subtitle: const Text('pages.printer_edit.fetch_error_hint').tr(),
-                ),
+                  leadingIcon: const Icon(
+                    Icons.error_outline,
+                  ),
+                )
               ],
           loading: () => [
                 FadingText('pages.printer_edit.fetching_additional_settings'.tr()),

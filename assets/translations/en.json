@@ -371,22 +371,22 @@
         "body": "Make sure to save the printer to apply the changes."
       },
       "wifi_access_warning": {
-        "title": "SSID Information Unavailable",
-        "subtitle": "To determine if Mobileraker should use the remote connection, grant location access. This allows the app to fetch the SSID of the current WiFi Network.\n\nTap to grant the permission."
+        "title": "WiFi Information Unavailable",
+        "subtitle": "To determine if Mobileraker should use the remote connection, grant location access. This allows the app to fetch the name of the current WiFi Network.\n\nTap to grant the permission."
       },
       "local_ssid": {
-        "section_header": "Local SSID",
-        "no_ssids": "No SSIDs added!",
-        "helper": "The app will promptly switch to a remote connection if it's not connected to any of these SSIDs and a remote connection is configured.",
+        "section_header": "Smart Switching",
+        "no_ssids": "No WiFi name added!",
+        "helper": "Smart switching makes the app automatically switch between the local and remote connection based on the current WiFi network. To enable this feature, add your home's WiFi name to the list.",
         "dialog": {
-          "title_add": "Add SSID to List",
-          "title_edit": "Edit SSID",
-          "label": "SSID",
-          "quick_add_hint": "Hint: You can also long press to quickly add the current WiFi's SSID."
+          "title_add": "Add WiFi Name to List",
+          "title_edit": "Edit WiFi Name",
+          "label": "WiFi Name (SSID)",
+          "quick_add_hint": "Hint: You can also long press to quickly add the current WiFi name."
         },
         "error_fetching_snackbar": {
-          "title": "Error while fetching SSIDs!",
-          "body": "Please make sure the app has the necessary permissions to access the WiFi state."
+          "title": "Error while fetching WiFi name!",
+          "body": "Please make sure the app has the necessary permissions to access the device's WiFi state."
         }
       }
     },

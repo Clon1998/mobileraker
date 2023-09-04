@@ -8,8 +8,10 @@ import 'dart:async';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/permission_service.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../service/machine_service.dart';
@@ -66,13 +68,27 @@ class JrpcClientManager extends _$JrpcClientManager {
           'A ${clientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
 
       if (machine.localSsids.isNotEmpty) {
-        logger.i('LOcal SSID are set. Can do rapid remote con switching');
-        ref.read(networkInfoServiceProvider).getWifiName().then((wifiName) {
-          if (wifiName?.isNotEmpty != true) return;
-          if (machine.localSsids.contains(wifiName)) return;
-          logger.i('Not connected to a WiFi in LocalSsid list of machine. Will switch directly to remote con');
+        logger.i('[Smart-Switching] Local SSID are set. Can do rapid remote con switching');
+        Future.wait([
+          ref.read(networkInfoServiceProvider).getWifiName(),
+          ref.read(permissionStatusProvider(Permission.location).future)
+        ]).then((List results) {
+          String? wifiName = results[0];
+          PermissionStatus? permissionStatus = results[1];
+          if (permissionStatus?.isGranted != true) {
+            logger.i(
+                '[Smart-Switching] WiFi List exists and is not empty, but no location permission. Unable to determine smart switching');
+            return;
+          }
+          if (machine.localSsids.contains(wifiName)) {
+            logger.i('[Smart-Switching] Connected to a WiFi in LocalSsid list of machine. Will use local con');
+            return;
+          }
+          logger.i('[Smart-Switching] Connected to a WiFi NOT in LocalSsid list of machine. Will use remote con');
           state = _jsonRpcClientProvider(machineUUID, clientType);
         }).ignore();
+      } else {
+        logger.i('[Smart-Switching] Local SSID list is empty. Smart switching disabled');
       }
 
       ref

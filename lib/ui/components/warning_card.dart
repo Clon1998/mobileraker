@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class WarningCard extends ConsumerWidget {
   const WarningCard({
     Key? key,
-    required this.show,
+    this.show = true,
     this.onTap,
     this.title,
     this.subtitle,
