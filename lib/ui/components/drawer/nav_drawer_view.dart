@@ -42,7 +42,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
                 child: Column(
                   children: [
                     const _PrinterSelection(),
-                    if ((ref.watch(allMachinesProvider.select((value) => value.valueOrFullNull?.length)) ?? 0) > 1) ...[
+                    if ((ref.watch(allMachinesProvider.select((value) => value.valueOrNull?.length)) ?? 0) > 1) ...[
                       _DrawerItem(
                         text: 'pages.overview.title'.tr(),
                         icon: FlutterIcons.view_dashboard_mco,
@@ -296,14 +296,14 @@ class _PrinterSelection extends ConsumerWidget {
       child: (isExpanded)
           ? Column(
               children: [
-                if (selMachine.valueOrFullNull != null)
+                if (selMachine.valueOrNull != null)
                   _MachineTile(
                     machine: selMachine.value!,
                     isSelected: true,
                   ),
                 ...ref
                     .watch(allMachinesProvider
-                        .selectAs((data) => data.where((element) => element.uuid != selMachine.valueOrFullNull?.uuid)))
+                        .selectAs((data) => data.where((element) => element.uuid != selMachine.valueOrNull?.uuid)))
                     .maybeWhen(
                         orElse: () => [
                               ListTile(

@@ -22,9 +22,7 @@ class HomedAxisChip extends ConsumerWidget {
     int homedAxisCnt = ref
         .watch(machinePrinterKlippySettingsProvider
             .selectAs((value) => value.printerData.toolhead.homedAxes.length))
-        .valueOrFullNull!;
-
-    var themeData = Theme.of(context);
+        .valueOrNull!;
 
     return Chip(
       avatar: const Icon(
@@ -37,9 +35,7 @@ class HomedAxisChip extends ConsumerWidget {
           BorderSide(color: (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent, width: 3),
       // shape: ContinuousRectangleBorder(side: BorderSide(width: 1),),
       label: Text(_homedChipTitle(ref
-          .read(machinePrinterKlippySettingsProvider)
-          .valueOrFullNull!
-          .printerData
+          .read(machinePrinterKlippySettingsProvider).valueOrNull!.printerData
           .toolhead
           .homedAxes)),
       // backgroundColor:

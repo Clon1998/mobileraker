@@ -66,7 +66,7 @@ class _DashboardView extends ConsumerWidget {
       appBar: SwitchPrinterAppBar(
         title: tr('pages.dashboard.title'),
         actions: <Widget>[
-          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
+          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrNull),
           const EmergencyStopBtn(),
         ],
       ),
@@ -130,7 +130,7 @@ class _FloatingActionBtn extends ConsumerWidget {
             label: tr('general.pause'),
             onTap: ref.watch(printerServiceSelectedProvider).pausePrint,
           ),
-        if (jobQueueState.valueOrFullNull?.queuedJobs.isNotEmpty ?? false)
+        if (jobQueueState.valueOrNull?.queuedJobs.isNotEmpty ?? false)
           SpeedDialChild(
             child: badges.Badge(
               badgeStyle: badges.BadgeStyle(
@@ -162,7 +162,7 @@ class _BottomNavigationBar extends ConsumerWidget {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
-    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).valueOrFullNull != true) {
+    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).valueOrNull != true) {
       return const SizedBox.shrink();
     }
 

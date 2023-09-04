@@ -86,7 +86,7 @@ class DashBoardViewController extends StateNotifier<int> {
         (previous, next) {
       var dialogService = ref.read(dialogServiceProvider);
 
-      if (next.valueOrFullNull == true && !dialogService.isDialogOpen) {
+      if (next.valueOrNull == true && !dialogService.isDialogOpen) {
         logger.i('Detected manualProbe... opening Dialog');
         dialogService.show(DialogRequest(barrierDismissible: false, type: DialogType.manualOffset));
       }
@@ -97,7 +97,7 @@ class DashBoardViewController extends StateNotifier<int> {
         (previous, next) {
       var dialogService = ref.read(dialogServiceProvider);
 
-      if (next.valueOrFullNull == true && !dialogService.isDialogOpen) {
+      if (next.valueOrNull == true && !dialogService.isDialogOpen) {
         logger.i('Detected bedScrew... opening Dialog');
         ref.read(dialogServiceProvider).show(DialogRequest(barrierDismissible: false, type: DialogType.bedScrewAdjust));
       }

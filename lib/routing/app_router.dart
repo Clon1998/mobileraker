@@ -8,7 +8,6 @@ import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -77,7 +76,7 @@ Future<String> initialRoute(InitialRouteRef ref) async {
 GoRouter goRouter(GoRouterRef ref) {
   ref.keepAlive();
   return GoRouter(
-    initialLocation: ref.watch(initialRouteProvider).valueOrFullNull!,
+    initialLocation: ref.watch(initialRouteProvider).valueOrNull!,
     debugLogDiagnostics: false,
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),

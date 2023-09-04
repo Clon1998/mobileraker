@@ -7,7 +7,6 @@ import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/bed_screw.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
@@ -25,7 +24,7 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
     // make sure we close the dialog once its resolved externally
     // also prevents opening the dialog by mistake!
     ref.listenSelf((previous, next) {
-      if (next.valueOrFullNull?.bedScrew.isActive == false) {
+      if (next.valueOrNull?.bedScrew.isActive == false) {
         _complete(DialogResponse.aborted());
       }
     });

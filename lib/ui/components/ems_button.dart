@@ -7,7 +7,6 @@ import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -19,8 +18,7 @@ class EmergencyStopBtn extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    KlipperState klippyState = ref.watch(klipperSelectedProvider
-        .select((value) => value.valueOrFullNull?.klippyState ?? KlipperState.disconnected));
+    KlipperState klippyState = ref.watch(klipperSelectedProvider.select((value) => value.valueOrNull?.klippyState ?? KlipperState.disconnected));
 
     return IconButton(
       color: Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,

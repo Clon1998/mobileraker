@@ -267,13 +267,12 @@ class ExtruderControlCardController extends StateNotifier<int> {
 
   List<int> get steps => ref
       .watch(machinePrinterKlippySettingsProvider
-          .selectAs((value) => value.settings.extrudeSteps))
-      .valueOrFullNull!;
+          .selectAs((value) => value.settings.extrudeSteps)).valueOrNull!;
 
   double get extruderFeedrate => ref
       .watch(machinePrinterKlippySettingsProvider
           .selectAs((value) => value.settings.extrudeFeedrate.toDouble()))
-      .valueOrFullNull!;
+      .valueOrNull!;
 
   stepChanged(int idx) => state = idx;
 

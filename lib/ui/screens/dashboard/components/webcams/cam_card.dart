@@ -3,7 +3,6 @@
  * All rights reserved.
  */
 
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -21,9 +20,8 @@ class CamCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var watch = ref.watch(camCardControllerProvider);
 
-    bool showCard = (watch.valueOrFullNull?.activeCam != null &&
-            watch.valueOrFullNull?.allCams.isNotEmpty == true) ||
-        watch.hasError;
+    bool showCard =
+        (watch.valueOrNull?.activeCam != null && watch.valueOrNull?.allCams.isNotEmpty == true) || watch.hasError;
 
     return AnimatedSwitcher(
       switchInCurve: Curves.easeInOutBack,
@@ -102,7 +100,7 @@ class _Trailing extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var camState = ref.watch(camCardControllerProvider).valueOrFullNull;
+    var camState = ref.watch(camCardControllerProvider).valueOrNull;
 
     if (camState == null ||
         camState.allCams.length < 2 ||

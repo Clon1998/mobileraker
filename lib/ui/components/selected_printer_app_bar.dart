@@ -46,11 +46,9 @@ class SwitchPrinterAppBar extends HookConsumerWidget
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var selectedMachine = ref.watch(selectedMachineProvider).valueOrFullNull;
+    var selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
     var multipleMachinesAvailable = ref
-            .watch(allMachinesProvider.selectAs((data) => data.length > 1))
-            .valueOrFullNull ==
-        true;
+            .watch(allMachinesProvider.selectAs((data) => data.length > 1)).valueOrNull == true;
     return AppBar(
       centerTitle: false,
       title: GestureDetector(

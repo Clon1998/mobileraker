@@ -445,14 +445,14 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
     int genericHeateCnt = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
             value.printerData.genericHeaters.values.where((e) => !e.name.startsWith('_')).length))
-        .valueOrFullNull!;
+        .valueOrNull!;
 
     int sensorsCnt = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
             .printerData.temperatureSensors.values
             .where((e) => !e.name.startsWith('_'))
             .length))
-        .valueOrFullNull!;
+        .valueOrNull!;
 
     int temperatureFanCnt = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
@@ -460,7 +460,7 @@ class _HeatersHorizontalScroll extends ConsumerWidget {
             .where((e) => !e.name.startsWith('_'))
             .whereType<TemperatureFan>()
             .length))
-        .valueOrFullNull!;
+        .valueOrNull!;
 
     return AdaptiveHorizontalScroll(
       pageStorageKey: "temps",
@@ -508,7 +508,7 @@ class _HeaterMixinCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var genericHeater = ref.watch(heaterProvider).valueOrFullNull;
+    var genericHeater = ref.watch(heaterProvider).valueOrNull;
 
     if (genericHeater == null) return const SizedBox.shrink();
 
@@ -540,7 +540,7 @@ class _SensorCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TemperatureSensor temperatureSensor = ref.watch(sensorProvider).valueOrFullNull!;
+    TemperatureSensor temperatureSensor = ref.watch(sensorProvider).valueOrNull!;
 
     var spots = useState(<FlSpot>[]);
     var temperatureHistory = temperatureSensor.temperatureHistory;
@@ -661,7 +661,7 @@ class _TemperatureFanCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    TemperatureFan temperatureFan = ref.watch(tempFanProvider).valueOrFullNull!;
+    TemperatureFan temperatureFan = ref.watch(tempFanProvider).valueOrNull!;
 
     // var spots = useState(<FlSpot>[]);
     // var temperatureHistory = temperatureSensor.temperatureHistory;
@@ -813,7 +813,7 @@ class _BabySteppingCard extends ConsumerWidget {
     var klippyCanReceiveCommands = ref
         .watch(generalTabViewControllerProvider
             .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
-        .valueOrFullNull!;
+        .valueOrNull!;
 
     return Card(
       child: Column(
@@ -887,7 +887,7 @@ class M117Message extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var m117 = ref.watch(generalTabViewControllerProvider
         .selectAs((data) => data.printerData.displayStatus?.message));
-    if (m117.valueOrFullNull == null) return const SizedBox.shrink();
+    if (m117.valueOrNull == null) return const SizedBox.shrink();
 
     var themeData = Theme.of(context);
     return Padding(
@@ -903,7 +903,7 @@ class M117Message extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 12),
               child: Text(
-                m117.valueOrFullNull.toString(),
+                m117.valueOrNull.toString(),
                 style: themeData.textTheme.bodySmall,
               ),
             ),

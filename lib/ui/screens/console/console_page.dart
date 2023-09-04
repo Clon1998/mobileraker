@@ -8,7 +8,6 @@ import 'package:common/data/dto/console/console_entry.dart';
 import 'package:common/data/enums/console_entry_type_enum.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,7 +35,7 @@ class ConsolePage extends ConsumerWidget {
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
         actions: [
-          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
+          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrNull),
           const EmergencyStopBtn(),
         ],
       ),
@@ -56,8 +55,7 @@ class _ConsoleBody extends HookConsumerWidget {
     var consoleTextEditor = useTextEditingController();
     var focusNode = useFocusNode();
 
-    var klippyCanReceiveCommands =
-        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
+    var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
 
     var theme = Theme.of(context);
     return SafeArea(
@@ -189,11 +187,10 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
     var consoleInput = useValueListenable(widget.consoleInputNotifier).text;
 
     var history = ref.watch(commandHistoryProvider);
-    var available = ref.watch(availableMacrosProvider).valueOrFullNull ?? [];
+    var available = ref.watch(availableMacrosProvider).valueOrNull ?? [];
     var suggestions = calculateSuggestedMacros(consoleInput, history, available);
     if (suggestions.isEmpty) return const SizedBox.shrink();
-    var canSend =
-        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
+    var canSend = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
     return SizedBox(
       height: 33,
       child: ChipTheme(
@@ -245,8 +242,7 @@ class _Console extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var canSend =
-        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
+    var canSend = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
     var dateFormatService = ref.read(dateFormatServiceProvider);
 
     return ref.watch(consoleListControllerProvider).when(

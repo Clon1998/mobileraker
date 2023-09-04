@@ -16,7 +16,6 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -85,7 +84,7 @@ class GeneralTabViewController
 
   editHHHeater(HeaterMixin heater) {
     double? maxValue;
-    var configFile = state.valueOrFullNull?.printerData.configFile;
+    var configFile = state.valueOrNull?.printerData.configFile;
     if (heater is Extruder) {
       maxValue = configFile?.extruders[heater.name]?.maxTemp;
     } else if (heater is HeaterBed) {
@@ -164,7 +163,7 @@ class BabyStepCardController extends StateNotifier<int> {
     double dirStep = (positive) ? step : -1 * step;
     int? m = (ref
             .read(machinePrinterKlippySettingsProvider)
-            .valueOrFullNull!
+            .valueOrNull!
             .printerData
             .toolhead
             .homedAxes

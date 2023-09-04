@@ -7,7 +7,6 @@ import 'package:common/data/dto/machine/manual_probe.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -27,7 +26,7 @@ class ManualOffsetDialogController extends _$ManualOffsetDialogController {
     // make sure we close the dialog once its resolved externally
     // also prevents opening the dialog by mistake!
     ref.listenSelf((previous, next) {
-      if (next.valueOrFullNull?.isActive == false) {
+      if (next.valueOrNull?.isActive == false) {
         logger.i('Dialog closed externally since manual_probe is not active anymore!');
         _complete(DialogResponse.confirmed());
         ref.read(snackBarServiceProvider).show(SnackBarConfig(
