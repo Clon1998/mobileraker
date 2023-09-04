@@ -248,7 +248,7 @@ class JsonRpcClient {
         headers: headers,
         customClient: httpClient,
       ).timeout(Duration(seconds: timeout.inSeconds + 2))
-        ..pingInterval = timeout;
+        ..pingInterval = const Duration(seconds: 5);
 
       if (_disposed) {
         socket.close();
@@ -347,6 +347,11 @@ class JsonRpcClient {
       t = ClientState.disconnected;
     }
     if (!_stateStream.isClosed) curState = t;
+    // Can not reconnect if the close code is 1002 (protocol error)
+    if (closeCode == 1002) {
+      logger.i('$logPrefix Reconnecting is not possible, because the close code is 1002 (protocol error)');
+      return;
+    }
     openChannel();
   }
 
