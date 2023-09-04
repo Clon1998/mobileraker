@@ -70,8 +70,8 @@ class ConnectionStateController extends _$ConnectionStateController {
             ref.invalidate(machineProvider(selMachine!.uuid));
           } else {
             logger.i('Refreshing selectedPrinter...');
-            ref.invalidate(machineProvider(selMachine!.uuid));
-            // ref.read(jrpcClientManagerProvider(selMachine!.uuid).notifier).refreshCurrentClient();
+            // ref.invalidate(machineProvider(selMachine!.uuid));
+            ref.read(jrpcClientManagerProvider(selMachine!.uuid).notifier).refreshCurrentClient();
           }
         }
 
