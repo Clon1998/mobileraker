@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.6.0] - 2023-09-
+## [2.6.0] - 2023-09-06
 
 ### Major Changes
 
@@ -35,6 +35,7 @@
   state. [#224](https://github.com/Clon1998/mobileraker/issues/224)
 - Fixed parsing of the `heater_generic` config for some edge
   cases. [#242](https://github.com/Clon1998/mobileraker/issues/242)
+- Resolved an issue where the app would crash after being in the background for an extended period.
 
 ## [2.5.3] - 2023-08-16
 
