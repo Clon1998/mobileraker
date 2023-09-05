@@ -15,7 +15,7 @@
     "restart": "Újraindítás",
     "shutdown": "Leállítás",
     "firmware": "Firmware",
-    "fetching": "Vonza",
+    "fetching": "Elvesz",
     "loading": "Betöltés",
     "unknown": "Ismeretlen",
     "disabled": "Tiltva",
@@ -36,7 +36,12 @@
     "restore": "Visszaállítás",
     "accept": "Elfogad",
     "abort": "Elvet",
-    "offset": "Offset"
+    "offset": "Eltolás",
+    "valid": "Érvényes",
+    "invalid": "Érvénytelen",
+    "free": "Ingyenes",
+    "one_time": "Egyszer",
+    "delete": "Töröl"
   },
   "pages": {
     "dashboard": {
@@ -50,6 +55,7 @@
       "general": {
         "print_card": {
           "reset": "Visszaállítás",
+          "reprint": "Újranyomtatás",
           "printing_for": "Nyomtatás: {}",
           "speed": "Sebesség",
           "layer": "Réteg",
@@ -131,7 +137,7 @@
           "cold_extrude_error": "A nyomtatófej még nem érte el a {}°C-os hőmérsékletet min_extrude_temp {}°C !"
         },
         "macro_card": {
-          "title": "Gcode - Makrók"
+          "title": "G-kód - Makrók"
         },
         "pin_card": {
           "title": {
@@ -251,7 +257,25 @@
       "fetch_error_hint": "Győződj meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.",
       "store_error": {
         "title": "Sikertelen mentés!",
-        "message": "Egyes mezők érvénytelen értékeket tartalmaznak!\nKérjük, győződj meg róla, hogy minden mező érvényes."
+        "message": "Egyes mezők érvénytelen értékeket tartalmaznak!\nKérjük, győződj meg róla, hogy minden mező érvényes.",
+        "unexpected_error": "Váratlan hiba történt a gépadatok mentésekor!"
+      },
+      "confirm_deletion": {
+        "title": "Törlöd {}?",
+        "body": "A csatlakoztatott nyomtató '{}' eltávolítására készülsz '{}'. \n\nErősítsd meg döntésed."
+      },
+      "success_oe_link": {
+        "title": "Összekapcsolva {}",
+        "body": "Sikeresen összekapcsolva {} az OctoEverywhere-el!"
+      },
+      "confirm_oe_unlink": {
+        "title": "Leválasztod {}?",
+        "body": "Kérjük, erősítsd meg {} nyomtatód leválasztását az OctoEverywhere szolgáltatásról.",
+        "button": "Leválasztás"
+      },
+      "success_oe_unlink": {
+        "title": "Leválasztva {}",
+        "body": "Sikeres leválasztás {} az OctoEverywhere-ről!"
       },
       "general": {
         "displayname": "Megjelenítendő név",
@@ -316,13 +340,52 @@
       }
     },
     "printer_add": {
-      "title": "Új nyomtató felvétele",
-      "printer_add_helper": "Host, IP vagy teljes URL",
-      "resulting_ws_url": "Hasznos WebSocket-URL: {}",
-      "misc": "Egyéb",
-      "test_ws": "Websocket kapcsolat tesztelése",
-      "result_ws_test": "Eredmény: {}",
-      "run_test_btn": "Teszt"
+      "steps": {
+        "mode": "Mód",
+        "input": "Bemenet",
+        "test": "Teszt",
+        "done": "Kész"
+      },
+      "title": "Új nyomtató hozzáadása",
+      "initial_name": "Saját nyomtatóm",
+      "select_mode": {
+        "title": "Válassz beviteli módot:",
+        "body": "Ha még nem ismered ezt, a legjobb, ha maradsz az egyszerű módnál. Ha azonban tapasztalt vagy, és egyéni fejléceket, tanúsítványokat stb. kell használnod, akkor a haladó mód neked készült. Ne feledd, hogy a választott mód nem befolyásolja magát az alkalmazást, de meghatározza, hogy a bemenet hogyan kerül ellenőrzésre és megjelenítésre, és milyen lehetőségek állnak rendelkezésre a gép hozzáadása során.",
+        "simple": "Egyszerű",
+        "advanced": "Haladó",
+        "add_via_oe": "Egykattintásos OctoEverywhere beállítás"
+      },
+      "simple_form": {
+        "hint_title": "Tipp – Egyszerű mód",
+        "hint_body": "Az egyszerű mód lehetővé teszi a gazdagép és a port megadását. Ha azonban testre kell szabnod az elérési utat, a fejléceket, a tanúsítványokat vagy más beállításokat, válts haladó módra.",
+        "url_hint": "A nyomtató IP-címe vagy gazdagép neve"
+      },
+      "advanced_form": {
+        "hint_title": "Tipp – Haladó mód",
+        "hint_body": "Kérjük, vedd figyelembe, hogy haladó módban az érvényesítés többnyire le van tiltva. Fontos, hogy teljes felelősséget vállalj azért, hogy a megadott URL érvényes legyen.",
+        "http_helper": "Kérjük, add meg a Moonraker HTTP-végpontját",
+        "ws_helper": "Opcionális, a Moonraker WebSocket végpontja",
+        "section_security": "Biztonság",
+        "section_headers": "HTTP-fejlécek",
+        "empty_headers": "Nincsenek fejlécek hozzáadva!"
+      },
+      "test_connection": {
+        "section_connection": "Csatlakozási adatok",
+        "ws_url_label": "Az eredmény WebSocket-URL",
+        "http_url_label": "Az eredmény HTTP-URL",
+        "section_test": "Csatlakozási tesztek",
+        "http_label": "HTTP végpont – Teszt",
+        "ws_label": "Websocket végpont – Teszt",
+        "awaiting": "Eredményre vár…",
+        "continue": "Folytatás",
+        "continue_anyway": "Mindenképp folytatás",
+        "proceed_warning": "Úgy tűnik, hogy az alkalmazás nem csatlakozik a géphez. Ennek az lehet az oka, hogy nem ugyanazon a hálózaton van, mint a gép, vagy nem rendelkezik a hozzáféréshez szükséges engedélyekkel. Bár a probléma ellenére választhatod a gép hozzáadását, kérjük, vedd figyelembe, hogy nincs garancia a megfelelő csatlakozásra. Kérjük, óvatosan járj el.",
+        "button": "Kapcsolat tesztelése"
+      },
+      "confirmed": {
+        "title": "Nyomtató {} hozzáadva!",
+        "to_dashboard": "Az Irányítópultra"
+      }
     },
     "console": {
       "title": "Konzol",
@@ -350,12 +413,11 @@
       "title": "Változási napló"
     },
     "paywall": {
-      "title": "Támogatási oldal!",
-      "calling_store": "Kérés feldolgozása...",
       "manage_view": {
         "title": "Köszönet a támogatásodért!",
         "list_title": "Támogatói szint módosítása:",
-        "store_btn": "Előfizetés lemondása itt {}"
+        "store_btn": "Előfizetés lemondása itt {}",
+        "sub_warning": "Kérjük, vedd figyelembe, hogy az élethosszig tartó támogatói szint megvásárlása nem von le automatikusan más aktív előfizetést sem. Minden aktív előfizetést manuálisan kell lemondanod. Lehetőséged van azonban arra, hogy továbbra is rendszeresen támogasd a Mobileraker fejlesztését, még az élethosszig tartó támogatói szint megvásárlása után is."
       },
       "subscribe_view": {
         "title": "Legyél Mobileraker támogató!",
@@ -369,12 +431,23 @@
       "contact_dialog": {
         "title": "Fejlesztői kapcsolattartó",
         "body": "Email: {}\nDiscord: {}"
-      }
+      },
+      "title": "Támogasd a Fejlesztést!",
+      "calling_store": "Kérelem feldolgozása...",
+      "promo_title": "Promóció",
+      "free_phase": "Első {} ingyenes",
+      "intro_phase": "Élvezd {} kedvezményes {} áron",
+      "iap_offer": "{} eredeti árból",
+      "tip_developer": "Borravaló a fejlesztőnek"
     }
   },
   "components": {
+    "app_version_display": {
+      "version": "Verzió:",
+      "installed_version": "Telepített verzió:"
+    },
     "pull_to_refresh": {
-      "pull_up_idle" : "Frissítéshez húzd fel"
+      "pull_up_idle": "Húzza fel a Frissítéshez"
     },
     "nav_drawer": {
       "printer_settings": "Nyomtató beállítások",
@@ -387,14 +460,24 @@
       "trying_connect": "Próbálok csatlakozni...",
       "trying_connect_remote": "Távoli kliensel próbál csatlakozni...",
       "server_starting": "Szerver elindul...",
-      "more_details": "További részletek"
+      "more_details": "További részletek",
+      "add_printer": "Halihó,\nÖrülök, hogy itt látlak!\nAz élmény beindításához kérjük, adj hozzá nyomtatót a Mobilerakerhez. Miután befejezted ezt a lépést, közvetlenül a Mobilerakerből irányíthatod a nyomtatót."
     },
     "octo_indicator": {
       "tooltip": "Az OctoEveryWhere használata!"
     },
     "supporter_add": {
       "title": "Tetszik a Mobileraker?",
-      "subtitle": "Koppints rám! Tanuld meg, hogyan támogathatod a fejlesztést!"
+      "subtitle": "Koppints rám! Nézd meg, hogyan támogathatod a fejlesztést!"
+    },
+    "supporter_only_feature": {
+      "button": "Legyél Mobileraker támogató",
+      "webcam": "Sajnáljuk, a {} típusú webkamerák csak a Támogatók számára érhetők el.",
+      "printer_add": "Sajnáljuk, de több mint {} gép kezelése csak a Támogatók számára érhető el."
+    },
+    "machine_deletion_warning": {
+      "title": "Gépi törlés",
+      "subtitle": "Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint {} gépe. Neked {} napod van a felesleges gépek eltávolításáig."
     }
   },
   "dialogs": {
@@ -465,6 +548,10 @@
       "notification_perk": {
         "title": "Pillanatkép értesítések",
         "subtitle": "Az állapotértesítések közé tartozik a Webcam pillanatkép"
+      },
+      "webrtc_perk": {
+        "title": "WebRtc támogatás",
+        "subtitle": "Lehetővé teszi a WebRtc webkamerák használatát!"
       }
     },
     "bed_screw_adjust": {
@@ -481,6 +568,19 @@
       "hint_tooltip": "Klipper papírteszt dokumentációja",
       "snackbar_title": "Kalibráció kész",
       "snackbar_message": "Ügyelj rá, hogy az eltolás megmaradjon a Konfiguráció mentése művelettel."
+    },
+    "tipping": {
+      "title": "Borravaló a fejlesztőnek!",
+      "body": "Ez a borravaló kizárólag a fejlesztő erőfeszítéseinek elismerésére szolgál, és NEM biztosít hozzáférést semmilyen további funkcióhoz.",
+      "amount_label": "Borravaló összege",
+      "tip": "Borravaló"
+    },
+    "http_header": {
+      "title": "HTTP-fejléc",
+      "header": "Fejléc",
+      "header_hint": "A HTTP-fejléc neve",
+      "value": "Fejléc-érték",
+      "value_hint": "A fejléc értéke"
     }
   },
   "klipper_state": {
@@ -497,7 +597,7 @@
       "status": {
         "name": "Nyomtatási állapotfrissítések - {}",
         "desc": "Értesítések a nyomtatás állapotáról.",
-        "title": "A(z) {} nyomtatási állapota megváltozott!",
+        "title": "A {} nyomtatási állapota megváltozott!",
         "body_printing": "Elkezdődött a fájl nyomtatása: \"{}\"",
         "body_paused": "Szünetel a fájl nyomtatása: \"{}\"",
         "body_complete": "Kész a nyomtatás: \"{}\"",
@@ -507,8 +607,47 @@
         "name": "Nyomtatási folyamatfrissítések - {}",
         "desc": "Értesítések a nyomtatás előrehaladásáról.",
         "title": "Nyomtatás folyamata {}"
-
       }
+    }
+  },
+  "form_validators": {
+    "simple_url": "A bemenet csak URL-összetevőket engedélyez: Gazdagépnév és Port",
+    "disallow_mdns": "Az MDNs (.local) címek nem támogatottak."
+  },
+  "date": {
+    "year": {
+      "one": "Év",
+      "other": "Évek"
+    },
+    "month": {
+      "one": "Hónap",
+      "other": "Hónapok"
+    },
+    "week": {
+      "one": "Hét",
+      "other": "Hetek"
+    },
+    "day": {
+      "one": "Nap",
+      "other": "Napok"
+    }
+  },
+  "date_periods": {
+    "year": {
+      "one": "Éves",
+      "other": "Évek"
+    },
+    "month": {
+      "one": "Havi",
+      "other": "Hónapok"
+    },
+    "week": {
+      "one": "Heti",
+      "other": "Hetek"
+    },
+    "day": {
+      "one": "Napi",
+      "other": "Napok"
     }
   }
 }
