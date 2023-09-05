@@ -528,7 +528,8 @@
       "button": "Become a Mobileraker Supporter",
       "webcam": "Sorry, Webcams of type {} are only available to Supporters.",
       "printer_add": "Sorry, managing more than {} machines is only available to Supporters.",
-      "job_queue": "Sorry, the Job Queue is only available to Supporters."
+      "job_queue": "Sorry, the Job Queue is only available to Supporters.",
+      "timelaps_share": "Sorry, sharing timelapses is only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",

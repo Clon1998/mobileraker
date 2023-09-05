@@ -8,7 +8,9 @@ import 'dart:async';
 import 'package:appinio_video_player/appinio_video_player.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +66,20 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   Widget build(BuildContext context) {
     Widget body;
     if (loading) {
-      if (fileDownloadProgress != null) {
+      if (fileDownloadProgress != null && !ref.watch(isSupporterProvider)) {
+        body = Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SupporterOnlyFeature(text: Text("components.supporter_only_feature.timelaps_share").tr()),
+            ElevatedButton(
+                onPressed: () => setState(() {
+                      fileDownloadProgress = null;
+                      loading = false;
+                    }),
+                child: Text(MaterialLocalizations.of(context).backButtonTooltip)),
+          ],
+        );
+      } else if (fileDownloadProgress != null) {
         var percent = NumberFormat.percentPattern(context.locale.languageCode).format(fileDownloadProgress);
         body = Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -111,10 +126,17 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   }
 
   _startDownload() async {
+    var isSupporter = ref.read(isSupporterProvider);
+
     setState(() {
       loading = true;
       fileDownloadProgress = 0;
     });
+
+    if (!isSupporter) {
+      return;
+    }
+
     downloadStreamSub?.cancel();
     downloadStreamSub = ref.read(fileServiceSelectedProvider).downloadFile(widget.file.absolutPath).listen(
       (event) async {

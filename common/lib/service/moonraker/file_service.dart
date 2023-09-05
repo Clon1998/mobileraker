@@ -296,9 +296,7 @@ class FileService {
     });
 
     yield* receiverPort
-        .takeUntil(download.asStream())
-        .cast<FileDownload>()
-        .sampleTime(const Duration(milliseconds: 150));
+        .takeUntil(download.asStream()).cast<FileDownload>();
     yield await download;
     receiverPort.close();
     logger.i('DONEEEE');
