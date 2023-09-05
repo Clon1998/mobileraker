@@ -490,6 +490,9 @@
       "intro_phase": "Enjoy {} at {} off",
       "iap_offer": "{} off original price",
       "tip_developer": "Tip Developer"
+    },
+    "video_player": {
+      "downloading_for_sharing": "Downloading video for sharing... ({})"
     }
   },
   "components": {

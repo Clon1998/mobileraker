@@ -9,6 +9,8 @@
 - Users are now able to configure an alternative url (Remote URL) that Mobileraker will use to
   connect to the printer. This is useful if you want to connect to your printer from outside your
   local network.
+- The app now intelligently switches between local and remote connections based on your phone's WiFi network status,
+  ensuring seamless connectivity even when you're not connected to a configured WiFi network.
 - Made the timelapse folder accessible via the file browser if the timelapse plugin is
   active. [#241]((https://github.com/Clon1998/mobileraker/issues/241)
 

@@ -6,6 +6,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
@@ -22,12 +24,14 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
-import 'package:file/memory.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:worker_manager/worker_manager.dart';
 
 import '../../network/jrpc_client_provider.dart';
 import '../machine_service.dart';
@@ -157,7 +161,8 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUri, this.headers) {
+  FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUri, this.headers)
+      : _downloadReceiverPortName = 'downloadFilePort-${httpUri.hashCode}' {
     // var downloadManager = DownloadManager.instance;
 
     // We need an mobileraker HTTP client
@@ -167,9 +172,10 @@ class FileService {
     _jRpcClient.addMethodListener(_onFileListChanged, "notify_filelist_changed");
   }
 
+  final String _downloadReceiverPortName;
+
   final Uri httpUri;
   final Map<String, String> headers;
-  final MemoryFileSystem _fileSystem = MemoryFileSystem();
 
   final StreamController<FileActionResponse> _fileActionStreamCtrler = StreamController();
 
@@ -265,38 +271,37 @@ class FileService {
 
   // Throws TimeOut exception, if file download took to long!
   ///TODO: Migrate this code to a approach based off isolates to ensure the UI does not flicker/studders
-  Future<File> downloadFile(String filePath, [Duration? timeout]) async {
-    timeout ??= const Duration(seconds: 15);
-    Uri uri = httpUri.replace(path: 'server/files/$filePath');
+  Stream<FileDownload> downloadFile(String filePath, [Duration? timeout]) async* {
+    final downloadUri = httpUri.replace(path: 'server/files/$filePath');
+    final tmpDir = await getTemporaryDirectory();
+    final File file = File('${tmpDir.path}/$filePath');
+    final Map<String, String> isolateSafeHeaders = Map.from(headers);
+    final String isolateSafePortName = _downloadReceiverPortName;
+    logger.i('Will try to download $filePath to file $file from uri ${downloadUri.obfuscate()}');
 
-    var file = _fileSystem.file(filePath);
-    if (await file.exists()) {
-      logger.i('File already exists, skipping download');
-      return file;
-    }
+    final ReceivePort receiverPort = ReceivePort();
+    IsolateNameServer.registerPortWithName(receiverPort.sendPort, isolateSafePortName);
 
-    logger.i('Trying download of ${uri.obfuscate()}');
-    try {
-      HttpClientRequest clientRequest = await HttpClient().getUrl(uri).timeout(timeout);
-      //TODO: Requires headers from client too ...
-      HttpClientResponse clientResponse = await clientRequest.close().timeout(timeout);
+    var download = workerManager.execute<FileDownload>(() async {
+      await setupIsolateLogger();
+      logger.i('Hello from worker ${file.path} - my port will be: $isolateSafePortName');
+      var port = IsolateNameServer.lookupPortByName(isolateSafePortName)!;
 
-      await file.create(recursive: true);
-      IOSink writer = file.openWrite();
-      var totalLen = clientResponse.contentLength;
-      var received = 0;
-      await clientResponse.map((s) {
-        received += s.length;
-        logger.i('Download progress: ${(received / totalLen) * 100} %');
-        return s;
-      }).pipe(writer);
-      await writer.close();
-      logger.i('Download completed!');
-      return file;
-    } on TimeoutException catch (e) {
-      logger.w('Timeout reached while trying to download file: $filePath', e);
-      throw const MobilerakerException('Timeout while trying to download File');
-    }
+      return await isolateDownloadFile(
+          port: port, targetUri: downloadUri, downloadPath: file.path, headers: isolateSafeHeaders, timeout: timeout);
+    });
+    download.whenComplete(() {
+      logger.i('File download done, cleaning up port');
+      IsolateNameServer.removePortNameMapping(isolateSafePortName);
+    });
+
+    yield* receiverPort
+        .takeUntil(download.asStream())
+        .cast<FileDownload>()
+        .sampleTime(const Duration(milliseconds: 150));
+    yield await download;
+    receiverPort.close();
+    logger.i('DONEEEE');
   }
 
   Future<FileActionResponse> uploadAsFile(String filePath, String content) async {
@@ -381,5 +386,64 @@ class FileService {
   dispose() {
     _jRpcClient.removeMethodListener(_onFileListChanged, "notify_filelist_changed");
     _fileActionStreamCtrler.close();
+  }
+}
+
+Future<FileDownload> isolateDownloadFile({
+  required SendPort port,
+  required Uri targetUri,
+  required String downloadPath,
+  Map<String, String> headers = const {},
+  Duration? timeout,
+}) async {
+  logger.i('Got headers: $headers and timeout: $timeout');
+  var file = File(downloadPath);
+  timeout ??= const Duration(seconds: 10);
+
+  if (await file.exists()) {
+    logger.i('File already exists, skipping download');
+    return FileDownloadComplete(file);
+  }
+  port.send(FileDownloadProgress(0));
+  await file.create(recursive: true);
+
+  HttpClientRequest clientRequest = await HttpClient().getUrl(targetUri).timeout(timeout);
+  headers.forEach(clientRequest.headers.add);
+  HttpClientResponse clientResponse = await clientRequest.close().timeout(timeout);
+
+  IOSink writer = file.openWrite();
+  var totalLen = clientResponse.contentLength;
+  var received = 0;
+  await clientResponse.map((s) {
+    received += s.length;
+    port.send(FileDownloadProgress(received / totalLen));
+    return s;
+  }).pipe(writer);
+  await writer.close();
+  logger.i('Download completed!');
+  return FileDownloadComplete(file);
+}
+
+sealed class FileDownload {}
+
+class FileDownloadProgress extends FileDownload {
+  FileDownloadProgress(this.progress);
+
+  final double progress;
+
+  @override
+  String toString() {
+    return 'FileDownloadProgress{progress: $progress}';
+  }
+}
+
+class FileDownloadComplete extends FileDownload {
+  FileDownloadComplete(this.file);
+
+  final File file;
+
+  @override
+  String toString() {
+    return 'FileDownloadComplete{file: $file}';
   }
 }

@@ -8,14 +8,13 @@ import 'dart:async';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
-import 'package:common/service/permission_service.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../service/machine_service.dart';
-import '../service/network_info_service.dart';
 import '../service/selected_machine_service.dart';
 
 part 'jrpc_client_provider.g.dart';

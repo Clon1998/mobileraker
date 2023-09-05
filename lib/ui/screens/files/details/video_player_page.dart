@@ -3,16 +3,17 @@
  * All rights reserved.
  */
 
-import 'dart:io';
+import 'dart:async';
 
 import 'package:appinio_video_player/appinio_video_player.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/util/logger.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 class VideoPlayerPage extends ConsumerStatefulWidget {
@@ -28,7 +29,9 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   late VideoPlayerController videoPlayerController;
   late CustomVideoPlayerController _customVideoPlayerController;
   bool loading = true;
+  double? fileDownloadProgress;
   String? error;
+  StreamSubscription? downloadStreamSub;
 
   @override
   void initState() {
@@ -61,7 +64,24 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   Widget build(BuildContext context) {
     Widget body;
     if (loading) {
-      body = const Center(child: CircularProgressIndicator());
+      if (fileDownloadProgress != null) {
+        var percent = NumberFormat.percentPattern(context.locale.languageCode).format(fileDownloadProgress);
+        body = Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircularProgressIndicator.adaptive(
+                value: fileDownloadProgress,
+              ),
+            ),
+            const Text('pages.video_player.downloading_for_sharing').tr(args: [percent]),
+          ],
+        );
+      } else {
+        body = const Center(child: CircularProgressIndicator());
+      }
     } else if (error != null) {
       body = ErrorCard(
         title: Text('Could not load video File...'),
@@ -78,39 +98,8 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
         title: Text(widget.file.name),
         actions: [
           IconButton(
-            onPressed: loading
-                ? null
-                : () async {
-                    setState(() {
-                      loading = true;
-                    });
-                    var tmpDir = await getTemporaryDirectory();
-                    var downloadFile =
-                        await ref.read(fileServiceSelectedProvider).downloadFile(widget.file.absolutPath);
-                    logger.i(
-                        'Done dowloaidng, file is at ${downloadFile.absolute.path} -> Copy to ${tmpDir.path}/${downloadFile.path}');
-                    var tmpFile = await File('${tmpDir.path}/${downloadFile.path}').create(recursive: true);
-                    logger.i('!');
-                    var openWrite = tmpFile.openWrite();
-                    logger.i('2');
-                    await openWrite.addStream(downloadFile.openRead());
-                    logger.i('3');
-                    await openWrite.flush();
-                    logger.i('4');
-                    await openWrite.close();
-
-                    // var fileInFs = await downloadFile.copy('${tmpDir.path}/${downloadFile.path}');
-
-                    logger.i('File in FS is at ${tmpFile.absolute.path}, size : ${tmpFile.lengthSync()}');
-
-                    await Share.shareXFiles([XFile(tmpFile.path, mimeType: 'video/mp4')],
-                        subject: "Video ${widget.file.name}");
-                    logger.i('Done with sharing');
-                    setState(() {
-                      loading = false;
-                    });
-                  },
-            icon: Icon(Icons.share),
+            onPressed: loading ? null : _startDownload,
+            icon: const Icon(Icons.share),
           )
         ],
       ),
@@ -121,9 +110,55 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
     );
   }
 
+  _startDownload() async {
+    setState(() {
+      loading = true;
+      fileDownloadProgress = 0;
+    });
+    downloadStreamSub?.cancel();
+    downloadStreamSub = ref.read(fileServiceSelectedProvider).downloadFile(widget.file.absolutPath).listen(
+      (event) async {
+        if (event is FileDownloadProgress) {
+          setState(() {
+            fileDownloadProgress = event.progress;
+          });
+          return;
+        }
+        var downloadFile = event as FileDownloadComplete;
+        // logger.i('File in FS is at ${file.absolute.path}');
+        logger.i('File in FS is at ${downloadFile.file.absolute.path}, size : ${downloadFile.file.lengthSync()}');
+        setState(() {
+          fileDownloadProgress = 1;
+        });
+
+        await Share.shareXFiles([XFile(downloadFile.file.path, mimeType: 'video/mp4')],
+            subject: "Video ${widget.file.name}");
+        logger.i('Done with sharing');
+        setState(() {
+          fileDownloadProgress = null;
+          loading = false;
+        });
+      },
+      onError: (e) {
+        ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            type: SnackbarType.error, title: 'Error while downloading file for sharing.', message: e.toString()));
+        setState(() {
+          fileDownloadProgress = null;
+          loading = false;
+        });
+      },
+      onDone: () {
+        logger.i('File Dowload is completed');
+      },
+    );
+
+    // var fileInFs = await downloadFile.copy('${tmpDir.path}/${downloadFile.path}');
+  }
+
   @override
   void dispose() {
     super.dispose();
+    downloadStreamSub?.cancel();
     _customVideoPlayerController.dispose();
   }
 }

@@ -55,6 +55,23 @@ Future<void> setupLogger() async {
   );
 }
 
+bool _isolateLoggerAvailable = false;
+
+Future<void> setupIsolateLogger() async {
+  if (_isolateLoggerAvailable) return;
+  _isolateLoggerAvailable = true;
+  logger = Logger(
+    printer: PrettyPrinter(
+        methodCount: 0,
+        errorMethodCount: 200,
+        noBoxingByDefault: true,
+        printTime: !kDebugMode,
+        colors: kDebugMode && !Platform.isIOS),
+    output: ConsoleOutput(),
+    filter: ProductionFilter(),
+  );
+}
+
 Future<Directory> logFileDirectory() async {
   final temporaryDirectory = await getApplicationSupportDirectory();
   return Directory('${temporaryDirectory.path}/logs').create(recursive: true);

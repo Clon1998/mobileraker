@@ -42,8 +42,11 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
 
   _init() async {
     try {
-      var downloadFile = await fileService.downloadFile(ref.read(configFileProvider).absolutPath);
-      var content = await downloadFile.readAsString();
+      var downloadFile = await fileService
+          .downloadFile(ref.read(configFileProvider).absolutPath)
+          .firstWhere((element) => element is FileDownloadComplete);
+      downloadFile as FileDownloadComplete;
+      var content = await downloadFile.file.readAsString();
       if (mounted) {
         state = state.copyWith(config: AsyncValue.data(content));
       }

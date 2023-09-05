@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:common/service/network_info_service.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:easy_localization/easy_localization.dart';

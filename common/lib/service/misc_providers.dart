@@ -3,12 +3,18 @@
  * All rights reserved.
  */
 
+import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../util/logger.dart';
 
-part 'permission_service.g.dart';
+part 'misc_providers.g.dart';
+
+@Riverpod(keepAlive: true)
+NetworkInfo networkInfoService(NetworkInfoServiceRef ref) {
+  return NetworkInfo();
+}
 
 @riverpod
 Future<PermissionStatus> permissionStatus(PermissionStatusRef ref, Permission permission) async {

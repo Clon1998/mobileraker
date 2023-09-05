@@ -32,6 +32,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:worker_manager/worker_manager.dart';
 
 part 'app_setup.g.dart';
 
@@ -238,6 +239,9 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   await ref
       .read(notificationServiceProvider)
       .initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
+
+  await workerManager.init();
+  logger.i('Completed init for workManager');
 
   yield StartUpStep.complete;
 }
