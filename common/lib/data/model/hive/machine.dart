@@ -4,21 +4,17 @@
  */
 
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:common/util/logger.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../util/misc.dart';
 import '../../dto/machine/print_state_enum.dart';
 import 'octoeverywhere.dart';
 import 'remote_interface.dart';
 import 'temperature_preset.dart';
 
-part 'machine_adapter.dart';
-
 // Also delete the machine.save line in app_setup
-// part 'machine.g.dart';
+part 'machine.g.dart';
 
 @HiveType(typeId: 1)
 class Machine extends HiveObject {
