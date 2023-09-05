@@ -232,9 +232,10 @@ class FilesPageController extends _$FilesPageController {
     );
 
     if (dialogResponse?.confirmed == true) {
-      state = state.copyWith(files: state.files.toLoading());
       String newName = dialogResponse!.data;
+      if (file.fileExtension != null) newName = '$newName.${file.fileExtension!}';
       if (newName == file.name) return;
+      state = state.copyWith(files: state.files.toLoading());
 
       try {
         await _fileService.moveFile('${state.pathAsString}/${file.name}', '${state.pathAsString}/$newName');
