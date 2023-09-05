@@ -297,9 +297,9 @@ class FileService {
 
     yield* receiverPort
         .takeUntil(download.asStream()).cast<FileDownload>();
-    yield await download;
     receiverPort.close();
-    logger.i('DONEEEE');
+    logger.i('Closed the port');
+    yield await download;
   }
 
   Future<FileActionResponse> uploadAsFile(String filePath, String content) async {
