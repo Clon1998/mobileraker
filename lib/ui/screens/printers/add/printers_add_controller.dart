@@ -18,6 +18,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/octoeverywhere/app_connection_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -29,7 +30,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
-import 'package:mobileraker/ui/theme/theme_pack.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'printers_add_controller.freezed.dart';

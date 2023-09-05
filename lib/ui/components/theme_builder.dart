@@ -3,9 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:common/service/ui/theme_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/theme_service.dart';
 
 class ThemeBuilder extends ConsumerWidget {
   const ThemeBuilder({Key? key, required this.builder}) : super(key: key);

@@ -6,6 +6,8 @@
 import 'dart:async';
 
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -28,12 +30,14 @@ Stream<Machine?> selectedMachine(SelectedMachineRef ref) {
 
 /// Service handling currently selected machine!
 class SelectedMachineService {
-  SelectedMachineService(Ref ref)
+  SelectedMachineService(this.ref)
       : _boxUuid = Hive.box<String>('uuidbox'),
         _machineRepo = ref.watch(machineRepositoryProvider) {
     ref.onDispose(dispose);
     _init();
   }
+
+  final AutoDisposeRef ref;
 
   final MachineHiveRepository _machineRepo;
 
@@ -42,6 +46,8 @@ class SelectedMachineService {
   final StreamController<Machine?> _selectedMachineCtrler = StreamController<Machine?>();
 
   Stream<Machine?> get selectedMachine => _selectedMachineCtrler.stream;
+
+  ThemeService get _themeService => ref.read(themeServiceProvider);
 
   _init() {
     String? selectedUUID = _boxUuid.get('selectedPrinter');
@@ -63,9 +69,8 @@ class SelectedMachineService {
         _selectedMachineCtrler.add(null);
         _selected = null;
       }
-
-      logger.i(
-          "Selecting no printer as active Printer. Stream is closed?: ${_selectedMachineCtrler.isClosed}");
+      _themeService.selectSystemThemePack();
+      logger.i("Selecting no printer as active Printer. Stream is closed?: ${_selectedMachineCtrler.isClosed}");
       return;
     }
 
@@ -75,6 +80,12 @@ class SelectedMachineService {
     if (!_selectedMachineCtrler.isClosed) {
       _selectedMachineCtrler.add(machine);
       _selected = machine;
+
+      if (ref.read(isSupporterProvider) && machine.printerThemePack != -1) {
+        _themeService.selectThemeIndex(machine.printerThemePack);
+      } else {
+        _themeService.selectSystemThemePack();
+      }
     }
   }
 

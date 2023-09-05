@@ -6,6 +6,7 @@
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
@@ -26,6 +27,7 @@ import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 import 'service/ui/bottom_sheet_service_impl.dart';
 import 'service/ui/dialog_service_impl.dart';
+import 'ui/theme/theme_setup.dart';
 
 Future<void> main() async {
   var widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +40,8 @@ Future<void> main() async {
     overrides: [
       bottomSheetServiceProvider.overrideWith(bottomSheetServiceImpl),
       dialogServiceProvider.overrideWith(dialogServiceImpl),
-      snackBarServiceProvider.overrideWith(snackBarServiceImpl)
+      snackBarServiceProvider.overrideWith(snackBarServiceImpl),
+      themePackProvider.overrideWith(themePacks)
     ],
     observers: const [
       if (kDebugMode) RiverPodLogger(),
@@ -82,8 +85,7 @@ class MyApp extends ConsumerWidget {
           );
         },
         child: ThemeBuilder(
-          builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme,
-              ThemeMode? themeMode) {
+          builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme, ThemeMode? themeMode) {
             return MaterialApp.router(
               routerDelegate: goRouter.routerDelegate,
               routeInformationProvider: goRouter.routeInformationProvider,
@@ -146,9 +148,9 @@ class _LoadingSplashScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var animCtrler = useAnimationController(
-        duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1)
-      ..repeat(reverse: true);
+    var animCtrler =
+        useAnimationController(duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1)
+          ..repeat(reverse: true);
 
     return SafeArea(
       child: Directionality(

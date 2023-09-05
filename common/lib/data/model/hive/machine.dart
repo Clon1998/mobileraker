@@ -52,6 +52,8 @@ class Machine extends HiveObject {
   RemoteInterface? remoteInterface;
   @HiveField(7, defaultValue: [])
   List<String> localSsids;
+  @HiveField(8, defaultValue: -1)
+  int printerThemePack;
 
   PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
 
@@ -81,6 +83,7 @@ class Machine extends HiveObject {
     this.httpHeaders = const {},
     this.timeout = 5,
     this.localSsids = const [],
+    this.printerThemePack = -1,
   })  : name = name.trim(),
         apiKey = apiKey?.trim();
 

@@ -9,14 +9,19 @@ import 'dart:math';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileraker/ui/theme/theme_pack.dart';
-import 'package:mobileraker/ui/theme/theme_setup.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../ui/theme/theme_pack.dart';
+
 part 'theme_service.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
+List<ThemePack> themePack(ThemePackRef ref) {
+  throw UnimplementedError();
+}
+
+@Riverpod(keepAlive: true)
 ThemeService themeService(ThemeServiceRef ref) => ThemeService(ref);
 
 @riverpod
@@ -32,17 +37,7 @@ class ThemeService {
   }
 
   _init() {
-    var selIndex = _settingService.readInt(AppSettingKeys.themePack);
-    int themeIndex = selIndex;
-
-    logger.i(
-        'Theme selected: $selIndex, available theme len: ${themePacks.length}');
-    if (selIndex > themePacks.length - 1) themeIndex = 0;
-
-    var mode = ThemeMode.values[min(
-        _settingService.readInt(AppSettingKeys.themeMode),
-        themePacks.length - 1)];
-    activeTheme = ThemeModel(themePacks[themeIndex], mode);
+    selectSystemThemePack();
   }
 
   final List<ThemePack> themePacks;
@@ -59,6 +54,22 @@ class ThemeService {
   final StreamController<ThemeModel> _themesController = BehaviorSubject();
 
   Stream<ThemeModel> get themesStream => _themesController.stream;
+
+  selectSystemThemePack() {
+    var selIndex = _settingService.readInt(AppSettingKeys.themePack);
+    int themeIndex = selIndex;
+
+    logger.i('Theme selected: $selIndex, available theme len: ${themePacks.length}');
+    if (selIndex > themePacks.length - 1) themeIndex = 0;
+
+    var mode = ThemeMode.values[min(_settingService.readInt(AppSettingKeys.themeMode), themePacks.length - 1)];
+    activeTheme = ThemeModel(themePacks[themeIndex], mode);
+  }
+
+  selectThemeIndex(int index) {
+    activeTheme = activeTheme.copyWith(themePack: themePacks[index]);
+    _settingService.writeInt(AppSettingKeys.themePack, index);
+  }
 
   selectThemePack(ThemePack themePack) {
     activeTheme = activeTheme.copyWith(themePack: themePack);
