@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.5.4] - 2023-08-
+## [2.6.0] - 2023-09-
 
 ### Major Changes
 
@@ -13,6 +13,7 @@
   ensuring seamless connectivity even when you're not connected to a configured WiFi network.
 - Made the timelapse folder accessible via the file browser if the timelapse plugin is
   active. [#241]((https://github.com/Clon1998/mobileraker/issues/241)
+- [Supporters] Timelapse videos can be shared directly from the app to other apps on your phone.
 
 ### Changed Features
 
