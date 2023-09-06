@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.1] - 2023-09-07
+
+### Bug Fixes
+
+- Fixed files view for GCodes [#246](https://github.com/Clon1998/mobileraker/issues/246)
+
 ## [2.6.0] - 2023-09-06
 
 ### Major Changes
