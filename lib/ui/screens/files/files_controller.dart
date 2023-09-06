@@ -295,8 +295,7 @@ class FilesPageController extends _$FilesPageController {
   onFileTapped(RemoteFile file) {
     if (file is GCodeFile) {
       _goRouter.goNamed(AppRoute.gcodeDetail.name, extra: file);
-    }
-    if (file.isVideo) {
+    } else if (file.isVideo) {
       _goRouter.goNamed(AppRoute.videoPlayer.name, extra: file);
     } else {
       _goRouter.goNamed(AppRoute.configDetail.name, extra: file);
