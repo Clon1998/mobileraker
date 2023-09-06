@@ -71,10 +71,11 @@ class ThemeService {
     _settingService.writeInt(AppSettingKeys.themePack, index);
   }
 
-  selectThemePack(ThemePack themePack) {
+  selectThemePack(ThemePack themePack, [bool save = true]) {
     activeTheme = activeTheme.copyWith(themePack: themePack);
-    _settingService.writeInt(
-        AppSettingKeys.themePack, themePacks.indexOf(themePack));
+    if (save) {
+      _settingService.writeInt(AppSettingKeys.themePack, themePacks.indexOf(themePack));
+    }
   }
 
   selectThemeMode(ThemeMode mode) {
