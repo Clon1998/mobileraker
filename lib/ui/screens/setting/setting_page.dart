@@ -131,6 +131,21 @@ class SettingPage extends ConsumerWidget {
                         throw 'Could not launch $url';
                       }
                     }),
+              if (Platform.isAndroid)
+                TextButton(
+                    style: TextButton.styleFrom(
+                        minimumSize: Size.zero, // Set this
+                        padding: EdgeInsets.zero,
+                        textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary)),
+                    child: const Text('EULA'),
+                    onPressed: () async {
+                      const String url = 'https://mobileraker.com/eula.html';
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(url, mode: LaunchMode.externalApplication);
+                      } else {
+                        throw 'Could not launch $url';
+                      }
+                    }),
               TextButton(
                 style: TextButton.styleFrom(
                     minimumSize: Size.zero, // Set this
