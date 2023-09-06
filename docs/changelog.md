@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.6.1] - 2023-09-07
+## [2.6.2] - 2023-09-07
 
 ### Bug Fixes
 
