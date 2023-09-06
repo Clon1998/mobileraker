@@ -7,7 +7,8 @@ existing moonraker installation and control your printer.
 
 ## 📷 How do I add a Webcam?
 
-Mobileraker comes with built-in support for displaying MJPEG webcam streams directly on the dashboard screen. You can
+Mobileraker comes with built-in support for displaying WebRTC & MJPEG webcam streams directly on the dashboard screen.
+You can
 add multiple webcams by accessing the printer's settings page. To access the settings, open the navigation bar and tap
 the gear icon located next to your printer's name. This will open the printer's settings. Scroll down to the webcam
 section, where you can add or edit webcams. Don't forget to save your changes after adding or editing a webcam.
@@ -19,6 +20,7 @@ section, where you can add or edit webcams. Don't forget to save your changes af
 There are several options available for remote printer access:
 
 - VPN
+- Reverse Proxy (e.g., Nginx) via manual setup in printer settings
 - [Octoeverywhere](https://octoeverywhere.com/)
 
 > The recommended and most convenient option is Octoeverywhere.
