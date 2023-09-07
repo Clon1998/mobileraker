@@ -55,7 +55,9 @@ class ThemeService {
 
   Stream<ThemeModel> get themesStream => _themesController.stream;
 
-  selectSystemThemePack() {
+  /// Selects the system's default theme pack based on user preferences or falls
+  /// back to the first theme pack in the list if the stored selection is out of range.
+  void selectSystemThemePack() {
     var selIndex = _settingService.readInt(AppSettingKeys.themePack);
     int themeIndex = selIndex;
 
@@ -66,19 +68,27 @@ class ThemeService {
     activeTheme = ThemeModel(themePacks[themeIndex], mode);
   }
 
-  selectThemeIndex(int index) {
+  /// Selects a theme pack from the available list based on the provided index
+  /// and updates the active theme accordingly.
+  void selectThemeIndex(int index) {
     activeTheme = activeTheme.copyWith(themePack: themePacks[index]);
-    _settingService.writeInt(AppSettingKeys.themePack, index);
   }
 
-  selectThemePack(ThemePack themePack, [bool save = true]) {
+  /// Selects a specific theme pack, updates the active theme accordingly, and
+  /// optionally saves the selection as a user preference.
+  ///
+  /// Parameters:
+  /// - [themePack]: The ThemePack instance to be selected.
+  /// - [save] (optional): A boolean flag indicating whether to save the selection
+  ///   as a user preference. Default is true.
+  void selectThemePack(ThemePack themePack, [bool save = true]) {
     activeTheme = activeTheme.copyWith(themePack: themePack);
     if (save) {
       _settingService.writeInt(AppSettingKeys.themePack, themePacks.indexOf(themePack));
     }
   }
 
-  selectThemeMode(ThemeMode mode) {
+  void selectThemeMode(ThemeMode mode) {
     activeTheme = activeTheme.copyWith(themeMode: mode);
     _settingService.writeInt(
         AppSettingKeys.themeMode, ThemeMode.values.indexOf(mode));

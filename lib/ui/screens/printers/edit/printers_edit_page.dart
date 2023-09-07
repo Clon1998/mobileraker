@@ -14,7 +14,9 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/misc.dart';
@@ -24,6 +26,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/TextSelectionToolbar.dart';
@@ -130,6 +133,7 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),
+              const _ThemeSelector(),
               FormBuilderTextField(
                 keyboardType: TextInputType.url,
                 decoration: InputDecoration(
@@ -1060,5 +1064,65 @@ class _SegmentsState<T> extends State<Segments<T>> {
   void dispose() {
     textCtrler.dispose();
     super.dispose();
+  }
+}
+
+class _ThemeSelector extends ConsumerWidget {
+  const _ThemeSelector({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var themeService = ref.watch(themeServiceProvider);
+    var machine = ref.watch(currentlyEditingProvider);
+    List<ThemePack> themeList = themeService.themePacks;
+    var themeData = Theme.of(context);
+    var isSupporter = ref.watch(isSupporterProvider);
+    return FormBuilderDropdown<int>(
+      initialValue: machine.printerThemePack,
+      name: 'printerThemePack',
+      items: [
+        const DropdownMenuItem(value: -1, child: Text('App Theme')),
+        ...themeList.mapIndex((theme, idx) {
+          var brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
+          return DropdownMenuItem(
+              value: idx,
+              child: Row(
+                children: [
+                  (brandingIcon == null)
+                      ? SvgPicture.asset(
+                          'assets/vector/mr_logo.svg',
+                          width: 32,
+                          height: 32,
+                        )
+                      : Image(height: 32, width: 32, image: brandingIcon),
+                  const SizedBox(width: 8),
+                  Flexible(child: Text(theme.name))
+                ],
+              ));
+        }),
+      ],
+      decoration: InputDecoration(
+        labelStyle: Theme.of(context).textTheme.labelLarge,
+        labelText: tr('pages.printer_edit.general.theme'),
+        helperText: tr('pages.printer_edit.general.theme_helper'),
+        suffix: isSupporter
+            ? null
+            : IconButton(
+                constraints: BoxConstraints(minWidth: 10, minHeight: 10),
+                icon: const Icon(FlutterIcons.hand_holding_heart_faw5s),
+                onPressed:
+                    isSupporter ? null : ref.read(printerEditControllerProvider.notifier).printerThemeSupporterDialog,
+              ),
+      ),
+      enabled: isSupporter,
+      onChanged: (int? index) {
+        if (index == null || index < 0 || index >= themeList.length) {
+          themeService.selectSystemThemePack();
+        } else {
+          themeService.selectThemePack(themeList[index], false);
+        }
+      },
+      // themeService.selectThemePack(themeData!),
+    );
   }
 }

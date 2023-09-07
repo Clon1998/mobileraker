@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [WIP] - 2023-
+
+### Major Changes
+
+- [Supporters] Introduced printer-specific UI themes, now configurable within the printer editing
+  process. ([#195](https://github.com/Clon1998/mobileraker/issues/195))
+
 ## [2.6.2] - 2023-09-07
 
 ### Bug Fixes

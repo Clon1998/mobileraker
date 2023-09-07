@@ -280,7 +280,10 @@
         "full_url": "Full URL",
         "self_signed": "Trust Self-Signed Certificates",
         "timeout_label": "Client timeout",
-        "timeout_helper": "The timeout for the client connection in seconds"
+        "timeout_helper": "The timeout for the client connection in seconds",
+        "theme": "UI-Theme",
+        "theme_helper": "UI theme for printer",
+        "theme_unavailable": "UI theme for printer, only available for Supporters"
       },
       "motion_system": {
         "title": "Motion System",
@@ -525,11 +528,13 @@
       "subtitle": "Tap me! To learn how you can support the development!"
     },
     "supporter_only_feature": {
+      "dialog_title": "Supporter Only Feature",
       "button": "Become a Mobileraker Supporter",
       "webcam": "Sorry, Webcams of type {} are only available to Supporters.",
       "printer_add": "Sorry, managing more than {} machines is only available to Supporters.",
       "job_queue": "Sorry, the Job Queue is only available to Supporters.",
-      "timelaps_share": "Sorry, sharing timelapses is only available to Supporters."
+      "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
+      "printer_theme": "Sorry, printer specific themes are only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",

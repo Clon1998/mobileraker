@@ -19,10 +19,12 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/notification_service.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -67,9 +69,16 @@ class PrinterEditController extends _$PrinterEditController {
 
   Machine get _machine => ref.read(currentlyEditingProvider);
 
+  ThemeModel? activeTheme;
+
   @override
   bool build() {
+    var themeService = ref.read(themeServiceProvider);
+
+    activeTheme = themeService.activeTheme;
+
     ref.onDispose(() {
+      if (activeTheme != null) themeService.activeTheme = activeTheme!;
       ref.invalidate(_remoteInterfaceProvider);
       ref.invalidate(_octoEverywhereProvider);
     });
@@ -197,6 +206,11 @@ class PrinterEditController extends _$PrinterEditController {
     _machine.name = storedValues['printerName'];
     _machine.apiKey = storedValues['printerApiKey'];
     _machine.timeout = storedValues['printerLocalTimeout'];
+    if (ref.read(isSupporterProvider)) {
+      // We potentially overwrite the theme so we dont want to go back to the cached one
+      activeTheme = null;
+      _machine.printerThemePack = storedValues['printerThemePack'];
+    }
     var httpUri = buildMoonrakerHttpUri(storedValues['printerUrl']);
     if (httpUri != null) {
       _machine.httpUri = httpUri;
@@ -228,6 +242,13 @@ class PrinterEditController extends _$PrinterEditController {
       await webcamService.deleteWebcamInfoInBulk(camsToDelete);
       await ref.refresh(allWebcamInfosProvider(_machine.uuid).future);
     }
+  }
+
+  printerThemeSupporterDialog() {
+    ref.read(dialogServiceProvider).show(DialogRequest(
+          type: DialogType.supporterOnlyFeature,
+          body: tr('components.supporter_only_feature.printer_theme'),
+        ));
   }
 
   resetFcmCache() async {

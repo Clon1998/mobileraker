@@ -29,6 +29,7 @@ import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/tipping_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 
+import '../../ui/components/dialog/supporter_only_dialog.dart';
 import '../../ui/components/dialog/text_input/text_input_dialog.dart';
 
 enum DialogType implements DialogIdentifierMixin {
@@ -49,6 +50,7 @@ enum DialogType implements DialogIdentifierMixin {
   tipping,
   httpHeader,
   textInput,
+  supporterOnlyFeature,
 }
 
 DialogService dialogServiceImpl(DialogServiceRef ref) => DialogServiceImpl(ref);
@@ -92,6 +94,7 @@ class DialogServiceImpl implements DialogService {
     DialogType.tipping: (r, c) => TippingDialog(request: r, completer: c),
     DialogType.httpHeader: (r, c) => HttpHeaderDialog(request: r, completer: c),
     DialogType.textInput: (r, c) => TextInputDialog(request: r, completer: c),
+    DialogType.supporterOnlyFeature: (r, c) => SupporterOnlyDialog(request: r, completer: c),
   };
 
   @override
