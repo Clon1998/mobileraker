@@ -218,6 +218,8 @@ class FileService {
         };
       } else if (path.startsWith('config')) {
         allowedFileType = {'.conf', '.cfg', '.md', '.bak', '.txt'};
+      } else if (path.startsWith('timelapse')) {
+        allowedFileType = {'.mp4'};
       }
 
       return _parseDirectory(blockingResp, path, allowedFileType);
