@@ -624,6 +624,10 @@
       "unlimited_printers_perk": {
         "title": "Unlimited Printers",
         "subtitle": "Control as many printers as you want using Mobileraker!"
+      },
+      "printer_theme_perk": {
+        "title": "Printer based Themes",
+        "subtitle": "Select a different theme for each printer!"
       }
     },
     "bed_screw_adjust": {

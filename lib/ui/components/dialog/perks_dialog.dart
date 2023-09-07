@@ -68,6 +68,11 @@ class PerksDialog extends ConsumerWidget {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                   ListTile(
+                    title: const Text('dialogs.supporter_perks.printer_theme_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.printer_theme_perk.subtitle').tr(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  ListTile(
                     title: const Text('dialogs.supporter_perks.contact_perk.title').tr(),
                     subtitle: const Text('dialogs.supporter_perks.contact_perk.subtitle').tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
