@@ -6,12 +6,21 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:common/data/dto/config/config_file.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('Test ConfigFile parsing, multi extruder one one nozzle!', () {
     final configFile = File('test_resources/marshalling/multi_extruder_configfile.json');
+    var configFileJson = jsonDecode(configFile.readAsStringSync());
+
+    var config = ConfigFile.parse(configFileJson['settings']);
+
+    expect(config, isNotNull);
+  });
+
+  test('Test ConfigFile parsing, multi extruder one one nozzle!', () {
+    final configFile = File('test_resources/marshalling/multi_extruder_config_two.json');
     var configFileJson = jsonDecode(configFile.readAsStringSync());
 
     var config = ConfigFile.parse(configFileJson['settings']);

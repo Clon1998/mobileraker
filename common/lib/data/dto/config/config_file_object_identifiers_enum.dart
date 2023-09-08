@@ -2,31 +2,30 @@
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
  */
-
 enum ConfigFileObjectIdentifiers {
-  extruder(true),
-  output_pin(false),
-  stepper(false),
-  gcode_macro(false),
-  dotstar(false),
-  neopixel(false),
-  led(false),
-  pca9533(false),
-  pca9632(false),
-  fan(false),
-  heater_fan(false),
-  controller_fan(false),
-  temperature_fan(false),
-  temperature_sensor(false),
-  fan_generic(false),
-  heater_generic(false),
-  bed_screws(false),
-  heater_bed(false),
-  printer(false),
+  extruder(r'^extruder(\d*)$'),
+  output_pin(null),
+  stepper(null),
+  gcode_macro(null),
+  dotstar(null),
+  neopixel(null),
+  led(null),
+  pca9533(null),
+  pca9632(null),
+  fan(null),
+  heater_fan(null),
+  controller_fan(null),
+  temperature_fan(null),
+  temperature_sensor(null),
+  fan_generic(null),
+  heater_generic(null),
+  bed_screws(null),
+  heater_bed(null),
+  printer(null),
   ;
 
-  /// IF it is possible to check a object with a == (false) or startsWith (true)
-  final bool requiresStartWith;
+  /// IF it is possible to check a object with a == (null) or startsWith (true)
+  final String? regex;
 
-  const ConfigFileObjectIdentifiers(this.requiresStartWith);
+  const ConfigFileObjectIdentifiers(this.regex);
 }

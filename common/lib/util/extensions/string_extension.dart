@@ -19,7 +19,9 @@ extension MobilerakerString on String {
   }
 
   bool isKlipperObject(ConfigFileObjectIdentifiers objectIdentifier) {
-    if (objectIdentifier.requiresStartWith) return startsWith(objectIdentifier.name);
+    if (objectIdentifier.regex != null) {
+      return RegExp(objectIdentifier.regex!).hasMatch(this);
+    }
 
     return this == objectIdentifier.name;
   }
