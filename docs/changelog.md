@@ -7,6 +7,11 @@
 - [Supporters] Introduced printer-specific UI themes, now configurable within the printer editing
   process. ([#195](https://github.com/Clon1998/mobileraker/issues/195))
 
+### Bug Fixes
+
+- config of extruder_stepper was recognized as extruder config, causing errors for users with multi extruder
+  setups [#248](https://github.com/Clon1998/mobileraker/issues/248)
+
 ## [2.6.2] - 2023-09-07
 
 ### Bug Fixes
