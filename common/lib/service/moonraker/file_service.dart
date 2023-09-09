@@ -272,8 +272,7 @@ class FileService {
   }
 
   // Throws TimeOut exception, if file download took to long!
-  ///TODO: Migrate this code to a approach based off isolates to ensure the UI does not flicker/studders
-  Stream<FileDownload> downloadFile(String filePath, [Duration? timeout]) async* {
+  Stream<FileDownload> downloadFile({required String filePath, Duration? timeout, bool overWriteLocal = false}) async* {
     final downloadUri = httpUri.replace(path: 'server/files/$filePath');
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$filePath');
@@ -290,15 +289,19 @@ class FileService {
       var port = IsolateNameServer.lookupPortByName(isolateSafePortName)!;
 
       return await isolateDownloadFile(
-          port: port, targetUri: downloadUri, downloadPath: file.path, headers: isolateSafeHeaders, timeout: timeout);
+          port: port,
+          targetUri: downloadUri,
+          downloadPath: file.path,
+          headers: isolateSafeHeaders,
+          timeout: timeout,
+          overWriteLocal: overWriteLocal);
     });
     download.whenComplete(() {
       logger.i('File download done, cleaning up port');
       IsolateNameServer.removePortNameMapping(isolateSafePortName);
     });
 
-    yield* receiverPort
-        .takeUntil(download.asStream()).cast<FileDownload>();
+    yield* receiverPort.takeUntil(download.asStream()).cast<FileDownload>();
     receiverPort.close();
     logger.i('Closed the port');
     yield await download;
@@ -395,12 +398,13 @@ Future<FileDownload> isolateDownloadFile({
   required String downloadPath,
   Map<String, String> headers = const {},
   Duration? timeout,
+  bool overWriteLocal = false,
 }) async {
   logger.i('Got headers: $headers and timeout: $timeout');
   var file = File(downloadPath);
   timeout ??= const Duration(seconds: 10);
 
-  if (await file.exists()) {
+  if (!overWriteLocal && await file.exists()) {
     logger.i('File already exists, skipping download');
     return FileDownloadComplete(file);
   }

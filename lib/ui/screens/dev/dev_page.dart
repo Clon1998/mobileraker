@@ -36,7 +36,7 @@ class DevPage extends ConsumerWidget {
 
   test(WidgetRef ref, String filess) async {
     var fileService = ref.read(fileServiceSelectedProvider);
-    fileService.downloadFile(filess, Duration(seconds: 1)).listen((event) {
+    fileService.downloadFile(filePath: filess, timeout: const Duration(seconds: 1)).listen((event) {
       logger.w('OUTER UPDATE: $event');
     });
   }

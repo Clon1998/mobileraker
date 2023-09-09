@@ -138,7 +138,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
     }
 
     downloadStreamSub?.cancel();
-    downloadStreamSub = ref.read(fileServiceSelectedProvider).downloadFile(widget.file.absolutPath).listen(
+    downloadStreamSub = ref.read(fileServiceSelectedProvider).downloadFile(filePath: widget.file.absolutPath).listen(
       (event) async {
         if (event is FileDownloadProgress) {
           setState(() {
