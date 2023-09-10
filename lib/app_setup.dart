@@ -9,6 +9,7 @@ import 'package:common/data/adapters/uri_adapter.dart';
 import 'package:common/data/model/hive/gcode_macro.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/macro_group.dart';
+import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
@@ -82,6 +83,10 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(riAdapter.typeId)) {
     Hive.registerAdapter(riAdapter);
   }
+  var nAdapter = NotificationAdapter();
+  if (!Hive.isAdapterRegistered(nAdapter.typeId)) {
+    Hive.registerAdapter(nAdapter);
+  }
 
   // Hive.deleteBoxFromDisk('printers');
 
@@ -141,6 +146,7 @@ Future<Uint8List> _hiveKey() async {
 Future<List<Box>> openBoxes(Uint8List keyMaterial) {
   return Future.wait([
     Hive.openBox<Machine>('printers').then(_migrateMachine),
+    Hive.openBox<Notification>('notifications'),
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
     // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
@@ -240,6 +246,7 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
       .read(notificationServiceProvider)
       .initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
 
+  yield StartUpStep.workManager;
   await workerManager.init();
   logger.i('Completed init for workManager');
 
@@ -257,6 +264,7 @@ enum StartUpStep {
   goRouter('🗺'),
   initMachines('⚙️'),
   notificationService('📢'),
+  workManager('💼'),
   complete('🌟');
 
   final String emoji;
