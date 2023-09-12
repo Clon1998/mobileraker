@@ -5,12 +5,16 @@
 ### Major Changes
 
 - [Supporters] Introduced printer-specific UI themes, now configurable within the printer editing
-  process. ([#195](https://github.com/Clon1998/mobileraker/issues/195))
+  process. [#195](https://github.com/Clon1998/mobileraker/issues/195)
 
 ### Bug Fixes
 
-- config of extruder_stepper was recognized as extruder config, causing errors for users with multi extruder
-  setups [#248](https://github.com/Clon1998/mobileraker/issues/248)
+- Fixed an issue where the configuration of `extruder_stepper` was incorrectly recognized as extruder config, causing
+  errors for users with multi-extruder setups. [#248](https://github.com/Clon1998/mobileraker/issues/248)
+- Addressed a problem where config files were out of sync if user edited them on another
+  UI/Filesystem. [#250](https://github.com/Clon1998/mobileraker/issues/250)
+- Corrected the display of the First Layer Temperature on the GCode Detail page, which were swapped between extruder and
+  bed.
 
 ## [2.6.2] - 2023-09-07
 
