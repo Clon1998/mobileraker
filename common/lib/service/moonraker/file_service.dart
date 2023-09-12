@@ -104,6 +104,7 @@ FileService _fileServicee(_FileServiceeRef ref, String machineUUID, ClientType t
       }
       return FileService(
         ref,
+        machineUUID,
         jsonRpcClient,
         octoEverywhere.uri
             .replace(userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'),
@@ -114,6 +115,7 @@ FileService _fileServicee(_FileServiceeRef ref, String machineUUID, ClientType t
 
       return FileService(
         ref,
+        machineUUID,
         jsonRpcClient,
         remoteInterface.remoteUri.replace(path: machine.httpUri.path, query: machine.httpUri.query),
         {
@@ -124,7 +126,7 @@ FileService _fileServicee(_FileServiceeRef ref, String machineUUID, ClientType t
 
     case ClientType.local:
     default:
-      return FileService(ref, jsonRpcClient, machine.httpUri, machine.headerWithApiKey);
+      return FileService(ref, machineUUID, jsonRpcClient, machine.httpUri, machine.headerWithApiKey);
   }
 }
 
@@ -161,7 +163,7 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  FileService(AutoDisposeRef ref, this._jRpcClient, this.httpUri, this.headers)
+  FileService(AutoDisposeRef ref, this._machineUUID, this._jRpcClient, this.httpUri, this.headers)
       : _downloadReceiverPortName = 'downloadFilePort-${httpUri.hashCode}' {
     // var downloadManager = DownloadManager.instance;
 
@@ -172,6 +174,7 @@ class FileService {
     _jRpcClient.addMethodListener(_onFileListChanged, "notify_filelist_changed");
   }
 
+  final String _machineUUID;
   final String _downloadReceiverPortName;
 
   final Uri httpUri;
@@ -275,7 +278,7 @@ class FileService {
   Stream<FileDownload> downloadFile({required String filePath, Duration? timeout, bool overWriteLocal = false}) async* {
     final downloadUri = httpUri.replace(path: 'server/files/$filePath');
     final tmpDir = await getTemporaryDirectory();
-    final File file = File('${tmpDir.path}/$filePath');
+    final File file = File('${tmpDir.path}/$_machineUUID}/$filePath');
     final Map<String, String> isolateSafeHeaders = Map.from(headers);
     final String isolateSafePortName = _downloadReceiverPortName;
     logger.i('Will try to download $filePath to file $file from uri ${downloadUri.obfuscate()}');
