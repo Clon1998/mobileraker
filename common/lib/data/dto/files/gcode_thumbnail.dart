@@ -18,6 +18,8 @@ part 'gcode_thumbnail.g.dart';
 // },
 @freezed
 class GCodeThumbnail with _$GCodeThumbnail {
+  const GCodeThumbnail._();
+
   const factory GCodeThumbnail({
     @IntegerConverter() required int width,
     @IntegerConverter() required int height,
@@ -26,4 +28,6 @@ class GCodeThumbnail with _$GCodeThumbnail {
   }) = _GCodeThumbnail;
 
   factory GCodeThumbnail.fromJson(Map<String, dynamic> json) => _$GCodeThumbnailFromJson(json);
+
+  int get pixels => width * height;
 }

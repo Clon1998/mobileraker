@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:collection/collection.dart';
 import 'package:common/data/converters/integer_converter.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -95,20 +96,18 @@ class GCodeFile with _$GCodeFile, RemoteFile {
     String? filamentType,
     double? filamentTotal,
     double? filamentWeightTotal,
-    @Default([]) List<GCodeThumbnail> thumbnails,
+    @JsonKey(fromJson: _sortedThumbnails) @Default([]) List<GCodeThumbnail> thumbnails,
   }) = _GCodeFile;
 
   factory GCodeFile.fromJson(Map<String, dynamic> json, String parentPath) =>
       _$GCodeFileFromJson({...json, 'parent_path': parentPath});
 
   String? get smallImagePath {
-    //ToDo: Filter for small <.<
     if (thumbnails.isNotEmpty) return thumbnails.first.relativePath;
     return null;
   }
 
   String? get bigImagePath {
-    //ToDo: Filter for big <.<
     if (thumbnails.isNotEmpty) return thumbnails.last.relativePath;
     return null;
   }
@@ -127,3 +126,8 @@ class GCodeFile with _$GCodeFile, RemoteFile {
     return split.join('/');
   }
 }
+
+List<GCodeThumbnail> _sortedThumbnails(List<dynamic> list) => list
+    .map((e) => GCodeThumbnail.fromJson(e as Map<String, dynamic>))
+    .sortedBy<num>((element) => element.pixels)
+    .toList();
