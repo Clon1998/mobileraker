@@ -15,6 +15,8 @@
   UI/Filesystem. [#250](https://github.com/Clon1998/mobileraker/issues/250)
 - Corrected the display of the First Layer Temperature on the GCode Detail page, which were swapped between extruder and
   bed.
+- Fixed an issue with the control tab on the dashboard while changing the printer,
+- The webcam now shows the correct remote indicator while using manual mode.
 
 ## [2.6.2] - 2023-09-07
 
