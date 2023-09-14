@@ -12,7 +12,6 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
@@ -45,12 +44,16 @@ class Webcam extends ConsumerWidget {
     var modifiedStack = [
       ...stackContent,
       if (showRemoteIndicator && clientType != ClientType.local)
-        const Positioned.fill(
+        Positioned.fill(
             child: Align(
           alignment: Alignment.bottomLeft,
           child: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: OctoIndicator(),
+            padding: const EdgeInsets.all(8.0),
+            child: (clientType == ClientType.octo)
+                ? const OctoIndicator()
+                : const Icon(
+                    Icons.cloud,
+                  ),
           ),
         ))
     ];
