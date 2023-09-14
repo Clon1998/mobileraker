@@ -63,7 +63,7 @@ class ControlTab extends ConsumerWidget {
                 if (ref
                         .watch(machinePrinterKlippySettingsProvider.selectAs(
                             (value) => value.printerData.print.state != PrintState.printing))
-                        .valueOrFullNull ??
+                        .valueOrNull ??
                     false)
                   const ExtruderControlCard(),
                 const FansCard(),
@@ -71,13 +71,13 @@ class ControlTab extends ConsumerWidget {
                         .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
                             value.printerData.outputPins.isNotEmpty ||
                             value.printerData.leds.isNotEmpty))
-                        .valueOrFullNull ??
+                        .valueOrNull ??
                     false)
                   const PinsCard(),
                 if (ref
                         .watch(machinePrinterKlippySettingsProvider
                             .selectAs((value) => value.klippyData.components.contains('power')))
-                        .valueOrFullNull ??
+                        .valueOrNull ??
                     false)
                   const PowerApiCard(),
                 const MultipliersCard(),
@@ -140,7 +140,7 @@ class FansCard extends ConsumerWidget {
     var fanLen = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
             value.printerData.fans.values.where((element) => !element.name.startsWith('_')).length))
-        .valueOrFullNull!;
+        .valueOrNull!;
 
     return Card(
       child: Padding(
