@@ -513,6 +513,83 @@ ThemePack _mobilerakerSupporterPack() {
   );
 }
 
+ThemePack _oePack() {
+  var light = FlexThemeData.light(
+    colors: const FlexSchemeColor(
+      primary: Color(0xff78a4fa),
+      secondary: Color(0xffa45cb4),
+      tertiary: Color(0xff4a2b94),
+      error: Color(0xffb00020),
+    ),
+    usedColors: 7,
+    surfaceMode: FlexSurfaceMode.highScaffoldLevelSurface,
+    blendLevel: 11,
+    appBarElevation: 1.0,
+    bottomAppBarElevation: 5.0,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: false,
+    // To use the playground font, add GoogleFonts package and uncomment
+    fontFamily: GoogleFonts.ibmPlexSans().fontFamily,
+  );
+
+  var dark = FlexThemeData.dark(
+    colors: const FlexSchemeColor(
+      primary: Color(0xff78a4fa),
+      secondary: Color(0xffa45cb4),
+      tertiary: Color(0xff4a2b94),
+      error: Color(0xffb00020),
+    ),
+    swapColors: true,
+    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+    blendLevel: 15,
+    appBarStyle: FlexAppBarStyle.background,
+    usedColors: 7,
+    appBarElevation: 1.0,
+    bottomAppBarElevation: 5.0,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: false,
+    // To use the playground font, add GoogleFonts package and uncomment
+    fontFamily: GoogleFonts.ibmPlexSans().fontFamily,
+  );
+
+  return ThemePack(
+      name: 'OctoEverywhere',
+      lightTheme: light.copyWith(
+          elevatedButtonTheme: _elevatedButtonThemeData,
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: light.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onPrimary,
+            unselectedLabelSchemeColor: SchemeColor.onPrimary,
+            selectedIconSchemeColor: SchemeColor.onPrimary,
+            unselectedIconSchemeColor: SchemeColor.onPrimary,
+            backgroundSchemeColor: SchemeColor.primary,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
+          // cardTheme: light.cardTheme.copyWith(elevation: 3, color: light.colorScheme.surface),
+          bottomSheetTheme: light.bottomSheetTheme
+              .copyWith(modalBackgroundColor: light.colorScheme.background, shape: _bottomSheetShape),
+          extensions: [CustomColors.light]),
+      darkTheme: dark.copyWith(
+          elevatedButtonTheme: _elevatedButtonThemeData,
+          inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: dark.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onBackground,
+            unselectedLabelSchemeColor: SchemeColor.onBackground,
+            selectedIconSchemeColor: SchemeColor.onBackground,
+            unselectedIconSchemeColor: SchemeColor.onBackground,
+            backgroundSchemeColor: SchemeColor.background,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          bottomSheetTheme: dark.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3),
+          extensions: [CustomColors.dark]),
+      brandingIcon: const AssetImage('assets/images/oe_icon.png'));
+}
+
 List<ThemePack> themePacks(ProviderRef ref) {
   var isSupporter = ref.watch(isSupporterAsyncProvider).valueOrNull;
   return [
@@ -520,6 +597,7 @@ List<ThemePack> themePacks(ProviderRef ref) {
     _voronPack(),
     _ratRigPack(),
     _vzBot(),
+    _oePack(),
     if (isSupporter ?? true) _mobilerakerSupporterPack(),
   ];
 }
