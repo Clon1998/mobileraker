@@ -30,7 +30,7 @@ struct CircularProgressView: View {
                 // 2
                 .trim(from: 0, to: progress)
                 .stroke(
-                    colorWithRGBA(color_int).opacity(0.5),
+                    colorWithRGBA(color_int),
                     style: StrokeStyle(
                         lineWidth: lineWidth,
                         lineCap: .round
