@@ -25,6 +25,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -531,6 +532,7 @@ class NotificationService {
       if (!hasProgressChange && !hasStateChange) return;
       logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
 
+      var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
         'state': printer.print.state.name,
@@ -542,6 +544,8 @@ class NotificationService {
             DateTime.now().subtract(Duration(seconds: printer.print.totalDuration.toInt())).secondsSinceEpoch,
 
         // Labels
+        'primary_color_dark': (themePack.darkTheme ?? themePack.lightTheme).colorScheme.primary.value,
+        'primary_color_light': themePack.lightTheme.colorScheme.primary.value,
         'machine_name': machine.name,
         'eta_label': tr('pages.dashboard.general.print_card.eta'),
         'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),

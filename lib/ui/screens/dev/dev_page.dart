@@ -61,6 +61,7 @@ class DevPage extends HookConsumerWidget {
       'printStartTime': DateTime.now().subtract(Duration(seconds: 60 * 60 * 2)).secondsSinceEpoch,
 
       // Labels
+      'primary_color': Colors.amber.value,
       'machine_name': 'V2.1111',
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),

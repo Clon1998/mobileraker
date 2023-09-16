@@ -42,7 +42,7 @@ struct PrintingLiveActivity: Widget {
             let printStartUnix = sharedDefault.integer(forKey: "printStartTime")
             let printStartDate = Date(timeIntervalSince1970: TimeInterval(printStartUnix))
             
-            
+            let primaryColor = sharedDefault.integer(forKey: "primary_color_light")
             let machineName = sharedDefault.string(forKey: "machine_name")!
             let etaLabel = sharedDefault.string(forKey: "eta_label")!
             let elapsedLabel = sharedDefault.string(forKey: "elapsed_label")!
@@ -60,7 +60,7 @@ struct PrintingLiveActivity: Widget {
                     }
                     
                     Spacer();
-                    CircularProgressView(progress: progress);
+                    CircularProgressView(progress: progress, color_int: UInt32(primaryColor));
                 }
                 
                 VStack(alignment: .leading) {
@@ -91,6 +91,7 @@ struct PrintingLiveActivity: Widget {
             let printStartDate = Date(timeIntervalSince1970: TimeInterval(printStartUnix))
             
             
+            let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
             let machineName = sharedDefault.string(forKey: "machine_name")!
             let etaLabel = sharedDefault.string(forKey: "eta_label")!
             let elapsedLabel = sharedDefault.string(forKey: "elapsed_label")!
@@ -107,7 +108,7 @@ struct PrintingLiveActivity: Widget {
                     
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    CircularProgressView(progress: progress, widthHeight: 25, lineWidth: 3.3)
+                    CircularProgressView(progress: progress, widthHeight: 25, lineWidth: 3.3, color_int: UInt32(primaryColor))
                         .padding(.horizontal)
                     
                 }
@@ -144,11 +145,13 @@ struct PrintingLiveActivity: Widget {
                     .padding(.horizontal, 2.0)
             } compactTrailing: {
                 let progress = sharedDefault.double(forKey: "progress")
-                CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2.5)
+                let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
+                CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2.5, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
             } minimal: {
                 let progress = sharedDefault.double(forKey: "progress")
-                CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2)
+                let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
+                CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
             }
             .keylineTint(Color.red)
