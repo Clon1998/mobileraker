@@ -213,7 +213,7 @@ class Printer with _$Printer {
     return remaining ~/ cnt;
   }
 
-  // Relative file position progress
+  // Relative file position progress (0-1)
   double get printProgress {
     if (currentFile?.gcodeStartByte != null &&
         currentFile?.gcodeEndByte != null &&

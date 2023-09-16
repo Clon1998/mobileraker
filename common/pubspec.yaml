@@ -35,6 +35,7 @@ dependencies:
   #notification
   awesome_notifications: ^0.7.5-dev.3
   awesome_notifications_fcm: ^0.7.5-dev.3
+  live_activities: ^1.7.5
 
   #routing
   go_router: ^6.2.0

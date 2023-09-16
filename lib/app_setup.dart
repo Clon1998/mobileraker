@@ -9,6 +9,7 @@ import 'package:common/data/adapters/uri_adapter.dart';
 import 'package:common/data/model/hive/gcode_macro.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/macro_group.dart';
+import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
@@ -82,6 +83,10 @@ setupBoxes() async {
   if (!Hive.isAdapterRegistered(riAdapter.typeId)) {
     Hive.registerAdapter(riAdapter);
   }
+  var nAdapter = NotificationAdapter();
+  if (!Hive.isAdapterRegistered(nAdapter.typeId)) {
+    Hive.registerAdapter(nAdapter);
+  }
 
   // Hive.deleteBoxFromDisk('printers');
 
@@ -143,6 +148,7 @@ Future<List<Box>> openBoxes(Uint8List keyMaterial) {
     Hive.openBox<Machine>('printers').then(_migrateMachine),
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
+    Hive.openBox<Notification>('notifications'),
     // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
   ]);
 }

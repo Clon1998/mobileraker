@@ -6,13 +6,19 @@
 import 'dart:io';
 
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:worker_manager/worker_manager.dart';
 
-class DevPage extends ConsumerWidget {
+import '../../../service/date_format_service.dart';
+
+class DevPage extends HookConsumerWidget {
   const DevPage({
     Key? key,
   }) : super(key: key);
@@ -26,12 +32,43 @@ class DevPage extends ConsumerWidget {
         drawer: const NavigationDrawerWidget(),
         body: ListView(
           children: [
-            Text('One'),
+            const Text('One'),
+            ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
             TextButton(
-                onPressed: () => test(ref, 'timelapse/file_example_MP4_1920_18MG.mp4'), child: Text('Run Isolate'))
+                onPressed: () => test(ref, 'timelapse/file_example_MP4_1920_18MG.mp4'),
+                child: const Text('Run Isolate'))
             // Expanded(child: WebRtcCam()),
           ],
         ));
+  }
+
+  startLiveActivity(WidgetRef ref) async {
+    var eta = DateTime.now().add(const Duration(hours: 5));
+
+    var dateFormat = (eta.isToday())
+        ? ref.read(dateFormatServiceProvider).Hm()
+        : ref.read(dateFormatServiceProvider).add_Hm(DateFormat('E, '));
+
+    final _liveActivitiesPlugin = LiveActivities();
+    _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
+    Map<String, dynamic> data = {
+      'progress': 0.67,
+      'state': 'printing',
+      'file': 'Benchy.gcode' ?? 'Unknown',
+      'eta': DateTime.now().add(Duration(hours: 60)).secondsSinceEpoch ?? -1,
+
+      // Not sure yet if I want to use this
+      'printStartTime': DateTime.now().subtract(Duration(seconds: 60 * 60 * 2)).secondsSinceEpoch,
+
+      // Labels
+      'machine_name': 'V2.1111',
+      'eta_label': tr('pages.dashboard.general.print_card.eta'),
+      'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
+    };
+
+    _liveActivitiesPlugin.createActivity(
+      data,
+    );
   }
 
   test(WidgetRef ref, String filess) async {
