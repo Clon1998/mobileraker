@@ -22,7 +22,7 @@ struct CircularProgressView: View {
             Circle(
         )
                 .stroke(
-                    colorWithRGBA(color_int).opacity(0.5),
+                    colorWithRGBA(color_int).opacity(0.3),
                     lineWidth: lineWidth
                 )
                 .frame(width: widthHeight, height: widthHeight)
