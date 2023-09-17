@@ -542,6 +542,9 @@
     },
     "remote_connection_indicator": {
       "title": "Using remote connection!"
+    },
+    "web_rtc": {
+      "renderer_missing": "WebRtc video not available!"
     }
   },
   "dialogs": {
