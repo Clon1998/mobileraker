@@ -15,6 +15,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/dto/server/klipper.dart';
+import '../../data/dto/server/moonraker_version.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../selected_machine_service.dart';
 
@@ -66,8 +67,7 @@ class KlippyService {
           _current = _current.copyWith(klippyConnected: false, klippyState: KlipperState.error);
           break;
         case ClientState.disconnected:
-          _current =
-              _current.copyWith(klippyConnected: false, klippyState: KlipperState.disconnected);
+          _current = _current.copyWith(klippyConnected: false, klippyState: KlipperState.disconnected);
         default:
       }
     }, fireImmediately: true);
@@ -81,7 +81,7 @@ class KlippyService {
 
   Stream<KlipperInstance> get klipperStream => _klipperStreamCtler.stream;
 
-  KlipperInstance __current = const KlipperInstance();
+  KlipperInstance __current = KlipperInstance(moonrakerVersion: MoonrakerVersion.fallback());
 
   set _current(KlipperInstance nI) {
     __current = nI;
@@ -111,8 +111,7 @@ class KlippyService {
   }
 
   restartMoonraker() {
-    _jRpcClient
-        .sendJRpcMethod("machine.services.restart", params: {'service': 'moonraker'}).ignore();
+    _jRpcClient.sendJRpcMethod("machine.services.restart", params: {'service': 'moonraker'}).ignore();
   }
 
   emergencyStop() {
@@ -121,23 +120,20 @@ class KlippyService {
 
   Future<void> refreshKlippy() async {
     try {
-      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()])
-          .timeout(const Duration(seconds: 5));
+      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]).timeout(const Duration(seconds: 5));
     } on JRpcError catch (e, s) {
       logger.w('Error while fetching inital KlippyObject: ${e.message}');
 
       _current = _current.copyWith(
           klippyConnected: false,
-          klippyState:
-              (e.message == 'Unauthorized') ? KlipperState.unauthorized : KlipperState.error,
+          klippyState: (e.message == 'Unauthorized') ? KlipperState.unauthorized : KlipperState.error,
           klippyStateMessage: e.message);
     } on TimeoutException catch (e) {
       logger.w('Error while fetching inital KlippyObject: ${e.message}');
 
       _current = _current.copyWith(
           klippyConnected: false,
-          klippyState:
-              (e.message == 'Unauthorized') ? KlipperState.unauthorized : KlipperState.error,
+          klippyState: (e.message == 'Unauthorized') ? KlipperState.unauthorized : KlipperState.error,
           klippyStateMessage: e.message);
     }
   }

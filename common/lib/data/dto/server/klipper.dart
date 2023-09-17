@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/server/moonraker_version.dart';
 import 'package:flutter/material.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -34,6 +35,7 @@ class KlipperInstance with _$KlipperInstance {
       @Default([]) List<String> components,
       @Default([]) List<String> registeredDirectories,
       @Default([]) List<String> warnings,
+      @JsonKey(toJson: _moonrakerToVersion, fromJson: _moonrakerFromVersion) required MoonrakerVersion moonrakerVersion,
       @JsonKey(name: 'state_message') String? klippyStateMessage}) = _KlipperInstance;
 
   bool get hasTimelapseComponent => components.contains('timelapse');
@@ -46,3 +48,10 @@ class KlipperInstance with _$KlipperInstance {
 
   bool get klippyCanReceiveCommands => klippyState == KlipperState.ready && klippyConnected;
 }
+
+MoonrakerVersion _moonrakerFromVersion(dynamic raw) {
+  if (raw! is String) return MoonrakerVersion.fallback();
+  return MoonrakerVersion.fromString(raw);
+}
+
+String _moonrakerToVersion(MoonrakerVersion raw) => raw.toVersionString();

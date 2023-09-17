@@ -9,6 +9,7 @@ import 'dart:io';
 
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/dto/server/moonraker_version.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
@@ -96,8 +97,8 @@ void main() {
     var mockSnackBarService = MockSnackBarService();
     var mockDialogService = MockDialogService();
 
-    var mockKlipyInstance = const KlipperInstance(
-        klippyConnected: true, klippyState: KlipperState.ready);
+    var mockKlipyInstance = KlipperInstance(
+        klippyConnected: true, klippyState: KlipperState.ready, moonrakerVersion: MoonrakerVersion.fallback());
 
     var container = ProviderContainer(overrides: [
       jrpcClientProvider(uuid).overrideWithValue(mockRpc),
@@ -184,8 +185,8 @@ void main() {
     var mockSnackBarService = MockSnackBarService();
     var mockDialogService = MockDialogService();
 
-    var mockKlipyInstance = const KlipperInstance(
-        klippyConnected: true, klippyState: KlipperState.ready);
+    var mockKlipyInstance = KlipperInstance(
+        klippyConnected: true, klippyState: KlipperState.ready, moonrakerVersion: MoonrakerVersion.fallback());
 
     var container = ProviderContainer(overrides: [
       jrpcClientProvider(uuid).overrideWithValue(mockRpc),
@@ -221,8 +222,8 @@ void main() {
     // Initially the klipper service reports that klipper currently is starting/not yet ready
 
     var mockKlipyyStreamCtl = StreamController<KlipperInstance>()
-      ..add(const KlipperInstance(
-          klippyConnected: true, klippyState: KlipperState.startup));
+      ..add(KlipperInstance(
+          klippyConnected: true, klippyState: KlipperState.startup, moonrakerVersion: MoonrakerVersion.fallback()));
 
     var container = ProviderContainer(overrides: [
       jrpcClientProvider(uuid).overrideWithValue(mockRpc),
@@ -267,8 +268,8 @@ void main() {
 
     when(mockMachineService.updateMacrosInSettings(uuid, any)).thenAnswer((_) async {});
 
-    mockKlipyyStreamCtl
-        .add(const KlipperInstance(klippyConnected: true, klippyState: KlipperState.ready));
+    mockKlipyyStreamCtl.add(KlipperInstance(
+        klippyConnected: true, klippyState: KlipperState.ready, moonrakerVersion: MoonrakerVersion.fallback()));
     await expectLater(printerService.printerStream, emits(isNotNull));
 
     verify(mockRpc.sendJRpcMethod('printer.objects.list'));
