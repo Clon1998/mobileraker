@@ -234,7 +234,7 @@ class MachineService {
     return _machineRepo.count();
   }
 
-  Future<void> updateMachineFcmConfig(Machine machine, String deviceFcmToken) async {
+  Future<void> updateMachineFcmSettings(Machine machine, String deviceFcmToken) async {
     /*
 
     "key": "fcm",

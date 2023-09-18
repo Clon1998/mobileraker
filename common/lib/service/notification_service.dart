@@ -470,7 +470,7 @@ class NotificationService {
       await ref.readWhere<KlipperInstance>(klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready);
       logger.i(
           'Jrpc Client of ${machine.name}(${machine.wsUri.obfuscate()}) is connected, can Setup FCM on printer now!');
-      await _machineService.updateMachineFcmConfig(machine, fcmToken);
+      await _machineService.updateMachineFcmSettings(machine, fcmToken);
     } catch (e, s) {
       logger.w('Could not setupFCM on ${machine.name}(${machine.wsUri.obfuscate()})', e, s);
     }

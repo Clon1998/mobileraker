@@ -263,7 +263,7 @@ class PrinterEditController extends _$PrinterEditController {
         state = true;
         _machineService.resetFcmTokens(_machine);
         var fcmToken = await ref.read(fcmTokenProvider.future);
-        await _machineService.updateMachineFcmConfig(_machine, fcmToken);
+        await _machineService.updateMachineFcmSettings(_machine, fcmToken);
       }
     } catch (e) {
       logger.w('Error while resetting FCM cache on machine ${_machine.name}', e);
