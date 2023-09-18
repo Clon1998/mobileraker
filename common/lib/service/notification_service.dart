@@ -532,9 +532,9 @@ class NotificationService {
       final hasStateChange = notification.printState != printState;
       final hasFileChange =
           isPrinting && printer.currentFile?.name != null && notification.file != printer.currentFile?.name;
-      final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
+      // final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
 
-      if (!hasProgressChange && !hasStateChange && !hasEtaChange && !hasFileChange) return;
+      if (!hasProgressChange && !hasStateChange && !hasFileChange) return;
       logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
 
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
@@ -556,7 +556,7 @@ class NotificationService {
         'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
       };
 
-      if (hasProgressChange || hasEtaChange || hasFileChange) {
+      if (hasProgressChange || hasFileChange) {
         logger.i('Detected non-state change for ${machine.name} - ${printer.printProgress}, ${printer.eta}, '
             '${printer.currentFile?.name}');
 

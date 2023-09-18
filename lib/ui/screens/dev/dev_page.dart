@@ -55,7 +55,7 @@ class DevPage extends HookConsumerWidget {
       'progress': 0.67,
       'state': 'printing',
       'file': 'Benchy.gcode' ?? 'Unknown',
-      'eta': DateTime.now().add(Duration(hours: 60)).secondsSinceEpoch ?? -1,
+      'eta': DateTime.now().add(Duration(seconds: 120)).secondsSinceEpoch ?? -1,
 
       // Not sure yet if I want to use this
       'printStartTime': DateTime.now().subtract(Duration(seconds: 60 * 60 * 2)).secondsSinceEpoch,

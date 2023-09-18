@@ -51,9 +51,16 @@ struct EtaDisplayView: View {
         VStack {
             if isEtaWithinThreeHours(eta: etaDate) {
                 // Display a Text view with a timer
-                Text(etaDate!, style: .timer)
+                Text(
+                    timerInterval: Date.now...etaDate!,
+                    countsDown: true
+                )
+                .font(.title)
+                .fontWeight(.semibold)
+                /*Text(etaDate!, style: .timer)
                     .font(.title)
                     .fontWeight(.semibold)
+                 */
             } else if let eta = etaDate {
                 // Display a Text view with a formatted date
                 Text(etaFormatted(eta: eta))
