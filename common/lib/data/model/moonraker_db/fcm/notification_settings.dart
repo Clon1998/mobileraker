@@ -7,7 +7,7 @@ import 'package:common/util/extensions/iterable_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'stamped_entity.dart';
+import '../stamped_entity.dart';
 
 part 'notification_settings.g.dart';
 

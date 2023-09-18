@@ -25,16 +25,16 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/fcm/companion_meta.dart';
 import '../data/dto/server/klipper.dart';
-import '../data/model/moonraker_db/device_fcm_settings.dart';
+import '../data/model/moonraker_db/fcm/device_fcm_settings.dart';
+import '../data/model/moonraker_db/fcm/notification_settings.dart';
 import '../data/model/moonraker_db/gcode_macro.dart';
 import '../data/model/moonraker_db/machine_settings.dart';
 import '../data/model/moonraker_db/macro_group.dart';
-import '../data/model/moonraker_db/notification_settings.dart';
-import '../data/repository/fcm_settings_repository.dart';
-import '../data/repository/fcm_settings_repository_impl.dart';
+import '../data/repository/fcm/device_fcm_settings_repository.dart';
+import '../data/repository/fcm/device_fcm_settings_repository_impl.dart';
+import '../data/repository/fcm/notification_settings_repository_impl.dart';
 import '../data/repository/machine_hive_repository.dart';
 import '../data/repository/machine_settings_moonraker_repository.dart';
-import '../data/repository/notification_settings_repository_impl.dart';
 import '../network/jrpc_client_provider.dart';
 import '../network/moonraker_database_client.dart';
 import 'firebase/analytics.dart';
@@ -187,7 +187,7 @@ class MachineService {
   Future<void> removeMachine(Machine machine) async {
     logger.i('Removing machine ${machine.uuid}');
     try {
-      await ref.read(fcmSettingsRepositoryProvider(machine.uuid)).delete(machine.uuid);
+      await ref.read(deviceFcmSettingsRepositoryProvider(machine.uuid)).delete(machine.uuid);
     } catch (e) {
       logger.w('Was unable to delete FCM settings from machine that is about to get deleted...', e);
     }
@@ -252,9 +252,9 @@ class MachineService {
 
      */
     // Use this as a workaround to keep the repo active until method is done!
-    var providerSubscription = ref.keepAliveExternally(fcmSettingsRepositoryProvider(machine.uuid));
+    var providerSubscription = ref.keepAliveExternally(deviceFcmSettingsRepositoryProvider(machine.uuid));
     try {
-      FcmSettingsRepository fcmRepo = ref.read(fcmSettingsRepositoryProvider(machine.uuid));
+      DeviceFcmSettingsRepository fcmRepo = ref.read(deviceFcmSettingsRepositoryProvider(machine.uuid));
 
       // Remove DeviceFcmSettings if the device does not has the machineUUID anymore!
       var allDeviceSettings = await fcmRepo.all();
@@ -341,7 +341,7 @@ class MachineService {
 
   Future<void> removeFCMCapability(Machine machine) async {
     try {
-      await ref.read(fcmSettingsRepositoryProvider(machine.uuid)).delete(machine.uuid);
+      await ref.read(deviceFcmSettingsRepositoryProvider(machine.uuid)).delete(machine.uuid);
     } catch (e) {
       logger.w('Was unable to delete FCM settings from machine', e);
     }
@@ -350,7 +350,7 @@ class MachineService {
   /// Removes all stored fcm tokens+configs from the machines moonraker database
   Future<void> resetFcmTokens(Machine machine) async {
     try {
-      await ref.read(fcmSettingsRepositoryProvider(machine.uuid)).deleteAll();
+      await ref.read(deviceFcmSettingsRepositoryProvider(machine.uuid)).deleteAll();
     } catch (e) {
       logger.w('Was unable to reset/deletaAll FCM settings from machine', e);
     }

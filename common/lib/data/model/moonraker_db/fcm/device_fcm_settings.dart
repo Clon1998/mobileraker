@@ -6,8 +6,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
+import '../stamped_entity.dart';
 import 'notification_settings.dart';
-import 'stamped_entity.dart';
 
 part 'device_fcm_settings.g.dart';
 

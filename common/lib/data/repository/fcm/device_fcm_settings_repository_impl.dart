@@ -6,19 +6,19 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../network/moonraker_database_client.dart';
-import '../model/moonraker_db/device_fcm_settings.dart';
-import 'fcm_settings_repository.dart';
+import '../../../network/moonraker_database_client.dart';
+import '../../model/moonraker_db/fcm/device_fcm_settings.dart';
+import '../fcm/device_fcm_settings_repository.dart';
 
-part 'fcm_settings_repository_impl.g.dart';
+part 'device_fcm_settings_repository_impl.g.dart';
 
 @riverpod
-FcmSettingsRepository fcmSettingsRepository(FcmSettingsRepositoryRef ref, String machineUUID) {
-  return FcmSettingsRepositoryImpl(ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
+DeviceFcmSettingsRepository deviceFcmSettingsRepository(DeviceFcmSettingsRepositoryRef ref, String machineUUID) {
+  return DeviceFcmSettingsRepositoryImpl(ref.watch(moonrakerDatabaseClientProvider(machineUUID)));
 }
 
-class FcmSettingsRepositoryImpl extends FcmSettingsRepository {
-  FcmSettingsRepositoryImpl(this._databaseService);
+class DeviceFcmSettingsRepositoryImpl extends DeviceFcmSettingsRepository {
+  DeviceFcmSettingsRepositoryImpl(this._databaseService);
 
   final MoonrakerDatabaseClient _databaseService;
 

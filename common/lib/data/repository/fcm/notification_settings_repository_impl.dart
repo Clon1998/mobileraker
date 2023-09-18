@@ -7,10 +7,10 @@ import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../network/moonraker_database_client.dart';
-import '../../service/selected_machine_service.dart';
-import '../model/moonraker_db/notification_settings.dart';
-import 'notification_settings_repository.dart';
+import '../../../network/moonraker_database_client.dart';
+import '../../../service/selected_machine_service.dart';
+import '../../model/moonraker_db/fcm/notification_settings.dart';
+import '../fcm/notification_settings_repository.dart';
 
 part 'notification_settings_repository_impl.g.dart';
 

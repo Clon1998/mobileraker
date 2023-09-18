@@ -3,9 +3,9 @@
  * All rights reserved.
  */
 
-import '../model/moonraker_db/device_fcm_settings.dart';
+import '../../model/moonraker_db/fcm/device_fcm_settings.dart';
 
-abstract class FcmSettingsRepository {
+abstract class DeviceFcmSettingsRepository {
   Future<void> update(String machineId, DeviceFcmSettings fcmSettings);
 
   Future<Map<String, DeviceFcmSettings>> all();
