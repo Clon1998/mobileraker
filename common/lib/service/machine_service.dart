@@ -10,6 +10,8 @@ import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:common/data/model/moonraker_db/fcm/apns.dart';
+import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/selected_machine_service.dart';
@@ -246,6 +248,9 @@ class MachineService {
             "settings": {
               "progressConfig": 0.25,
               "stateConfig": ["error","printing","paused"]
+            },
+            "apns:{
+              "liveActivity": "........"
             }
         }
     }
@@ -334,6 +339,31 @@ class MachineService {
       }
       if (updateReq.isNotEmpty) await Future.wait(updateReq);
       logger.i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new notification settings');
+    } finally {
+      keepAliveExternally.close();
+    }
+  }
+
+  Future<void> updateMachineFcmLiveActivity({
+    required Machine machine,
+    required String liveActivityUuid,
+  }) async {
+    var keepAliveExternally = ref.keepAliveExternally(apnsRepositoryProvider(machine.uuid));
+    try {
+      var repo = ref.read(apnsRepositoryProvider(machine.uuid));
+
+      logger.i('Updating live activity in FCM for machine ${machine.name} (${machine.uuid})');
+
+      var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
+          (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
+      if (connectionResult != ClientState.connected) {
+        logger.w(
+            '[${machine.name}@${machine.wsUri}] Unable to Propagated live activity in FCM because JRPC was not connected!');
+        return;
+      }
+
+      await repo.update(machine.uuid, APNs(liveActivity: liveActivityUuid));
+      logger.i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new live activity in FCM');
     } finally {
       keepAliveExternally.close();
     }

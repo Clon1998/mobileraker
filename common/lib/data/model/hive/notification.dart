@@ -22,6 +22,12 @@ class Notification extends HiveObject {
   @HiveField(2)
   double? progress;
 
+  @HiveField(3)
+  String? file;
+
+  @HiveField(4)
+  DateTime? eta;
+
   Notification({
     required this.machineUuid,
   });

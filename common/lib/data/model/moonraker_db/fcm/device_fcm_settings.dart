@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../stamped_entity.dart';
+import 'apns.dart';
 import 'notification_settings.dart';
 
 part 'device_fcm_settings.g.dart';
@@ -44,6 +45,7 @@ class DeviceFcmSettings extends StampedEntity {
   String language;
   NotificationSettings settings;
   Map<String, dynamic>? snap;
+  APNs? apns;
 
   DeviceFcmSettings.fallback(String fcmToken, String machineName)
       : this(

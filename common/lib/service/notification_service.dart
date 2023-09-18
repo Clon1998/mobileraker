@@ -525,11 +525,16 @@ class NotificationService {
       var printState = printer.print.state;
       // logger.wtf('PrintProgress ${printer.printProgress} - ${notification.progress}');
       // logger.wtf('PrintState ${printState} - ${notification.printState}');
-      final hasProgressChange = {PrintState.printing, PrintState.paused}.contains(printState) &&
+      var isPrinting = {PrintState.printing, PrintState.paused}.contains(printState);
+      final hasProgressChange = isPrinting &&
           notification.progress != null &&
           ((notification.progress! - printer.printProgress) * 100).abs() > 2;
       final hasStateChange = notification.printState != printState;
-      if (!hasProgressChange && !hasStateChange) return;
+      final hasFileChange =
+          isPrinting && printer.currentFile?.name != null && notification.file != printer.currentFile?.name;
+      final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
+
+      if (!hasProgressChange && !hasStateChange && !hasEtaChange && !hasFileChange) return;
       logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
 
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
@@ -551,8 +556,9 @@ class NotificationService {
         'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
       };
 
-      if (hasProgressChange) {
-        logger.i('Detected progress change for ${machine.name} - ${printer.printProgress}');
+      if (hasProgressChange || hasEtaChange || hasFileChange) {
+        logger.i('Detected non-state change for ${machine.name} - ${printer.printProgress}, ${printer.eta}, '
+            '${printer.currentFile?.name}');
 
         await _updateOrCreateLiveActivity(data, machine);
       } else if (hasStateChange) {
@@ -570,6 +576,8 @@ class NotificationService {
 
       notification
         ..progress = printer.printProgress
+        ..eta = printer.eta
+        ..file = printer.currentFile?.name
         ..printState = printState;
     } finally {
       _updateLiveActivityLock!.complete();
@@ -597,6 +605,7 @@ class NotificationService {
     var activityId = await _liveActivityAPI.createActivity(data);
     if (activityId != null) {
       _machineLiveActivityIdMap[machine.uuid] = activityId;
+      _machineService.updateMachineFcmLiveActivity(machine: machine, liveActivityUuid: activityId).ignore();
     }
     logger.i('Created new LiveActivity for ${machine.name} with id: $activityId');
     return activityId;
