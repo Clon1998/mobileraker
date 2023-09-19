@@ -50,7 +50,7 @@ class KlipperInstance with _$KlipperInstance {
 }
 
 MoonrakerVersion _moonrakerFromVersion(dynamic raw) {
-  if (raw! is String) return MoonrakerVersion.fallback();
+  if (raw is! String) return MoonrakerVersion.fallback();
   return MoonrakerVersion.fromString(raw);
 }
 

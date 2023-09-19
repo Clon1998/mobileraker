@@ -7,18 +7,10 @@ import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/logger.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../network/jrpc_client_provider.dart';
 import '../model/moonraker_db/webcam_info.dart';
 import 'webcam_info_repository.dart';
 
-part 'webcam_info_repository_impl.g.dart';
-
-@riverpod
-WebcamInfoRepositoryImpl webcamInfoRepository(WebcamInfoRepositoryRef ref, String machineUUID) {
-  return WebcamInfoRepositoryImpl(ref.watch(jrpcClientProvider(machineUUID)));
-}
 
 class WebcamInfoRepositoryImpl extends WebcamInfoRepository {
   WebcamInfoRepositoryImpl(this._rpcClient);

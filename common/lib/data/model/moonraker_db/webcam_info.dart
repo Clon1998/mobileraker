@@ -95,7 +95,7 @@ class WebcamInfo with _$WebcamInfo {
     fieldRename: FieldRename.snake,
   )
   const factory WebcamInfo({
-    @JsonKey(name: 'name', includeToJson: false) required String uuid,
+    @JsonKey(includeToJson: false, readValue: _uuidReader) required String uuid,
     required String name,
     @JsonKey(unknownEnumValue: WebcamServiceType.unknown) required WebcamServiceType service,
     required Uri streamUrl,
@@ -132,4 +132,11 @@ bool _boolOrInt(dynamic raw) {
   if (raw is bool) return raw;
   if (raw is num) return raw == 1;
   return false;
+}
+
+String _uuidReader(Map input, String key) {
+  if (input.containsKey(key)) {
+    return input[key] as String;
+  }
+  return input['name'] as String;
 }
