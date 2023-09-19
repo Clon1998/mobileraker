@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.6.4] - 2023-x-x
+
+### Major Changes
+
+- Reintroduced webcam support for users of Moonraker versions prior to
+  v0.8.0. [#254](https://github.com/Clon1998/mobileraker/issues/254)
+
 ## [2.6.3] - 2023-09-15
 
 ### Major Changes
