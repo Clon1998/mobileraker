@@ -544,7 +544,8 @@
       "title": "Using remote connection!"
     },
     "web_rtc": {
-      "renderer_missing": "WebRtc video not available!"
+      "renderer_missing": "WebRtc video not available!",
+      "oe_warning": "WebRtc via OctoEverywhere is not supported yet!"
     }
   },
   "dialogs": {

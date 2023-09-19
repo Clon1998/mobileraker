@@ -20,6 +20,8 @@ extension MobilerakerFF on FirebaseRemoteConfig {
   // TODO maybe extract the strings of the FF to seperate consts or enums (But as of now I am only exposing theme from within the service anyway lol
   int get maxNonSupporterMachines => getInt('non_suporters_max_printers');
 
+  bool get oeWebrtc => getBool('oe_webrtc_warning');
+
   Future<void> initialize() async {
     try {
       await setConfigSettings(RemoteConfigSettings(
@@ -28,6 +30,7 @@ extension MobilerakerFF on FirebaseRemoteConfig {
       ));
       await setDefaults({
         'non_suporters_max_printers': -1,
+        'oe_webrtc_warning': true,
       });
       fetchAndActivate().then((value) {
         logger.i('FirebaseRemote values are fetched and activated!');
