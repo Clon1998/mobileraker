@@ -690,7 +690,8 @@
     "starting": "Starting",
     "disconnected": "Disconnected",
     "error": "Error",
-    "unauthorized": "Unauthorized"
+    "unauthorized": "Unauthorized",
+    "initializing": "Initializing"
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",
