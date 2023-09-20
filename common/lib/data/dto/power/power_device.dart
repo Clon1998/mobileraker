@@ -22,7 +22,8 @@ enum PowerDeviceType {
   loxonev1,
   smartthings,
   mqtt,
-  hue
+  hue,
+  http,
 }
 
 @freezed
