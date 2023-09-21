@@ -9,6 +9,10 @@
 - Added Ukrainian translation, thanks
   to [iZonex](https://github.com/iZonex) [#258](https://github.com/Clon1998/mobileraker/issues/258)
 
+### Changed Features
+
+- Config-file based webcams can no longer be edited in the app. This never was supported by moonraker.
+
 ## [2.6.3] - 2023-09-15
 
 ### Major Changes
