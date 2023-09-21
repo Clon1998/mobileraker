@@ -6,6 +6,8 @@
 
 - Reintroduced webcam support for users of Moonraker versions prior to
   v0.8.0. [#254](https://github.com/Clon1998/mobileraker/issues/254)
+- Added Ukrainian translation, thanks
+  to [iZonex](https://github.com/iZonex) [#258](https://github.com/Clon1998/mobileraker/issues/258)
 
 ## [2.6.3] - 2023-09-15
 
