@@ -316,117 +316,122 @@ class _WebCamItem extends HookConsumerWidget {
             //   index: idx,
             //   child: const Icon(Icons.drag_handle),
             // ),
-            children: [
-          if (cam.service.forSupporters && !ref.watch(isSupporterProvider))
-            SupporterOnlyFeature(
-                text: const Text(
-              'components.supporter_only_feature.webcam',
-            ).tr(args: [cam.service.name.titleCase()])),
-          FormBuilderTextField(
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              labelText: 'pages.printer_edit.general.displayname'.tr(),
-              suffix: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: ref.watch(printerEditControllerProvider)
-                      ? null
-                      : () => ref.read(webcamListControllerProvider.notifier).removeWebcam(cam)),
-            ),
-            name: '${cam.uuid}-camName',
-            initialValue: cam.name,
-            onChanged: (name) =>
-                camName.value = ((name?.isNotEmpty ?? false) ? name! : 'pages.printer_edit.cams.new_cam'.tr()),
-            validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
-            contextMenuBuilder: defaultContextMenuBuilder,
-          ),
-          FormBuilderTextField(
-            keyboardType: TextInputType.url,
-            decoration: InputDecoration(
-                labelText: 'pages.printer_edit.cams.stream_url'.tr(),
-                helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=stream'),
-            name: '${cam.uuid}-streamUrl',
-            initialValue: cam.streamUrl.toString(),
-            validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
-            contextMenuBuilder: defaultContextMenuBuilder,
-          ),
-          FormBuilderTextField(
-            keyboardType: TextInputType.url,
-            decoration: InputDecoration(
-                labelText: 'pages.printer_edit.cams.snapshot_url'.tr(),
-                helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=snapshot'),
-            name: '${cam.uuid}-snapshotUrl',
-            initialValue: cam.snapshotUrl.toString(),
-            validator: FormBuilderValidators.compose([
-              FormBuilderValidators.required(),
-            ]),
-            contextMenuBuilder: defaultContextMenuBuilder,
-          ),
-          FormBuilderDropdown(
-            name: '${cam.uuid}-service',
-            initialValue: cam.service,
-            items: WebcamServiceType.values
-                .map((serviceType) => DropdownMenuItem<WebcamServiceType>(
-                    enabled: serviceType.supported,
-                    value: serviceType,
-                    child: Text(
-                        '${beautifyName(serviceType.name)} ${serviceType.supported ? '' : '(${tr('general.unsupported')})'}')))
-                .toList(),
-            decoration: InputDecoration(
-              labelText: 'pages.printer_edit.cams.cam_mode'.tr(),
-            ),
-            onChanged: (WebcamServiceType? v) => serviceType.value = v!,
-          ),
-          if (serviceType.value == WebcamServiceType.mjpegStreamerAdaptive)
-            FormBuilderTextField(
-              decoration: InputDecoration(
-                labelText: 'pages.printer_edit.cams.target_fps'.tr(),
-                suffix: const Text('FPS'),
-              ),
-              name: '${cam.uuid}-tFps',
-              initialValue: cam.targetFps.toString(),
-              validator: FormBuilderValidators.compose(
-                  [FormBuilderValidators.min(0), FormBuilderValidators.numeric(), FormBuilderValidators.required()]),
-              valueTransformer: (String? text) {
-                return text == null ? 0 : int.tryParse(text);
-              },
-              keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-            ),
-          FormBuilderDropdown(
-              decoration: InputDecoration(
-                labelText: 'pages.printer_edit.cams.cam_rotate'.tr(),
-              ),
-              name: '${cam.uuid}-rotate',
-              initialValue: cam.rotation,
-              items: [0, 90, 180, 270]
-                  .map((e) => DropdownMenuItem(
-                        value: e,
-                        child: Text('$e°'),
-                      ))
-                  .toList(growable: false)),
-          FormBuilderSwitch(
-            title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
-            decoration: const InputDecoration(border: InputBorder.none),
-            secondary: const Icon(FlutterIcons.swap_vertical_mco),
-            initialValue: cam.flipVertical,
-            name: '${cam.uuid}-camFV',
-            activeColor: themeData.colorScheme.primary,
-          ),
-          FormBuilderSwitch(
-            title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
-            decoration: const InputDecoration(border: InputBorder.none),
-            secondary: const Icon(FlutterIcons.swap_horizontal_mco),
-            initialValue: cam.flipHorizontal,
-            name: '${cam.uuid}-camFH',
-            activeColor: themeData.colorScheme.primary,
-          ),
-          FullWidthButton(
-            onPressed: serviceType.value.supported
-                ? () => (ref.read(webcamListControllerProvider.notifier).previewWebcam(cam))
-                : null,
-            child:
-                Text('general.preview'.tr() + (serviceType.value.supported ? '' : ' (${tr('general.unsupported')})')),
-          )
-        ]));
+            children: (cam.isReadOnly)
+                ? [const Text('pages.printer_edit.cams.read_only').tr()]
+                : [
+                    if (cam.service.forSupporters && !ref.watch(isSupporterProvider))
+                      SupporterOnlyFeature(
+                          text: const Text(
+                        'components.supporter_only_feature.webcam',
+                      ).tr(args: [cam.service.name.titleCase()])),
+                    FormBuilderTextField(
+                      keyboardType: TextInputType.text,
+                      decoration: InputDecoration(
+                        labelText: 'pages.printer_edit.general.displayname'.tr(),
+                        suffix: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: ref.watch(printerEditControllerProvider)
+                                ? null
+                                : () => ref.read(webcamListControllerProvider.notifier).removeWebcam(cam)),
+                      ),
+                      name: '${cam.uuid}-camName',
+                      initialValue: cam.name,
+                      onChanged: (name) => camName.value =
+                          ((name?.isNotEmpty ?? false) ? name! : 'pages.printer_edit.cams.new_cam'.tr()),
+                      validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+                      contextMenuBuilder: defaultContextMenuBuilder,
+                    ),
+                    FormBuilderTextField(
+                      keyboardType: TextInputType.url,
+                      decoration: InputDecoration(
+                          labelText: 'pages.printer_edit.cams.stream_url'.tr(),
+                          helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=stream'),
+                      name: '${cam.uuid}-streamUrl',
+                      initialValue: cam.streamUrl.toString(),
+                      validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+                      contextMenuBuilder: defaultContextMenuBuilder,
+                    ),
+                    FormBuilderTextField(
+                      keyboardType: TextInputType.url,
+                      decoration: InputDecoration(
+                          labelText: 'pages.printer_edit.cams.snapshot_url'.tr(),
+                          helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=snapshot'),
+                      name: '${cam.uuid}-snapshotUrl',
+                      initialValue: cam.snapshotUrl.toString(),
+                      validator: FormBuilderValidators.compose([
+                        FormBuilderValidators.required(),
+                      ]),
+                      contextMenuBuilder: defaultContextMenuBuilder,
+                    ),
+                    FormBuilderDropdown(
+                      name: '${cam.uuid}-service',
+                      initialValue: cam.service,
+                      items: WebcamServiceType.values
+                          .map((serviceType) => DropdownMenuItem<WebcamServiceType>(
+                              enabled: serviceType.supported,
+                              value: serviceType,
+                              child: Text(
+                                  '${beautifyName(serviceType.name)} ${serviceType.supported ? '' : '(${tr('general.unsupported')})'}')))
+                          .toList(),
+                      decoration: InputDecoration(
+                        labelText: 'pages.printer_edit.cams.cam_mode'.tr(),
+                      ),
+                      onChanged: (WebcamServiceType? v) => serviceType.value = v!,
+                    ),
+                    if (serviceType.value == WebcamServiceType.mjpegStreamerAdaptive)
+                      FormBuilderTextField(
+                        decoration: InputDecoration(
+                          labelText: 'pages.printer_edit.cams.target_fps'.tr(),
+                          suffix: const Text('FPS'),
+                        ),
+                        name: '${cam.uuid}-tFps',
+                        initialValue: cam.targetFps.toString(),
+                        validator: FormBuilderValidators.compose([
+                          FormBuilderValidators.min(0),
+                          FormBuilderValidators.numeric(),
+                          FormBuilderValidators.required()
+                        ]),
+                        valueTransformer: (String? text) {
+                          return text == null ? 0 : int.tryParse(text);
+                        },
+                        keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
+                      ),
+                    FormBuilderDropdown(
+                        decoration: InputDecoration(
+                          labelText: 'pages.printer_edit.cams.cam_rotate'.tr(),
+                        ),
+                        name: '${cam.uuid}-rotate',
+                        initialValue: cam.rotation,
+                        items: [0, 90, 180, 270]
+                            .map((e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text('$e°'),
+                                ))
+                            .toList(growable: false)),
+                    FormBuilderSwitch(
+                      title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
+                      decoration: const InputDecoration(border: InputBorder.none),
+                      secondary: const Icon(FlutterIcons.swap_vertical_mco),
+                      initialValue: cam.flipVertical,
+                      name: '${cam.uuid}-camFV',
+                      activeColor: themeData.colorScheme.primary,
+                    ),
+                    FormBuilderSwitch(
+                      title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
+                      decoration: const InputDecoration(border: InputBorder.none),
+                      secondary: const Icon(FlutterIcons.swap_horizontal_mco),
+                      initialValue: cam.flipHorizontal,
+                      name: '${cam.uuid}-camFH',
+                      activeColor: themeData.colorScheme.primary,
+                    ),
+                    FullWidthButton(
+                      onPressed: serviceType.value.supported
+                          ? () => (ref.read(webcamListControllerProvider.notifier).previewWebcam(cam))
+                          : null,
+                      child: Text('general.preview'.tr() +
+                          (serviceType.value.supported ? '' : ' (${tr('general.unsupported')})')),
+                    )
+                  ]));
   }
 }
 
@@ -1108,7 +1113,7 @@ class _ThemeSelector extends ConsumerWidget {
         suffix: isSupporter
             ? null
             : IconButton(
-                constraints: BoxConstraints(minWidth: 10, minHeight: 10),
+                constraints: const BoxConstraints(minWidth: 10, minHeight: 10),
                 icon: const Icon(FlutterIcons.hand_holding_heart_faw5s),
                 onPressed:
                     isSupporter ? null : ref.read(printerEditControllerProvider.notifier).printerThemeSupporterDialog,

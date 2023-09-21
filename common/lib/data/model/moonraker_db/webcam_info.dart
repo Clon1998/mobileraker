@@ -126,6 +126,8 @@ class WebcamInfo with _$WebcamInfo {
   Matrix4 get transformMatrix => Matrix4.identity()
     ..rotateX(flipHorizontal ? pi : 0)
     ..rotateY(flipVertical ? pi : 0);
+
+  bool get isReadOnly => source == 'config';
 }
 
 bool _boolOrInt(dynamic raw) {

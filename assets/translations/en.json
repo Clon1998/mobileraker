@@ -319,7 +319,8 @@
         "flip_vertical": "Flip vertical",
         "flip_horizontal": "Flip horizontal",
         "cam_mode": "Cam Mode",
-        "cam_rotate": "Rotation"
+        "cam_rotate": "Rotation",
+        "read_only": "Webcam is read-only"
       },
       "macros": {
         "new_macro_grp": "New Macro - Group",
