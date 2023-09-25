@@ -48,36 +48,38 @@ class _FullCamView extends ConsumerWidget {
     var selectedCam = ref.watch(fullCamPageControllerProvider);
 
     return Scaffold(
-      body: Stack(alignment: Alignment.center, children: [
-        CenterInteractiveViewer(
-            constrained: true,
-            minScale: 1,
-            maxScale: 10,
-            child: Webcam(
-              machine: machine,
-              webcamInfo: selectedCam,
-              stackContent: const [StackContent()],
-              showFpsIfAvailable: true,
-              showRemoteIndicator: false,
-            )),
-        const _CamSelector(),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: IconButton(
-            icon: const Icon(Icons.close_fullscreen_outlined),
-            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ),
-        if (clientType != ClientType.local)
-          const Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: EdgeInsets.all(12.0),
-              child: OctoIndicator(),
+      body: SafeArea(
+        child: Stack(alignment: Alignment.center, children: [
+          CenterInteractiveViewer(
+              constrained: true,
+              minScale: 1,
+              maxScale: 10,
+              child: Webcam(
+                machine: machine,
+                webcamInfo: selectedCam,
+                stackContent: const [StackContent()],
+                showFpsIfAvailable: true,
+                showRemoteIndicator: false,
+              )),
+          const _CamSelector(),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: IconButton(
+              icon: const Icon(Icons.close_fullscreen_outlined),
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-      ]),
+          if (clientType != ClientType.local)
+            const Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: EdgeInsets.all(12.0),
+                child: OctoIndicator(),
+              ),
+            ),
+        ]),
+      ),
     );
   }
 }
