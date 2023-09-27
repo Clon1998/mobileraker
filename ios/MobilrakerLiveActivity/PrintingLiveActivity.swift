@@ -20,7 +20,11 @@ struct MobilrakerLiveActivityBundle: WidgetBundle {
 struct LiveActivitiesAppAttributes: ActivityAttributes, Identifiable {
     public typealias LiveDeliveryData = ContentState // don't forget to add this line, otherwise, live activity will not display it.
     
-    public struct ContentState: Codable, Hashable { }
+    public struct ContentState: Codable, Hashable {
+        // make everything nullable to be able to retrieve initial
+        // values before notification is sent to update
+        let progress: Double?
+    }
     
     var id = UUID()
 }
@@ -30,7 +34,8 @@ let sharedDefault = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
 struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
-            let progress = sharedDefault.double(forKey: "progress")
+            let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+            
             let state = sharedDefault.string(forKey: "state")!
             let file = sharedDefault.string(forKey: "file")!
             
