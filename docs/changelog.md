@@ -13,6 +13,12 @@
 
 - Config-file based webcams can no longer be edited in the app. This never was supported by moonraker.
 
+### Bug Fixes
+
+- In scenarios with slower network connections, the app will no longer display the `Klipper-Error, Future did not
+  complete in time` message. Instead, it will now seamlessly utilize the timeout configuration specified in the machine
+  settings for all JRpc (JSON-RPC) calls, ensuring a more reliable and consistent user experience.
+
 ## [2.6.3] - 2023-09-15
 
 ### Major Changes

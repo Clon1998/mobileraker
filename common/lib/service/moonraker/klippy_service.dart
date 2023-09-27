@@ -120,16 +120,9 @@ class KlippyService {
 
   Future<void> refreshKlippy() async {
     try {
-      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]).timeout(const Duration(seconds: 5));
+      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]);
     } on JRpcError catch (e, s) {
-      logger.w('Error while fetching inital KlippyObject: ${e.message}');
-
-      _current = _current.copyWith(
-          klippyConnected: false,
-          klippyState: (e.message == 'Unauthorized') ? KlipperState.unauthorized : KlipperState.error,
-          klippyStateMessage: e.message);
-    } on TimeoutException catch (e) {
-      logger.w('Error while fetching inital KlippyObject: ${e.message}');
+      logger.w('Jrpc Error while refreshing KlippyObject: ${e.message}');
 
       _current = _current.copyWith(
           klippyConnected: false,

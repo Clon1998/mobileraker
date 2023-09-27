@@ -40,6 +40,15 @@ class JRpcError implements Exception {
   }
 }
 
+class JRpcTimeoutError extends JRpcError {
+  JRpcTimeoutError(String message) : super(-1, message);
+
+  @override
+  String toString() {
+    return 'JRpcTimeoutError: $message';
+  }
+}
+
 class JsonRpcClientBuilder {
   JsonRpcClientBuilder();
 
@@ -198,15 +207,23 @@ class JsonRpcClient {
   }
 
   /// Send a JsonRpc using futures
-  Future<RpcResponse> sendJRpcMethod(String method, {dynamic params}) {
+  /// Returns a future that completes to the response of the server
+  /// Throws an TimeoutException if the server does not respond in time defined by
+  /// [timeout] or the [this.timeout] of the client
+
+  Future<RpcResponse> sendJRpcMethod(String method, {dynamic params, Duration? timeout}) {
+    timeout ??= this.timeout;
+
     var jsonRpc = _constructJsonRPCMessage(method, params: params);
     var mId = jsonRpc['id'];
     var completer = Completer<RpcResponse>();
+
     _pendingRequests[mId] = _Request(method, completer, StackTrace.current);
 
     logger.d('$logPrefix Sending(Blocking) for method "$method" with ID $mId');
     _send(jsonEncode(jsonRpc));
-    return completer.future;
+    return completer.future.timeout(timeout).onError<TimeoutException>(
+        (error, stackTrace) => throw JRpcTimeoutError('JRpcMethod timed out after ${error.duration}'));
   }
 
   /// add a method listener for all(all=*) or given [method]
