@@ -65,6 +65,8 @@
 	<false/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSSupportsLiveActivitiesFrequentUpdates</key>
+	<true/>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 </dict>

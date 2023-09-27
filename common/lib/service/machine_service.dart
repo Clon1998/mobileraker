@@ -346,7 +346,7 @@ class MachineService {
 
   Future<void> updateMachineFcmLiveActivity({
     required Machine machine,
-    required String liveActivityUuid,
+    required String liveActivityPushToken,
   }) async {
     var keepAliveExternally = ref.keepAliveExternally(apnsRepositoryProvider(machine.uuid));
     try {
@@ -362,7 +362,7 @@ class MachineService {
         return;
       }
 
-      await repo.update(machine.uuid, APNs(liveActivity: liveActivityUuid));
+      await repo.update(machine.uuid, APNs(liveActivity: liveActivityPushToken));
       logger.i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new live activity in FCM');
     } finally {
       keepAliveExternally.close();

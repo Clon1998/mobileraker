@@ -605,7 +605,10 @@ class NotificationService {
     var activityId = await _liveActivityAPI.createActivity(data);
     if (activityId != null) {
       _machineLiveActivityIdMap[machine.uuid] = activityId;
-      _machineService.updateMachineFcmLiveActivity(machine: machine, liveActivityUuid: activityId).ignore();
+      var pushToken = await _liveActivityAPI.getPushToken(activityId);
+      if (pushToken != null) {
+        _machineService.updateMachineFcmLiveActivity(machine: machine, liveActivityPushToken: pushToken).ignore();
+      }
     }
     logger.i('Created new LiveActivity for ${machine.name} with id: $activityId');
     return activityId;
