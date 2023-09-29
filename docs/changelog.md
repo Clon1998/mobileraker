@@ -13,11 +13,13 @@
 - Introduced local Live Activity support for iOS devices. While real-time and remote updates to the live activities are
   currently under development, local activities will now update alongside the app
   itself.  [#238](https://github.com/Clon1998/mobileraker/issues/238)
+- Introduced a new OctoEverywhere theme as a heartfelt tribute to the unwavering dedication and support of
+  the [OctoEverywhere](https://octoeverywhere.com/) team.
 
 ### Changed Features
 
 - In accordance with Moonraker, editing config-file-based webcams within the app is no longer supported.
-
+- Deactivated the capacity to employ a temperature preset during an active print job.
 ### Bug Fixes
 
 - In scenarios with slower network connections, the app will no longer display the `Klipper-Error, Future did not
