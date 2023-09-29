@@ -22,10 +22,10 @@ class APNs extends StampedEntity {
   APNs({
     DateTime? created,
     DateTime? lastModified,
-    required this.liveActivity,
+    this.liveActivity,
   }) : super(created, lastModified ?? DateTime.now());
 
-  String liveActivity;
+  String? liveActivity;
 
   factory APNs.fromJson(Map<String, dynamic> json) => _$APNsFromJson(json);
 

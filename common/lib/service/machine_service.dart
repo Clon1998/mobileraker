@@ -346,7 +346,7 @@ class MachineService {
 
   Future<void> updateMachineFcmLiveActivity({
     required Machine machine,
-    required String liveActivityPushToken,
+    String? liveActivityPushToken,
   }) async {
     var keepAliveExternally = ref.keepAliveExternally(apnsRepositoryProvider(machine.uuid));
     try {
