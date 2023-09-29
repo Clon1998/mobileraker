@@ -75,6 +75,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   statesTriggeringNotification('activeStateNotMode'),
   fullscreenCamOrientation('lcFullCam'),
   timeFormat('tMode'),
+  useLiveActivity('useLiveActivity'),
   ;
 
   @override

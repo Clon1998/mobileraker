@@ -244,7 +244,8 @@
         "ios_notifications_title": "IOS Notification Delivery",
         "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!",
         "missing_companion_title": "Companion not found!",
-        "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\n\nTap to learn more!"
+        "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\n\nTap to learn more!",
+        "enable_live_activity": "Enable Live Activity"
       },
       "developer": {
         "title": "Developer",

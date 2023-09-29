@@ -184,6 +184,7 @@ class _NotificationSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
+    var settingService = ref.watch(settingServiceProvider);
 
     return Column(
       children: [
@@ -191,6 +192,15 @@ class _NotificationSection extends ConsumerWidget {
         const CompanionMissingWarning(),
         const NotificationPermissionWarning(),
         const NotificationFirebaseWarning(),
+        if (Platform.isIOS)
+          FormBuilderSwitch(
+            name: 'liveActivity',
+            title: const Text('pages.setting.notification.enable_live_activity').tr(),
+            onChanged: (b) => settingService.writeBool(AppSettingKeys.useLiveActivity, b ?? false),
+            initialValue: ref.watch(boolSettingProvider(AppSettingKeys.useLiveActivity)),
+            decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+            activeColor: themeData.colorScheme.primary,
+          ),
         const _ProgressNotificationSettingField(),
         const _StateNotificationSettingField(),
         const Divider(),

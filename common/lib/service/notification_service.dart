@@ -12,6 +12,7 @@ import 'dart:ui';
 
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/server/klipper.dart';
@@ -38,6 +39,7 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
+import 'package:live_activities/models/activity_update.dart';
 import 'package:live_activities/models/live_activity_state.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -90,11 +92,12 @@ class NotificationService {
   final Map<String, ProviderSubscription<AsyncValue<Printer>>> _printerStreamMap = {};
   final ReceivePort _notificationTapPort = ReceivePort();
 
-  final Map<String, String> _machineLiveActivityIdMap = {};
+  final Map<String, _ActivityEntry> _machineLiveActivityMap = {};
   final Completer _liveActivityInitCompleter = Completer();
   Completer? _updateLiveActivityLock;
 
   StreamSubscription<BoxEvent>? _hiveStreamListener;
+  StreamSubscription<ActivityUpdate>? _activityUpdateStreamSubscription;
   final Completer<bool> _initialized = Completer<bool>();
 
   Future<bool> get initialized => _initialized.future;
@@ -104,8 +107,30 @@ class NotificationService {
       await _initialRequestPermission();
       if (Platform.isIOS) {
         _liveActivityInitCompleter.complete(_liveActivityAPI.init(appGroupId: "group.mobileraker.liveactivity"));
-        _liveActivityAPI.activityUpdateStream.listen((event) {
+        logger.i('Started to listen for LiveActivity updates');
+        _activityUpdateStreamSubscription = _liveActivityAPI.activityUpdateStream.listen((event) async {
           logger.i('LiveActivity update: $event');
+
+          var entry = _machineLiveActivityMap.entries.firstWhereOrNull((entry) => entry.value.id == event.activityId);
+          if (entry == null) return;
+          var machine = await ref.read(machineProvider(entry.key).future);
+          if (machine == null) return;
+
+          event
+              .mapOrNull(
+                active: (state) async {
+                  if (entry != null) {
+                    logger.i(
+                        'Updating Pushtoken for ${machine.name} LiveActivity ${state.activityId} to ${state.activityToken} fro');
+                    _machineLiveActivityMap[entry.key] = _ActivityEntry(state.activityId, state.activityToken);
+                    _machineService
+                        .updateMachineFcmLiveActivity(machine: machine, liveActivityPushToken: state.activityToken)
+                        .ignore();
+                  }
+                },
+                ended: (state) => _endLiveActivity(machine),
+              )
+              ?.ignore();
         });
       }
 
@@ -495,29 +520,24 @@ class NotificationService {
 
   Future<void> _processPrinterUpdate(Machine machine, Printer printer) async {
     // logger.wtf('_processPrinterUpdate.${machine.uuid}');
+    if (!Platform.isIOS) return;
     if (!_initialized.isCompleted) return;
     if (!_liveActivityInitCompleter.isCompleted) return;
     if (!await _liveActivityAPI.areActivitiesEnabled()) return;
+    if (!_settingsService.readBool(AppSettingKeys.useLiveActivity, true)) return;
     Notification? notification = await _notificationsRepository.getByMachineUuid(machine.uuid);
     notification ??= Notification(machineUuid: machine.uuid);
 
-    await _updateLiveActivity(machine, printer, notification);
+    await _refreshLiveActivity(machine, printer, notification);
 
     await _notificationsRepository.save(notification);
-
-    // var state = await _updatePrintStatusNotification(machine, printer.print.state, printer.print.filename, false);
-
-    // if (state == PrintState.printing && !Platform.isIOS) {
-    //   await _updatePrintProgressNotification(machine, printer.printProgress, printer.print.printDuration, false);
-    // }
-    // await machine.save();
   }
 
-  Future<void> _updateLiveActivity(Machine machine, Printer printer, Notification notification) async {
+  Future<void> _refreshLiveActivity(Machine machine, Printer printer, Notification notification) async {
     // Pseudo lock to prevent to many updates at once
     if (_updateLiveActivityLock?.let((it) => !it.isCompleted) ?? false) {
       await _updateLiveActivityLock!.future;
-      return _updateLiveActivity(machine, printer, notification);
+      return _refreshLiveActivity(machine, printer, notification);
     }
 
     _updateLiveActivityLock = Completer();
@@ -570,7 +590,7 @@ class NotificationService {
             await _updateOrCreateLiveActivity(data, machine);
             break;
           default:
-            _endLiveActivity(machine.uuid);
+            _endLiveActivity(machine);
         }
       }
 
@@ -585,38 +605,33 @@ class NotificationService {
   }
 
   Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> data, Machine machine) async {
-    if (_machineLiveActivityIdMap.containsKey(machine.uuid)) {
-      var activityId = _machineLiveActivityIdMap[machine.uuid]!;
-      LiveActivityState activityState = await _liveActivityAPI.getActivityState(activityId);
+    if (_machineLiveActivityMap.containsKey(machine.uuid)) {
+      var activityEntry = _machineLiveActivityMap[machine.uuid]!;
+      LiveActivityState activityState = await _liveActivityAPI.getActivityState(activityEntry.id);
       //ToDo Unknown state of liveActivity might also be checked...
       logger.i('LiveActivityState for ${machine.name} is $activityState');
       if (activityState == LiveActivityState.active || activityState == LiveActivityState.stale) {
-        activityId;
-        await _liveActivityAPI.updateActivity(activityId, data);
-        logger.i('Updating LiveActivity for ${machine.name} with id: $activityId}');
-        return activityId;
+        await _liveActivityAPI.updateActivity(activityEntry.id, data);
+        logger.i('Updating LiveActivity for ${machine.name} with id: $activityEntry');
+        return activityEntry.id;
       }
     }
     var allActivities = await _liveActivityAPI.getAllActivitiesIds();
-    allActivities.where((element) => !_machineLiveActivityIdMap.containsValue(element)).forEach((element) {
+    allActivities.where((element) => !_machineLiveActivityMap.containsValue(element)).forEach((element) {
       logger.i('Ending LiveActivity with id: $element, since it can not be addressed anymore!');
       _liveActivityAPI.endActivity(element);
     });
     var activityId = await _liveActivityAPI.createActivity(data);
     if (activityId != null) {
-      _machineLiveActivityIdMap[machine.uuid] = activityId;
-      var pushToken = await _liveActivityAPI.getPushToken(activityId);
-      if (pushToken != null) {
-        _machineService.updateMachineFcmLiveActivity(machine: machine, liveActivityPushToken: pushToken).ignore();
-      }
+      _machineLiveActivityMap[machine.uuid] = _ActivityEntry(activityId);
     }
     logger.i('Created new LiveActivity for ${machine.name} with id: $activityId');
     return activityId;
   }
 
-  _endLiveActivity(String machineUuid) {
-    _machineLiveActivityIdMap[machineUuid]?.let(_liveActivityAPI.endActivity);
-    _machineLiveActivityIdMap.remove(machineUuid);
+  _endLiveActivity(Machine machine) {
+    _machineLiveActivityMap.remove(machine.uuid)?.let((x) => _liveActivityAPI.endActivity(x.id));
+    _machineService.updateMachineFcmLiveActivity(machine: machine).ignore();
   }
 
   Future<PrintState> _updatePrintStatusNotification(Machine machine, PrintState updatedState, String? updatedFile,
@@ -738,9 +753,22 @@ class NotificationService {
     logger.e('NEVER DISPOSE THIS SERVICE!');
     _notificationTapPort.close();
     _hiveStreamListener?.cancel();
+    _activityUpdateStreamSubscription?.cancel();
     for (var element in _printerStreamMap.values) {
       element.close();
     }
     _initialized.completeError(StateError('Disposed notification service before it was initialized!'));
+  }
+}
+
+class _ActivityEntry {
+  _ActivityEntry(this.id, [this.pushToken]);
+
+  String id;
+  String? pushToken;
+
+  @override
+  String toString() {
+    return '_ActivityEntry{id: $id, pushToken: $pushToken}';
   }
 }

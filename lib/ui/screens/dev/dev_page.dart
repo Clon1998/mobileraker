@@ -51,6 +51,11 @@ class DevPage extends HookConsumerWidget {
 
     final _liveActivitiesPlugin = LiveActivities();
     _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
+
+    _liveActivitiesPlugin.activityUpdateStream.listen((event) {
+      logger.wtf('xxxLiveActivityUpdate: $event');
+    });
+
     Map<String, dynamic> data = {
       'progress': 0.67,
       'state': 'printing',
@@ -67,9 +72,11 @@ class DevPage extends HookConsumerWidget {
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
     };
 
-    _liveActivitiesPlugin.createActivity(
+    var activityId = await _liveActivitiesPlugin.createActivity(
       data,
     );
+    var pushToken = await _liveActivitiesPlugin.getPushToken(activityId!);
+    logger.i('LiveActivity PushToken: $pushToken');
   }
 
   test(WidgetRef ref, String filess) async {
