@@ -8,6 +8,8 @@
   v0.8.0. [#254](https://github.com/Clon1998/mobileraker/issues/254)
 - Added Ukrainian translation, thanks
   to [iZonex](https://github.com/iZonex) [#258](https://github.com/Clon1998/mobileraker/issues/258)
+- Added Portuguese translation with Brasil flavor, thanks
+  to [@opastorello](https://github.com/opastorello)
 - Introduced local Live Activity support for iOS devices. While real-time and remote updates to the live activities are
   currently under development, local activities will now update alongside the app
   itself.  [#238](https://github.com/Clon1998/mobileraker/issues/238)
