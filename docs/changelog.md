@@ -16,7 +16,7 @@
 
 ### Changed Features
 
-- Config-file based webcams can no longer be edited in the app. This never was supported by moonraker.
+- In accordance with Moonraker, editing config-file-based webcams within the app is no longer supported.
 
 ### Bug Fixes
 
