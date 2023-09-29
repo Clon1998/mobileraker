@@ -1493,6 +1493,10 @@
       "HK": {
         "name": "Traditional",
         "nativeName": "繁體"
+      },
+      "BR": {
+        "name": "Brasil",
+        "nativeName": "Brasil"
       }
     }
   }
