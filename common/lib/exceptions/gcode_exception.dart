@@ -10,14 +10,16 @@ import 'mobileraker_exception.dart';
 
 /// Thrown whenever a Gcode exception fails!
 class GCodeException extends MobilerakerException {
-  const GCodeException(super.message, this.code, this.error,
-      {super.parentException, super.parentStack});
+  const GCodeException(super.message, this.code, this.error, {super.parentException, super.parentStack});
 
   factory GCodeException.fromJrpcError(JRpcError e, {StackTrace? parentStack}) {
+    if (e is JRpcTimeoutError) {
+      return GCodeException(e.message, -1, 'JrpcTimeout', parentException: e, parentStack: parentStack);
+    }
+
     Map<String, dynamic> errorInfo = jsonDecode(e.message.replaceAll('\'', '"'));
 
-    return GCodeException(errorInfo['message'] ?? 'UNKNOWN', e.code, errorInfo['error'],
-        parentException: e);
+    return GCodeException(errorInfo['message'] ?? 'UNKNOWN', e.code, errorInfo['error'], parentException: e);
   }
 
   final int code;
