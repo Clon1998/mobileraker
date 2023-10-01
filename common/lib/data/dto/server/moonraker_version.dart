@@ -40,9 +40,9 @@ class MoonrakerVersion with _$MoonrakerVersion {
       return MoonrakerVersion.fallback();
     }
 
-    final major = int.parse(versionNumbers[0]);
-    final minor = int.parse(versionNumbers[1]);
-    final patch = int.parse(versionNumbers[2]);
+    final major = int.tryParse(versionNumbers[0]) ?? 0;
+    final minor = int.tryParse(versionNumbers[1]) ?? 0;
+    final patch = int.tryParse(versionNumbers[2]) ?? 0;
 
     // Parse the commits and commitHash parts
     int commits = 0;
