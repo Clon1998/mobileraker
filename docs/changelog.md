@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.5] - 2023-10-xx
+
+### Bug Fixes
+
+- Fixed an issue that prevented the app from correctly detecting the currently used Moonraker version.
+
 ## [2.6.4] - 2023-09-30
 
 ### Major Changes
