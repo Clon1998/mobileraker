@@ -148,9 +148,9 @@ class _Chart extends StatelessWidget {
           ),
         ],
       ),
-      swapAnimationDuration: const Duration(milliseconds: 10),
+      duration: const Duration(milliseconds: 10),
       // Optional
-      swapAnimationCurve: Curves.easeInOutCubic, // Optional
+      curve: Curves.easeInOutCubic, // Optional
     );
   }
 }
