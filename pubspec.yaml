@@ -86,9 +86,9 @@ dependencies:
 
 
   #notification
-  awesome_notifications_core: ^0.7.6 # use the latest available
-  awesome_notifications: any
-  awesome_notifications_fcm: any
+  awesome_notifications_core: ^0.8.1
+  awesome_notifications: ^0.8.2
+  awesome_notifications_fcm: ^0.8.0
   live_activities: ^1.7.5
 
   #form
