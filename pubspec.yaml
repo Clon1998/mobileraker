@@ -149,9 +149,9 @@ dev_dependencies:
   freezed: ^2.2.1
   mockito: ^5.3.2
   json_serializable: ^6.4.1
-  riverpod_generator: ^2.3.3
+  riverpod_generator: 2.3.2 #// Todo use ^ again once dependency error is fixed
   # riverpod_lint makes it easier to work with Riverpod
-  riverpod_lint: ^2.1.1
+  riverpod_lint: ^2.1.0
   # import custom_lint too as riverpod_lint depends on it
   custom_lint: ^0.5.3
   flutter_native_splash: ^2.2.19
