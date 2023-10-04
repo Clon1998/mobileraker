@@ -24,6 +24,7 @@ struct LiveActivitiesAppAttributes: ActivityAttributes, Identifiable {
         // make everything nullable to be able to retrieve initial
         // values before notification is sent to update
         let progress: Double?
+        let eta: Int?
     }
     
     var id = UUID()
@@ -35,15 +36,16 @@ struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+            let isPrintDone = abs(progress - 1) < 0.0001
             
             let state = sharedDefault.string(forKey: "state")!
             let file = sharedDefault.string(forKey: "file")!
             
             
-            let eta = sharedDefault.integer(forKey: "eta")
+            let eta = context.state.eta ?? sharedDefault.integer(forKey: "eta")
             let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
             
-            
+
             let printStartUnix = sharedDefault.integer(forKey: "printStartTime")
             let printStartDate = Date(timeIntervalSince1970: TimeInterval(printStartUnix))
             
@@ -52,6 +54,7 @@ struct PrintingLiveActivity: Widget {
             let etaLabel = sharedDefault.string(forKey: "eta_label")!
             let elapsedLabel = sharedDefault.string(forKey: "elapsed_label")!
             
+            //ToDo
             
             // Lock screen/banner UI goes here
             VStack(alignment: .leading, spacing: 8.0) {
@@ -69,10 +72,16 @@ struct PrintingLiveActivity: Widget {
                 }
                 
                 VStack(alignment: .leading) {
-                    Text(etaLabel)
-                        .font(.title2)
-                        .fontWeight(.light)
-                    EtaDisplayView(etaDate: etaDate)
+                    if isPrintDone {
+                        Text("✓")
+                            .font(.title2)
+                            .fontWeight(.light)
+                    } else {
+                        Text(etaLabel)
+                            .font(.title2)
+                            .fontWeight(.light)
+                        EtaDisplayView(etaDate: etaDate)
+                    }
                 }
                 
             }
@@ -83,12 +92,12 @@ struct PrintingLiveActivity: Widget {
             .activitySystemActionForegroundColor(Color.black)
             
         } dynamicIsland: { context in
-            let progress = sharedDefault.double(forKey: "progress")
+            let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
             let state = sharedDefault.string(forKey: "state")!
             let file = sharedDefault.string(forKey: "file")!
             
             
-            let eta = sharedDefault.integer(forKey: "eta")
+            let eta = context.state.eta ?? sharedDefault.integer(forKey: "eta")
             let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
             
             
@@ -144,17 +153,17 @@ struct PrintingLiveActivity: Widget {
                     }
                 }
             } compactLeading: {
-                let eta = sharedDefault.integer(forKey: "eta")
+                let eta = context.state.eta ?? sharedDefault.integer(forKey: "eta")
                 let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
                 EtaDisplayView(etaDate: etaDate)
                     .padding(.horizontal, 2.0)
             } compactTrailing: {
-                let progress = sharedDefault.double(forKey: "progress")
+                let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
                 let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
                 CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2.5, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
             } minimal: {
-                let progress = sharedDefault.double(forKey: "progress")
+                let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
                 let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
                 CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
