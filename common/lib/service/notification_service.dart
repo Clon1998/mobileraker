@@ -119,18 +119,15 @@ class NotificationService {
           event
               .mapOrNull(
                 active: (state) async {
-                  if (entry != null) {
-                    logger.i(
-                        'Updating Pushtoken for ${machine.name} LiveActivity ${state.activityId} to ${state.activityToken} fro');
-                    _machineLiveActivityMap[entry.key] = _ActivityEntry(state.activityId, state.activityToken);
-                    _machineService
-                        .updateMachineFcmLiveActivity(machine: machine, liveActivityPushToken: state.activityToken)
-                        .ignore();
-                  }
-                },
-                ended: (state) => _endLiveActivity(machine),
-              )
-              ?.ignore();
+              logger.i(
+                  'Updating Pushtoken for ${machine.name} LiveActivity ${state.activityId} to ${state.activityToken} fro');
+              _machineLiveActivityMap[entry.key] = _ActivityEntry(state.activityId, state.activityToken);
+              _machineService
+                  .updateMachineFcmLiveActivity(machine: machine, liveActivityPushToken: state.activityToken)
+                  .ignore();
+            },
+            ended: (state) => _endLiveActivity(machine),
+          );
         });
       }
 

@@ -361,8 +361,11 @@ class MachineService {
             '[${machine.name}@${machine.wsUri}] Unable to Propagated live activity in FCM because JRPC was not connected!');
         return;
       }
-
-      await repo.update(machine.uuid, APNs(liveActivity: liveActivityPushToken));
+      if (liveActivityPushToken == null) {
+        await repo.delete(machine.uuid);
+      } else {
+        await repo.update(machine.uuid, APNs(liveActivity: liveActivityPushToken));
+      }
       logger.i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new live activity in FCM');
     } finally {
       keepAliveExternally.close();

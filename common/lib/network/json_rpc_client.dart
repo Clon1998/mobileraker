@@ -209,7 +209,7 @@ class JsonRpcClient {
   /// Send a JsonRpc using futures
   /// Returns a future that completes to the response of the server
   /// Throws an TimeoutException if the server does not respond in time defined by
-  /// [timeout] or the [this.timeout] of the client
+  /// [timeout] or the  [this.timeout] of the client
 
   Future<RpcResponse> sendJRpcMethod(String method, {dynamic params, Duration? timeout}) {
     timeout ??= this.timeout;
@@ -222,8 +222,12 @@ class JsonRpcClient {
 
     logger.d('$logPrefix Sending(Blocking) for method "$method" with ID $mId');
     _send(jsonEncode(jsonRpc));
+    // If the timeout is zero, dont enforce a timeout
+    if (timeout == Duration.zero) {
+      return completer.future;
+    }
     return completer.future.timeout(timeout).onError<TimeoutException>(
-        (error, stackTrace) => throw JRpcTimeoutError('JRpcMethod timed out after ${error.duration}'));
+        (error, stackTrace) => throw JRpcTimeoutError('JRpcMethod($method) timed out after ${error.duration}'));
   }
 
   /// add a method listener for all(all=*) or given [method]

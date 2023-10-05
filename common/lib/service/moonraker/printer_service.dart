@@ -235,15 +235,15 @@ class PrinterService {
   }
 
   resumePrint() {
-    _jRpcClient.sendJRpcMethod('printer.print.resume').ignore();
+    _jRpcClient.sendJRpcMethod('printer.print.resume', timeout: Duration.zero).ignore();
   }
 
   pausePrint() {
-    _jRpcClient.sendJRpcMethod('printer.print.pause').ignore();
+    _jRpcClient.sendJRpcMethod('printer.print.pause', timeout: Duration.zero).ignore();
   }
 
   cancelPrint() {
-    _jRpcClient.sendJRpcMethod('printer.print.cancel').ignore();
+    _jRpcClient.sendJRpcMethod('printer.print.cancel', timeout: Duration.zero).ignore();
   }
 
   setGcodeOffset({double? x, double? y, double? z, int? move}) {
@@ -340,7 +340,7 @@ class PrinterService {
 
   Future<bool> gCode(String script, {bool throwOnError = false, bool showSnackOnErr = true}) async {
     try {
-      await _jRpcClient.sendJRpcMethod('printer.gcode.script', params: {'script': script});
+      await _jRpcClient.sendJRpcMethod('printer.gcode.script', params: {'script': script}, timeout: Duration.zero);
       logger.i('GCode "$script" executed successfully!');
       return true;
     } on JRpcError catch (e, s) {
