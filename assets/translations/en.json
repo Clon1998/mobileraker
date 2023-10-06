@@ -387,7 +387,7 @@
           "title_add": "Add WiFi Name to List",
           "title_edit": "Edit WiFi Name",
           "label": "WiFi Name (SSID)",
-          "quick_add_hint": "Hint: You can also long press to quickly add the current WiFi name."
+          "quick_add_hint": "Hint: To quickly add the current WiFi name, long-press the button that opened this dialog."
         },
         "error_fetching_snackbar": {
           "title": "Error while fetching WiFi name!",
