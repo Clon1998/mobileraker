@@ -55,8 +55,8 @@ struct PrintingLiveActivity: Widget {
             let elapsedLabel = sharedDefault.string(forKey: "elapsed_label")!
             
             
-            
-            let backgroundColor = if isPrintDone == true { Color.green.opacity(0.45)} else {Color.white.opacity(0.45)}
+            let backgroundColor = isPrintDone ? Color.green.opacity(0.45) : Color.white.opacity(0.45)
+
             //ToDo
             
             // Lock screen/banner UI goes here
