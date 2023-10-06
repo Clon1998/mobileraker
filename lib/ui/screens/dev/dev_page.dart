@@ -57,16 +57,14 @@ class DevPage extends HookConsumerWidget {
     });
 
     Map<String, dynamic> data = {
-      'progress': 0.67,
+      'progress': 0.2,
       'state': 'printing',
       'file': 'Benchy.gcode' ?? 'Unknown',
-      'eta': DateTime.now().add(Duration(seconds: 120)).secondsSinceEpoch ?? -1,
-
-      // Not sure yet if I want to use this
-      'printStartTime': DateTime.now().subtract(Duration(seconds: 60 * 60 * 2)).secondsSinceEpoch,
+      'eta': DateTime.now().add(Duration(seconds: 60 * 120)).secondsSinceEpoch ?? -1,
 
       // Labels
-      'primary_color': Colors.amber.value,
+      'primary_color_light': Colors.amber.value,
+      'primary_color_dark': Colors.amberAccent.value,
       'machine_name': 'V2.1111',
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),

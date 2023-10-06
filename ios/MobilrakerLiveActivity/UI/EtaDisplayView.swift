@@ -9,19 +9,75 @@ import SwiftUI
 import Foundation
 
 struct EtaDisplayView: View {
-    let etaDate: Date? // Your ETA date
+    let etaDate: Date?
     
-    func isEtaWithinThreeHours(eta: Date?) -> Bool {
-        guard let eta = eta else {
-            return false
+    var body: some View {
+        if let eta = etaDate {
+            if shouldShowAsTimer(eta: eta) {
+                TimerTextView(eta: eta)
+            } else {
+                FormattedDateTextView(eta: eta)
+            }
+        } else {
+            Text("--")
+                .font(.title)
+                .fontWeight(.semibold)
         }
-        
-        let currentDate = Date()
-        let calendar = Calendar.current
-        let timeDifference = calendar.dateComponents([.hour], from: currentDate, to: eta).hour ?? 0
-        
-        return timeDifference <= 3
     }
+}
+
+struct EtaDisplayViewCompact: View {
+    let etaDate: Date?
+    var width: Double? = nil
+    
+    var body: some View {
+        if let eta = etaDate {
+            if shouldShowAsTimer(eta: eta, delta: 1) {
+                TimerTextView(eta: eta, width: width)
+            } else {
+                Image("mr_logo")
+                    .resizable()
+                    .scaledToFit()
+            }
+        } else {
+            Image("mr_logo")
+                .resizable()
+                .scaledToFit()
+        }
+    }
+    
+}
+
+
+
+struct TimerTextView: View {
+    let eta: Date
+    var width: Double?
+    
+    var body: some View {
+        Text(
+            timerInterval: Date.now...eta,
+            countsDown: true
+        )
+        .font(.title)
+        .fontWeight(.semibold)
+        .monospacedDigit()
+        .if(width != nil) { view in
+            view.frame(width: width!)
+        }
+    }
+}
+
+struct FormattedDateTextView: View {
+    let eta: Date
+    
+    var body: some View {
+        Text(etaFormatted(eta: eta))
+            .font(.title)
+            .monospacedDigit()
+            .fontWeight(.semibold)
+    }
+    
     
     func etaFormatted(eta: Date) -> String {
         let currentDate = Date()
@@ -46,38 +102,24 @@ struct EtaDisplayView: View {
         
         return dateFormatter.string(from: eta)
     }
-    
-    var body: some View {
-        VStack {
-            if isEtaWithinThreeHours(eta: etaDate) {
-                // Display a Text view with a timer
-                Text(
-                    timerInterval: Date.now...etaDate!,
-                    countsDown: true
-                )
-                .font(.title)
-                .fontWeight(.semibold)
-                /*Text(etaDate!, style: .timer)
-                    .font(.title)
-                    .fontWeight(.semibold)
-                 */
-            } else if let eta = etaDate {
-                // Display a Text view with a formatted date
-                Text(etaFormatted(eta: eta))
-                    .font(.title)
-                    .fontWeight(.semibold)
-            } else {
-                // Handle the case where etaDate is nil
-                Text("--")
-                    .font(.title)
-                    .fontWeight(.semibold)
-            }
-        }
-    }
+
 }
+
 
 struct EtaDisplayView_Previews: PreviewProvider {
     static var previews: some View {
-        EtaDisplayView(etaDate: Date())
+        EtaDisplayView(etaDate: Date()  )
     }
+}
+
+
+func shouldShowAsTimer(eta: Date?, delta: Int = 3) -> Bool {
+    guard let eta = eta else {
+        return false
+    }
+    
+    let currentDate = Date()
+    let calendar = Calendar.current
+    let timeDifference = calendar.dateComponents([.hour], from: currentDate, to: eta).hour ?? 0
+    return timeDifference < delta
 }

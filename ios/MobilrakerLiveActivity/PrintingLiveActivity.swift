@@ -45,7 +45,7 @@ struct PrintingLiveActivity: Widget {
             let eta = context.state.eta ?? sharedDefault.integer(forKey: "eta")
             let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
             
-
+            
             let printStartUnix = sharedDefault.integer(forKey: "printStartTime")
             let printStartDate = Date(timeIntervalSince1970: TimeInterval(printStartUnix))
             
@@ -54,6 +54,9 @@ struct PrintingLiveActivity: Widget {
             let etaLabel = sharedDefault.string(forKey: "eta_label")!
             let elapsedLabel = sharedDefault.string(forKey: "elapsed_label")!
             
+            
+            
+            let backgroundColor = if isPrintDone == true { Color.green.opacity(0.45)} else {Color.white.opacity(0.45)}
             //ToDo
             
             // Lock screen/banner UI goes here
@@ -62,21 +65,17 @@ struct PrintingLiveActivity: Widget {
                     VStack(alignment: .leading){
                         Text(machineName)
                             .font(.headline)
-                            .fontWeight(.semibold);
+                            .fontWeight(.semibold)
                         
-                        Text(file);
+                        Text(file)
                     }
                     
-                    Spacer();
-                    CircularProgressView(progress: progress, color_int: UInt32(primaryColor));
+                    Spacer()
+                    CircularProgressView(progress: progress, color_int: UInt32(primaryColor))
                 }
                 
-                VStack(alignment: .leading) {
-                    if isPrintDone {
-                        Text("✓")
-                            .font(.title2)
-                            .fontWeight(.light)
-                    } else {
+                if !isPrintDone {
+                    VStack(alignment: .leading) {
                         Text(etaLabel)
                             .font(.title2)
                             .fontWeight(.light)
@@ -88,11 +87,14 @@ struct PrintingLiveActivity: Widget {
             
             .padding(.all)
             //.foregroundColor(Color.black)
-            .activityBackgroundTint(Color.white.opacity(0.45))
+            .activityBackgroundTint(backgroundColor)
             .activitySystemActionForegroundColor(Color.black)
             
         } dynamicIsland: { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+            let isPrintDone = abs(progress - 1) < 0.0001
+            
+            
             let state = sharedDefault.string(forKey: "state")!
             let file = sharedDefault.string(forKey: "file")!
             
@@ -129,39 +131,41 @@ struct PrintingLiveActivity: Widget {
                 DynamicIslandExpandedRegion(.bottom) {
                     VStack(alignment: .leading) {
                         Text(file)
-                        
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(etaLabel)
-                                    .font(.title2)
-                                    .fontWeight(.light)
-                                EtaDisplayView(etaDate: etaDate)
+                        if !isPrintDone {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(etaLabel)
+                                        .font(.title2)
+                                        .fontWeight(.light)
+                                    EtaDisplayView(etaDate: etaDate)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading) // Expand to fill available space
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading) // Expand to fill available space
-                            /*
-                             VStack(alignment: .leading) {
-                             Text(elapsedLabel)
-                             .font(.title2)
-                             .fontWeight(.light)
-                             Text(printStartDate, style: .timer)
-                             .font(.title)
-                             .fontWeight(.semibold)
-                             }
-                             .frame(maxWidth: .infinity, alignment: .trailing) // Expand to fill available space
-                             */
                         }
                     }
                 }
             } compactLeading: {
+                let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+                let isPrintDone = abs(progress - 1) < 0.0001
+                
                 let eta = context.state.eta ?? sharedDefault.integer(forKey: "eta")
                 let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
-                EtaDisplayView(etaDate: etaDate)
-                    .padding(.horizontal, 2.0)
+                
+                if isPrintDone {
+                 Image("mr_logo")
+                     .resizable()
+                     .scaledToFit()
+                } else {
+                    EtaDisplayViewCompact(etaDate: etaDate, width: 50)
+                        .padding(.horizontal, 2.0)
+                }
             } compactTrailing: {
                 let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+                let isPrintDone = abs(progress - 1) < 0.0001
                 let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
                 CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2.5, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
+                 
             } minimal: {
                 let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
                 let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
