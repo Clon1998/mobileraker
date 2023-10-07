@@ -61,16 +61,15 @@ class ControlTab extends ConsumerWidget {
                     false)
                   const GcodeMacroCard(),
                 if (ref
-                        .watch(machinePrinterKlippySettingsProvider.selectAs(
-                            (value) => value.printerData.print.state != PrintState.printing))
+                        .watch(machinePrinterKlippySettingsProvider
+                            .selectAs((value) => value.printerData.print.state != PrintState.printing))
                         .valueOrNull ??
                     false)
                   const ExtruderControlCard(),
                 const FansCard(),
                 if (ref
-                        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
-                            value.printerData.outputPins.isNotEmpty ||
-                            value.printerData.leds.isNotEmpty))
+                        .watch(machinePrinterKlippySettingsProvider.selectAs(
+                            (value) => value.printerData.outputPins.isNotEmpty || value.printerData.leds.isNotEmpty))
                         .valueOrNull ??
                     false)
                   const PinsCard(),
@@ -138,8 +137,8 @@ class FansCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var fanLen = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
-            value.printerData.fans.values.where((element) => !element.name.startsWith('_')).length))
+        .watch(machinePrinterKlippySettingsProvider.selectAs(
+            (value) => value.printerData.fans.values.where((element) => !element.name.startsWith('_')).length))
         .valueOrNull!;
 
     return Card(
@@ -155,16 +154,14 @@ class FansCard extends ConsumerWidget {
             ),
             AdaptiveHorizontalScroll(pageStorageKey: 'fans', children: [
               if (ref
-                      .watch(machinePrinterKlippySettingsProvider
-                          .selectAs((data) => data.printerData.isPrintFanAvailable))
+                      .watch(
+                          machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.isPrintFanAvailable))
                       .valueOrNull ==
                   true)
                 const _PrintFan(),
               ...List.generate(fanLen, (index) {
-                var fanProvider = machinePrinterKlippySettingsProvider.selectAs((value) => value
-                    .printerData.fans.values
-                    .where((element) => !element.name.startsWith('_'))
-                    .elementAt(index));
+                var fanProvider = machinePrinterKlippySettingsProvider.selectAs((value) =>
+                    value.printerData.fans.values.where((element) => !element.name.startsWith('_')).elementAt(index));
 
                 return _Fan(
                   fanProvider: fanProvider,
@@ -183,11 +180,10 @@ class _PrintFan extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var fan = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.printerData.printFan)).valueOrNull;
+    var fan =
+        ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.printerData.printFan)).valueOrNull;
     var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
 
     if (fan == null) {
@@ -197,9 +193,7 @@ class _PrintFan extends ConsumerWidget {
     return _FanCard(
       name: 'pages.dashboard.control.fan_card.part_fan'.tr(),
       speed: fan.speed,
-      onTap: klippyCanReceiveCommands
-          ? () => ref.read(controlTabControllerProvider.notifier).onEditPartFan(fan)
-          : null,
+      onTap: klippyCanReceiveCommands ? () => ref.read(controlTabControllerProvider.notifier).onEditPartFan(fan) : null,
     );
   }
 }
@@ -213,8 +207,7 @@ class _Fan extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var fan = ref.watch(fanProvider).valueOrNull!;
     var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
     return _FanCard(
       name: beautifyName(fan.name),
@@ -291,8 +284,7 @@ class SpinningFan extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    AnimationController animationController =
-        useAnimationController(duration: const Duration(seconds: 3))..repeat();
+    AnimationController animationController = useAnimationController(duration: const Duration(seconds: 3))..repeat();
     return RotationTransition(
       turns: animationController,
       child: Icon(FlutterIcons.fan_mco, size: size),
@@ -313,24 +305,21 @@ class ExtruderControlCard extends HookConsumerWidget {
     })).valueOrNull!;
 
     var minExtrudeTemp = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
-    value.printerData.configFile.extruderForIndex(activeExtruderIdx)?.minExtrudeTemp ??
-            170))
+        .watch(machinePrinterKlippySettingsProvider.selectAs(
+            (value) => value.printerData.configFile.extruderForIndex(activeExtruderIdx)?.minExtrudeTemp ?? 170))
         .valueOrNull!;
 
     var canExtrude = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
-            value.printerData.extruders[activeExtruderIdx].temperature >= minExtrudeTemp))
+        .watch(machinePrinterKlippySettingsProvider
+            .selectAs((value) => value.printerData.extruders[activeExtruderIdx].temperature >= minExtrudeTemp))
         .valueOrNull!;
 
     var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
 
-    var extruderSteps = ref
-        .watch(
-            machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.extrudeSteps)).valueOrNull!;
+    var extruderSteps =
+        ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.extrudeSteps)).valueOrNull!;
 
     return Card(
       child: Column(
@@ -359,8 +348,8 @@ class ExtruderControlCard extends HookConsumerWidget {
               ],
             ),
             trailing: (ref
-                    .watch(machinePrinterKlippySettingsProvider
-                        .selectAs((value) => value.printerData.extruderCount > 1))
+                    .watch(
+                        machinePrinterKlippySettingsProvider.selectAs((value) => value.printerData.extruderCount > 1))
                     .valueOrNull!)
                 ? DropdownButton(
                     value: activeExtruderIdx,
@@ -419,8 +408,7 @@ class ExtruderControlCard extends HookConsumerWidget {
                     ),
                     RangeSelector(
                         selectedIndex: ref.watch(extruderControlCardControllerProvider),
-                        onSelected:
-                            ref.watch(extruderControlCardControllerProvider.notifier).stepChanged,
+                        onSelected: ref.watch(extruderControlCardControllerProvider.notifier).stepChanged,
                         values: extruderSteps.map((e) => e.toString()).toList()),
                   ],
                 ),
@@ -441,20 +429,18 @@ class GcodeMacroCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
 
-    var macroGroups = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.macroGroups)).valueOrNull!;
+    var macroGroups =
+        ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.macroGroups)).valueOrNull!;
 
     var isPrinting = ref
         .watch(machinePrinterKlippySettingsProvider
             .selectAs((value) => value.printerData.print.state == PrintState.printing))
         .valueOrNull!;
 
-    int idx = min(macroGroups.length - 1,
-        max(0, ref.watch(settingServiceProvider).readInt(UtilityKeys.gCodeIndex, 0)));
+    int idx = min(macroGroups.length - 1, max(0, ref.watch(settingServiceProvider).readInt(UtilityKeys.gCodeIndex, 0)));
 
     var selected = useState(idx);
     var themeData = Theme.of(context);
@@ -472,7 +458,7 @@ class GcodeMacroCard extends HookConsumerWidget {
                     value: selected.value,
                     onChanged: klippyCanReceiveCommands
                         ? (e) {
-                      ref.read(settingServiceProvider).writeInt(UtilityKeys.gCodeIndex, e!);
+                            ref.read(settingServiceProvider).writeInt(UtilityKeys.gCodeIndex, e!);
                             selected.value = e;
                           }
                         : null,
@@ -493,15 +479,14 @@ class GcodeMacroCard extends HookConsumerWidget {
                 (int index) {
                   GCodeMacro macro = macrosOfGrp[index];
                   ConfigGcodeMacro? configGcodeMacro = ref
-                      .watch(machinePrinterKlippySettingsProvider.selectAs((data) =>
-                          data.printerData.configFile.gcodeMacros[macro.name.toLowerCase()]))
+                      .watch(machinePrinterKlippySettingsProvider
+                          .selectAs((data) => data.printerData.configFile.gcodeMacros[macro.name.toLowerCase()]))
                       .valueOrNull;
-                  bool disabled =
-                      (!klippyCanReceiveCommands || (isPrinting && !macro.showWhilePrinting));
+                  bool disabled = (!klippyCanReceiveCommands || (isPrinting && !macro.showWhilePrinting));
                   return Visibility(
                     visible: ref
-                            .watch(machinePrinterKlippySettingsProvider.selectAs(
-                                (value) => value.printerData.gcodeMacros.contains(macro.name)))
+                            .watch(machinePrinterKlippySettingsProvider
+                                .selectAs((value) => value.printerData.gcodeMacros.contains(macro.name)))
                             .valueOrNull! &&
                         macro.visible,
                     child: TextButton(
@@ -523,10 +508,9 @@ class GcodeMacroCard extends HookConsumerWidget {
 
                       onLongPress: disabled
                           ? null
-                          : () =>
-                              ref.watch(controlTabControllerProvider.notifier).onMacroLongPressed(
-                                    macro.name,
-                                  ),
+                          : () => ref.watch(controlTabControllerProvider.notifier).onMacroLongPressed(
+                                macro.name,
+                              ),
                       child: Text(macro.beautifiedName),
 
                       // Chip(
@@ -556,15 +540,13 @@ class PinsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var pinLen = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value
-            .printerData.outputPins.values
-            .where((element) => !element.name.startsWith('_'))
-            .length))
+        .watch(machinePrinterKlippySettingsProvider.selectAs(
+            (value) => value.printerData.outputPins.values.where((element) => !element.name.startsWith('_')).length))
         .valueOrNull!;
 
     var ledLen = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) =>
-            value.printerData.leds.values.where((element) => !element.name.startsWith('_')).length))
+        .watch(machinePrinterKlippySettingsProvider.selectAs(
+            (value) => value.printerData.leds.values.where((element) => !element.name.startsWith('_')).length))
         .valueOrNull!;
     return Card(
       child: Padding(
@@ -589,10 +571,8 @@ class PinsCard extends ConsumerWidget {
                   return _PinTile(pinProvider: pinProvider);
                 }),
                 ...List.generate(ledLen, (index) {
-                  var ledProvider = machinePrinterKlippySettingsProvider.selectAs((value) => value
-                      .printerData.leds.values
-                      .where((element) => !element.name.startsWith('_'))
-                      .elementAt(index));
+                  var ledProvider = machinePrinterKlippySettingsProvider.selectAs((value) =>
+                      value.printerData.leds.values.where((element) => !element.name.startsWith('_')).elementAt(index));
 
                   return _Led(
                     ledProvider: ledProvider,
@@ -621,19 +601,16 @@ class _PinTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var pin = ref.watch(pinProvider).valueOrNull!;
     var pinConfig = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.printerData.configFile.outputs[pin.name]))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.printerData.configFile.outputs[pin.name]))
         .valueOrNull;
     var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
 
     if (pinConfig?.pwm == false) {
       return CardWithSwitch(
           value: pin.value > 0,
-          onChanged: (v) =>
-              ref.read(controlTabControllerProvider.notifier).onUpdateBinaryPin(pin, v),
+          onChanged: (v) => ref.read(controlTabControllerProvider.notifier).onUpdateBinaryPin(pin, v),
           builder: (context) {
             var textTheme = Theme.of(context).textTheme;
             var beautifiedName = beautifyName(pin.name);
@@ -648,8 +625,7 @@ class _PinTile extends ConsumerWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(pin.value > 0 ? 'general.on'.tr() : 'general.off'.tr(),
-                      style: textTheme.headlineSmall),
+                  Text(pin.value > 0 ? 'general.on'.tr() : 'general.off'.tr(), style: textTheme.headlineSmall),
                 ],
               ),
             );
@@ -778,10 +754,10 @@ class _Led extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Led led = ref.watch(ledProvider).valueOrNull!;
-    var ledConfig = ref.watch(machinePrinterKlippySettingsProvider.select((value) => value.valueOrNull?.printerData.configFile.leds[led.name.toLowerCase()]));
+    var ledConfig = ref.watch(machinePrinterKlippySettingsProvider
+        .select((value) => value.valueOrNull?.printerData.configFile.leds[led.name.toLowerCase()]));
     var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
 
     return CardWithButton(
@@ -828,8 +804,7 @@ class MultipliersCard extends HookConsumerWidget {
     var inputLocked = useState(true);
 
     var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
 
     return Card(
@@ -840,8 +815,7 @@ class MultipliersCard extends HookConsumerWidget {
             leading: const Icon(FlutterIcons.speedometer_slow_mco),
             title: const Text('pages.dashboard.control.multipl_card.title').tr(),
             trailing: IconButton(
-                onPressed:
-                    klippyCanReceiveCommands ? () => inputLocked.value = !inputLocked.value : null,
+                onPressed: klippyCanReceiveCommands ? () => inputLocked.value = !inputLocked.value : null,
                 icon: AnimatedSwitcher(
                   duration: kThemeAnimationDuration,
                   transitionBuilder: (child, anim) => RotationTransition(
@@ -858,23 +832,24 @@ class MultipliersCard extends HookConsumerWidget {
             child: Column(
               children: [
                 _SliderOrTextInput(
-                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                      .select((value) => value.value!.printerData.gCodeMove.speedFactor)),
+                  provider: machinePrinterKlippySettingsProvider
+                      .select((data) => data.value!.printerData.gCodeMove.speedFactor),
                   prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
                       ? ref.watch(controlTabControllerProvider.notifier).onEditedSpeedMultiplier
                       : null,
+                  addToMax: true,
                 ),
                 _SliderOrTextInput(
-                    initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                        .select((value) => value.value!.printerData.gCodeMove.extrudeFactor)),
+                    provider: machinePrinterKlippySettingsProvider
+                        .select((data) => data.value!.printerData.gCodeMove.extrudeFactor),
                     prefixText: 'pages.dashboard.control.multipl_card.flow'.tr(),
                     onChange: klippyCanReceiveCommands && !inputLocked.value
                         ? ref.watch(controlTabControllerProvider.notifier).onEditedFlowMultiplier
                         : null),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                      .select((value) => value.value!.printerData.extruder.pressureAdvance)),
+                  provider: machinePrinterKlippySettingsProvider
+                      .select((data) => data.value!.printerData.extruder.pressureAdvance),
                   prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
                       ? ref.watch(controlTabControllerProvider.notifier).onEditedPressureAdvanced
@@ -883,8 +858,8 @@ class MultipliersCard extends HookConsumerWidget {
                   unit: 'mm/s',
                 ),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                      .select((value) => value.value!.printerData.extruder.smoothTime)),
+                  provider: machinePrinterKlippySettingsProvider
+                      .select((data) => data.value!.printerData.extruder.smoothTime),
                   prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
                       ? ref.watch(controlTabControllerProvider.notifier).onEditedSmoothTime
@@ -912,8 +887,7 @@ class LimitsCard extends HookConsumerWidget {
     var inputLocked = useState(true);
 
     var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.klippyData.klippyCanReceiveCommands))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
 
     return Card(
@@ -924,9 +898,7 @@ class LimitsCard extends HookConsumerWidget {
             leading: const Icon(Icons.tune),
             title: const Text('pages.dashboard.control.limit_card.title').tr(),
             trailing: IconButton(
-                onPressed: (klippyCanReceiveCommands)
-                    ? () => inputLocked.value = !inputLocked.value
-                    : null,
+                onPressed: (klippyCanReceiveCommands) ? () => inputLocked.value = !inputLocked.value : null,
                 icon: AnimatedSwitcher(
                   duration: kThemeAnimationDuration,
                   transitionBuilder: (child, anim) => RotationTransition(
@@ -943,8 +915,8 @@ class LimitsCard extends HookConsumerWidget {
             child: Column(
               children: [
                 _SliderOrTextInput(
-                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                      .select((value) => value.value!.printerData.toolhead.maxVelocity)),
+                  provider: machinePrinterKlippySettingsProvider
+                      .select((data) => data.value!.printerData.toolhead.maxVelocity),
                   prefixText: tr('pages.dashboard.control.limit_card.velocity'),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
                       ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxVelocity
@@ -954,8 +926,8 @@ class LimitsCard extends HookConsumerWidget {
                   maxValue: 500,
                 ),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                      .select((value) => value.value!.printerData.toolhead.maxAccel)),
+                  provider:
+                      machinePrinterKlippySettingsProvider.select((data) => data.value!.printerData.toolhead.maxAccel),
                   prefixText: tr('pages.dashboard.control.limit_card.accel'),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
                       ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxAccel
@@ -965,21 +937,19 @@ class LimitsCard extends HookConsumerWidget {
                   maxValue: 5000,
                 ),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                      .select((value) => value.value!.printerData.toolhead.squareCornerVelocity)),
+                  provider: machinePrinterKlippySettingsProvider
+                      .select((data) => data.value!.printerData.toolhead.squareCornerVelocity),
                   prefixText: tr('pages.dashboard.control.limit_card.sq_corn_vel'),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref
-                          .watch(controlTabControllerProvider.notifier)
-                          .onEditedMaxSquareCornerVelocity
+                      ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxSquareCornerVelocity
                       : null,
                   numberFormat: NumberFormat('0.# mm/s', context.locale.languageCode),
                   unit: 'mm/s',
                   maxValue: 8,
                 ),
                 _SliderOrTextInput(
-                  initialValue: ref.watch(machinePrinterKlippySettingsProvider
-                      .select((value) => value.value!.printerData.toolhead.maxAccelToDecel)),
+                  provider: machinePrinterKlippySettingsProvider
+                      .select((data) => data.value!.printerData.toolhead.maxAccelToDecel),
                   prefixText: tr('pages.dashboard.control.limit_card.accel_to_decel'),
                   onChange: klippyCanReceiveCommands && !inputLocked.value
                       ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxAccelToDecel
@@ -997,130 +967,220 @@ class LimitsCard extends HookConsumerWidget {
   }
 }
 
-class _SliderOrTextInput extends HookWidget {
+class _SliderOrTextInput extends ConsumerStatefulWidget {
   final ValueChanged<double>? onChange;
+  final NumberFormat numberFormat;
   final String prefixText;
-  final double initialValue;
-  final NumberFormat? numberFormat;
+  final ProviderListenable<double> provider;
   final double maxValue;
   final double minValue;
   final String? unit;
+  final bool addToMax;
 
-  const _SliderOrTextInput(
-      {Key? key,
-      required this.initialValue,
-      required this.prefixText,
-      required this.onChange,
-      this.numberFormat,
-      this.maxValue = 2,
-      this.minValue = 0,
-      this.unit})
-      : super(key: key);
+  _SliderOrTextInput({
+    Key? key,
+    required this.provider,
+    required this.prefixText,
+    required this.onChange,
+    NumberFormat? numberFormat,
+    this.maxValue = 2,
+    this.minValue = 0,
+    this.addToMax = false,
+    this.unit,
+  })  : numberFormat = numberFormat ?? NumberFormat('0%'),
+        super(key: key);
+
+  @override
+  _SliderOrTextInputState createState() => _SliderOrTextInputState();
+}
+
+class _SliderOrTextInputState extends ConsumerState<_SliderOrTextInput> {
+  late double sliderPos;
+  late bool focusRequested;
+  late bool inputValid;
+  late TextEditingController textEditingController;
+  late FocusNode focusNode;
+  late bool isTextFieldFocused;
+  late CrossFadeState fadeState;
+  late double lastSubmittedValue;
+
+  late double stepsToAdd;
+  late double maxValue;
+
+  NumberFormat get _numberFormat => widget.numberFormat;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeState();
+  }
+
+  void _initializeState() {
+    focusNode = FocusNode();
+    textEditingController = TextEditingController();
+    maxValue = widget.maxValue;
+    stepsToAdd = (maxValue - widget.minValue) / 2;
+    // Actual States
+
+    double initValue = ref.read(widget.provider);
+    lastSubmittedValue = initValue;
+    sliderPos = initValue;
+    _updateTextController(initValue);
+
+    isTextFieldFocused = false;
+    fadeState = CrossFadeState.showFirst;
+
+    // Helper States
+    inputValid = true;
+
+    // Setup listener
+    focusNode.addListener(() {
+      setState(() {
+        if (isTextFieldFocused != focusNode.hasFocus) _onFocusChanged();
+        isTextFieldFocused = focusNode.hasFocus;
+      });
+    });
+
+    textEditingController.addListener(() {
+      var text = textEditingController.text;
+
+      setState(() {
+        inputValid = text.isNotEmpty && RegExp(r'^\d+([.,])?\d*?$').hasMatch(text);
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    textEditingController.dispose();
+    focusNode.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var initial = useState(initialValue);
-    var sliderPos = useState(initial.value);
-    var fadeState = useState(CrossFadeState.showFirst);
-    var textEditingController = useTextEditingController(text: '0');
-    var focusText = useFocusNode();
-    var focusRequested = useState(false);
-    var inputValid = useState(true);
-
-    NumberFormat numFormat = numberFormat ?? NumberFormat('0%');
-
-    if (initial.value != initialValue) {
-      initial.value = initialValue;
-      sliderPos.value = initialValue;
-      textEditingController.text =
-          numFormat.format(initialValue).replaceAll(RegExp(r'[^0-9.,]'), '');
-    }
-
-    if (fadeState.value == CrossFadeState.showSecond &&
-        !focusRequested.value &&
-        !focusText.hasFocus &&
-        focusText.canRequestFocus) {
-      focusRequested.value = true;
-      focusText.requestFocus();
-    }
-
-    Widget suffixText = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: Text(unit ?? '%'),
-    );
+    ref.listen(widget.provider, (previous, next) {
+      if (next == lastSubmittedValue) return;
+      lastSubmittedValue = next;
+      sliderPos = next;
+      _updateTextController(next);
+    });
 
     return Row(
       children: [
         Flexible(
           child: AnimatedCrossFade(
             firstChild: InputDecorator(
-                decoration: InputDecoration(
-                  label: Text('$prefixText: ${numFormat.format(sliderPos.value)}'),
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                ),
-                child: Slider(
-                  value: min(maxValue, sliderPos.value),
-                  onChanged: onChange != null
-                      ? (v) {
-                          sliderPos.value = v;
-                        }
-                      : null,
-                  onChangeEnd: onChange,
-                  max: maxValue,
-                  min: minValue,
-                )),
+              decoration: InputDecoration(
+                label: Text('${widget.prefixText}: ${_numberFormat.format(sliderPos)}'),
+                isCollapsed: true,
+                border: InputBorder.none,
+              ),
+              child: Slider(
+                value: min(maxValue, sliderPos),
+                onChanged: widget.onChange != null ? _onSliderChanged : null,
+                onChangeEnd: widget.onChange != null ? _onSliderDone : null,
+                max: maxValue,
+                min: widget.minValue,
+              ),
+            ),
             secondChild: TextField(
-              enabled: onChange != null,
-              onSubmitted: (String value) {
-                if (!inputValid.value) return;
-                double perc = numFormat.parse(textEditingController.text).toDouble();
-                onChange!(perc);
-              },
-              focusNode: focusText,
+              decoration: InputDecoration(
+                prefixText: '${widget.prefixText}:',
+                border: InputBorder.none,
+                suffix: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  child: Text(widget.unit ?? '%'),
+                ),
+                errorText: !inputValid ? FormBuilderLocalizations.current.numericErrorText : null,
+              ),
+              enabled: widget.onChange != null,
+              onSubmitted: _submitTextField,
+              focusNode: focusNode,
               controller: textEditingController,
-              onChanged: (s) {
-                if (s.isEmpty || !RegExp(r'^\d+([.,])?\d*?$').hasMatch(s)) {
-                  inputValid.value = false;
-                  return;
-                }
-
-                if (!inputValid.value) inputValid.value = true;
-              },
               textAlign: TextAlign.end,
               keyboardType: const TextInputType.numberWithOptions(),
               inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))],
-              decoration: InputDecoration(
-                  prefixText: '$prefixText:',
-                  border: InputBorder.none,
-                  suffix: suffixText,
-                  errorText:
-                      !inputValid.value ? FormBuilderLocalizations.current.numericErrorText : null),
             ),
             duration: kThemeAnimationDuration,
-            crossFadeState: fadeState.value,
+            crossFadeState: fadeState,
           ),
         ),
-        IconButton(
-          icon: const Icon(Icons.edit),
-          onPressed: !inputValid.value || onChange == null
-              ? null
-              : () {
-                  if (fadeState.value == CrossFadeState.showFirst) {
-                    textEditingController.text =
-                        numFormat.format(sliderPos.value).replaceAll(RegExp(r'[^0-9.,]'), '');
-                    fadeState.value = CrossFadeState.showSecond;
-                    focusRequested.value = false;
-                  } else {
-                    sliderPos.value = numFormat.parse(textEditingController.text).toDouble();
-                    fadeState.value = CrossFadeState.showFirst;
-                    focusText.unfocus();
-                  }
-                },
-          padding: EdgeInsets.zero,
-          constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
-        )
+        AnimatedSwitcher(
+          duration: kThemeAnimationDuration,
+          child: fadeState == CrossFadeState.showSecond && isTextFieldFocused
+              ? IconButton(
+                  key: const ValueKey('checkmark'),
+                  icon: const Icon(Icons.check),
+                  onPressed: inputValid ? _onCheckmarkClick : null,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
+                )
+              : IconButton(
+                  key: const ValueKey('edit'),
+                  icon: const Icon(Icons.edit),
+                  onPressed: inputValid && widget.onChange != null ? _toggle : null,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
+                ),
+        ),
       ],
     );
+  }
+
+  _onSliderChanged(double v) {
+    setState(() {
+      sliderPos = v;
+    });
+  }
+
+  _onSliderDone(double v) {
+    _submit(v);
+    _onSliderChanged(v);
+    if (widget.addToMax && v == maxValue) {
+      setState(() {
+        maxValue += stepsToAdd;
+      });
+    }
+  }
+
+  _submitTextField(String value) {
+    if (!inputValid) return;
+
+    double perc = _numberFormat.parse(textEditingController.text).toDouble();
+    _submit(perc);
+  }
+
+  _onCheckmarkClick() {
+    focusNode.unfocus();
+    _submitTextField(textEditingController.text);
+  }
+
+  _toggle() {
+    setState(() {
+      if (fadeState == CrossFadeState.showFirst) {
+        _updateTextController(sliderPos);
+        fadeState = CrossFadeState.showSecond;
+        focusNode.requestFocus();
+      } else {
+        sliderPos = _numberFormat.parse(textEditingController.text).toDouble();
+        fadeState = CrossFadeState.showFirst;
+        focusNode.unfocus();
+      }
+    });
+  }
+
+  _updateTextController(double value) {
+    textEditingController.text = _numberFormat.format(value).replaceAll(RegExp(r'[^0-9.,]'), '');
+  }
+
+  _onFocusChanged() {
+    _submitTextField(textEditingController.text);
+  }
+
+  _submit(double value) {
+    if (widget.onChange == null || lastSubmittedValue == value) return;
+    lastSubmittedValue = value;
+    widget.onChange!(value);
   }
 }
