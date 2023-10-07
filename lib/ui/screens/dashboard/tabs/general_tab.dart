@@ -206,7 +206,29 @@ class PrintCard extends ConsumerWidget {
                 children: [
                   IconButton(
                     color: themeData.colorScheme.primary,
-                    icon: const Icon(FlutterIcons.object_group_faw5),
+                    icon: Stack(
+                      fit: StackFit.expand,
+                      alignment: Alignment.center,
+                      children: [
+                        const Icon(FlutterIcons.printer_3d_nozzle_mco),
+                        Positioned(
+                            bottom: -0.6,
+                            right: 1,
+                            child: Icon(
+                              Icons.circle,
+                              size: 16,
+                              color: themeData.colorScheme.onSurface,
+                            )),
+                        Positioned(
+                            bottom: -1,
+                            right: 0,
+                            child: Icon(
+                              Icons.cancel,
+                              size: 18,
+                              color: themeData.colorScheme.error,
+                            )),
+                      ],
+                    ),
                     tooltip: 'dialogs.exclude_object.title'.tr(),
                     onPressed: ref.read(generalTabViewControllerProvider.notifier).onExcludeObjectPressed,
                   ),
@@ -216,7 +238,7 @@ class PrintCard extends ConsumerWidget {
                       children: [
                         const Text('pages.dashboard.general.print_card.current_object').tr(),
                         Text(
-                          excludeObject.currentObject ?? 'general.none'.tr(),
+                          excludeObject?.currentObject ?? 'general.none'.tr(),
                           style: themeData.textTheme.bodyMedium?.copyWith(color: themeData.textTheme.bodySmall?.color),
                         ),
                       ],
