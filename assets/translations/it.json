@@ -114,7 +114,7 @@
           "more_btn": "Altro"
         },
         "baby_step_card": {
-          "title": "Babystepping Asse-Z"
+          "title": "Micro-Step Asse-Z"
         },
         "restart_klipper": "Riavvia Klipper",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -218,7 +218,7 @@
       "general": {
         "title": "Generale",
         "ems_confirm": "Conferma Stop-Emergenza",
-        "always_baby": "Mostra opzioni Babystepping",
+        "always_baby": "Mostra opzioni Z-Offset",
         "num_edit": "Utilizza la tastiera per l'inserimento dei numeri",
         "start_with_overview": "Mostra @:pages.overview.title predefinita",
         "use_offset_pos": "Mostra le coordinate con l'offset applicato.",
@@ -300,8 +300,8 @@
         "speed_z_short": "Velocità Z",
         "steps_move": "Muovi step",
         "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-        "steps_baby": "Babystepping Z-steps",
-        "steps_baby_short": "Baby Steps"
+        "steps_baby": "Z-Offset steps",
+        "steps_baby_short": "Z-Steps"
       },
       "extruders": {
         "title": "Estrusore/i",

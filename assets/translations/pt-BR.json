@@ -83,7 +83,7 @@
           "ztilt_btn": "zTilt"
         },
         "baby_step_card": {
-          "title": "Babystepping Eixo Z"
+          "title": "Micro-Step Eixo Z"
         },
         "restart_klipper": "Reiniciar Klipper",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -183,7 +183,7 @@
       "general": {
         "title": "Geral",
         "ems_confirm": "Confirmação de Parada de Emergência",
-        "always_baby": "Sempre Mostrar Tela de Babystepping",
+        "always_baby": "Sempre Mostrar Tela de Z-Offset",
         "num_edit": "Teclado para Entrada de Números",
         "start_with_overview": "Iniciar com a Visão Geral de @:pages.overview.title",
         "use_offset_pos": "Mostrar Coordenadas com Offset",

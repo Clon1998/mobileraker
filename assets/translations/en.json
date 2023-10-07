@@ -117,7 +117,7 @@
           "more_btn": "More"
         },
         "baby_step_card": {
-          "title": "Babystepping Z-Axis"
+          "title": "Micro-Step Z-Axis"
         },
         "restart_klipper": "Restart Klipper",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -223,7 +223,7 @@
       "general": {
         "title": "General",
         "ems_confirm": "Confirm Emergency-Stop",
-        "always_baby": "Always show Babystepping Card",
+        "always_baby": "Always show Z-Offset Card",
         "num_edit": "Use keyboard for number input",
         "start_with_overview": "Show @:pages.overview.title by default",
         "use_offset_pos": "Show coordinates with offset applied.",
@@ -300,8 +300,8 @@
         "speed_z_short": "Speed Z",
         "steps_move": "Move steps",
         "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-        "steps_baby": "Babystepping Z-steps",
-        "steps_baby_short": "Baby Steps"
+        "steps_baby": "Z-Offset steps",
+        "steps_baby_short": "Z-Steps"
       },
       "extruders": {
         "title": "Extruder(s)",

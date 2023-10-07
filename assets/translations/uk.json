@@ -79,7 +79,7 @@
           "ztilt_btn": "zTilt"
         },
         "baby_step_card": {
-          "title": "Babystepping Z-Axis"
+          "title": "Micro-Step Z-Axis"
         },
         "restart_klipper": "Перезавантаження Klipper",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -231,8 +231,8 @@
         "speed_z_short": "Швидкість Z",
         "steps_move": "Кроки переміщення",
         "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-        "steps_baby": "Babystepping Z-steps",
-        "steps_baby_short": "Baby Steps"
+        "steps_baby": "Z-Offset steps",
+        "steps_baby_short": "Z-Steps"
       },
       "extruders": {
         "title": "Екструдер(и)",
