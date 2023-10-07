@@ -2,6 +2,11 @@
 
 ## [2.6.5] - 2023-10-xx
 
+### Changed Features
+
+- Ensured the visibility of the Exclude Object button on the Dashboard is clearer to the user.
+- Babystepping is now called Z-Offset/Microstep Z-Axis to be more aligned with Klipper.
+
 ### Bug Fixes
 
 - Fixed an issue that prevented the app from correctly detecting the currently used Moonraker version.
