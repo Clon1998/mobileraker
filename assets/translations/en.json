@@ -676,6 +676,8 @@
     },
     "add_remote_con": {
       "octoeverywehre": {
+        "link": "Link OctoEverywhere",
+        "unlink": "Unlink OctoEverywhere",
         "description": "OctoEverywhere.com is a community project allowing you to securely connect to your printer from anywhere. OctoEverywhere also provides the community free AI print failure detection, notifications, live streaming, and more. Setup only takes 20 seconds!",
         "disclosure": "OctoEverywhere is not affiliated with Mobileraker. It requires an additional subscription. Please check the OctoEverywhere website for more information."
       },

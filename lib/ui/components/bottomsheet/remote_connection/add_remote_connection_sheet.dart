@@ -147,7 +147,7 @@ class _OctoTab extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: OctoEveryWhereBtn(
-                title: 'Link OctoEverywhere',
+                title: tr('bottom_sheets.add_remote_con.octoeverywehre.link'),
                 onPressed: controller.linkOcto,
               ),
             ),
@@ -155,7 +155,7 @@ class _OctoTab extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: OctoEveryWhereBtn(
-                title: 'Unlink OctoEverywhere',
+                title: tr('bottom_sheets.add_remote_con.octoeverywehre.unlink'),
                 onPressed: () => controller.removeRemoteConnection(true),
               ),
             ),
