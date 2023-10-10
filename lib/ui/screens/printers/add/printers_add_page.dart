@@ -220,10 +220,10 @@ class _InputModeStepScreen extends ConsumerWidget {
           alignment: Alignment.center,
           child: TextButton.icon(
               onPressed: controller.addFromOcto,
-              icon: const Image(
-                height: 24,
+              icon: SvgPicture.asset(
+                'assets/vector/oe_rocket.svg',
                 width: 24,
-                image: AssetImage('assets/images/octo_everywhere.png'),
+                height: 24,
               ),
               label: const Text('pages.printer_add.select_mode.add_via_oe').tr()),
         ),

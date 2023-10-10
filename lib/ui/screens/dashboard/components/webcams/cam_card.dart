@@ -138,6 +138,8 @@ class _CamCardData extends ConsumerWidget {
           child: Align(
             alignment: Alignment.bottomRight,
             child: IconButton(
+              padding: const EdgeInsets.all(8),
+              constraints: const BoxConstraints(),
               color: Colors.white,
               icon: const Icon(Icons.aspect_ratio),
               tooltip: 'pages.dashboard.general.cam_card.fullscreen'.tr(),

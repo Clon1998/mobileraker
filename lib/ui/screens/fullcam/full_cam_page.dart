@@ -7,15 +7,14 @@ import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
-import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
-import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
 
@@ -31,7 +30,7 @@ class FullCamPage extends ConsumerWidget {
       overrides: [
         fullCamMachineProvider.overrideWithValue(machine),
         initialCamProvider.overrideWithValue(initialCam),
-        fullCamPageControllerProvider
+        // fullCamPageControllerProvider,
       ],
       child: const _FullCamView(),
     );
@@ -70,14 +69,15 @@ class _FullCamView extends ConsumerWidget {
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          if (clientType != ClientType.local)
-            const Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: EdgeInsets.all(12.0),
-                child: OctoIndicator(),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: ClientTypeIndicator(
+                machineId: machine.uuid,
               ),
             ),
+          ),
         ]),
       ),
     );
@@ -121,10 +121,7 @@ class StackContent extends ConsumerWidget {
                         margin: const EdgeInsets.only(top: 5, left: 2),
                         child: Text(
                           info,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: Colors.white70),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
                         )),
                   ),
                 ),

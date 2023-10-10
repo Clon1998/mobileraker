@@ -548,6 +548,12 @@
     "web_rtc": {
       "renderer_missing": "WebRtc video not available!",
       "oe_warning": "WebRtc via OctoEverywhere is not supported yet!"
+    },
+    "ri_indicator": {
+      "tooltip": "Using Remote Connection!"
+    },
+    "obico_indicator": {
+      "tooltip": "Using Obico Tunnel!"
     }
   },
   "dialogs": {

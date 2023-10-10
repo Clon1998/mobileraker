@@ -124,6 +124,8 @@ _verifyOctoHttpResponseCodes(int statusCode) {
     case 400:
       throw const OctoEverywhereHttpException(
           'Internal App error while trying too fetch info. No AppToken was found!', 400);
+    case 500:
+      throw const OctoEverywhereHttpException('Internal Server Error - OctoEverywhere\'s server is faulty', 500);
     case 600:
       throw const OctoEverywhereHttpException('Unknown Error - Something went wrong, try again later.', 600);
     case 601:

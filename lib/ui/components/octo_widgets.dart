@@ -3,12 +3,15 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/octoeverywhere/gadget_status.dart';
+import 'package:common/service/octoeverywhere/gadget_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class OctoEveryWhereBtn extends StatelessWidget {
-  const OctoEveryWhereBtn({Key? key, this.onPressed, required this.title})
-      : super(key: key);
+  const OctoEveryWhereBtn({Key? key, this.onPressed, required this.title}) : super(key: key);
 
   final VoidCallback? onPressed;
   final String title;
@@ -22,10 +25,10 @@ class OctoEveryWhereBtn extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Image(
-              height: 30,
+            SvgPicture.asset(
+              'assets/vector/oe_rocket.svg',
               width: 30,
-              image: AssetImage('assets/images/octo_everywhere.png'),
+              height: 30,
             ),
             Flexible(
               child: Padding(
@@ -42,17 +45,69 @@ class OctoEveryWhereBtn extends StatelessWidget {
 }
 
 class OctoIndicator extends StatelessWidget {
-  const OctoIndicator({Key? key}) : super(key: key);
+  const OctoIndicator({
+    Key? key,
+    this.size,
+  }) : super(key: key);
+
+  final Size? size;
 
   @override
   Widget build(BuildContext context) {
     return Tooltip(
+      preferBelow: false,
       message: 'components.octo_indicator.tooltip'.tr(),
-      child: const Image(
-        height: 20,
-        width: 20,
-        image: AssetImage('assets/images/octo_everywhere.png'),
+      child: SvgPicture.asset(
+        'assets/vector/oe_rocket.svg',
+        width: size?.width ?? 20,
+        height: size?.height ?? 20,
       ),
     );
+  }
+}
+
+class GadgetIndicator extends ConsumerWidget {
+  const GadgetIndicator({
+    super.key,
+    required this.appToken,
+    this.iconSize,
+  });
+
+  final String appToken;
+  final double? iconSize;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var iconSize = this.iconSize ?? Theme.of(context).iconTheme.size ?? 20;
+    return ref.watch(gadgetStatusProvider(appToken)).maybeWhen(
+          data: (d) {
+            if (d.state == GadgetState.disabled) {
+              return const SizedBox.shrink();
+            }
+
+            return Tooltip(
+              message: d.status,
+              child: SvgPicture.asset(
+                d.statusSvg,
+                width: iconSize,
+                height: iconSize,
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+          skipLoadingOnReload: true,
+          skipLoadingOnRefresh: true,
+        );
+  }
+}
+
+extension _SvgSource on GadgetStatus {
+  String get statusSvg {
+    return switch (this.statusColor) {
+      'g' => 'assets/vector/gadget/gadget_green.svg',
+      'y' => 'assets/vector/gadget/gadget_yellow.svg',
+      'r' => 'assets/vector/gadget/gadget_red.svg',
+      _ => 'assets/vector/gadget/gadget_white.svg',
+    };
   }
 }

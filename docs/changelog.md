@@ -2,6 +2,11 @@
 
 ## [2.6.5] - 2023-10-xx
 
+### Major Changes
+
+- Added Gadget by OctoEverywhere. Offering free AI based print monitoring. (Requires an linked OctoEverywhere account.
+  Not affiliated with Mobileraker)
+
 ### Changed Features
 
 - Ensured the visibility of the Exclude Object button on the Dashboard is clearer to the user.

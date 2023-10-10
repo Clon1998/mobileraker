@@ -21,7 +21,7 @@ const String WILDCARD_METHOD = '*';
 
 enum ClientState { disconnected, connecting, connected, error }
 
-enum ClientType { local, octo, manual }
+enum ClientType { local, octo, manual, obico }
 
 typedef RpcCallback = Function(Map<String, dynamic> response, {Map<String, dynamic>? err});
 
@@ -105,6 +105,7 @@ class JsonRpcClientBuilder {
       ClientType.local => JsonRpcClientBuilder.fromLocal(machine),
       ClientType.octo => JsonRpcClientBuilder.fromOcto(machine),
       ClientType.manual => JsonRpcClientBuilder.fromRemoteInterface(machine),
+      ClientType.obico => throw UnimplementedError(),
     };
   }
 

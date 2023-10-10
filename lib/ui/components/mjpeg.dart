@@ -188,8 +188,8 @@ class _FPSDisplay extends ConsumerWidget {
                   alignment: Alignment.topRight,
                   child: Container(
                       padding: const EdgeInsets.all(4),
-                      margin: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
+                  margin: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
                           color: themeData.colorScheme.secondary,
                           borderRadius:
                               const BorderRadius.all(Radius.circular(5))),

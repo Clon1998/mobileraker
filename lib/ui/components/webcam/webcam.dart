@@ -6,13 +6,13 @@
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
-import 'package:common/network/jrpc_client_provider.dart';
-import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/webcam/webcam_mjpeg.dart';
 import 'package:mobileraker/ui/components/webcam/webcam_webrtc.dart';
@@ -39,24 +39,34 @@ class Webcam extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
-
     var modifiedStack = [
       ...stackContent,
-      if (showRemoteIndicator && clientType != ClientType.local)
+      if (machine.octoEverywhere != null)
         Positioned.fill(
             child: Align(
-          alignment: Alignment.bottomLeft,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: (clientType == ClientType.octo)
-                ? const OctoIndicator()
-                : const Icon(
-                    Icons.cloud,
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: GadgetIndicator(
+                    appToken: machine.octoEverywhere!.appApiToken,
+                    iconSize: 18,
                   ),
-          ),
-        ))
+                ))),
+      if (showRemoteIndicator)
+        Positioned.fill(
+            child: Align(
+                alignment: Alignment.topLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ClientTypeIndicator(
+                    machineId: machine.uuid,
+                    iconColor: Colors.white,
+                    iconSize: 18,
+                  ),
+                )))
     ];
+
+    logger.wtf('webcamInfo.service: ${modifiedStack.length}');
 
     if (webcamInfo.service.forSupporters && !ref.watch(isSupporterProvider)) {
       return SupporterOnlyFeature(
@@ -90,3 +100,4 @@ class Webcam extends ConsumerWidget {
     }
   }
 }
+

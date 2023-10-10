@@ -9,7 +9,7 @@ extension MobilerakerProviderExtension on ProviderBase {
   String toIdentityString() {
     var leading = '';
     if (from != null) {
-      leading = '($argument)';
+      leading = '($argument|${from.toString()}#${from.hashCode})';
     }
 
     var trailing = '';
