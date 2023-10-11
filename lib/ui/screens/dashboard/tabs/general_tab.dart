@@ -12,7 +12,6 @@ import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/moonraker_db/temperature_preset.dart';
-import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -45,7 +44,7 @@ import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 
-import '../../../remote_connection_indicator.dart';
+import '../../../remote_connection_active_card.dart';
 
 class GeneralTab extends ConsumerWidget {
   const GeneralTab({Key? key}) : super(key: key);
@@ -61,7 +60,7 @@ class GeneralTab extends ConsumerWidget {
             data: (data) {
               var printState =
                   ref.watch(generalTabViewControllerProvider.select((data) => data.value!.printerData.print.state));
-              var clientType = ref.watch(generalTabViewControllerProvider.select((data) => data.value!.clientType));
+              var machineId = ref.watch(generalTabViewControllerProvider.select((data) => data.value!.machine.uuid));
 
               return PullToRefreshPrinter(
                 child: ListView(
@@ -70,10 +69,9 @@ class GeneralTab extends ConsumerWidget {
                   children: [
                     const MachineDeletionWarning(),
                     const SupporterAd(),
-                    if (clientType != ClientType.local)
-                      RemoteConnectionIndicator(
-                        clientType: clientType,
-                      ),
+                    RemoteConnectionActiveCard(
+                      machineId: machineId,
+                    ),
                     const PrintCard(),
                     const TemperatureCard(),
                     const CamCard(),

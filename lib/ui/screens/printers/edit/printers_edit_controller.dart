@@ -423,6 +423,8 @@ class PrinterEditController extends _$PrinterEditController {
       ref.read(_octoEverywhereProvider.notifier).update(data);
     } else if (data is RemoteInterface) {
       ref.read(_remoteInterfaceProvider.notifier).update(data);
+    } else if (data is Uri) {
+      ref.read(_obicoTunnelProvider.notifier).update(data);
     }
 
     _snackBarService.show(SnackBarConfig(

@@ -60,62 +60,64 @@ class JrpcClientManager extends _$JrpcClientManager {
       throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
     }
 
-    if (machine.octoEverywhere != null || machine.remoteInterface != null) {
-      var clientType = machine.remoteInterface != null ? ClientType.manual : ClientType.octo;
-
-      logger.i(
-          'A ${clientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
-
-      if (machine.localSsids.isNotEmpty) {
-        logger.i('[Smart-Switching] Local SSID are set. Can do rapid remote con switching');
-        Future.wait([
-          ref.read(networkInfoServiceProvider).getWifiName(),
-          ref.read(permissionStatusProvider(Permission.location).future),
-          ref.read(permissionServiceStatusProvider(Permission.location).future),
-        ]).then((List results) {
-          String? wifiName = results[0];
-          PermissionStatus? permissionStatus = results[1];
-          ServiceStatus? permissionServiceStatus = results[2];
-          logger.i(
-              'wifiName: $wifiName, permissionStatus: $permissionStatus, permissionServiceStatus: $permissionServiceStatus');
-
-          if (permissionStatus?.isGranted != true) {
-            logger.i(
-                '[Smart-Switching] WiFi List exists and is not empty, but no location permission. Unable to determine smart switching');
-            return;
-          }
-
-          if (permissionServiceStatus?.isEnabled != true) {
-            logger.i(
-                '[Smart-Switching] WiFi List exists and is not empty, but location service is disabled. Unable to determine smart switching');
-            return;
-          }
-
-          if (machine.localSsids.contains(wifiName)) {
-            logger.i('[Smart-Switching] Connected to a WiFi in LocalSsid list of machine. Will use local con');
-            return;
-          }
-          logger.i('[Smart-Switching] Connected to a WiFi NOT in LocalSsid list of machine. Will use remote con');
-          state = _jsonRpcClientProvider(machineUUID, clientType);
-        }).ignore();
-      } else {
-        logger.i('[Smart-Switching] Local SSID list is empty. Smart switching disabled');
-      }
-
-      ref
-          .readWhere(_jsonRpcStateProvider(machineUUID, ClientType.local),
-              (clientState) => clientState == ClientState.error, false)
-          .then((value) {
-        logger.i('Local clientState is $value. Will switch to octo remoteClient. ref:${identityHashCode(ref)}');
-
-        // ref.state = remoteClinet;
-        state = _jsonRpcClientProvider(machineUUID, clientType);
-        logger.w('Returned ${clientType.name}-RemoteClient');
-      }).ignore();
-    }
+    if (machine.hasRemoteConnection) _setupHandover(machine).ignore();
 
     logger.i('Returning LocalClient');
     return _jsonRpcClientProvider(machineUUID, ClientType.local);
+  }
+
+  Future<void> _setupHandover(Machine machine) async {
+    var clientType = machine.remoteClientType;
+    logger.i(
+        'A ${clientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
+
+    if (machine.localSsids.isNotEmpty) {
+      _setupSmartSwitching(machine, clientType).ignore();
+    } else {
+      logger.i('[Smart-Switching] Local SSID list is empty. Smart switching disabled');
+    }
+
+    var value = await ref.readWhere(
+        _jsonRpcStateProvider(machineUUID, ClientType.local), (clientState) => clientState == ClientState.error, false);
+
+    logger.i('Local clientState is $value. Will switch to octo remoteClient. ref:${identityHashCode(ref)}');
+
+    // ref.state = remoteClinet;
+    state = _jsonRpcClientProvider(machineUUID, clientType);
+    logger.w('Returned ${clientType.name}-RemoteClient');
+  }
+
+  Future<void> _setupSmartSwitching(Machine machine, ClientType remoteClientType) async {
+    logger.i('[Smart-Switching] Local SSID are set. Can do rapid remote con switching');
+    List results = await Future.wait([
+      ref.read(networkInfoServiceProvider).getWifiName(),
+      ref.read(permissionStatusProvider(Permission.location).future),
+      ref.read(permissionServiceStatusProvider(Permission.location).future),
+    ]);
+
+    String? wifiName = results[0];
+    PermissionStatus? permissionStatus = results[1];
+    ServiceStatus? permissionServiceStatus = results[2];
+
+    if (permissionStatus?.isGranted != true) {
+      logger.i(
+          '[Smart-Switching] WiFi List exists and is not empty, but no location permission. Smart Switching is disabled');
+      return;
+    }
+
+    if (permissionServiceStatus?.isEnabled != true) {
+      logger.i(
+          '[Smart-Switching] WiFi List exists and is not empty, but location service is disabled. Smart Switching is disabled');
+      return;
+    }
+
+    if (machine.localSsids.contains(wifiName)) {
+      logger.i('[Smart-Switching] Connected to a WiFi in LocalSsid list of machine. Will use local con');
+      return;
+    }
+
+    logger.i('[Smart-Switching] Connected to a WiFi NOT in LocalSsid list of machine. Will use remote con');
+    state = _jsonRpcClientProvider(machineUUID, remoteClientType);
   }
 
   refreshCurrentClient() {
@@ -188,4 +190,19 @@ Stream<Map<String, dynamic>> jrpcMethodEvent(JrpcMethodEventRef ref, String mach
     streamController.close();
   });
   return streamController.stream;
+}
+
+extension ClientTypeMachine on Machine {
+  // This is not 100% true since it will just check single values first!
+  ClientType get remoteClientType {
+    if (remoteInterface != null) {
+      return ClientType.manual;
+    } else if (octoEverywhere != null) {
+      return ClientType.octo;
+    } else if (obicoTunnel != null) {
+      return ClientType.obico;
+    } else {
+      throw StateError('No remoteClientType available!');
+    }
+  }
 }

@@ -69,7 +69,7 @@ class Machine extends HiveObject {
 
   Map<String, String> get headerWithApiKey => {...httpHeaders, if (apiKey?.isNotEmpty == true) 'X-Api-Key': apiKey!};
 
-  bool get hasRemoteConnection => remoteInterface != null || octoEverywhere != null;
+  bool get hasRemoteConnection => remoteInterface != null || octoEverywhere != null || obicoTunnel != null;
 
   Machine({
     required String name,

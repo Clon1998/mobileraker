@@ -100,12 +100,29 @@ class JsonRpcClientBuilder {
       ..timeout = remoteInterface.timeoutDuration;
   }
 
+  factory JsonRpcClientBuilder.fromObicoTunnel(Machine machine) {
+    if (machine.obicoTunnel == null) {
+      throw ArgumentError('The provided machine,${machine.uuid} does not offer a obicoTunnel');
+    }
+    var localWsUir = machine.wsUri;
+    var obicoTunnelUri = machine.obicoTunnel!;
+
+    return JsonRpcClientBuilder()
+      ..headers = {
+        if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
+      }
+      ..uri = obicoTunnelUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
+      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
+      ..clientType = ClientType.obico
+      ..timeout = const Duration(seconds: 10);
+  }
+
   factory JsonRpcClientBuilder.fromClientType(ClientType clientType, Machine machine) {
     return switch (clientType) {
       ClientType.local => JsonRpcClientBuilder.fromLocal(machine),
       ClientType.octo => JsonRpcClientBuilder.fromOcto(machine),
       ClientType.manual => JsonRpcClientBuilder.fromRemoteInterface(machine),
-      ClientType.obico => throw UnimplementedError(),
+      ClientType.obico => JsonRpcClientBuilder.fromObicoTunnel(machine),
     };
   }
 
