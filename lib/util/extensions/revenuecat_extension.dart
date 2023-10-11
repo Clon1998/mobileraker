@@ -41,8 +41,9 @@ extension MobilerakerOption on SubscriptionOption {
 
   String? get freePhaseDurationText {
     if (freePhase == null) return null;
-    var cycles = freePhase?.billingCycleCount ?? 1;
-    var dateUnit = periodUnitToText(freePhase!.billingPeriod?.unit, cycles);
+    var period = freePhase!.billingPeriod;
+    var cycles = period?.value ?? 1;
+    var dateUnit = periodUnitToText(period?.unit, cycles);
 
     return '$cycles $dateUnit';
   }
@@ -66,16 +67,14 @@ extension MobilerakerCustomerInfo on CustomerInfo {
       return activeSubscriptions.contains(productIdentifier);
     }
 
-    return nonSubscriptionTransactions.any((tx) =>
-        tx.productIdentifier == productIdentifier ||
-        tx.productIdentifier == '${productIdentifier}_promo');
+    return nonSubscriptionTransactions
+        .any((tx) => tx.productIdentifier == productIdentifier || tx.productIdentifier == '${productIdentifier}_promo');
   }
 
   EntitlementInfo? getActiveEntitlementForPackage(Package package) {
     var productIdentifier = package.storeProduct.identifier.split(':').first;
 
-    return entitlements.active.values.firstWhereOrNull((e) =>
-        e.productIdentifier == productIdentifier ||
-        e.productIdentifier == '${productIdentifier}_promo');
+    return entitlements.active.values.firstWhereOrNull(
+        (e) => e.productIdentifier == productIdentifier || e.productIdentifier == '${productIdentifier}_promo');
   }
 }
