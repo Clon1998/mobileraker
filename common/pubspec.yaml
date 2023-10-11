@@ -42,7 +42,7 @@ dependencies:
 
   #architecture
   freezed_annotation: ^2.1.0
-  flutter_hooks: ^0.18.0
+  flutter_hooks: ^0.20.1
   hooks_riverpod: ^2.3.8
   riverpod_annotation: ^2.1.2
   json_annotation: ^4.8.1
