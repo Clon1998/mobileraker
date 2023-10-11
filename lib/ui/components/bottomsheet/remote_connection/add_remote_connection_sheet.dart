@@ -17,6 +17,7 @@ import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 
 import '../../../screens/printers/components/section_header.dart';
+import '../../obico_widgets.dart';
 
 class AddRemoteConnectionBottomSheet extends ConsumerWidget {
   const AddRemoteConnectionBottomSheet({
@@ -45,10 +46,17 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
-    var initalIndex =
-        ref.watch(addRemoteConnectionSheetControllerProvider.select((value) => value.remoteInterface != null ? 1 : 0));
+    var activeIndex = ref.watch(addRemoteConnectionSheetControllerProvider.select((value) {
+      if (value.remoteInterface != null) {
+        return 1;
+      }
+      if (value.obicoTunnel != null) {
+        return 2;
+      }
+      return 0;
+    }));
 
-    var tabController = useTabController(initialLength: 2, initialIndex: initalIndex);
+    var tabController = useTabController(initialLength: 3, initialIndex: activeIndex);
 
     var viewInsets = MediaQuery.viewInsetsOf(context);
     var themeData = Theme.of(context);
@@ -62,6 +70,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
             children: [
               Expanded(
                 child: TabBar(
+                  isScrollable: true,
                   labelColor: themeData.colorScheme.onPrimary,
                   unselectedLabelColor: themeData.colorScheme.onPrimary.withOpacity(0.3),
                   controller: tabController,
@@ -70,6 +79,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                   tabs: const [
                     Tab(text: 'OctoEverywhere'),
                     Tab(text: 'Manual'),
+                    Tab(text: 'Obico'),
                   ],
                 ),
               ),
@@ -104,6 +114,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                     children: const [
                       _OctoTab(),
                       _ManualTab(),
+                      _ObicoTab(),
                     ],
                   ),
                 ),
@@ -160,10 +171,10 @@ class _OctoTab extends ConsumerWidget {
               ),
             ),
           Text(
-            'bottom_sheets.add_remote_con.octoeverywehre.disclosure',
+            'bottom_sheets.add_remote_con.disclosure',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
-          ).tr(),
+          ).tr(namedArgs: {'service': 'OctoEverywhere'}),
         ],
       ),
     );
@@ -249,6 +260,62 @@ class _ManualTab extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ObicoTab extends ConsumerWidget {
+  const _ObicoTab({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
+    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          const Spacer(),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 80, maxWidth: 80, minHeight: 40, minWidth: 40),
+            child: SvgPicture.asset(
+              'assets/vector/obico_logo.svg',
+              height: double.infinity,
+              width: double.infinity,
+            ),
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            'bottom_sheets.add_remote_con.obico.description',
+            textAlign: TextAlign.center,
+          ).tr(),
+          const Spacer(),
+          if (model.obicoTunnel == null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ObicoButton(
+                title: tr('bottom_sheets.add_remote_con.obico.link'),
+                onPressed: controller.linkObico,
+              ),
+            ),
+          if (model.obicoTunnel != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ObicoButton(
+                title: tr('bottom_sheets.add_remote_con.obico.unlink'),
+                onPressed: () => controller.removeRemoteConnection(true),
+              ),
+            ),
+          Text(
+            'bottom_sheets.add_remote_con.disclosure',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ).tr(namedArgs: {'service': 'Obico'}),
+        ],
+      ),
     );
   }
 }

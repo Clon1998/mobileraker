@@ -358,10 +358,11 @@
         }
       },
       "remote_interface_exists": {
-        "title": "Remote connection found!",
+        "title": "Remote Connection Found",
         "body": {
-          "oe": "This printer is already linked to OctoEverywhere.\nPlease unlink it first.",
-          "other": "This printer is already connected to a remote interface.\nPlease remove the connection first."
+          "oe": "This printer is already linked with OctoEverywhere for remote access. Please unlink it before proceeding.",
+          "obico": "This printer is already lined Obico for remote access. Please unlink it before continuing.",
+          "other": "A remote connection is already established for this printer. Please remove it before proceeding."
         }
       },
       "remote_interface_removed": {
@@ -681,16 +682,21 @@
       "remove_all_confirm": "This operation will remove all jobs from the queue."
     },
     "add_remote_con": {
+      "disclosure": "{service} is not affiliated with Mobileraker. It requires an additional subscription. Please check {service}'s website for more information.",
       "octoeverywehre": {
         "link": "Link OctoEverywhere",
         "unlink": "Unlink OctoEverywhere",
-        "description": "OctoEverywhere.com is a community project allowing you to securely connect to your printer from anywhere. OctoEverywhere also provides the community free AI print failure detection, notifications, live streaming, and more. Setup only takes 20 seconds!",
-        "disclosure": "OctoEverywhere is not affiliated with Mobileraker. It requires an additional subscription. Please check the OctoEverywhere website for more information."
+        "description": "OctoEverywhere.com is a community project allowing you to securely connect to your printer from anywhere. OctoEverywhere also provides the community free AI print failure detection, notifications, live streaming, and more. Setup only takes 20 seconds!"
       },
       "manual": {
         "description": "If you are an advanced user, you can choose to manually add an alternative connection. The alternative connection comes into play when attempts to connect to the primary address are unsuccessful. This can be useful if you have a reverse proxy connection to your printer, or if you have a secondary IP address that you can use to connect to your printer.",
         "address_label": "Alternative Address",
         "address_hint": "The base adress of the remove connection to be used"
+      },
+      "obico": {
+        "link": "Link Obico",
+        "unlink": "Unlink Obico",
+        "description": "Obico is a 3rd party service that allows you to securely connect to your printer from anywhere. Obico also provides the community AI print failure detection and more...!"
       }
     }
   },

@@ -647,9 +647,9 @@
             "remove_all_confirm": "此操作將從隊列中刪除所有作業。"
         },
         "add_remote_con": {
+            "disclosure": "{service} 不隸屬於 Mobileraker。它需要額外訂閱。請訪問 {service} 網站了解更多信息。",
             "octoeverywehre": {
-                "description": "OctoEverywhere.com 是一個社區項目，可讓您從任何地方安全地連接到打印機。 OctoEverywhere 還為社區提供免費的 AI 打印故障檢測、通知、直播等。設置僅需 20 秒！",
-                "disclosure": "OctoEverywhere 不隸屬於 Mobileraker。它需要額外訂閱。請訪問 OctoEverywhere 網站了解更多信息。"
+                "description": "OctoEverywhere.com 是一個社區項目，可讓您從任何地方安全地連接到打印機。 OctoEverywhere 還為社區提供免費的 AI 打印故障檢測、通知、直播等。設置僅需 20 秒！"
             },
             "manual": {
                 "description": "如果您是高級用戶，您可以選擇手動添加備用連接。當嘗試連接到主地址不成功時，替代連接就會發揮作用。如果您有到打印機的反向代理連接，或者您有可用於連接到打印機的輔助 IP 地址，這會很有用。",

@@ -70,7 +70,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="octoeverywhere" />
+                <data android:scheme="mobileraker"/>
             </intent-filter>
         </activity>
     </application>

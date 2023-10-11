@@ -74,6 +74,18 @@ class AddRemoteConnectionSheetController extends _$AddRemoteConnectionSheetContr
     }
   }
 
+  linkObico() async {
+    try {
+      var result = await _machineService.linkObico(_machine);
+
+      ref.read(goRouterProvider).pop(BottomSheetResult.confirmed(result));
+    } on OctoEverywhereException catch (e, s) {
+      logger.e('Error while trying to Link machine with UUID ${_machine.uuid} to Octo', e, s);
+      _snackBarService
+          .show(SnackBarConfig(type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
+    }
+  }
+
   saveManual() {
     if (!_formState.saveAndValidate()) return;
 
@@ -87,8 +99,8 @@ class AddRemoteConnectionSheetController extends _$AddRemoteConnectionSheetContr
         )));
   }
 
-  removeRemoteConnection(bool isOcto) async {
-    var gender = isOcto ? 'oe' : 'other';
+  removeRemoteConnection(bool is3p) async {
+    var gender = is3p ? 'oe' : 'other';
     var dialogResponse = await _dialogService.showConfirm(
         title: tr('pages.printer_edit.confirm_remote_interface_removal.title', args: [_machine.name], gender: gender),
         body: tr('pages.printer_edit.confirm_remote_interface_removal.body', args: [_machine.name], gender: gender),
@@ -98,6 +110,26 @@ class AddRemoteConnectionSheetController extends _$AddRemoteConnectionSheetContr
     if (dialogResponse?.confirmed == true) {
       ref.read(goRouterProvider).pop(BottomSheetResult.confirmed());
     }
+  }
+
+  showAlreadyLinkedSnackbar() {
+    String gender;
+    if (_args.octoEverywhere != null) {
+      gender = 'oe';
+    } else if (_args.obicoTunnel != null) {
+      gender = 'obico';
+    } else {
+      gender = 'other';
+    }
+
+    _snackBarService.show(SnackBarConfig(
+      type: SnackbarType.warning,
+      title: tr('pages.printer_edit.remote_interface_exists.title'),
+      message: tr(
+        'pages.printer_edit.remote_interface_exists.body',
+        gender: gender,
+      ),
+    ));
   }
 }
 
@@ -109,5 +141,6 @@ class AddRemoteConnectionSheetArgs with _$AddRemoteConnectionSheetArgs {
     // These can be differnet from the fields in the machine, if the user wants to reedit the remote interface he just added without saving
     OctoEverywhere? octoEverywhere,
     RemoteInterface? remoteInterface,
+    Uri? obicoTunnel,
   }) = _AddRemoteConnectionSheetArgs;
 }

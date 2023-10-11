@@ -50,6 +50,8 @@ class Machine extends HiveObject {
   List<String> camOrdering;
   @HiveField(24)
   RemoteInterface? remoteInterface;
+  @HiveField(25)
+  Uri? obicoTunnel;
   @HiveField(7, defaultValue: [])
   List<String> localSsids;
   @HiveField(8, defaultValue: -1)

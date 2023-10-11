@@ -81,6 +81,7 @@ class PrinterEditController extends _$PrinterEditController {
       if (activeTheme != null) themeService.activeTheme = activeTheme!;
       ref.invalidate(_remoteInterfaceProvider);
       ref.invalidate(_octoEverywhereProvider);
+      ref.invalidate(_obicoTunnelProvider);
     });
 
     return false;
@@ -203,6 +204,7 @@ class PrinterEditController extends _$PrinterEditController {
   Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
     _machine.remoteInterface = ref.read(_remoteInterfaceProvider);
     _machine.octoEverywhere = ref.read(_octoEverywhereProvider);
+    _machine.obicoTunnel = ref.read(_obicoTunnelProvider);
     _machine.name = storedValues['printerName'];
     _machine.apiKey = storedValues['printerApiKey'];
     _machine.timeout = storedValues['printerLocalTimeout'];
@@ -353,13 +355,17 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   openRemoteConnectionSheet() async {
+    var octoEverywhere = ref.read(_octoEverywhereProvider);
+    var remoteInterface = ref.read(_remoteInterfaceProvider);
+    var obicoTunnel = ref.read(_obicoTunnelProvider);
     BottomSheetResult show = await ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
         type: SheetType.addRemoteCon,
         isScrollControlled: true,
         data: AddRemoteConnectionSheetArgs(
           machine: _machine,
-          octoEverywhere: ref.read(_octoEverywhereProvider),
-          remoteInterface: ref.read(_remoteInterfaceProvider),
+          octoEverywhere: octoEverywhere,
+          remoteInterface: remoteInterface,
+          obicoTunnel: obicoTunnel,
         )));
 
     logger.i('Received from Bottom sheet $show');
@@ -377,14 +383,22 @@ class PrinterEditController extends _$PrinterEditController {
     } else if (_canAddRemoteConnection(show.data)) {
       _addRemoteConnection(show.data);
     } else {
+      String gender;
+      if (octoEverywhere != null) {
+        gender = 'oe';
+      } else if (obicoTunnel != null) {
+        gender = 'obico';
+      } else {
+        gender = 'other';
+      }
+
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
         duration: const Duration(seconds: 10),
         title: tr('pages.printer_edit.remote_interface_exists.title'),
         message: tr(
           'pages.printer_edit.remote_interface_exists.body',
-          // Here logic is swapped. If we try to add RI and Oe is present, we show the OE gender
-          gender: (show.data is RemoteInterface) ? 'oe' : 'other',
+          gender: gender,
         ),
       ));
     }
@@ -394,6 +408,7 @@ class PrinterEditController extends _$PrinterEditController {
   void _removeRemoteConnections() {
     ref.read(_remoteInterfaceProvider.notifier).update(null);
     ref.read(_octoEverywhereProvider.notifier).update(null);
+    ref.read(_obicoTunnelProvider.notifier).update(null);
 
     _snackBarService.show(SnackBarConfig(
       duration: const Duration(seconds: 10),
@@ -408,14 +423,19 @@ class PrinterEditController extends _$PrinterEditController {
     // Remember we return RemoteInterface or the AppPortalResult
     bool tryingToAddOe = data is AppPortalResult;
     bool tryingToAddRi = data is RemoteInterface;
+    bool tryingToAddObico = data is Uri;
 
-    logger.wtf(
-        'tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: ${ref.read(_remoteInterfaceProvider)}');
-    logger
-        .wtf('tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: ${ref.read(_octoEverywhereProvider)}');
+    var remoteInterface = ref.read(_remoteInterfaceProvider);
+    var octoEverywhere = ref.read(_octoEverywhereProvider);
+    var obicoTunnel = ref.read(_obicoTunnelProvider);
 
-    return tryingToAddOe && ref.read(_remoteInterfaceProvider) == null ||
-        tryingToAddRi && ref.read(_octoEverywhereProvider) == null;
+    logger.wtf('tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: $remoteInterface');
+    logger.wtf('tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: $octoEverywhere');
+    logger.wtf('tryingToAddObico: $tryingToAddObico, _obicoTunnelProvider has value: $obicoTunnel');
+
+    return tryingToAddOe && remoteInterface == null && obicoTunnel == null ||
+        tryingToAddRi && octoEverywhere == null && obicoTunnel == null ||
+        tryingToAddObico && remoteInterface == null && octoEverywhere == null;
   }
 
   void _addRemoteConnection(dynamic data) {
@@ -772,5 +792,18 @@ class _OctoEverywhere extends _$OctoEverywhere {
 
   update(AppPortalResult? appPortalResult) {
     state = appPortalResult?.let(OctoEverywhere.fromDto);
+  }
+}
+
+@Riverpod(dependencies: [currentlyEditing])
+class _ObicoTunnel extends _$ObicoTunnel {
+  @override
+  Uri? build() {
+    ref.keepAlive();
+    return ref.watch(currentlyEditingProvider).obicoTunnel;
+  }
+
+  update(Uri? remoteInterface) {
+    state = remoteInterface;
   }
 }

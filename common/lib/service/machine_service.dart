@@ -14,6 +14,7 @@ import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -136,13 +137,15 @@ class MachineService {
       : _machineRepo = ref.watch(machineRepositoryProvider),
         _selectedMachineService = ref.watch(selectedMachineServiceProvider),
         _settingService = ref.watch(settingServiceProvider),
-        _appConnectionService = ref.watch(appConnectionServiceProvider);
+        _appConnectionService = ref.watch(appConnectionServiceProvider),
+        _obicoTunnelService = ref.watch(obicoTunnelServiceProvider);
 
   final AutoDisposeRef ref;
   final MachineHiveRepository _machineRepo;
   final SelectedMachineService _selectedMachineService;
   final SettingService _settingService;
   final AppConnectionService _appConnectionService;
+  final ObicoTunnelService _obicoTunnelService;
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
@@ -476,5 +479,17 @@ class MachineService {
     }
 
     return _appConnectionService.linkAppWithOcto(printerId: octoPrinterId);
+  }
+
+  Future<Uri> linkObico(Machine machineToLink) async {
+    MoonrakerDatabaseClient moonrakerDatabaseClient = ref.read(moonrakerDatabaseClientProvider(machineToLink.uuid));
+    String? obicoPrinterId;
+    try {
+      obicoPrinterId = await moonrakerDatabaseClient.getDatabaseItem('obico', key: 'printer_id');
+    } on WebSocketException catch (e, s) {
+      logger.w('Rpc Client was not connected, could not fetch obico.printer_id. User can select by himself!');
+    }
+
+    return _obicoTunnelService.linkApp(printerId: obicoPrinterId);
   }
 }

@@ -27,3 +27,38 @@ class ObicoIndicator extends StatelessWidget {
     );
   }
 }
+
+class ObicoButton extends StatelessWidget {
+  const ObicoButton({Key? key, this.onPressed, required this.title}) : super(key: key);
+
+  final VoidCallback? onPressed;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) => ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xff01a299),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            SvgPicture.asset(
+              'assets/vector/obico_logo.svg',
+              width: 30,
+              height: 30,
+              colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+}
