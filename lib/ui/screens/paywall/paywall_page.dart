@@ -594,7 +594,6 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     var hasFreePhase = defaultOption.freePhase != null;
     var hasIntroPhase = defaultOption.introPhase != null;
 
-    Widget? header = _constructOfferHeader(defaultOption, context);
     String? discountedPriceString;
     if (isDiscounted && (hasIntroPhase || hasFreePhase)) {
       discountedPriceString =
@@ -602,7 +601,8 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     }
 
     return _ProductTile(
-      offerHeader: header,
+      offerHeader: _constructOfferHeader(defaultOption, context),
+      offerFooter: _constructOfferFoooter(defaultOption, context),
       purchasePackage: () => ref.read(paywallPageControllerProvider.notifier).makePurchase(package),
       isActiveSubscription: activeEntitlement?.isActive == true,
       isRenewingSubscription: activeEntitlement?.willRenew == true,
@@ -639,6 +639,24 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     );
   }
 
+  Widget? _constructOfferFoooter(SubscriptionOption subscriptionOption, BuildContext context) {
+    final themeData = Theme.of(context);
+
+    // So far only android complaint
+    if (!Platform.isAndroid) return null;
+    if (subscriptionOption.isBasePlan) return null;
+    if (subscriptionOption.freePhase == null) return null;
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Text(
+          tr(
+            'pages.paywall.trial_disclaimer',
+          ),
+          style: themeData.textTheme.bodySmall?.copyWith(fontSize: 10),
+          textAlign: TextAlign.center),
+    );
+  }
+
   String? _constructHeaderSubtitle(SubscriptionOption subscriptionOption, BuildContext context) {
     if (subscriptionOption.isBasePlan) return null;
 
@@ -663,6 +681,7 @@ class _ProductTile extends StatelessWidget {
   const _ProductTile({
     Key? key,
     this.offerHeader,
+    this.offerFooter,
     this.purchasePackage,
     required this.isActiveSubscription,
     required this.isRenewingSubscription,
@@ -676,6 +695,7 @@ class _ProductTile extends StatelessWidget {
 
   // Header of the Card
   final Widget? offerHeader;
+  final Widget? offerFooter;
   final GestureTapCallback? purchasePackage;
 
   final bool isActiveSubscription;
@@ -770,6 +790,7 @@ class _ProductTile extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (!isActiveSubscription && offerFooter != null) offerFooter!,
               ],
             ),
           ),
