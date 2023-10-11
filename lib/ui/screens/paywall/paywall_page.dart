@@ -396,6 +396,7 @@ class _OfferedProductList extends ConsumerWidget {
                           promoPackage: promoPackage,
                         );
                       }
+                      // Android Subscriptions since they might have options (E.g. offers/promos)
                       if (package.storeProduct.defaultOption != null) {
                         return _SubscriptionOptionProduct(package: package);
                       }
@@ -588,7 +589,7 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     var storeProduct = package.storeProduct;
 
     var defaultOption = storeProduct.defaultOption!;
-
+    logger.w('DO: $defaultOption');
     var isDiscounted = !defaultOption.isBasePlan;
     var hasFreePhase = defaultOption.freePhase != null;
     var hasIntroPhase = defaultOption.introPhase != null;
@@ -735,42 +736,37 @@ class _ProductTile extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Column(
-                      children: [
-                        if (isActiveSubscription)
-                          Text(
-                            isRenewingSubscription || isLifetimeSubscription
-                                ? 'general.active'
-                                : 'general.canceled',
-                            style: themeData.textTheme.bodySmall
-                                ?.copyWith(color: themeData.colorScheme.onPrimary),
-                          ).tr(),
-                        if (!isLifetimeSubscription ||
-                            (!isActiveSubscription && isLifetimeSubscription))
-                          Text(
-                            subscriptionPriceString,
-                            style: (!isActiveSubscription && hasDiscountAvailable)
-                                ? themeData.textTheme.bodySmall
-                                    ?.copyWith(decoration: TextDecoration.lineThrough)
-                                : null,
-                          ),
-                        if (!isActiveSubscription && hasDiscountAvailable)
-                          Text(discountedPriceString!),
-                        if (subscriptionIso8601 != null)
-                          Text(
-                            iso8601PeriodToText(subscriptionIso8601!),
-                            style: themeData.textTheme.bodySmall?.copyWith(
-                                fontSize: 10,
-                                color: defaultTextStyle.color?.getShadeColor(lighten: false)),
-                          ).tr(),
-                        if (isLifetimeSubscription)
-                          Text(
-                            'general.one_time',
-                            style: themeData.textTheme.bodySmall?.copyWith(
-                                fontSize: 10,
-                                color: defaultTextStyle.color?.getShadeColor(lighten: false)),
-                          ).tr(),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Column(
+                        children: [
+                          if (isActiveSubscription)
+                            Text(
+                              isRenewingSubscription || isLifetimeSubscription ? 'general.active' : 'general.canceled',
+                              style: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.onPrimary),
+                            ).tr(),
+                          if (!isLifetimeSubscription || (!isActiveSubscription && isLifetimeSubscription))
+                            Text(
+                              subscriptionPriceString,
+                              style: (!isActiveSubscription && hasDiscountAvailable)
+                                  ? themeData.textTheme.bodySmall?.copyWith(decoration: TextDecoration.lineThrough)
+                                  : null,
+                            ),
+                          if (!isActiveSubscription && hasDiscountAvailable) Text(discountedPriceString!),
+                          if (subscriptionIso8601 != null)
+                            Text(
+                              iso8601PeriodToText(subscriptionIso8601!),
+                              style: themeData.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10, color: defaultTextStyle.color?.getShadeColor(lighten: false)),
+                            ).tr(),
+                          if (isLifetimeSubscription)
+                            Text(
+                              'general.one_time',
+                              style: themeData.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10, color: defaultTextStyle.color?.getShadeColor(lighten: false)),
+                            ).tr(),
+                        ],
+                      ),
                     ),
                   ],
                 ),

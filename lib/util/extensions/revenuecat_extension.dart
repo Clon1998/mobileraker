@@ -31,20 +31,21 @@ extension MobilerakerIntroductoryPrice on IntroductoryPrice {
 }
 
 extension MobilerakerOption on SubscriptionOption {
-  String? get introPhaseDurationText {
-    if (introPhase == null) return null;
-    var cycles = introPhase?.billingCycleCount ?? 1;
-    var dateUnit = periodUnitToText(introPhase!.billingPeriod?.unit, cycles);
+  String? get introPhaseDurationText => _durationText(introPhase);
 
-    return '$cycles $dateUnit';
-  }
+  String? get freePhaseDurationText => _durationText(freePhase);
 
-  String? get freePhaseDurationText {
-    if (freePhase == null) return null;
-    var cycles = freePhase?.billingCycleCount ?? 1;
-    var dateUnit = periodUnitToText(freePhase!.billingPeriod?.unit, cycles);
+  String? _durationText(PricingPhase? phase) {
+    if (phase == null) return null;
+    var period = phase.billingPeriod;
+    // How often the billingPeriod is applied (E.g. Period is 7 days and cycle 3, results in 21 days)
+    var cycles = phase.billingCycleCount ?? 1;
+    var total = (period?.value ?? 1) * cycles;
+    var dateUnit = periodUnitToText(period?.unit, total);
 
-    return '$cycles $dateUnit';
+    // ToDo do I need info about the recurrenceMode??
+
+    return '$total $dateUnit';
   }
 }
 
@@ -66,16 +67,14 @@ extension MobilerakerCustomerInfo on CustomerInfo {
       return activeSubscriptions.contains(productIdentifier);
     }
 
-    return nonSubscriptionTransactions.any((tx) =>
-        tx.productIdentifier == productIdentifier ||
-        tx.productIdentifier == '${productIdentifier}_promo');
+    return nonSubscriptionTransactions
+        .any((tx) => tx.productIdentifier == productIdentifier || tx.productIdentifier == '${productIdentifier}_promo');
   }
 
   EntitlementInfo? getActiveEntitlementForPackage(Package package) {
     var productIdentifier = package.storeProduct.identifier.split(':').first;
 
-    return entitlements.active.values.firstWhereOrNull((e) =>
-        e.productIdentifier == productIdentifier ||
-        e.productIdentifier == '${productIdentifier}_promo');
+    return entitlements.active.values.firstWhereOrNull(
+        (e) => e.productIdentifier == productIdentifier || e.productIdentifier == '${productIdentifier}_promo');
   }
 }
