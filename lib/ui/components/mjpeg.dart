@@ -122,8 +122,8 @@ class _Mjpeg extends ConsumerWidget {
           const SizedBox(
             height: 30,
           ),
-          Text('WebCam streamURI: ${mjpegConfig.streamUri}'),
-          Text('WebCam snapshotURI: ${mjpegConfig.snapshotUri}'),
+          Text('WebCam streamURI: ${mjpegConfig.streamUri.obfuscate()}'),
+          Text('WebCam snapshotURI: ${mjpegConfig.snapshotUri?.obfuscate()}'),
           Text(state.error.toString(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Theme.of(context).colorScheme.error)),
