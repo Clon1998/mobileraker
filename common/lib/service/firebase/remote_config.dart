@@ -22,6 +22,8 @@ extension MobilerakerFF on FirebaseRemoteConfig {
 
   bool get oeWebrtc => getBool('oe_webrtc_warning');
 
+  bool get obicoEnabled => getBool('obico_remote_connection');
+
   Future<void> initialize() async {
     try {
       await setConfigSettings(RemoteConfigSettings(
@@ -31,6 +33,7 @@ extension MobilerakerFF on FirebaseRemoteConfig {
       await setDefaults({
         'non_suporters_max_printers': -1,
         'oe_webrtc_warning': true,
+        'obico_remote_connection': true,
       });
       fetchAndActivate().then((value) {
         logger.i('FirebaseRemote values are fetched and activated!');

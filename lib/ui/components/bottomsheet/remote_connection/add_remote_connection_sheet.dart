@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -46,17 +47,19 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
+    var obicoEnabled = ref.watch(remoteConfigProvider).obicoEnabled;
+
     var activeIndex = ref.watch(addRemoteConnectionSheetControllerProvider.select((value) {
       if (value.remoteInterface != null) {
         return 1;
       }
-      if (value.obicoTunnel != null) {
+      if (obicoEnabled && value.obicoTunnel != null) {
         return 2;
       }
       return 0;
     }));
 
-    var tabController = useTabController(initialLength: 3, initialIndex: activeIndex);
+    var tabController = useTabController(initialLength: obicoEnabled ? 3 : 2, initialIndex: activeIndex);
 
     var viewInsets = MediaQuery.viewInsetsOf(context);
     var themeData = Theme.of(context);
@@ -76,10 +79,10 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                   controller: tabController,
                   indicatorColor: themeData.colorScheme.onPrimary,
                   automaticIndicatorColorAdjustment: false,
-                  tabs: const [
-                    Tab(text: 'OctoEverywhere'),
-                    Tab(text: 'Manual'),
-                    Tab(text: 'Obico'),
+                  tabs: [
+                    const Tab(text: 'OctoEverywhere'),
+                    const Tab(text: 'Manual'),
+                    if (obicoEnabled) const Tab(text: 'Obico'),
                   ],
                 ),
               ),
@@ -111,10 +114,10 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                   padding: EdgeInsets.only(bottom: viewInsets.bottom),
                   child: TabBarView(
                     controller: tabController,
-                    children: const [
-                      _OctoTab(),
-                      _ManualTab(),
-                      _ObicoTab(),
+                    children: [
+                      const _OctoTab(),
+                      const _ManualTab(),
+                      if (obicoEnabled) const _ObicoTab(),
                     ],
                   ),
                 ),

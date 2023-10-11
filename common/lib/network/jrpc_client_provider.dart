@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -70,6 +71,11 @@ class JrpcClientManager extends _$JrpcClientManager {
     var clientType = machine.remoteClientType;
     logger.i(
         'A ${clientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
+
+    if (!ref.read(remoteConfigProvider).obicoEnabled) {
+      logger.i('Obico detected as remoteClientType, but obico is disabled in remoteConfig. Will not setup handover');
+      return;
+    }
 
     if (machine.localSsids.isNotEmpty) {
       _setupSmartSwitching(machine, clientType).ignore();

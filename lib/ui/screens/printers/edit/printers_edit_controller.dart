@@ -15,6 +15,7 @@ import 'package:common/data/model/moonraker_db/temperature_preset.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
@@ -68,6 +69,8 @@ class PrinterEditController extends _$PrinterEditController {
   SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
 
   Machine get _machine => ref.read(currentlyEditingProvider);
+
+  bool get _obicoEnabled => ref.read(remoteConfigProvider).obicoEnabled;
 
   ThemeModel? activeTheme;
 
@@ -204,7 +207,9 @@ class PrinterEditController extends _$PrinterEditController {
   Future<void> _saveMachine(Map<String, dynamic> storedValues) async {
     _machine.remoteInterface = ref.read(_remoteInterfaceProvider);
     _machine.octoEverywhere = ref.read(_octoEverywhereProvider);
-    _machine.obicoTunnel = ref.read(_obicoTunnelProvider);
+    if (_obicoEnabled) {
+      _machine.obicoTunnel = ref.read(_obicoTunnelProvider);
+    }
     _machine.name = storedValues['printerName'];
     _machine.apiKey = storedValues['printerApiKey'];
     _machine.timeout = storedValues['printerLocalTimeout'];
@@ -431,10 +436,11 @@ class PrinterEditController extends _$PrinterEditController {
 
     logger.wtf('tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: $remoteInterface');
     logger.wtf('tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: $octoEverywhere');
-    logger.wtf('tryingToAddObico: $tryingToAddObico, _obicoTunnelProvider has value: $obicoTunnel');
+    logger.wtf(
+        'tryingToAddObico: $tryingToAddObico, _obicoTunnelProvider has value: $obicoTunnel, obicoEnabled:$_obicoEnabled');
 
-    return tryingToAddOe && remoteInterface == null && obicoTunnel == null ||
-        tryingToAddRi && octoEverywhere == null && obicoTunnel == null ||
+    return tryingToAddOe && remoteInterface == null && (obicoTunnel == null || !_obicoEnabled) ||
+        tryingToAddRi && octoEverywhere == null && (obicoTunnel == null || !_obicoEnabled) ||
         tryingToAddObico && remoteInterface == null && octoEverywhere == null;
   }
 
