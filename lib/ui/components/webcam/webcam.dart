@@ -49,7 +49,7 @@ class Webcam extends ConsumerWidget {
                   padding: const EdgeInsets.all(8.0),
                   child: GadgetIndicator(
                     appToken: machine.octoEverywhere!.appApiToken,
-                    iconSize: 18,
+                    iconSize: 22,
                   ),
                 ))),
       if (showRemoteIndicator)
@@ -61,7 +61,7 @@ class Webcam extends ConsumerWidget {
                   child: ClientTypeIndicator(
                     machineId: machine.uuid,
                     iconColor: Colors.white,
-                    iconSize: 18,
+                    iconSize: 20,
                   ),
                 )))
     ];
