@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.5] - 2023-10-11
+
+### Bug Fixes
+
+- Promotions now show the correct duration on the paywall
+
 ## [2.6.4] - 2023-09-30
 
 ### Major Changes
