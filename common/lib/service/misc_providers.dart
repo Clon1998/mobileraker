@@ -23,3 +23,11 @@ Future<PermissionStatus> permissionStatus(PermissionStatusRef ref, Permission pe
   logger.i('Permission $permission is $status');
   return status;
 }
+
+@riverpod
+Future<ServiceStatus> permissionServiceStatus(PermissionServiceStatusRef ref, PermissionWithService permission) async {
+  var status = await permission.serviceStatus;
+
+  logger.i('Permission $permission serviceStatus is $status');
+  return status;
+}

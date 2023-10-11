@@ -70,15 +70,27 @@ class JrpcClientManager extends _$JrpcClientManager {
         logger.i('[Smart-Switching] Local SSID are set. Can do rapid remote con switching');
         Future.wait([
           ref.read(networkInfoServiceProvider).getWifiName(),
-          ref.read(permissionStatusProvider(Permission.location).future)
+          ref.read(permissionStatusProvider(Permission.location).future),
+          ref.read(permissionServiceStatusProvider(Permission.location).future),
         ]).then((List results) {
           String? wifiName = results[0];
           PermissionStatus? permissionStatus = results[1];
+          ServiceStatus? permissionServiceStatus = results[2];
+          logger.i(
+              'wifiName: $wifiName, permissionStatus: $permissionStatus, permissionServiceStatus: $permissionServiceStatus');
+
           if (permissionStatus?.isGranted != true) {
             logger.i(
                 '[Smart-Switching] WiFi List exists and is not empty, but no location permission. Unable to determine smart switching');
             return;
           }
+
+          if (permissionServiceStatus?.isEnabled != true) {
+            logger.i(
+                '[Smart-Switching] WiFi List exists and is not empty, but location service is disabled. Unable to determine smart switching');
+            return;
+          }
+
           if (machine.localSsids.contains(wifiName)) {
             logger.i('[Smart-Switching] Connected to a WiFi in LocalSsid list of machine. Will use local con');
             return;
