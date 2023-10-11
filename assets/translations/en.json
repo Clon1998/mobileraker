@@ -372,6 +372,7 @@
       "remote_interface_added": {
         "title": {
           "oe": "Linked to OctoEverywhere.",
+          "obico": "Linked to Obico.",
           "other": "Remote connection Added."
         },
         "body": "Make sure to save the printer to apply the changes."

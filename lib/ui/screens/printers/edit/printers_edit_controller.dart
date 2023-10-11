@@ -452,11 +452,18 @@ class PrinterEditController extends _$PrinterEditController {
     } else if (data is Uri) {
       ref.read(_obicoTunnelProvider.notifier).update(data);
     }
-
+    String gender;
+    if (octoEverywhere != null) {
+      gender = 'oe';
+    } else if (obicoTunnel != null) {
+      gender = 'obico';
+    } else {
+      gender = 'other';
+    }
     _snackBarService.show(SnackBarConfig(
       type: SnackbarType.info,
       duration: const Duration(seconds: 5),
-      title: tr('pages.printer_edit.remote_interface_added.title', gender: (data is RemoteInterface) ? 'other' : 'oe'),
+      title: tr('pages.printer_edit.remote_interface_added.title', gender: gender),
       message: tr('pages.printer_edit.remote_interface_added.body'),
     ));
   }
