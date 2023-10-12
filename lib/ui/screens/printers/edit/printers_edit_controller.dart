@@ -453,9 +453,9 @@ class PrinterEditController extends _$PrinterEditController {
       ref.read(_obicoTunnelProvider.notifier).update(data);
     }
     String gender;
-    if (octoEverywhere != null) {
+    if (data is AppPortalResult) {
       gender = 'oe';
-    } else if (obicoTunnel != null) {
+    } else if (data is Uri) {
       gender = 'obico';
     } else {
       gender = 'other';
