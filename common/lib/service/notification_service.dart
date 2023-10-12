@@ -16,6 +16,7 @@ import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/model/ModelEvent.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/notification.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
@@ -36,7 +37,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Notification;
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:live_activities/models/activity_update.dart';
@@ -96,7 +96,7 @@ class NotificationService {
   final Completer _liveActivityInitCompleter = Completer();
   Completer? _updateLiveActivityLock;
 
-  StreamSubscription<BoxEvent>? _hiveStreamListener;
+  StreamSubscription<ModelEvent<Machine>>? _machineUpdatesListener;
   StreamSubscription<ActivityUpdate>? _activityUpdateStreamSubscription;
   final Completer<bool> _initialized = Completer<bool>();
 
@@ -116,9 +116,8 @@ class NotificationService {
           var machine = await ref.read(machineProvider(entry.key).future);
           if (machine == null) return;
 
-          event
-              .mapOrNull(
-                active: (state) async {
+          event.mapOrNull(
+            active: (state) async {
               logger.i(
                   'Updating Pushtoken for ${machine.name} LiveActivity ${state.activityId} to ${state.activityToken} fro');
               _machineLiveActivityMap[entry.key] = _ActivityEntry(state.activityId, state.activityToken);
@@ -145,7 +144,7 @@ class NotificationService {
         _registerLocalMessageHandling(setting);
       }
 
-      _hiveStreamListener = _setupHiveBoxListener();
+      _machineUpdatesListener = _setupMachineUpdateListener();
 
       _initializedPortForTask();
       await _initializeNotificationListeners();
@@ -200,13 +199,19 @@ class NotificationService {
     return _notifyAPI.setListeners(onActionReceivedMethod: _onActionReceivedMethod);
   }
 
-  StreamSubscription<BoxEvent> _setupHiveBoxListener() {
-    return _machineService.machineEventStream.listen((event) {
-      logger.d("Received Box-Event<machine>: event(${event.key}:${event.value} del=${event.deleted}");
-      if (event.deleted) {
-        onMachineRemoved(event.key);
-      } else if (!_printerStreamMap.containsKey(event.key)) {
-        onMachineAdded(event.value);
+  StreamSubscription<ModelEvent<Machine>> _setupMachineUpdateListener() {
+    return _machineService.machineModelEvents.listen((event) {
+      logger.i("Received machineModelEvents: ${event.runtimeType}(${event.key}:${event.data}");
+
+      switch (event) {
+        case ModelEventInsert<Machine> event:
+          onMachineAdded(event.data);
+          break;
+        case ModelEventUpdate<Machine> event:
+          break;
+        case ModelEventDelete<Machine> event:
+          onMachineRemoved(event.key);
+          break;
       }
     });
   }
@@ -749,7 +754,7 @@ class NotificationService {
   dispose() {
     logger.e('NEVER DISPOSE THIS SERVICE!');
     _notificationTapPort.close();
-    _hiveStreamListener?.cancel();
+    _machineUpdatesListener?.cancel();
     _activityUpdateStreamSubscription?.cancel();
     for (var element in _printerStreamMap.values) {
       element.close();

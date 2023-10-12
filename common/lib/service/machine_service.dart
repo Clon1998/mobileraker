@@ -8,6 +8,7 @@ import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
+import 'package:common/data/model/ModelEvent.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/moonraker_db/fcm/apns.dart';
@@ -22,7 +23,6 @@ import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -64,9 +64,9 @@ Future<Machine?> machine(MachineRef ref, String uuid) async {
   ref.onDispose(() => logger.e('machineProvider disposed $uuid'));
 
   logger.i('machineProvider creation STARTED $uuid');
-  var future = await ref.watch(machineRepositoryProvider).get(uuid: uuid);
-  logger.i('machineProvider creation DONE $uuid');
-  return future;
+  var machine = await ref.watch(machineRepositoryProvider).get(uuid: uuid);
+  logger.i('machineProvider creation DONE $uuid - returns null: ${machine == null}');
+  return machine;
 }
 
 @riverpod
@@ -138,7 +138,9 @@ class MachineService {
         _selectedMachineService = ref.watch(selectedMachineServiceProvider),
         _settingService = ref.watch(settingServiceProvider),
         _appConnectionService = ref.watch(appConnectionServiceProvider),
-        _obicoTunnelService = ref.watch(obicoTunnelServiceProvider);
+        _obicoTunnelService = ref.watch(obicoTunnelServiceProvider) {
+    ref.onDispose(dispose);
+  }
 
   final AutoDisposeRef ref;
   final MachineHiveRepository _machineRepo;
@@ -149,12 +151,15 @@ class MachineService {
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
-  Stream<BoxEvent> get machineEventStream => Hive.box<Machine>('printers').watch();
+  final StreamController<ModelEvent<Machine>> _machineEventStreamCtler = StreamController.broadcast();
+
+  Stream<ModelEvent<Machine>> get machineModelEvents => _machineEventStreamCtler.stream;
 
   Future<void> updateMachine(Machine machine) async {
-    await machine.save();
+    await _machineRepo.update(machine);
     logger.i('Updated machine: ${machine.name}');
     ref.read(analyticsProvider).logEvent(name: 'updated_machine');
+    _machineEventStreamCtler.add(ModelEvent.update(machine, machine.uuid));
     await ref.refresh(machineProvider(machine.uuid).future);
     var selectedMachineService = ref.read(selectedMachineServiceProvider);
     if (selectedMachineService.isSelectedMachine(machine)) {
@@ -177,8 +182,9 @@ class MachineService {
   }
 
   Future<Machine> addMachine(Machine machine) async {
+    logger.i('Trying to inser machine ${machine.name} (${machine.uuid})');
     await _machineRepo.insert(machine);
-
+    logger.i('Inserted machine ${machine.name} (${machine.uuid})');
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);
     FirebaseAnalytics firebaseAnalytics = ref.read(analyticsProvider);
@@ -186,6 +192,8 @@ class MachineService {
     _machineRepo.count().then((value) => firebaseAnalytics.updateMachineCount(value));
 
     await ref.read(machineProvider(machine.uuid).future);
+    _machineEventStreamCtler.add(ModelEvent.insert(machine, machine.uuid));
+
     return machine;
   }
 
@@ -198,6 +206,7 @@ class MachineService {
     }
 
     await _machineRepo.remove(machine.uuid);
+    _machineEventStreamCtler.add(ModelEvent.delete(machine, machine.uuid));
     var firebaseAnalytics = ref.read(analyticsProvider);
     firebaseAnalytics.logEvent(name: 'remove_machine');
     _machineRepo.count().then((value) => firebaseAnalytics.updateMachineCount(value));
@@ -491,5 +500,9 @@ class MachineService {
     }
 
     return _obicoTunnelService.linkApp(printerId: obicoPrinterId);
+  }
+
+  Future<void> dispose() async {
+    await _machineEventStreamCtler.close();
   }
 }

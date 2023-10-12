@@ -29,34 +29,46 @@ class PrinterAddPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // TabController tabController = useTabController(initialLength: 2);
-    var nonSupError =
-        ref.watch(printerAddViewControllerProvider.select((value) => value.nonSupporterError));
+    var nonSupError = ref.watch(printerAddViewControllerProvider.select((value) => value.nonSupporterError));
     return Scaffold(
       appBar: AppBar(
         title: const Text('pages.printer_add.title').tr(),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const _AddPrinterStepperFlow(),
-            const Divider(),
-            if (nonSupError != null) Center(child: SupporterOnlyFeature(text: Text(nonSupError))),
-            if (nonSupError == null) ...[
-              const Expanded(
-                child: CustomScrollView(
-                  physics: ClampingScrollPhysics(),
-                  slivers: [
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: _StepperBody(),
-                    )
-                  ],
+        child: (nonSupError != null)
+            ? Center(
+                child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SupporterOnlyFeature(
+                  header: Flexible(
+                      child: ConstrainedBox(
+                    constraints: BoxConstraints.loose(const Size(256, 256)),
+                    child: SvgPicture.asset(
+                      'assets/vector/undraw_warning_re_eoyh.svg',
+                      fit: BoxFit.contain,
+                    ),
+                  )),
+                  text: Text(nonSupError),
                 ),
+              ))
+            : const Column(
+                children: [
+                  _AddPrinterStepperFlow(),
+                  Divider(),
+                  Expanded(
+                    child: CustomScrollView(
+                      physics: ClampingScrollPhysics(),
+                      slivers: [
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: _StepperBody(),
+                        )
+                      ],
+                    ),
+                  ),
+                  _StepperFooter(),
+                ],
               ),
-              const _StepperFooter(),
-            ],
-          ],
-        ),
       ),
     );
   }
@@ -110,11 +122,8 @@ class _StepperFooter extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var model = ref.watch(printerAddViewControllerProvider);
 
-    Widget? footer = switch (model.step) {
-      1 => const _UrlInputStepFooter(),
-      2 => const _TestConnectionStepFooter(),
-      _ => null
-    };
+    Widget? footer =
+        switch (model.step) { 1 => const _UrlInputStepFooter(), 2 => const _TestConnectionStepFooter(), _ => null };
 
     if (footer == null) return const SizedBox.shrink();
 
@@ -146,19 +155,13 @@ class _AddPrinterStepperFlow extends HookConsumerWidget {
       showLoadingAnimation: false,
       enableStepTapping: model.step != 3,
       steps: [
-        EasyStep(
-            title: tr('pages.printer_add.steps.mode'),
-            icon: const Icon(Icons.add_moderator_outlined)),
-        EasyStep(
-            title: tr('pages.printer_add.steps.input'), icon: const Icon(Icons.settings_outlined)),
+        EasyStep(title: tr('pages.printer_add.steps.mode'), icon: const Icon(Icons.add_moderator_outlined)),
+        EasyStep(title: tr('pages.printer_add.steps.input'), icon: const Icon(Icons.settings_outlined)),
         EasyStep(
             title: tr('pages.printer_add.steps.test'),
             icon: const Icon(Icons.settings_input_antenna_outlined),
             enabled: false),
-        EasyStep(
-            title: tr('pages.printer_add.steps.done'),
-            icon: const Icon(Icons.done_outline),
-            enabled: false),
+        EasyStep(title: tr('pages.printer_add.steps.done'), icon: const Icon(Icons.done_outline), enabled: false),
       ],
     );
   }
@@ -538,8 +541,7 @@ class _TestConnectionStepFooter extends ConsumerWidget {
           proceedLabel: const Icon(Icons.navigate_next),
           proceedStyle: (model.hasResults && !model.combinedResult)
               ? FilledButton.styleFrom(
-                  backgroundColor: themeData.colorScheme.error,
-                  foregroundColor: themeData.colorScheme.onError)
+                  backgroundColor: themeData.colorScheme.error, foregroundColor: themeData.colorScheme.onError)
               : null,
         )
       ],

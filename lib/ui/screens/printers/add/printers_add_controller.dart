@@ -47,15 +47,15 @@ class PrinterAddViewController extends _$PrinterAddViewController {
     var isSupporter = ref.watch(isSupporterProvider);
     var maxNonSupporterMachines = ref.watch(remoteConfigProvider).maxNonSupporterMachines;
     if (!isSupporter && maxNonSupporterMachines > 0) {
-      ref.watch(allMachinesProvider.selectAsync((data) => data.length)).then((value) {
+      ref.read(allMachinesProvider.selectAsync((data) => data.length)).then((value) {
         if (value >= maxNonSupporterMachines) {
           state = state.copyWith(
-              nonSupporterError: tr('components.supporter_only_feature.printer_add',
-                  args: [maxNonSupporterMachines.toString()]));
+              nonSupporterError:
+                  tr('components.supporter_only_feature.printer_add', args: [maxNonSupporterMachines.toString()]));
         }
       });
     }
-
+    logger.i('PrinterAddViewController.build()');
     return const PrinterAddState();
   }
 
@@ -77,8 +77,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
     try {
       AppPortalResult appPortalResult = await appConnectionService.linkAppWithOcto();
 
-      AppConnectionInfoResponse appConnectionInfo =
-          await appConnectionService.getInfo(appPortalResult.appApiToken);
+      AppConnectionInfoResponse appConnectionInfo = await appConnectionService.getInfo(appPortalResult.appApiToken);
 
       var infoResult = appConnectionInfo.result;
       var localIp = infoResult.printerLocalIp;
@@ -103,8 +102,9 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       state = state.copyWith(addedMachine: true, machineToAdd: machine);
     } on OctoEverywhereException catch (e, s) {
       logger.e('Error while trying to add printer via Ocot', e, s);
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-          type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
+      ref
+          .read(snackBarServiceProvider)
+          .show(SnackBarConfig(type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
       state = state.copyWith(step: 0);
     }
   }
@@ -135,6 +135,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
 
   submitMachine() async {
     if (state.nonSupporterError != null) return;
+    logger.i('Submitting machine');
     state = state.copyWith(step: state.step + 1);
     await ref.read(machineServiceProvider).addMachine(state.machineToAdd!);
     state = state.copyWith(addedMachine: true);
@@ -165,8 +166,7 @@ class SimpleFormController extends _$SimpleFormController {
   }
 
   openQrScanner(BuildContext context) async {
-    Barcode? qr = await Navigator.of(context)
-        .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
+    Barcode? qr = await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr?.rawValue != null) {
       _apiKeyField.didChange(qr!.rawValue);
     }
@@ -213,8 +213,7 @@ class AdvancedFormController extends _$AdvancedFormController {
   }
 
   openQrScanner(BuildContext context) async {
-    Barcode? qr = await Navigator.of(context)
-        .push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
+    Barcode? qr = await Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const QrScannerPage()));
     if (qr?.rawValue != null) {
       _apiKeyField.didChange(qr!.rawValue);
     }
@@ -241,9 +240,7 @@ class AdvancedFormController extends _$AdvancedFormController {
 
   onHttpUriChanged(String? httpInput) {
     state = state.copyWith(
-        wsUriFromHttpUri: (httpInput == null || httpInput.isEmpty)
-            ? null
-            : buildMoonrakerWebSocketUri(httpInput));
+        wsUriFromHttpUri: (httpInput == null || httpInput.isEmpty) ? null : buildMoonrakerWebSocketUri(httpInput));
   }
 }
 
@@ -267,8 +264,7 @@ class TestConnectionController extends _$TestConnectionController {
     }
 
     TestConnectionState s;
-    HttpClient httpClient = HttpClient()
-      ..connectionTimeout = Duration(seconds: min(10, machineToAdd.timeout));
+    HttpClient httpClient = HttpClient()..connectionTimeout = Duration(seconds: min(10, machineToAdd.timeout));
     JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder()
       ..headers = machineToAdd.httpHeaders
       ..timeout = httpClient.connectionTimeout!
@@ -298,8 +294,8 @@ class TestConnectionController extends _$TestConnectionController {
     _testConnectionRPCState = _client.stateStream.listen((event) {
       state = switch (event) {
         ClientState.connected => state.copyWith(wsState: event, wsError: null),
-        ClientState.error => state.copyWith(
-            wsState: event, wsError: _client.errorReason?.toString() ?? 'Unknown Error'),
+        ClientState.error =>
+          state.copyWith(wsState: event, wsError: _client.errorReason?.toString() ?? 'Unknown Error'),
         _ => state.copyWith(wsState: event),
       };
       if (event == ClientState.connected || event == ClientState.error) {
@@ -322,8 +318,7 @@ class TestConnectionController extends _$TestConnectionController {
 
       var isSuccess = response.statusCode == 200;
       state = state.copyWith(
-          httpState: isSuccess,
-          httpError: isSuccess ? null : '${response.statusCode} - ${response.reasonPhrase}');
+          httpState: isSuccess, httpError: isSuccess ? null : '${response.statusCode} - ${response.reasonPhrase}');
     } catch (e) {
       logger.w('_testHttp returned error', e);
 
@@ -400,11 +395,8 @@ class TestConnectionState with _$TestConnectionState {
         _ => 'general.unknown'
       });
 
-  String get httpStateText => tr(switch (httpState) {
-        true => 'general.valid',
-        false => 'general.invalid',
-        _ => 'general.unknown'
-      });
+  String get httpStateText =>
+      tr(switch (httpState) { true => 'general.valid', false => 'general.invalid', _ => 'general.unknown' });
 
   Color wsStateColor(ThemeData theme) => switch (wsState) {
         ClientState.connected => theme.extension<CustomColors>()?.success ?? Colors.green,
