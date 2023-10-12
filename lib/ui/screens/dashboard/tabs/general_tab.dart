@@ -215,7 +215,7 @@ class PrintCard extends ConsumerWidget {
                             child: Icon(
                               Icons.circle,
                               size: 16,
-                              color: themeData.colorScheme.onSurface,
+                              color: themeData.colorScheme.onError,
                             )),
                         Positioned(
                             bottom: -1,
