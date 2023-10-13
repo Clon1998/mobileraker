@@ -167,6 +167,13 @@
           "accel": "Acceleration",
           "sq_corn_vel": "Square Corner Velocity",
           "accel_to_decel": "Accel to Decel"
+        },
+        "fw_retraction_card": {
+          "title": "Firmware Retraction",
+          "retract_length": "Retract Length",
+          "retract_speed": "Retract Speed",
+          "extra_unretract_length": "Extra Unretract Length",
+          "unretract_speed": "Unretract Speed"
         }
       }
     },
@@ -229,7 +236,8 @@
         "use_offset_pos": "Show coordinates with offset applied.",
         "lcFullCam": "Fullscreen Webcam in Landscape",
         "language": "Language",
-        "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its "
+        "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its ",
+        "sliders_grouping": "Group Slider Cards"
       },
       "notification": {
         "title": "Notification",

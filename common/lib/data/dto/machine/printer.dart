@@ -14,6 +14,7 @@ import 'display_status.dart';
 import 'exclude_object.dart';
 import 'fans/named_fan.dart';
 import 'fans/print_fan.dart';
+import 'firmware_retraction.dart';
 import 'gcode_move.dart';
 import 'heaters/extruder.dart';
 import 'heaters/generic_heater.dart';
@@ -43,6 +44,7 @@ class PrinterBuilder {
         virtualSdCard = printer.virtualSdCard,
         manualProbe = printer.manualProbe,
         bedScrew = printer.bedScrew,
+        firmwareRetraction = printer.firmwareRetraction,
         fans = printer.fans,
         temperatureSensors = printer.temperatureSensors,
         outputPins = printer.outputPins,
@@ -68,6 +70,7 @@ class PrinterBuilder {
   ManualProbe? manualProbe;
   BedScrew? bedScrew;
   GCodeFile? currentFile;
+  FirmwareRetraction? firmwareRetraction;
   Map<String, NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
@@ -111,6 +114,7 @@ class PrinterBuilder {
       virtualSdCard: virtualSdCard!,
       manualProbe: manualProbe,
       bedScrew: bedScrew,
+      firmwareRetraction: firmwareRetraction,
       currentFile: currentFile,
       fans: Map.unmodifiable(fans),
       temperatureSensors: Map.unmodifiable(temperatureSensors),
@@ -142,6 +146,7 @@ class Printer with _$Printer {
     required VirtualSdCard virtualSdCard,
     ManualProbe? manualProbe,
     BedScrew? bedScrew,
+    FirmwareRetraction? firmwareRetraction,
     GCodeFile? currentFile,
     @Default({}) Map<String, NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,

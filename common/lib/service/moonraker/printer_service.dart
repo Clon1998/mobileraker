@@ -49,6 +49,7 @@ import 'package:stringr/stringr.dart';
 
 import '../../data/dto/console/command.dart';
 import '../../data/dto/console/console_entry.dart';
+import '../../data/dto/machine/firmware_retraction.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../machine_service.dart';
@@ -172,6 +173,7 @@ class PrinterService {
     'manual_probe': _updateManualProbe,
     'bed_screws': _updateBedScrew,
     'heater_generic': _updateGenericHeater,
+    'firmware_retraction': _updateFirmwareRetraction,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
@@ -465,6 +467,23 @@ class PrinterService {
     }
   }
 
+  firmwareRetraction({
+    double? retractLength,
+    double? retractSpeed,
+    double? unretractExtraLength,
+    double? unretractSpeed,
+  }) {
+    // SET_RETRACTION [RETRACT_LENGTH=<mm>] [RETRACT_SPEED=<mm/s>] [UNRETRACT_EXTRA_LENGTH=<mm>] [UNRETRACT_SPEED=<mm/s>]
+    List<String> args = [];
+    if (retractLength != null) args.add('RETRACT_LENGTH=$retractLength');
+    if (retractSpeed != null) args.add('RETRACT_SPEED=$retractSpeed');
+    if (unretractExtraLength != null) args.add('UNRETRACT_EXTRA_LENGTH=$unretractExtraLength');
+    if (unretractSpeed != null) args.add('UNRETRACT_SPEED=$unretractSpeed');
+    if (args.isNotEmpty) {
+      gCode('SET_RETRACTION ${args.join(' ')}');
+    }
+  }
+
   Future<void> _temperatureStore(PrinterBuilder printer) async {
     if (disposed) return;
     logger.i('Fetching cached temperature store data');
@@ -738,6 +757,10 @@ class PrinterService {
 
   _updateBedScrew(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
     printer.bedScrew = BedScrew.partialUpdate(printer.bedScrew, jsonResponse);
+  }
+
+  _updateFirmwareRetraction(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
+    printer.firmwareRetraction = FirmwareRetraction.partialUpdate(printer.firmwareRetraction, jsonResponse);
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {

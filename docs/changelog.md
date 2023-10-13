@@ -4,8 +4,11 @@
 
 ### Major Changes
 
-- Added Gadget by OctoEverywhere. Offering free AI based print monitoring. (Requires an linked OctoEverywhere account.
+- Added Gadget by OctoEverywhere. Offering free AI based print monitoring. (Requires a linked OctoEverywhere account.
   Not affiliated with Mobileraker)
+- Multipliers, Limits and FW Retraction cards can now be grouped into a single horizontal scrollable card. This is the
+  default now and can be disabled in the app settings.
+- Firmware Retraction settings can now be edited in the app. [#129](https://github.com/Clon1998/mobileraker/issues/129)
 
 ### Changed Features
 
@@ -36,6 +39,7 @@
 
 - In accordance with Moonraker, editing config-file-based webcams within the app is no longer supported.
 - Deactivated the capacity to employ a temperature preset during an active print job.
+
 ### Bug Fixes
 
 - In scenarios with slower network connections, the app will no longer display the `Klipper-Error, Future did not

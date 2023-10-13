@@ -22,13 +22,12 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:form_builder_validators/localization/l10n.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_button.dart';
@@ -42,13 +41,21 @@ import 'package:mobileraker/util/extensions/pixel_extension.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 
+import '../../../components/horizontal_scroll_indicator.dart';
+import '../components/firmware_retraction_card.dart';
+import '../components/limits_card.dart';
+import '../components/multipliers_card.dart';
+
 class ControlTab extends ConsumerWidget {
   const ControlTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var settingService = ref.watch(settingServiceProvider);
+
     return ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).when(
         data: (data) {
+          var groupSliders = settingService.readBool(AppSettingKeys.groupSliders, true);
           return PullToRefreshPrinter(
             child: ListView(
               key: const PageStorageKey<String>('cTab'),
@@ -79,8 +86,17 @@ class ControlTab extends ConsumerWidget {
                         .valueOrNull ??
                     false)
                   const PowerApiCard(),
-                const MultipliersCard(),
-                const LimitsCard(),
+                if (groupSliders) const _MiscCard(),
+                if (!groupSliders) ...[
+                  const MultipliersCard(),
+                  const LimitsCard(),
+                  if (ref
+                          .watch(machinePrinterKlippySettingsProvider
+                              .selectAs((data) => data.printerData.firmwareRetraction != null))
+                          .valueOrNull ==
+                      true)
+                    const FirmwareRetractionCard(),
+                ],
               ],
             ),
           );
@@ -794,393 +810,45 @@ class _Led extends ConsumerWidget {
   }
 }
 
-class MultipliersCard extends HookConsumerWidget {
-  const MultipliersCard({
-    Key? key,
-  }) : super(key: key);
+class _MiscCard extends HookConsumerWidget {
+  const _MiscCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var inputLocked = useState(true);
+    var pageController = usePageController();
 
-    var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
-        .valueOrNull!;
+    var viewInsets = MediaQuery.sizeOf(context);
+    logger.i('ViewInsets: $viewInsets');
 
+    var childs = [
+      const MultipliersSlidersOrTexts(),
+      const LimitsSlidersOrTexts(),
+      if (ref
+              .watch(
+                  machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.firmwareRetraction != null))
+              .valueOrNull ==
+          true)
+        const FirmwareRetractionSlidersOrTexts(),
+    ];
     return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(FlutterIcons.speedometer_slow_mco),
-            title: const Text('pages.dashboard.control.multipl_card.title').tr(),
-            trailing: IconButton(
-                onPressed: klippyCanReceiveCommands ? () => inputLocked.value = !inputLocked.value : null,
-                icon: AnimatedSwitcher(
-                  duration: kThemeAnimationDuration,
-                  transitionBuilder: (child, anim) => RotationTransition(
-                    turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                    child: ScaleTransition(scale: anim, child: child),
-                  ),
-                  child: inputLocked.value
-                      ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
-                      : const Icon(FlutterIcons.unlock_faw, key: ValueKey('unlock')),
-                )),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: Column(
-              children: [
-                _SliderOrTextInput(
-                  provider: machinePrinterKlippySettingsProvider
-                      .select((data) => data.value!.printerData.gCodeMove.speedFactor),
-                  prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
-                  onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref.watch(controlTabControllerProvider.notifier).onEditedSpeedMultiplier
-                      : null,
-                  addToMax: true,
-                ),
-                _SliderOrTextInput(
-                    provider: machinePrinterKlippySettingsProvider
-                        .select((data) => data.value!.printerData.gCodeMove.extrudeFactor),
-                    prefixText: 'pages.dashboard.control.multipl_card.flow'.tr(),
-                    onChange: klippyCanReceiveCommands && !inputLocked.value
-                        ? ref.watch(controlTabControllerProvider.notifier).onEditedFlowMultiplier
-                        : null),
-                _SliderOrTextInput(
-                  provider: machinePrinterKlippySettingsProvider
-                      .select((data) => data.value!.printerData.extruder.pressureAdvance),
-                  prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
-                  onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref.watch(controlTabControllerProvider.notifier).onEditedPressureAdvanced
-                      : null,
-                  numberFormat: NumberFormat('0.##### mm/s', context.locale.languageCode),
-                  unit: 'mm/s',
-                ),
-                _SliderOrTextInput(
-                  provider: machinePrinterKlippySettingsProvider
-                      .select((data) => data.value!.printerData.extruder.smoothTime),
-                  prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
-                  onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref.watch(controlTabControllerProvider.notifier).onEditedSmoothTime
-                      : null,
-                  numberFormat: NumberFormat('0.### s', context.locale.languageCode),
-                  maxValue: 0.2,
-                  unit: 's',
-                ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: Column(
+          children: [
+            ExpandablePageView(
+              key: const PageStorageKey<String>('sliders_and_text'),
+              estimatedPageSize: 250,
+              controller: pageController,
+              children: childs,
             ),
-          ),
-        ],
+            HorizontalScrollIndicator(
+              steps: childs.length,
+              controller: pageController,
+              childsPerScreen: 1,
+            )
+          ],
+        ),
       ),
     );
-  }
-}
-
-class LimitsCard extends HookConsumerWidget {
-  const LimitsCard({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var inputLocked = useState(true);
-
-    var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
-        .valueOrNull!;
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(Icons.tune),
-            title: const Text('pages.dashboard.control.limit_card.title').tr(),
-            trailing: IconButton(
-                onPressed: (klippyCanReceiveCommands) ? () => inputLocked.value = !inputLocked.value : null,
-                icon: AnimatedSwitcher(
-                  duration: kThemeAnimationDuration,
-                  transitionBuilder: (child, anim) => RotationTransition(
-                    turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                    child: ScaleTransition(scale: anim, child: child),
-                  ),
-                  child: inputLocked.value
-                      ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
-                      : const Icon(FlutterIcons.unlock_faw, key: ValueKey('unlock')),
-                )),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: Column(
-              children: [
-                _SliderOrTextInput(
-                  provider: machinePrinterKlippySettingsProvider
-                      .select((data) => data.value!.printerData.toolhead.maxVelocity),
-                  prefixText: tr('pages.dashboard.control.limit_card.velocity'),
-                  onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxVelocity
-                      : null,
-                  numberFormat: NumberFormat('0 mm/s', context.locale.languageCode),
-                  unit: 'mm/s',
-                  maxValue: 500,
-                ),
-                _SliderOrTextInput(
-                  provider:
-                      machinePrinterKlippySettingsProvider.select((data) => data.value!.printerData.toolhead.maxAccel),
-                  prefixText: tr('pages.dashboard.control.limit_card.accel'),
-                  onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxAccel
-                      : null,
-                  numberFormat: NumberFormat('0 mm/s²', context.locale.languageCode),
-                  unit: 'mm/s²',
-                  maxValue: 5000,
-                ),
-                _SliderOrTextInput(
-                  provider: machinePrinterKlippySettingsProvider
-                      .select((data) => data.value!.printerData.toolhead.squareCornerVelocity),
-                  prefixText: tr('pages.dashboard.control.limit_card.sq_corn_vel'),
-                  onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxSquareCornerVelocity
-                      : null,
-                  numberFormat: NumberFormat('0.# mm/s', context.locale.languageCode),
-                  unit: 'mm/s',
-                  maxValue: 8,
-                ),
-                _SliderOrTextInput(
-                  provider: machinePrinterKlippySettingsProvider
-                      .select((data) => data.value!.printerData.toolhead.maxAccelToDecel),
-                  prefixText: tr('pages.dashboard.control.limit_card.accel_to_decel'),
-                  onChange: klippyCanReceiveCommands && !inputLocked.value
-                      ? ref.watch(controlTabControllerProvider.notifier).onEditedMaxAccelToDecel
-                      : null,
-                  numberFormat: NumberFormat('0 mm/s²', context.locale.languageCode),
-                  unit: 'mm/s²',
-                  maxValue: 3500,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SliderOrTextInput extends ConsumerStatefulWidget {
-  final ValueChanged<double>? onChange;
-  final NumberFormat numberFormat;
-  final String prefixText;
-  final ProviderListenable<double> provider;
-  final double maxValue;
-  final double minValue;
-  final String? unit;
-  final bool addToMax;
-
-  _SliderOrTextInput({
-    Key? key,
-    required this.provider,
-    required this.prefixText,
-    required this.onChange,
-    NumberFormat? numberFormat,
-    this.maxValue = 2,
-    this.minValue = 0,
-    this.addToMax = false,
-    this.unit,
-  })  : numberFormat = numberFormat ?? NumberFormat('0%'),
-        super(key: key);
-
-  @override
-  _SliderOrTextInputState createState() => _SliderOrTextInputState();
-}
-
-class _SliderOrTextInputState extends ConsumerState<_SliderOrTextInput> {
-  late double sliderPos;
-  late bool focusRequested;
-  late bool inputValid;
-  late TextEditingController textEditingController;
-  late FocusNode focusNode;
-  late bool isTextFieldFocused;
-  late CrossFadeState fadeState;
-  late double lastSubmittedValue;
-
-  late double stepsToAdd;
-  late double maxValue;
-
-  NumberFormat get _numberFormat => widget.numberFormat;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeState();
-  }
-
-  void _initializeState() {
-    focusNode = FocusNode();
-    textEditingController = TextEditingController();
-    maxValue = widget.maxValue;
-    stepsToAdd = (maxValue - widget.minValue) / 2;
-    // Actual States
-
-    double initValue = ref.read(widget.provider);
-    lastSubmittedValue = initValue;
-    sliderPos = initValue;
-    _updateTextController(initValue);
-
-    isTextFieldFocused = false;
-    fadeState = CrossFadeState.showFirst;
-
-    // Helper States
-    inputValid = true;
-
-    // Setup listener
-    focusNode.addListener(() {
-      setState(() {
-        if (isTextFieldFocused != focusNode.hasFocus) _onFocusChanged();
-        isTextFieldFocused = focusNode.hasFocus;
-      });
-    });
-
-    textEditingController.addListener(() {
-      var text = textEditingController.text;
-
-      setState(() {
-        inputValid = text.isNotEmpty && RegExp(r'^\d+([.,])?\d*?$').hasMatch(text);
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    textEditingController.dispose();
-    focusNode.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    ref.listen(widget.provider, (previous, next) {
-      if (next == lastSubmittedValue) return;
-      lastSubmittedValue = next;
-      sliderPos = next;
-      _updateTextController(next);
-    });
-
-    return Row(
-      children: [
-        Flexible(
-          child: AnimatedCrossFade(
-            firstChild: InputDecorator(
-              decoration: InputDecoration(
-                label: Text('${widget.prefixText}: ${_numberFormat.format(sliderPos)}'),
-                isCollapsed: true,
-                border: InputBorder.none,
-              ),
-              child: Slider(
-                value: min(maxValue, sliderPos),
-                onChanged: widget.onChange != null ? _onSliderChanged : null,
-                onChangeEnd: widget.onChange != null ? _onSliderDone : null,
-                max: maxValue,
-                min: widget.minValue,
-              ),
-            ),
-            secondChild: TextField(
-              decoration: InputDecoration(
-                prefixText: '${widget.prefixText}:',
-                border: InputBorder.none,
-                suffix: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  child: Text(widget.unit ?? '%'),
-                ),
-                errorText: !inputValid ? FormBuilderLocalizations.current.numericErrorText : null,
-              ),
-              enabled: widget.onChange != null,
-              onSubmitted: _submitTextField,
-              focusNode: focusNode,
-              controller: textEditingController,
-              textAlign: TextAlign.end,
-              keyboardType: const TextInputType.numberWithOptions(),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))],
-            ),
-            duration: kThemeAnimationDuration,
-            crossFadeState: fadeState,
-          ),
-        ),
-        AnimatedSwitcher(
-          duration: kThemeAnimationDuration,
-          child: fadeState == CrossFadeState.showSecond && isTextFieldFocused
-              ? IconButton(
-                  key: const ValueKey('checkmark'),
-                  icon: const Icon(Icons.check),
-                  onPressed: inputValid ? _onCheckmarkClick : null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
-                )
-              : IconButton(
-                  key: const ValueKey('edit'),
-                  icon: const Icon(Icons.edit),
-                  onPressed: inputValid && widget.onChange != null ? _toggle : null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(minWidth: 33, minHeight: 33),
-                ),
-        ),
-      ],
-    );
-  }
-
-  _onSliderChanged(double v) {
-    setState(() {
-      sliderPos = v;
-    });
-  }
-
-  _onSliderDone(double v) {
-    _submit(v);
-    _onSliderChanged(v);
-    if (widget.addToMax && v == maxValue) {
-      setState(() {
-        maxValue += stepsToAdd;
-      });
-    }
-  }
-
-  _submitTextField(String value) {
-    if (!inputValid) return;
-
-    double perc = _numberFormat.parse(textEditingController.text).toDouble();
-    _submit(perc);
-  }
-
-  _onCheckmarkClick() {
-    focusNode.unfocus();
-    _submitTextField(textEditingController.text);
-  }
-
-  _toggle() {
-    setState(() {
-      if (fadeState == CrossFadeState.showFirst) {
-        _updateTextController(sliderPos);
-        fadeState = CrossFadeState.showSecond;
-        focusNode.requestFocus();
-      } else {
-        sliderPos = _numberFormat.parse(textEditingController.text).toDouble();
-        fadeState = CrossFadeState.showFirst;
-        focusNode.unfocus();
-      }
-    });
-  }
-
-  _updateTextController(double value) {
-    textEditingController.text = _numberFormat.format(value).replaceAll(RegExp(r'[^0-9.,]'), '');
-  }
-
-  _onFocusChanged() {
-    _submitTextField(textEditingController.text);
-  }
-
-  _submit(double value) {
-    if (widget.onChange == null || lastSubmittedValue == value) return;
-    lastSubmittedValue = value;
-    widget.onChange!(value);
   }
 }

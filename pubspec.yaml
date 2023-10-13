@@ -105,6 +105,7 @@ dependencies:
   rate_my_app: ^2.0.0
 
   #ui
+  expandable_page_view: ^1.0.17
   badges: ^3.1.1
   easy_stepper: ^0.7.2
   flutter_colorpicker: ^1.0.3

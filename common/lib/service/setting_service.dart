@@ -76,6 +76,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   fullscreenCamOrientation('lcFullCam'),
   timeFormat('tMode'),
   useLiveActivity('useLiveActivity'),
+  groupSliders('groupSliders'),
   ;
 
   @override
