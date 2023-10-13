@@ -32,6 +32,7 @@ class ObicoTunnelService {
     var uri = _obicoUri.replace(path: 'tunnels/new', queryParameters: {
       'app': 'mobileraker-${Platform.operatingSystem}',
       'success_redirect_url': 'mobileraker://obico',
+      'platform': 'Klipper',
       if (printerId != null) 'printerId': printerId,
     });
 
