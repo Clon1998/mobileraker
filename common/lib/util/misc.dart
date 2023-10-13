@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:stringr/stringr.dart';
 
 import '../exceptions/mobileraker_exception.dart';
+import '../exceptions/obico_exception.dart';
 import '../exceptions/octo_everywhere_exception.dart';
 import '../network/json_rpc_client.dart';
 import '../util/extensions/object_extension.dart';
@@ -112,6 +113,8 @@ int hashAllNullable(Iterable<dynamic>? list) {
 verifyHttpResponseCodes(int statusCode, [ClientType clientType = ClientType.local]) {
   if (clientType == ClientType.octo) {
     _verifyOctoHttpResponseCodes(statusCode);
+  } else if (clientType == ClientType.obico) {
+    _verifyObicoHttpResponseCodes(statusCode);
   } else {
     _verifyLocalHttpResponseCodes(statusCode);
   }
@@ -162,6 +165,14 @@ _verifyLocalHttpResponseCodes(int statusCode) {
       throw MobilerakerException('Unknown Error - StatusCode $statusCode');
   }
 }
+
+_verifyObicoHttpResponseCodes(int statusCode) => switch (statusCode) {
+      401 => throw const ObicoHttpException('Unauthenticated request', 401),
+      481 => throw const ObicoHttpException('Over free tunnel monthly data cap.', 481),
+      482 => throw const ObicoHttpException('Obico for Klipper is not connected to the Obico server.', 482),
+      483 => throw const ObicoHttpException('Obico for Klipper is connected but timed out (30s)', 483),
+      _ => throw MobilerakerException('Unknown Error - StatusCode $statusCode')
+    };
 
 String storeName() {
   return tr((Platform.isAndroid) ? 'general.google_play' : 'general.ios_store');
