@@ -58,7 +58,7 @@ class Webcam extends ConsumerWidget {
                 alignment: Alignment.topLeft,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: ClientTypeIndicator(
+                  child: MachineActiveClientTypeIndicator(
                     machineId: machine.uuid,
                     iconColor: Colors.white,
                     iconSize: 20,

@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -14,6 +15,8 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_sheet_controller.dart';
+import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
+import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 
@@ -80,9 +83,9 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                   indicatorColor: themeData.colorScheme.onPrimary,
                   automaticIndicatorColorAdjustment: false,
                   tabs: [
-                    const Tab(text: 'OctoEverywhere'),
-                    const Tab(text: 'Manual'),
-                    if (obicoEnabled) const Tab(text: 'Obico'),
+                    Tab(text: tr('bottom_sheets.add_remote_con.octoeverywehre.tab_name')),
+                    Tab(text: tr('bottom_sheets.add_remote_con.manual.tab_name')),
+                    if (obicoEnabled) Tab(text: tr('bottom_sheets.add_remote_con.obico.service_name')),
                   ],
                 ),
               ),
@@ -157,7 +160,7 @@ class _OctoTab extends ConsumerWidget {
             textAlign: TextAlign.center,
           ).tr(),
           const Spacer(),
-          if (model.octoEverywhere == null)
+          if (model.activeClientType == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: OctoEveryWhereBtn(
@@ -165,7 +168,7 @@ class _OctoTab extends ConsumerWidget {
                 onPressed: controller.linkOcto,
               ),
             ),
-          if (model.octoEverywhere != null)
+          if (model.activeClientType == ClientType.octo)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: OctoEveryWhereBtn(
@@ -173,6 +176,7 @@ class _OctoTab extends ConsumerWidget {
                 onPressed: () => controller.removeRemoteConnection(true),
               ),
             ),
+          if (model.activeClientType != null && model.activeClientType != ClientType.octo) const _ActiveServiceInfo(),
           Text(
             'bottom_sheets.add_remote_con.disclosure',
             textAlign: TextAlign.center,
@@ -192,7 +196,7 @@ class _ManualTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider.select((value) => value.remoteInterface));
+    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -220,7 +224,7 @@ class _ManualTab extends ConsumerWidget {
                 decoration: InputDecoration(
                     labelText: tr('bottom_sheets.add_remote_con.manual.address_label'),
                     helperText: tr('bottom_sheets.add_remote_con.manual.address_hint')),
-                initialValue: model?.remoteUri.toString(),
+                initialValue: model.remoteInterface?.remoteUri.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
                   FormBuilderValidators.url(requireTld: false),
@@ -234,7 +238,7 @@ class _ManualTab extends ConsumerWidget {
                     helperMaxLines: 3,
                     suffixText: 's'),
                 name: 'alt.remoteTimeout',
-                initialValue: (model?.timeout ?? 10).toString(),
+                initialValue: (model.remoteInterface?.timeout ?? 10).toString(),
                 valueTransformer: (String? text) => text?.let(int.tryParse) ?? 10,
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
@@ -244,9 +248,9 @@ class _ManualTab extends ConsumerWidget {
                 ]),
               ),
               HttpHeaders(
-                initialValue: model?.httpHeaders ?? const {},
+                initialValue: model.remoteInterface?.httpHeaders ?? const {},
               ),
-              if (model != null)
+              if (model.activeClientType == ClientType.manual)
                 TextButton.icon(
                   onPressed: () => controller.removeRemoteConnection(false),
                   label: const Text('general.remove').tr(),
@@ -255,13 +259,19 @@ class _ManualTab extends ConsumerWidget {
             ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: FullWidthButton(
-            onPressed: controller.saveManual,
-            child: Text(MaterialLocalizations.of(context).saveButtonLabel),
+        if (model.activeClientType == null || model.activeClientType == ClientType.manual)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FullWidthButton(
+              onPressed: controller.saveManual,
+              child: Text(MaterialLocalizations.of(context).saveButtonLabel),
+            ),
           ),
-        ),
+        if (model.activeClientType != null && model.activeClientType != ClientType.manual)
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: _ActiveServiceInfo(),
+          ),
       ],
     );
   }
@@ -296,7 +306,7 @@ class _ObicoTab extends ConsumerWidget {
             textAlign: TextAlign.center,
           ).tr(),
           const Spacer(),
-          if (model.obicoTunnel == null)
+          if (model.activeClientType == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: ObicoButton(
@@ -304,7 +314,7 @@ class _ObicoTab extends ConsumerWidget {
                 onPressed: controller.linkObico,
               ),
             ),
-          if (model.obicoTunnel != null)
+          if (model.activeClientType == ClientType.obico)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: ObicoButton(
@@ -312,6 +322,7 @@ class _ObicoTab extends ConsumerWidget {
                 onPressed: () => controller.removeRemoteConnection(true),
               ),
             ),
+          if (model.activeClientType != null && model.activeClientType != ClientType.obico) const _ActiveServiceInfo(),
           Text(
             'bottom_sheets.add_remote_con.disclosure',
             textAlign: TextAlign.center,
@@ -319,6 +330,35 @@ class _ObicoTab extends ConsumerWidget {
           ).tr(namedArgs: {'service': 'Obico'}),
         ],
       ),
+    );
+  }
+}
+
+class _ActiveServiceInfo extends ConsumerWidget {
+  const _ActiveServiceInfo({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+
+    if (model.activeClientType == null) {
+      return const SizedBox.shrink();
+    }
+
+    String serviceName = switch (model.activeClientType!) {
+      ClientType.octo => tr('bottom_sheets.add_remote_con.octoeverywehre.service_name'),
+      ClientType.obico => tr('bottom_sheets.add_remote_con.obico.service_name'),
+      ClientType.manual => tr('bottom_sheets.add_remote_con.manual.service_name'),
+      _ => throw Exception('Unknown client type'),
+    };
+
+    return InfoCard(
+      leading: ClientTypeIndicator(
+        clientType: model.activeClientType!,
+        iconSize: 32,
+      ),
+      title: const Text('bottom_sheets.add_remote_con.active_service_info.title').tr(),
+      body: const Text('bottom_sheets.add_remote_con.active_service_info.body').tr(args: [serviceName]),
     );
   }
 }

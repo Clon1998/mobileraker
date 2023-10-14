@@ -42,7 +42,7 @@ class MachineStateIndicator extends ConsumerWidget {
                   ? tr('general.connected').toLowerCase()
                   : tr('klipper_state.disconnected').toLowerCase()
             ], gender: 'available'),
-            child: ClientTypeIndicator(
+            child: MachineActiveClientTypeIndicator(
                 machineId: machine?.uuid,
                 iconSize: 20,
                 iconColor: klippyStateToColor,

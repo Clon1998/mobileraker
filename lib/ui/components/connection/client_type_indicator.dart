@@ -12,8 +12,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/obico_widgets.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 
-class ClientTypeIndicator extends ConsumerWidget {
-  const ClientTypeIndicator({
+class MachineActiveClientTypeIndicator extends ConsumerWidget {
+  const MachineActiveClientTypeIndicator({
     super.key,
     this.localIndicator,
     this.machineId,
@@ -29,6 +29,31 @@ class ClientTypeIndicator extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var clientType = machineId?.let((it) => ref.watch(jrpcClientTypeProvider(it))) ?? ClientType.local;
+    return ClientTypeIndicator(
+      localIndicator: localIndicator,
+      clientType: clientType,
+      iconColor: iconColor,
+      iconSize: iconSize,
+    );
+  }
+}
+
+class ClientTypeIndicator extends StatelessWidget {
+  const ClientTypeIndicator({
+    super.key,
+    required this.clientType,
+    this.localIndicator,
+    this.iconColor,
+    this.iconSize,
+  });
+
+  final ClientType clientType;
+  final Color? iconColor;
+  final double? iconSize;
+  final Widget? localIndicator;
+
+  @override
+  Widget build(BuildContext context) {
     var iconSize = this.iconSize ?? Theme.of(context).iconTheme.size;
 
     var size = iconSize?.let(Size.square);

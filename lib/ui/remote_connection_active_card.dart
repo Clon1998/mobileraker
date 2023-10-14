@@ -43,7 +43,7 @@ class RemoteConnectionActiveCard extends ConsumerWidget {
                   children: [
                     ListTile(
                       contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
-                      leading: ClientTypeIndicator(
+                      leading: MachineActiveClientTypeIndicator(
                         machineId: machineId,
                       ),
                       title: const Text('components.remote_connection_indicator.title').tr(),

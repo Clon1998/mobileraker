@@ -692,17 +692,27 @@
     },
     "add_remote_con": {
       "disclosure": "{service} is not affiliated with Mobileraker. It requires an additional subscription. Please check {service}'s website for more information.",
+      "active_service_info": {
+        "title": "Existing configuration found!",
+        "body": "You are currently using {} as your remote connection service. Remove it before adding a new one."
+      },
       "octoeverywehre": {
+        "service_name": "OctoEverywhere",
+        "tab_name": "@:bottom_sheets.add_remote_con.octoeverywehre.service_name",
         "link": "Link OctoEverywhere",
         "unlink": "Unlink OctoEverywhere",
         "description": "OctoEverywhere.com is a community project allowing you to securely connect to your printer from anywhere. OctoEverywhere also provides the community free AI print failure detection, notifications, live streaming, and more. Setup only takes 20 seconds!"
       },
       "manual": {
+        "service_name": "Manual Remote Connection",
+        "tab_name": "Manual",
         "description": "If you are an advanced user, you can choose to manually add an alternative connection. The alternative connection comes into play when attempts to connect to the primary address are unsuccessful. This can be useful if you have a reverse proxy connection to your printer, or if you have a secondary IP address that you can use to connect to your printer.",
         "address_label": "Alternative Address",
         "address_hint": "The base adress of the remove connection to be used"
       },
       "obico": {
+        "service_name": "Obico",
+        "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
         "link": "Link Obico",
         "unlink": "Unlink Obico",
         "description": "Obico is a 3rd party service that allows you to securely connect to your printer from anywhere. Obico also provides the community AI print failure detection and more...!"

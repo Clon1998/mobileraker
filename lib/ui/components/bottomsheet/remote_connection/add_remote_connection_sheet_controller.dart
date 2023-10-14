@@ -7,6 +7,7 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -135,6 +136,8 @@ class AddRemoteConnectionSheetController extends _$AddRemoteConnectionSheetContr
 
 @freezed
 class AddRemoteConnectionSheetArgs with _$AddRemoteConnectionSheetArgs {
+  const AddRemoteConnectionSheetArgs._();
+
   const factory AddRemoteConnectionSheetArgs({
     // The machien which should be edited
     required Machine machine,
@@ -143,4 +146,16 @@ class AddRemoteConnectionSheetArgs with _$AddRemoteConnectionSheetArgs {
     RemoteInterface? remoteInterface,
     Uri? obicoTunnel,
   }) = _AddRemoteConnectionSheetArgs;
+
+  ClientType? get activeClientType {
+    if (octoEverywhere != null) {
+      return ClientType.octo;
+    } else if (obicoTunnel != null) {
+      return ClientType.obico;
+    } else if (remoteInterface != null) {
+      return ClientType.manual;
+    } else {
+      return null;
+    }
+  }
 }

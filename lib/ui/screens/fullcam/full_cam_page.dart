@@ -73,7 +73,7 @@ class _FullCamView extends ConsumerWidget {
             alignment: Alignment.bottomLeft,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
-              child: ClientTypeIndicator(
+              child: MachineActiveClientTypeIndicator(
                 machineId: machine.uuid,
               ),
             ),
