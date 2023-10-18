@@ -86,6 +86,7 @@ class Machine extends HiveObject {
     this.timeout = 5,
     this.localSsids = const [],
     this.printerThemePack = -1,
+    this.obicoTunnel,
   })  : name = name.trim(),
         apiKey = apiKey?.trim();
 

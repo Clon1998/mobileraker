@@ -110,6 +110,8 @@ int hashAllNullable(Iterable<dynamic>? list) {
   return Object.hashAll(list);
 }
 
+verifyHttpResponseCodesForObico(int statusCode) => verifyHttpResponseCodes(statusCode, ClientType.octo);
+
 verifyHttpResponseCodes(int statusCode, [ClientType clientType = ClientType.local]) {
   if (clientType == ClientType.octo) {
     _verifyOctoHttpResponseCodes(statusCode);

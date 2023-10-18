@@ -230,6 +230,17 @@ class _InputModeStepScreen extends ConsumerWidget {
               ),
               label: const Text('pages.printer_add.select_mode.add_via_oe').tr()),
         ),
+        Align(
+          alignment: Alignment.center,
+          child: TextButton.icon(
+              onPressed: controller.addFromObico,
+              icon: SvgPicture.asset(
+                'assets/vector/obico_logo.svg',
+                width: 24,
+                height: 24,
+              ),
+              label: const Text('pages.printer_add.select_mode.add_via_obico').tr()),
+        ),
         // OctoEveryWhereBtn(
         //     title: 'Add using OctoEverywhere', onPressed: () => null),
       ],

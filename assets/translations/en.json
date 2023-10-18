@@ -419,7 +419,8 @@
         "body": "If you are new to this, it's best to stick to the simple mode. However, if you are experienced and need to use custom headers, certificates, etc., then the expert mode is for you. Keep in mind that the mode you choose won't affect the app itself, but it will determine how the input is validated and displayed, and what options are available while you are adding a machine.",
         "simple": "Simple",
         "advanced": "Advanced",
-        "add_via_oe": "One-click OctoEverywhere setup"
+        "add_via_oe": "One-click OctoEverywhere setup",
+        "add_via_obico": "One-click Obico setup"
       },
       "simple_form": {
         "hint_title": "Hint - Simple Mode",

@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:flutter/foundation.dart';
+
 import '../../data/dto/config/config_file_object_identifiers_enum.dart';
 
 extension MobilerakerString on String {
@@ -28,6 +30,7 @@ extension MobilerakerString on String {
 
   String obfuscate([int nonObfuscated = 4]) {
     if (isEmpty) return this;
+    if (kDebugMode) return 'Obfuscated($this)';
     return replaceRange((length >= nonObfuscated * 1.5) ? nonObfuscated : 0, null, '********');
   }
 }

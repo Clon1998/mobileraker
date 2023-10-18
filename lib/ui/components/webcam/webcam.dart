@@ -6,6 +6,8 @@
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/logger.dart';
@@ -39,6 +41,12 @@ class Webcam extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
+
+    if (clientType == ClientType.obico) {
+      return const Text('Webcams via Obico are still Work in Progress!');
+    }
+
     var modifiedStack = [
       ...stackContent,
       if (machine.octoEverywhere != null)
@@ -100,4 +108,3 @@ class Webcam extends ConsumerWidget {
     }
   }
 }
-

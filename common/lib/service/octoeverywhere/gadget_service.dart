@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:common/data/dto/octoeverywhere/gadget_status.dart';
+import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart' as http;
@@ -62,7 +63,7 @@ class GadgetService {
 
   // https://octoeverywhere.stoplight.io/docs/octoeverywhere-api-docs/b538c771f5cef-get-gadget-s-status-for-app-connections
   Future<GadgetStatus> getStatus(String appToken) async {
-    logger.i('Getting gadget status for appToken: ${appToken}');
+    logger.i('Getting gadget status for appToken: ${appToken.obfuscate()}');
     http.Response response = await http.post(
       _octoURI.replace(path: 'api/gadget/GetStatusFromAppConnection'),
       headers: {'AppToken': appToken},

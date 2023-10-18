@@ -7,14 +7,17 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:common/data/dto/obico/platform_info.dart';
 import 'package:common/data/dto/octoeverywhere/app_connection_info_response.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
+import 'package:common/exceptions/obico_exception.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
+import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/octoeverywhere/app_connection_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -105,6 +108,41 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       ref
           .read(snackBarServiceProvider)
           .show(SnackBarConfig(type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
+      state = state.copyWith(step: 0);
+    }
+  }
+
+  addFromObico() async {
+    if (state.nonSupporterError != null) return;
+    state = state.copyWith(step: 3);
+    var tunnelService = ref.read(obicoTunnelServiceProvider);
+
+    try {
+      var tunnel = await tunnelService.linkApp();
+      logger.i('Tunnel to obico was established successfully!');
+      PlatformInfo platformInfo = await tunnelService.retrievePlatformInfo(tunnel);
+      logger.i('Local Platform Info used by obico client app: $platformInfo');
+
+      var localAddress = '${platformInfo.host}:${platformInfo.port}';
+      var wsUrl = buildMoonrakerWebSocketUri(localAddress);
+      var httpUri = buildMoonrakerHttpUri(localAddress);
+      if (wsUrl == null || httpUri == null) {
+        throw const ObicoException('Could not retrieve Printer\'s local IP.');
+      }
+
+      var machine = Machine(
+        name: 'Obico Printer',
+        wsUri: wsUrl,
+        httpUri: httpUri,
+        obicoTunnel: tunnel,
+      );
+      machine = await ref.read(machineServiceProvider).addMachine(machine);
+      state = state.copyWith(addedMachine: true, machineToAdd: machine);
+    } on ObicoException catch (e, s) {
+      logger.e('Error while trying to add printer via Obico', e, s);
+      ref
+          .read(snackBarServiceProvider)
+          .show(SnackBarConfig(type: SnackbarType.error, title: 'Obico-Error:', message: e.message));
       state = state.copyWith(step: 0);
     }
   }
