@@ -14,6 +14,7 @@ class PlatformInfo with _$PlatformInfo {
   const factory PlatformInfo({
     @JsonKey(name: 'server_ip') required String host,
     @JsonKey(name: 'server_port') @Default(7125) int port,
+    @JsonKey(name: 'linked_name') String? name,
   }) = _PlatformInfo;
 
   factory PlatformInfo.fromJson(Map<String, dynamic> json) => _$PlatformInfoFromJson(json);

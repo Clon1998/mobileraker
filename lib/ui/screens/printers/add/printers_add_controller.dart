@@ -131,7 +131,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       }
 
       var machine = Machine(
-        name: 'Obico Printer',
+        name: platformInfo.name ?? 'Obico Printer',
         wsUri: wsUrl,
         httpUri: httpUri,
         obicoTunnel: tunnel,
