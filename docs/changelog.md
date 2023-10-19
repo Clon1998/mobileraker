@@ -14,10 +14,13 @@
 
 - Ensured the visibility of the Exclude Object button on the Dashboard is clearer to the user.
 - Babystepping is now called Z-Offset/Microstep Z-Axis to be more aligned with Klipper.
+- Live activities are now more compact and show a complete icon and color.
 
 ### Bug Fixes
 
 - Fixed an issue that prevented the app from correctly detecting the currently used Moonraker version.
+- Fixed parsing error for `heater_generic`, `extruder` and `heater_bed` configs that use `temperature_combined` sensor
+  types. [#270](https://github.com/Clon1998/mobileraker/issues/270)
 
 ## [2.6.4] - 2023-09-30
 
