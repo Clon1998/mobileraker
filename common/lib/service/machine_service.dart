@@ -119,9 +119,10 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 }
 
 @riverpod
-Stream<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) async* {
-  ref.keepAlive();
-  var machine = await ref.watch(selectedMachineProvider.future);
+Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) async* {
+  ref.timeoutKeepAlive();
+
+  var machine = await ref.watch(machineProvider(machineUUID).future);
   if (machine == null) return;
 
   var klippyState = await ref.watch(klipperSelectedProvider.selectAsync((data) => data.klippyState));
@@ -129,6 +130,18 @@ Stream<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) 
 
   var fetchSettings = await ref.watch(machineServiceProvider).fetchSettings(machine);
   yield fetchSettings;
+}
+
+@riverpod
+Stream<MachineSettings> selectedMachineSettings(SelectedMachineSettingsRef ref) async* {
+  try {
+    var machine = await ref.watch(selectedMachineProvider.future);
+    if (machine == null) return;
+
+    yield* ref.watchAsSubject(machineSettingsProvider(machine.uuid));
+  } on StateError catch (_) {
+    // Just catch it. It is expected that the future/where might not complete!
+  }
 }
 
 /// Service handling the management of a machine
