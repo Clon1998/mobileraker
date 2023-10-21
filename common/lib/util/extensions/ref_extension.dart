@@ -179,4 +179,41 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
     onDispose(() => providerSubscription.close());
     return providerSubscription;
   }
+
+  /// Adds the ability to automatically dispose a provider
+  /// after it has not been listened to for a specified duration.
+  ///
+  /// This method creates a `KeepAliveLink` and sets a timer. If the provider is not listened
+  /// to within the specified [timeout] duration (default 30 seconds), the provider is
+  /// automatically disposed. This is useful for cleaning up resources when a provider
+  /// is no longer needed.
+  ///
+  /// Usage:
+  /// ```dart
+  /// final myProvider = Provider<int>((ref) {
+  ///   // Provider logic here
+  /// });
+  ///
+  /// final myRef = AutoDisposeRef.read(myProvider);
+  ///
+  /// final keepAliveLink = myRef.timeoutKeepAlive(Duration(seconds: 60));
+  /// // The myProvider will be automatically disposed if not listened to for 60 seconds.
+  /// ```
+  ///
+  /// Parameters:
+  /// - [timeout]: The duration of inactivity after which the provider will be disposed.
+  ///
+  /// Returns a [KeepAliveLink] that can be used to manually close the link before the timeout
+  /// if needed.
+  KeepAliveLink timeoutKeepAlive([Duration timeout = const Duration(seconds: 30)]) {
+    var link = keepAlive();
+
+    Timer? timer;
+    onCancel(() {
+      timer = Timer(timeout, () => link.close());
+    });
+    onResume(() => timer?.cancel());
+    onDispose(() => timer?.cancel);
+    return link;
+  }
 }
