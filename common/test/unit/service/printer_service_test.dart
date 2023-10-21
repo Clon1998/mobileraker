@@ -151,8 +151,8 @@ void main() {
     when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
         (realInvocation) async => const RpcResponse(jsonrpc: "2.0", id: 212, result: {}));
 
-    when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe', params: queryAbleObjects))
-        .thenReturn(null);
+    // when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe', params: queryAbleObjects))
+    //     .thenReturn(null);
 
     var mockMachineService = MockMachineService();
 
@@ -263,8 +263,8 @@ void main() {
     when(mockRpc.sendJRpcMethod('server.temperature_store'))
         .thenAnswer((_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {}));
 
-    when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe', params: ['toolhead']))
-        .thenReturn(null);
+    // when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe', params: ['toolhead']))
+    //     .thenReturn(null);
 
     when(mockMachineService.updateMacrosInSettings(uuid, any)).thenAnswer((_) async {});
 
