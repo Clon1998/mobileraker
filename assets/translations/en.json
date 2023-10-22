@@ -692,7 +692,7 @@
       "remove_all_confirm": "This operation will remove all jobs from the queue."
     },
     "add_remote_con": {
-      "disclosure": "{service} is not affiliated with Mobileraker. It requires an additional subscription. Please check {service}'s website for more information.",
+      "disclosure": "{service} is not affiliated with Mobileraker. It may require an additional subscription. Please check {service}'s website for more information.",
       "active_service_info": {
         "title": "Existing configuration found!",
         "body": "You are currently using {} as your remote connection service. Remove it before adding a new one."
@@ -716,7 +716,7 @@
         "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
         "link": "Link Obico",
         "unlink": "Unlink Obico",
-        "description": "Obico is a 3rd party service that allows you to securely connect to your printer from anywhere. Obico also provides the community AI print failure detection and more...!"
+        "description": "Obico is a community-driven, fully open-source 3D printing software. It enables you to control and monitor your Klipper printer from anywhere, all at no cost. It stands as one of the pioneering solutions for AI-based failure detection, utilizing only your printer's webcam."
       }
     }
   },
