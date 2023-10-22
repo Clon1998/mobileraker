@@ -19,7 +19,6 @@ import 'package:rxdart/rxdart.dart';
 
 import '../../../../components/adaptive_horizontal_scroll.dart';
 import '../../../../components/card_with_button.dart';
-import '../../tabs/general_tab_controller.dart';
 import 'temperature_sensor_preset_card.dart';
 
 part 'temperature_preset_card.freezed.dart';
@@ -30,15 +29,17 @@ class TemperaturePresetCard extends ConsumerWidget {
     Key? key,
     required this.machineUUID,
     this.trailing,
+    this.onPresetApplied,
   }) : super(key: key);
 
   final String machineUUID;
   final Widget? trailing;
+  final VoidCallback? onPresetApplied;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showLoading = ref.watch(
+        _controllerProvider(machineUUID, onPresetApplied).select((value) => value.isLoading && !value.isReloading));
     if (showLoading) {
       return const HeaterSensorPresetCardLoading();
     }
@@ -54,6 +55,7 @@ class TemperaturePresetCard extends ConsumerWidget {
                 trailing: trailing),
             _CardBody(
               machineUUID: machineUUID,
+              onPresetApplied: onPresetApplied,
             )
           ],
         ),
@@ -66,37 +68,31 @@ class _CardBody extends ConsumerWidget {
   const _CardBody({
     Key? key,
     required this.machineUUID,
+    this.onPresetApplied,
   }) : super(key: key);
   final String machineUUID;
+  final VoidCallback? onPresetApplied;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_ControllerProvider(machineUUID)).value!;
-    var controller = ref.watch(_ControllerProvider(machineUUID).notifier);
+    var model = ref.watch(_ControllerProvider(machineUUID, onPresetApplied)).value!;
+    var controller = ref.watch(_ControllerProvider(machineUUID, onPresetApplied).notifier);
 
     var coolOf = _PresetTile(
       name: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
       extruderTemp: 0,
       bedTemp: model.hasPrintBed ? 0 : null,
-      onTap: model.enabled
-          ? () =>
-              ref.read(generalTabViewControllerProvider.notifier).adjustNozzleAndBed(0, model.hasPrintBed ? 0 : null)
-          : null,
+      onTap: model.enabled ? () => controller.adjustNozzleAndBed(0, model.hasPrintBed ? 0 : null) : null,
     );
 
-    List<TemperaturePreset> tempPresets = ref
-        .watch(generalTabViewControllerProvider.select((data) => data.value?.settings.temperaturePresets ?? const []));
+    List<TemperaturePreset> tempPresets = model.temperaturePresets;
     var presetWidgets = List.generate(tempPresets.length, (index) {
       TemperaturePreset preset = tempPresets[index];
       return _PresetTile(
         name: preset.name,
         extruderTemp: preset.extruderTemp,
         bedTemp: model.hasPrintBed ? preset.bedTemp : null,
-        onTap: model.enabled
-            ? () => ref
-                .read(generalTabViewControllerProvider.notifier)
-                .adjustNozzleAndBed(preset.extruderTemp, preset.bedTemp)
-            : null,
+        onTap: model.enabled ? () => controller.adjustNozzleAndBed(preset.extruderTemp, preset.bedTemp) : null,
       );
     });
     presetWidgets.insert(0, coolOf);
@@ -148,7 +144,7 @@ class _Controller extends _$Controller {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  Stream<_Model> build(String machineUUID, VoidCallback? onPresetApplied) async* {
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
     var machineSettingsProviderr = machineSettingsProvider(machineUUID);
@@ -176,6 +172,7 @@ class _Controller extends _$Controller {
     if (bedTemp != null) {
       _printerService.setHeaterTemperature('heater_bed', bedTemp);
     }
+    onPresetApplied?.call();
   }
 }
 
