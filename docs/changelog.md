@@ -16,6 +16,7 @@
 - Ensured the visibility of the Exclude Object button on the Dashboard is clearer to the user.
 - Babystepping is now called Z-Offset/Microstep Z-Axis to be more aligned with Klipper.
 - Live activities are now more compact and show a complete icon and color.
+- All printer JRpc-Clients should reconnect now if the app is opened from the background.
 
 ### Bug Fixes
 
