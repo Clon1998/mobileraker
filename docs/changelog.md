@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.6.6] - 2023-10-xx
+## [2.6.6] - 2023-10-23
 
 ### Major Changes
 
@@ -9,6 +9,7 @@
 - Multipliers, Limits and FW Retraction cards can now be grouped into a single horizontal scrollable card. This is the
   default now and can be disabled in the app settings.
 - Firmware Retraction settings can now be edited in the app. [#129](https://github.com/Clon1998/mobileraker/issues/129)
+- Added [Obico.io](https://www.obico.io/) as remote access provider.
 
 ### Changed Features
 
