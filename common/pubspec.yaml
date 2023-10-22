@@ -1,6 +1,6 @@
 name: common
 description: Common classes shared among the public and private codebase of mobileraker
-version: 0.0.1
+version: 2.6.7
 homepage: mobileraker.com
 
 environment:
