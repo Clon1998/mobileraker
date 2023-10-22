@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/service/misc_providers.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -119,7 +120,12 @@ class WarmUp extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var appLifeCycleNotifier = ref.watch(appLifecycleProvider.notifier);
     var brightness = usePlatformBrightness();
+    useOnAppLifecycleStateChange((previous, current) {
+      appLifeCycleNotifier.state = current;
+    });
+
     return Container(
       color: splashBgColorForBrightness(brightness),
       child: ref.watch(warmupProviderProvider).when(
