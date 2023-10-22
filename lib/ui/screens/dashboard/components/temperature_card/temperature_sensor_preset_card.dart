@@ -5,8 +5,8 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card.dart';
 import 'package:flip_card/flip_card_controller.dart';
@@ -101,26 +101,15 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ListTile(
+              CardTitleSkeleton.trailingText(
                 leading: const Icon(
                   FlutterIcons.fire_alt_faw5s,
-                  color: Colors.white,
-                ),
-                title: Container(
-                  width: double.infinity,
-                  height: 20,
-                  color: Colors.white,
-                ),
-                trailing: Container(
-                  width: 75,
-                  height: 20,
                   color: Colors.white,
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                  logger.e('constraints: $constraints');
                   var height = constraints.maxWidth * 0.35;
                   return Column(
                     mainAxisSize: MainAxisSize.min,

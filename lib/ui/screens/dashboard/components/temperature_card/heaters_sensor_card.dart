@@ -347,6 +347,12 @@ class _Controller extends _$Controller {
 
     var klippyCanReceiveCommands =
         ref.watchAsSubject(klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands));
+    // Kinda overkill to use a stream for each value, I am pretty sure I could just use printer directly too !
+    // Pro:
+    // - Pontentially less updates since only specifc values are listened to
+    // Con:
+    // - More boilerPlate
+    // - Potentially more updates since more streams are listened to?
     var extruders = ref.watchAsSubject(printerProviderr.selectAs((value) => value.extruders));
     var genericHeaters = ref.watchAsSubject(printerProviderr.selectAs(
         (value) => value.genericHeaters.values.where((e) => !e.name.startsWith('_')).toList(growable: false)));

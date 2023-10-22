@@ -53,7 +53,7 @@ class ControlTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var settingService = ref.watch(settingServiceProvider);
 
-    return ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).when(
+    return ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid)).when(
         data: (data) {
           var groupSliders = settingService.readBool(AppSettingKeys.groupSliders, true);
           return PullToRefreshPrinter(
@@ -88,14 +88,20 @@ class ControlTab extends ConsumerWidget {
                   const PowerApiCard(),
                 if (groupSliders) const _MiscCard(),
                 if (!groupSliders) ...[
-                  const MultipliersCard(),
-                  const LimitsCard(),
+                  MultipliersCard(
+                    machineUUID: data,
+                  ),
+                  LimitsCard(
+                    machineUUID: data,
+                  ),
                   if (ref
                           .watch(machinePrinterKlippySettingsProvider
                               .selectAs((data) => data.printerData.firmwareRetraction != null))
                           .valueOrNull ==
                       true)
-                    const FirmwareRetractionCard(),
+                    FirmwareRetractionCard(
+                      machineUUID: data,
+                    ),
                 ],
               ],
             ),
@@ -820,15 +826,22 @@ class _MiscCard extends HookConsumerWidget {
     var viewInsets = MediaQuery.sizeOf(context);
     logger.i('ViewInsets: $viewInsets');
 
+    var macineUUID = ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid)).value!;
     var childs = [
-      const MultipliersSlidersOrTexts(),
-      const LimitsSlidersOrTexts(),
+      MultipliersSlidersOrTexts(
+        machineUUID: macineUUID,
+      ),
+      LimitsSlidersOrTexts(
+        machineUUID: macineUUID,
+      ),
       if (ref
               .watch(
                   machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.firmwareRetraction != null))
               .valueOrNull ==
           true)
-        const FirmwareRetractionSlidersOrTexts(),
+        FirmwareRetractionSlidersOrTexts(
+          machineUUID: macineUUID,
+        ),
     ];
     return Card(
       child: Padding(

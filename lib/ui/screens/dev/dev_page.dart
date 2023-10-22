@@ -17,6 +17,7 @@ import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:worker_manager/worker_manager.dart';
 
 import '../../../service/date_format_service.dart';
+import '../dashboard/components/firmware_retraction_card.dart';
 
 class DevPage extends HookConsumerWidget {
   const DevPage({
@@ -32,6 +33,7 @@ class DevPage extends HookConsumerWidget {
         drawer: const NavigationDrawerWidget(),
         body: ListView(
           children: [
+            FirmwareRetractionSlidersOrTextsLoading(),
             const Text('One'),
             ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
             TextButton(
