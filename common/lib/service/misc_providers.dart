@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:flutter/scheduler.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -30,4 +31,16 @@ Future<ServiceStatus> permissionServiceStatus(PermissionServiceStatusRef ref, Pe
 
   logger.i('Permission $permission serviceStatus is $status');
   return status;
+}
+
+@riverpod
+class AppLifecycle extends _$AppLifecycle {
+  @override
+  AppLifecycleState build() {
+    ref.listenSelf((previous, next) {
+      logger.i('AppLifecycleState changed from $previous to $next');
+    });
+
+    return AppLifecycleState.resumed;
+  }
 }
