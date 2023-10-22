@@ -39,15 +39,17 @@ class TemperatureSensorPresetCard extends HookConsumerWidget {
       front: HeaterSensorCard(
           machineUUID: machineUUID,
           trailing: TextButton(
-            onPressed: () => flipController.value.toggleCard(),
+            onPressed: flipController.value.toggleCard,
             child: const Text('pages.dashboard.general.temp_card.presets_btn').tr(),
           )),
       back: TemperaturePresetCard(
-          machineUUID: machineUUID,
-          trailing: TextButton(
-            onPressed: () => flipController.value.toggleCard(),
-            child: const Text('pages.dashboard.general.temp_card.sensors').tr(),
-          )),
+        machineUUID: machineUUID,
+        trailing: TextButton(
+          onPressed: flipController.value.toggleCard,
+          child: const Text('pages.dashboard.general.temp_card.sensors').tr(),
+        ),
+        onPresetApplied: flipController.value.toggleCard,
+      ),
     );
   }
 }
