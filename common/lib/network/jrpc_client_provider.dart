@@ -12,6 +12,7 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -32,9 +33,13 @@ JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientTy
   logger.i('${jsonRpcClient.logPrefix} JsonRpcClient CREATED!!');
   ref.onDispose(jsonRpcClient.dispose);
 
-  // ref.onDispose(() {
-  //   ref.invalidate(_jsonRpcStateProvider(machineUUID));
-  // });
+  ref.listen(appLifecycleProvider, (_, appState) {
+    if (jsonRpcClient.curState == ClientState.connected) return;
+    if (appState == AppLifecycleState.resumed) {
+      logger.i('_jsonRpcClient(${machine.name}, $type): Client is not connected. Will retry to connect');
+      ref.invalidateSelf();
+    }
+  });
 
   return jsonRpcClient..openChannel();
 }
@@ -63,38 +68,48 @@ class JrpcClientManager extends _$JrpcClientManager {
 
     if (machine.hasRemoteConnection) _setupHandover(machine).ignore();
 
-    logger.i('Returning LocalClient');
+    // Ensure we retry using the local client when the app is resumed
+    ref.listen(appLifecycleProvider, (_, appState) {
+      if (appState == AppLifecycleState.resumed) {
+        logger.i('[JrpcClientManager@${machine.name}] App resumed. Will reevaluate used client');
+        ref.invalidateSelf();
+      }
+    });
+
+    logger.i('[JrpcClientManager@${machine.name}] Returning LocalClient');
     return _jsonRpcClientProvider(machineUUID, ClientType.local);
   }
 
   Future<void> _setupHandover(Machine machine) async {
     var clientType = machine.remoteClientType;
     logger.i(
-        'A ${clientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
+        '[JrpcClientManager@${machine.name}] A ${clientType.name}-RemoteClient is available. Can do handover in case local client fails! ref:${identityHashCode(ref)}');
 
     if (!ref.read(remoteConfigProvider).obicoEnabled) {
-      logger.i('Obico detected as remoteClientType, but obico is disabled in remoteConfig. Will not setup handover');
+      logger.i(
+          '[JrpcClientManager@${machine.name}] Obico detected as remoteClientType, but obico is disabled in remoteConfig. Will not setup handover');
       return;
     }
 
     if (machine.localSsids.isNotEmpty) {
       _setupSmartSwitching(machine, clientType).ignore();
     } else {
-      logger.i('[Smart-Switching] Local SSID list is empty. Smart switching disabled');
+      logger.i('[Smart-Switching@${machine.name}] Local SSID list is empty. Smart switching disabled');
     }
 
     var value = await ref.readWhere(
         _jsonRpcStateProvider(machineUUID, ClientType.local), (clientState) => clientState == ClientState.error, false);
 
-    logger.i('Local clientState is $value. Will switch to octo remoteClient. ref:${identityHashCode(ref)}');
+    logger.i(
+        '[JrpcClientManager@${machine.name}] Local clientState is $value. Will switch to octo remoteClient. ref:${identityHashCode(ref)}');
 
     // ref.state = remoteClinet;
     state = _jsonRpcClientProvider(machineUUID, clientType);
-    logger.w('Returned ${clientType.name}-RemoteClient');
+    logger.i('[JrpcClientManager@${machine.name}] Returned ${clientType.name}-RemoteClient');
   }
 
   Future<void> _setupSmartSwitching(Machine machine, ClientType remoteClientType) async {
-    logger.i('[Smart-Switching] Local SSID are set. Can do rapid remote con switching');
+    logger.i('[Smart-Switching@${machine.name}] Local SSID are set. Can do rapid remote con switching');
     List results = await Future.wait([
       ref.read(networkInfoServiceProvider).getWifiName(),
       ref.read(permissionStatusProvider(Permission.location).future),
@@ -107,29 +122,25 @@ class JrpcClientManager extends _$JrpcClientManager {
 
     if (permissionStatus?.isGranted != true) {
       logger.i(
-          '[Smart-Switching] WiFi List exists and is not empty, but no location permission. Smart Switching is disabled');
+          '[Smart-Switching@${machine.name}] WiFi List exists and is not empty, but no location permission. Smart Switching is disabled');
       return;
     }
 
     if (permissionServiceStatus?.isEnabled != true) {
       logger.i(
-          '[Smart-Switching] WiFi List exists and is not empty, but location service is disabled. Smart Switching is disabled');
+          '[Smart-Switching@${machine.name}] WiFi List exists and is not empty, but location service is disabled. Smart Switching is disabled');
       return;
     }
 
     if (machine.localSsids.contains(wifiName)) {
-      logger.i('[Smart-Switching] Connected to a WiFi in LocalSsid list of machine. Will use local con');
+      logger
+          .i('[Smart-Switching@${machine.name}] Connected to a WiFi in LocalSsid list of machine. Will use local con');
       return;
     }
 
-    logger.i('[Smart-Switching] Connected to a WiFi NOT in LocalSsid list of machine. Will use remote con');
+    logger.i(
+        '[Smart-Switching@${machine.name}] Connected to a WiFi NOT in LocalSsid list of machine. Will use remote con');
     state = _jsonRpcClientProvider(machineUUID, remoteClientType);
-  }
-
-  refreshCurrentClient() {
-    logger.i('Refreshing current client from rpcClientManager');
-    var refresh = ref.refresh(state);
-    refresh.ensureConnection();
   }
 }
 
