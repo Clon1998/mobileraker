@@ -5,7 +5,6 @@
 
 import 'package:collection/collection.dart';
 import 'package:common/service/moonraker/printer_service.dart';
-import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -15,7 +14,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'heaters_sensor_card.dart';
@@ -24,35 +22,32 @@ import 'temperature_preset_card.dart';
 class TemperatureSensorPresetCard extends HookConsumerWidget {
   const TemperatureSensorPresetCard({
     Key? key,
+    required this.machineUUID,
   }) : super(key: key);
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var flipController = useRef(FlipCardController());
 
-    var machine = ref.watch(selectedMachineProvider.selectAs((data) => data!.uuid));
-
-    return AsyncValueWidget(
-      value: machine,
-      data: (String machineUUID) => FlipCard(
-        controller: flipController.value,
-        flipOnTouch: false,
-        direction: FlipDirection.VERTICAL,
-        // back: const Text('front'),
-        front: HeaterSensorCard(
-            machineUUID: machineUUID,
-            trailing: TextButton(
-              onPressed: () => flipController.value.toggleCard(),
-              child: const Text('pages.dashboard.general.temp_card.presets_btn').tr(),
-            )),
-        back: TemperaturePresetCard(
-            machineUUID: machineUUID,
-            trailing: TextButton(
-              onPressed: () => flipController.value.toggleCard(),
-              child: const Text('pages.dashboard.general.temp_card.sensors').tr(),
-            )),
-      ),
-      loading: () => const HeaterSensorPresetCardLoading(),
+    return FlipCard(
+      controller: flipController.value,
+      flipOnTouch: false,
+      direction: FlipDirection.VERTICAL,
+      // back: const Text('front'),
+      front: HeaterSensorCard(
+          machineUUID: machineUUID,
+          trailing: TextButton(
+            onPressed: () => flipController.value.toggleCard(),
+            child: const Text('pages.dashboard.general.temp_card.presets_btn').tr(),
+          )),
+      back: TemperaturePresetCard(
+          machineUUID: machineUUID,
+          trailing: TextButton(
+            onPressed: () => flipController.value.toggleCard(),
+            child: const Text('pages.dashboard.general.temp_card.sensors').tr(),
+          )),
     );
   }
 }
