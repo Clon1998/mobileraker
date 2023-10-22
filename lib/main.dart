@@ -122,9 +122,7 @@ class WarmUp extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var appLifeCycleNotifier = ref.watch(appLifecycleProvider.notifier);
     var brightness = usePlatformBrightness();
-    useOnAppLifecycleStateChange((previous, current) {
-      appLifeCycleNotifier.state = current;
-    });
+    useOnAppLifecycleStateChange((_, current) => appLifeCycleNotifier.update(current));
 
     return Container(
       color: splashBgColorForBrightness(brightness),

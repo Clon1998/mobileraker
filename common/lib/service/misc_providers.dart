@@ -43,4 +43,8 @@ class AppLifecycle extends _$AppLifecycle {
 
     return AppLifecycleState.resumed;
   }
+
+  void update(AppLifecycleState appLifecycleState) {
+    state = appLifecycleState;
+  }
 }

@@ -9,12 +9,8 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
-import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/util/extensions/object_extension.dart';
-import 'package:common/util/logger.dart';
-import 'package:flutter/material.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -24,8 +20,7 @@ part 'connection_state_controller.g.dart';
 @riverpod
 class ConnectionStateController extends _$ConnectionStateController {
   @override
-  Future<ClientState> build() async =>
-      ref.watch(jrpcClientStateSelectedProvider.selectAsync((data) => data));
+  Future<ClientState> build() => ref.watch(jrpcClientStateSelectedProvider.selectAsync((data) => data));
 
   onRetryPressed() {
     ref.read(jrpcClientSelectedProvider).openChannel();
@@ -55,36 +50,6 @@ class ConnectionStateController extends _$ConnectionStateController {
     return errorReason.statusCode == 605;
   }
 
-  onChangeAppLifecycleState(_, AppLifecycleState state) {
-    switch (state) {
-      case AppLifecycleState.resumed:
-        logger.i("App forgrounded");
-        var selMachine = ref.read(selectedMachineProvider).valueOrNull;
-        var jrpcClientState =
-            selMachine?.let((m) => ref.read(jrpcClientStateProvider(m.uuid)).valueOrNull);
-        var jrpcClientType = selMachine?.let((m) => ref.read(jrpcClientTypeProvider(m.uuid)));
-
-        if (jrpcClientState != ClientState.connected) {
-          if (jrpcClientType == ClientType.octo) {
-            logger.i('Refreshing selectedPrinter...');
-            ref.invalidate(machineProvider(selMachine!.uuid));
-          } else {
-            logger.i('Refreshing selectedPrinter...');
-            // ref.invalidate(machineProvider(selMachine!.uuid));
-            ref.read(jrpcClientManagerProvider(selMachine!.uuid).notifier).refreshCurrentClient();
-          }
-        }
-
-        break;
-
-      case AppLifecycleState.paused:
-        logger.i("App backgrounded");
-        break;
-      default:
-        logger.i("App in $state");
-    }
-  }
-
   onRestartKlipperPressed() {
     ref.read(klipperServiceSelectedProvider).restartKlipper();
   }
@@ -101,8 +66,7 @@ class ConnectionStateController extends _$ConnectionStateController {
   }
 
   onGoToOE() async {
-    var oeURI = Uri.parse(
-        'https://octoeverywhere.com/appportal/v1/nosupporterperks?moonraker=true&appid=mobileraker');
+    var oeURI = Uri.parse('https://octoeverywhere.com/appportal/v1/nosupporterperks?moonraker=true&appid=mobileraker');
     if (await canLaunchUrl(oeURI)) {
       await launchUrl(oeURI, mode: LaunchMode.externalApplication);
     } else {
