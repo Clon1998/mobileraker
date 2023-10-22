@@ -505,7 +505,8 @@
       "free_phase": "First {} free",
       "intro_phase": "Enjoy {} at {} off",
       "iap_offer": "{} off original price",
-      "tip_developer": "Tip Developer"
+      "tip_developer": "Tip Developer",
+      "trial_disclaimer": "You won't be charged until the end of the free trial, and you can cancel anytime during it."
     },
     "video_player": {
       "downloading_for_sharing": "Downloading video for sharing... ({})"

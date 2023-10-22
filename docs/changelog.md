@@ -22,6 +22,12 @@
 - Fixed parsing error for `heater_generic`, `extruder` and `heater_bed` configs that use `temperature_combined` sensor
   types. [#270](https://github.com/Clon1998/mobileraker/issues/270)
 
+## [2.6.5] - 2023-10-11
+
+### Bug Fixes
+
+- Promotions now show the correct duration on the paywall
+
 ## [2.6.4] - 2023-09-30
 
 ### Major Changes

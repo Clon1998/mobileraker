@@ -235,7 +235,8 @@
                 "ios_notifications_title": "iOS 通知傳送",
                 "ios_notifications_desc": "通知要求 mobileraker 至少打開一次並處於後台。\n仍有一些通知可能被操作系統阻止！",
                 "missing_companion_title": "未找到 Companion！",
-                "missing_companion_body": "似乎未安裝配套程序，因此以下計算機無法發送通知：{} \n\n點擊了解更多！"
+                "missing_companion_body": "似乎未安裝配套程序，因此以下計算機無法發送通知：{} \n\n點擊了解更多！",
+                "enable_live_activity": "啟用即時動態通知"
             },
             "developer": {
                 "title": "開發者",
@@ -271,7 +272,10 @@
                 "full_url": "完整網址",
                 "self_signed": "信任自簽名證書",
                 "timeout_label": "客戶端超時",
-                "timeout_helper": "客戶端連接的超時時間（以秒為單位）"
+                "timeout_helper": "客戶端連接的超時時間（以秒為單位）",
+                "theme": "UI主題",
+                "theme_helper": "印表機的 UI 主題",
+                "theme_unavailable": "印表機的 UI 主題，僅適用於支持者"
             },
             "motion_system": {
                 "title": "運動系統",
@@ -307,7 +311,8 @@
                 "flip_vertical": "垂直翻轉",
                 "flip_horizontal": "水平翻轉",
                 "cam_mode": "相機模式",
-                "cam_rotate": "旋轉"
+                "cam_rotate": "旋轉",
+                "read_only": "網路攝影機是唯讀的"
             },
             "macros": {
                 "new_macro_grp": "新宏群組",
@@ -512,11 +517,13 @@
             "subtitle": "點我吧！了解如何支持發展！"
         },
         "supporter_only_feature": {
+            "dialog_title": "僅支持者限定功能",
             "button": "成為 Mobileraker 支持者",
             "webcam": "抱歉，{} 類型的網絡攝像頭僅供支持者使用。",
             "printer_add": "抱歉，只有支持者才能管理超過 {} 台計算機。",
             "job_queue": "抱歉，作業隊列僅供支持者使用。",
-            "timelaps_share": "抱歉，分享延時攝影僅適用於支持者。"
+            "timelaps_share": "抱歉，分享延時攝影僅適用於支持者。",
+            "printer_theme": "抱歉，印表機特定主題僅適用於支持者。"
         },
         "machine_deletion_warning": {
             "title": "機器刪除",
@@ -524,7 +531,11 @@
         },
         "remote_connection_indicator": {
             "title": "使用遠程連接！"
-        }
+        },
+        "web_rtc": {
+            "renderer_missing": "WebRtc 不可用",
+            "oe_warning": "尚不支援通過 OctoEverywhere 的 WebRtc"
+          }
     },
     "dialogs": {
         "rate_my_app": {
@@ -606,7 +617,11 @@
             "unlimited_printers_perk": {
                 "title": "無限量的打印機",
                 "subtitle": "使用 Mobileraker 控制任意數量的打印機！"
-            }
+            },
+            "printer_theme_perk": {
+                "title": "基於印表機的主題",
+                "subtitle": "為每台印表機選擇不同的主題！"
+              }
         },
         "bed_screw_adjust": {
             "title": "床身螺絲調節",
@@ -664,7 +679,8 @@
         "starting": "開始進行",
         "disconnected": "已斷開連接",
         "error": "錯誤",
-        "unauthorized": "未經授權"
+        "unauthorized": "未經授權",
+        "initializing": "正在初始化"
     },
     "notifications": {
         "channel_printer_grp": "打印機{}",
