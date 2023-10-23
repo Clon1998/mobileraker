@@ -2,8 +2,6 @@
 
 ## [2.6.6] - 2023-10-23
 
-## [2.6.6] - 2023-10-23
-
 ### Major Changes
 
 - Added Gadget by [OctoEverywhere](https://octoeverywhere.com/), offering free AI-based print monitoring (requires a
