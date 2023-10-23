@@ -23,6 +23,7 @@ import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/repository/notifications_hive_repository.dart';
 import 'package:common/data/repository/notifications_repository.dart';
 import 'package:common/service/machine_service.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
@@ -140,9 +141,7 @@ class NotificationService {
 
       // ToDo: Add listener to token update to clear fcm.cfg!
       // ToDo: Implement local notification handling again!
-      for (Machine setting in allMachines) {
-        _registerLocalMessageHandling(setting);
-      }
+      _registerLocalMessageHandling(allMachines);
 
       _machineUpdatesListener = _setupMachineUpdateListener();
 
@@ -186,12 +185,29 @@ class NotificationService {
     return notificationAllowed;
   }
 
-  void _registerLocalMessageHandling(Machine setting) {
-    // ToDo: Implement local notification handling again!
-    // return;
+  void _registerLocalMessageHandling(List<Machine> allMachines) {
     if (!Platform.isIOS) return;
-    _printerStreamMap[setting.uuid] = ref.listen(printerProvider(setting.uuid), (previous, AsyncValue<Printer> next) {
-      next.whenData((value) => _processPrinterUpdate(setting, value));
+
+    for (Machine setting in allMachines) {
+      _registerLocalMessageHandlingForMachine(setting);
+    }
+
+    ref.listen(appLifecycleProvider, (_, next) async {
+      // Force a liveActivity update once the app is back in foreground!
+      if (next == AppLifecycleState.resumed) {
+        if (!await _liveActivityAPI.areActivitiesEnabled()) return;
+        for (var machine in allMachines) {
+          logger.i('Force a LiveActivity update for ${machine.name} after app was resumed');
+          ref.read(printerProvider(machine.uuid).future).then((value) => _refreshLiveActivity(machine, value)).ignore();
+        }
+      }
+    });
+  }
+
+  void _registerLocalMessageHandlingForMachine(Machine machine) {
+    if (!Platform.isIOS) return;
+    _printerStreamMap[machine.uuid] = ref.listen(printerProvider(machine.uuid), (previous, AsyncValue<Printer> next) {
+      next.whenData((value) => _processPrinterUpdate(machine, value));
     });
   }
 
@@ -321,7 +337,7 @@ class NotificationService {
       _notifyAPI.setChannel(channels);
     }
     _setupFCMOnPrinterOnceConnected(setting);
-    _registerLocalMessageHandling(setting);
+    _registerLocalMessageHandlingForMachine(setting);
   }
 
   void onMachineRemoved(String uuid) {
@@ -527,38 +543,41 @@ class NotificationService {
     if (!_liveActivityInitCompleter.isCompleted) return;
     if (!await _liveActivityAPI.areActivitiesEnabled()) return;
     if (!_settingsService.readBool(AppSettingKeys.useLiveActivity, true)) return;
-    Notification? notification = await _notificationsRepository.getByMachineUuid(machine.uuid);
-    notification ??= Notification(machineUuid: machine.uuid);
 
-    await _refreshLiveActivity(machine, printer, notification);
+    ///
+    /// CHECK HERE IF A LiveActivity REFRESH IS REQUIRED:
+    ///
 
-    await _notificationsRepository.save(notification);
+    //Get the current notification info that should be set in the liveActivity
+    Notification notification =
+        await _notificationsRepository.getByMachineUuid(machine.uuid) ?? Notification(machineUuid: machine.uuid);
+
+    var printState = printer.print.state;
+    // logger.wtf('PrintProgress ${printer.printProgress} - ${notification.progress}');
+    // logger.wtf('PrintState ${printState} - ${notification.printState}');
+    var isPrinting = {PrintState.printing, PrintState.paused}.contains(printState);
+    final hasProgressChange = isPrinting &&
+        notification.progress != null &&
+        ((notification.progress! - printer.printProgress) * 100).abs() > 2;
+    final hasStateChange = notification.printState != printState;
+    final hasFileChange =
+        isPrinting && printer.currentFile?.name != null && notification.file != printer.currentFile?.name;
+    // final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
+
+    if (!hasProgressChange && !hasStateChange && !hasFileChange) return;
+    logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
+    await _refreshLiveActivity(machine, printer);
   }
 
-  Future<void> _refreshLiveActivity(Machine machine, Printer printer, Notification notification) async {
+  Future<void> _refreshLiveActivity(Machine machine, Printer printer) async {
     // Pseudo lock to prevent to many updates at once
     if (_updateLiveActivityLock?.let((it) => !it.isCompleted) ?? false) {
       await _updateLiveActivityLock!.future;
-      return _refreshLiveActivity(machine, printer, notification);
+      return _refreshLiveActivity(machine, printer);
     }
 
     _updateLiveActivityLock = Completer();
     try {
-      var printState = printer.print.state;
-      // logger.wtf('PrintProgress ${printer.printProgress} - ${notification.progress}');
-      // logger.wtf('PrintState ${printState} - ${notification.printState}');
-      var isPrinting = {PrintState.printing, PrintState.paused}.contains(printState);
-      final hasProgressChange = isPrinting &&
-          notification.progress != null &&
-          ((notification.progress! - printer.printProgress) * 100).abs() > 2;
-      final hasStateChange = notification.printState != printState;
-      final hasFileChange =
-          isPrinting && printer.currentFile?.name != null && notification.file != printer.currentFile?.name;
-      // final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
-
-      if (!hasProgressChange && !hasStateChange && !hasFileChange) return;
-      logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
-
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
@@ -578,29 +597,20 @@ class NotificationService {
         'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
       };
 
-      if (hasProgressChange || hasFileChange) {
-        logger.i('Detected non-state change for ${machine.name} - ${printer.printProgress}, ${printer.eta}, '
-            '${printer.currentFile?.name}');
-
+      if ({PrintState.printing, PrintState.paused}.contains(printer.print.state)) {
         await _updateOrCreateLiveActivity(data, machine);
-      } else if (hasStateChange) {
-        logger.i('Detected state change for ${machine.name} - $printState');
-        switch (printState) {
-          case PrintState.paused:
-          case PrintState.printing:
-            //No need to create a activity, it should already be present. Worst case, it will be created by the progress checl
-            await _updateOrCreateLiveActivity(data, machine);
-            break;
-          default:
-            _endLiveActivity(machine);
-        }
+      } else {
+        _endLiveActivity(machine);
       }
 
-      notification
-        ..progress = printer.printProgress
-        ..eta = printer.eta
-        ..file = printer.currentFile?.name
-        ..printState = printState;
+      // Update the notification info that is currently set in the liveActivity
+      await _notificationsRepository.save(
+        Notification(machineUuid: machine.uuid)
+          ..progress = printer.printProgress
+          ..eta = printer.eta
+          ..file = printer.currentFile?.name
+          ..printState = printer.print.state,
+      );
     } finally {
       _updateLiveActivityLock!.complete();
     }
