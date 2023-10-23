@@ -157,6 +157,7 @@ dev_dependencies:
   custom_lint: ^0.5.3
   flutter_native_splash: ^2.2.19
   flutter_launcher_icons: ^0.13.1
+  dart_code_metrics_presets: ^2.5.0
 
 
 flutter_icons:
