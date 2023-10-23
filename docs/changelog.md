@@ -2,27 +2,29 @@
 
 ## [2.6.6] - 2023-10-23
 
+## [2.6.6] - 2023-10-23
+
 ### Major Changes
 
-- Added Gadget by OctoEverywhere. Offering free AI based print monitoring. (Requires a linked OctoEverywhere account.
-  Not affiliated with Mobileraker)
-- Multipliers, Limits and FW Retraction cards can now be grouped into a single horizontal scrollable card. This is the
-  default now and can be disabled in the app settings.
+- Added Gadget by [OctoEverywhere](https://octoeverywhere.com/), offering free AI-based print monitoring (requires a
+  linked OctoEverywhere account). *Note: Not affiliated with Mobileraker.*
+- Multipliers, Limits, and FW Retraction cards can now be grouped into a single horizontal scrollable card. This is the
+  default setting and can be disabled in the app settings.
 - Firmware Retraction settings can now be edited in the app. [#129](https://github.com/Clon1998/mobileraker/issues/129)
-- Added [Obico.io](https://www.obico.io/) as remote access provider.
+- Added [Obico.io](https://www.obico.io/) as a remote access provider.
 
 ### Changed Features
 
-- Ensured the visibility of the Exclude Object button on the Dashboard is clearer to the user.
-- Babystepping is now called Z-Offset/Microstep Z-Axis to be more aligned with Klipper.
-- Live activities are now more compact and show a complete icon and color.
-- All printer JRpc-Clients should reconnect now if the app is opened from the background.
+- Improved the visibility of the Exclude Object button on the Dashboard for a better user experience.
+- Renamed Babystepping to Z-Offset/Microstep Z-Axis to align more closely with Klipper.
+- Live activities are now more compact, displaying complete icons and colors. They also update more often.
+- All printer JRpc-Clients should now automatically reconnect when the app is opened from the background.
 
 ### Bug Fixes
 
 - Fixed an issue that prevented the app from correctly detecting the currently used Moonraker version.
-- Fixed parsing error for `heater_generic`, `extruder` and `heater_bed` configs that use `temperature_combined` sensor
-  types. [#270](https://github.com/Clon1998/mobileraker/issues/270)
+- Resolved parsing errors for `heater_generic`, `extruder`, and `heater_bed` configurations that
+  use `temperature_combined` sensor types. [#270](https://github.com/Clon1998/mobileraker/issues/270)
 
 ## [2.6.5] - 2023-10-11
 
