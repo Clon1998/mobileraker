@@ -194,13 +194,15 @@ class NotificationService {
 
     ref.listen(appLifecycleProvider, (_, next) async {
       // Force a liveActivity update once the app is back in foreground!
-      if (next == AppLifecycleState.resumed) {
-        if (!await _liveActivityAPI.areActivitiesEnabled()) return;
-        for (var machine in allMachines) {
-          logger.i('Force a LiveActivity update for ${machine.name} after app was resumed');
-          // We await to prevent any race conditions
-          await ref.read(printerProvider(machine.uuid).future).then((value) => _refreshLiveActivity(machine, value));
-        }
+      if (next != AppLifecycleState.resumed) return;
+      if (!await _liveActivityAPI.areActivitiesEnabled()) return;
+      for (var machine in allMachines) {
+        logger.i('Force a LiveActivity update for ${machine.name} after app was resumed');
+        // We await to prevent any race conditions
+        await ref
+            .read(printerProvider(machine.uuid).future)
+            .then((value) => _refreshLiveActivity(machine, value))
+            .onError((error, stackTrace) => logger.e('Error in Force LiveActivity for ${machine.name}'));
       }
     });
   }
