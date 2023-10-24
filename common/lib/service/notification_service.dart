@@ -198,7 +198,8 @@ class NotificationService {
         if (!await _liveActivityAPI.areActivitiesEnabled()) return;
         for (var machine in allMachines) {
           logger.i('Force a LiveActivity update for ${machine.name} after app was resumed');
-          ref.read(printerProvider(machine.uuid).future).then((value) => _refreshLiveActivity(machine, value)).ignore();
+          // We await to prevent any race conditions
+          await ref.read(printerProvider(machine.uuid).future).then((value) => _refreshLiveActivity(machine, value));
         }
       }
     });
@@ -627,6 +628,8 @@ class NotificationService {
         logger.i('Updating LiveActivity for ${machine.name} with id: $activityEntry');
         return activityEntry.id;
       }
+      // Okay we can not update the activity. So we remove it from the map in order to end it down below
+      _machineLiveActivityMap.remove(machine.uuid);
     }
     var allActivities = await _liveActivityAPI.getAllActivitiesIds();
     allActivities.where((element) => !_machineLiveActivityMap.containsValue(element)).forEach((element) {
