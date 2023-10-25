@@ -13,6 +13,7 @@ import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -48,6 +49,13 @@ final searchTextEditingControllerProvider = ChangeNotifierProvider.autoDispose<T
 class FilePage extends _$FilePage {
   @override
   int build() {
+    // Ensure that we jump back to the gcode page if the timelapse component is removed due to printer switch
+    ref.listen(klipperSelectedProvider, (previous, next) {
+      if (next.valueOrNull?.hasTimelapseComponent == false && state == 2) {
+        state = 0;
+      }
+    });
+
     return 0;
   }
 
@@ -78,7 +86,7 @@ class _FilePath extends _$FilePath {
 
 @riverpod
 Future<FolderContentWrapper> _fileApiResponse(_FileApiResponseRef ref, [String path = 'gcodes']) {
-  return ref.read(fileServiceSelectedProvider).fetchDirectoryInfo(path, true);
+  return ref.watch(fileServiceSelectedProvider).fetchDirectoryInfo(path, true);
 }
 
 @riverpod
