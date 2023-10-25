@@ -36,3 +36,6 @@ dart_code_metrics:
   #  metrics:
   extends:
     - package:dart_code_metrics_presets/recommended.yaml
+  rules:
+    - prefer-single-widget-per-file:
+        ignore-private-widgets: true
