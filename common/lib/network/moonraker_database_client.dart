@@ -16,14 +16,12 @@ import 'jrpc_client_provider.dart';
 part 'moonraker_database_client.g.dart';
 
 @riverpod
-MoonrakerDatabaseClient moonrakerDatabaseClient(
-        MoonrakerDatabaseClientRef ref, String machineUUID) =>
+MoonrakerDatabaseClient moonrakerDatabaseClient(MoonrakerDatabaseClientRef ref, String machineUUID) =>
     MoonrakerDatabaseClient(ref, machineUUID);
 
 /// The DatabaseService handles interacts with moonrakers database!
 class MoonrakerDatabaseClient {
-  MoonrakerDatabaseClient(this.ref, this.machineUUID)
-      : _jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
+  MoonrakerDatabaseClient(this.ref, this.machineUUID) : _jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
   final AutoDisposeRef ref;
   final JsonRpcClient _jsonRpcClient;
@@ -51,8 +49,7 @@ class MoonrakerDatabaseClient {
     var params = {"namespace": namespace};
     if (key != null) params["key"] = key;
     try {
-      RpcResponse blockingResponse =
-          await _jsonRpcClient.sendJRpcMethod("server.database.get_item", params: params);
+      RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod("server.database.get_item", params: params);
       return blockingResponse.result['value'];
     } on JRpcError catch (e, s) {
       logger.w("Could not retrieve key: $key", e, StackTrace.current);
@@ -65,9 +62,8 @@ class MoonrakerDatabaseClient {
     _validateClientConnection();
     logger.d('Adding $key => $value');
     try {
-      RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod(
-          "server.database.post_item",
-          params: {"namespace": namespace, "key": key, "value": value});
+      RpcResponse blockingResponse = await _jsonRpcClient
+          .sendJRpcMethod("server.database.post_item", params: {"namespace": namespace, "key": key, "value": value});
 
       dynamic resultValue = blockingResponse.result['value'];
       if (resultValue is List) return resultValue.cast<T>();
@@ -87,13 +83,17 @@ class MoonrakerDatabaseClient {
   Future<dynamic> deleteDatabaseItem(String namespace, String key) async {
     try {
       _validateClientConnection();
-      RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod(
-          "server.database.delete_item",
-          params: {"namespace": namespace, "key": key});
+      RpcResponse blockingResponse = await _jsonRpcClient
+          .sendJRpcMethod("server.database.delete_item", params: {"namespace": namespace, "key": key});
 
       return blockingResponse.result['value'];
     } on JRpcError catch (e) {
-      logger.e('Error while deleting item: $e', e);
+      if (e.message.contains('not found')) {
+        // Add a log that states that the item was not found and could not be deleted:
+        logger.w('Failed to delete item: Item with key \'$key\' not found in namespace \'$namespace\'.');
+      } else {
+        logger.e('Unexpected error while deleting item with key \'$key\': $e', e);
+      }
     }
 
     return null;
