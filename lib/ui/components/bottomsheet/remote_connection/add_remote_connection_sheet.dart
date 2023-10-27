@@ -53,11 +53,14 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
     var obicoEnabled = ref.watch(remoteConfigProvider).obicoEnabled;
 
     var activeIndex = ref.watch(addRemoteConnectionSheetControllerProvider.select((value) {
-      if (value.remoteInterface != null) {
+      if (obicoEnabled && value.obicoTunnel != null) {
         return 1;
       }
-      if (obicoEnabled && value.obicoTunnel != null) {
-        return 2;
+      if (value.remoteInterface != null) {
+        if (obicoEnabled) {
+          return 2;
+        }
+        return 1;
       }
       return 0;
     }));
@@ -84,8 +87,8 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                   automaticIndicatorColorAdjustment: false,
                   tabs: [
                     Tab(text: tr('bottom_sheets.add_remote_con.octoeverywehre.tab_name')),
-                    Tab(text: tr('bottom_sheets.add_remote_con.manual.tab_name')),
                     if (obicoEnabled) Tab(text: tr('bottom_sheets.add_remote_con.obico.service_name')),
+                    Tab(text: tr('bottom_sheets.add_remote_con.manual.tab_name')),
                   ],
                 ),
               ),
@@ -119,8 +122,8 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                     controller: tabController,
                     children: [
                       const _OctoTab(),
-                      const _ManualTab(),
                       if (obicoEnabled) const _ObicoTab(),
+                      const _ManualTab(),
                     ],
                   ),
                 ),
