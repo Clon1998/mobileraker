@@ -31,26 +31,26 @@ class PrinterAddPage extends HookConsumerWidget {
     // TabController tabController = useTabController(initialLength: 2);
     var nonSupError = ref.watch(printerAddViewControllerProvider.select((value) => value.nonSupporterError));
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('pages.printer_add.title').tr(),
-      ),
+      appBar: AppBar(title: const Text('pages.printer_add.title').tr()),
       body: SafeArea(
         child: (nonSupError != null)
             ? Center(
                 child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SupporterOnlyFeature(
-                  header: Flexible(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SupporterOnlyFeature(
+                    header: Flexible(
                       child: ConstrainedBox(
-                    constraints: BoxConstraints.loose(const Size(256, 256)),
-                    child: SvgPicture.asset(
-                      'assets/vector/undraw_warning_re_eoyh.svg',
-                      fit: BoxFit.contain,
+                        constraints: BoxConstraints.loose(const Size(256, 256)),
+                        child: SvgPicture.asset(
+                          'assets/vector/undraw_warning_re_eoyh.svg',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
-                  )),
-                  text: Text(nonSupError),
+                    text: Text(nonSupError),
+                  ),
                 ),
-              ))
+              )
             : const Column(
                 children: [
                   _AddPrinterStepperFlow(),
@@ -62,7 +62,7 @@ class PrinterAddPage extends HookConsumerWidget {
                         SliverFillRemaining(
                           hasScrollBody: false,
                           child: _StepperBody(),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -75,9 +75,7 @@ class PrinterAddPage extends HookConsumerWidget {
 }
 
 class _StepperBody extends ConsumerWidget {
-  const _StepperBody({
-    Key? key,
-  }) : super(key: key);
+  const _StepperBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -95,10 +93,7 @@ class _StepperBody extends ConsumerWidget {
             sizeAndFadeFactor: anim,
             child: child,
           ),
-          child: stepperBody(
-            model.step,
-            model.isExpert,
-          ),
+          child: stepperBody(model.step, model.isExpert),
         ),
       ),
     );
@@ -109,21 +104,22 @@ class _StepperBody extends ConsumerWidget {
         1 => (isExpert) ? const _AdvancedInputStepScreen() : const _SimpleUrlInputStepScreen(),
         2 => const _TestConnectionStepScreen(),
         3 => const _ConfirmationStepScreen(),
-        _ => Text('No step widget found for index $stepperIndex')
+        _ => Text('No step widget found for index $stepperIndex'),
       };
 }
 
 class _StepperFooter extends ConsumerWidget {
-  const _StepperFooter({
-    Key? key,
-  }) : super(key: key);
+  const _StepperFooter({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var model = ref.watch(printerAddViewControllerProvider);
 
-    Widget? footer =
-        switch (model.step) { 1 => const _UrlInputStepFooter(), 2 => const _TestConnectionStepFooter(), _ => null };
+    Widget? footer = switch (model.step) {
+      1 => const _UrlInputStepFooter(),
+      2 => const _TestConnectionStepFooter(),
+      _ => null,
+    };
 
     if (footer == null) return const SizedBox.shrink();
 
@@ -140,9 +136,7 @@ class _StepperFooter extends ConsumerWidget {
 }
 
 class _AddPrinterStepperFlow extends HookConsumerWidget {
-  const _AddPrinterStepperFlow({
-    Key? key,
-  }) : super(key: key);
+  const _AddPrinterStepperFlow({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -155,22 +149,31 @@ class _AddPrinterStepperFlow extends HookConsumerWidget {
       showLoadingAnimation: false,
       enableStepTapping: model.step != 3,
       steps: [
-        EasyStep(title: tr('pages.printer_add.steps.mode'), icon: const Icon(Icons.add_moderator_outlined)),
-        EasyStep(title: tr('pages.printer_add.steps.input'), icon: const Icon(Icons.settings_outlined)),
         EasyStep(
-            title: tr('pages.printer_add.steps.test'),
-            icon: const Icon(Icons.settings_input_antenna_outlined),
-            enabled: false),
-        EasyStep(title: tr('pages.printer_add.steps.done'), icon: const Icon(Icons.done_outline), enabled: false),
+          title: tr('pages.printer_add.steps.mode'),
+          icon: const Icon(Icons.add_moderator_outlined),
+        ),
+        EasyStep(
+          title: tr('pages.printer_add.steps.input'),
+          icon: const Icon(Icons.settings_outlined),
+        ),
+        EasyStep(
+          title: tr('pages.printer_add.steps.test'),
+          icon: const Icon(Icons.settings_input_antenna_outlined),
+          enabled: false,
+        ),
+        EasyStep(
+          title: tr('pages.printer_add.steps.done'),
+          icon: const Icon(Icons.done_outline),
+          enabled: false,
+        ),
       ],
     );
   }
 }
 
 class _InputModeStepScreen extends ConsumerWidget {
-  const _InputModeStepScreen({
-    Key? key,
-  }) : super(key: key);
+  const _InputModeStepScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -203,43 +206,45 @@ class _InputModeStepScreen extends ConsumerWidget {
           textAlign: TextAlign.justify,
           style: themeData.textTheme.bodySmall,
         ).tr(),
-        const SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             FilledButton.icon(
-                onPressed: () => controller.selectMode(false),
-                icon: const Icon(Icons.person_outline),
-                label: const Text('pages.printer_add.select_mode.simple').tr()),
+              onPressed: () => controller.selectMode(false),
+              icon: const Icon(Icons.person_outline),
+              label: const Text('pages.printer_add.select_mode.simple').tr(),
+            ),
             FilledButton.icon(
-                onPressed: () => controller.selectMode(true),
-                icon: const Icon(Icons.engineering_outlined),
-                label: const Text('pages.printer_add.select_mode.advanced').tr()),
+              onPressed: () => controller.selectMode(true),
+              icon: const Icon(Icons.engineering_outlined),
+              label: const Text('pages.printer_add.select_mode.advanced').tr(),
+            ),
           ],
         ),
         Align(
           alignment: Alignment.center,
           child: TextButton.icon(
-              onPressed: controller.addFromOcto,
-              icon: SvgPicture.asset(
-                'assets/vector/oe_rocket.svg',
-                width: 24,
-                height: 24,
-              ),
-              label: const Text('pages.printer_add.select_mode.add_via_oe').tr()),
+            onPressed: controller.addFromOcto,
+            icon: SvgPicture.asset(
+              'assets/vector/oe_rocket.svg',
+              width: 24,
+              height: 24,
+            ),
+            label: const Text('pages.printer_add.select_mode.add_via_oe').tr(),
+          ),
         ),
         Align(
           alignment: Alignment.center,
           child: TextButton.icon(
-              onPressed: controller.addFromObico,
-              icon: SvgPicture.asset(
-                'assets/vector/obico_logo.svg',
-                width: 24,
-                height: 24,
-              ),
-              label: const Text('pages.printer_add.select_mode.add_via_obico').tr()),
+            onPressed: controller.addFromObico,
+            icon: SvgPicture.asset(
+              'assets/vector/obico_logo.svg',
+              width: 24,
+              height: 24,
+            ),
+            label: const Text('pages.printer_add.select_mode.add_via_obico').tr(),
+          ),
         ),
         // OctoEveryWhereBtn(
         //     title: 'Add using OctoEverywhere', onPressed: () => null),
@@ -249,9 +254,7 @@ class _InputModeStepScreen extends ConsumerWidget {
 }
 
 class _SimpleUrlInputStepScreen extends HookConsumerWidget {
-  const _SimpleUrlInputStepScreen({
-    Key? key,
-  }) : super(key: key);
+  const _SimpleUrlInputStepScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -263,12 +266,13 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InfoCard(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('pages.printer_add.simple_form.hint_title').tr(),
-            body: const Text(
-              'pages.printer_add.simple_form.hint_body',
-              textAlign: TextAlign.justify,
-            ).tr()),
+          leading: const Icon(Icons.info_outline),
+          title: const Text('pages.printer_add.simple_form.hint_title').tr(),
+          body: const Text(
+            'pages.printer_add.simple_form.hint_body',
+            textAlign: TextAlign.justify,
+          ).tr(),
+        ),
         SectionHeader(title: tr('pages.setting.general.title')),
         FormBuilderTextField(
           keyboardType: TextInputType.text,
@@ -285,15 +289,16 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           // initialValue: simpleFormState.httpUri?.skipScheme(),
           decoration: InputDecoration(
-              labelText: 'pages.printer_edit.general.printer_addr'.tr(),
-              hintText: tr('pages.printer_add.simple_form.url_hint'),
-              prefix: InkWell(
-                onTap: simpleFormController.toggleProtocol,
-                child: Text(
-                  simpleFormState.scheme,
-                  style: TextStyle(color: scheme.secondary),
-                ),
-              )),
+            labelText: 'pages.printer_edit.general.printer_addr'.tr(),
+            hintText: tr('pages.printer_add.simple_form.url_hint'),
+            prefix: InkWell(
+              onTap: simpleFormController.toggleProtocol,
+              child: Text(
+                simpleFormState.scheme,
+                style: TextStyle(color: scheme.secondary),
+              ),
+            ),
+          ),
           name: 'simple.url',
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
@@ -307,17 +312,17 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
               child: FormBuilderTextField(
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
-                    helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
-                    helperMaxLines: 3),
+                  labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
+                  helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                  helperMaxLines: 3,
+                ),
                 name: 'simple.apikey',
               ),
             ),
             IconButton(
-                icon: const Icon(Icons.qr_code_sharp),
-                onPressed: () => simpleFormController.openQrScanner(
-                      context,
-                    ))
+              icon: const Icon(Icons.qr_code_sharp),
+              onPressed: () => simpleFormController.openQrScanner(context),
+            ),
           ],
         ),
       ],
@@ -326,13 +331,13 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
 }
 
 class _UrlInputStepFooter extends ConsumerWidget {
-  const _UrlInputStepFooter({
-    Key? key,
-  }) : super(key: key);
+  const _UrlInputStepFooter({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var isExpert = ref.watch(printerAddViewControllerProvider.select((value) => value.isExpert));
+    var isExpert = ref.watch(
+      printerAddViewControllerProvider.select((value) => value.isExpert),
+    );
 
     var proceed = isExpert
         ? ref.watch(advancedFormControllerProvider.notifier).proceed
@@ -347,9 +352,7 @@ class _UrlInputStepFooter extends ConsumerWidget {
 }
 
 class _AdvancedInputStepScreen extends HookConsumerWidget {
-  const _AdvancedInputStepScreen({
-    Key? key,
-  }) : super(key: key);
+  const _AdvancedInputStepScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -381,19 +384,21 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
         ),
         FormBuilderTextField(
           decoration: InputDecoration(
-              labelText: 'pages.printer_edit.general.printer_addr'.tr(),
-              hintText: 'E.g.: 192.1.1.1',
-              helperText: tr('pages.printer_add.advanced_form.http_helper')),
+            labelText: 'pages.printer_edit.general.printer_addr'.tr(),
+            hintText: 'E.g.: 192.1.1.1',
+            helperText: tr('pages.printer_add.advanced_form.http_helper'),
+          ),
           name: 'advanced.http',
           autovalidateMode: AutovalidateMode.onUserInteraction,
           onChanged: advancedFormController.onHttpUriChanged,
           // initialValue: advancedFormState.httpUri?.toString(),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
-            FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: [
-              'http',
-              'https',
-            ]),
+            FormBuilderValidators.url(
+              requireTld: false,
+              requireProtocol: false,
+              protocols: ['http', 'https'],
+            ),
           ]),
         ),
         FormBuilderTextField(
@@ -406,19 +411,21 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
           autovalidateMode: AutovalidateMode.onUserInteraction,
           // initialValue: advancedFormState.wsUri?.toString(),
           validator: FormBuilderValidators.compose([
-            FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: [
-              'ws',
-              'wss',
-            ]),
+            FormBuilderValidators.url(
+              requireTld: false,
+              requireProtocol: false,
+              protocols: ['ws', 'wss'],
+            ),
           ]),
         ),
         FormBuilderTextField(
           keyboardType: const TextInputType.numberWithOptions(),
           decoration: InputDecoration(
-              labelText: 'pages.printer_edit.general.timeout_label'.tr(),
-              helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
-              helperMaxLines: 3,
-              suffixText: 's'),
+            labelText: 'pages.printer_edit.general.timeout_label'.tr(),
+            helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
+            helperMaxLines: 3,
+            suffixText: 's',
+          ),
           name: 'advanced.localTimeout',
           initialValue: "5",
           valueTransformer: (String? text) => text?.let(int.tryParse) ?? 3,
@@ -438,31 +445,29 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
               child: FormBuilderTextField(
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
-                    helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
-                    helperMaxLines: 3),
+                  labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
+                  helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                  helperMaxLines: 3,
+                ),
                 name: 'advanced.apikey',
               ),
             ),
             IconButton(
-                icon: const Icon(Icons.qr_code_sharp),
-                onPressed: () => advancedFormController.openQrScanner(
-                      context,
-                    ))
+              icon: const Icon(Icons.qr_code_sharp),
+              onPressed: () => advancedFormController.openQrScanner(
+                context,
+              ),
+            ),
           ],
         ),
-        HttpHeaders(
-          initialValue: advancedFormState.headers,
-        ),
+        HttpHeaders(initialValue: advancedFormState.headers),
       ],
     );
   }
 }
 
 class _TestConnectionStepScreen extends HookConsumerWidget {
-  const _TestConnectionStepScreen({
-    Key? key,
-  }) : super(key: key);
+  const _TestConnectionStepScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -471,7 +476,9 @@ class _TestConnectionStepScreen extends HookConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeader(title: tr('pages.printer_add.test_connection.section_connection')),
+        SectionHeader(
+          title: tr('pages.printer_add.test_connection.section_connection'),
+        ),
         InputDecorator(
           decoration: InputDecoration(
             labelText: tr('pages.printer_add.test_connection.http_url_label'),
@@ -486,7 +493,9 @@ class _TestConnectionStepScreen extends HookConsumerWidget {
           ),
           child: Text(model.wsUri?.toString() ?? 'MISSING?'),
         ),
-        SectionHeader(title: tr('pages.printer_add.test_connection.section_test')),
+        SectionHeader(
+          title: tr('pages.printer_add.test_connection.section_test'),
+        ),
         InputDecorator(
           decoration: InputDecoration(
             labelText: tr('pages.printer_add.test_connection.http_label'),
@@ -526,9 +535,7 @@ class _TestConnectionStepScreen extends HookConsumerWidget {
 }
 
 class _TestConnectionStepFooter extends ConsumerWidget {
-  const _TestConnectionStepFooter({
-    Key? key,
-  }) : super(key: key);
+  const _TestConnectionStepFooter({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -552,18 +559,18 @@ class _TestConnectionStepFooter extends ConsumerWidget {
           proceedLabel: const Icon(Icons.navigate_next),
           proceedStyle: (model.hasResults && !model.combinedResult)
               ? FilledButton.styleFrom(
-                  backgroundColor: themeData.colorScheme.error, foregroundColor: themeData.colorScheme.onError)
+                  backgroundColor: themeData.colorScheme.error,
+                  foregroundColor: themeData.colorScheme.onError,
+                )
               : null,
-        )
+        ),
       ],
     );
   }
 }
 
 class _ConfirmationStepScreen extends ConsumerWidget {
-  const _ConfirmationStepScreen({
-    Key? key,
-  }) : super(key: key);
+  const _ConfirmationStepScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -571,9 +578,7 @@ class _ConfirmationStepScreen extends ConsumerWidget {
     var controller = ref.watch(printerAddViewControllerProvider.notifier);
     var themeData = Theme.of(context);
     if (model.addedMachine == null) {
-      return SpinKitWave(
-        color: themeData.colorScheme.primary,
-      );
+      return SpinKitWave(color: themeData.colorScheme.primary);
     }
 
     return SizedBox(
@@ -598,9 +603,10 @@ class _ConfirmationStepScreen extends ConsumerWidget {
             ),
           ),
           FilledButton.tonalIcon(
-              onPressed: controller.goToDashboard,
-              icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
-              label: const Text('pages.printer_add.confirmed.to_dashboard').tr()),
+            onPressed: controller.goToDashboard,
+            icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
+            label: const Text('pages.printer_add.confirmed.to_dashboard').tr(),
+          ),
         ],
       ),
     );
@@ -627,15 +633,16 @@ class _FlowControlButtons extends ConsumerWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         FilledButton.tonalIcon(
-            onPressed: ref.watch(printerAddViewControllerProvider.notifier).previousStep,
-            icon: const Icon(Icons.navigate_before),
-            label: Text(MaterialLocalizations.of(context).backButtonTooltip)),
+          onPressed: ref.watch(printerAddViewControllerProvider.notifier).previousStep,
+          icon: const Icon(Icons.navigate_before),
+          label: Text(MaterialLocalizations.of(context).backButtonTooltip),
+        ),
         FilledButton.tonalIcon(
           style: proceedStyle,
           onPressed: proceed,
           icon: proceedIcon ?? const Icon(Icons.navigate_next),
           label: proceedLabel,
-        )
+        ),
       ],
     );
   }

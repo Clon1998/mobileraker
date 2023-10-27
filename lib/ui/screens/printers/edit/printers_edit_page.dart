@@ -58,7 +58,7 @@ class PrinterEditPage extends ConsumerWidget {
         temperaturePresetListControllerProvider,
         moveStepStateProvider,
         babyStepStateProvider,
-        extruderStepStateProvider
+        extruderStepStateProvider,
       ],
       child: _PrinterEdit(),
     );
@@ -66,6 +66,7 @@ class PrinterEditPage extends ConsumerWidget {
 }
 
 class _PrinterEdit extends ConsumerWidget {
+  const _PrinterEdit();
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var canShowImport = ref.watch(allMachinesProvider.select((value) => (value.valueOrNull?.length ?? 0) > 1));
@@ -80,9 +81,7 @@ class _PrinterEdit extends ConsumerWidget {
         actions: [
           if (canShowImport)
             IconButton(
-              icon: const Icon(
-                FlutterIcons.import_mco,
-              ),
+              icon: const Icon(FlutterIcons.import_mco),
               tooltip: 'pages.printer_edit.import_settings'.tr(),
               onPressed: ref.watch(printerEditControllerProvider.notifier).openImportSettings,
               // onPressed: () =>                    model.onImportSettings(MaterialLocalizations.of(context))
@@ -90,7 +89,10 @@ class _PrinterEdit extends ConsumerWidget {
         ],
       ),
       floatingActionButton: ref.watch(printerEditControllerProvider)
-          ? const FloatingActionButton(onPressed: null, child: CircularProgressIndicator())
+          ? const FloatingActionButton(
+              onPressed: null,
+              child: CircularProgressIndicator(),
+            )
           : FloatingActionButton(
               onPressed: ref.read(printerEditControllerProvider.notifier).saveForm,
               child: const Icon(Icons.save_outlined),
@@ -101,9 +103,7 @@ class _PrinterEdit extends ConsumerWidget {
 }
 
 class PrinterSettingScrollView extends ConsumerWidget {
-  const PrinterSettingScrollView({
-    Key? key,
-  }) : super(key: key);
+  const PrinterSettingScrollView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -130,7 +130,9 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 ),
                 name: 'printerName',
                 initialValue: machine.name,
-                validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+                validator: FormBuilderValidators.compose(
+                  [FormBuilderValidators.required()],
+                ),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),
               const _ThemeSelector(),
@@ -144,10 +146,11 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 initialValue: machine.httpUri.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
-                  FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: [
-                    'http',
-                    'https',
-                  ])
+                  FormBuilderValidators.url(
+                    requireTld: false,
+                    requireProtocol: false,
+                    protocols: ['http', 'https'],
+                  ),
                 ]),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),
@@ -161,23 +164,25 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 initialValue: machine.wsUri.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
-                  FormBuilderValidators.url(requireTld: false, requireProtocol: false, protocols: [
-                    'ws',
-                    'wss',
-                  ])
+                  FormBuilderValidators.url(
+                    requireTld: false,
+                    requireProtocol: false,
+                    protocols: ['ws', 'wss'],
+                  ),
                 ]),
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),
               FormBuilderTextField(
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
-                    suffix: IconButton(
-                      icon: const Icon(Icons.qr_code_sharp),
-                      onPressed: () => controller.openQrScanner(context),
-                    ),
-                    helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
-                    helperMaxLines: 3),
+                  labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
+                  suffix: IconButton(
+                    icon: const Icon(Icons.qr_code_sharp),
+                    onPressed: () => controller.openQrScanner(context),
+                  ),
+                  helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
+                  helperMaxLines: 3,
+                ),
                 name: 'printerApiKey',
                 initialValue: machine.apiKey,
                 contextMenuBuilder: defaultContextMenuBuilder,
@@ -185,10 +190,11 @@ class PrinterSettingScrollView extends ConsumerWidget {
               FormBuilderTextField(
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.general.timeout_label'.tr(),
-                    helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
-                    helperMaxLines: 3,
-                    suffixText: 's'),
+                  labelText: 'pages.printer_edit.general.timeout_label'.tr(),
+                  helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
+                  helperMaxLines: 3,
+                  suffixText: 's',
+                ),
                 name: 'printerLocalTimeout',
                 initialValue: machine.timeout.toString(),
                 contextMenuBuilder: defaultContextMenuBuilder,
@@ -206,16 +212,12 @@ class PrinterSettingScrollView extends ConsumerWidget {
                 controlAffinity: ListTileControlAffinity.trailing,
                 initialValue: machine.trustUntrustedCertificate,
               ),
-              HttpHeaders(
-                initialValue: machine.httpHeaders,
-              ),
+              HttpHeaders(initialValue: machine.httpHeaders),
               const Divider(),
               // if (machine.hasRemoteConnection)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
-                child: SsidPreferenceList(
-                  initialValue: machine.localSsids,
-                ),
+                child: SsidPreferenceList(initialValue: machine.localSsids),
               ),
               WarningCard(
                 show: ref
@@ -223,23 +225,29 @@ class PrinterSettingScrollView extends ConsumerWidget {
                         .valueOrNull ==
                     true,
                 title: const Text('pages.printer_edit.wifi_access_warning.title').tr(),
-                subtitle: const Text('pages.printer_edit.wifi_access_warning.subtitle').tr(),
+                subtitle: const Text(
+                  'pages.printer_edit.wifi_access_warning.subtitle',
+                ).tr(),
                 leadingIcon: const Icon(Icons.wifi_off_outlined),
                 onTap: controller.requestLocationPermission,
               ),
               FullWidthButton(
-                  onPressed: controller.openRemoteConnectionSheet,
-                  child: const Text('pages.printer_edit.configure_remote_connection').tr()),
+                onPressed: controller.openRemoteConnectionSheet,
+                child: const Text(
+                  'pages.printer_edit.configure_remote_connection',
+                ).tr(),
+              ),
               const Divider(),
               const RemoteSettings(),
               const Divider(),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: TextButton.icon(
-                    onPressed: isSaving ? null : controller.deleteIt,
-                    icon: const Icon(Icons.delete_forever_outlined),
-                    label: const Text('pages.printer_edit.remove_printer').tr()),
-              )
+                  onPressed: isSaving ? null : controller.deleteIt,
+                  icon: const Icon(Icons.delete_forever_outlined),
+                  label: const Text('pages.printer_edit.remove_printer').tr(),
+                ),
+              ),
             ],
           ),
         ),
@@ -255,38 +263,40 @@ class WebcamList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var cams = ref.watch(webcamListControllerProvider);
     return cams.when(
-        skipLoadingOnReload: true,
-        data: (data) {
-          if (data.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: const Text('pages.printer_edit.cams.no_webcams').tr(),
-            );
-          }
+      skipLoadingOnReload: true,
+      data: (data) {
+        if (data.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: const Text('pages.printer_edit.cams.no_webcams').tr(),
+          );
+        }
 
-          return ReorderableListView(
-              buildDefaultDragHandles: false,
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              onReorder: ref.read(webcamListControllerProvider.notifier).onWebCamReorder,
-              onReorderStart: (i) => FocusScope.of(context).unfocus(),
-              children: List.generate(data.length, (index) {
-                WebcamInfo cam = data[index];
-                return _WebCamItem(
-                  key: ValueKey(cam.uuid),
-                  cam: cam,
-                  idx: index,
-                );
-              }));
-        },
-        error: (e, s) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text('Error while loading webcam: $e'),
-            ),
-        loading: () => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: const Text('general.fetching').tr(),
-            ));
+        return ReorderableListView(
+          buildDefaultDragHandles: false,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          onReorder: ref.read(webcamListControllerProvider.notifier).onWebCamReorder,
+          onReorderStart: (i) => FocusScope.of(context).unfocus(),
+          children: List.generate(data.length, (index) {
+            WebcamInfo cam = data[index];
+            return _WebCamItem(
+              key: ValueKey(cam.uuid),
+              cam: cam,
+              idx: index,
+            );
+          }),
+        );
+      },
+      error: (e, s) => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text('Error while loading webcam: $e'),
+      ),
+      loading: () => Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: const Text('general.fetching').tr(),
+      ),
+    );
   }
 }
 
@@ -294,11 +304,7 @@ class _WebCamItem extends HookConsumerWidget {
   final WebcamInfo cam;
   final int idx;
 
-  const _WebCamItem({
-    Key? key,
-    required this.cam,
-    required this.idx,
-  }) : super(key: key);
+  const _WebCamItem({Key? key, required this.cam, required this.idx}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -306,132 +312,148 @@ class _WebCamItem extends HookConsumerWidget {
     var serviceType = useState(cam.service);
     var themeData = Theme.of(context);
     return Card(
-        child: ExpansionTile(
-            maintainState: true,
-            tilePadding: const EdgeInsets.symmetric(horizontal: 10),
-            childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
-            title: Text(camName.value),
-            // TODO Add webcam reorder again?
-            // leading: ReorderableDragStartListener(
-            //   index: idx,
-            //   child: const Icon(Icons.drag_handle),
-            // ),
-            children: (cam.isReadOnly)
-                ? [const Text('pages.printer_edit.cams.read_only').tr()]
-                : [
-                    if (cam.service.forSupporters && !ref.watch(isSupporterProvider))
-                      SupporterOnlyFeature(
-                          text: const Text(
-                        'components.supporter_only_feature.webcam',
-                      ).tr(args: [cam.service.name.titleCase()])),
-                    FormBuilderTextField(
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                        labelText: 'pages.printer_edit.general.displayname'.tr(),
-                        suffix: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: ref.watch(printerEditControllerProvider)
-                                ? null
-                                : () => ref.read(webcamListControllerProvider.notifier).removeWebcam(cam)),
-                      ),
-                      name: '${cam.uuid}-camName',
-                      initialValue: cam.name,
-                      onChanged: (name) => camName.value =
-                          ((name?.isNotEmpty ?? false) ? name! : 'pages.printer_edit.cams.new_cam'.tr()),
-                      validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
-                      contextMenuBuilder: defaultContextMenuBuilder,
+      child: ExpansionTile(
+        maintainState: true,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+        childrenPadding: const EdgeInsets.symmetric(horizontal: 10),
+        title: Text(camName.value),
+        // TODO Add webcam reorder again?
+        // leading: ReorderableDragStartListener(
+        //   index: idx,
+        //   child: const Icon(Icons.drag_handle),
+        // ),
+        children: (cam.isReadOnly)
+            ? [const Text('pages.printer_edit.cams.read_only').tr()]
+            : [
+                if (cam.service.forSupporters && !ref.watch(isSupporterProvider))
+                  SupporterOnlyFeature(
+                    text: const Text(
+                      'components.supporter_only_feature.webcam',
+                    ).tr(args: [cam.service.name.titleCase()]),
+                  ),
+                FormBuilderTextField(
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.general.displayname'.tr(),
+                    suffix: IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: ref.watch(printerEditControllerProvider)
+                          ? null
+                          : () => ref.read(webcamListControllerProvider.notifier).removeWebcam(cam),
                     ),
-                    FormBuilderTextField(
-                      keyboardType: TextInputType.url,
-                      decoration: InputDecoration(
-                          labelText: 'pages.printer_edit.cams.stream_url'.tr(),
-                          helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=stream'),
-                      name: '${cam.uuid}-streamUrl',
-                      initialValue: cam.streamUrl.toString(),
-                      validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
-                      contextMenuBuilder: defaultContextMenuBuilder,
+                  ),
+                  name: '${cam.uuid}-camName',
+                  initialValue: cam.name,
+                  onChanged: (name) =>
+                      camName.value = ((name?.isNotEmpty ?? false) ? name! : 'pages.printer_edit.cams.new_cam'.tr()),
+                  validator: FormBuilderValidators.compose(
+                    [FormBuilderValidators.required()],
+                  ),
+                  contextMenuBuilder: defaultContextMenuBuilder,
+                ),
+                FormBuilderTextField(
+                  keyboardType: TextInputType.url,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.cams.stream_url'.tr(),
+                    helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=stream',
+                  ),
+                  name: '${cam.uuid}-streamUrl',
+                  initialValue: cam.streamUrl.toString(),
+                  validator: FormBuilderValidators.compose(
+                    [FormBuilderValidators.required()],
+                  ),
+                  contextMenuBuilder: defaultContextMenuBuilder,
+                ),
+                FormBuilderTextField(
+                  keyboardType: TextInputType.url,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.cams.snapshot_url'.tr(),
+                    helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=snapshot',
+                  ),
+                  name: '${cam.uuid}-snapshotUrl',
+                  initialValue: cam.snapshotUrl.toString(),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                  ]),
+                  contextMenuBuilder: defaultContextMenuBuilder,
+                ),
+                FormBuilderDropdown(
+                  name: '${cam.uuid}-service',
+                  initialValue: cam.service,
+                  items: WebcamServiceType.values
+                      .map((serviceType) => DropdownMenuItem<WebcamServiceType>(
+                            enabled: serviceType.supported,
+                            value: serviceType,
+                            child: Text(
+                              '${beautifyName(serviceType.name)} ${serviceType.supported ? '' : '(${tr('general.unsupported')})'}',
+                            ),
+                          ))
+                      .toList(),
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.cams.cam_mode'.tr(),
+                  ),
+                  onChanged: (WebcamServiceType? v) => serviceType.value = v!,
+                ),
+                if (serviceType.value == WebcamServiceType.mjpegStreamerAdaptive)
+                  FormBuilderTextField(
+                    decoration: InputDecoration(
+                      labelText: 'pages.printer_edit.cams.target_fps'.tr(),
+                      suffix: const Text('FPS'),
                     ),
-                    FormBuilderTextField(
-                      keyboardType: TextInputType.url,
-                      decoration: InputDecoration(
-                          labelText: 'pages.printer_edit.cams.snapshot_url'.tr(),
-                          helperText: '${tr('pages.printer_edit.cams.default_url')}: /webcam/?action=snapshot'),
-                      name: '${cam.uuid}-snapshotUrl',
-                      initialValue: cam.snapshotUrl.toString(),
-                      validator: FormBuilderValidators.compose([
-                        FormBuilderValidators.required(),
-                      ]),
-                      contextMenuBuilder: defaultContextMenuBuilder,
+                    name: '${cam.uuid}-tFps',
+                    initialValue: cam.targetFps.toString(),
+                    validator: FormBuilderValidators.compose([
+                      FormBuilderValidators.min(0),
+                      FormBuilderValidators.numeric(),
+                      FormBuilderValidators.required(),
+                    ]),
+                    valueTransformer: (String? text) {
+                      return text == null ? 0 : int.tryParse(text);
+                    },
+                    keyboardType: const TextInputType.numberWithOptions(
+                      signed: false,
+                      decimal: false,
                     ),
-                    FormBuilderDropdown(
-                      name: '${cam.uuid}-service',
-                      initialValue: cam.service,
-                      items: WebcamServiceType.values
-                          .map((serviceType) => DropdownMenuItem<WebcamServiceType>(
-                              enabled: serviceType.supported,
-                              value: serviceType,
-                              child: Text(
-                                  '${beautifyName(serviceType.name)} ${serviceType.supported ? '' : '(${tr('general.unsupported')})'}')))
-                          .toList(),
-                      decoration: InputDecoration(
-                        labelText: 'pages.printer_edit.cams.cam_mode'.tr(),
-                      ),
-                      onChanged: (WebcamServiceType? v) => serviceType.value = v!,
-                    ),
-                    if (serviceType.value == WebcamServiceType.mjpegStreamerAdaptive)
-                      FormBuilderTextField(
-                        decoration: InputDecoration(
-                          labelText: 'pages.printer_edit.cams.target_fps'.tr(),
-                          suffix: const Text('FPS'),
-                        ),
-                        name: '${cam.uuid}-tFps',
-                        initialValue: cam.targetFps.toString(),
-                        validator: FormBuilderValidators.compose([
-                          FormBuilderValidators.min(0),
-                          FormBuilderValidators.numeric(),
-                          FormBuilderValidators.required()
-                        ]),
-                        valueTransformer: (String? text) {
-                          return text == null ? 0 : int.tryParse(text);
-                        },
-                        keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                      ),
-                    FormBuilderDropdown(
-                        decoration: InputDecoration(
-                          labelText: 'pages.printer_edit.cams.cam_rotate'.tr(),
-                        ),
-                        name: '${cam.uuid}-rotate',
-                        initialValue: cam.rotation,
-                        items: [0, 90, 180, 270]
-                            .map((e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text('$e°'),
-                                ))
-                            .toList(growable: false)),
-                    FormBuilderSwitch(
-                      title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
-                      decoration: const InputDecoration(border: InputBorder.none),
-                      secondary: const Icon(FlutterIcons.swap_vertical_mco),
-                      initialValue: cam.flipVertical,
-                      name: '${cam.uuid}-camFV',
-                      activeColor: themeData.colorScheme.primary,
-                    ),
-                    FormBuilderSwitch(
-                      title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
-                      decoration: const InputDecoration(border: InputBorder.none),
-                      secondary: const Icon(FlutterIcons.swap_horizontal_mco),
-                      initialValue: cam.flipHorizontal,
-                      name: '${cam.uuid}-camFH',
-                      activeColor: themeData.colorScheme.primary,
-                    ),
-                    FullWidthButton(
-                      onPressed: serviceType.value.supported
-                          ? () => (ref.read(webcamListControllerProvider.notifier).previewWebcam(cam))
-                          : null,
-                      child: Text('general.preview'.tr() +
-                          (serviceType.value.supported ? '' : ' (${tr('general.unsupported')})')),
-                    )
-                  ]));
+                  ),
+                FormBuilderDropdown(
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.cams.cam_rotate'.tr(),
+                  ),
+                  name: '${cam.uuid}-rotate',
+                  initialValue: cam.rotation,
+                  items: [0, 90, 180, 270]
+                      .map((e) => DropdownMenuItem(
+                            value: e,
+                            child: Text('$e°'),
+                          ))
+                      .toList(growable: false),
+                ),
+                FormBuilderSwitch(
+                  title: const Text('pages.printer_edit.cams.flip_vertical').tr(),
+                  decoration: const InputDecoration(border: InputBorder.none),
+                  secondary: const Icon(FlutterIcons.swap_vertical_mco),
+                  initialValue: cam.flipVertical,
+                  name: '${cam.uuid}-camFV',
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  title: const Text('pages.printer_edit.cams.flip_horizontal').tr(),
+                  decoration: const InputDecoration(border: InputBorder.none),
+                  secondary: const Icon(FlutterIcons.swap_horizontal_mco),
+                  initialValue: cam.flipHorizontal,
+                  name: '${cam.uuid}-camFH',
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FullWidthButton(
+                  onPressed: serviceType.value.supported
+                      ? () => (ref.read(webcamListControllerProvider.notifier).previewWebcam(cam))
+                      : null,
+                  child: Text(
+                      'general.preview'.tr() + (serviceType.value.supported ? '' : ' (${tr('general.unsupported')})')),
+                ),
+              ],
+      ),
+    );
   }
 }
 
@@ -464,85 +486,122 @@ class RemoteSettings extends ConsumerWidget {
 
     return Column(
       children: ref.watch(machineRemoteSettingsProvider).when(
-          data: (machineSettings) {
-            return [
-              _SectionHeaderWithAction(
+            data: (machineSettings) {
+              return [
+                _SectionHeaderWithAction(
                   title: 'pages.dashboard.general.cam_card.webcam'.tr(),
                   action: TextButton.icon(
                     onPressed: isSaving ? null : ref.read(webcamListControllerProvider.notifier).addNewWebCam,
                     label: const Text('general.add').tr(),
                     icon: const Icon(FlutterIcons.webcam_mco),
-                  )),
-              const WebcamList(),
-              const Divider(),
-              SectionHeader(title: 'pages.printer_edit.motion_system.title'.tr()),
-              FormBuilderSwitch(
-                name: 'invertX',
-                initialValue: machineSettings.inverts[0],
-                title: const Text('pages.printer_edit.motion_system.invert_x').tr(),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
-                activeColor: themeData.colorScheme.primary,
-              ),
-              FormBuilderSwitch(
-                name: 'invertY',
-                initialValue: machineSettings.inverts[1],
-                title: const Text('pages.printer_edit.motion_system.invert_y').tr(),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
-                activeColor: themeData.colorScheme.primary,
-              ),
-              FormBuilderSwitch(
-                name: 'invertZ',
-                initialValue: machineSettings.inverts[2],
-                title: const Text('pages.printer_edit.motion_system.invert_z').tr(),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
-                activeColor: themeData.colorScheme.primary,
-              ),
-              FormBuilderTextField(
-                name: 'speedXY',
-                initialValue: machineSettings.speedXY.toString(),
-                valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
-                decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.motion_system.speed_xy'.tr(), suffixText: 'mm/s', isDense: true),
-                keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                validator:
-                    FormBuilderValidators.compose([FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
-              ),
-              FormBuilderTextField(
-                name: 'speedZ',
-                initialValue: machineSettings.speedZ.toString(),
-                valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
-                decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.motion_system.speed_z'.tr(), suffixText: 'mm/s', isDense: true),
-                keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                validator:
-                    FormBuilderValidators.compose([FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
-              ),
-              const MoveStepSegmentInput(),
-              const BabyStepSegmentInput(),
-              const Divider(),
-              SectionHeader(title: 'pages.printer_edit.extruders.title'.tr()),
-              FormBuilderTextField(
-                name: 'extrudeSpeed',
-                initialValue: machineSettings.extrudeFeedrate.toString(),
-                valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
-                decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.extruders.feedrate'.tr(), suffixText: 'mm/s', isDense: true),
-                keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
-                validator:
-                    FormBuilderValidators.compose([FormBuilderValidators.required(), FormBuilderValidators.min(1)]),
-              ),
-              const ExtruderStepSegmentInput(),
-              const Divider(),
-              _SectionHeaderWithAction(
+                  ),
+                ),
+                const WebcamList(),
+                const Divider(),
+                SectionHeader(
+                  title: 'pages.printer_edit.motion_system.title'.tr(),
+                ),
+                FormBuilderSwitch(
+                  name: 'invertX',
+                  initialValue: machineSettings.inverts[0],
+                  title: const Text('pages.printer_edit.motion_system.invert_x').tr(),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                  ),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'invertY',
+                  initialValue: machineSettings.inverts[1],
+                  title: const Text('pages.printer_edit.motion_system.invert_y').tr(),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                  ),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderSwitch(
+                  name: 'invertZ',
+                  initialValue: machineSettings.inverts[2],
+                  title: const Text('pages.printer_edit.motion_system.invert_z').tr(),
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                    isCollapsed: true,
+                  ),
+                  activeColor: themeData.colorScheme.primary,
+                ),
+                FormBuilderTextField(
+                  name: 'speedXY',
+                  initialValue: machineSettings.speedXY.toString(),
+                  valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.motion_system.speed_xy'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: false,
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                  ]),
+                ),
+                FormBuilderTextField(
+                  name: 'speedZ',
+                  initialValue: machineSettings.speedZ.toString(),
+                  valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.motion_system.speed_z'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: false,
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                  ]),
+                ),
+                const MoveStepSegmentInput(),
+                const BabyStepSegmentInput(),
+                const Divider(),
+                SectionHeader(title: 'pages.printer_edit.extruders.title'.tr()),
+                FormBuilderTextField(
+                  name: 'extrudeSpeed',
+                  initialValue: machineSettings.extrudeFeedrate.toString(),
+                  valueTransformer: (text) => (text != null) ? int.tryParse(text) : 0,
+                  decoration: InputDecoration(
+                    labelText: 'pages.printer_edit.extruders.feedrate'.tr(),
+                    suffixText: 'mm/s',
+                    isDense: true,
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    signed: false,
+                    decimal: false,
+                  ),
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                    FormBuilderValidators.min(1),
+                  ]),
+                ),
+                const ExtruderStepSegmentInput(),
+                const Divider(),
+                _SectionHeaderWithAction(
                   title: 'pages.dashboard.control.macro_card.title'.tr(),
                   action: TextButton.icon(
                     onPressed: isSaving ? null : ref.read(macroGroupListControllerProvider.notifier).addNewMacroGroup,
                     label: const Text('general.add').tr(),
                     icon: const Icon(Icons.source_outlined),
-                  )),
-              const MacroGroupList(),
-              const Divider(),
-              _SectionHeaderWithAction(
+                  ),
+                ),
+                const MacroGroupList(),
+                const Divider(),
+                _SectionHeaderWithAction(
                   title: 'pages.dashboard.general.temp_card.temp_presets'.tr(),
                   action: TextButton.icon(
                     onPressed: isSaving
@@ -550,49 +609,58 @@ class RemoteSettings extends ConsumerWidget {
                         : ref.watch(temperaturePresetListControllerProvider.notifier).addNewTemperaturePreset,
                     label: const Text('general.add').tr(),
                     icon: const Icon(FlutterIcons.thermometer_lines_mco),
-                  )),
-              const TemperaturePresetList(),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: TextButton.icon(
+                  ),
+                ),
+                const TemperaturePresetList(),
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: TextButton.icon(
                     onPressed: isSaving ? null : ref.read(printerEditControllerProvider.notifier).resetFcmCache,
                     icon: const Icon(Icons.notifications_off_outlined),
-                    label: const Text('pages.printer_edit.reset_notification_registry').tr()),
-              )
-            ];
-          },
-          error: (e, s) => [
-                WarningCard(
-                  title: const Text(
-                    'pages.printer_edit.could_not_fetch_additional',
-                  ).tr(),
-                  subtitle: const Text('pages.printer_edit.fetch_error_hint').tr(),
-                  leadingIcon: const Icon(
-                    Icons.error_outline,
+                    label: const Text(
+                      'pages.printer_edit.reset_notification_registry',
+                    ).tr(),
                   ),
-                )
-              ],
-          loading: () => [
-                FadingText('pages.printer_edit.fetching_additional_settings'.tr()),
-              ]),
+                ),
+              ];
+            },
+            error: (e, s) => [
+              WarningCard(
+                title: const Text(
+                  'pages.printer_edit.could_not_fetch_additional',
+                ).tr(),
+                subtitle: const Text('pages.printer_edit.fetch_error_hint').tr(),
+                leadingIcon: const Icon(Icons.error_outline),
+              ),
+            ],
+            loading: () => [
+              FadingText(
+                'pages.printer_edit.fetching_additional_settings'.tr(),
+              ),
+            ],
+          ),
     );
   }
 }
 
 class MoveStepSegmentInput extends ConsumerWidget {
-  const MoveStepSegmentInput({
-    Key? key,
-  }) : super(key: key);
+  const MoveStepSegmentInput({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var numberFormat = NumberFormat.decimalPattern(context.locale.languageCode);
     var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
-      decoration: InputDecoration(labelText: 'pages.printer_edit.motion_system.steps_move'.tr(), suffixText: 'mm'),
+      decoration: InputDecoration(
+        labelText: 'pages.printer_edit.motion_system.steps_move'.tr(),
+        suffixText: 'mm',
+      ),
       options: ref
           .watch(moveStepStateProvider)
-          .map((e) => FormBuilderFieldOption(value: e, child: Text(numberFormat.format(e))))
+          .map((e) => FormBuilderFieldOption(
+                value: e,
+                child: Text(numberFormat.format(e)),
+              ))
           .toList(growable: false),
       onAdd: isSaving ? null : ref.read(moveStepStateProvider.notifier).onAdd,
       onSelected: isSaving ? null : ref.read(moveStepStateProvider.notifier).onSelected,
@@ -600,7 +668,7 @@ class MoveStepSegmentInput extends ConsumerWidget {
         FormBuilderValidators.required(),
         FormBuilderValidators.numeric(),
         FormBuilderValidators.min(0.001),
-        ref.read(moveStepStateProvider.notifier).validate
+        ref.read(moveStepStateProvider.notifier).validate,
       ]),
       inputType: const TextInputType.numberWithOptions(decimal: true),
     );
@@ -608,15 +676,16 @@ class MoveStepSegmentInput extends ConsumerWidget {
 }
 
 class BabyStepSegmentInput extends ConsumerWidget {
-  const BabyStepSegmentInput({
-    Key? key,
-  }) : super(key: key);
+  const BabyStepSegmentInput({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
-      decoration: InputDecoration(labelText: 'pages.printer_edit.motion_system.steps_baby'.tr(), suffixText: 'mm'),
+      decoration: InputDecoration(
+        labelText: 'pages.printer_edit.motion_system.steps_baby'.tr(),
+        suffixText: 'mm',
+      ),
       options: ref
           .watch(babyStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
@@ -627,7 +696,7 @@ class BabyStepSegmentInput extends ConsumerWidget {
         FormBuilderValidators.required(),
         FormBuilderValidators.numeric(),
         FormBuilderValidators.min(0.001),
-        ref.read(babyStepStateProvider.notifier).validate
+        ref.read(babyStepStateProvider.notifier).validate,
       ]),
       inputType: const TextInputType.numberWithOptions(decimal: true),
     );
@@ -635,15 +704,16 @@ class BabyStepSegmentInput extends ConsumerWidget {
 }
 
 class ExtruderStepSegmentInput extends ConsumerWidget {
-  const ExtruderStepSegmentInput({
-    Key? key,
-  }) : super(key: key);
+  const ExtruderStepSegmentInput({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
-      decoration: InputDecoration(labelText: 'pages.printer_edit.extruders.steps_extrude'.tr(), suffixText: 'mm'),
+      decoration: InputDecoration(
+        labelText: 'pages.printer_edit.extruders.steps_extrude'.tr(),
+        suffixText: 'mm',
+      ),
       options: ref
           .watch(extruderStepStateProvider)
           .map((e) => FormBuilderFieldOption(value: e, child: Text('$e')))
@@ -655,7 +725,7 @@ class ExtruderStepSegmentInput extends ConsumerWidget {
         FormBuilderValidators.numeric(),
         FormBuilderValidators.integer(),
         FormBuilderValidators.min(1),
-        ref.read(extruderStepStateProvider.notifier).validate
+        ref.read(extruderStepStateProvider.notifier).validate,
       ]),
       inputType: TextInputType.number,
     );
@@ -677,25 +747,31 @@ class MacroGroupList extends ConsumerWidget {
       );
     }
     return ReorderableListView(
-        buildDefaultDragHandles: false,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        onReorder: ref.read(macroGroupListControllerProvider.notifier).onGroupReorder,
-        onReorderStart: (i) => FocusScope.of(context).unfocus(),
-        children: List.generate(macroGroups.length, (index) {
-          MacroGroup macroGroup = macroGroups[index];
-          return _MacroGroup(
-            key: ValueKey(macroGroup.uuid),
-            macroGroup: macroGroup,
-            idx: index,
-            canEditName: macroGroup != defaultGrp,
-          );
-        }));
+      buildDefaultDragHandles: false,
+      physics: const NeverScrollableScrollPhysics(),
+      shrinkWrap: true,
+      onReorder: ref.read(macroGroupListControllerProvider.notifier).onGroupReorder,
+      onReorderStart: (i) => FocusScope.of(context).unfocus(),
+      children: List.generate(macroGroups.length, (index) {
+        MacroGroup macroGroup = macroGroups[index];
+        return _MacroGroup(
+          key: ValueKey(macroGroup.uuid),
+          macroGroup: macroGroup,
+          idx: index,
+          canEditName: macroGroup != defaultGrp,
+        );
+      }),
+    );
   }
 }
 
 class _MacroGroup extends HookConsumerWidget {
-  const _MacroGroup({Key? key, required this.macroGroup, required this.idx, this.canEditName = true}) : super(key: key);
+  const _MacroGroup({
+    Key? key,
+    required this.macroGroup,
+    required this.idx,
+    this.canEditName = true,
+  }) : super(key: key);
 
   final MacroGroup macroGroup;
   final int idx;
@@ -705,77 +781,88 @@ class _MacroGroup extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var name = useState(macroGroup.name);
     var macros = ref.watch(macroGroupControllerProvder(macroGroup));
-    var dragging = ref.watch(macroGroupDragginControllerProvider.select((value) => value != null));
+    var dragging = ref.watch(
+      macroGroupDragginControllerProvider.select((value) => value != null),
+    );
 
     var isSaving = ref.watch(printerEditControllerProvider);
     return Card(
-        child: ExpansionTile(
-            maintainState: true,
-            tilePadding: const EdgeInsets.symmetric(horizontal: 10),
-            childrenPadding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            leading: ReorderableDragStartListener(
-              index: idx,
-              child: const Icon(Icons.drag_handle),
-            ),
-            title: DragTarget<int>(
-              builder: (BuildContext context, List<int?> candidateData, List<dynamic> rejectedData) {
-                var themeData = Theme.of(context);
-                var row = Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(name.value),
-                      Chip(
-                        label: Text('${macros.length}'),
-                        backgroundColor: themeData.colorScheme.background,
-                      )
-                    ],
+      child: ExpansionTile(
+        maintainState: true,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+        childrenPadding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+        leading: ReorderableDragStartListener(
+          index: idx,
+          child: const Icon(Icons.drag_handle),
+        ),
+        title: DragTarget<int>(
+          builder: (
+            BuildContext context,
+            List<int?> candidateData,
+            List<dynamic> rejectedData,
+          ) {
+            var themeData = Theme.of(context);
+            var row = Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(name.value),
+                  Chip(
+                    label: Text('${macros.length}'),
+                    backgroundColor: themeData.colorScheme.background,
                   ),
-                );
-                if (!dragging) return row;
+                ],
+              ),
+            );
+            if (!dragging) return row;
 
-                var targetCol = candidateData.isNotEmpty
-                    ? themeData.colorScheme.primaryContainer
-                    : themeData.colorScheme.background.lighten(10);
+            var targetCol = candidateData.isNotEmpty
+                ? themeData.colorScheme.primaryContainer
+                : themeData.colorScheme.background.lighten(10);
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: targetCol,
-                    borderRadius: const BorderRadius.horizontal(left: Radius.circular(14), right: Radius.circular(14)),
-                    border: Border.all(color: themeData.colorScheme.secondary),
-                  ),
-                  child: row,
-                );
-              },
-              onAccept: (int d) =>
-                  ref.read(macroGroupDragginControllerProvider.notifier).onMacroDragAccepted(macroGroup, d),
-            ),
-            children: [
+            return Container(
+              decoration: BoxDecoration(
+                color: targetCol,
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(14),
+                  right: Radius.circular(14),
+                ),
+                border: Border.all(color: themeData.colorScheme.secondary),
+              ),
+              child: row,
+            );
+          },
+          onAccept: (int d) =>
+              ref.read(macroGroupDragginControllerProvider.notifier).onMacroDragAccepted(macroGroup, d),
+        ),
+        children: [
           if (canEditName)
             FormBuilderTextField(
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
-                  labelText: 'pages.printer_edit.general.displayname'.tr(),
-                  suffix: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: isSaving
-                        ? null
-                        : () => ref.read(macroGroupListControllerProvider.notifier).removeMacroGroup(macroGroup),
-                  )),
+                labelText: 'pages.printer_edit.general.displayname'.tr(),
+                suffix: IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: isSaving
+                      ? null
+                      : () => ref.read(macroGroupListControllerProvider.notifier).removeMacroGroup(macroGroup),
+                ),
+              ),
               name: '${macroGroup.uuid}-macroName',
               initialValue: name.value,
               onChanged: (v) =>
                   name.value = ((v?.isEmpty ?? true) ? 'pages.printer_edit.macros.new_macro_grp'.tr() : v!),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(),
-                FormBuilderValidators.notEqual('Default', errorText: 'Group can not be named Default')
+                FormBuilderValidators.notEqual(
+                  'Default',
+                  errorText: 'Group can not be named Default',
+                ),
               ]),
               contextMenuBuilder: defaultContextMenuBuilder,
             ),
-          const SizedBox(
-            height: 8,
-          ),
+          const SizedBox(height: 8),
           const SectionHeader(title: 'Macros'),
           if (macros.isEmpty)
             const Padding(
@@ -800,8 +887,10 @@ class _MacroGroup extends HookConsumerWidget {
               onReorder: ref.read(macroGroupControllerProvder(macroGroup).notifier).onMacroReorder,
               onNoReorder: ref.read(macroGroupControllerProvder(macroGroup).notifier).onNoReorder,
               children: macros.map((m) => Chip(label: Text(m.beautifiedName))).toList(),
-            )
-        ]));
+            ),
+        ],
+      ),
+    );
   }
 }
 
@@ -839,7 +928,12 @@ class TemperaturePresetList extends ConsumerWidget {
 }
 
 class _TempPresetItem extends HookConsumerWidget {
-  const _TempPresetItem({Key? key, required this.preset, required this.idx, required this.machine}) : super(key: key);
+  const _TempPresetItem({
+    Key? key,
+    required this.preset,
+    required this.idx,
+    required this.machine,
+  }) : super(key: key);
   final TemperaturePreset preset;
   final int idx;
   final Machine machine; // We cant use the provider here since the reordable cant use the provider while dragging!
@@ -854,34 +948,43 @@ class _TempPresetItem extends HookConsumerWidget {
     var extruderMaxTemp = (primaryExtConfig?.maxTemp ?? 500).toInt();
     var bedMaxTemp = (bedConfig?.maxTemp ?? 120).toInt();
     return Card(
-        child: ExpansionTile(
-            maintainState: true,
-            tilePadding: const EdgeInsets.symmetric(horizontal: 10),
-            childrenPadding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            title: Text(name.value),
-            leading: ReorderableDragStartListener(
-              index: idx,
-              child: const Icon(Icons.drag_handle),
-            ),
-            children: [
+      child: ExpansionTile(
+        maintainState: true,
+        tilePadding: const EdgeInsets.symmetric(horizontal: 10),
+        childrenPadding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+        title: Text(name.value),
+        leading: ReorderableDragStartListener(
+          index: idx,
+          child: const Icon(Icons.drag_handle),
+        ),
+        children: [
           FormBuilderTextField(
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
-                labelText: 'pages.printer_edit.general.displayname'.tr(),
-                suffix: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: ref.watch(printerEditControllerProvider)
-                      ? null
-                      : () =>
-                          ref.read(temperaturePresetListControllerProvider.notifier).removeTemperaturePreset(preset),
-                )),
+              labelText: 'pages.printer_edit.general.displayname'.tr(),
+              suffix: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: ref.watch(printerEditControllerProvider)
+                    ? null
+                    : () => ref
+                        .read(
+                          temperaturePresetListControllerProvider.notifier,
+                        )
+                        .removeTemperaturePreset(preset),
+              ),
+            ),
             name: '${preset.uuid}-presetName',
             initialValue: name.value,
             onChanged: (v) => name.value = ((v?.isEmpty ?? true) ? 'pages.printer_edit.presets.new_preset'.tr() : v!),
-            validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+            validator: FormBuilderValidators.compose(
+              [FormBuilderValidators.required()],
+            ),
           ),
           FormBuilderTextField(
-            decoration: InputDecoration(labelText: tr('pages.printer_edit.presets.hotend_temp'), suffixText: '°C'),
+            decoration: InputDecoration(
+              labelText: tr('pages.printer_edit.presets.hotend_temp'),
+              suffixText: '°C',
+            ),
             name: '${preset.uuid}-extruderTemp',
             initialValue: preset.extruderTemp.toString(),
             valueTransformer: (String? text) => (text != null) ? int.tryParse(text) : primaryExtConfig?.minTemp ?? 0,
@@ -889,13 +992,19 @@ class _TempPresetItem extends HookConsumerWidget {
               [
                 FormBuilderValidators.required(),
                 FormBuilderValidators.min(0),
-                FormBuilderValidators.max(extruderMaxTemp, errorText: 'Heater only allows up to $extruderMaxTemp°C'),
+                FormBuilderValidators.max(
+                  extruderMaxTemp,
+                  errorText: 'Heater only allows up to $extruderMaxTemp°C',
+                ),
               ],
             ),
             keyboardType: TextInputType.number,
           ),
           FormBuilderTextField(
-            decoration: InputDecoration(labelText: tr('pages.printer_edit.presets.bed_temp'), suffixText: '°C'),
+            decoration: InputDecoration(
+              labelText: tr('pages.printer_edit.presets.bed_temp'),
+              suffixText: '°C',
+            ),
             name: '${preset.uuid}-bedTemp',
             initialValue: preset.bedTemp.toString(),
             valueTransformer: (String? text) => (text != null) ? int.tryParse(text) : bedConfig?.minTemp ?? 0,
@@ -903,28 +1012,33 @@ class _TempPresetItem extends HookConsumerWidget {
               [
                 FormBuilderValidators.required(),
                 FormBuilderValidators.min(0),
-                FormBuilderValidators.max(bedMaxTemp, errorText: 'Heater only allows up to $bedMaxTemp°C'),
+                FormBuilderValidators.max(
+                  bedMaxTemp,
+                  errorText: 'Heater only allows up to $bedMaxTemp°C',
+                ),
               ],
             ),
             keyboardType: TextInputType.number,
-          )
-        ]));
+          ),
+        ],
+      ),
+    );
   }
 }
 
 //
 // //ToDo: Better name for this widget
 class Segments<T> extends StatefulWidget {
-  const Segments(
-      {Key? key,
-      this.decoration = const InputDecoration(),
-      this.maxOptions = 5,
-      required this.options,
-      this.onSelected,
-      this.onAdd,
-      this.validator,
-      this.inputType})
-      : super(key: key);
+  const Segments({
+    Key? key,
+    this.decoration = const InputDecoration(),
+    this.maxOptions = 5,
+    required this.options,
+    this.onSelected,
+    this.onAdd,
+    this.validator,
+    this.inputType,
+  }) : super(key: key);
 
   final InputDecoration decoration;
 
@@ -1012,17 +1126,18 @@ class _SegmentsState<T> extends State<Segments<T>> {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
-              child: TextField(
-            controller: textCtrler,
-            onEditingComplete: submit,
-            decoration: widget.decoration.copyWith(errorText: error),
-            keyboardType: widget.inputType,
-          )),
+            child: TextField(
+              controller: textCtrler,
+              onEditingComplete: submit,
+              decoration: widget.decoration.copyWith(errorText: error),
+              keyboardType: widget.inputType,
+            ),
+          ),
           IconButton(
             color: Theme.of(context).colorScheme.primary,
             icon: const Icon(Icons.done),
             onPressed: error == null ? submit : null,
-          )
+          ),
         ],
       ),
     );
@@ -1037,16 +1152,15 @@ class _SegmentsState<T> extends State<Segments<T>> {
         children: <Widget>[
           for (FormBuilderFieldOption<T> option in widget.options)
             ChoiceChip(
-                selected: false,
-                label: option,
-                onSelected: widget.onSelected == null ? null : (s) => onChipPressed(option)),
+              selected: false,
+              label: option,
+              onSelected: widget.onSelected == null ? null : (s) => onChipPressed(option),
+            ),
           if (widget.options.isEmpty)
             ChoiceChip(
               label: const Text('pages.printer_edit.no_values_found').tr(),
               selected: false,
-              onSelected: (v) {
-                return;
-              },
+              onSelected: (v) {},
             ),
           if (widget.onAdd != null && widget.options.length < widget.maxOptions)
             ChoiceChip(
@@ -1090,20 +1204,21 @@ class _ThemeSelector extends ConsumerWidget {
         ...themeList.mapIndex((theme, idx) {
           var brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
           return DropdownMenuItem(
-              value: idx,
-              child: Row(
-                children: [
-                  (brandingIcon == null)
-                      ? SvgPicture.asset(
-                          'assets/vector/mr_logo.svg',
-                          width: 32,
-                          height: 32,
-                        )
-                      : Image(height: 32, width: 32, image: brandingIcon),
-                  const SizedBox(width: 8),
-                  Flexible(child: Text(theme.name))
-                ],
-              ));
+            value: idx,
+            child: Row(
+              children: [
+                (brandingIcon == null)
+                    ? SvgPicture.asset(
+                        'assets/vector/mr_logo.svg',
+                        width: 32,
+                        height: 32,
+                      )
+                    : Image(height: 32, width: 32, image: brandingIcon),
+                const SizedBox(width: 8),
+                Flexible(child: Text(theme.name)),
+              ],
+            ),
+          );
         }),
       ],
       decoration: InputDecoration(

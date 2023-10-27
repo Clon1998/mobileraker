@@ -27,8 +27,9 @@ import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_control
 import 'package:mobileraker/ui/components/dialog/led_rgbw/led_rgbw_dialog_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 
-final controlTabControllerProvider =
-    StateNotifierProvider.autoDispose<ControlTabController, void>((ref) => ControlTabController(ref));
+final controlTabControllerProvider = StateNotifierProvider.autoDispose<ControlTabController, void>(
+  (ref) => ControlTabController(ref),
+);
 
 class ControlTabController extends StateNotifier<void> {
   ControlTabController(this.ref)
@@ -44,9 +45,9 @@ class ControlTabController extends StateNotifier<void> {
 
   onMacroPressed(String name, ConfigGcodeMacro? configGcodeMacro) async {
     if (configGcodeMacro != null && configGcodeMacro.params.isNotEmpty) {
-      DialogResponse? response = await ref
-          .read(dialogServiceProvider)
-          .show(DialogRequest(type: DialogType.gcodeParams, data: configGcodeMacro));
+      DialogResponse? response = await ref.read(dialogServiceProvider).show(
+            DialogRequest(type: DialogType.gcodeParams, data: configGcodeMacro),
+          );
 
       if (response?.confirmed == true) {
         var paramsMap = response!.data as Map<String, String>;
@@ -63,7 +64,7 @@ class ControlTabController extends StateNotifier<void> {
     }
   }
 
-  onMacroLongPressed(String name) async {
+  onMacroLongPressed(String name) {
     HapticFeedback.vibrate();
     printerService.gCode(name);
   }
@@ -72,13 +73,18 @@ class ControlTabController extends StateNotifier<void> {
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-                ? DialogType.numEdit
-                : DialogType.rangeEdit,
-            title: 'Edit Part Cooling fan %',
-            cancelBtn: tr('general.cancel'),
-            confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(current: d.speed * 100.round(), min: 0, max: 100)))
+          type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+              ? DialogType.numEdit
+              : DialogType.rangeEdit,
+          title: 'Edit Part Cooling fan %',
+          cancelBtn: tr('general.cancel'),
+          confirmBtn: tr('general.confirm'),
+          data: NumberEditDialogArguments(
+            current: d.speed * 100.round(),
+            min: 0,
+            max: 100,
+          ),
+        ))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
@@ -91,13 +97,18 @@ class ControlTabController extends StateNotifier<void> {
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-                ? DialogType.numEdit
-                : DialogType.rangeEdit,
-            title: 'Edit ${beautifyName(namedFan.name)} %',
-            cancelBtn: tr('general.cancel'),
-            confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(current: namedFan.speed * 100.round(), min: 0, max: 100)))
+          type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+              ? DialogType.numEdit
+              : DialogType.rangeEdit,
+          title: 'Edit ${beautifyName(namedFan.name)} %',
+          cancelBtn: tr('general.cancel'),
+          confirmBtn: tr('general.confirm'),
+          data: NumberEditDialogArguments(
+            current: namedFan.speed * 100.round(),
+            min: 0,
+            max: 100,
+          ),
+        ))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
@@ -112,17 +123,19 @@ class ControlTabController extends StateNotifier<void> {
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-                ? DialogType.numEdit
-                : DialogType.rangeEdit,
-            title: 'Edit ${beautifyName(pin.name)} value!',
-            cancelBtn: tr('general.cancel'),
-            confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(
-                current: pin.value * (configOutput?.scale ?? 1),
-                min: 0,
-                max: configOutput?.scale.toInt() ?? 1,
-                fraction: fractionToShow)))
+          type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+              ? DialogType.numEdit
+              : DialogType.rangeEdit,
+          title: 'Edit ${beautifyName(pin.name)} value!',
+          cancelBtn: tr('general.cancel'),
+          confirmBtn: tr('general.confirm'),
+          data: NumberEditDialogArguments(
+            current: pin.value * (configOutput?.scale ?? 1),
+            min: 0,
+            max: configOutput?.scale.toInt() ?? 1,
+            fraction: fractionToShow,
+          ),
+        ))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         num v = value.data;
@@ -143,14 +156,18 @@ class ControlTabController extends StateNotifier<void> {
       ref
           .read(dialogServiceProvider)
           .show(DialogRequest(
-              type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-                  ? DialogType.numEdit
-                  : DialogType.rangeEdit,
-              title: '${tr('general.edit')} $name %',
-              cancelBtn: tr('general.cancel'),
-              confirmBtn: tr('general.confirm'),
-              data: NumberEditDialogArguments(
-                  current: (led as DumbLed).color.asList().reduce(max) * 100.round(), min: 0, max: 100)))
+            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+                ? DialogType.numEdit
+                : DialogType.rangeEdit,
+            title: '${tr('general.edit')} $name %',
+            cancelBtn: tr('general.cancel'),
+            confirmBtn: tr('general.confirm'),
+            data: NumberEditDialogArguments(
+              current: (led as DumbLed).color.asList().reduce(max) * 100.round(),
+              min: 0,
+              max: 100,
+            ),
+          ))
           .then((value) {
         if (value != null && value.confirmed && value.data != null) {
           double v = (value.data as num).toInt() / 100;
@@ -174,11 +191,9 @@ class ControlTabController extends StateNotifier<void> {
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type: DialogType.ledRGBW,
-            data: LedRGBWDialogArgument(
-              configLed,
-              led,
-            )))
+          type: DialogType.ledRGBW,
+          data: LedRGBWDialogArgument(configLed, led),
+        ))
         .then((value) {
       if (value != null && value.confirmed && value.data != null) {
         Color selectedColor = value.data;
@@ -188,8 +203,12 @@ class ControlTabController extends StateNotifier<void> {
           white = 1;
         }
 
-        Pixel pixel =
-            Pixel.fromList([selectedColor.red / 255, selectedColor.green / 255, selectedColor.blue / 255, white]);
+        Pixel pixel = Pixel.fromList([
+          selectedColor.red / 255,
+          selectedColor.green / 255,
+          selectedColor.blue / 255,
+          white,
+        ]);
 
         printerService.led(led.name, pixel);
       }
@@ -197,11 +216,12 @@ class ControlTabController extends StateNotifier<void> {
   }
 }
 
-final extruderControlCardControllerProvider =
-    StateNotifierProvider.autoDispose<ExtruderControlCardController, int>((ref) {
-  ref.keepAlive();
-  return ExtruderControlCardController(ref);
-});
+final extruderControlCardControllerProvider = StateNotifierProvider.autoDispose<ExtruderControlCardController, int>(
+  (ref) {
+    ref.keepAlive();
+    return ExtruderControlCardController(ref);
+  },
+);
 
 class ExtruderControlCardController extends StateNotifier<int> {
   ExtruderControlCardController(this.ref)

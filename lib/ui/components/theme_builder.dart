@@ -17,9 +17,14 @@ class ThemeBuilder extends ConsumerWidget {
     var asyncTheme = ref.watch(activeThemeProvider);
 
     return asyncTheme.when(
-        data: (data) =>
-            builder(context, data.themePack.lightTheme, data.themePack.darkTheme, data.themeMode),
-        error: (e, s) => const Text('Unable to load theme Data'),
-        loading: () => const CircularProgressIndicator.adaptive());
+      data: (data) => builder(
+        context,
+        data.themePack.lightTheme,
+        data.themePack.darkTheme,
+        data.themeMode,
+      ),
+      error: (e, s) => const Text('Unable to load theme Data'),
+      loading: () => const CircularProgressIndicator.adaptive(),
+    );
   }
 }

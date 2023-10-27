@@ -13,18 +13,17 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../service/ui/bottom_sheet_service_impl.dart';
 
 class NonPrintingBottomSheet extends ConsumerWidget {
-  const NonPrintingBottomSheet({
-    Key? key,
-  }) : super(key: key);
+  const NonPrintingBottomSheet({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var buttonStyle = ElevatedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 22),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18.0),
-        ));
+      padding: const EdgeInsets.symmetric(horizontal: 22),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18.0),
+      ),
+    );
 
     var klippyService = ref.read(klipperServiceSelectedProvider);
     return Padding(
@@ -36,15 +35,16 @@ class NonPrintingBottomSheet extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
-                  flex: 5,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _btnAction(context, klippyService.shutdownHost),
-                      style: buttonStyle,
-                      child: const Text('general.shutdown').tr(),
-                    ),
-                  )),
+                flex: 5,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _btnAction(context, klippyService.shutdownHost),
+                    style: buttonStyle,
+                    child: const Text('general.shutdown').tr(),
+                  ),
+                ),
+              ),
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
                 child: Icon(
@@ -53,46 +53,50 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                 ),
               ),
               Flexible(
-                  flex: 5,
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _btnAction(context, klippyService.rebootHost),
-                      style: buttonStyle,
-                      child: const Text('general.restart').tr(),
-                    ),
-                  ))
+                flex: 5,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _btnAction(context, klippyService.rebootHost),
+                    style: buttonStyle,
+                    child: const Text('general.restart').tr(),
+                  ),
+                ),
+              ),
             ],
           ),
-          const SizedBox(
-            height: 5,
+          const SizedBox(height: 5),
+          FullWidthButton(
+            onPressed: _btnAction(context, klippyService.restartKlipper),
+            buttonStyle: buttonStyle,
+            child: Text('Klipper ${tr('@.lower:general.restart')}'),
           ),
           FullWidthButton(
-              onPressed: _btnAction(context, klippyService.restartKlipper),
-              buttonStyle: buttonStyle,
-              child: Text('Klipper ${tr('@.lower:general.restart')}')),
+            onPressed: _btnAction(context, klippyService.restartMoonraker),
+            buttonStyle: buttonStyle,
+            child: Text('Moonraker ${tr('@.lower:general.restart')}'),
+          ),
           FullWidthButton(
-              onPressed: _btnAction(context, klippyService.restartMoonraker),
-              buttonStyle: buttonStyle,
-              child: Text('Moonraker ${tr('@.lower:general.restart')}')),
+            onPressed: _btnAction(context, klippyService.restartMCUs),
+            buttonStyle: buttonStyle,
+            child: Text(
+              '${tr('general.firmware')} ${tr('@.lower:general.restart')}',
+            ),
+          ),
           FullWidthButton(
-              onPressed: _btnAction(context, klippyService.restartMCUs),
-              buttonStyle: buttonStyle,
-              child: Text('${tr('general.firmware')} ${tr('@.lower:general.restart')}')),
-          FullWidthButton(
-              onPressed: _btnAction(
-                  context,
-                  () => ref
-                      .read(bottomSheetServiceProvider)
-                      .show(BottomSheetConfig(type: SheetType.jobQueueMenu))),
-              buttonStyle: buttonStyle,
-              child: const Text('dialogs.supporter_perks.job_queue_perk.title').tr()),
+            onPressed: _btnAction(
+              context,
+              () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu)),
+            ),
+            buttonStyle: buttonStyle,
+            child: const Text('dialogs.supporter_perks.job_queue_perk.title').tr(),
+          ),
           ElevatedButton.icon(
             label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
             icon: const Icon(Icons.keyboard_arrow_down),
             onPressed: () => Navigator.of(context).pop(),
             style: buttonStyle,
-          )
+          ),
         ],
       ),
     );
@@ -123,11 +127,12 @@ class FullWidthButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        width: double.infinity,
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: buttonStyle,
-          child: child,
-        ));
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: buttonStyle,
+        child: child,
+      ),
+    );
   }
 }

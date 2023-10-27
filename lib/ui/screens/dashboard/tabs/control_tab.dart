@@ -54,107 +54,100 @@ class ControlTab extends ConsumerWidget {
     var settingService = ref.watch(settingServiceProvider);
 
     return ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid)).when(
-        data: (data) {
-          var groupSliders = settingService.readBool(AppSettingKeys.groupSliders, true);
-          return PullToRefreshPrinter(
-            child: ListView(
-              key: const PageStorageKey<String>('cTab'),
-              padding: const EdgeInsets.only(bottom: 20),
-              children: [
-                if (ref
-                        .watch(machinePrinterKlippySettingsProvider
-                            .selectAs((value) => value.settings.macroGroups.isNotEmpty))
-                        .valueOrNull ??
-                    false)
-                  const GcodeMacroCard(),
-                if (ref
-                        .watch(machinePrinterKlippySettingsProvider
-                            .selectAs((value) => value.printerData.print.state != PrintState.printing))
-                        .valueOrNull ??
-                    false)
-                  const ExtruderControlCard(),
-                const FansCard(),
-                if (ref
-                        .watch(machinePrinterKlippySettingsProvider.selectAs(
-                            (value) => value.printerData.outputPins.isNotEmpty || value.printerData.leds.isNotEmpty))
-                        .valueOrNull ??
-                    false)
-                  const PinsCard(),
-                if (ref
-                        .watch(machinePrinterKlippySettingsProvider
-                            .selectAs((value) => value.klippyData.components.contains('power')))
-                        .valueOrNull ??
-                    false)
-                  const PowerApiCard(),
-                if (groupSliders) const _MiscCard(),
-                if (!groupSliders) ...[
-                  MultipliersCard(
-                    machineUUID: data,
-                  ),
-                  LimitsCard(
-                    machineUUID: data,
-                  ),
+          data: (data) {
+            var groupSliders = settingService.readBool(AppSettingKeys.groupSliders, true);
+            return PullToRefreshPrinter(
+              child: ListView(
+                key: const PageStorageKey<String>('cTab'),
+                padding: const EdgeInsets.only(bottom: 20),
+                children: [
                   if (ref
                           .watch(machinePrinterKlippySettingsProvider
-                              .selectAs((data) => data.printerData.firmwareRetraction != null))
-                          .valueOrNull ==
-                      true)
-                    FirmwareRetractionCard(
-                      machineUUID: data,
-                    ),
+                              .selectAs((value) => value.settings.macroGroups.isNotEmpty))
+                          .valueOrNull ??
+                      false)
+                    const GcodeMacroCard(),
+                  if (ref
+                          .watch(machinePrinterKlippySettingsProvider
+                              .selectAs((value) => value.printerData.print.state != PrintState.printing))
+                          .valueOrNull ??
+                      false)
+                    const ExtruderControlCard(),
+                  const FansCard(),
+                  if (ref
+                          .watch(machinePrinterKlippySettingsProvider.selectAs(
+                              (value) => value.printerData.outputPins.isNotEmpty || value.printerData.leds.isNotEmpty))
+                          .valueOrNull ??
+                      false)
+                    const PinsCard(),
+                  if (ref
+                          .watch(machinePrinterKlippySettingsProvider
+                              .selectAs((value) => value.klippyData.components.contains('power')))
+                          .valueOrNull ??
+                      false)
+                    const PowerApiCard(),
+                  if (groupSliders) const _MiscCard(),
+                  if (!groupSliders) ...[
+                    MultipliersCard(machineUUID: data),
+                    LimitsCard(machineUUID: data),
+                    if (ref
+                            .watch(machinePrinterKlippySettingsProvider
+                                .selectAs((data) => data.printerData.firmwareRetraction != null))
+                            .valueOrNull ==
+                        true)
+                      FirmwareRetractionCard(machineUUID: data),
+                  ],
                 ],
-              ],
-            ),
-          );
-        },
-        error: (e, s) {
-          logger.e('Cought error in Controller tab', e, s);
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
-                const SizedBox(
-                  height: 22,
-                ),
-                const Text(
-                  'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
-                  textAlign: TextAlign.center,
-                ),
-                TextButton(
-                    // onPressed: model.showPrinterFetchingErrorDialog,
-                    onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                        type: CommonDialogs.stacktrace,
-                        title: e.runtimeType.toString(),
-                        body: 'Exception:\n $e\n\n$s')),
-                    child: const Text('Show Error'))
-              ],
-            ),
-          );
-        },
-        loading: () => Center(
+              ),
+            );
+          },
+          error: (e, s) {
+            logger.e('Cought error in Controller tab', e, s);
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SpinKitRipple(
-                    color: Theme.of(context).colorScheme.secondary,
-                    size: 100,
+                  const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
+                  const SizedBox(height: 22),
+                  const Text(
+                    'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
+                    textAlign: TextAlign.center,
                   ),
-                  const SizedBox(
-                    height: 30,
+                  TextButton(
+                    // onPressed: model.showPrinterFetchingErrorDialog,
+                    onPressed: () => ref.read(dialogServiceProvider).show(
+                          DialogRequest(
+                            type: CommonDialogs.stacktrace,
+                            title: e.runtimeType.toString(),
+                            body: 'Exception:\n $e\n\n$s',
+                          ),
+                        ),
+                    child: const Text('Show Error'),
                   ),
-                  FadingText('Fetching printer data'),
-                  // Text('Fetching printer ...')
                 ],
               ),
-            ));
+            );
+          },
+          loading: () => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SpinKitRipple(
+                  color: Theme.of(context).colorScheme.secondary,
+                  size: 100,
+                ),
+                const SizedBox(height: 30),
+                FadingText('Fetching printer data'),
+                // Text('Fetching printer ...')
+              ],
+            ),
+          ),
+        );
   }
 }
 
 class FansCard extends ConsumerWidget {
-  const FansCard({
-    Key? key,
-  }) : super(key: key);
+  const FansCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -169,25 +162,24 @@ class FansCard extends ConsumerWidget {
         child: Column(
           children: [
             ListTile(
-              leading: const Icon(
-                FlutterIcons.fan_mco,
-              ),
+              leading: const Icon(FlutterIcons.fan_mco),
               title: const Text('pages.dashboard.control.fan_card.title').plural(fanLen),
             ),
             AdaptiveHorizontalScroll(pageStorageKey: 'fans', children: [
               if (ref
-                      .watch(
-                          machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.isPrintFanAvailable))
+                      .watch(machinePrinterKlippySettingsProvider.selectAs(
+                        (data) => data.printerData.isPrintFanAvailable,
+                      ))
                       .valueOrNull ==
                   true)
                 const _PrintFan(),
               ...List.generate(fanLen, (index) {
-                var fanProvider = machinePrinterKlippySettingsProvider.selectAs((value) =>
-                    value.printerData.fans.values.where((element) => !element.name.startsWith('_')).elementAt(index));
-
-                return _Fan(
-                  fanProvider: fanProvider,
+                var fanProvider = machinePrinterKlippySettingsProvider.selectAs(
+                  (value) =>
+                      value.printerData.fans.values.where((element) => !element.name.startsWith('_')).elementAt(index),
                 );
+
+                return _Fan(fanProvider: fanProvider);
               }),
             ]),
           ],
@@ -264,38 +256,37 @@ class _FanCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardWithButton(
-        buttonChild: onTap == null
-            ? const Text('pages.dashboard.control.fan_card.static_fan_btn').tr()
-            : const Text('general.set').tr(),
-        onTap: onTap,
-        builder: (context) {
-          return Tooltip(
-            message: name,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: Theme.of(context).textTheme.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(fanSpeed, style: Theme.of(context).textTheme.headlineSmall),
-                  ],
-                ),
-                speed > 0
-                    ? const SpinningFan(size: icoSize)
-                    : const Icon(
-                        FlutterIcons.fan_off_mco,
-                        size: icoSize,
-                      ),
-              ],
-            ),
-          );
-        });
+      buttonChild: onTap == null
+          ? const Text('pages.dashboard.control.fan_card.static_fan_btn').tr()
+          : const Text('general.set').tr(),
+      onTap: onTap,
+      builder: (context) {
+        return Tooltip(
+          message: name,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: Theme.of(context).textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    fanSpeed,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+              speed > 0 ? const SpinningFan(size: icoSize) : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -315,9 +306,7 @@ class SpinningFan extends HookWidget {
 }
 
 class ExtruderControlCard extends HookConsumerWidget {
-  const ExtruderControlCard({
-    Key? key,
-  }) : super(key: key);
+  const ExtruderControlCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -358,20 +347,23 @@ class ExtruderControlCard extends HookConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 5),
                     child: Tooltip(
-                      message: tr('pages.dashboard.control.extrude_card.cold_extrude_error',
-                          args: [minExtrudeTemp.toStringAsFixed(0)]),
+                      message: tr(
+                        'pages.dashboard.control.extrude_card.cold_extrude_error',
+                        args: [minExtrudeTemp.toStringAsFixed(0)],
+                      ),
                       child: Icon(
                         Icons.severe_cold,
                         color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
             trailing: (ref
-                    .watch(
-                        machinePrinterKlippySettingsProvider.selectAs((value) => value.printerData.extruderCount > 1))
+                    .watch(machinePrinterKlippySettingsProvider.selectAs(
+                      (value) => value.printerData.extruderCount > 1,
+                    ))
                     .valueOrNull!)
                 ? DropdownButton(
                     value: activeExtruderIdx,
@@ -379,17 +371,23 @@ class ExtruderControlCard extends HookConsumerWidget {
                         ? ref.watch(controlTabControllerProvider.notifier).onExtruderSelected
                         : null,
                     items: List.generate(
-                        ref
-                            .watch(machinePrinterKlippySettingsProvider
-                                .selectAs((value) => value.printerData.extruderCount))
-                            .valueOrNull!, (index) {
-                      String name = tr('pages.dashboard.control.extrude_card.title');
-                      if (index > 0) name += ' $index';
-                      return DropdownMenuItem(
-                        value: index,
-                        child: Text(name),
-                      );
-                    }))
+                      ref
+                          .watch(
+                            machinePrinterKlippySettingsProvider.selectAs(
+                              (value) => value.printerData.extruderCount,
+                            ),
+                          )
+                          .valueOrNull!,
+                      (index) {
+                        String name = tr('pages.dashboard.control.extrude_card.title');
+                        if (index > 0) name += ' $index';
+                        return DropdownMenuItem(
+                          value: index,
+                          child: Text(name),
+                        );
+                      },
+                    ),
+                  )
                 : null,
           ),
           Padding(
@@ -407,7 +405,9 @@ class ExtruderControlCard extends HookConsumerWidget {
                             ? ref.watch(extruderControlCardControllerProvider.notifier).onRetractBtn
                             : null,
                         icon: const Icon(FlutterIcons.minus_ant),
-                        label: const Text('pages.dashboard.control.extrude_card.retract').tr(),
+                        label: const Text(
+                          'pages.dashboard.control.extrude_card.retract',
+                        ).tr(),
                       ),
                     ),
                     Container(
@@ -417,7 +417,9 @@ class ExtruderControlCard extends HookConsumerWidget {
                             ? ref.watch(extruderControlCardControllerProvider.notifier).onExtrudeBtn
                             : null,
                         icon: const Icon(FlutterIcons.plus_ant),
-                        label: const Text('pages.dashboard.control.extrude_card.extrude').tr(),
+                        label: const Text(
+                          'pages.dashboard.control.extrude_card.extrude',
+                        ).tr(),
                       ),
                     ),
                   ],
@@ -426,12 +428,19 @@ class ExtruderControlCard extends HookConsumerWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8),
-                      child: Text('${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]'),
+                      child: Text(
+                        '${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]',
+                      ),
                     ),
                     RangeSelector(
-                        selectedIndex: ref.watch(extruderControlCardControllerProvider),
-                        onSelected: ref.watch(extruderControlCardControllerProvider.notifier).stepChanged,
-                        values: extruderSteps.map((e) => e.toString()).toList()),
+                      selectedIndex: ref.watch(extruderControlCardControllerProvider),
+                      onSelected: ref
+                          .watch(
+                            extruderControlCardControllerProvider.notifier,
+                          )
+                          .stepChanged,
+                      values: extruderSteps.map((e) => e.toString()).toList(),
+                    ),
                   ],
                 ),
               ],
@@ -444,9 +453,7 @@ class ExtruderControlCard extends HookConsumerWidget {
 }
 
 class GcodeMacroCard extends HookConsumerWidget {
-  const GcodeMacroCard({
-    Key? key,
-  }) : super(key: key);
+  const GcodeMacroCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -458,11 +465,18 @@ class GcodeMacroCard extends HookConsumerWidget {
         ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.macroGroups)).valueOrNull!;
 
     var isPrinting = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.printerData.print.state == PrintState.printing))
+        .watch(machinePrinterKlippySettingsProvider.selectAs(
+          (value) => value.printerData.print.state == PrintState.printing,
+        ))
         .valueOrNull!;
 
-    int idx = min(macroGroups.length - 1, max(0, ref.watch(settingServiceProvider).readInt(UtilityKeys.gCodeIndex, 0)));
+    int idx = min(
+      macroGroups.length - 1,
+      max(
+        0,
+        ref.watch(settingServiceProvider).readInt(UtilityKeys.gCodeIndex, 0),
+      ),
+    );
 
     var selected = useState(idx);
     var themeData = Theme.of(context);
@@ -485,11 +499,9 @@ class GcodeMacroCard extends HookConsumerWidget {
                           }
                         : null,
                     items: macroGroups.mapIndex((e, i) {
-                      return DropdownMenuItem(
-                        value: i,
-                        child: Text(e.name),
-                      );
-                    }).toList())
+                      return DropdownMenuItem(value: i, child: Text(e.name));
+                    }).toList(),
+                  )
                 : null,
           ),
           Padding(
@@ -501,19 +513,26 @@ class GcodeMacroCard extends HookConsumerWidget {
                 (int index) {
                   GCodeMacro macro = macrosOfGrp[index];
                   ConfigGcodeMacro? configGcodeMacro = ref
-                      .watch(machinePrinterKlippySettingsProvider
-                          .selectAs((data) => data.printerData.configFile.gcodeMacros[macro.name.toLowerCase()]))
+                      .watch(machinePrinterKlippySettingsProvider.selectAs(
+                        (data) => data.printerData.configFile.gcodeMacros[macro.name.toLowerCase()],
+                      ))
                       .valueOrNull;
                   bool disabled = (!klippyCanReceiveCommands || (isPrinting && !macro.showWhilePrinting));
                   return Visibility(
                     visible: ref
-                            .watch(machinePrinterKlippySettingsProvider
-                                .selectAs((value) => value.printerData.gcodeMacros.contains(macro.name)))
+                            .watch(
+                              machinePrinterKlippySettingsProvider.selectAs(
+                                (value) => value.printerData.gcodeMacros.contains(macro.name),
+                              ),
+                            )
                             .valueOrNull! &&
                         macro.visible,
                     child: TextButton(
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 12,
+                        ),
                         minimumSize: const Size(0, 32),
                         foregroundColor: themeData.colorScheme.onPrimary,
                         backgroundColor: themeData.colorScheme.primary,
@@ -530,9 +549,7 @@ class GcodeMacroCard extends HookConsumerWidget {
 
                       onLongPress: disabled
                           ? null
-                          : () => ref.watch(controlTabControllerProvider.notifier).onMacroLongPressed(
-                                macro.name,
-                              ),
+                          : () => ref.watch(controlTabControllerProvider.notifier).onMacroLongPressed(macro.name),
                       child: Text(macro.beautifiedName),
 
                       // Chip(
@@ -555,9 +572,7 @@ class GcodeMacroCard extends HookConsumerWidget {
 }
 
 class PinsCard extends ConsumerWidget {
-  const PinsCard({
-    Key? key,
-  }) : super(key: key);
+  const PinsCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -576,10 +591,11 @@ class PinsCard extends ConsumerWidget {
         child: Column(
           children: [
             ListTile(
-              leading: const Icon(
-                FlutterIcons.led_outline_mco,
-              ),
-              title: Text(plural('pages.dashboard.control.pin_card.title', pinLen + ledLen)),
+              leading: const Icon(FlutterIcons.led_outline_mco),
+              title: Text(plural(
+                'pages.dashboard.control.pin_card.title',
+                pinLen + ledLen,
+              )),
             ),
             AdaptiveHorizontalScroll(
               pageStorageKey: 'pins',
@@ -596,12 +612,10 @@ class PinsCard extends ConsumerWidget {
                   var ledProvider = machinePrinterKlippySettingsProvider.selectAs((value) =>
                       value.printerData.leds.values.where((element) => !element.name.startsWith('_')).elementAt(index));
 
-                  return _Led(
-                    ledProvider: ledProvider,
-                  );
-                })
+                  return _Led(ledProvider: ledProvider);
+                }),
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -623,7 +637,9 @@ class _PinTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var pin = ref.watch(pinProvider).valueOrNull!;
     var pinConfig = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.printerData.configFile.outputs[pin.name]))
+        .watch(machinePrinterKlippySettingsProvider.selectAs(
+          (value) => value.printerData.configFile.outputs[pin.name],
+        ))
         .valueOrNull;
     var klippyCanReceiveCommands = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
@@ -631,34 +647,8 @@ class _PinTile extends ConsumerWidget {
 
     if (pinConfig?.pwm == false) {
       return CardWithSwitch(
-          value: pin.value > 0,
-          onChanged: (v) => ref.read(controlTabControllerProvider.notifier).onUpdateBinaryPin(pin, v),
-          builder: (context) {
-            var textTheme = Theme.of(context).textTheme;
-            var beautifiedName = beautifyName(pin.name);
-            return Tooltip(
-              message: beautifiedName,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    beautifiedName,
-                    style: textTheme.bodySmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Text(pin.value > 0 ? 'general.on'.tr() : 'general.off'.tr(), style: textTheme.headlineSmall),
-                ],
-              ),
-            );
-          });
-    }
-
-    return CardWithButton(
-        buttonChild: const Text('general.set').tr(),
-        onTap: klippyCanReceiveCommands
-            ? () => ref.read(controlTabControllerProvider.notifier).onEditPin(pin, pinConfig)
-            : null,
+        value: pin.value > 0,
+        onChanged: (v) => ref.read(controlTabControllerProvider.notifier).onUpdateBinaryPin(pin, v),
         builder: (context) {
           var textTheme = Theme.of(context).textTheme;
           var beautifiedName = beautifyName(pin.name);
@@ -673,12 +663,48 @@ class _PinTile extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(pinValue(pin.value * (pinConfig?.scale ?? 1), context.locale.languageCode),
-                    style: textTheme.headlineSmall),
+                Text(
+                  pin.value > 0 ? 'general.on'.tr() : 'general.off'.tr(),
+                  style: textTheme.headlineSmall,
+                ),
               ],
             ),
           );
-        });
+        },
+      );
+    }
+
+    return CardWithButton(
+      buttonChild: const Text('general.set').tr(),
+      onTap: klippyCanReceiveCommands
+          ? () => ref.read(controlTabControllerProvider.notifier).onEditPin(pin, pinConfig)
+          : null,
+      builder: (context) {
+        var textTheme = Theme.of(context).textTheme;
+        var beautifiedName = beautifyName(pin.name);
+        return Tooltip(
+          message: beautifiedName,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                beautifiedName,
+                style: textTheme.bodySmall,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                pinValue(
+                  pin.value * (pinConfig?.scale ?? 1),
+                  context.locale.languageCode,
+                ),
+                style: textTheme.headlineSmall,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -755,64 +781,59 @@ class _Led extends ConsumerWidget {
 
     if (colors.length <= 1) {
       Color c = (colors.length == 1) ? colors.first : Colors.white;
-      return Icon(
-        Icons.circle,
-        size: _iconSize,
-        color: c,
-      );
+      return Icon(Icons.circle, size: _iconSize, color: c);
     }
 
     return ShaderMask(
-      shaderCallback: (bounds) => SweepGradient(
-        colors: colors,
-      ).createShader(bounds),
-      child: const Icon(
-        Icons.circle,
-        size: _iconSize,
-      ),
+      shaderCallback: (bounds) => SweepGradient(colors: colors).createShader(bounds),
+      child: const Icon(Icons.circle, size: _iconSize),
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Led led = ref.watch(ledProvider).valueOrNull!;
-    var ledConfig = ref.watch(machinePrinterKlippySettingsProvider
-        .select((value) => value.valueOrNull?.printerData.configFile.leds[led.name.toLowerCase()]));
+    var ledConfig = ref.watch(machinePrinterKlippySettingsProvider.select(
+      (value) => value.valueOrNull?.printerData.configFile.leds[led.name.toLowerCase()],
+    ));
     var klippyCanReceiveCommands = ref
         .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
         .valueOrNull!;
 
     return CardWithButton(
-        buttonChild: const Text('general.set').tr(),
-        onTap: klippyCanReceiveCommands
-            ? () => ref.read(controlTabControllerProvider.notifier).onEditLed(led, ledConfig)
-            : null,
-        builder: (context) {
-          var textTheme = Theme.of(context).textTheme;
-          var beautifiedName = beautifyName(led.name);
-          return Tooltip(
-            message: beautifiedName,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      beautifiedName,
-                      style: textTheme.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(statusText(led, ledConfig, context.locale.languageCode),
-                        style: Theme.of(context).textTheme.headlineSmall),
-                  ],
-                ),
-                statusWidget(led, ledConfig),
-              ],
-            ),
-          );
-        });
+      buttonChild: const Text('general.set').tr(),
+      onTap: klippyCanReceiveCommands
+          ? () => ref.read(controlTabControllerProvider.notifier).onEditLed(led, ledConfig)
+          : null,
+      builder: (context) {
+        var textTheme = Theme.of(context).textTheme;
+        var beautifiedName = beautifyName(led.name);
+        return Tooltip(
+          message: beautifiedName,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    beautifiedName,
+                    style: textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    statusText(led, ledConfig, context.locale.languageCode),
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+              statusWidget(led, ledConfig),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -828,20 +849,15 @@ class _MiscCard extends HookConsumerWidget {
 
     var macineUUID = ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid)).value!;
     var childs = [
-      MultipliersSlidersOrTexts(
-        machineUUID: macineUUID,
-      ),
-      LimitsSlidersOrTexts(
-        machineUUID: macineUUID,
-      ),
+      MultipliersSlidersOrTexts(machineUUID: macineUUID),
+      LimitsSlidersOrTexts(machineUUID: macineUUID),
       if (ref
-              .watch(
-                  machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.firmwareRetraction != null))
+              .watch(machinePrinterKlippySettingsProvider.selectAs(
+                (data) => data.printerData.firmwareRetraction != null,
+              ))
               .valueOrNull ==
           true)
-        FirmwareRetractionSlidersOrTexts(
-          machineUUID: macineUUID,
-        ),
+        FirmwareRetractionSlidersOrTexts(machineUUID: macineUUID),
     ];
     return Card(
       child: Padding(
@@ -858,7 +874,7 @@ class _MiscCard extends HookConsumerWidget {
               steps: childs.length,
               controller: pageController,
               childsPerScreen: 1,
-            )
+            ),
           ],
         ),
       ),

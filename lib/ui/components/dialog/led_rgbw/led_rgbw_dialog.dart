@@ -17,24 +17,28 @@ class LedRGBWDialog extends ConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const LedRGBWDialog({Key? key, required this.request, required this.completer}) : super(key: key);
+  const LedRGBWDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ProviderScope(overrides: [
-      dialogCompleterProvider.overrideWithValue(completer),
-      dialogArgsProvider
-          .overrideWithValue(request.data as LedRGBWDialogArgument),
-      settingServiceProvider,
-      ledRGBWDialogControllerProvider
-    ], child: const _LedRGBWDialog());
+    return ProviderScope(
+      overrides: [
+        dialogCompleterProvider.overrideWithValue(completer),
+        dialogArgsProvider.overrideWithValue(request.data as LedRGBWDialogArgument),
+        settingServiceProvider,
+        ledRGBWDialogControllerProvider,
+      ],
+      child: const _LedRGBWDialog(),
+    );
   }
 }
 
 class _LedRGBWDialog extends HookConsumerWidget {
-  const _LedRGBWDialog({
-    Key? key,
-  }) : super(key: key);
+  const _LedRGBWDialog({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,38 +47,37 @@ class _LedRGBWDialog extends HookConsumerWidget {
 
     var themeData = Theme.of(context);
     return Dialog(
-        child: Padding(
-      padding: const EdgeInsets.all(15.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min, // To make the card compact
-        children: [
-          Text(
-            '${tr('general.edit')} ${beautifyName(ledRGBWDialogState.ledConfig.name)}',
-            style: themeData.textTheme.headlineSmall,
-          ),
-          const Divider(),
-          Flexible(
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                HueRingPicker(
-                  hueRingStrokeWidth: 30,
-                  pickerColor: ledRGBWDialogState.selectedColor,
-                  onColorChanged: ref
-                      .watch(ledRGBWDialogControllerProvider.notifier)
-                      .onColorChange,
-                ),
-                Align(
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // To make the card compact
+          children: [
+            Text(
+              '${tr('general.edit')} ${beautifyName(ledRGBWDialogState.ledConfig.name)}',
+              style: themeData.textTheme.headlineSmall,
+            ),
+            const Divider(),
+            Flexible(
+              child: ListView(
+                shrinkWrap: true,
+                children: [
+                  HueRingPicker(
+                    hueRingStrokeWidth: 30,
+                    pickerColor: ledRGBWDialogState.selectedColor,
+                    onColorChanged: ref.watch(ledRGBWDialogControllerProvider.notifier).onColorChange,
+                  ),
+                  Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
                       '${tr('dialogs.rgbw.recent_colors')}:',
                       style: themeData.textTheme.labelLarge,
-                    )),
-                Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: SizedBox(
-                    height: 50,
-                    child: ListView(
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: SizedBox(
+                      height: 50,
+                      child: ListView(
                         scrollDirection: Axis.horizontal,
                         physics: const BouncingScrollPhysics(),
                         children: ledRGBWDialogState.recentColors
@@ -85,34 +88,32 @@ class _LedRGBWDialog extends HookConsumerWidget {
                                           .notifier)
                                       .onColorChange,
                                 ))
-                            .toList()),
+                            .toList(),
+                      ),
+                    ),
                   ),
+                ],
+              ),
+            ),
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: ref.watch(ledRGBWDialogControllerProvider.notifier).onCancel,
+                  child: const Text('general.cancel').tr(),
+                ),
+                TextButton(
+                  onPressed: ref.watch(ledRGBWDialogControllerProvider.notifier).onSubmit,
+                  child: const Text('general.confirm').tr(),
                 ),
               ],
             ),
-          ),
-          const Divider(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton(
-                onPressed: ref
-                    .watch(ledRGBWDialogControllerProvider.notifier)
-                    .onCancel,
-                child: const Text('general.cancel').tr(),
-              ),
-              TextButton(
-                onPressed: ref
-                    .watch(ledRGBWDialogControllerProvider.notifier)
-                    .onSubmit,
-                child: const Text('general.confirm').tr(),
-              )
-            ],
-          )
-          // const _Footer()
-        ],
+            // const _Footer()
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
 

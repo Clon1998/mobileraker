@@ -24,21 +24,17 @@ part 'limits_card.freezed.dart';
 part 'limits_card.g.dart';
 
 class LimitsCard extends StatelessWidget {
-  const LimitsCard({
-    Key? key,
-    required this.machineUUID,
-  }) : super(key: key);
+  const LimitsCard({Key? key, required this.machineUUID}) : super(key: key);
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context) => Card(
-          child: Padding(
-        padding: const EdgeInsets.only(bottom: 15),
-        child: LimitsSlidersOrTexts(
-          machineUUID: machineUUID,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 15),
+          child: LimitsSlidersOrTexts(machineUUID: machineUUID),
         ),
-      ));
+      );
 }
 
 class LimitsSlidersOrTextsLoading extends StatelessWidget {
@@ -59,9 +55,7 @@ class LimitsSlidersOrTextsLoading extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SliderOrTextInputSkeleton(
-                  value: 0.4,
-                ),
+                SliderOrTextInputSkeleton(value: 0.4),
                 SliderOrTextInputSkeleton(value: 0.8),
                 SliderOrTextInputSkeleton(value: 0.7),
                 SliderOrTextInputSkeleton(value: 0.65),
@@ -75,10 +69,7 @@ class LimitsSlidersOrTextsLoading extends StatelessWidget {
 }
 
 class LimitsSlidersOrTexts extends HookConsumerWidget {
-  const LimitsSlidersOrTexts({
-    super.key,
-    required this.machineUUID,
-  });
+  const LimitsSlidersOrTexts({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -105,17 +96,21 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
           leading: const Icon(Icons.tune),
           title: const Text('pages.dashboard.control.limit_card.title').tr(),
           trailing: IconButton(
-              onPressed: (klippyCanReceiveCommands) ? () => inputLocked.value = !inputLocked.value : null,
-              icon: AnimatedSwitcher(
-                duration: kThemeAnimationDuration,
-                transitionBuilder: (child, anim) => RotationTransition(
-                  turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                  child: ScaleTransition(scale: anim, child: child),
-                ),
-                child: inputLocked.value
-                    ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
-                    : const Icon(FlutterIcons.unlock_faw, key: ValueKey('unlock')),
-              )),
+            onPressed: (klippyCanReceiveCommands) ? () => inputLocked.value = !inputLocked.value : null,
+            icon: AnimatedSwitcher(
+              duration: kThemeAnimationDuration,
+              transitionBuilder: (child, anim) => RotationTransition(
+                turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                child: ScaleTransition(scale: anim, child: child),
+              ),
+              child: inputLocked.value
+                  ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
+                  : const Icon(
+                      FlutterIcons.unlock_faw,
+                      key: ValueKey('unlock'),
+                    ),
+            ),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -167,20 +162,24 @@ class _Controller extends _$Controller {
   Stream<_Model> build(String machineUUID) async* {
     ref.timeoutKeepAlive();
 
-    var klippyCanReceiveCommands =
-        ref.watchAsSubject(klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
-    var toohlhead = ref.watchAsSubject(printerProvider(machineUUID).selectAs((value) => value.toolhead!));
+    var klippyCanReceiveCommands = ref.watchAsSubject(
+      klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
+    );
+    var toohlhead = ref.watchAsSubject(
+      printerProvider(machineUUID).selectAs((value) => value.toolhead!),
+    );
 
     yield* Rx.combineLatest2(
-        klippyCanReceiveCommands,
-        toohlhead,
-        (a, b) => _Model(
-              klippyCanReceiveCommands: a,
-              maxVelocity: b.maxVelocity,
-              maxAccel: b.maxAccel,
-              squareCornerVelocity: b.squareCornerVelocity,
-              maxAccelToDecel: b.maxAccelToDecel,
-            ));
+      klippyCanReceiveCommands,
+      toohlhead,
+      (a, b) => _Model(
+        klippyCanReceiveCommands: a,
+        maxVelocity: b.maxVelocity,
+        maxAccel: b.maxAccel,
+        squareCornerVelocity: b.squareCornerVelocity,
+        maxAccelToDecel: b.maxAccelToDecel,
+      ),
+    );
   }
 
   PrinterService get _printerService => ref.read(printerServiceSelectedProvider);

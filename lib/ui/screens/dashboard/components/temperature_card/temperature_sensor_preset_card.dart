@@ -20,10 +20,7 @@ import 'heaters_sensor_card.dart';
 import 'temperature_preset_card.dart';
 
 class TemperatureSensorPresetCard extends HookConsumerWidget {
-  const TemperatureSensorPresetCard({
-    Key? key,
-    required this.machineUUID,
-  }) : super(key: key);
+  const TemperatureSensorPresetCard({Key? key, required this.machineUUID}) : super(key: key);
 
   final String machineUUID;
 
@@ -37,11 +34,12 @@ class TemperatureSensorPresetCard extends HookConsumerWidget {
       direction: FlipDirection.VERTICAL,
       // back: const Text('front'),
       front: HeaterSensorCard(
-          machineUUID: machineUUID,
-          trailing: TextButton(
-            onPressed: flipController.value.toggleCard,
-            child: const Text('pages.dashboard.general.temp_card.presets_btn').tr(),
-          )),
+        machineUUID: machineUUID,
+        trailing: TextButton(
+          onPressed: flipController.value.toggleCard,
+          child: const Text('pages.dashboard.general.temp_card.presets_btn').tr(),
+        ),
+      ),
       back: TemperaturePresetCard(
         machineUUID: machineUUID,
         trailing: TextButton(
@@ -123,15 +121,11 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
                           Flexible(child: _tile(height)),
                         ],
                       ),
-                      Container(
-                        width: 30,
-                        height: 12,
-                        color: Colors.white,
-                      ),
+                      Container(width: 30, height: 12, color: Colors.white),
                     ],
                   );
                 }),
-              )
+              ),
             ],
           ),
         ),

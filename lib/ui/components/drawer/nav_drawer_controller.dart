@@ -3,9 +3,9 @@
  * All rights reserved.
  */
 
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 part 'nav_drawer_controller.g.dart';
 
 @riverpod
@@ -29,7 +29,6 @@ class NavDrawerController extends _$NavDrawerController {
     goRouter.push(route, extra: arguments);
   }
 }
-
 
 //
 // class NavDrawerViewModel extends FutureViewModel<List<Machine>> {

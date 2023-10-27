@@ -7,18 +7,17 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/network/json_rpc_client.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/routing/app_router.dart';
 import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'cam_card_controller.freezed.dart';
-
 part 'cam_card_controller.g.dart';
 
 @freezed
@@ -48,26 +47,32 @@ class CamCardController extends _$CamCardController {
     ref.onResume(() {
       timer?.cancel();
     });
-    ref.onDispose(() => timer?.cancel);
+    ref.onDispose(() => timer?.cancel());
 
     Machine machine = (await ref.watch(selectedMachineProvider.future))!;
     var filteredCams = await ref.watch(allSupportedWebcamInfosProvider(machine.uuid).future);
 
     WebcamInfo? activeCam;
     if (filteredCams.isNotEmpty) {
-      var selIndex = min(filteredCams.length - 1,
-          max(0, ref.read(settingServiceProvider).readInt(UtilityKeys.webcamIndex, 0)));
+      var selIndex = min(
+        filteredCams.length - 1,
+        max(
+          0,
+          ref.read(settingServiceProvider).readInt(UtilityKeys.webcamIndex, 0),
+        ),
+      );
       activeCam = filteredCams[selIndex];
     }
 
     return CamCardState(
-        allCams: filteredCams,
-        activeCam: activeCam,
-        clientType: ref.watch(jrpcClientTypeProvider(machine.uuid)),
-        machine: machine);
+      allCams: filteredCams,
+      activeCam: activeCam,
+      clientType: ref.watch(jrpcClientTypeProvider(machine.uuid)),
+      machine: machine,
+    );
   }
 
-  onSelectedChange(String? camUUID) async {
+  onSelectedChange(String? camUUID) {
     if (camUUID == null || !state.hasValue || state.value?.activeCam?.uuid == camUUID) return;
 
     var cams = state.value!.allCams;
@@ -78,8 +83,10 @@ class CamCardController extends _$CamCardController {
 
   onFullScreenTap() {
     Machine machine = ref.read(selectedMachineProvider).value!;
-    ref.read(goRouterProvider).pushNamed(AppRoute.fullCam.name,
-        extra: {'machine': machine, 'selectedCam': state.value!.activeCam});
+    ref.read(goRouterProvider).pushNamed(
+      AppRoute.fullCam.name,
+      extra: {'machine': machine, 'selectedCam': state.value!.activeCam},
+    );
   }
 
   onRetry() {

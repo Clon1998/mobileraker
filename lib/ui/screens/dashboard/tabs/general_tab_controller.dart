@@ -29,18 +29,22 @@ import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 
 final flipCardControllerProvider = Provider<FlipCardController>((ref) => FlipCardController());
 
-final generalTabViewControllerProvider = StateNotifierProvider.autoDispose<GeneralTabViewController,
-        AsyncValue<PrinterKlippySettingsMachineWrapper>>(
-    name: 'generalTabViewControllerProvider', (ref) => GeneralTabViewController(ref));
+final generalTabViewControllerProvider =
+    StateNotifierProvider.autoDispose<GeneralTabViewController, AsyncValue<PrinterKlippySettingsMachineWrapper>>(
+  name: 'generalTabViewControllerProvider',
+  (ref) => GeneralTabViewController(ref),
+);
 
 class GeneralTabViewController
     extends StateNotifier<AsyncValue<PrinterKlippySettingsMachineWrapper>> {
   GeneralTabViewController(this.ref) : super(ref.read(machinePrinterKlippySettingsProvider)) {
     ref.listen<AsyncValue<PrinterKlippySettingsMachineWrapper>>(
-        machinePrinterKlippySettingsProvider, (previous, next) {
-      // if (next.isRefreshing) state = const AsyncValue.loading();
-      state = next;
-    });
+      machinePrinterKlippySettingsProvider,
+      (previous, next) {
+        // if (next.isRefreshing) state = const AsyncValue.loading();
+        state = next;
+      },
+    );
   }
 
   final AutoDisposeRef ref;
@@ -96,13 +100,18 @@ class GeneralTabViewController
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-                ? DialogType.numEdit
-                : DialogType.rangeEdit,
-            title: "Edit ${beautifyName(heater.name)} Temperature",
-            cancelBtn: tr('general.cancel'),
-            confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(current: heater.target, min: 0, max: maxValue ?? 150)))
+          type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+              ? DialogType.numEdit
+              : DialogType.rangeEdit,
+          title: "Edit ${beautifyName(heater.name)} Temperature",
+          cancelBtn: tr('general.cancel'),
+          confirmBtn: tr('general.confirm'),
+          data: NumberEditDialogArguments(
+            current: heater.target,
+            min: 0,
+            max: maxValue ?? 150,
+          ),
+        ))
         .then((value) {
       if (value == null || !value.confirmed || value.data == null) return;
 
@@ -117,19 +126,18 @@ class GeneralTabViewController
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-                ? DialogType.numEdit
-                : DialogType.rangeEdit,
-            title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
-            cancelBtn: tr('general.cancel'),
-            confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(
-              current: temperatureFan.target.round(),
-              min: (configFan != null && configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,
-              max: (configFan != null && configFan is ConfigTemperatureFan)
-                  ? configFan.maxTemp
-                  : 100,
-            )))
+          type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+              ? DialogType.numEdit
+              : DialogType.rangeEdit,
+          title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
+          cancelBtn: tr('general.cancel'),
+          confirmBtn: tr('general.confirm'),
+          data: NumberEditDialogArguments(
+            current: temperatureFan.target.round(),
+            min: (configFan != null && configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,
+            max: (configFan != null && configFan is ConfigTemperatureFan) ? configFan.maxTemp : 100,
+          ),
+        ))
         .then((value) {
       if (value == null || !value.confirmed || value.data == null) return;
       num v = value.data;

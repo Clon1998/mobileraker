@@ -13,7 +13,8 @@ import 'package:stringr/stringr.dart';
 
 final macroParamsFormKeyProvider =
     Provider.autoDispose<GlobalKey<FormBuilderState>>(
-        (ref) => GlobalKey<FormBuilderState>());
+  (ref) => GlobalKey<FormBuilderState>(),
+);
 
 final dialogCompleter =
     Provider.autoDispose<DialogCompleter>((ref) => throw UnimplementedError());
@@ -27,23 +28,26 @@ class MacroParamsDialog extends ConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const MacroParamsDialog(
-      {Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const MacroParamsDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ProviderScope(overrides: [
-      dialogCompleter.overrideWithValue(completer),
-      macroProvider.overrideWithValue(request.data as ConfigGcodeMacro)
-    ], child: const _MacroParamsDialog());
+    return ProviderScope(
+      overrides: [
+        dialogCompleter.overrideWithValue(completer),
+        macroProvider.overrideWithValue(request.data as ConfigGcodeMacro),
+      ],
+      child: const _MacroParamsDialog(),
+    );
   }
 }
 
 class _MacroParamsDialog extends ConsumerWidget {
-  const _MacroParamsDialog({
-    Key? key,
-  }) : super(key: key);
+  const _MacroParamsDialog({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -65,23 +69,25 @@ class _MacroParamsDialog extends ConsumerWidget {
               ),
               Flexible(
                 child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: paramNames.length,
-                    itemBuilder: (context, index) {
-                      var paramName = paramNames[index];
-                      var paramDefault = macro.params[paramName];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: FormBuilderTextField(
-                            name: paramName,
-                            initialValue: paramDefault,
-                            decoration: InputDecoration(
-                              border: const UnderlineInputBorder(),
-                              contentPadding: const EdgeInsets.all(8.0),
-                              labelText: paramName,
-                            )),
-                      );
-                    }),
+                  shrinkWrap: true,
+                  itemCount: paramNames.length,
+                  itemBuilder: (context, index) {
+                    var paramName = paramNames[index];
+                    var paramDefault = macro.params[paramName];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: FormBuilderTextField(
+                        name: paramName,
+                        initialValue: paramDefault,
+                        decoration: InputDecoration(
+                          border: const UnderlineInputBorder(),
+                          contentPadding: const EdgeInsets.all(8.0),
+                          labelText: paramName,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
               const Divider(),
               Text(
@@ -100,9 +106,9 @@ class _MacroParamsDialog extends ConsumerWidget {
                   TextButton(
                     onPressed: () => _submit(ref),
                     child: const Text('general.confirm').tr(),
-                  )
+                  ),
                 ],
-              )
+              ),
               // const _Footer()
             ],
           ),

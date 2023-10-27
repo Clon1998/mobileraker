@@ -24,22 +24,25 @@ class LedRGBWDialogArgument {
   final ConfigLed configLed;
   final Led ledData;
 
-  LedRGBWDialogArgument(this.configLed, this.ledData);
+  const LedRGBWDialogArgument(this.configLed, this.ledData);
 }
 
 final dialogArgsProvider = Provider.autoDispose<LedRGBWDialogArgument>(
-    name: 'LedRGBWDialogArgumentProvider', (ref) {
-  throw UnimplementedError();
-});
+  name: 'LedRGBWDialogArgumentProvider',
+  (ref) {
+    throw UnimplementedError();
+  },
+);
 
 @freezed
 class LedRGBWDialogState with _$LedRGBWDialogState {
   const LedRGBWDialogState._();
 
-  const factory LedRGBWDialogState(
-      {required Color selectedColor,
-      required List<Color> recentColors,
-      required ConfigLed ledConfig}) = _LedRGBWDialogState;
+  const factory LedRGBWDialogState({
+    required Color selectedColor,
+    required List<Color> recentColors,
+    required ConfigLed ledConfig,
+  }) = _LedRGBWDialogState;
 }
 
 @riverpod
@@ -56,7 +59,8 @@ class LedRGBWDialogController extends _$LedRGBWDialogController {
       pixel = ledData.color;
     } else {
       throw ArgumentError(
-          'Unknown Led data type provided: ${ledData.runtimeType}');
+        'Unknown Led data type provided: ${ledData.runtimeType}',
+      );
     }
     SettingService settingService = ref.watch(settingServiceProvider);
     List<Color> recentColors = settingService
@@ -69,9 +73,10 @@ class LedRGBWDialogController extends _$LedRGBWDialogController {
     }
 
     return LedRGBWDialogState(
-        selectedColor: pixel.rgbColor,
-        recentColors: recentColors,
-        ledConfig: args.configLed);
+      selectedColor: pixel.rgbColor,
+      recentColors: recentColors,
+      ledConfig: args.configLed,
+    );
   }
 
   onColorChange(Color c) {
@@ -92,6 +97,7 @@ class LedRGBWDialogController extends _$LedRGBWDialogController {
     settingService.writeList(UtilityKeys.recentColors, list);
 
     ref.read(dialogCompleterProvider)(
-        DialogResponse.confirmed(state.selectedColor));
+      DialogResponse.confirmed(state.selectedColor),
+    );
   }
 }

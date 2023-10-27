@@ -14,7 +14,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
-import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_sheet_controller.dart';
+import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
@@ -24,10 +24,7 @@ import '../../../screens/printers/components/section_header.dart';
 import '../../obico_widgets.dart';
 
 class AddRemoteConnectionBottomSheet extends ConsumerWidget {
-  const AddRemoteConnectionBottomSheet({
-    Key? key,
-    required this.args,
-  }) : super(key: key);
+  const AddRemoteConnectionBottomSheet({Key? key, required this.args}) : super(key: key);
 
   final AddRemoteConnectionSheetArgs args;
 
@@ -43,16 +40,14 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
 }
 
 class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
-  const _AddRemoteConnectionBottomSheet({
-    Key? key,
-  }) : super(key: key);
+  const _AddRemoteConnectionBottomSheet({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
+    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
     var obicoEnabled = ref.watch(remoteConfigProvider).obicoEnabled;
 
-    var activeIndex = ref.watch(addRemoteConnectionSheetControllerProvider.select((value) {
+    var activeIndex = ref.watch(addRemoteConnectionBottomSheetControllerProvider.select((value) {
       if (value.remoteInterface != null) {
         return 1;
       }
@@ -62,7 +57,10 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
       return 0;
     }));
 
-    var tabController = useTabController(initialLength: obicoEnabled ? 3 : 2, initialIndex: activeIndex);
+    var tabController = useTabController(
+      initialLength: obicoEnabled ? 3 : 2,
+      initialIndex: activeIndex,
+    );
 
     var viewInsets = MediaQuery.viewInsetsOf(context);
     var themeData = Theme.of(context);
@@ -83,9 +81,20 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                   indicatorColor: themeData.colorScheme.onPrimary,
                   automaticIndicatorColorAdjustment: false,
                   tabs: [
-                    Tab(text: tr('bottom_sheets.add_remote_con.octoeverywehre.tab_name')),
-                    Tab(text: tr('bottom_sheets.add_remote_con.manual.tab_name')),
-                    if (obicoEnabled) Tab(text: tr('bottom_sheets.add_remote_con.obico.service_name')),
+                    Tab(
+                      text: tr(
+                        'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
+                      ),
+                    ),
+                    Tab(
+                      text: tr('bottom_sheets.add_remote_con.manual.tab_name'),
+                    ),
+                    if (obicoEnabled)
+                      Tab(
+                        text: tr(
+                          'bottom_sheets.add_remote_con.obico.service_name',
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -134,14 +143,12 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
 }
 
 class _OctoTab extends ConsumerWidget {
-  const _OctoTab({
-    Key? key,
-  }) : super(key: key);
+  const _OctoTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
+    var model = ref.watch(addRemoteConnectionBottomSheetControllerProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -149,10 +156,13 @@ class _OctoTab extends ConsumerWidget {
         children: [
           const Spacer(),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 80, maxWidth: 80, minHeight: 40, minWidth: 40),
-            child: SvgPicture.asset(
-              'assets/vector/oe_logo.svg',
+            constraints: const BoxConstraints(
+              maxHeight: 80,
+              maxWidth: 80,
+              minHeight: 40,
+              minWidth: 40,
             ),
+            child: SvgPicture.asset('assets/vector/oe_logo.svg'),
           ),
           const SizedBox(height: 32),
           const Text(
@@ -189,14 +199,12 @@ class _OctoTab extends ConsumerWidget {
 }
 
 class _ManualTab extends ConsumerWidget {
-  const _ManualTab({
-    Key? key,
-  }) : super(key: key);
+  const _ManualTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
+    var model = ref.watch(addRemoteConnectionBottomSheetControllerProvider);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -222,8 +230,9 @@ class _ManualTab extends ConsumerWidget {
               FormBuilderTextField(
                 name: 'alt.uri',
                 decoration: InputDecoration(
-                    labelText: tr('bottom_sheets.add_remote_con.manual.address_label'),
-                    helperText: tr('bottom_sheets.add_remote_con.manual.address_hint')),
+                  labelText: tr('bottom_sheets.add_remote_con.manual.address_label'),
+                  helperText: tr('bottom_sheets.add_remote_con.manual.address_hint'),
+                ),
                 initialValue: model.remoteInterface?.remoteUri.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
@@ -233,10 +242,11 @@ class _ManualTab extends ConsumerWidget {
               FormBuilderTextField(
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.general.timeout_label'.tr(),
-                    helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
-                    helperMaxLines: 3,
-                    suffixText: 's'),
+                  labelText: 'pages.printer_edit.general.timeout_label'.tr(),
+                  helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
+                  helperMaxLines: 3,
+                  suffixText: 's',
+                ),
                 name: 'alt.remoteTimeout',
                 initialValue: (model.remoteInterface?.timeout ?? 10).toString(),
                 valueTransformer: (String? text) => text?.let(int.tryParse) ?? 10,
@@ -278,14 +288,12 @@ class _ManualTab extends ConsumerWidget {
 }
 
 class _ObicoTab extends ConsumerWidget {
-  const _ObicoTab({
-    Key? key,
-  }) : super(key: key);
+  const _ObicoTab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
+    var model = ref.watch(addRemoteConnectionBottomSheetControllerProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -293,7 +301,12 @@ class _ObicoTab extends ConsumerWidget {
         children: [
           const Spacer(),
           ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 80, maxWidth: 80, minHeight: 40, minWidth: 40),
+            constraints: const BoxConstraints(
+              maxHeight: 80,
+              maxWidth: 80,
+              minHeight: 40,
+              minWidth: 40,
+            ),
             child: SvgPicture.asset(
               'assets/vector/obico_logo.svg',
               height: double.infinity,
@@ -339,7 +352,7 @@ class _ActiveServiceInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+    var model = ref.watch(addRemoteConnectionBottomSheetControllerProvider);
 
     if (model.activeClientType == null) {
       return const SizedBox.shrink();

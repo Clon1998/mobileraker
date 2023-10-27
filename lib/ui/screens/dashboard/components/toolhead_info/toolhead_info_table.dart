@@ -19,24 +19,29 @@ class ToolheadInfoTable extends ConsumerWidget {
 
   final List<String> rowsToShow;
 
-  const ToolheadInfoTable({Key? key, this.rowsToShow = const [POS_ROW, MOV_ROW]}) : super(key: key);
+  const ToolheadInfoTable({
+    Key? key,
+    this.rowsToShow = const [POS_ROW, MOV_ROW],
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var toolheadInfo = ref.watch(toolheadInfoProvider);
 
     return AnimatedSwitcher(
-        switchInCurve: Curves.easeInOutBack,
-        duration: kThemeAnimationDuration,
-        transitionBuilder: (child, anim) => SizeTransition(
-            sizeFactor: anim,
-            child: FadeTransition(
-              opacity: anim,
-              child: child,
-            )),
-        child: toolheadInfo.hasValue
-            ? _ToolheadData(toolheadInfo: toolheadInfo.value!, rowsToShow: rowsToShow)
-            : const LinearProgressIndicator());
+      switchInCurve: Curves.easeInOutBack,
+      duration: kThemeAnimationDuration,
+      transitionBuilder: (child, anim) => SizeTransition(
+        sizeFactor: anim,
+        child: FadeTransition(opacity: anim, child: child),
+      ),
+      child: toolheadInfo.hasValue
+          ? _ToolheadData(
+              toolheadInfo: toolheadInfo.value!,
+              rowsToShow: rowsToShow,
+            )
+          : const LinearProgressIndicator(),
+    );
   }
 }
 
@@ -59,12 +64,14 @@ class _ToolheadData extends ConsumerWidget {
         : toolheadInfo.livePosition;
     return Table(
       border: TableBorder(
-          horizontalInside: BorderSide(
-              width: 1, color: Theme.of(context).dividerColor, style: BorderStyle.solid)),
+        horizontalInside: BorderSide(
+          width: 1,
+          color: Theme.of(context).dividerColor,
+          style: BorderStyle.solid,
+        ),
+      ),
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      columnWidths: const {
-        0: FractionColumnWidth(.1),
-      },
+      columnWidths: const {0: FractionColumnWidth(.1)},
       children: [
         if (rowsToShow.contains(ToolheadInfoTable.POS_ROW))
           TableRow(children: [
@@ -84,14 +91,17 @@ class _ToolheadData extends ConsumerWidget {
                 child: Icon(FlutterIcons.layers_fea),
               ),
               _TableCell(
-                  label: tr('pages.dashboard.general.print_card.speed'),
-                  value: '${toolheadInfo.mmSpeed} mm/s'),
+                label: tr('pages.dashboard.general.print_card.speed'),
+                value: '${toolheadInfo.mmSpeed} mm/s',
+              ),
               _TableCell(
-                  label: tr('pages.dashboard.general.print_card.layer'),
-                  value: '${toolheadInfo.currentLayer}/${toolheadInfo.maxLayers}'),
+                label: tr('pages.dashboard.general.print_card.layer'),
+                value: '${toolheadInfo.currentLayer}/${toolheadInfo.maxLayers}',
+              ),
               _TableCell(
-                  label: tr('pages.dashboard.general.print_card.elapsed'),
-                  value: secondsToDurationText(toolheadInfo.totalDuration)),
+                label: tr('pages.dashboard.general.print_card.elapsed'),
+                value: secondsToDurationText(toolheadInfo.totalDuration),
+              ),
             ],
           ),
           TableRow(
@@ -101,46 +111,51 @@ class _ToolheadData extends ConsumerWidget {
                 child: Icon(FlutterIcons.printer_3d_mco),
               ),
               _TableCell(
-                  label: tr('pages.dashboard.general.print_card.flow'),
-                  value: '${toolheadInfo.currentFlow ?? 0} mm³/s'),
-              Tooltip(
-                textAlign: TextAlign.center,
-                message: tr('pages.dashboard.general.print_card.filament_tooltip', args: [
-                  toolheadInfo.usedFilamentPerc.toStringAsFixed(0),
-                  toolheadInfo.usedFilament?.toStringAsFixed(1) ?? '0',
-                  toolheadInfo.totalFilament?.toStringAsFixed(1) ?? '-'
-                ]),
-                child: _TableCell(
-                    label: tr('pages.dashboard.general.print_card.filament'),
-                    value: '${toolheadInfo.usedFilament?.toStringAsFixed(1) ?? 0} m'),
+                label: tr('pages.dashboard.general.print_card.flow'),
+                value: '${toolheadInfo.currentFlow ?? 0} mm³/s',
               ),
               Tooltip(
-                  textAlign: TextAlign.end,
-                  message: tr('pages.dashboard.general.print_card.eta_tooltip', namedArgs: {
+                textAlign: TextAlign.center,
+                message: tr(
+                  'pages.dashboard.general.print_card.filament_tooltip',
+                  args: [
+                    toolheadInfo.usedFilamentPerc.toStringAsFixed(0),
+                    toolheadInfo.usedFilament?.toStringAsFixed(1) ?? '0',
+                    toolheadInfo.totalFilament?.toStringAsFixed(1) ?? '-',
+                  ],
+                ),
+                child: _TableCell(
+                  label: tr('pages.dashboard.general.print_card.filament'),
+                  value: '${toolheadInfo.usedFilament?.toStringAsFixed(1) ?? 0} m',
+                ),
+              ),
+              Tooltip(
+                textAlign: TextAlign.end,
+                message: tr(
+                  'pages.dashboard.general.print_card.eta_tooltip',
+                  namedArgs: {
                     'avg': toolheadInfo.remaining?.let(secondsToDurationText) ?? '--',
                     'slicer': toolheadInfo.remainingSlicer?.let(secondsToDurationText) ?? '--',
                     'file': toolheadInfo.remainingFile?.let(secondsToDurationText) ?? '--',
                     'filament': toolheadInfo.remainingFilament?.let(secondsToDurationText) ?? '--',
-                  }),
-                  child: _TableCell(
-                      label: tr('pages.dashboard.general.print_card.eta'),
-                      value: toolheadInfo.eta?.let(
-                              (eta) => ref.read(dateFormatServiceProvider).Hm().format(eta)) ??
-                          '--:--')),
+                  },
+                ),
+                child: _TableCell(
+                  label: tr('pages.dashboard.general.print_card.eta'),
+                  value:
+                      toolheadInfo.eta?.let((eta) => ref.read(dateFormatServiceProvider).Hm().format(eta)) ?? '--:--',
+                ),
+              ),
             ],
           ),
-        ]
+        ],
       ],
     );
   }
 }
 
 class _TableCell extends StatelessWidget {
-  const _TableCell({
-    super.key,
-    required this.label,
-    required this.value,
-  });
+  const _TableCell({super.key, required this.label, required this.value});
 
   final String label;
   final String value;
@@ -148,13 +163,11 @@ class _TableCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(label),
-            Text(value),
-          ],
-        ));
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [Text(label), Text(value)],
+      ),
+    );
   }
 }

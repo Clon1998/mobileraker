@@ -31,8 +31,7 @@ Future<List<Command>> availableMacros(AvailableMacrosRef ref) {
 }
 
 @riverpod
-RefreshController consoleRefreshController(ConsoleRefreshControllerRef ref) =>
-    RefreshController();
+RefreshController consoleRefreshController(ConsoleRefreshControllerRef _) => RefreshController();
 
 @riverpod
 class ConsoleListController extends _$ConsoleListController {
@@ -50,7 +49,10 @@ class ConsoleListController extends _$ConsoleListController {
         return;
       }
       var consoleEntry = ConsoleEntry(
-          event, ConsoleEntryType.response, DateTime.now().millisecondsSinceEpoch / 1000);
+        event,
+        ConsoleEntryType.response,
+        DateTime.now().millisecondsSinceEpoch / 1000,
+      );
       state = AsyncValue.data([...state.value!, consoleEntry]);
     });
 
@@ -76,13 +78,16 @@ class ConsoleListController extends _$ConsoleListController {
     if (command.isEmpty || state.isLoading) return;
     state = AsyncValue.data([
       ...state.value!,
-      ConsoleEntry(command, ConsoleEntryType.command, DateTime.now().millisecondsSinceEpoch / 1000)
+      ConsoleEntry(
+        command,
+        ConsoleEntryType.command,
+        DateTime.now().millisecondsSinceEpoch / 1000,
+      ),
     ]);
     ref.read(printerServiceSelectedProvider).gCode(command);
     ref.read(commandHistoryProvider.notifier).add(command);
   }
 }
-
 
 @riverpod
 class CommandHistory extends _$CommandHistory {

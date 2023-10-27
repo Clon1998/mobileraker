@@ -15,7 +15,7 @@ extension MobilerakerDiscount on StoreProductDiscount {
       'MONTH' => plural('date.month', cycles),
       'WEEK' => plural('date.week', cycles),
       'DAY' => plural('date.day', cycles),
-      _ => throw ArgumentError('Detected unsupported period')
+      _ => throw ArgumentError('Detected unsupported period'),
     };
 
     return '$cycles $dateUnit';
@@ -55,7 +55,7 @@ String periodUnitToText(PeriodUnit? periodUnit, int cycles) {
     PeriodUnit.month || null => plural('date.month', cycles),
     PeriodUnit.week => plural('date.week', cycles),
     PeriodUnit.day => plural('date.day', cycles),
-    _ => throw ArgumentError('Detected unsupported period')
+    _ => throw ArgumentError('Detected unsupported period'),
   };
   return dateUnit;
 }

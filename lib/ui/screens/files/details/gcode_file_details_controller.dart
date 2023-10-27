@@ -28,8 +28,9 @@ bool canStartPrint(CanStartPrintRef ref) {
         PrintState.cancelled,
       }.contains(value.valueOrFullNull?.print.state)));
 
-  var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider
-      .select((value) => value.valueOrFullNull?.klippyCanReceiveCommands == true));
+  var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider.select(
+    (value) => value.valueOrFullNull?.klippyCanReceiveCommands == true,
+  ));
 
   return canPrint && klippyCanReceiveCommands;
 }
@@ -54,7 +55,10 @@ class GCodeFileDetailsController extends _$GCodeFileDetailsController {
 
   onPreHeatPrinterTap() {
     var gCodeFile = ref.read(gcodeProvider);
-    var tempArgs = ['170', gCodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? '60'];
+    var tempArgs = [
+      '170',
+      gCodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? '60',
+    ];
     _dialogService
         .showConfirm(
       title: 'pages.files.details.preheat_dialog.title'.tr(),
@@ -64,16 +68,20 @@ class GCodeFileDetailsController extends _$GCodeFileDetailsController {
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false) {
         _printerService.setHeaterTemperature('extruder', 170);
-        if (ref
-                .read(printerSelectedProvider.selectAs((data) => data.heaterBed != null))
-                .valueOrFullNull ??
+        if (ref.read(printerSelectedProvider.selectAs((data) => data.heaterBed != null)).valueOrFullNull ??
             false) {
           _printerService.setHeaterTemperature(
-              'heater_bed', (gCodeFile.firstLayerTempBed ?? 60.0).toInt());
+            'heater_bed',
+            (gCodeFile.firstLayerTempBed ?? 60.0).toInt(),
+          );
         }
         _snackBarService.show(SnackBarConfig(
-            title: tr('pages.files.details.preheat_snackbar.title'),
-            message: tr('pages.files.details.preheat_snackbar.body', args: tempArgs)));
+          title: tr('pages.files.details.preheat_snackbar.title'),
+          message: tr(
+            'pages.files.details.preheat_snackbar.body',
+            args: tempArgs,
+          ),
+        ));
       }
     });
   }

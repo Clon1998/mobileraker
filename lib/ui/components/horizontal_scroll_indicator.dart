@@ -14,8 +14,12 @@ class HorizontalScrollIndicator extends StatefulWidget {
   final ScrollController controller;
   final int? childsPerScreen;
 
-  const HorizontalScrollIndicator({Key? key, required this.steps, required this.controller, this.childsPerScreen})
-      : assert(steps > 0),
+  const HorizontalScrollIndicator({
+    Key? key,
+    required this.steps,
+    required this.controller,
+    this.childsPerScreen,
+  })  : assert(steps > 0),
         super(key: key);
 
   @override
@@ -37,7 +41,9 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
     steps = (widget.childsPerScreen == null) ? widget.steps : (widget.steps / widget.childsPerScreen!).ceil();
 
     if (controller is PageController?) {
-      logger.i('initiPage ${pageController.initialPage} - ${pageController.hasClients}');
+      logger.i(
+        'initiPage ${pageController.initialPage} - ${pageController.hasClients}',
+      );
       controller.addListener(_updateIndexFromPage);
       WidgetsBinding.instance.addPostFrameCallback((_) => _updateIndexFromPage());
     } else {
@@ -84,8 +90,8 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
 
   @override
   dispose() {
-    super.dispose();
     widget.controller.removeListener(_updateIndexFromOffset);
     widget.controller.removeListener(_updateIndexFromPage);
+    super.dispose();
   }
 }

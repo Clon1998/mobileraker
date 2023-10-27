@@ -19,7 +19,12 @@ part 'printer_card_controller.g.dart';
 @Riverpod(dependencies: [])
 Machine printerCardMachine(PrinterCardMachineRef ref) => throw UnimplementedError();
 
-@Riverpod(dependencies: [goRouter, printerCardMachine, klipper, selectedMachineService])
+@Riverpod(dependencies: [
+  goRouter,
+  printerCardMachine,
+  klipper,
+  selectedMachineService,
+])
 class PrinterCardController extends _$PrinterCardController {
   SelectedMachineService get _selectedMachineService => ref.read(selectedMachineServiceProvider);
 
@@ -30,14 +35,16 @@ class PrinterCardController extends _$PrinterCardController {
   @override
   Stream<WebcamInfo?> build() async* {
     var machine = ref.watch(printerCardMachineProvider);
-    var klipperState = await ref.watch(klipperProvider(machine.uuid).selectAsync((data) => data.klippyState));
+    var klipperState = await ref.watch(
+      klipperProvider(machine.uuid).selectAsync((data) => data.klippyState),
+    );
 
     if (klipperState != KlipperState.ready) return;
 
     var filteredCamsFuture = ref.watch(allSupportedWebcamInfosProvider(machine.uuid).future);
     if (!ref.watch(isSupporterProvider)) {
-      filteredCamsFuture = filteredCamsFuture.then((value) =>
-          value.where((element) => !element.service.forSupporters).toList(growable: false));
+      filteredCamsFuture = filteredCamsFuture
+          .then((value) => value.where((element) => !element.service.forSupporters).toList(growable: false));
     }
 
     var filteredCams = await filteredCamsFuture;
@@ -55,7 +62,9 @@ class PrinterCardController extends _$PrinterCardController {
   }
 
   onFullScreenTap() {
-    _goRouter.pushNamed(AppRoute.fullCam.name,
-        extra: {'machine': _machine, 'selectedCam': state.value!});
+    _goRouter.pushNamed(
+      AppRoute.fullCam.name,
+      extra: {'machine': _machine, 'selectedCam': state.value!},
+    );
   }
 }

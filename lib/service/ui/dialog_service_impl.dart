@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_srew_adjust_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
@@ -81,10 +81,7 @@ class DialogServiceImpl implements DialogService {
         ),
     CommonDialogs.stacktrace: (r, c) => StackTraceDialog(request: r, completer: c),
     DialogType.gcodeParams: (r, c) => MacroParamsDialog(request: r, completer: c),
-    DialogType.ledRGBW: (r, c) => LedRGBWDialog(
-          request: r,
-          completer: c,
-        ),
+    DialogType.ledRGBW: (r, c) => LedRGBWDialog(request: r, completer: c),
     DialogType.logging: (r, c) => LoggerDialog(request: r, completer: c),
     DialogType.webcamPreview: (r, c) => WebcamPreviewDialog(request: r, completer: c),
     DialogType.activeMachine: (r, c) => SelectPrinterDialog(request: r, completer: c),
@@ -136,11 +133,12 @@ class DialogServiceImpl implements DialogService {
     }
 
     return showDialog<DialogResponse>(
-        barrierDismissible: request.barrierDismissible,
-        context: ctx!,
-        builder: (_) {
-          return availableDialogs[request.type]!(request, _completeDialog);
-        }).whenComplete(() => _currentDialogRequest = null);
+      barrierDismissible: request.barrierDismissible,
+      context: ctx!,
+      builder: (_) {
+        return availableDialogs[request.type]!(request, _completeDialog);
+      },
+    ).whenComplete(() => _currentDialogRequest = null);
   }
 
   void _completeDialog(DialogResponse response) {

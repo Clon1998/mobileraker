@@ -15,9 +15,11 @@ class TippingDialog extends HookWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const TippingDialog(
-      {Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const TippingDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   List<Package> get tipPackages => request.data;
 
@@ -41,9 +43,7 @@ class TippingDialog extends HookWidget {
                     'dialogs.tipping.title',
                     style: Theme.of(context).textTheme.headlineSmall,
                   ).tr(),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   FormBuilderDropdown(
                     name: 'tipAmnt',
                     initialValue: selected.value,
@@ -60,7 +60,8 @@ class TippingDialog extends HookWidget {
                     onChanged: (v) => selected.value = v!,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     validator: FormBuilderValidators.compose(
-                        [FormBuilderValidators.required()]),
+                      [FormBuilderValidators.required()],
+                    ),
                   ),
                   Text(
                     'dialogs.tipping.body',
@@ -82,9 +83,9 @@ class TippingDialog extends HookWidget {
                   onPressed: () =>
                       completer(DialogResponse.confirmed(selected.value)),
                   child: const Text('dialogs.tipping.tip').tr(),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

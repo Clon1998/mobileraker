@@ -20,28 +20,29 @@ import '../../../service/date_format_service.dart';
 import '../dashboard/components/firmware_retraction_card.dart';
 
 class DevPage extends HookConsumerWidget {
-  const DevPage({
-    Key? key,
-  }) : super(key: key);
+  const DevPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Dev'),
-        ),
-        drawer: const NavigationDrawerWidget(),
-        body: ListView(
-          children: [
-            FirmwareRetractionSlidersOrTextsLoading(),
-            const Text('One'),
-            ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
-            TextButton(
-                onPressed: () => test(ref, 'timelapse/file_example_MP4_1920_18MG.mp4'),
-                child: const Text('Run Isolate'))
-            // Expanded(child: WebRtcCam()),
-          ],
-        ));
+      appBar: AppBar(title: const Text('Dev')),
+      drawer: const NavigationDrawerWidget(),
+      body: ListView(
+        children: [
+          FirmwareRetractionSlidersOrTextsLoading(),
+          const Text('One'),
+          ElevatedButton(
+            onPressed: () => startLiveActivity(ref),
+            child: const Text('start activity'),
+          ),
+          TextButton(
+            onPressed: () => test(ref, 'timelapse/file_example_MP4_1920_18MG.mp4'),
+            child: const Text('Run Isolate'),
+          ),
+          // Expanded(child: WebRtcCam()),
+        ],
+      ),
+    );
   }
 
   startLiveActivity(WidgetRef ref) async {
@@ -72,14 +73,12 @@ class DevPage extends HookConsumerWidget {
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
     };
 
-    var activityId = await _liveActivitiesPlugin.createActivity(
-      data,
-    );
+    var activityId = await _liveActivitiesPlugin.createActivity(data);
     var pushToken = await _liveActivitiesPlugin.getPushToken(activityId!);
     logger.i('LiveActivity PushToken: $pushToken');
   }
 
-  test(WidgetRef ref, String filess) async {
+  test(WidgetRef ref, String filess) {
     var fileService = ref.read(fileServiceSelectedProvider);
     fileService.downloadFile(filePath: filess, timeout: const Duration(seconds: 1)).listen((event) {
       logger.w('OUTER UPDATE: $event');

@@ -43,7 +43,10 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   _init() async {
     try {
       var downloadFile = await fileService
-          .downloadFile(filePath: ref.read(configFileProvider).absolutPath, overWriteLocal: true)
+          .downloadFile(
+            filePath: ref.read(configFileProvider).absolutPath,
+            overWriteLocal: true,
+          )
           .firstWhere((element) => element is FileDownloadComplete);
       downloadFile as FileDownloadComplete;
       var content = await downloadFile.file.readAsString();
@@ -60,13 +63,17 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   Future<void> onSaveTapped(String code) async {
     state = state.copyWith(isUploading: true);
     try {
-      await fileService.uploadAsFile(ref.read(configFileProvider).absolutPath, code);
+      await fileService.uploadAsFile(
+        ref.read(configFileProvider).absolutPath,
+        code,
+      );
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
       snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: 'Http-Error',
-          message: 'Could not save File:.\n${e.message}'));
+        type: SnackbarType.error,
+        title: 'Http-Error',
+        message: 'Could not save File:.\n${e.message}',
+      ));
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);
@@ -78,14 +85,18 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
     state = state.copyWith(isUploading: true);
 
     try {
-      await fileService.uploadAsFile(ref.read(configFileProvider).absolutPath, code);
+      await fileService.uploadAsFile(
+        ref.read(configFileProvider).absolutPath,
+        code,
+      );
       klippyService.restartMCUs();
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
       snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: 'Http-Error',
-          message: 'Could not save File:.\n${e.message}'));
+        type: SnackbarType.error,
+        title: 'Http-Error',
+        message: 'Could not save File:.\n${e.message}',
+      ));
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);

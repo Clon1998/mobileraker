@@ -31,10 +31,7 @@ class WarningCard extends ConsumerWidget {
       child: AnimatedSwitcher(
         transitionBuilder: (child, anim) => SizeTransition(
           sizeFactor: anim,
-          child: FadeTransition(
-            opacity: anim,
-            child: child,
-          ),
+          child: FadeTransition(opacity: anim, child: child),
         ),
         duration: kThemeAnimationDuration,
         child: show
@@ -45,10 +42,16 @@ class WarningCard extends ConsumerWidget {
                   textColor: themeData.colorScheme.onErrorContainer,
                   iconColor: themeData.colorScheme.onErrorContainer,
                   onTap: onTap,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
                   leading: leadingIcon?.let((it) => IconTheme(
-                      data: themeData.iconTheme.copyWith(color: themeData.colorScheme.onErrorContainer, size: 40),
-                      child: it)),
+                        data: themeData.iconTheme.copyWith(
+                          color: themeData.colorScheme.onErrorContainer,
+                          size: 40,
+                        ),
+                        child: it,
+                      )),
                   title: title,
                   subtitle: subtitle,
                 ),

@@ -31,49 +31,48 @@ class OverviewPage extends StatelessWidget {
 }
 
 class _OverviewBody extends ConsumerWidget {
-  const _OverviewBody({
-    Key? key,
-  }) : super(key: key);
+  const _OverviewBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(allMachinesProvider).when<Widget>(
-        data: (d) {
-          return SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ...d.map((machine) => SinglePrinterCard(machine)),
-                Center(
-                  child: ElevatedButton.icon(
+          data: (d) {
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ...d.map((machine) => SinglePrinterCard(machine)),
+                  Center(
+                    child: ElevatedButton.icon(
                       onPressed: () => ref
                           .read(goRouterProvider)
                           .pushNamed(AppRoute.printerAdd.name),
                       icon: const Icon(Icons.add),
-                      label: const Text('pages.overview.add_machine').tr()),
-                )
-              ],
-            ),
-          );
-        },
-        error: (e, s) {
-          logger.e('Error in OverView', e, StackTrace.current);
-          throw e;
-        },
-        loading: () => Center(
-                child: Column(
+                      label: const Text('pages.overview.add_machine').tr(),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          error: (e, s) {
+            logger.e('Error in OverView', e, StackTrace.current);
+            throw e;
+          },
+          loading: () => Center(
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SpinKitRipple(
                   color: Theme.of(context).colorScheme.secondary,
                   size: 100,
                 ),
-                const SizedBox(
-                  height: 30,
-                ),
+                const SizedBox(height: 30),
                 FadingText(tr('pages.overview.fetching_machines')),
                 // Text('Fetching printer ...')
               ],
-            )));
+            ),
+          ),
+        );
   }
 }

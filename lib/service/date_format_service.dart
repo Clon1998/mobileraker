@@ -18,7 +18,7 @@ DateFormatService dateFormatService(DateFormatServiceRef ref) {
 class DateFormatService {
   final SettingService _settingService;
 
-  DateFormatService(this._settingService);
+  const DateFormatService(this._settingService);
 
   DateFormat _jm() => DateFormat('h:mm a');
 

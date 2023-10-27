@@ -46,18 +46,20 @@ import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../../components/bottomsheet/remote_connection/add_remote_connection_sheet_controller.dart';
+import '../../../components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 
 part 'printers_edit_controller.g.dart';
 
 @riverpod
-GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef ref) => GlobalKey<FormBuilderState>();
+GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef _) => GlobalKey<FormBuilderState>();
 
 @Riverpod(dependencies: [])
 Machine currentlyEditing(CurrentlyEditingRef ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [currentlyEditing])
-Future<MachineSettings> machineRemoteSettings(MachineRemoteSettingsRef ref) async {
+Future<MachineSettings> machineRemoteSettings(
+  MachineRemoteSettingsRef ref,
+) {
   var machine = ref.watch(currentlyEditingProvider);
   return ref.watch(machineServiceProvider).fetchSettings(machine);
 }
@@ -129,18 +131,20 @@ class PrinterEditController extends _$PrinterEditController {
       state = false;
       logger.e('Error while trying to save printer data', e, s);
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: tr('pages.printer_edit.store_error.title'),
-          message: tr('pages.printer_edit.store_error.unexpected_error'),
-          duration: const Duration(seconds: 30),
-          mainButtonTitle: 'Details',
-          closeOnMainButtonTapped: true,
-          onMainButtonTapped: () {
-            ref.read(dialogServiceProvider).show(DialogRequest(
-                type: CommonDialogs.stacktrace,
-                title: tr('pages.printer_edit.store_error.title'),
-                body: 'Exception:\n $e\n\n$s'));
-          }));
+            type: SnackbarType.error,
+            title: tr('pages.printer_edit.store_error.title'),
+            message: tr('pages.printer_edit.store_error.unexpected_error'),
+            duration: const Duration(seconds: 30),
+            mainButtonTitle: 'Details',
+            closeOnMainButtonTapped: true,
+            onMainButtonTapped: () {
+              ref.read(dialogServiceProvider).show(DialogRequest(
+                    type: CommonDialogs.stacktrace,
+                    title: tr('pages.printer_edit.store_error.title'),
+                    body: 'Exception:\n $e\n\n$s',
+                  ));
+            },
+          ));
       ;
     } finally {
       jrpcStateKeppAliveLink.close();
@@ -154,10 +158,16 @@ class PrinterEditController extends _$PrinterEditController {
     }
   }
 
-  Future<void> _saveMachineRemoteSettings(Map<String, dynamic> storedValues) async {
+  Future<void> _saveMachineRemoteSettings(
+    Map<String, dynamic> storedValues,
+  ) async {
     AsyncValue<MachineSettings> remoteSettings = ref.read(machineRemoteSettingsProvider);
     if (remoteSettings.hasValue && !remoteSettings.hasError) {
-      List<bool> inverts = [storedValues['invertX'], storedValues['invertY'], storedValues['invertZ']];
+      List<bool> inverts = [
+        storedValues['invertX'],
+        storedValues['invertY'],
+        storedValues['invertZ'],
+      ];
       var speedXY = storedValues['speedXY'];
       var speedZ = storedValues['speedZ'];
       var extrudeSpeed = storedValues['extrudeSpeed'];
@@ -188,8 +198,8 @@ class PrinterEditController extends _$PrinterEditController {
       List<int> extSteps = ref.read(extruderStepStateProvider);
 
       await ref.read(machineServiceProvider).updateSettings(
-          _machine,
-          MachineSettings(
+            _machine,
+            MachineSettings(
               created: remoteSettings.value!.created,
               lastModified: DateTime.now(),
               macroGroups: macroGroups,
@@ -200,7 +210,9 @@ class PrinterEditController extends _$PrinterEditController {
               extrudeFeedrate: extrudeSpeed,
               inverts: inverts,
               speedXY: speedXY,
-              speedZ: speedZ));
+              speedZ: speedZ,
+            ),
+          );
     }
   }
 
@@ -260,10 +272,17 @@ class PrinterEditController extends _$PrinterEditController {
 
   resetFcmCache() async {
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
-        title: tr('pages.printer_edit.confirm_fcm_reset.title', args: [_machine.name]),
-        body: tr('pages.printer_edit.confirm_fcm_reset.body', args: [_machine.name, _machine.httpUri.toString()]),
-        confirmBtn: tr('general.clear'),
-        confirmBtnColor: Colors.red);
+          title: tr(
+            'pages.printer_edit.confirm_fcm_reset.title',
+            args: [_machine.name],
+          ),
+          body: tr(
+            'pages.printer_edit.confirm_fcm_reset.body',
+            args: [_machine.name, _machine.httpUri.toString()],
+          ),
+          confirmBtn: tr('general.clear'),
+          confirmBtnColor: Colors.red,
+        );
 
     try {
       if (dialogResponse?.confirmed ?? false) {
@@ -273,7 +292,10 @@ class PrinterEditController extends _$PrinterEditController {
         await _machineService.updateMachineFcmSettings(_machine, fcmToken);
       }
     } catch (e) {
-      logger.w('Error while resetting FCM cache on machine ${_machine.name}', e);
+      logger.w(
+        'Error while resetting FCM cache on machine ${_machine.name}',
+        e,
+      );
     }
     state = false;
   }
@@ -295,10 +317,17 @@ class PrinterEditController extends _$PrinterEditController {
 
   deleteIt() async {
     var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
-        title: tr('pages.printer_edit.confirm_deletion.title', args: [_machine.name]),
-        body: tr('pages.printer_edit.confirm_deletion.body', args: [_machine.name, _machine.httpUri.toString()]),
-        confirmBtn: tr('general.delete'),
-        confirmBtnColor: Colors.red);
+          title: tr(
+            'pages.printer_edit.confirm_deletion.title',
+            args: [_machine.name],
+          ),
+          body: tr(
+            'pages.printer_edit.confirm_deletion.body',
+            args: [_machine.name, _machine.httpUri.toString()],
+          ),
+          confirmBtn: tr('general.delete'),
+          confirmBtnColor: Colors.red,
+        );
 
     if (dialogResponse?.confirmed ?? false) {
       state = true;
@@ -310,7 +339,10 @@ class PrinterEditController extends _$PrinterEditController {
   openImportSettings() {
     ref
         .read(dialogServiceProvider)
-        .show(DialogRequest(type: DialogType.importSettings, data: ref.read(currentlyEditingProvider)))
+        .show(DialogRequest(
+          type: DialogType.importSettings,
+          data: ref.read(currentlyEditingProvider),
+        ))
         .then(onImportSettingsReturns);
   }
 
@@ -364,14 +396,15 @@ class PrinterEditController extends _$PrinterEditController {
     var remoteInterface = ref.read(_remoteInterfaceProvider);
     var obicoTunnel = ref.read(_obicoTunnelProvider);
     BottomSheetResult show = await ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
-        type: SheetType.addRemoteCon,
-        isScrollControlled: true,
-        data: AddRemoteConnectionSheetArgs(
-          machine: _machine,
-          octoEverywhere: octoEverywhere,
-          remoteInterface: remoteInterface,
-          obicoTunnel: obicoTunnel,
-        )));
+          type: SheetType.addRemoteCon,
+          isScrollControlled: true,
+          data: AddRemoteConnectionSheetArgs(
+            machine: _machine,
+            octoEverywhere: octoEverywhere,
+            remoteInterface: remoteInterface,
+            obicoTunnel: obicoTunnel,
+          ),
+        ));
 
     logger.i('Received from Bottom sheet $show');
     if (!show.confirmed) return;
@@ -382,7 +415,9 @@ class PrinterEditController extends _$PrinterEditController {
     //TODO: RI presnet, user adds OE, no error message? (Wtf why?)
 
     if (show.data == null) {
-      logger.i('BottomSheet result indicates the removal of all remote connecions!');
+      logger.i(
+        'BottomSheet result indicates the removal of all remote connecions!',
+      );
 
       _removeRemoteConnections();
     } else if (_canAddRemoteConnection(show.data)) {
@@ -417,9 +452,7 @@ class PrinterEditController extends _$PrinterEditController {
 
     _snackBarService.show(SnackBarConfig(
       duration: const Duration(seconds: 10),
-      title: tr(
-        'pages.printer_edit.remote_interface_removed.title',
-      ),
+      title: tr('pages.printer_edit.remote_interface_removed.title'),
       message: tr('pages.printer_edit.remote_interface_removed.body'),
     ));
   }
@@ -434,10 +467,15 @@ class PrinterEditController extends _$PrinterEditController {
     var octoEverywhere = ref.read(_octoEverywhereProvider);
     var obicoTunnel = ref.read(_obicoTunnelProvider);
 
-    logger.wtf('tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: $remoteInterface');
-    logger.wtf('tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: $octoEverywhere');
     logger.wtf(
-        'tryingToAddObico: $tryingToAddObico, _obicoTunnelProvider has value: $obicoTunnel, obicoEnabled:$_obicoEnabled');
+      'tryingToAddOe: $tryingToAddOe, _remoteInterfaceProvider has value: $remoteInterface',
+    );
+    logger.wtf(
+      'tryingToAddRi: $tryingToAddRi, _octoEverywhereProvider has value: $octoEverywhere',
+    );
+    logger.wtf(
+      'tryingToAddObico: $tryingToAddObico, _obicoTunnelProvider has value: $obicoTunnel, obicoEnabled:$_obicoEnabled',
+    );
 
     return tryingToAddOe && remoteInterface == null && (obicoTunnel == null || !_obicoEnabled) ||
         tryingToAddRi && octoEverywhere == null && (obicoTunnel == null || !_obicoEnabled) ||
@@ -496,7 +534,9 @@ class WebcamListController extends _$WebcamListController {
   addNewWebCam() {
     if (!state.hasValue) return;
 
-    state = AsyncValue.data(List.unmodifiable([...state.value!, WebcamInfo.mjpegDefault()]));
+    state = AsyncValue.data(
+      List.unmodifiable([...state.value!, WebcamInfo.mjpegDefault()]),
+    );
   }
 
   removeWebcam(WebcamInfo webcamInfo) {
@@ -525,12 +565,18 @@ class WebcamListController extends _$WebcamListController {
 }
 
 final moveStepStateProvider = StateNotifierProvider.autoDispose<DoubleStepSegmentController, List<double>>((ref) {
-  return DoubleStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.moveSteps);
+  return DoubleStepSegmentController(
+    ref.watch(machineRemoteSettingsProvider).value!.moveSteps,
+  );
 });
 
-final extruderStepStateProvider = StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>((ref) {
-  return IntStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.extrudeSteps);
-});
+final extruderStepStateProvider = StateNotifierProvider.autoDispose<IntStepSegmentController, List<int>>(
+  (ref) {
+    return IntStepSegmentController(
+      ref.watch(machineRemoteSettingsProvider).value!.extrudeSteps,
+    );
+  },
+);
 
 class IntStepSegmentController extends StateNotifier<List<int>> {
   IntStepSegmentController(super._state);
@@ -560,7 +606,9 @@ class IntStepSegmentController extends StateNotifier<List<int>> {
 }
 
 final babyStepStateProvider = StateNotifierProvider.autoDispose<DoubleStepSegmentController, List<double>>((ref) {
-  return DoubleStepSegmentController(ref.watch(machineRemoteSettingsProvider).value!.babySteps);
+  return DoubleStepSegmentController(
+    ref.watch(machineRemoteSettingsProvider).value!.babySteps,
+  );
 });
 
 class DoubleStepSegmentController extends StateNotifier<List<double>> {
@@ -592,7 +640,10 @@ class DoubleStepSegmentController extends StateNotifier<List<double>> {
 
 final macroGroupListControllerProvider =
     StateNotifierProvider.autoDispose<MacroGroupListController, List<MacroGroup>>((ref) {
-  return MacroGroupListController(ref, ref.watch(machineRemoteSettingsProvider).value!.macroGroups);
+  return MacroGroupListController(
+    ref,
+    ref.watch(machineRemoteSettingsProvider).value!.macroGroups,
+  );
 });
 
 class MacroGroupListController extends StateNotifier<List<MacroGroup>> {
@@ -631,7 +682,10 @@ class MacroGroupListController extends StateNotifier<List<MacroGroup>> {
       ref.read(macroGroupControllerProvder(defaultGrp).notifier).addAll(macrosInGrp);
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
             title: 'Macro group deleted!',
-            message: plural('pages.printer_edit.macros.macros_to_default', macrosInGrp.length),
+            message: plural(
+              'pages.printer_edit.macros.macros_to_default',
+              macrosInGrp.length,
+            ),
           ));
     }
 
@@ -642,9 +696,12 @@ class MacroGroupListController extends StateNotifier<List<MacroGroup>> {
 }
 
 final macroGroupControllerProvder =
-    StateNotifierProvider.autoDispose.family<MacroGroupController, List<GCodeMacro>, MacroGroup>((ref, grp) {
-  return MacroGroupController(ref, grp);
-}, name: 'macroGrpCtler');
+    StateNotifierProvider.autoDispose.family<MacroGroupController, List<GCodeMacro>, MacroGroup>(
+  (ref, grp) {
+    return MacroGroupController(ref, grp);
+  },
+  name: 'macroGrpCtler',
+);
 
 class MacroGroupController extends StateNotifier<List<GCodeMacro>> {
   MacroGroupController(this.ref, this.macroGroup) : super(macroGroup.macros.toList(growable: false));
@@ -665,7 +722,7 @@ class MacroGroupController extends StateNotifier<List<GCodeMacro>> {
     state = List.unmodifiable(list);
   }
 
-  onNoReorder(initialIndex) {
+  onNoReorder(_) {
     ref.read(macroGroupDragginControllerProvider.notifier).onMacroReorderStopped();
   }
 
@@ -725,7 +782,9 @@ class MacroGroupDraggingController extends StateNotifier<MacroGroup?> {
 
 final temperaturePresetListControllerProvider =
     StateNotifierProvider.autoDispose<TemperaturePresetListController, List<TemperaturePreset>>((ref) {
-  return TemperaturePresetListController(ref.watch(machineRemoteSettingsProvider).value!.temperaturePresets);
+  return TemperaturePresetListController(
+    ref.watch(machineRemoteSettingsProvider).value!.temperaturePresets,
+  );
 });
 
 class TemperaturePresetListController extends StateNotifier<List<TemperaturePreset>> {
@@ -755,13 +814,20 @@ class TemperaturePresetListController extends StateNotifier<List<TemperaturePres
 
   importPresets(List<TemperaturePreset> presets) {
     // Since these presets are new to this machine, new dates+uuid!
-    var copies = presets.map((e) => TemperaturePreset(name: e.name, bedTemp: e.bedTemp, extruderTemp: e.extruderTemp));
+    var copies = presets.map((e) => TemperaturePreset(
+          name: e.name,
+          bedTemp: e.bedTemp,
+          extruderTemp: e.extruderTemp,
+        ));
 
     state = List.unmodifiable([...state, ...copies]);
   }
 }
 
-WebcamInfo _applyWebcamFieldsToWebcam(Map<String, dynamic> storedValues, WebcamInfo cam) {
+WebcamInfo _applyWebcamFieldsToWebcam(
+  Map<String, dynamic> storedValues,
+  WebcamInfo cam,
+) {
   var name = storedValues['${cam.uuid}-camName'];
   String? streamUrl = storedValues['${cam.uuid}-streamUrl'];
   String? snapshotUrl = storedValues['${cam.uuid}-snapshotUrl'];
@@ -772,14 +838,15 @@ WebcamInfo _applyWebcamFieldsToWebcam(Map<String, dynamic> storedValues, WebcamI
   var tFps = (service == WebcamServiceType.mjpegStreamerAdaptive) ? storedValues['${cam.uuid}-tFps'] : null;
 
   return cam.copyWith(
-      name: name ?? cam.name,
-      snapshotUrl: snapshotUrl?.let((e) => Uri.tryParse(e)) ?? cam.snapshotUrl,
-      streamUrl: streamUrl?.let((e) => Uri.tryParse(e)) ?? cam.streamUrl,
-      flipHorizontal: fH ?? cam.flipHorizontal,
-      flipVertical: fV ?? cam.flipVertical,
-      targetFps: tFps ?? cam.targetFps,
-      service: service ?? cam.service,
-      rotation: rotation ?? cam.rotation);
+    name: name ?? cam.name,
+    snapshotUrl: snapshotUrl?.let((e) => Uri.tryParse(e)) ?? cam.snapshotUrl,
+    streamUrl: streamUrl?.let((e) => Uri.tryParse(e)) ?? cam.streamUrl,
+    flipHorizontal: fH ?? cam.flipHorizontal,
+    flipVertical: fV ?? cam.flipVertical,
+    targetFps: tFps ?? cam.targetFps,
+    service: service ?? cam.service,
+    rotation: rotation ?? cam.rotation,
+  );
 }
 
 @Riverpod(dependencies: [currentlyEditing])

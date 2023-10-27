@@ -66,10 +66,10 @@ class SnackBarServiceImpl implements SnackBarService {
                   children: [
                     Text(
                       config.title ?? config.type.name.titleCase(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(color: txtCol, fontWeight: FontWeight.w900),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: txtCol,
+                            fontWeight: FontWeight.w900,
+                          ),
                     ),
                     Text(
                       config.message ?? '',
@@ -80,19 +80,20 @@ class SnackBarServiceImpl implements SnackBarService {
               ),
               if (config.mainButtonTitle != null)
                 ElevatedButton(
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: btnBg, foregroundColor: btnOnBg),
-                    onPressed: config.onMainButtonTapped != null
-                        ? () {
-                            if (config.closeOnMainButtonTapped == true) {
-                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            }
-                            config.onMainButtonTapped!();
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: btnBg,
+                    foregroundColor: btnOnBg,
+                  ),
+                  onPressed: config.onMainButtonTapped != null
+                      ? () {
+                          if (config.closeOnMainButtonTapped == true) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           }
-                        : null,
-                    child: Text(
-                      config.mainButtonTitle!,
-                    ))
+                          config.onMainButtonTapped!();
+                        }
+                      : null,
+                  child: Text(config.mainButtonTitle!),
+                ),
             ],
           ),
         ),

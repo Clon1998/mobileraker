@@ -35,9 +35,8 @@ class ConnectionStateController extends _$ConnectionStateController {
       return 'OctoEverywhere returned: ${errorReason.message}';
     } else if (errorReason != null) {
       return errorReason.toString();
-    } else {
-      return 'Error while trying to connect. Please retry later.';
     }
+    return 'Error while trying to connect. Please retry later.';
   }
 
   bool get errorIsOctoSupportedExpired {
@@ -66,7 +65,9 @@ class ConnectionStateController extends _$ConnectionStateController {
   }
 
   onGoToOE() async {
-    var oeURI = Uri.parse('https://octoeverywhere.com/appportal/v1/nosupporterperks?moonraker=true&appid=mobileraker');
+    var oeURI = Uri.parse(
+      'https://octoeverywhere.com/appportal/v1/nosupporterperks?moonraker=true&appid=mobileraker',
+    );
     if (await canLaunchUrl(oeURI)) {
       await launchUrl(oeURI, mode: LaunchMode.externalApplication);
     } else {

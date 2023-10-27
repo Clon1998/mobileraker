@@ -11,14 +11,14 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mobileraker/ui/components/horizontal_scroll_indicator.dart';
 
 class AdaptiveHorizontalScroll extends HookWidget {
-  const AdaptiveHorizontalScroll(
-      {Key? key,
-      required this.pageStorageKey,
-      this.children = const [],
-      this.minWidth = 150,
-      this.maxWidth = 200,
-      this.padding})
-      : super(key: key);
+  const AdaptiveHorizontalScroll({
+    Key? key,
+    required this.pageStorageKey,
+    this.children = const [],
+    this.minWidth = 150,
+    this.maxWidth = 200,
+    this.padding,
+  }) : super(key: key);
 
   final List<Widget> children;
 
@@ -36,11 +36,13 @@ class AdaptiveHorizontalScroll extends HookWidget {
     return Padding(
       padding: padding ?? const EdgeInsets.only(left: 8, right: 8),
       child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
+        builder: (BuildContext ctx, BoxConstraints constraints) {
           final int visibleCnt = (constraints.maxWidth / minWidth).floor();
           final double width = constraints.maxWidth / visibleCnt;
 
-          logger.i('$pageStorageKey - visibleCnt: $visibleCnt, width: $width, $constraints');
+          logger.i(
+            '$pageStorageKey - visibleCnt: $visibleCnt, width: $width, $constraints',
+          );
           return Column(
             children: [
               SingleChildScrollView(
@@ -54,7 +56,12 @@ class AdaptiveHorizontalScroll extends HookWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: children
                         .map((e) => ConstrainedBox(
-                            constraints: BoxConstraints(minWidth: minWidth, maxWidth: min(maxWidth, width)), child: e))
+                              constraints: BoxConstraints(
+                                minWidth: minWidth,
+                                maxWidth: min(maxWidth, width),
+                              ),
+                              child: e,
+                            ))
                         .toList(),
                   ),
                 ),
@@ -64,7 +71,7 @@ class AdaptiveHorizontalScroll extends HookWidget {
                   steps: children.length,
                   controller: scrollCtrler,
                   childsPerScreen: visibleCnt,
-                )
+                ),
             ],
           );
         },

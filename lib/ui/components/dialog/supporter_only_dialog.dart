@@ -9,7 +9,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class SupporterOnlyDialog extends StatelessWidget {
-  const SupporterOnlyDialog({Key? key, required this.request, required this.completer}) : super(key: key);
+  const SupporterOnlyDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
   final DialogRequest request;
   final Function(DialogResponse) completer;
 
@@ -36,9 +40,9 @@ class SupporterOnlyDialog extends StatelessWidget {
                     MaterialLocalizations.of(context).closeButtonLabel,
                     style: const TextStyle(fontSize: 11),
                   ),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

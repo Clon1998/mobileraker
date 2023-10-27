@@ -39,6 +39,7 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
     return BedScrewAndConfig(bedScrew: bedScrew, config: config);
   }
 
+  // ignore: avoid-unnecessary-futures
   Future<bool> onPopTriggered() async {
     onAbortPressed();
     return false;
@@ -66,6 +67,8 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
 
 @freezed
 class BedScrewAndConfig with _$BedScrewAndConfig {
-  const factory BedScrewAndConfig({required BedScrew bedScrew,
-    required ConfigFile config}) = _BedScrewAndConfig;
+  const factory BedScrewAndConfig({
+    required BedScrew bedScrew,
+    required ConfigFile config,
+  }) = _BedScrewAndConfig;
 }

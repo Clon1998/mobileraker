@@ -42,11 +42,9 @@ Future<void> main() async {
       bottomSheetServiceProvider.overrideWith(bottomSheetServiceImpl),
       dialogServiceProvider.overrideWith(dialogServiceImpl),
       snackBarServiceProvider.overrideWith(snackBarServiceImpl),
-      themePackProvider.overrideWith(themePacks)
+      themePackProvider.overrideWith(themePacks),
     ],
-    observers: const [
-      if (kDebugMode) RiverPodLogger(),
-    ],
+    observers: const [if (kDebugMode) RiverPodLogger()],
     child: const WarmUp(),
   ));
 }
@@ -59,70 +57,78 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final goRouter = ref.watch(goRouterProvider);
     return EasyLocalization(
-        supportedLocales: const [
-          Locale('af'),
-          Locale('de'),
-          Locale('en'),
-          Locale('fr'),
-          Locale('hu'),
-          Locale('it'),
-          Locale('nl'),
-          Locale('pt', 'BR'),
-          Locale('ro'),
-          Locale('ru'),
-          Locale('uk'),
-          Locale('zh', 'CN'),
-          Locale('zh', 'HK'),
-        ],
-        fallbackLocale: const Locale('en'),
-        saveLocale: true,
-        useFallbackTranslations: true,
-        path: 'assets/translations',
-        errorWidget: (e) {
-          return MaterialApp(
-            home: ErrorCard(
-              title: const Text('Can not load languange files!'),
-              body: Text(
-                  'I am sorry. An unexpected error occured while loading the languange files.\nPlease submit this error to the developer via github: www.github.com/Clon1998/mobileraker\n\n\Error:\n$e'),
+      supportedLocales: const [
+        Locale('af'),
+        Locale('de'),
+        Locale('en'),
+        Locale('fr'),
+        Locale('hu'),
+        Locale('it'),
+        Locale('nl'),
+        Locale('pt', 'BR'),
+        Locale('ro'),
+        Locale('ru'),
+        Locale('uk'),
+        Locale('zh', 'CN'),
+        Locale('zh', 'HK'),
+      ],
+      fallbackLocale: const Locale('en'),
+      saveLocale: true,
+      useFallbackTranslations: true,
+      path: 'assets/translations',
+      errorWidget: (e) {
+        return MaterialApp(
+          home: ErrorCard(
+            title: const Text('Can not load languange files!'),
+            body: Text(
+              'I am sorry. An unexpected error occured while loading the languange files.\nPlease submit this error to the developer via github: www.github.com/Clon1998/mobileraker\n\n\Error:\n$e',
             ),
+          ),
+        );
+      },
+      child: ThemeBuilder(
+        builder: (
+          BuildContext context,
+          ThemeData? regularTheme,
+          ThemeData? darkTheme,
+          ThemeMode? themeMode,
+        ) {
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerDelegate: goRouter.routerDelegate,
+            routeInformationProvider: goRouter.routeInformationProvider,
+            routeInformationParser: goRouter.routeInformationParser,
+            title: 'Mobileraker',
+            theme: regularTheme,
+            darkTheme: darkTheme,
+            themeMode: themeMode,
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              FormBuilderLocalizations.delegate,
+              ...context.localizationDelegates,
+              RefreshLocalizations.delegate,
+            ],
+            supportedLocales: context.supportedLocales,
+            locale: context.locale,
           );
         },
-        child: ThemeBuilder(
-          builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme, ThemeMode? themeMode) {
-            return MaterialApp.router(
-              routerDelegate: goRouter.routerDelegate,
-              routeInformationProvider: goRouter.routeInformationProvider,
-              routeInformationParser: goRouter.routeInformationParser,
-              title: 'Mobileraker',
-              theme: regularTheme,
-              darkTheme: darkTheme,
-              themeMode: themeMode,
-              localizationsDelegates: [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                FormBuilderLocalizations.delegate,
-                ...context.localizationDelegates,
-                RefreshLocalizations.delegate,
-              ],
-              supportedLocales: context.supportedLocales,
-              locale: context.locale,
-            );
-          },
-        ));
+      ),
+    );
   }
 }
 
 class WarmUp extends HookConsumerWidget {
-  const WarmUp({
-    Key? key,
-  }) : super(key: key);
+  const WarmUp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var appLifeCycleNotifier = ref.watch(appLifecycleProvider.notifier);
     var brightness = usePlatformBrightness();
-    useOnAppLifecycleStateChange((_, current) => appLifeCycleNotifier.update(current));
+    useOnAppLifecycleStateChange(
+      (_, current) => appLifeCycleNotifier.update(current),
+    );
 
     return Container(
       color: splashBgColorForBrightness(brightness),
@@ -130,16 +136,16 @@ class WarmUp extends HookConsumerWidget {
             data: (step) {
               if (step == StartUpStep.complete) {
                 return const MyApp();
-              } else {
-                return const _LoadingSplashScreen();
               }
+              return const _LoadingSplashScreen();
             },
             error: (e, s) {
               return MaterialApp(
                 home: ErrorCard(
                   title: const Text('Error while starting Mobileraker!'),
                   body: Text(
-                      'I am sorry...\nSomething unexpected happed.\nPlease report this bug to the developer!\n\n$e\n$s'),
+                    'I am sorry...\nSomething unexpected happed.\nPlease report this bug to the developer!\n\n$e\n$s',
+                  ),
                 ),
               );
             },
@@ -154,9 +160,12 @@ class _LoadingSplashScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var animCtrler =
-        useAnimationController(duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1)
-          ..repeat(reverse: true);
+    var animCtrler = useAnimationController(
+      duration: const Duration(seconds: 1),
+      lowerBound: 0.5,
+      upperBound: 1,
+      initialValue: 1,
+    )..repeat(reverse: true);
 
     return SafeArea(
       child: Directionality(
@@ -167,7 +176,10 @@ class _LoadingSplashScreen extends HookWidget {
             const Spacer(),
             Flexible(
               child: ScaleTransition(
-                scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+                scale: CurvedAnimation(
+                  parent: animCtrler,
+                  curve: Curves.elasticInOut,
+                ),
                 child: SvgPicture.asset(
                   'assets/vector/mr_logo.svg',
                   height: 120,
@@ -182,10 +194,10 @@ class _LoadingSplashScreen extends HookWidget {
                   Text(
                     'Created by Patrick Schmidt',
                     style: TextStyle(color: Color(0xff777777)),
-                  )
+                  ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -194,9 +206,7 @@ class _LoadingSplashScreen extends HookWidget {
 }
 
 class _EmojiIndicator extends ConsumerWidget {
-  const _EmojiIndicator({
-    Key? key,
-  }) : super(key: key);
+  const _EmojiIndicator({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

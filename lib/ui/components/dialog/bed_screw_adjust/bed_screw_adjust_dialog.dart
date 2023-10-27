@@ -23,21 +23,22 @@ class BedScrewAdjustDialog extends HookConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const BedScrewAdjustDialog({Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const BedScrewAdjustDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-        overrides: [
-          dialogCompleterProvider.overrideWithValue(completer),
-          bedScrewAdjustDialogControllerProvider,
-          printerSelectedProvider
-        ],
-        child: _BedScrewAdjustDialog(
-          request: request,
-          completer: completer,
-        ));
+      overrides: [
+        dialogCompleterProvider.overrideWithValue(completer),
+        bedScrewAdjustDialogControllerProvider,
+        printerSelectedProvider,
+      ],
+      child: _BedScrewAdjustDialog(request: request, completer: completer),
+    );
   }
 }
 
@@ -91,7 +92,7 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     const Flexible(
-                                      child: ScrewLocationIndicator(),
+                                      child: _ScrewLocationIndicator(),
                                     ),
                                     InputDecorator(
                                       decoration: InputDecoration(
@@ -99,12 +100,11 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
                                         contentPadding: const EdgeInsets.only(top: 8),
                                         floatingLabelBehavior: FloatingLabelBehavior.always,
                                         label: const Text(
-                                                'dialogs.bed_screw_adjust.active_screw_title')
-                                            .tr(),
+                                          'dialogs.bed_screw_adjust.active_screw_title',
+                                        ).tr(),
                                         border: InputBorder.none,
                                       ),
-                                      child: Text(data.config.configBedScrews!
-                                          .screws[data.bedScrew.currentScrew].name),
+                                      child: Text(data.config.configBedScrews!.screws[data.bedScrew.currentScrew].name),
                                     ),
                                     InputDecorator(
                                       decoration: InputDecoration(
@@ -112,15 +112,15 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
                                         contentPadding: const EdgeInsets.only(top: 8),
                                         floatingLabelBehavior: FloatingLabelBehavior.always,
                                         label: const Text(
-                                                'dialogs.bed_screw_adjust.accept_screw_title')
-                                            .tr(),
+                                          'dialogs.bed_screw_adjust.accept_screw_title',
+                                        ).tr(),
                                         border: InputBorder.none,
                                       ),
-                                      child:
-                                          const Text('dialogs.bed_screw_adjust.accept_screw_value')
-                                              .tr(args: [
+                                      child: const Text(
+                                        'dialogs.bed_screw_adjust.accept_screw_value',
+                                      ).tr(args: [
                                         data.bedScrew.acceptedScrews.toString(),
-                                        data.config.configBedScrews!.screws.length.toString()
+                                        data.config.configBedScrews!.screws.length.toString(),
                                       ]),
                                     ),
                                   ],
@@ -200,14 +200,14 @@ class _Footer extends ConsumerWidget {
               child: Row(
                 children: [
                   TextButton(
-                    onPressed:
-                        ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAdjustedPressed,
+                    onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAdjustedPressed,
                     child: const Text('dialogs.bed_screw_adjust.adjusted_btn').tr(),
                   ),
                   TextButton(
-                    style: TextButton.styleFrom(foregroundColor: themeData.colorScheme.secondary),
-                    onPressed:
-                        ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAcceptPressed,
+                    style: TextButton.styleFrom(
+                      foregroundColor: themeData.colorScheme.secondary,
+                    ),
+                    onPressed: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onAcceptPressed,
                     child: const Text('general.accept').tr(),
                   ),
                 ],
@@ -219,10 +219,8 @@ class _Footer extends ConsumerWidget {
   }
 }
 
-class ScrewLocationIndicator extends ConsumerWidget {
-  const ScrewLocationIndicator({
-    Key? key,
-  }) : super(key: key);
+class _ScrewLocationIndicator extends ConsumerWidget {
+  const _ScrewLocationIndicator({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -240,10 +238,15 @@ class ScrewLocationIndicator extends ConsumerWidget {
           child: IntrinsicHeight(
             child: Center(
               child: AspectRatio(
-                  aspectRatio: data.config.sizeX / data.config.sizeY,
-                  child: CustomPaint(
-                      painter: BedScrewIndicatorPainter(
-                          context, data.bedScrew.currentScrew, data.config))),
+                aspectRatio: data.config.sizeX / data.config.sizeY,
+                child: CustomPaint(
+                  painter: BedScrewIndicatorPainter(
+                    context,
+                    data.bedScrew.currentScrew,
+                    data.config,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -255,7 +258,7 @@ class ScrewLocationIndicator extends ConsumerWidget {
 class BedScrewIndicatorPainter extends CustomPainter {
   static const double bgLineDis = 50;
 
-  BedScrewIndicatorPainter(this.context, this.activeScrew, this.config);
+  const BedScrewIndicatorPainter(this.context, this.activeScrew, this.config);
 
   final BuildContext context;
   final int activeScrew;
@@ -306,28 +309,36 @@ class BedScrewIndicatorPainter extends CustomPainter {
     }
     config.configBedScrews!.screws.forEachIndexed((index, screw) {
       canvas.drawCircle(
-          Offset(screw.x / _maxXBed * maxX, correctY(screw.y) / _maxYBed * maxY),
-          (index == activeScrew) ? 12 : 8,
-          (index == activeScrew) ? paintSelectedScrew : paintScrew);
+        Offset(
+          screw.x / _maxXBed * maxX,
+          correctY(screw.y) / _maxYBed * maxY,
+        ),
+        (index == activeScrew) ? 12 : 8,
+        (index == activeScrew) ? paintSelectedScrew : paintScrew,
+      );
     });
   }
 
-  void drawOrientationText(String text, Alignment align, Canvas canvas, double maxX, double maxY) {
+  void drawOrientationText(
+    String text,
+    Canvas canvas,
+    double maxX,
+    double maxY,
+  ) {
     var themeData = Theme.of(context);
     TextSpan span = TextSpan(
       text: text,
-      style: themeData.textTheme.bodyLarge
-          ?.copyWith(fontWeight: FontWeight.w900, backgroundColor: themeData.colorScheme.surface),
+      style: themeData.textTheme.bodyLarge?.copyWith(
+        fontWeight: FontWeight.w900,
+        backgroundColor: themeData.colorScheme.surface,
+      ),
     );
     TextPainter tp = TextPainter(
       text: span,
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     );
-    tp.layout(
-      minWidth: 0,
-      maxWidth: maxX,
-    );
+    tp.layout(minWidth: 0, maxWidth: maxX);
 
     Offset offset = Offset((maxX - tp.width) / 2, (maxY - tp.height));
 
@@ -344,10 +355,7 @@ class BedScrewIndicatorPainter extends CustomPainter {
       textAlign: TextAlign.center,
       textDirection: TextDirection.ltr,
     );
-    tp.layout(
-      minWidth: 0,
-      maxWidth: maxX,
-    );
+    tp.layout(minWidth: 0, maxWidth: maxX);
     tp.paint(canvas, Offset((maxX - tp.width) / 2, (maxY - tp.height) / 2));
   }
 

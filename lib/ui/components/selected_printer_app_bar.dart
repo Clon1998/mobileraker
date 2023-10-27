@@ -13,7 +13,8 @@ import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 
 final selectedPrinterAppBarController =
     StateNotifierProvider.autoDispose<SelectedPrinterAppBarController, void>(
-        (ref) => SelectedPrinterAppBarController(ref));
+  (ref) => SelectedPrinterAppBarController(ref),
+);
 
 class SelectedPrinterAppBarController extends StateNotifier<void> {
   SelectedPrinterAppBarController(AutoDisposeRef ref)
@@ -35,11 +36,7 @@ class SelectedPrinterAppBarController extends StateNotifier<void> {
 
 class SwitchPrinterAppBar extends HookConsumerWidget
     implements PreferredSizeWidget {
-  const SwitchPrinterAppBar({
-    Key? key,
-    required this.title,
-    this.actions,
-  }) : super(key: key);
+  const SwitchPrinterAppBar({Key? key, required this.title, this.actions}) : super(key: key);
 
   final String title;
   final List<Widget>? actions;
@@ -47,8 +44,7 @@ class SwitchPrinterAppBar extends HookConsumerWidget
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var selectedMachine = ref.watch(selectedMachineProvider).valueOrNull;
-    var multipleMachinesAvailable = ref
-            .watch(allMachinesProvider.selectAs((data) => data.length > 1)).valueOrNull == true;
+    var multipleMachinesAvailable = ref.watch(allMachinesProvider.selectAs((data) => data.length > 1)).valueOrNull == true;
     return AppBar(
       centerTitle: false,
       title: GestureDetector(
