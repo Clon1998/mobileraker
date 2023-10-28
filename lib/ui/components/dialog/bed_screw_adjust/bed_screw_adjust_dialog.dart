@@ -14,7 +14,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
-import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_controller.dart';
+import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_dialog_controller.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:vector_math/vector_math.dart' as vec;
