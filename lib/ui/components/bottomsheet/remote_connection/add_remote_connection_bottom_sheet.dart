@@ -30,17 +30,24 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      child: ProviderScope(
-        overrides: [sheetArgsProvider.overrideWithValue(args)],
-        child: const _AddRemoteConnectionBottomSheet(),
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.8,
+      minChildSize: 0.35,
+      builder: (ctx, scrollController) => SafeArea(
+        child: ProviderScope(
+          overrides: [sheetArgsProvider.overrideWithValue(args)],
+          child: _AddRemoteConnectionBottomSheet(scrollController: scrollController),
+        ),
       ),
     );
   }
 }
 
 class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
-  const _AddRemoteConnectionBottomSheet({Key? key}) : super(key: key);
+  const _AddRemoteConnectionBottomSheet({Key? key, required this.scrollController}) : super(key: key);
+
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,7 +73,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
     var themeData = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
+      // mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           color: themeData.colorScheme.primary,
@@ -108,31 +115,22 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
             ],
           ),
         ),
-        Flexible(
-          child: AnimatedSize(
-            alignment: Alignment.bottomCenter,
-            duration: kThemeChangeDuration,
-            // curve: Curves.easeOutCubic,
-            child: ConstraintsTransformBox(
-              constraintsTransform: (BoxConstraints x) {
-                double height = x.maxHeight * 0.8 + viewInsets.bottom;
-
-                return x.tighten(height: height);
-              },
-              child: FormBuilder(
-                key: ref.watch(formKeyProvider),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: viewInsets.bottom),
-                  child: TabBarView(
-                    controller: tabController,
-                    children: [
-                      const _OctoTab(),
-                      const _ManualTab(),
-                      if (obicoEnabled) const _ObicoTab(),
-                    ],
-                  ),
-                ),
+        Expanded(
+          child: FormBuilder(
+            key: ref.watch(formKeyProvider),
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: viewInsets.bottom),
+              child: TabBarView(
+                controller: tabController,
+                children: [
+                  _OctoTab(scrollController: scrollController),
+                  _ManualTab(scrollController: scrollController),
+                  if (obicoEnabled)
+                    _ObicoTab(
+                      scrollController: scrollController,
+                    ),
+                ],
               ),
             ),
           ),
@@ -143,7 +141,8 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
 }
 
 class _OctoTab extends ConsumerWidget {
-  const _OctoTab({Key? key}) : super(key: key);
+  const _OctoTab({Key? key, required this.scrollController}) : super(key: key);
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -154,22 +153,33 @@ class _OctoTab extends ConsumerWidget {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          const Spacer(),
-          ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: 80,
-              maxWidth: 80,
-              minHeight: 40,
-              minWidth: 40,
+          Flexible(
+            child: CustomScrollView(
+              controller: scrollController,
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: SvgPicture.asset(
+                          'assets/vector/oe_logo.svg',
+                          height: 80,
+                          width: 80,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      const Text(
+                        'bottom_sheets.add_remote_con.octoeverywehre.description',
+                        textAlign: TextAlign.center,
+                      ).tr(),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            child: SvgPicture.asset('assets/vector/oe_logo.svg'),
           ),
-          const SizedBox(height: 32),
-          const Text(
-            'bottom_sheets.add_remote_con.octoeverywehre.description',
-            textAlign: TextAlign.center,
-          ).tr(),
-          const Spacer(),
           if (model.activeClientType == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -199,7 +209,9 @@ class _OctoTab extends ConsumerWidget {
 }
 
 class _ManualTab extends ConsumerWidget {
-  const _ManualTab({Key? key}) : super(key: key);
+  const _ManualTab({Key? key, required this.scrollController}) : super(key: key);
+
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -211,9 +223,9 @@ class _ManualTab extends ConsumerWidget {
       children: [
         Flexible(
           child: ListView(
+            controller: scrollController,
             padding: const EdgeInsets.all(8.0),
-            physics: const ClampingScrollPhysics(),
-            shrinkWrap: true,
+            // shrinkWrap: true,
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
@@ -288,7 +300,8 @@ class _ManualTab extends ConsumerWidget {
 }
 
 class _ObicoTab extends ConsumerWidget {
-  const _ObicoTab({Key? key}) : super(key: key);
+  const _ObicoTab({Key? key, required this.scrollController}) : super(key: key);
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -299,26 +312,31 @@ class _ObicoTab extends ConsumerWidget {
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          const Spacer(),
-          ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxHeight: 80,
-              maxWidth: 80,
-              minHeight: 40,
-              minWidth: 40,
-            ),
-            child: SvgPicture.asset(
-              'assets/vector/obico_logo.svg',
-              height: double.infinity,
-              width: double.infinity,
+          Flexible(
+            child: CustomScrollView(
+              controller: scrollController,
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/vector/obico_logo.svg',
+                        height: 80,
+                        width: 80,
+                      ),
+                      const SizedBox(height: 32),
+                      const Text(
+                        'bottom_sheets.add_remote_con.obico.description',
+                        textAlign: TextAlign.center,
+                      ).tr(),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 32),
-          const Text(
-            'bottom_sheets.add_remote_con.obico.description',
-            textAlign: TextAlign.center,
-          ).tr(),
-          const Spacer(),
           if (model.activeClientType == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
