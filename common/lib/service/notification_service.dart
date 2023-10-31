@@ -199,7 +199,7 @@ class NotificationService {
       if (!await _liveActivityAPI.areActivitiesEnabled()) return;
       ref.read(snackBarServiceProvider).show(
           SnackBarConfig(title: 'DEBUG: LiveActivity', message: '${allMachines.length}-Clearing all LiveActivities'));
-      await _clearAllLiveActivities();
+      await _clearUnaddressableLiveActivities();
       logger.i('The app has currently ${allMachines.length} machines');
       for (var machine in allMachines) {
         logger.i('Force a LiveActivity update for ${machine.name} after app was resumed');
@@ -626,33 +626,62 @@ class NotificationService {
     }
   }
 
-  _clearAllLiveActivities() async {
+  Future<void> _clearUnaddressableLiveActivities() async {
+    logger.i('Ending all unaddressable LiveActivities');
+
+    // Create a map of locally tracked live activities by swapping value and key activityId -> machineUuid
+    var activityIdMachine = _machineLiveActivityMap.map((key, value) => MapEntry(value.id, key));
+
+    // Get all activities
     var allActivities = await _liveActivityAPI.getAllActivitiesIds();
-    logger.i('Ending all LiveActivities');
-    await Future.wait(allActivities.map((e) => _liveActivityAPI.endActivity(e)));
+    // Get the state of all activities
+    var activityAndStateList =
+        await Future.wait(allActivities.map((e) => _liveActivityAPI.getActivityState(e).then((state) => (e, state))));
+
+    // Filter out all activities that are not active -> The api/app can not address anymore
+    var unaddressableActivities = activityAndStateList.whereNot((e) => e.$2 == LiveActivityState.active);
+
+    // End them and remove them from the local machine activity map
+    List<Future> endActivities = [];
+    for (var activityData in unaddressableActivities) {
+      endActivities.add(_liveActivityAPI.endActivity(activityData.$1));
+
+      var machineId = activityIdMachine[activityData.$1];
+      if (machineId != null) _machineLiveActivityMap.remove(machineId);
+    }
+
+    // Ensure we wait for all activities to be ended
+    await Future.wait(endActivities);
     logger.i('Cleared all LiveActivities');
   }
 
-  Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> data, Machine machine) async {
+  Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, Machine machine) async {
+    // Check if an activity is already running for this machine and if we can still address it
     if (_machineLiveActivityMap.containsKey(machine.uuid)) {
       var activityEntry = _machineLiveActivityMap[machine.uuid]!;
       LiveActivityState activityState = await _liveActivityAPI.getActivityState(activityEntry.id);
-      //ToDo Unknown state of liveActivity might also be checked...
       logger.i('LiveActivityState for ${machine.name} is $activityState');
-      if (activityState == LiveActivityState.active || activityState == LiveActivityState.stale) {
-        await _liveActivityAPI.updateActivity(activityEntry.id, data);
-        logger.i('Updating LiveActivity for ${machine.name} with id: $activityEntry');
+
+      // If the activity is still active we can update it and return
+      if (activityState == LiveActivityState.active) {
+        logger.i('Can update LiveActivity for ${machine.name} with id: $activityEntry');
+        await _liveActivityAPI.updateActivity(activityEntry.id, activityData);
         return activityEntry.id;
       }
-      // Okay we can not update the activity. So we remove it from the map in order to end it down below
+      // Okay we can not update the activity remove and end it
+      await _liveActivityAPI.endActivity(activityEntry.id);
       _machineLiveActivityMap.remove(machine.uuid);
     }
-    var allActivities = await _liveActivityAPI.getAllActivitiesIds();
-    allActivities.where((element) => !_machineLiveActivityMap.containsValue(element)).forEach((element) {
-      logger.i('Ending LiveActivity with id: $element, since it can not be addressed anymore!');
-      _liveActivityAPI.endActivity(element);
-    });
-    var activityId = await _liveActivityAPI.createActivity(data);
+    //!!!!! I DISABLED THIS BECAUSE CLEARING ALL LiveActivities IS HANDLED BY THE APP LIFECYCLE WATCHER
+    // var allActivities = await _liveActivityAPI.getAllActivitiesIds();
+    // allActivities.where((element) => !_machineLiveActivityMap.containsValue(element)).forEach((element) {
+    //   logger.i('Ending LiveActivity with id: $element, since it can not be addressed anymore!');
+    //   _liveActivityAPI.endActivity(element);
+    // });
+    //
+
+    // Okay I guess we need to create a new activity for this machine
+    var activityId = await _liveActivityAPI.createActivity(activityData);
     if (activityId != null) {
       _machineLiveActivityMap[machine.uuid] = _ActivityEntry(activityId);
     }
