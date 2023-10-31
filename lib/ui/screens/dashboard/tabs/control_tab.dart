@@ -5,7 +5,6 @@
 
 import 'dart:math';
 
-import 'package:common/data/dto/config/config_gcode_macro.dart';
 import 'package:common/data/dto/config/led/config_dumb_led.dart';
 import 'package:common/data/dto/config/led/config_led.dart';
 import 'package:common/data/dto/machine/fans/generic_fan.dart';
@@ -15,7 +14,6 @@ import 'package:common/data/dto/machine/leds/dumb_led.dart';
 import 'package:common/data/dto/machine/leds/led.dart';
 import 'package:common/data/dto/machine/output_pin.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
-import 'package:common/data/model/moonraker_db/gcode_macro.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -35,11 +33,11 @@ import 'package:mobileraker/ui/components/card_with_switch.dart';
 import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab_controller.dart';
 import 'package:mobileraker/util/extensions/pixel_extension.dart';
 import 'package:progress_indicators/progress_indicators.dart';
-import 'package:stringr/stringr.dart';
 
 import '../../../components/horizontal_scroll_indicator.dart';
 import '../components/firmware_retraction_card.dart';
@@ -66,7 +64,7 @@ class ControlTab extends ConsumerWidget {
                               .selectAs((value) => value.settings.macroGroups.isNotEmpty))
                           .valueOrNull ??
                       false)
-                    const GcodeMacroCard(),
+                    MacroGroupCard(machineUUID: data),
                   if (ref
                           .watch(machinePrinterKlippySettingsProvider
                               .selectAs((value) => value.printerData.print.state != PrintState.printing))
@@ -444,125 +442,6 @@ class ExtruderControlCard extends HookConsumerWidget {
                   ],
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class GcodeMacroCard extends HookConsumerWidget {
-  const GcodeMacroCard({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
-        .valueOrNull!;
-
-    var macroGroups =
-        ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.macroGroups)).valueOrNull!;
-
-    var isPrinting = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs(
-          (value) => value.printerData.print.state == PrintState.printing,
-        ))
-        .valueOrNull!;
-
-    int idx = min(
-      macroGroups.length - 1,
-      max(
-        0,
-        ref.watch(settingServiceProvider).readInt(UtilityKeys.gCodeIndex, 0),
-      ),
-    );
-
-    var selected = useState(idx);
-    var themeData = Theme.of(context);
-
-    var macrosOfGrp = macroGroups[selected.value].macros;
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(FlutterIcons.code_braces_mco),
-            title: const Text('pages.dashboard.control.macro_card.title').tr(),
-            trailing: (macroGroups.length > 1)
-                ? DropdownButton<int>(
-                    value: selected.value,
-                    onChanged: klippyCanReceiveCommands
-                        ? (e) {
-                            ref.read(settingServiceProvider).writeInt(UtilityKeys.gCodeIndex, e!);
-                            selected.value = e;
-                          }
-                        : null,
-                    items: macroGroups.mapIndex((e, i) {
-                      return DropdownMenuItem(value: i, child: Text(e.name));
-                    }).toList(),
-                  )
-                : null,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: Wrap(
-              spacing: 5.0,
-              children: List<Widget>.generate(
-                macrosOfGrp.length,
-                (int index) {
-                  GCodeMacro macro = macrosOfGrp[index];
-                  ConfigGcodeMacro? configGcodeMacro = ref
-                      .watch(machinePrinterKlippySettingsProvider.selectAs(
-                        (data) => data.printerData.configFile.gcodeMacros[macro.name.toLowerCase()],
-                      ))
-                      .valueOrNull;
-                  bool disabled = (!klippyCanReceiveCommands || (isPrinting && !macro.showWhilePrinting));
-                  return Visibility(
-                    visible: ref
-                            .watch(
-                              machinePrinterKlippySettingsProvider.selectAs(
-                                (value) => value.printerData.gcodeMacros.contains(macro.name),
-                              ),
-                            )
-                            .valueOrNull! &&
-                        macro.visible,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 12,
-                        ),
-                        minimumSize: const Size(0, 32),
-                        foregroundColor: themeData.colorScheme.onPrimary,
-                        backgroundColor: themeData.colorScheme.primary,
-                        disabledBackgroundColor: themeData.colorScheme.onSurface.withOpacity(0.12),
-                        disabledForegroundColor: themeData.colorScheme.onSurface.withOpacity(0.38),
-                        textStyle: themeData.chipTheme.labelStyle,
-                        shape: const StadiumBorder(),
-                      ),
-                      onPressed: disabled
-                          ? null
-                          : () => ref
-                              .watch(controlTabControllerProvider.notifier)
-                              .onMacroPressed(macro.name, configGcodeMacro),
-
-                      onLongPress: disabled
-                          ? null
-                          : () => ref.watch(controlTabControllerProvider.notifier).onMacroLongPressed(macro.name),
-                      child: Text(macro.beautifiedName),
-
-                      // Chip(
-                      //   surfaceTintColor: Colors.red,
-                      //   label: Text(macro.beautifiedName),
-                      //   backgroundColor: disabled
-                      //       ? themeData.disabledColor
-                      //       : themeData.colorScheme.primary,
-                      // ),
-                    ),
-                  );
-                },
-              ).toList(),
             ),
           ),
         ],

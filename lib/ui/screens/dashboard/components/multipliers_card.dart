@@ -1,3 +1,5 @@
+// ignore_for_file: prefer-single-widget-per-file
+
 /*
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.

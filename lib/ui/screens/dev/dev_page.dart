@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
 import 'package:mobileraker/ui/screens/printers/edit/components/macro_group_list.dart';
 import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:worker_manager/worker_manager.dart';
@@ -36,6 +37,7 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
+          MacroGroupCard(machineUUID: selMachine!.uuid),
           FirmwareRetractionSlidersOrTextsLoading(),
           MacroGroupList(machineUUID: selMachine!.uuid),
           const Text('One'),
