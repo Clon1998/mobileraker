@@ -213,7 +213,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
       timer = Timer(timeout, () => link.close());
     });
     onResume(() => timer?.cancel());
-    onDispose(() => timer?.cancel);
+    onDispose(() => timer?.cancel());
     return link;
   }
 }
