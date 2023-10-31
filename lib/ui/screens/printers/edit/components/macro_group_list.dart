@@ -200,6 +200,7 @@ class _MacroGroup extends HookConsumerWidget {
               onNoReorder: (a) => controller.onNoMacroInGroupReorder(macroGroup, a),
               children: macros
                   .map((m) => ActionChip(
+                        avatar: _macroAvatar(m),
                         label: Text(m.beautifiedName),
                         onPressed: () => controller.macroSettings(macroGroup, m),
                       ))
@@ -218,6 +219,12 @@ class _MacroGroup extends HookConsumerWidget {
         ],
       ),
     );
+  }
+
+  Icon? _macroAvatar(GCodeMacro macro) {
+    if (!macro.visible) return const Icon(Icons.visibility_off_outlined);
+    if (!macro.showWhilePrinting) return const Icon(Icons.disabled_visible_outlined);
+    return null;
   }
 }
 
