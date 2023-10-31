@@ -28,6 +28,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -196,8 +197,14 @@ class NotificationService {
       // Force a liveActivity update once the app is back in foreground!
       if (next != AppLifecycleState.resumed) return;
       if (!await _liveActivityAPI.areActivitiesEnabled()) return;
+      ref.read(snackBarServiceProvider).show(
+          SnackBarConfig(title: 'DEBUG: LiveActivity', message: '${allMachines.length}-Clearing all LiveActivities'));
+      await _clearAllLiveActivities();
+      logger.i('The app has currently ${allMachines.length} machines');
       for (var machine in allMachines) {
         logger.i('Force a LiveActivity update for ${machine.name} after app was resumed');
+        ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            title: 'DEBUG: LiveActivity', message: 'Force LA update ${machine.name} after app was resumed'));
         // We await to prevent any race conditions
         await ref
             .read(printerProvider(machine.uuid).future)
@@ -617,6 +624,13 @@ class NotificationService {
     } finally {
       _updateLiveActivityLock!.complete();
     }
+  }
+
+  _clearAllLiveActivities() async {
+    var allActivities = await _liveActivityAPI.getAllActivitiesIds();
+    logger.i('Ending all LiveActivities');
+    await Future.wait(allActivities.map((e) => _liveActivityAPI.endActivity(e)));
+    logger.i('Cleared all LiveActivities');
   }
 
   Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> data, Machine machine) async {
