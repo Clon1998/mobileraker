@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
 import 'package:common/data/model/ModelEvent.dart';
@@ -460,32 +461,74 @@ class MachineService {
   }
 
   Future<void> updateMacrosInSettings(String machineUUID, List<String> macros) async {
-    Machine? machine = await _machineRepo.get(uuid: machineUUID);
+    // Get the machine with the provided UUID
+    final machine = await _machineRepo.get(uuid: machineUUID);
+
     if (machine == null) {
       logger.e('Could not update macros, machine $machineUUID not found!');
       return;
     }
+
+    // Log the machine information
     logger.i('Updating Default Macros for "${machine.name}(${machine.wsUri.obfuscate()})"!');
-    MachineSettings machineSettings = await fetchSettings(machine);
-    List<String> filteredMacros = macros.where((element) => !element.startsWith('_')).toList();
+
+    // Fetch the machine settings
+    final machineSettings = await fetchSettings(machine);
+
+    // Filter out macros that start with '_'
+    final filteredRawMacros = macros.where((element) => !element.startsWith('_')).toList();
+
+    // Create a copy of the modifiable macro groups
     List<MacroGroup> modifiableMacroGrps = machineSettings.macroGroups.toList();
-    for (MacroGroup grp in modifiableMacroGrps) {
-      for (GCodeMacro macro in grp.macros) {
-        filteredMacros.remove(macro.name);
-      }
+
+    bool hasUnavailableMacro = false;
+    // Iterate through the macro groups and remove macros that already exist
+    for (int i = 0; i < modifiableMacroGrps.length; i++) {
+      final grp = modifiableMacroGrps[i];
+      // ToDo: Decide if I want to remove unused macros again or not?
+      // modifiableMacroGrps[i] = grp.copyWith(macros: List.unmodifiable(grp.macros.where((macro) => filteredRawMacros.contains(macro.name))));
+      // hasUnavailableMacro = hasUnavailableMacro || modifiableMacroGrps[i].macros.length != grp.macros.length;
+      filteredRawMacros.removeWhere((macro) => grp.macros.any((existingMacro) => existingMacro.name == macro));
     }
 
-    if (filteredMacros.isEmpty) return;
-    logger.i('Adding ${filteredMacros.length} new macros to default group!');
-    MacroGroup defaultGroup = modifiableMacroGrps.firstWhere((element) => element.name == 'Default', orElse: () {
-      MacroGroup group = MacroGroup(name: 'Default');
-      modifiableMacroGrps.add(group);
-      return group;
-    });
-    List<GCodeMacro> modifiableDefaultGrpMacros = defaultGroup.macros.toList();
-    modifiableDefaultGrpMacros.addAll(filteredMacros.map((e) => GCodeMacro(name: e)));
+    bool hasLegacyDefaultGroup = false;
+    // Find the default macro group or create it if it doesn't exist
+    final defaultGroup = modifiableMacroGrps.firstWhere((element) => element.isDefaultGroup, orElse: () {
+      final legacyDefaultGrp = modifiableMacroGrps.firstWhereOrNull((element) => element.name == 'Default');
 
-    defaultGroup.macros = modifiableDefaultGrpMacros;
+      if (legacyDefaultGrp != null) {
+        hasLegacyDefaultGroup = true;
+        logger.i('Found legacy default group, migrating it to the new default group format!');
+        modifiableMacroGrps.remove(legacyDefaultGrp);
+
+        return MacroGroup.defaultGroup(name: 'Default', macros: legacyDefaultGrp.macros);
+      }
+
+      return MacroGroup.defaultGroup(name: 'Default');
+    });
+
+    // If there's no legacy group and no new macros to add, return early
+    if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty) return;
+
+    if (hasUnavailableMacro)
+      logger.i('Found some unavailable macros, will update all groups without the unavailable macros!');
+
+    // Log the number of new macros being added to the default group
+    logger.i('Adding ${filteredRawMacros.length} new macros to the default group!');
+
+    // Create an updated default group with the combined macros
+    final updatedDefaultGrp = defaultGroup.copyWith(
+      macros: List.unmodifiable([...defaultGroup.macros, ...filteredRawMacros.map((e) => GCodeMacro(name: e))]),
+    );
+
+    // Update or add the default group to the list of modifiable macro groups
+    if (modifiableMacroGrps.contains(defaultGroup)) {
+      modifiableMacroGrps[modifiableMacroGrps.indexOf(defaultGroup)] = updatedDefaultGrp;
+    } else {
+      modifiableMacroGrps.add(updatedDefaultGrp);
+    }
+
+    // Update the machine settings and save
     machineSettings.macroGroups = modifiableMacroGrps;
     await ref.read(machineSettingsRepositoryProvider(machine.uuid)).update(machineSettings);
   }

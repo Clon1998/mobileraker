@@ -19,7 +19,8 @@ enum CommonDialogs implements DialogIdentifierMixin {
 typedef DialogCompleter = Function(DialogResponse);
 
 class DialogRequest<T> {
-  DialogRequest({required this.type,
+  DialogRequest({
+    required this.type,
     this.title,
     this.body,
     this.confirmBtn,
@@ -27,7 +28,8 @@ class DialogRequest<T> {
     this.confirmBtnColor,
     this.cancelBtnColor,
     this.barrierDismissible = true,
-    this.data});
+    this.data,
+  });
 
   final DialogIdentifierMixin type;
 
@@ -54,12 +56,7 @@ class DialogRequest<T> {
 
   @override
   int get hashCode =>
-      type.hashCode ^
-      title.hashCode ^
-      body.hashCode ^
-      confirmBtn.hashCode ^
-      cancelBtn.hashCode ^
-      data.hashCode;
+      type.hashCode ^ title.hashCode ^ body.hashCode ^ confirmBtn.hashCode ^ cancelBtn.hashCode ^ data.hashCode;
 
   @override
   String toString() {
@@ -84,10 +81,7 @@ class DialogResponse<T> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DialogResponse &&
-          runtimeType == other.runtimeType &&
-          confirmed == other.confirmed &&
-          data == other.data;
+      other is DialogResponse && runtimeType == other.runtimeType && confirmed == other.confirmed && data == other.data;
 
   @override
   int get hashCode => confirmed.hashCode ^ data.hashCode;

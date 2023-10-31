@@ -8,7 +8,6 @@ import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
-import 'package:common/data/model/moonraker_db/gcode_macro.dart';
 import 'package:common/data/model/moonraker_db/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/macro_group.dart';
 import 'package:common/data/model/moonraker_db/temperature_preset.dart';
@@ -47,6 +46,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
+import 'components/macro_group_list.dart';
 
 part 'printers_edit_controller.g.dart';
 
@@ -172,12 +172,7 @@ class PrinterEditController extends _$PrinterEditController {
       var speedZ = storedValues['speedZ'];
       var extrudeSpeed = storedValues['extrudeSpeed'];
 
-      List<MacroGroup> macroGroups = [];
-      for (var grp in ref.read(macroGroupListControllerProvider)) {
-        List<GCodeMacro> read = ref.read(macroGroupControllerProvder(grp));
-        var name = storedValues['${grp.uuid}-macroName'];
-        macroGroups.add(grp.copyWith(name: name, macros: read));
-      }
+      List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).value!;
 
       List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
 
@@ -635,148 +630,6 @@ class DoubleStepSegmentController extends StateNotifier<List<double>> {
       return 'Step already present!';
     }
     return null;
-  }
-}
-
-final macroGroupListControllerProvider =
-    StateNotifierProvider.autoDispose<MacroGroupListController, List<MacroGroup>>((ref) {
-  return MacroGroupListController(
-    ref,
-    ref.watch(machineRemoteSettingsProvider).value!.macroGroups,
-  );
-});
-
-class MacroGroupListController extends StateNotifier<List<MacroGroup>> {
-  MacroGroupListController(this.ref, super._state) {
-    defaultGrp = state.firstWhere((element) => element.name == 'Default', orElse: () {
-      MacroGroup group = MacroGroup(name: 'Default');
-      state = [group, ...state];
-      return group;
-    });
-  }
-
-  final Ref ref;
-
-  late final MacroGroup defaultGrp;
-
-  onGroupReorder(int oldIndex, int newIndex) {
-    if (oldIndex < newIndex) {
-      newIndex -= 1;
-    }
-    var grps = state.toList();
-    MacroGroup tmp = grps.removeAt(oldIndex);
-    grps.insert(newIndex, tmp);
-    state = List.unmodifiable(grps);
-  }
-
-  addNewMacroGroup() {
-    MacroGroup group = MacroGroup(name: 'New Group', macros: []);
-
-    state = List.unmodifiable([...state, group]);
-  }
-
-  removeMacroGroup(MacroGroup macroGroup) {
-    List<GCodeMacro> macrosInGrp = ref.read(macroGroupControllerProvder(macroGroup));
-
-    if (macrosInGrp.isNotEmpty) {
-      ref.read(macroGroupControllerProvder(defaultGrp).notifier).addAll(macrosInGrp);
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            title: 'Macro group deleted!',
-            message: plural(
-              'pages.printer_edit.macros.macros_to_default',
-              macrosInGrp.length,
-            ),
-          ));
-    }
-
-    var list = state.toList();
-    list.remove(macroGroup);
-    state = List.unmodifiable(list);
-  }
-}
-
-final macroGroupControllerProvder =
-    StateNotifierProvider.autoDispose.family<MacroGroupController, List<GCodeMacro>, MacroGroup>(
-  (ref, grp) {
-    return MacroGroupController(ref, grp);
-  },
-  name: 'macroGrpCtler',
-);
-
-class MacroGroupController extends StateNotifier<List<GCodeMacro>> {
-  MacroGroupController(this.ref, this.macroGroup) : super(macroGroup.macros.toList(growable: false));
-
-  final Ref ref;
-  final MacroGroup macroGroup;
-  bool wasAccepted = false;
-
-  onMacroReorder(oldIdx, newIdx) {
-    if (wasAccepted) {
-      wasAccepted = false;
-      return;
-    }
-    logger.i("On drag reordered");
-    ref.read(macroGroupDragginControllerProvider.notifier).onMacroReorderStopped();
-    var list = state.toList();
-    list.insert(newIdx, list.removeAt(oldIdx));
-    state = List.unmodifiable(list);
-  }
-
-  onNoReorder(_) {
-    ref.read(macroGroupDragginControllerProvider.notifier).onMacroReorderStopped();
-  }
-
-  add(GCodeMacro newMacro) {
-    state = [...state, newMacro];
-  }
-
-  addAll(Iterable<GCodeMacro> newMacro) {
-    state = [...state, ...newMacro];
-  }
-
-  GCodeMacro removeAt(int index) {
-    wasAccepted = true;
-    var list = state.toList();
-    GCodeMacro removed = list.removeAt(index);
-    state = List.unmodifiable(list);
-    return removed;
-  }
-}
-
-final macroGroupDragginControllerProvider =
-    StateNotifierProvider.autoDispose<MacroGroupDraggingController, MacroGroup?>((ref) {
-  return MacroGroupDraggingController(ref);
-});
-
-class MacroGroupDraggingController extends StateNotifier<MacroGroup?> {
-  MacroGroupDraggingController(this.ref) : super(null);
-
-  final Ref ref;
-
-  onMacroDragAccepted(MacroGroup target, int index) {
-    var srcGrp = state;
-    state = null; // ensure it emoty again!
-    if (target == srcGrp) {
-      logger.d("GCode-Drag NOT accepted (SAME GRP)");
-      return;
-    }
-    if (srcGrp == null) {
-      logger.e('The src MacroGroup was empty?');
-      return;
-    }
-
-    var macro = ref.read(macroGroupControllerProvder(srcGrp).notifier).removeAt(index);
-    logger.i("GCode-Drag accepted ${macro.name} in ${target.name}");
-    ref.read(macroGroupControllerProvder(target).notifier).add(macro);
-  }
-
-  onMacroReorderStarted(MacroGroup src) {
-    logger.i("GCode-Drag STARTED!!!");
-    state = src;
-  }
-
-  onMacroReorderStopped() {
-    state = null;
   }
 }
 

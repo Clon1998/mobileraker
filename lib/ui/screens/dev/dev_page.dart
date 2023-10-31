@@ -6,6 +6,7 @@
 import 'dart:io';
 
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/macro_group_list.dart';
 import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:worker_manager/worker_manager.dart';
 
@@ -20,25 +22,26 @@ import '../../../service/date_format_service.dart';
 import '../dashboard/components/firmware_retraction_card.dart';
 
 class DevPage extends HookConsumerWidget {
-  const DevPage({Key? key}) : super(key: key);
+  const DevPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var selMachine = ref.watch(selectedMachineProvider).value;
     return Scaffold(
-      appBar: AppBar(title: const Text('Dev')),
+      appBar: AppBar(
+        title: const Text('Dev'),
+      ),
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
           FirmwareRetractionSlidersOrTextsLoading(),
+          MacroGroupList(machineUUID: selMachine!.uuid),
           const Text('One'),
-          ElevatedButton(
-            onPressed: () => startLiveActivity(ref),
-            child: const Text('start activity'),
-          ),
+          ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
           TextButton(
-            onPressed: () => test(ref, 'timelapse/file_example_MP4_1920_18MG.mp4'),
-            child: const Text('Run Isolate'),
-          ),
+              onPressed: () => test(ref, 'timelapse/file_example_MP4_1920_18MG.mp4'), child: const Text('Run Isolate'))
           // Expanded(child: WebRtcCam()),
         ],
       ),
@@ -73,12 +76,14 @@ class DevPage extends HookConsumerWidget {
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
     };
 
-    var activityId = await _liveActivitiesPlugin.createActivity(data);
+    var activityId = await _liveActivitiesPlugin.createActivity(
+      data,
+    );
     var pushToken = await _liveActivitiesPlugin.getPushToken(activityId!);
     logger.i('LiveActivity PushToken: $pushToken');
   }
 
-  test(WidgetRef ref, String filess) {
+  test(WidgetRef ref, String filess) async {
     var fileService = ref.read(fileServiceSelectedProvider);
     fileService.downloadFile(filePath: filess, timeout: const Duration(seconds: 1)).listen((event) {
       logger.w('OUTER UPDATE: $event');

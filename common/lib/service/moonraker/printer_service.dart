@@ -212,7 +212,7 @@ class PrinterService {
       if (disposed) return;
       // I need this temp variable since in some edge cases the updateSettings otherwise throws?
       var printerObj = printerBuilder.build();
-      _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros);
+      _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros).ignore();
       _registerJrpcHandlers();
       _makeSubscribeRequest(printerObj.queryableObjects);
       current = printerObj;
