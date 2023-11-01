@@ -28,7 +28,6 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -192,26 +191,34 @@ class NotificationService {
     for (Machine setting in allMachines) {
       _registerLocalMessageHandlingForMachine(setting);
     }
+    ref.listen(
+      appLifecycleProvider,
+      (_, next) async {
+        // Force a liveActivity update once the app is back in foreground!
+        if (next != AppLifecycleState.resumed) return;
+        _refreshLiveActivitiesForMachines().ignore();
+      },
+    );
 
-    ref.listen(appLifecycleProvider, (_, next) async {
-      // Force a liveActivity update once the app is back in foreground!
-      if (next != AppLifecycleState.resumed) return;
-      if (!await _liveActivityAPI.areActivitiesEnabled()) return;
-      ref.read(snackBarServiceProvider).show(
-          SnackBarConfig(title: 'DEBUG: LiveActivity', message: '${allMachines.length}-Clearing all LiveActivities'));
-      await _clearUnaddressableLiveActivities();
-      logger.i('The app has currently ${allMachines.length} machines');
-      for (var machine in allMachines) {
-        logger.i('Force a LiveActivity update for ${machine.name} after app was resumed');
-        ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            title: 'DEBUG: LiveActivity', message: 'Force LA update ${machine.name} after app was resumed'));
-        // We await to prevent any race conditions
-        await ref
-            .read(printerProvider(machine.uuid).future)
-            .then((value) => _refreshLiveActivity(machine, value))
-            .onError((error, stackTrace) => logger.e('Error in Force LiveActivity for ${machine.name}'));
-      }
-    });
+    // Also force update on machine restart
+    // Just ensure that at least the translations are available... This is kinda hacky lol
+    Future.delayed(const Duration(seconds: 2)).then((value) => _refreshLiveActivitiesForMachines()).ignore();
+  }
+
+  Future<void> _refreshLiveActivitiesForMachines() async {
+    if (!await _liveActivityAPI.areActivitiesEnabled()) return;
+    List<Machine> allMachines = await ref.read(allMachinesProvider.future);
+
+    await _clearUnaddressableLiveActivities();
+    logger.i('The app has currently ${allMachines.length} machines');
+    for (var machine in allMachines) {
+      logger.i('Force a LiveActivity update for ${machine.name} after app was resumed');
+      // We await to prevent any race conditions
+      await ref
+          .read(printerProvider(machine.uuid).future)
+          .then((value) => _refreshLiveActivity(machine, value))
+          .onError((error, stackTrace) => logger.e('Error in Force LiveActivity for ${machine.name}'));
+    }
   }
 
   void _registerLocalMessageHandlingForMachine(Machine machine) {
@@ -585,7 +592,7 @@ class NotificationService {
       await _updateLiveActivityLock!.future;
       return _refreshLiveActivity(machine, printer);
     }
-
+    logger.i('Refreshing LiveActivity for ${machine.name}');
     _updateLiveActivityLock = Completer();
     try {
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
@@ -612,6 +619,8 @@ class NotificationService {
       } else {
         _endLiveActivity(machine);
       }
+      // Sems like ther is a error in the LiveActivity API. To fast calls to the updateActivity can cause other activity to also update..
+      await Future.delayed(const Duration(milliseconds: 180));
 
       // Update the notification info that is currently set in the liveActivity
       await _notificationsRepository.save(
@@ -632,14 +641,20 @@ class NotificationService {
     // Create a map of locally tracked live activities by swapping value and key activityId -> machineUuid
     var activityIdMachine = _machineLiveActivityMap.map((key, value) => MapEntry(value.id, key));
 
+    logger.i('Found ${activityIdMachine.length} locally tracked LiveActivities');
+    // logger.i('activityIdMachine: $activityIdMachine');
+
     // Get all activities
     var allActivities = await _liveActivityAPI.getAllActivitiesIds();
+    logger.i('Found ${allActivities.length} LiveActivities');
     // Get the state of all activities
     var activityAndStateList =
         await Future.wait(allActivities.map((e) => _liveActivityAPI.getActivityState(e).then((state) => (e, state))));
+    // logger.i('activityAndStateList: $activityAndStateList');
 
-    // Filter out all activities that are not active -> The api/app can not address anymore
-    var unaddressableActivities = activityAndStateList.whereNot((e) => e.$2 == LiveActivityState.active);
+    // Filter out all activities that are not active nor known to the app -> The api/app can not address anymore
+    var unaddressableActivities =
+        activityAndStateList.whereNot((e) => activityIdMachine.containsKey(e.$1) && e.$2 == LiveActivityState.active);
 
     // End them and remove them from the local machine activity map
     List<Future> endActivities = [];
@@ -652,7 +667,7 @@ class NotificationService {
 
     // Ensure we wait for all activities to be ended
     await Future.wait(endActivities);
-    logger.i('Cleared all LiveActivities');
+    logger.i('Cleared unaddressable LiveActivities, total ended: ${unaddressableActivities.length}');
   }
 
   Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, Machine machine) async {
