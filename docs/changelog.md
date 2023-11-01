@@ -1,5 +1,23 @@
 # Mobileraker - Changelog
 
+## [2.7.x] - 2023-11-xx
+
+### Major Updates
+
+- You can now organize GCode macros in your printer settings more conveniently. Instead of moving each one separately,
+  you can assign them to a new group with just a button click. You can also change the visibility of individual macros.
+- The GCode macro card on your dashboard has been improved. It's now a separate, smoother component, and it adds a nice
+  animation when you switch between different groups.
+
+### Changed Features
+
+- The internal states that saves your settings for the selected macro group, webcam choice on the dashboard, and file
+  sorting preferences on the files
+  page are now unique to each of your printers. They won't be mixed up between your different devices.
+- When you add a remote connection, the bottom sheet now adjusts itself to your screen, reaching the top instead of
+  staying a fixed size. This change makes sure everything fits properly, even if you need to scroll through some
+  content.
+
 ## [2.6.6] - 2023-10-25
 
 ### Major Changes
