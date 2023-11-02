@@ -22,6 +22,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
+import 'package:common/util/extensions/live_activity_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -271,8 +272,8 @@ class LiveActivityService {
     var allActivities = await _liveActivityAPI.getAllActivitiesIds();
     logger.i('Found ${allActivities.length} LiveActivities');
     // Get the state of all activities
-    var activityAndStateList =
-        await Future.wait(allActivities.map((e) => _liveActivityAPI.getActivityState(e).then((state) => (e, state))));
+    var activityAndStateList = await Future.wait(
+        allActivities.map((e) => _liveActivityAPI.getActivityStateSafe(e).then((state) => (e, state))));
     // logger.i('activityAndStateList: $activityAndStateList');
 
     // Filter out all activities not known to the app -> The api/app can not address anymore
@@ -298,10 +299,7 @@ class LiveActivityService {
     if (_machineLiveActivityMap.containsKey(machine.uuid)) {
       var activityEntry = _machineLiveActivityMap[machine.uuid]!;
 
-      LiveActivityState activityState = await _liveActivityAPI
-          .getActivityState(activityEntry.id)
-          .timeout(const Duration(seconds: 1))
-          .onError((_, __) => LiveActivityState.unknown);
+      LiveActivityState activityState = await _liveActivityAPI.getActivityStateSafe(activityEntry.id);
 
       logger.i('LiveActivityState for ${machine.name} is $activityState');
 
