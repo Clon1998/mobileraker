@@ -276,7 +276,6 @@ class MacroGroupListController extends _$MacroGroupListController {
   final List<String> _beforeReorderExpandedGroups = [];
 
   // this might be usefull to return to the initial state if the user cancels the edit
-  late final List<MacroGroup>? _initialGroups;
 
   SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
 
@@ -285,7 +284,6 @@ class MacroGroupListController extends _$MacroGroupListController {
   @override
   Future<List<MacroGroup>> build(String machineUUID) async {
     var groups = await ref.watch(machineSettingsProvider(machineUUID).selectAsync((v) => v.macroGroups));
-    _initialGroups = groups;
     return groups;
   }
 
