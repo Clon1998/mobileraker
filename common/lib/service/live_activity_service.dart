@@ -64,7 +64,7 @@ class LiveActivityService {
 
   final Map<String, _ActivityEntry> _machineLiveActivityMap = {};
 
-  Completer? _updateLiveActivityLock;
+  Map<String, Completer?> _updateLiveActivityLocks = {};
 
   StreamSubscription<ModelEvent<Machine>>? _machineUpdatesListener;
   StreamSubscription<ActivityUpdate>? _activityUpdateStreamSubscription;
@@ -95,7 +95,7 @@ class LiveActivityService {
 
     _restoreActivityMap();
     _setupLiveActivityListener();
-    _registerMachineHandlers();
+    // _registerMachineHandlers();
     _registerAppLfeCycleHandler();
   }
 
@@ -208,8 +208,8 @@ class LiveActivityService {
 
   Future<void> _refreshLiveActivity(String machineUUID, Printer printer) async {
     // Pseudo lock to prevent to many updates at once
-    if (_updateLiveActivityLock?.let((it) => !it.isCompleted) ?? false) {
-      await _updateLiveActivityLock!.future;
+    if (_updateLiveActivityLocks[machineUUID]?.let((it) => !it.isCompleted) ?? false) {
+      await _updateLiveActivityLocks[machineUUID]!.future;
       return _refreshLiveActivity(machineUUID, printer);
     }
     var machine = ref.read(machineProvider(machineUUID)).valueOrNull;
@@ -217,7 +217,7 @@ class LiveActivityService {
     if (machine == null) return;
 
     logger.i('Refreshing LiveActivity for ${machine.name}');
-    _updateLiveActivityLock = Completer();
+    _updateLiveActivityLocks[machineUUID] = Completer();
     try {
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
       Map<String, dynamic> data = {
@@ -246,6 +246,7 @@ class LiveActivityService {
       // Sems like ther is a error in the LiveActivity API. To fast calls to the updateActivity can cause other activity to also update..
       await Future.delayed(const Duration(milliseconds: 180));
 
+      // This should be moved to the printer check! Or cloned to the printer check!
       // Update the notification info that is currently set in the liveActivity
       await _notificationsRepository.save(
         Notification(machineUuid: machine.uuid)
@@ -255,7 +256,7 @@ class LiveActivityService {
           ..printState = printer.print.state,
       );
     } finally {
-      _updateLiveActivityLock!.complete();
+      _updateLiveActivityLocks[machineUUID]!.complete();
     }
   }
 
