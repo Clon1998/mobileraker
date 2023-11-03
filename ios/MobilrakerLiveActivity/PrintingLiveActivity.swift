@@ -35,24 +35,27 @@ let sharedDefault = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
 struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
-            let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+            let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key: "progress"))
             let isPrintDone = abs(progress - 1) < 0.0001
             
-            let state = sharedDefault.string(forKey: "state")!
-            let file = sharedDefault.string(forKey: "file")!
+            let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
+            //let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
+            let file = context.attributes.id.description
             
             
-            let eta = context.state.eta ?? sharedDefault.integer(forKey: "eta")
+            
+            
+            let eta = context.state.eta ?? sharedDefault.integer(forKey: context.attributes.prefixedKey(key: "eta"))
             let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
             
             
-            let printStartUnix = sharedDefault.integer(forKey: "printStartTime")
+            let printStartUnix = sharedDefault.integer(forKey: context.attributes.prefixedKey(key: "printStartTime"))
             let printStartDate = Date(timeIntervalSince1970: TimeInterval(printStartUnix))
             
-            let primaryColor = sharedDefault.integer(forKey: "primary_color_light")
-            let machineName = sharedDefault.string(forKey: "machine_name")!
-            let etaLabel = sharedDefault.string(forKey: "eta_label")!
-            let elapsedLabel = sharedDefault.string(forKey: "elapsed_label")!
+            let primaryColor = sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"primary_color_light"))
+            let machineName = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"machine_name"))!
+            let etaLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"eta_label"))!
+            let elapsedLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"elapsed_label"))!
             
             
             let backgroundColor = isPrintDone ? Color.green.opacity(0.45) : Color.white.opacity(0.45)
@@ -91,26 +94,26 @@ struct PrintingLiveActivity: Widget {
             .activitySystemActionForegroundColor(Color.black)
             
         } dynamicIsland: { context in
-            let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+            let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
             let isPrintDone = abs(progress - 1) < 0.0001
             
             
-            let state = sharedDefault.string(forKey: "state")!
-            let file = sharedDefault.string(forKey: "file")!
+            let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"state"))!
+            let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"file"))!
             
             
-            let eta = context.state.eta ?? sharedDefault.integer(forKey: "eta")
+            let eta = context.state.eta ?? sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"eta"))
             let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
             
             
-            let printStartUnix = sharedDefault.integer(forKey: "printStartTime")
+            let printStartUnix = sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"printStartTime"))
             let printStartDate = Date(timeIntervalSince1970: TimeInterval(printStartUnix))
             
             
-            let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
-            let machineName = sharedDefault.string(forKey: "machine_name")!
-            let etaLabel = sharedDefault.string(forKey: "eta_label")!
-            let elapsedLabel = sharedDefault.string(forKey: "elapsed_label")!
+            let primaryColor = sharedDefault.integer(forKey:context.attributes.prefixedKey(key: "primary_color_dark"))
+            let machineName = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"machine_name"))!
+            let etaLabel = sharedDefault.string(forKey:context.attributes.prefixedKey(key: "eta_label"))!
+            let elapsedLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"elapsed_label"))!
             
             return DynamicIsland {
                 // Expanded UI goes here.  Compose the expanded UI through
@@ -145,10 +148,10 @@ struct PrintingLiveActivity: Widget {
                     }
                 }
             } compactLeading: {
-                let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+                let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
                 let isPrintDone = abs(progress - 1) < 0.0001
                 
-                let eta = context.state.eta ?? sharedDefault.integer(forKey: "eta")
+                let eta = context.state.eta ?? sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"eta"))
                 let etaDate = eta > 0 ? Date(timeIntervalSince1970: TimeInterval(eta)) : nil
                 
                 if isPrintDone {
@@ -160,19 +163,25 @@ struct PrintingLiveActivity: Widget {
                         .padding(.horizontal, 2.0)
                 }
             } compactTrailing: {
-                let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
+                let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
                 let isPrintDone = abs(progress - 1) < 0.0001
-                let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
+                let primaryColor = sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"primary_color_dark"))
                 CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2.5, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
                  
             } minimal: {
-                let progress = context.state.progress ?? sharedDefault.double(forKey: "progress")
-                let primaryColor = sharedDefault.integer(forKey: "primary_color_dark")
+                let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
+                let primaryColor = sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"primary_color_dark"))
                 CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
             }
             .keylineTint(Color.red)
         }
+    }
+}
+
+extension LiveActivitiesAppAttributes {
+    func prefixedKey(key: String) -> String {
+        return "\(id)_\(key)"
     }
 }

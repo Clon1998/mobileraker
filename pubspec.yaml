@@ -89,7 +89,11 @@ dependencies:
   awesome_notifications_core: ^0.8.1
   awesome_notifications: ^0.8.2
   awesome_notifications_fcm: ^0.8.0
-  live_activities: ^1.7.5
+  #live_activities: ^1.8.0
+  live_activities:
+    #path: ../flutter_live_activities
+    git:
+      url: https://github.com/Clon1998/flutter_live_activities.git
 
   #form
   flutter_form_builder: ^9.1.0
