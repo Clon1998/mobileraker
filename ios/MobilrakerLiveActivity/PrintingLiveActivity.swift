@@ -39,8 +39,7 @@ struct PrintingLiveActivity: Widget {
             let isPrintDone = abs(progress - 1) < 0.0001
             
             let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
-            //let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
-            let file = context.attributes.id.description
+            let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
             
             
             
