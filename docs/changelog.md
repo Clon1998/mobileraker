@@ -18,6 +18,11 @@
   staying a fixed size. This change makes sure everything fits properly, even if you need to scroll through some
   content.
 
+### Bug Fixes
+
+- Live activities for multiple printers have been improved to ensure that they update correctly without overwriting each
+  other.
+
 ## [2.6.6] - 2023-10-25
 
 ### Major Changes
