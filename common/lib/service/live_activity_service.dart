@@ -243,8 +243,6 @@ class LiveActivityService {
       } else {
         _endLiveActivity(machine);
       }
-      // Sems like ther is a error in the LiveActivity API. To fast calls to the updateActivity can cause other activity to also update..
-      await Future.delayed(const Duration(milliseconds: 180));
 
       // This should be moved to the printer check! Or cloned to the printer check!
       // Update the notification info that is currently set in the liveActivity
