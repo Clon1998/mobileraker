@@ -96,7 +96,7 @@ class LiveActivityService {
 
     _restoreActivityMap();
     _setupLiveActivityListener();
-    _registerMachineHandlers();
+    // _registerMachineHandlers();
     _registerAppLfeCycleHandler();
   }
 
