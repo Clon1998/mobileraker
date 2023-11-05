@@ -95,7 +95,7 @@ class LiveActivityService {
 
     _restoreActivityMap();
     _setupLiveActivityListener();
-    // _registerMachineHandlers();
+    _registerMachineHandlers();
     _registerAppLfeCycleHandler();
   }
 
@@ -316,7 +316,7 @@ class LiveActivityService {
     }
 
     // Okay I guess we need to create a new activity for this machine
-    var activityId = await _liveActivityAPI.createActivity(activityData);
+    var activityId = await _liveActivityAPI.createActivity(activityData, removeWhenAppIsKilled: true);
     if (activityId != null) {
       _machineLiveActivityMap[machine.uuid] = _ActivityEntry(activityId);
     }
@@ -337,6 +337,7 @@ class LiveActivityService {
   }
 
   _restoreActivityMap() {
+    // This is not required any more since the live activities are now killed if the app is killed
     var restored = _settingsService.readMap<String, String>(UtilityKeys.liveActivityStore);
     _machineLiveActivityMap.addAll(restored.map((key, value) => MapEntry(key, _ActivityEntry(value))));
     logger.i('Restored ${restored.length} LiveActivities from storage: $restored');
