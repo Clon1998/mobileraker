@@ -64,7 +64,8 @@ class LiveActivityService {
 
   final Map<String, _ActivityEntry> _machineLiveActivityMap = {};
 
-  Map<String, Completer?> _updateLiveActivityLocks = {};
+  final Map<String, Completer?> _updateLiveActivityLocks = {};
+  final Map<String, Completer?> _handlePrinterDataLocks = {};
 
   StreamSubscription<ModelEvent<Machine>>? _machineUpdatesListener;
   StreamSubscription<ActivityUpdate>? _activityUpdateStreamSubscription;
@@ -166,22 +167,41 @@ class LiveActivityService {
     if (!await _liveActivityAPI.areActivitiesEnabled()) return;
     if (!_settingsService.readBool(AppSettingKeys.useLiveActivity, true)) return;
 
-    Notification notification =
-        await _notificationsRepository.getByMachineUuid(machineUUID) ?? Notification(machineUuid: machineUUID);
+    if (_handlePrinterDataLocks[machineUUID]?.let((it) => !it.isCompleted) ?? false) {
+      // No need to actually wait for the lock since printerData updates are really frequent skipping some is fine!
+      return;
+    }
+    _handlePrinterDataLocks[machineUUID] = Completer();
 
-    var printState = printer.print.state;
-    var isPrinting = {PrintState.printing, PrintState.paused}.contains(printState);
-    final hasProgressChange = isPrinting &&
-        notification.progress != null &&
-        ((notification.progress! - printer.printProgress) * 100).abs() > 2;
-    final hasStateChange = notification.printState != printState;
-    final hasFileChange =
-        isPrinting && printer.currentFile?.name != null && notification.file != printer.currentFile?.name;
-    // final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
-    if (!hasProgressChange && !hasStateChange && !hasFileChange) return;
+    try {
+      Notification notification =
+          await _notificationsRepository.getByMachineUuid(machineUUID) ?? Notification(machineUuid: machineUUID);
 
-    logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
-    await _refreshLiveActivity(machineUUID, printer);
+      var printState = printer.print.state;
+      var isPrinting = {PrintState.printing, PrintState.paused}.contains(printState);
+      final hasProgressChange = isPrinting &&
+          notification.progress != null &&
+          ((notification.progress! - printer.printProgress) * 100).abs() > 2;
+      final hasStateChange = notification.printState != printState;
+      final hasFileChange =
+          isPrinting && printer.currentFile?.name != null && notification.file != printer.currentFile?.name;
+      // final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
+      if (!hasProgressChange && !hasStateChange && !hasFileChange) return;
+      logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
+      await _notificationsRepository.save(
+        Notification(machineUuid: machineUUID)
+          ..progress = printer.printProgress
+          ..eta = printer.eta
+          ..file = printer.currentFile?.name
+          ..printState = printer.print.state,
+      );
+
+      // No need to wait for the activity to be updated. It uses a lock to prevent to many updates at once anyway
+      _refreshLiveActivity(machineUUID, printer).ignore();
+    } finally {
+      // Make sure in any case the lock is completed/released
+      _handlePrinterDataLocks[machineUUID]!.complete();
+    }
   }
 
   Future<void> _refreshLiveActivitiesForMachines() async {
@@ -243,16 +263,8 @@ class LiveActivityService {
       } else {
         _endLiveActivity(machine);
       }
-
-      // This should be moved to the printer check! Or cloned to the printer check!
-      // Update the notification info that is currently set in the liveActivity
-      await _notificationsRepository.save(
-        Notification(machineUuid: machine.uuid)
-          ..progress = printer.printProgress
-          ..eta = printer.eta
-          ..file = printer.currentFile?.name
-          ..printState = printer.print.state,
-      );
+      // Sems like ther is a error in the LiveActivity API. To fast calls to the updateActivity can cause other activity to also update..
+      //await Future.delayed(const Duration(milliseconds: 180));
     } finally {
       _updateLiveActivityLocks[machineUUID]!.complete();
     }
