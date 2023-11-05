@@ -23,9 +23,11 @@ import '../../../service/date_format_service.dart';
 import '../dashboard/components/firmware_retraction_card.dart';
 
 class DevPage extends HookConsumerWidget {
-  const DevPage({
+  DevPage({
     Key? key,
   }) : super(key: key);
+
+  String? _bla;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -41,13 +43,24 @@ class DevPage extends HookConsumerWidget {
           FirmwareRetractionSlidersOrTextsLoading(),
           MacroGroupList(machineUUID: selMachine!.uuid),
           const Text('One'),
+          ElevatedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
           ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
+          ElevatedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
           TextButton(
               onPressed: () => test(ref, 'timelapse/file_example_MP4_1920_18MG.mp4'), child: const Text('Run Isolate'))
           // Expanded(child: WebRtcCam()),
         ],
       ),
     );
+  }
+
+  stateActivity() async {
+    final _liveActivitiesPlugin = LiveActivities();
+    logger.i('#1');
+    await _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
+    logger.i('#2');
+    var activityState = await _liveActivitiesPlugin.getActivityState('123123');
+    logger.i('Got state message: $activityState');
   }
 
   startLiveActivity(WidgetRef ref) async {
@@ -60,9 +73,9 @@ class DevPage extends HookConsumerWidget {
     final _liveActivitiesPlugin = LiveActivities();
     _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
 
-    _liveActivitiesPlugin.activityUpdateStream.listen((event) {
-      logger.wtf('xxxLiveActivityUpdate: $event');
-    });
+    // _liveActivitiesPlugin.activityUpdateStream.listen((event) {
+    //   logger.wtf('xxxLiveActivityUpdate: $event');
+    // });
 
     Map<String, dynamic> data = {
       'progress': 0.2,
@@ -73,16 +86,55 @@ class DevPage extends HookConsumerWidget {
       // Labels
       'primary_color_light': Colors.amber.value,
       'primary_color_dark': Colors.amberAccent.value,
-      'machine_name': 'V2.1111',
+      'machine_name': 'Cool Printer Yo',
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
     };
 
     var activityId = await _liveActivitiesPlugin.createActivity(
       data,
+      removeWhenAppIsKilled: true,
     );
+    logger.i('Created activity with id: $activityId');
+    _bla = activityId;
     var pushToken = await _liveActivitiesPlugin.getPushToken(activityId!);
     logger.i('LiveActivity PushToken: $pushToken');
+  }
+
+  updateLiveActivity(WidgetRef ref) async {
+    if (_bla == null) return;
+    var eta = DateTime.now().add(const Duration(hours: 5));
+
+    var dateFormat = (eta.isToday())
+        ? ref.read(dateFormatServiceProvider).Hm()
+        : ref.read(dateFormatServiceProvider).add_Hm(DateFormat('E, '));
+
+    final _liveActivitiesPlugin = LiveActivities();
+    _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
+
+    // _liveActivitiesPlugin.activityUpdateStream.listen((event) {
+    //   logger.wtf('xxxLiveActivityUpdate: $event');
+    // });
+
+    Map<String, dynamic> data = {
+      'progress': 0.8,
+      'state': 'printing',
+      'file': 'Benchy.gcode' ?? 'Unknown',
+      'eta': DateTime.now().add(Duration(seconds: 60 * 100)).secondsSinceEpoch ?? -1,
+
+      // Labels
+      'primary_color_light': Colors.cyan.value,
+      'primary_color_dark': Colors.cyanAccent.value,
+      'machine_name': 'UPDATED: Cool Printer',
+      'eta_label': tr('pages.dashboard.general.print_card.eta'),
+      'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
+    };
+
+    var activityId = await _liveActivitiesPlugin.updateActivity(
+      _bla!,
+      data,
+    );
+    logger.i('UPDATED activity with id: $_bla -> $activityId');
   }
 
   test(WidgetRef ref, String filess) async {

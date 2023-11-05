@@ -207,7 +207,7 @@ GoRouter goRouter(GoRouterRef ref) {
       GoRoute(
         path: '/dev',
         name: AppRoute.dev.name,
-        builder: (context, state) => const DevPage(),
+        builder: (context, state) => DevPage(),
       ),
       // GoRoute(
       //   path: 'cart',
