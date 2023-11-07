@@ -3,16 +3,16 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/generic_file.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/generic_file.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/setting_service.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
@@ -30,8 +30,9 @@ import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../ui/screens/files/details/video_player_page.dart';
 
 part 'app_router.g.dart';
 
@@ -51,7 +52,8 @@ enum AppRoute {
   dev,
   faq,
   changelog,
-  supportDev
+  supportDev,
+  videoPlayer
 }
 
 @riverpod
@@ -74,7 +76,7 @@ Future<String> initialRoute(InitialRouteRef ref) async {
 GoRouter goRouter(GoRouterRef ref) {
   ref.keepAlive();
   return GoRouter(
-    initialLocation: ref.watch(initialRouteProvider).valueOrFullNull!,
+    initialLocation: ref.watch(initialRouteProvider).valueOrNull!,
     debugLogDiagnostics: false,
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
@@ -144,7 +146,12 @@ GoRouter goRouter(GoRouterRef ref) {
               name: AppRoute.configDetail.name,
               builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
             ),
-          ]),
+        GoRoute(
+          path: 'video-player',
+          name: AppRoute.videoPlayer.name,
+          builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
+        ),
+      ]),
       GoRoute(
         path: '/setting',
         name: AppRoute.settings.name,

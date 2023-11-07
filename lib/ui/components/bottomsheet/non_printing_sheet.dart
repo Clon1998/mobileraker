@@ -3,11 +3,14 @@
  * All rights reserved.
  */
 
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
+
+import '../../../service/ui/bottom_sheet_service_impl.dart';
 
 class NonPrintingBottomSheet extends ConsumerWidget {
   const NonPrintingBottomSheet({
@@ -24,13 +27,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
         ));
 
     var klippyService = ref.read(klipperServiceSelectedProvider);
-    return Container(
+    return Padding(
       padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
-      decoration: BoxDecoration(
-        color: themeData.bottomSheetTheme.modalBackgroundColor,
-        borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(15), topRight: Radius.circular(15)),
-      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -42,8 +40,7 @@ class NonPrintingBottomSheet extends ConsumerWidget {
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed:
-                          _btnAction(context, klippyService.shutdownHost),
+                      onPressed: _btnAction(context, klippyService.shutdownHost),
                       style: buttonStyle,
                       child: const Text('general.shutdown').tr(),
                     ),
@@ -73,16 +70,23 @@ class NonPrintingBottomSheet extends ConsumerWidget {
           FullWidthButton(
               onPressed: _btnAction(context, klippyService.restartKlipper),
               buttonStyle: buttonStyle,
-              child: Text('Klipper ${tr('general.restart').toLowerCase()}')),
+              child: Text('Klipper ${tr('@.lower:general.restart')}')),
           FullWidthButton(
               onPressed: _btnAction(context, klippyService.restartMoonraker),
               buttonStyle: buttonStyle,
-              child: Text('Moonraker ${tr('general.restart').toLowerCase()}')),
+              child: Text('Moonraker ${tr('@.lower:general.restart')}')),
           FullWidthButton(
               onPressed: _btnAction(context, klippyService.restartMCUs),
               buttonStyle: buttonStyle,
-              child: Text(
-                  '${tr('general.firmware')} ${tr('general.restart').toLowerCase()}')),
+              child: Text('${tr('general.firmware')} ${tr('@.lower:general.restart')}')),
+          FullWidthButton(
+              onPressed: _btnAction(
+                  context,
+                  () => ref
+                      .read(bottomSheetServiceProvider)
+                      .show(BottomSheetConfig(type: SheetType.jobQueueMenu))),
+              buttonStyle: buttonStyle,
+              child: const Text('dialogs.supporter_perks.job_queue_perk.title').tr()),
           ElevatedButton.icon(
             label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
             icon: const Icon(Icons.keyboard_arrow_down),
@@ -96,8 +100,8 @@ class NonPrintingBottomSheet extends ConsumerWidget {
 
   VoidCallback _btnAction(BuildContext ctx, VoidCallback toCall) {
     return () {
-      toCall();
       Navigator.of(ctx).pop();
+      toCall();
     };
   }
 }

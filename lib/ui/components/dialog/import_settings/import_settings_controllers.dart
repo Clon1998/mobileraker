@@ -5,34 +5,31 @@
 
 import 'dart:async';
 
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/machine_settings.dart';
+import 'package:common/data/model/moonraker_db/temperature_preset.dart';
+import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
-import 'package:mobileraker/data/model/moonraker_db/temperature_preset.dart';
-import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/util/extensions/ref_extension.dart';
 
 final importTarget = Provider.autoDispose<Machine>(name: 'importTarget', (ref) {
   throw UnimplementedError();
 });
 
-final dialogCompleter =
-    Provider.autoDispose<DialogCompleter>(name: 'dialogCompleter', (ref) {
+final dialogCompleter = Provider.autoDispose<DialogCompleter>(name: 'dialogCompleter', (ref) {
   throw UnimplementedError();
 });
 
 final importSettingsFormKeyProvider =
-    Provider.autoDispose<GlobalKey<FormBuilderState>>(
-        (ref) => GlobalKey<FormBuilderState>());
+    Provider.autoDispose<GlobalKey<FormBuilderState>>((ref) => GlobalKey<FormBuilderState>());
 
-final importSources =
-FutureProvider.autoDispose<List<ImportMachineSettingsResult>>((ref) async {
+final importSources = FutureProvider.autoDispose<List<ImportMachineSettingsResult>>((ref) async {
   List<Machine> machines = await ref.watch(allMachinesProvider.future);
 
   Machine target = ref.watch(importTarget);
@@ -47,13 +44,11 @@ FutureProvider.autoDispose<List<ImportMachineSettingsResult>>((ref) async {
           .timeout(const Duration(seconds: 10));
 
       if (!connected) {
-        logger.w(
-            'Could not fetch settings, no JRPC connection for ${e.debugStr}');
+        logger.w('Could not fetch settings, no JRPC connection for ${e.debugStr}');
         return null;
       }
 
-      MachineSettings machineSettings =
-          await ref.watch(machineServiceProvider).fetchSettings(e);
+      MachineSettings machineSettings = await ref.watch(machineServiceProvider).fetchSettings(e);
       return ImportMachineSettingsResult(e, machineSettings);
     } catch (er) {
       logger.w('Error while trying to fetch settings for ${e.debugStr} !', er);
@@ -62,8 +57,7 @@ FutureProvider.autoDispose<List<ImportMachineSettingsResult>>((ref) async {
   });
   List<ImportMachineSettingsResult?> rawList = await Future.wait(map);
 
-  var list =
-      rawList.whereType<ImportMachineSettingsResult>().toList(growable: false);
+  var list = rawList.whereType<ImportMachineSettingsResult>().toList(growable: false);
   if (list.isEmpty) {
     return Future.error('No sources for import found!');
   }
@@ -71,15 +65,13 @@ FutureProvider.autoDispose<List<ImportMachineSettingsResult>>((ref) async {
 });
 
 final importSettingsDialogController = StateNotifierProvider.autoDispose<
-        ImportSettingsDialogController,
-        AsyncValue<ImportMachineSettingsResult>>(
-    (ref) => ImportSettingsDialogController(ref));
+    ImportSettingsDialogController,
+    AsyncValue<ImportMachineSettingsResult>>((ref) => ImportSettingsDialogController(ref));
 
 class ImportSettingsDialogController
     extends StateNotifier<AsyncValue<ImportMachineSettingsResult>> {
   ImportSettingsDialogController(this.ref) : super(const AsyncValue.loading()) {
-    ref.listen(importSources,
-        (previous, AsyncValue<List<ImportMachineSettingsResult>> next) {
+    ref.listen(importSources, (previous, AsyncValue<List<ImportMachineSettingsResult>> next) {
       next.when(
           data: (sources) {
             state = AsyncValue.data(sources.first);
@@ -96,11 +88,9 @@ class ImportSettingsDialogController
   }
 
   onFormConfirm() {
-    FormBuilderState currentState =
-        ref.read(importSettingsFormKeyProvider).currentState!;
+    FormBuilderState currentState = ref.read(importSettingsFormKeyProvider).currentState!;
     if (currentState.saveAndValidate()) {
-      List<TemperaturePreset> selectedPresets =
-          currentState.value['temp_presets'] ?? [];
+      List<TemperaturePreset> selectedPresets = currentState.value['temp_presets'] ?? [];
 
       List<String> fields = [];
       fields.addAll(currentState.value['motionsysFields'] ?? []);

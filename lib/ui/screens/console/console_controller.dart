@@ -5,11 +5,10 @@
 
 import 'dart:math';
 
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/console/command.dart';
-import 'package:mobileraker/data/dto/console/console_entry.dart';
-import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
+import 'package:common/data/dto/console/command.dart';
+import 'package:common/data/dto/console/console_entry.dart';
+import 'package:common/data/enums/console_entry_type_enum.dart';
+import 'package:common/service/moonraker/printer_service.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -50,8 +49,8 @@ class ConsoleListController extends _$ConsoleListController {
       if (_tempPattern.hasMatch(event)) {
         return;
       }
-      var consoleEntry = ConsoleEntry(event, ConsoleEntryType.RESPONSE,
-          DateTime.now().millisecondsSinceEpoch / 1000);
+      var consoleEntry = ConsoleEntry(
+          event, ConsoleEntryType.response, DateTime.now().millisecondsSinceEpoch / 1000);
       state = AsyncValue.data([...state.value!, consoleEntry]);
     });
 
@@ -77,8 +76,7 @@ class ConsoleListController extends _$ConsoleListController {
     if (command.isEmpty || state.isLoading) return;
     state = AsyncValue.data([
       ...state.value!,
-      ConsoleEntry(command, ConsoleEntryType.COMMAND,
-          DateTime.now().millisecondsSinceEpoch / 1000)
+      ConsoleEntry(command, ConsoleEntryType.command, DateTime.now().millisecondsSinceEpoch / 1000)
     ]);
     ref.read(printerServiceSelectedProvider).gCode(command);
     ref.read(commandHistoryProvider.notifier).add(command);

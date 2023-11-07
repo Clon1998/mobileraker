@@ -1,5 +1,123 @@
 # Mobileraker - Changelog
 
+## [2.6.6] - 2023-10-25
+
+### Major Changes
+
+- Added Gadget by [OctoEverywhere](https://octoeverywhere.com/), offering free AI-based print monitoring (requires a
+  linked OctoEverywhere account). *Note: Not affiliated with Mobileraker.*
+- Multipliers, Limits, and FW Retraction cards can now be grouped into a single horizontal scrollable card. This is the
+  default setting and can be disabled in the app settings.
+- Firmware Retraction settings can now be edited in the app. [#129](https://github.com/Clon1998/mobileraker/issues/129)
+- Added [Obico.io](https://www.obico.io/) as a remote access provider.
+
+### Changed Features
+
+- Improved the visibility of the Exclude Object button on the Dashboard for a better user experience.
+- Renamed Babystepping to Z-Offset/Microstep Z-Axis to align more closely with Klipper.
+- Live activities are now more compact, displaying complete icons and colors. They also update more often.
+- All printer JRpc-Clients should now automatically reconnect when the app is opened from the background.
+
+### Bug Fixes
+
+- Fixed an issue that prevented the app from correctly detecting the currently used Moonraker version.
+- Resolved parsing errors for `heater_generic`, `extruder`, and `heater_bed` configurations that
+  use `temperature_combined` sensor types. [#270](https://github.com/Clon1998/mobileraker/issues/270)
+
+## [2.6.5] - 2023-10-11
+
+### Bug Fixes
+
+- Promotions now show the correct duration on the paywall
+
+## [2.6.4] - 2023-09-30
+
+### Major Changes
+
+- Reintroduced webcam support for users of Moonraker versions prior to
+  v0.8.0. [#254](https://github.com/Clon1998/mobileraker/issues/254)
+- Added Ukrainian translation, thanks
+  to [iZonex](https://github.com/iZonex) [#258](https://github.com/Clon1998/mobileraker/issues/258)
+- Added Portuguese translation with Brasil flavor, thanks
+  to [@opastorello](https://github.com/opastorello)
+- Introduced local Live Activity support for iOS devices. While real-time and remote updates to the live activities are
+  currently under development, local activities will now update alongside the app
+  itself.  [#238](https://github.com/Clon1998/mobileraker/issues/238)
+- Introduced a new OctoEverywhere theme as a heartfelt tribute to the unwavering dedication and support of
+  the [OctoEverywhere](https://octoeverywhere.com/) team.
+
+### Changed Features
+
+- In accordance with Moonraker, editing config-file-based webcams within the app is no longer supported.
+- Deactivated the capacity to employ a temperature preset during an active print job.
+
+### Bug Fixes
+
+- In scenarios with slower network connections, the app will no longer display the `Klipper-Error, Future did not
+  complete in time` message. Instead, it will now seamlessly utilize the timeout configuration specified in the machine
+  settings for all JRpc (JSON-RPC) calls, ensuring a more reliable and consistent user experience.
+
+## [2.6.3] - 2023-09-15
+
+### Major Changes
+
+- [Supporters] Introduced printer-specific UI themes, now configurable within the printer editing
+  process. [#195](https://github.com/Clon1998/mobileraker/issues/195)
+
+### Bug Fixes
+
+- Fixed an issue where the configuration of `extruder_stepper` was incorrectly recognized as extruder config, causing
+  errors for users with multi-extruder setups. [#248](https://github.com/Clon1998/mobileraker/issues/248)
+- Addressed a problem where config files were out of sync if user edited them on another
+  UI/Filesystem. [#250](https://github.com/Clon1998/mobileraker/issues/250)
+- Corrected the display of the First Layer Temperature on the GCode Detail page, which were swapped between extruder and
+  bed.
+- Fixed an issue with the control tab on the dashboard while changing the printer,
+- The webcam now shows the correct remote indicator while using manual mode.
+
+## [2.6.2] - 2023-09-07
+
+### Bug Fixes
+
+- Fixed files view for GCodes [#246](https://github.com/Clon1998/mobileraker/issues/246)
+
+## [2.6.0] - 2023-09-06
+
+### Major Changes
+
+- [Supporters] Added support for moonraker's Jobqueue API. The jobqueue is available on the files page and on the
+  floating action buttons on the dashboard.
+- Users are now able to configure an alternative url (Remote URL) that Mobileraker will use to
+  connect to the printer. This is useful if you want to connect to your printer from outside your
+  local network.
+- The app now intelligently switches between local and remote connections based on your phone's WiFi network status,
+  ensuring seamless connectivity even when you're not connected to a configured WiFi network.
+- Made the timelapse folder accessible via the file browser if the timelapse plugin is
+  active. [#241]((https://github.com/Clon1998/mobileraker/issues/241)
+- [Supporters] Timelapse videos can be shared directly from the app to other apps on your phone.
+
+### Changed Features
+
+- Improved printer and config file parsing to ensure the app is more resilient to unexpected
+  content in the config section definitions.
+- Added the option to configure a custom HTTP/WS Client timeout in the printer edit and add flows.
+- The printer's device notification registry can now be cleared in the printer edit flow.
+
+### Bug Fixes
+
+- Resolved an issue where saving webcam and remote settings was not working when the user was
+  connected via OE. [#219](https://github.com/Clon1998/mobileraker/issues/219)
+- The Manual Offset dialog now only closes if klipper is done with the manual_offset. This ensures
+  manual bed leveling is working as
+  expected [#214](https://github.com/Clon1998/mobileraker/issues/214)
+- The advanced printer add flow now correctly adds the default websocket path if the user does not
+  specify a websocket URI.
+- It is possible now to start a print, if the machine is in the cancelled
+  state. [#224](https://github.com/Clon1998/mobileraker/issues/224)
+- Fixed parsing of the `heater_generic` config for some edge
+  cases. [#242](https://github.com/Clon1998/mobileraker/issues/242)
+- Resolved an issue where the app would crash after being in the background for an extended period.
+
 ## [2.5.3] - 2023-08-16
 
 ### Bug Fixes

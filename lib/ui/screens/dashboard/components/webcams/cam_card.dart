@@ -3,14 +3,13 @@
  * All rights reserved.
  */
 
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card_controller.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/misc.dart';
 
 class CamCard extends ConsumerWidget {
   const CamCard({
@@ -21,9 +20,8 @@ class CamCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var watch = ref.watch(camCardControllerProvider);
 
-    bool showCard = (watch.valueOrFullNull?.activeCam != null &&
-            watch.valueOrFullNull?.allCams.isNotEmpty == true) ||
-        watch.hasError;
+    bool showCard =
+        (watch.valueOrNull?.activeCam != null && watch.valueOrNull?.allCams.isNotEmpty == true) || watch.hasError;
 
     return AnimatedSwitcher(
       switchInCurve: Curves.easeInOutBack,
@@ -102,7 +100,7 @@ class _Trailing extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var camState = ref.watch(camCardControllerProvider).valueOrFullNull;
+    var camState = ref.watch(camCardControllerProvider).valueOrNull;
 
     if (camState == null ||
         camState.allCams.length < 2 ||
@@ -140,6 +138,8 @@ class _CamCardData extends ConsumerWidget {
           child: Align(
             alignment: Alignment.bottomRight,
             child: IconButton(
+              padding: const EdgeInsets.all(8),
+              constraints: const BoxConstraints(),
               color: Colors.white,
               icon: const Icon(Icons.aspect_ratio),
               tooltip: 'pages.dashboard.general.cam_card.fullscreen'.tr(),

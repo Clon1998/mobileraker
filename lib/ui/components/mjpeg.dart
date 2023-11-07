@@ -8,15 +8,16 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/uri_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:http/http.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -121,8 +122,8 @@ class _Mjpeg extends ConsumerWidget {
           const SizedBox(
             height: 30,
           ),
-          Text('WebCam streamURI: ${mjpegConfig.streamUri}'),
-          Text('WebCam snapshotURI: ${mjpegConfig.snapshotUri}'),
+          Text('WebCam streamURI: ${mjpegConfig.streamUri.obfuscate()}'),
+          Text('WebCam snapshotURI: ${mjpegConfig.snapshotUri?.obfuscate()}'),
           Text(state.error.toString(),
               textAlign: TextAlign.center,
               style: TextStyle(color: Theme.of(context).colorScheme.error)),
@@ -187,8 +188,8 @@ class _FPSDisplay extends ConsumerWidget {
                   alignment: Alignment.topRight,
                   child: Container(
                       padding: const EdgeInsets.all(4),
-                      margin: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
+                  margin: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
                           color: themeData.colorScheme.secondary,
                           borderRadius:
                               const BorderRadius.all(Radius.circular(5))),
@@ -585,7 +586,7 @@ class _AdaptiveMjpegManager implements _MjpegManager {
   @override
   start() {
     active = true;
-    logger.i('Start MJPEG - targFps: $targetFps - $_uri');
+    logger.i('Start MJPEG - targFps: $targetFps - ${_uri.obfuscate()}');
     if (_timer?.isActive ?? false) return;
     _timer = Timer(const Duration(milliseconds: 0), _timerCallback);
   }

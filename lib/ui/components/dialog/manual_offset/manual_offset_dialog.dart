@@ -3,12 +3,12 @@
  * All rights reserved.
  */
 
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
 import 'package:mobileraker/ui/components/dialog/manual_offset/manual_offset_controller.dart';
 import 'package:mobileraker/ui/components/error_card.dart';

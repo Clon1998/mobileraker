@@ -1,3 +1,8 @@
+<!--
+  ~ Copyright (c) 2023. Patrick Schmidt.
+  ~ All rights reserved.
+  -->
+
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.mobileraker">
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
@@ -8,6 +13,10 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.BILLING"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
 
     <queries>
         <intent>
@@ -61,7 +70,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="octoeverywhere" />
+                <data android:scheme="mobileraker"/>
             </intent-filter>
         </activity>
     </application>

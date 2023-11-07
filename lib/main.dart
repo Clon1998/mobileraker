@@ -3,6 +3,12 @@
  * All rights reserved.
  */
 
+import 'package:common/service/misc_providers.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/service/ui/theme_service.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
 import 'package:flutter/foundation.dart';
@@ -15,11 +21,14 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/app_setup.dart';
 import 'package:mobileraker/routing/app_router.dart';
+import 'package:mobileraker/service/ui/snackbar_service_impl.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
-import 'logger.dart';
+import 'service/ui/bottom_sheet_service_impl.dart';
+import 'service/ui/dialog_service_impl.dart';
+import 'ui/theme/theme_setup.dart';
 
 Future<void> main() async {
   var widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
@@ -27,11 +36,18 @@ Future<void> main() async {
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
 
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  runApp(const ProviderScope(
-    observers: [
+  runApp(ProviderScope(
+    // Injecting local implementation of interfaces defined in the common module
+    overrides: [
+      bottomSheetServiceProvider.overrideWith(bottomSheetServiceImpl),
+      dialogServiceProvider.overrideWith(dialogServiceImpl),
+      snackBarServiceProvider.overrideWith(snackBarServiceImpl),
+      themePackProvider.overrideWith(themePacks)
+    ],
+    observers: const [
       if (kDebugMode) RiverPodLogger(),
     ],
-    child: WarmUp(),
+    child: const WarmUp(),
   ));
 }
 
@@ -44,15 +60,17 @@ class MyApp extends ConsumerWidget {
     final goRouter = ref.watch(goRouterProvider);
     return EasyLocalization(
         supportedLocales: const [
+          Locale('af'),
           Locale('de'),
           Locale('en'),
           Locale('fr'),
           Locale('hu'),
           Locale('it'),
           Locale('nl'),
+          Locale('pt', 'BR'),
           Locale('ro'),
           Locale('ru'),
-          Locale('af'),
+          Locale('uk'),
           Locale('zh', 'CN'),
           Locale('zh', 'HK'),
         ],
@@ -70,8 +88,7 @@ class MyApp extends ConsumerWidget {
           );
         },
         child: ThemeBuilder(
-          builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme,
-              ThemeMode? themeMode) {
+          builder: (BuildContext context, ThemeData? regularTheme, ThemeData? darkTheme, ThemeMode? themeMode) {
             return MaterialApp.router(
               routerDelegate: goRouter.routerDelegate,
               routeInformationProvider: goRouter.routeInformationProvider,
@@ -103,7 +120,10 @@ class WarmUp extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var appLifeCycleNotifier = ref.watch(appLifecycleProvider.notifier);
     var brightness = usePlatformBrightness();
+    useOnAppLifecycleStateChange((_, current) => appLifeCycleNotifier.update(current));
+
     return Container(
       color: splashBgColorForBrightness(brightness),
       child: ref.watch(warmupProviderProvider).when(
@@ -134,9 +154,9 @@ class _LoadingSplashScreen extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var animCtrler = useAnimationController(
-        duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1)
-      ..repeat(reverse: true);
+    var animCtrler =
+        useAnimationController(duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1)
+          ..repeat(reverse: true);
 
     return SafeArea(
       child: Directionality(

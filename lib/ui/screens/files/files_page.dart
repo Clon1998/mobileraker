@@ -3,7 +3,19 @@
  * All rights reserved.
  */
 
+import 'package:badges/badges.dart' as badges;
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:common/data/dto/files/folder.dart';
+import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/files/remote_file_mixin.dart';
+import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -11,14 +23,7 @@ import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/files/folder.dart';
-import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/files/remote_file_mixin.dart';
-import 'package:mobileraker/logger.dart';
 import 'package:mobileraker/service/date_format_service.dart';
-import 'package:mobileraker/service/moonraker/file_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
@@ -27,8 +32,6 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/gcode_file_extension.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -41,11 +44,44 @@ class FilesPage extends ConsumerWidget {
       appBar: _AppBar(),
       drawer: NavigationDrawerWidget(),
       bottomNavigationBar: _BottomNav(),
+      floatingActionButton: _Fab(),
       body: ConnectionStateView(
         onConnected: _FilesBody(),
         skipKlipperReady: true,
       ),
     );
+  }
+}
+
+class _Fab extends ConsumerWidget {
+  const _Fab({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var jobQueueStatusAsync = ref.watch(filesPageControllerProvider.select((value) => value.jobQueueStatus));
+    if (jobQueueStatusAsync.isLoading || jobQueueStatusAsync.hasError) {
+      return const SizedBox.shrink();
+    }
+    var jobQueueStatus = jobQueueStatusAsync.value!;
+
+    if (jobQueueStatus.queuedJobs.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    var themeData = Theme.of(context);
+    return FloatingActionButton(
+        onPressed: ref.read(filesPageControllerProvider.notifier).jobQueueBottomSheet,
+        child: badges.Badge(
+          badgeStyle: badges.BadgeStyle(
+            badgeColor: themeData.colorScheme.onSecondary,
+          ),
+          badgeAnimation: const badges.BadgeAnimation.rotation(),
+          position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
+          badgeContent:
+              Text('${jobQueueStatus.queuedJobs.length}', style: TextStyle(color: themeData.colorScheme.secondary)),
+          child: const Icon(Icons.content_paste),
+        ));
   }
 }
 
@@ -60,16 +96,18 @@ class _BottomNav extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    // ref.watch(provider)
+
     return BottomNavigationBar(
       showSelectedLabels: true,
       currentIndex: ref.watch(filePageProvider),
       onTap: (i) => ref.read(filePageProvider.notifier).state = i,
       // onTap: model.onBottomItemTapped,
-      items: const [
-        BottomNavigationBarItem(
-            label: 'GCodes', icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
-        BottomNavigationBarItem(label: 'Configs', icon: Icon(FlutterIcons.file_code_faw5)),
-        // BottomNavigationBarItem(label: 'Logs', icon: Icon(FlutterIcons.file_eye_outline_mco)),
+      items: [
+        const BottomNavigationBarItem(label: 'GCodes', icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
+        const BottomNavigationBarItem(label: 'Configs', icon: Icon(FlutterIcons.file_code_faw5)),
+        if (ref.watch(klipperSelectedProvider.selectAs((data) => data.hasTimelapseComponent)).valueOrNull == true)
+          const BottomNavigationBarItem(label: 'Timelaps', icon: Icon(Icons.subscriptions_outlined)),
       ],
     );
   }
@@ -104,8 +142,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
             style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
             decoration: InputDecoration(
               hintText: '${tr('pages.files.search_files')}...',
-              hintStyle:
-                  themeData.textTheme.titleLarge?.copyWith(color: onBackground.withOpacity(0.4)),
+              hintStyle: themeData.textTheme.titleLarge?.copyWith(color: onBackground.withOpacity(0.4)),
               border: InputBorder.none,
               suffixIcon: textCtler.text.isEmpty
                   ? null
@@ -145,8 +182,11 @@ class _FilesBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = Theme.of(context);
 
+    var model = ref.watch(filesPageControllerProvider);
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
     return WillPopScope(
-      onWillPop: ref.watch(filesListControllerProvider.notifier).onWillPop,
+      onWillPop: controller.onWillPop,
       child: Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
@@ -164,15 +204,16 @@ class _FilesBody extends ConsumerWidget {
         child: Column(
           children: [
             const _BreadCrumb(),
-            ref.watch(filesListControllerProvider.select((value) => value)).filteredAndSorted.when(
-                data: (folderContent) {
-                  int lenFolders = folderContent.folders.length;
-                  int lenGcodes = folderContent.files.length;
+            ref.watch(filesPageControllerProvider.select((value) => value.files)).when(
+                skipLoadingOnReload: true,
+                skipLoadingOnRefresh: false,
+                data: (files) {
+                  int lenFolders = files.folders.length;
+                  int lenGcodes = files.files.length;
                   int lenTotal = lenFolders + lenGcodes;
-                  var isSubFolder = folderContent.folderPath.split('/').length > 1;
 
                   // Add one of the .. folder to back
-                  if (isSubFolder) lenTotal++;
+                  if (model.isInSubFolder) lenTotal++;
 
                   return Expanded(
                     child: EaseIn(
@@ -181,28 +222,24 @@ class _FilesBody extends ConsumerWidget {
                       child: SmartRefresher(
                         header: const WaterDropMaterialHeader(),
                         controller: RefreshController(),
-                        onRefresh: () => ref.invalidate(filesListControllerProvider),
+                        onRefresh: controller.refreshFiles,
                         child: (lenTotal == 0)
                             ? ListTile(
                                 contentPadding: EdgeInsets.zero,
-                                leading: const SizedBox(
-                                    width: 64, height: 64, child: Icon(Icons.search_off)),
+                                leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.search_off)),
                                 title: const Text('pages.files.no_files_found').tr(),
                               )
                             : ListView.builder(
+                                physics: const BouncingScrollPhysics(),
                                 itemCount: lenTotal,
                                 itemBuilder: (context, index) {
-                                  if (isSubFolder) {
+                                  if (model.isInSubFolder) {
                                     if (index == 0) {
                                       return ListTile(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                                        leading: const SizedBox(
-                                            width: 64, height: 64, child: Icon(Icons.folder)),
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+                                        leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
                                         title: const Text('...'),
-                                        onTap: ref
-                                            .watch(filesListControllerProvider.notifier)
-                                            .popFolder,
+                                        onTap: controller.popFolder,
                                       );
                                     } else {
                                       index--;
@@ -210,13 +247,13 @@ class _FilesBody extends ConsumerWidget {
                                   }
 
                                   if (index < lenFolders) {
-                                    Folder folder = folderContent.folders[index];
+                                    Folder folder = files.folders[index];
                                     return FolderItem(
                                       folder: folder,
                                       key: ValueKey(folder),
                                     );
                                   } else {
-                                    RemoteFile file = folderContent.files[index - lenFolders];
+                                    RemoteFile file = files.files[index - lenFolders];
                                     if (file is GCodeFile) {
                                       return GCodeFileItem(
                                         key: ValueKey(file),
@@ -243,7 +280,7 @@ class _FilesBody extends ConsumerWidget {
                             TextButton(
                                 // onPressed: model.showPrinterFetchingErrorDialog,
                                 onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                                    type: DialogType.stacktrace,
+                                    type: CommonDialogs.stacktrace,
                                     title: e.runtimeType.toString(),
                                     body: 'Exception:\n $e\n\n$s')),
                                 child: const Text('Show Full Error'))
@@ -259,8 +296,7 @@ class _FilesBody extends ConsumerWidget {
                             itemCount: 15,
                             itemBuilder: (context, index) {
                               return ListTile(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                                 leading: Container(
                                   decoration: const BoxDecoration(
                                     borderRadius: BorderRadius.horizontal(
@@ -308,7 +344,8 @@ class _BreadCrumb extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ThemeData theme = Theme.of(context);
-    var curPath = ref.watch(filesListControllerProvider.select((value) => value.path));
+    var model = ref.watch(filesPageControllerProvider.select((value) => value.path));
+    var controller = ref.watch(filesPageControllerProvider.notifier);
 
     return Container(
       width: double.infinity,
@@ -322,19 +359,16 @@ class _BreadCrumb extends ConsumerWidget {
           children: [
             Flexible(
               child: BreadCrumb.builder(
-                itemCount: curPath.length,
+                itemCount: model.length,
                 builder: (index) {
-                  String p = curPath[index];
-                  List<String> target = curPath.sublist(0, index + 1);
+                  String p = model[index];
+                  List<String> target = model.sublist(0, index + 1);
                   return BreadCrumbItem(
                       content: Text(
                         p.toUpperCase(),
-                        style: theme.textTheme.titleSmall
-                            ?.copyWith(color: theme.colorScheme.onPrimary),
+                        style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimary),
                       ),
-                      onTap: () => ref
-                          .read(filesListControllerProvider.notifier)
-                          .fetchDirectoryData(target));
+                      onTap: () => controller.goToPath(target));
                 },
                 divider: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -348,7 +382,7 @@ class _BreadCrumb extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(left: 4),
               child: InkWell(
-                onTap: ref.watch(filesListControllerProvider.notifier).onCreateDirTapped,
+                onTap: ref.watch(filesPageControllerProvider.notifier).onCreateDirTapped,
                 child: Icon(
                   Icons.create_new_folder_outlined,
                   color: theme.colorScheme.onPrimary,
@@ -370,14 +404,15 @@ class FolderItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
     return _Slideable(
-      fileName: folder.name,
-      isFolder: true,
+      file: folder,
       child: ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
           leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
           title: Text(folder.name),
-          onTap: () => ref.read(filesListControllerProvider.notifier).enterFolder(folder)),
+          onTap: () => controller.enterFolder(folder)),
     );
   }
 }
@@ -389,13 +424,15 @@ class FileItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
     return _Slideable(
-      fileName: file.name,
+      file: file,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.insert_drive_file)),
         title: Text(file.name),
-        onTap: () => ref.read(filesListControllerProvider.notifier).onFileTapped(file),
+        onTap: () => controller.onFileTapped(file),
       ),
     );
   }
@@ -414,9 +451,22 @@ class GCodeFileItem extends ConsumerWidget {
             .add_Hm(DateFormat.yMd(context.deviceLocale.languageCode))
             .format(gCode.lastPrintDate!)
         : null;
-
+    var themeData = Theme.of(context);
     return _Slideable(
-      fileName: gCode.name,
+      file: gCode,
+      startActionPane: ActionPane(motion: const StretchMotion(), children: [
+        SlidableAction(
+          // An action can be bigger than the others.
+          onPressed: ref.watch(isSupporterProvider)
+              ? (_) => ref.read(filesPageControllerProvider.notifier).onAddToQueueTapped(gCode)
+              : null,
+          backgroundColor: themeData.colorScheme.primaryContainer,
+          foregroundColor:
+              ref.watch(isSupporterProvider) ? themeData.colorScheme.onPrimaryContainer : themeData.disabledColor,
+          icon: Icons.queue_outlined,
+          label: 'Queue',
+        ),
+      ]),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         leading: SizedBox(
@@ -424,14 +474,12 @@ class GCodeFileItem extends ConsumerWidget {
             height: 64,
             child: Hero(
               tag: 'gCodeImage-${gCode.hashCode}',
-              child: buildLeading(gCode, ref.watch(previewImageUriProvider),
-                  ref.watch(previewImageHttpHeaderProvider)),
+              child: buildLeading(gCode, ref.watch(previewImageUriProvider), ref.watch(previewImageHttpHeaderProvider)),
             )),
         title: Text(gCode.name),
-        subtitle: Text((lastPrinted != null)
-            ? '${tr('pages.files.last_printed')}: $lastPrinted'
-            : tr('pages.files.not_printed')),
-        onTap: () => ref.read(filesListControllerProvider.notifier).onFileTapped(gCode),
+        subtitle: Text(
+            (lastPrinted != null) ? '${tr('pages.files.last_printed')}: $lastPrinted' : tr('pages.files.not_printed')),
+        onTap: () => ref.read(filesPageControllerProvider.notifier).onFileTapped(gCode),
       ),
     );
   }
@@ -445,8 +493,7 @@ class GCodeFileItem extends ConsumerWidget {
         child: CachedNetworkImage(
           imageBuilder: (context, imageProvider) => Container(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.horizontal(
-                  left: Radius.circular(15.0), right: Radius.circular(15.0)),
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(15.0), right: Radius.circular(15.0)),
               image: DecorationImage(
                 image: imageProvider,
                 fit: BoxFit.cover,
@@ -478,41 +525,40 @@ class GCodeFileItem extends ConsumerWidget {
 }
 
 class _Slideable extends ConsumerWidget {
-  const _Slideable({required this.child, required this.fileName, this.isFolder = false});
+  const _Slideable({
+    required this.file,
+    required this.child,
+    this.startActionPane,
+  });
 
   final Widget child;
-  final String fileName;
-  final bool isFolder;
+  final RemoteFile file;
+  final ActionPane? startActionPane;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
     return Slidable(
+      startActionPane: startActionPane,
       endActionPane: ActionPane(
-        motion: const ScrollMotion(),
+        motion: const StretchMotion(),
         children: [
           SlidableAction(
             // An action can be bigger than the others.
-            onPressed: (c) => (isFolder)
-                ? ref.watch(filesListControllerProvider.notifier).onRenameDirTapped(fileName)
-                : ref.watch(filesListControllerProvider.notifier).onRenameFileTapped(fileName),
+            onPressed: (_) => controller.onRenameTapped(file),
             backgroundColor: themeData.colorScheme.secondaryContainer,
             foregroundColor: themeData.colorScheme.onSecondaryContainer,
             icon: Icons.drive_file_rename_outline,
-            label: 'Rename',
+            label: tr('general.rename'),
           ),
           SlidableAction(
-            onPressed: (c) => (isFolder)
-                ? ref
-                    .read(filesListControllerProvider.notifier)
-                    .onDeleteDirTapped(MaterialLocalizations.of(c), fileName)
-                : ref
-                    .read(filesListControllerProvider.notifier)
-                    .onDeleteFileTapped(MaterialLocalizations.of(c), fileName),
+            onPressed: (_) => controller.onDeleteTapped(file),
             backgroundColor: themeData.colorScheme.secondaryContainer.darken(5),
             foregroundColor: themeData.colorScheme.onSecondaryContainer,
             icon: Icons.delete_outline,
-            label: 'Delete',
+            label: tr('general.delete'),
           ),
         ],
       ),

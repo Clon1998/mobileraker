@@ -4,6 +4,10 @@
  */
 
 import 'package:code_text_field/code_text_field.dart';
+import 'package:common/data/dto/files/generic_file.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_highlight/themes/atom-one-dark.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -12,12 +16,8 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:highlight/languages/properties.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/files/generic_file.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_controller.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConfigFileDetailPage extends ConsumerWidget {

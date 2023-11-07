@@ -3,16 +3,15 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/webcam_service.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/webcam_service.dart';
-import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/util/extensions/ref_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'printer_card_controller.g.dart';
@@ -29,10 +28,12 @@ class PrinterCardController extends _$PrinterCardController {
   Machine get _machine => ref.read(printerCardMachineProvider);
 
   @override
-  FutureOr<WebcamInfo?> build() async {
+  Stream<WebcamInfo?> build() async* {
     var machine = ref.watch(printerCardMachineProvider);
-    await ref.watchWhere<KlipperInstance>(
-        klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready, false);
+    var klipperState = await ref.watch(klipperProvider(machine.uuid).selectAsync((data) => data.klippyState));
+
+    if (klipperState != KlipperState.ready) return;
+
     var filteredCamsFuture = ref.watch(allSupportedWebcamInfosProvider(machine.uuid).future);
     if (!ref.watch(isSupporterProvider)) {
       filteredCamsFuture = filteredCamsFuture.then((value) =>
@@ -40,7 +41,7 @@ class PrinterCardController extends _$PrinterCardController {
     }
 
     var filteredCams = await filteredCamsFuture;
-    return filteredCams.firstOrNull;
+    yield filteredCams.firstOrNull;
   }
 
   onTapTile() {

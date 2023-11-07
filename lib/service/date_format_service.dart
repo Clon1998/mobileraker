@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:common/service/setting_service.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:mobileraker/service/setting_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'date_format_service.g.dart';

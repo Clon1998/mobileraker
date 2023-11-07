@@ -4,28 +4,26 @@
  */
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/files/gcode_file.dart';
 import 'package:mobileraker/service/date_format_service.dart';
-import 'package:mobileraker/service/moonraker/file_service.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_controller.dart';
-import 'package:mobileraker/util/extensions/gcode_file_extension.dart';
-import 'package:mobileraker/util/time_util.dart';
 
 class GCodeFileDetailPage extends ConsumerWidget {
-  const GCodeFileDetailPage({Key? key, required this.gcodeFile})
-      : super(key: key);
+  const GCodeFileDetailPage({Key? key, required this.gcodeFile}) : super(key: key);
   final GCodeFile gcodeFile;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-      overrides: [
-        gcodeProvider.overrideWithValue(gcodeFile),
+      overrides: [gcodeProvider.overrideWithValue(gcodeFile),
         gCodeFileDetailsControllerProvider
       ],
       child: const _GCodeFileDetailPage(),

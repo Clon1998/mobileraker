@@ -3,11 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 
 class WebcamPreviewDialogArguments {
@@ -24,8 +24,7 @@ class WebcamPreviewDialog extends HookWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const WebcamPreviewDialog(
-      {Key? key, required this.request, required this.completer})
+  const WebcamPreviewDialog({Key? key, required this.request, required this.completer})
       : super(key: key);
 
   @override

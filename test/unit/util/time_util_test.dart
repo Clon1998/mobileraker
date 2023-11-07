@@ -5,10 +5,10 @@
 
 import 'dart:ui';
 
+import 'package:common/util/time_util.dart';
 import 'package:easy_localization/src/localization.dart';
 import 'package:easy_localization/src/translations.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mobileraker/util/time_util.dart';
 import 'package:mockito/mockito.dart';
 
 class TranslationsMock extends Mock implements Translations {}

@@ -6,6 +6,12 @@
 import 'dart:io';
 
 import 'package:collection/collection.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
+import 'package:common/util/misc.dart';
+import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -15,16 +21,10 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/payment_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page_controller.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker/util/extensions/revenuecat_extension.dart';
-import 'package:mobileraker/util/misc.dart';
-import 'package:mobileraker/util/time_util.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -261,18 +261,7 @@ class _SubscribeTiers extends ConsumerWidget {
         Text('pages.paywall.subscribe_view.info',
                 textAlign: TextAlign.center, style: textTheme.bodySmall)
             .tr(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Learn about Supporter Perks',
-              style: textTheme.displaySmall?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            IconButton(
-                onPressed: ref.read(paywallPageControllerProvider.notifier).openPerksInfo,
-                icon: const Icon(Icons.info_outline))
-          ],
-        ),
+        const _BenefitOverview(),
         Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -289,6 +278,31 @@ class _SubscribeTiers extends ConsumerWidget {
         if (model.tipAvailable) const _TippingButton(),
         const _RestoreButton(),
         // const _TippingButton(),
+      ],
+    );
+  }
+}
+
+class _BenefitOverview extends ConsumerWidget {
+  const _BenefitOverview({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          'Learn about Supporter Perks',
+          style: Theme.of(context)
+              .textTheme
+              .displaySmall
+              ?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        IconButton(
+            onPressed: ref.read(paywallPageControllerProvider.notifier).openPerksInfo,
+            icon: const Icon(Icons.info_outline))
       ],
     );
   }
@@ -314,6 +328,7 @@ class _ManageTiers extends ConsumerWidget {
             icon: const Icon(Icons.contact_support_outlined),
             onPressed: ref.read(paywallPageControllerProvider.notifier).openDevContact,
             label: const Text('pages.paywall.contact_dialog.title').tr()),
+        const _BenefitOverview(),
         Align(
             alignment: Alignment.centerLeft,
             child: Padding(
@@ -381,6 +396,7 @@ class _OfferedProductList extends ConsumerWidget {
                           promoPackage: promoPackage,
                         );
                       }
+                      // Android Subscriptions since they might have options (E.g. offers/promos)
                       if (package.storeProduct.defaultOption != null) {
                         return _SubscriptionOptionProduct(package: package);
                       }
@@ -573,12 +589,11 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     var storeProduct = package.storeProduct;
 
     var defaultOption = storeProduct.defaultOption!;
-
+    logger.w('DO: $defaultOption');
     var isDiscounted = !defaultOption.isBasePlan;
     var hasFreePhase = defaultOption.freePhase != null;
     var hasIntroPhase = defaultOption.introPhase != null;
 
-    Widget? header = _constructOfferHeader(defaultOption, context);
     String? discountedPriceString;
     if (isDiscounted && (hasIntroPhase || hasFreePhase)) {
       discountedPriceString =
@@ -586,7 +601,8 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     }
 
     return _ProductTile(
-      offerHeader: header,
+      offerHeader: _constructOfferHeader(defaultOption, context),
+      offerFooter: _constructOfferFoooter(defaultOption, context),
       purchasePackage: () => ref.read(paywallPageControllerProvider.notifier).makePurchase(package),
       isActiveSubscription: activeEntitlement?.isActive == true,
       isRenewingSubscription: activeEntitlement?.willRenew == true,
@@ -623,6 +639,24 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     );
   }
 
+  Widget? _constructOfferFoooter(SubscriptionOption subscriptionOption, BuildContext context) {
+    final themeData = Theme.of(context);
+
+    // So far only android complaint
+    if (!Platform.isAndroid) return null;
+    if (subscriptionOption.isBasePlan) return null;
+    if (subscriptionOption.freePhase == null) return null;
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Text(
+          tr(
+            'pages.paywall.trial_disclaimer',
+          ),
+          style: themeData.textTheme.bodySmall?.copyWith(fontSize: 10),
+          textAlign: TextAlign.center),
+    );
+  }
+
   String? _constructHeaderSubtitle(SubscriptionOption subscriptionOption, BuildContext context) {
     if (subscriptionOption.isBasePlan) return null;
 
@@ -647,6 +681,7 @@ class _ProductTile extends StatelessWidget {
   const _ProductTile({
     Key? key,
     this.offerHeader,
+    this.offerFooter,
     this.purchasePackage,
     required this.isActiveSubscription,
     required this.isRenewingSubscription,
@@ -660,6 +695,7 @@ class _ProductTile extends StatelessWidget {
 
   // Header of the Card
   final Widget? offerHeader;
+  final Widget? offerFooter;
   final GestureTapCallback? purchasePackage;
 
   final bool isActiveSubscription;
@@ -720,45 +756,41 @@ class _ProductTile extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Column(
-                      children: [
-                        if (isActiveSubscription)
-                          Text(
-                            isRenewingSubscription || isLifetimeSubscription
-                                ? 'general.active'
-                                : 'general.canceled',
-                            style: themeData.textTheme.bodySmall
-                                ?.copyWith(color: themeData.colorScheme.onPrimary),
-                          ).tr(),
-                        if (!isLifetimeSubscription ||
-                            (!isActiveSubscription && isLifetimeSubscription))
-                          Text(
-                            subscriptionPriceString,
-                            style: (!isActiveSubscription && hasDiscountAvailable)
-                                ? themeData.textTheme.bodySmall
-                                    ?.copyWith(decoration: TextDecoration.lineThrough)
-                                : null,
-                          ),
-                        if (!isActiveSubscription && hasDiscountAvailable)
-                          Text(discountedPriceString!),
-                        if (subscriptionIso8601 != null)
-                          Text(
-                            iso8601PeriodToText(subscriptionIso8601!),
-                            style: themeData.textTheme.bodySmall?.copyWith(
-                                fontSize: 10,
-                                color: defaultTextStyle.color?.getShadeColor(lighten: false)),
-                          ).tr(),
-                        if (isLifetimeSubscription)
-                          Text(
-                            'general.one_time',
-                            style: themeData.textTheme.bodySmall?.copyWith(
-                                fontSize: 10,
-                                color: defaultTextStyle.color?.getShadeColor(lighten: false)),
-                          ).tr(),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Column(
+                        children: [
+                          if (isActiveSubscription)
+                            Text(
+                              isRenewingSubscription || isLifetimeSubscription ? 'general.active' : 'general.canceled',
+                              style: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.onPrimary),
+                            ).tr(),
+                          if (!isLifetimeSubscription || (!isActiveSubscription && isLifetimeSubscription))
+                            Text(
+                              subscriptionPriceString,
+                              style: (!isActiveSubscription && hasDiscountAvailable)
+                                  ? themeData.textTheme.bodySmall?.copyWith(decoration: TextDecoration.lineThrough)
+                                  : null,
+                            ),
+                          if (!isActiveSubscription && hasDiscountAvailable) Text(discountedPriceString!),
+                          if (subscriptionIso8601 != null)
+                            Text(
+                              iso8601PeriodToText(subscriptionIso8601!),
+                              style: themeData.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10, color: defaultTextStyle.color?.getShadeColor(lighten: false)),
+                            ).tr(),
+                          if (isLifetimeSubscription)
+                            Text(
+                              'general.one_time',
+                              style: themeData.textTheme.bodySmall?.copyWith(
+                                  fontSize: 10, color: defaultTextStyle.color?.getShadeColor(lighten: false)),
+                            ).tr(),
+                        ],
+                      ),
                     ),
                   ],
                 ),
+                if (!isActiveSubscription && offerFooter != null) offerFooter!,
               ],
             ),
           ),
@@ -781,7 +813,7 @@ class _RestoreButton extends ConsumerWidget {
         Icons.restore,
         size: 18,
       ),
-      label: Text(
+      label: const Text(
         'general.restore',
         style: TextStyle(fontSize: 12),
       ).tr());

@@ -3,10 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:stringr/stringr.dart';
 
 class InfoDialog extends StatelessWidget {
   const InfoDialog(

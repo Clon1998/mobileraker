@@ -3,9 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:share_plus/share_plus.dart';
 
 class LoggerDialog extends StatelessWidget {

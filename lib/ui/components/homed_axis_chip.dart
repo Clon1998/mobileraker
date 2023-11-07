@@ -3,14 +3,14 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/printer_axis_enum.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/machine/toolhead.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 
 class HomedAxisChip extends ConsumerWidget {
   const HomedAxisChip({
@@ -22,9 +22,7 @@ class HomedAxisChip extends ConsumerWidget {
     int homedAxisCnt = ref
         .watch(machinePrinterKlippySettingsProvider
             .selectAs((value) => value.printerData.toolhead.homedAxes.length))
-        .valueOrFullNull!;
-
-    var themeData = Theme.of(context);
+        .valueOrNull!;
 
     return Chip(
       avatar: const Icon(
@@ -33,14 +31,11 @@ class HomedAxisChip extends ConsumerWidget {
         size: 20,
       ),
       // shape: StadiumBorder(side: BorderSide(color: Colors.limeAccent)),
-      side: BorderSide(
-          color: (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
-          width: 3),
+      side:
+          BorderSide(color: (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent, width: 3),
       // shape: ContinuousRectangleBorder(side: BorderSide(width: 1),),
       label: Text(_homedChipTitle(ref
-          .read(machinePrinterKlippySettingsProvider)
-          .valueOrFullNull!
-          .printerData
+          .read(machinePrinterKlippySettingsProvider).valueOrNull!.printerData
           .toolhead
           .homedAxes)),
       // backgroundColor:

@@ -3,10 +3,10 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:flutter/services.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/service/setting_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'full_cam_controller.g.dart';
@@ -21,9 +21,8 @@ WebcamInfo initialCam(InitialCamRef ref) => throw UnimplementedError();
 class FullCamPageController extends _$FullCamPageController {
   @override
   WebcamInfo build() {
-    var rotateCam = ref
-        .watch(settingServiceProvider)
-        .readBool(AppSettingKeys.fullscreenCamOrientation, false);
+    var rotateCam =
+        ref.watch(settingServiceProvider).readBool(AppSettingKeys.fullscreenCamOrientation, false);
     if (rotateCam) {
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);

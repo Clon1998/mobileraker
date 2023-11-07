@@ -5,14 +5,15 @@
 
 import 'dart:io';
 
+import 'package:common/service/payment_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/logger.dart';
-import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -137,7 +138,7 @@ class PaywallPageController extends _$PaywallPageController {
     ref.read(dialogServiceProvider).show(DialogRequest(
         type: DialogType.info,
         title: 'pages.paywall.contact_dialog.title'.tr(),
-        body: 'pages.paywall.contact_dialog.body'.tr(args: ['dev@mobileraker.com', 'Pad#3489'])));
+        body: 'pages.paywall.contact_dialog.body'.tr(args: ['dev@mobileraker.com', 'pad_sch'])));
   }
 }
 

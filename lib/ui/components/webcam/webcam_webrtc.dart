@@ -3,13 +3,15 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/firebase/remote_config.dart';
+import 'package:common/util/misc.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/util/misc.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 
 class WebcamWebRtc extends ConsumerWidget {
@@ -36,15 +38,36 @@ class WebcamWebRtc extends ConsumerWidget {
     var machineUri = machine.httpUri;
 
     var camStreamUrl = webcamInfo.streamUrl;
-    // var camSnapshotUrl = webcamInfo.snapshotUrl;
+    // var camSnapshotUrl = webcamInfo.snapshotUrl;y
 
     Uri webRtcUri;
-    if (clientType == ClientType.local) {
-      webRtcUri = buildWebCamUri(machineUri, camStreamUrl);
-    } else {
-      var baseUri = octoEverywhere!.uri.replace(
-          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
-      webRtcUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl);
+    Map<String, String> headers = machine.httpHeaders;
+
+    switch (clientType) {
+      case ClientType.octo:
+        var baseUri = octoEverywhere!.uri
+            .replace(userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
+        webRtcUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl);
+        break;
+      case ClientType.manual:
+        var remoteInterface = machine.remoteInterface!;
+        webRtcUri = buildRemoteWebCamUri(remoteInterface.remoteUri, machineUri, camStreamUrl);
+        headers = {
+          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
+          ...remoteInterface.httpHeaders,
+        };
+      case ClientType.local:
+      default:
+        webRtcUri = buildWebCamUri(machineUri, camStreamUrl);
+        break;
+    }
+
+    var remoteConfig = ref.watch(remoteConfigProvider);
+    if (clientType == ClientType.octo && remoteConfig.oeWebrtc) {
+      return Text(
+        'components.web_rtc.oe_warning',
+        style: Theme.of(context).textTheme.bodySmall,
+      ).tr();
     }
 
     return WebRtc(
@@ -54,7 +77,7 @@ class WebcamWebRtc extends ConsumerWidget {
       rotation: webcamInfo.rotation,
       transform: webcamInfo.transformMatrix,
       imageBuilder: imageBuilder,
-      // headers: machine.hea,
+      headers: headers,
     );
   }
 }

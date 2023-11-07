@@ -83,7 +83,7 @@
           "ztilt_btn": "zTilt"
         },
         "baby_step_card": {
-          "title": "Babystepping Z-Achse"
+          "title": "Z-Achsen Versatz"
         },
         "restart_klipper": "Klipper Neustart",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -183,7 +183,7 @@
       "general": {
         "title": "Allgemein",
         "ems_confirm": "Notfall-Stop Bestätigung",
-        "always_baby": "Zeige immer Babystepping-Karte",
+        "always_baby": "Zeige immer Z-Offset Kachel",
         "num_edit": "Tastatur für Zahleneingabe",
         "start_with_overview": "@:pages.overview.title als Start-Ansicht",
         "use_offset_pos": "Zeige Koordinaten mit Offset.",
@@ -232,7 +232,7 @@
         "speed_z_short": "Geschwindigkeit Z",
         "steps_move": "Bewegungs-Schritte",
         "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-        "steps_baby": "Babystepping Z-Schritte"
+        "steps_baby": "Z-Offset Stufen"
       },
       "extruders": {
         "title": "Extruder",

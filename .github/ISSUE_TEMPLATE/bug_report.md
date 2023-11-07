@@ -25,6 +25,8 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain the problem.
 
 ### Version Information
+
+- Device-OS (Android/iOS): [OS]
 - Mobileraker: [version]
 - Klipper: [version]
 - Moonraker: [version]

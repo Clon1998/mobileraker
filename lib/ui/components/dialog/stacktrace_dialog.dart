@@ -3,16 +3,15 @@
  * All rights reserved.
  */
 
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 
 class StackTraceDialog extends StatelessWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const StackTraceDialog(
-      {Key? key, required this.request, required this.completer})
+  const StackTraceDialog({Key? key, required this.request, required this.completer})
       : super(key: key);
 
   @override
@@ -37,13 +36,11 @@ class StackTraceDialog extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () => completer(DialogResponse()),
-                  child:
-                      Text(MaterialLocalizations.of(context).closeButtonLabel),
+                  child: Text(MaterialLocalizations.of(context).closeButtonLabel),
                 ),
                 IconButton(
                   color: Theme.of(context).colorScheme.primary,
-                  onPressed: () => Clipboard.setData(
-                      ClipboardData(text: request.body ?? '')),
+                  onPressed: () => Clipboard.setData(ClipboardData(text: request.body ?? '')),
                   icon: const Icon(Icons.copy_all),
                   tooltip: MaterialLocalizations.of(context).copyButtonLabel,
                 )

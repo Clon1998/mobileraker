@@ -5,6 +5,7 @@
 
 import 'dart:math';
 
+import 'package:common/util/logger.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 
@@ -13,17 +14,12 @@ class HorizontalScrollIndicator extends StatefulWidget {
   final ScrollController controller;
   final int? childsPerScreen;
 
-  const HorizontalScrollIndicator(
-      {Key? key,
-      required this.steps,
-      required this.controller,
-      this.childsPerScreen})
+  const HorizontalScrollIndicator({Key? key, required this.steps, required this.controller, this.childsPerScreen})
       : assert(steps > 0),
         super(key: key);
 
   @override
-  State<HorizontalScrollIndicator> createState() =>
-      _HorizontalScrollIndicatorState();
+  State<HorizontalScrollIndicator> createState() => _HorizontalScrollIndicatorState();
 }
 
 class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
@@ -33,19 +29,24 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
 
   ScrollController get controller => widget.controller;
 
+  PageController get pageController => widget.controller as PageController;
+
   @override
   initState() {
     super.initState();
-    steps = (widget.childsPerScreen == null)
-        ? widget.steps
-        : (widget.steps / widget.childsPerScreen!).ceil();
+    steps = (widget.childsPerScreen == null) ? widget.steps : (widget.steps / widget.childsPerScreen!).ceil();
 
-    controller.addListener(_listenerForController);
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _listenerForController());
+    if (controller is PageController?) {
+      logger.i('initiPage ${pageController.initialPage} - ${pageController.hasClients}');
+      controller.addListener(_updateIndexFromPage);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _updateIndexFromPage());
+    } else {
+      controller.addListener(_updateIndexFromOffset);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _updateIndexFromOffset());
+    }
   }
 
-  _listenerForController() {
+  _updateIndexFromOffset() {
     if (!controller.hasClients || !controller.position.hasContentDimensions) {
       return;
     }
@@ -53,8 +54,19 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
     if (maxScrollExtent == 0) return;
 
     double offset = controller.offset;
-    double newIndex =
-        min(steps - 1, max(0, steps * offset / maxScrollExtent - 1));
+    double newIndex = min(steps - 1, max(0, steps * offset / maxScrollExtent - 1));
+    if ((_curIndex - newIndex).abs() < 0.2) return;
+    setState(() {
+      _curIndex = newIndex;
+    });
+  }
+
+  _updateIndexFromPage() {
+    if (!pageController.hasClients) {
+      return;
+    }
+
+    var newIndex = pageController.page ?? 0;
     if ((_curIndex - newIndex).abs() < 0.2) return;
     setState(() {
       _curIndex = newIndex;
@@ -66,14 +78,14 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
     return DotsIndicator(
       dotsCount: steps,
       position: max(_curIndex, 0),
-      decorator:
-          DotsDecorator(activeColor: Theme.of(context).colorScheme.primary),
+      decorator: DotsDecorator(activeColor: Theme.of(context).colorScheme.primary),
     );
   }
 
   @override
   dispose() {
     super.dispose();
-    widget.controller.removeListener(_listenerForController);
+    widget.controller.removeListener(_updateIndexFromOffset);
+    widget.controller.removeListener(_updateIndexFromPage);
   }
 }

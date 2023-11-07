@@ -3,24 +3,24 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/console/command.dart';
+import 'package:common/data/dto/console/console_entry.dart';
+import 'package:common/data/enums/console_entry_type_enum.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/console/command.dart';
-import 'package:mobileraker/data/dto/console/console_entry.dart';
 import 'package:mobileraker/service/date_format_service.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/console/console_controller.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:mobileraker/util/extensions/text_editing_controller_extension.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -35,7 +35,7 @@ class ConsolePage extends ConsumerWidget {
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
         actions: [
-          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
+          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrNull),
           const EmergencyStopBtn(),
         ],
       ),
@@ -55,8 +55,7 @@ class _ConsoleBody extends HookConsumerWidget {
     var consoleTextEditor = useTextEditingController();
     var focusNode = useFocusNode();
 
-    var klippyCanReceiveCommands =
-        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
+    var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
 
     var theme = Theme.of(context);
     return SafeArea(
@@ -188,11 +187,10 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
     var consoleInput = useValueListenable(widget.consoleInputNotifier).text;
 
     var history = ref.watch(commandHistoryProvider);
-    var available = ref.watch(availableMacrosProvider).valueOrFullNull ?? [];
+    var available = ref.watch(availableMacrosProvider).valueOrNull ?? [];
     var suggestions = calculateSuggestedMacros(consoleInput, history, available);
     if (suggestions.isEmpty) return const SizedBox.shrink();
-    var canSend =
-        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
+    var canSend = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
     return SizedBox(
       height: 33,
       child: ChipTheme(
@@ -244,8 +242,7 @@ class _Console extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var canSend =
-        ref.watch(klipperSelectedProvider).valueOrFullNull?.klippyCanReceiveCommands ?? false;
+    var canSend = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
     var dateFormatService = ref.read(dateFormatServiceProvider);
 
     return ref.watch(consoleListControllerProvider).when(
@@ -280,7 +277,7 @@ class _Console extends ConsumerWidget {
                       dateFormat.addPattern('MMMd', ', ');
                     }
 
-                    if (entry.type == ConsoleEntryType.COMMAND) {
+                    if (entry.type == ConsoleEntryType.command) {
                       return ListTile(
                         dense: true,
                         contentPadding: const EdgeInsets.symmetric(horizontal: 8),

@@ -41,7 +41,10 @@
     "invalid": "Invalid",
     "free": "Free",
     "one_time": "One time",
-    "delete": "Delete"
+    "delete": "Delete",
+    "clear": "Clear",
+    "unlink": "Unlink",
+    "save": "Save"
   },
   "pages": {
     "dashboard": {
@@ -114,7 +117,7 @@
           "more_btn": "More"
         },
         "baby_step_card": {
-          "title": "Babystepping Z-Axis"
+          "title": "Micro-Step Z-Axis"
         },
         "restart_klipper": "Restart Klipper",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -164,6 +167,13 @@
           "accel": "Acceleration",
           "sq_corn_vel": "Square Corner Velocity",
           "accel_to_decel": "Accel to Decel"
+        },
+        "fw_retraction_card": {
+          "title": "Firmware Retraction",
+          "retract_length": "Retract Length",
+          "retract_speed": "Retract Speed",
+          "extra_unretract_length": "Extra Unretract Length",
+          "unretract_speed": "Unretract Speed"
         }
       }
     },
@@ -177,6 +187,8 @@
       "not_printed": "Not printed",
       "fetching_files": "@:general.fetching Files...",
       "no_files_found": "No files found!",
+      "no_matches_file_pattern": "Only letters, numbers, underscores, dashes and dots are allowed!",
+      "file_name_in_use": "File name already in use!",
       "details": {
         "preheat": "Preheat",
         "print": "Print",
@@ -218,13 +230,14 @@
       "general": {
         "title": "General",
         "ems_confirm": "Confirm Emergency-Stop",
-        "always_baby": "Always show Babystepping Card",
+        "always_baby": "Always show Z-Offset Card",
         "num_edit": "Use keyboard for number input",
         "start_with_overview": "Show @:pages.overview.title by default",
         "use_offset_pos": "Show coordinates with offset applied.",
         "lcFullCam": "Fullscreen Webcam in Landscape",
         "language": "Language",
-        "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its "
+        "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its ",
+        "sliders_grouping": "Group Slider Cards"
       },
       "notification": {
         "title": "Notification",
@@ -239,7 +252,8 @@
         "ios_notifications_title": "IOS Notification Delivery",
         "ios_notifications_desc": "Notifications require mobileraker to be opened at least once and be in the background.\nStill some notifications might be blocked by the OS!",
         "missing_companion_title": "Companion not found!",
-        "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\nTap to learn more!"
+        "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\n\nTap to learn more!",
+        "enable_live_activity": "Enable Live Activity"
       },
       "developer": {
         "title": "Developer",
@@ -255,6 +269,8 @@
       "fetching_additional_settings": "@:general.fetching additional settings from network...",
       "could_not_fetch_additional": "Could not fetch additional settings!",
       "fetch_error_hint": "Ensure the machine is reachable, and Mobileraker is connected to it.",
+      "reset_notification_registry": "Clear Notification Device Registry",
+      "configure_remote_connection": "Configure Remote Connection",
       "store_error": {
         "title": "Saving failed!",
         "message": "Some fields contain invalid values!\nPlease make sure all fields are valid.",
@@ -264,19 +280,6 @@
         "title": "Delete {}?",
         "body": "You are about to remove the printer '{}' connected at '{}'. \n\nConfirm your action."
       },
-      "success_oe_link": {
-        "title": "Linked {}",
-        "body": "Successfully linked {} with OctoEverywhere!"
-      },
-      "confirm_oe_unlink": {
-        "title": "Unlink {}?",
-        "body": "Please confirm the unlinking of the printer {} from OctoEverywhere.",
-        "button": "Unlink"
-      },
-      "success_oe_unlink": {
-        "title": "Unlinked {}",
-        "body": "Successfully unlinked {} from OctoEverywhere!"
-      },
       "general": {
         "displayname": "Displayname",
         "printer_addr": "Printer - Address",
@@ -284,7 +287,12 @@
         "moonraker_api_key": "Moonraker - API Key",
         "moonraker_api_desc": "Only needed if youre using trusted clients. FluiddPI enforces this!",
         "full_url": "Full URL",
-        "self_signed": "Trust Self-Signed Certificates"
+        "self_signed": "Trust Self-Signed Certificates",
+        "timeout_label": "Client timeout",
+        "timeout_helper": "The timeout for the client connection in seconds",
+        "theme": "UI-Theme",
+        "theme_helper": "UI theme for printer",
+        "theme_unavailable": "UI theme for printer, only available for Supporters"
       },
       "motion_system": {
         "title": "Motion System",
@@ -300,8 +308,8 @@
         "speed_z_short": "Speed Z",
         "steps_move": "Move steps",
         "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-        "steps_baby": "Babystepping Z-steps",
-        "steps_baby_short": "Baby Steps"
+        "steps_baby": "Z-Offset steps",
+        "steps_baby_short": "Z-Steps"
       },
       "extruders": {
         "title": "Extruder(s)",
@@ -320,7 +328,8 @@
         "flip_vertical": "Flip vertical",
         "flip_horizontal": "Flip horizontal",
         "cam_mode": "Cam Mode",
-        "cam_rotate": "Rotation"
+        "cam_rotate": "Rotation",
+        "read_only": "Webcam is read-only"
       },
       "macros": {
         "new_macro_grp": "New Macro - Group",
@@ -337,6 +346,63 @@
         "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperature",
         "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperature",
         "new_preset": "New Preset"
+      },
+      "confirm_fcm_reset": {
+        "title": "Clear Notification Device Registry?",
+        "body": "You are about to reset the device registry, which is used to determine the devices to which the companion sends notifications.\nTo re-establish push notifications, you will need to restart the app on all devices and connect them to the machine once again. \n\nConfirm your action."
+      },
+      "confirm_remote_interface_removal": {
+        "title": {
+          "oe": "Unlink {}?",
+          "other": "Remove Connection?"
+        },
+        "body": {
+          "oe": "Please confirm the unlinking of the printer {} from OctoEverywhere.",
+          "other": "Please confirm the removal of the remote connection from  printer {}."
+        },
+        "button": {
+          "oe": "@:general.unlink",
+          "other": "@:general.remove"
+        }
+      },
+      "remote_interface_exists": {
+        "title": "Remote Connection Found",
+        "body": {
+          "oe": "This printer is already linked with OctoEverywhere for remote access. Please unlink it before proceeding.",
+          "obico": "This printer is already lined Obico for remote access. Please unlink it before continuing.",
+          "other": "A remote connection is already established for this printer. Please remove it before proceeding."
+        }
+      },
+      "remote_interface_removed": {
+        "title": "Remote connection removed!",
+        "body": "Make sure to save the printer to apply the changes."
+      },
+      "remote_interface_added": {
+        "title": {
+          "oe": "Linked to OctoEverywhere.",
+          "obico": "Linked to Obico.",
+          "other": "Remote connection Added."
+        },
+        "body": "Make sure to save the printer to apply the changes."
+      },
+      "wifi_access_warning": {
+        "title": "WiFi Information Unavailable",
+        "subtitle": "To determine if Mobileraker should use the remote connection, grant location access. This allows the app to fetch the name of the current WiFi Network.\n\nTap to grant the permission."
+      },
+      "local_ssid": {
+        "section_header": "Smart Switching",
+        "no_ssids": "No WiFi name added!",
+        "helper": "Smart switching makes the app automatically switch between the local and remote connection based on the current WiFi network. To enable this feature, add your home's WiFi name to the list.",
+        "dialog": {
+          "title_add": "Add WiFi Name to List",
+          "title_edit": "Edit WiFi Name",
+          "label": "WiFi Name (SSID)",
+          "quick_add_hint": "Hint: To quickly add the current WiFi name, long-press the button that opened this dialog."
+        },
+        "error_fetching_snackbar": {
+          "title": "Error while fetching WiFi name!",
+          "body": "Please make sure the app has the necessary permissions to access the device's WiFi state."
+        }
       }
     },
     "printer_add": {
@@ -353,7 +419,8 @@
         "body": "If you are new to this, it's best to stick to the simple mode. However, if you are experienced and need to use custom headers, certificates, etc., then the expert mode is for you. Keep in mind that the mode you choose won't affect the app itself, but it will determine how the input is validated and displayed, and what options are available while you are adding a machine.",
         "simple": "Simple",
         "advanced": "Advanced",
-        "add_via_oe": "One-click OctoEverywhere setup"
+        "add_via_oe": "One-click OctoEverywhere setup",
+        "add_via_obico": "One-click Obico setup"
       },
       "simple_form": {
         "hint_title": "Hint - Simple Mode",
@@ -438,7 +505,11 @@
       "free_phase": "First {} free",
       "intro_phase": "Enjoy {} at {} off",
       "iap_offer": "{} off original price",
-      "tip_developer": "Tip Developer"
+      "tip_developer": "Tip Developer",
+      "trial_disclaimer": "You won't be charged until the end of the free trial, and you can cancel anytime during it."
+    },
+    "video_player": {
+      "downloading_for_sharing": "Downloading video for sharing... ({})"
     }
   },
   "components": {
@@ -471,19 +542,36 @@
       "subtitle": "Tap me! To learn how you can support the development!"
     },
     "supporter_only_feature": {
+      "dialog_title": "Supporter Only Feature",
       "button": "Become a Mobileraker Supporter",
       "webcam": "Sorry, Webcams of type {} are only available to Supporters.",
-      "printer_add": "Sorry, managing more than {} machines is only available to Supporters."
+      "printer_add": "You've reached the machine limit. Only Mobileraker Supporters can add more than {} machines.",
+      "job_queue": "Sorry, the Job Queue is only available to Supporters.",
+      "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
+      "printer_theme": "Sorry, printer specific themes are only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",
       "subtitle": "It seems like you are not a Supporter. Only supports can have more than {} machine(s). You have {} days before excess machines will be removed."
+    },
+    "remote_connection_indicator": {
+      "title": "Using remote connection!"
+    },
+    "web_rtc": {
+      "renderer_missing": "WebRtc video not available!",
+      "oe_warning": "WebRtc via OctoEverywhere is not supported yet!"
+    },
+    "ri_indicator": {
+      "tooltip": "Using Remote Connection!"
+    },
+    "obico_indicator": {
+      "tooltip": "Using Obico Tunnel!"
     }
   },
   "dialogs": {
     "rate_my_app": {
       "title": "Rate Mobileraker?",
-      "message": "If you like Mobileraker and want to support the open source development, please consider rating Mobileraker!"
+      "message": "If you like Mobileraker and want to support the development, please consider rating Mobileraker!"
     },
     "import_setting": {
       "fetching": "Fetching sources...",
@@ -552,6 +640,18 @@
       "webrtc_perk": {
         "title": "WebRtc Support",
         "subtitle": "Allows the usage of WebRtc webcams!"
+      },
+      "job_queue_perk": {
+        "title": "Job Queue",
+        "subtitle": "Manage Moonraker's job queue from within Mobileraker!"
+      },
+      "unlimited_printers_perk": {
+        "title": "Unlimited Printers",
+        "subtitle": "Control as many printers as you want using Mobileraker!"
+      },
+      "printer_theme_perk": {
+        "title": "Printer based Themes",
+        "subtitle": "Select a different theme for each printer!"
       }
     },
     "bed_screw_adjust": {
@@ -583,13 +683,52 @@
       "value_hint": "The value of the header"
     }
   },
+  "bottom_sheets": {
+    "job_queue_sheet": {
+      "next": "Next print job",
+      "empty": "The job queue is empty. You can add jobs via the file browser.",
+      "start_queue": "Start Queue",
+      "pause_queue": "Pause Queue",
+      "remove_all": "Clear Queue",
+      "remove_all_confirm": "This operation will remove all jobs from the queue."
+    },
+    "add_remote_con": {
+      "disclosure": "{service} is not affiliated with Mobileraker. It may require an additional subscription. Please check {service}'s website for more information.",
+      "active_service_info": {
+        "title": "Existing configuration found!",
+        "body": "You are currently using {} as your remote connection service. Remove it before adding a new one."
+      },
+      "octoeverywehre": {
+        "service_name": "OctoEverywhere",
+        "tab_name": "@:bottom_sheets.add_remote_con.octoeverywehre.service_name",
+        "link": "Link OctoEverywhere",
+        "unlink": "Unlink OctoEverywhere",
+        "description": "OctoEverywhere.com is a community project allowing you to securely connect to your printer from anywhere. OctoEverywhere also provides the community free AI print failure detection, notifications, live streaming, and more. Setup only takes 20 seconds!"
+      },
+      "manual": {
+        "service_name": "Manual Remote Connection",
+        "tab_name": "Manual",
+        "description": "If you are an advanced user, you can choose to manually add an alternative connection. The alternative connection comes into play when attempts to connect to the primary address are unsuccessful. This can be useful if you have a reverse proxy connection to your printer, or if you have a secondary IP address that you can use to connect to your printer.",
+        "address_label": "Alternative Address",
+        "address_hint": "The base adress of the remove connection to be used"
+      },
+      "obico": {
+        "service_name": "Obico",
+        "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
+        "link": "Link Obico",
+        "unlink": "Unlink Obico",
+        "description": "Obico is a community-driven, fully open-source 3D printing software. It enables you to control and monitor your Klipper printer from anywhere, all at no cost. It stands as one of the pioneering solutions for AI-based failure detection, utilizing only your printer's webcam."
+      }
+    }
+  },
   "klipper_state": {
     "ready": "Ready",
     "shutdown": "Shutdown",
     "starting": "Starting",
     "disconnected": "Disconnected",
     "error": "Error",
-    "unauthorized": "Unauthorized"
+    "unauthorized": "Unauthorized",
+    "initializing": "Initializing"
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",
@@ -612,7 +751,7 @@
   },
   "form_validators": {
     "simple_url": "Input only allows URL components: Hostname and Port",
-    "disallow_mdns": "MDNs (.local) addresses are not supported"
+    "disallow_mdns": "mDNS (.local) addresses are not supported"
   },
   "date": {
     "year": {
@@ -1389,6 +1528,10 @@
       "HK": {
         "name": "Traditional",
         "nativeName": "繁體"
+      },
+      "BR": {
+        "name": "Brasil",
+        "nativeName": "Brasil"
       }
     }
   }

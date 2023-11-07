@@ -5,6 +5,22 @@
 
 import 'dart:convert';
 
+import 'package:common/data/adapters/uri_adapter.dart';
+import 'package:common/data/model/hive/gcode_macro.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/hive/macro_group.dart';
+import 'package:common/data/model/hive/notification.dart';
+import 'package:common/data/model/hive/octoeverywhere.dart';
+import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:common/data/model/hive/remote_interface.dart';
+import 'package:common/data/model/hive/temperature_preset.dart';
+import 'package:common/service/firebase/analytics.dart';
+import 'package:common/service/firebase/remote_config.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/notification_service.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,27 +30,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/adapters/uri_adapter.dart';
-import 'package:mobileraker/data/model/hive/gcode_macro.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/hive/macro_group.dart';
-import 'package:mobileraker/data/model/hive/octoeverywhere.dart';
-import 'package:mobileraker/data/model/hive/progress_notification_mode.dart';
-import 'package:mobileraker/data/model/hive/temperature_preset.dart';
-import 'package:mobileraker/data/model/hive/webcam_mode.dart';
-import 'package:mobileraker/data/model/hive/webcam_rotation.dart';
-import 'package:mobileraker/data/model/hive/webcam_setting.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/firebase/analytics.dart';
-import 'package:mobileraker/service/firebase/remote_config.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/notification_service.dart';
-import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-
-import 'logger.dart';
+import 'package:worker_manager/worker_manager.dart';
 
 part 'app_setup.g.dart';
 
@@ -47,9 +46,6 @@ setupBoxes() async {
   // 2 - WebcamSetting
   // 6 - WebCamMode
   // 9 - WebCamRotation
-  // Hive.ignoreTypeId(2);// WebcamSetting
-  // Hive.ignoreTypeId(6);// WebCamMode
-  // Hive.ignoreTypeId(9);// WebCamRotation
 
   var machineAdapter = MachineAdapter();
   if (!Hive.isAdapterRegistered(machineAdapter.typeId)) {
@@ -79,23 +75,17 @@ setupBoxes() async {
     Hive.registerAdapter(octoAdapater);
   }
 
-  // TODO: Remove adapters and enable ignoreType again! after x months!
-  final wModeAdapater = WebCamModeAdapter();
-  if (!Hive.isAdapterRegistered(wModeAdapater.typeId)) {
-    Hive.registerAdapter(wModeAdapater);
-  }
-  var webCamRotationAdapter = WebCamRotationAdapter();
-  if (!Hive.isAdapterRegistered(webCamRotationAdapter.typeId)) {
-    Hive.registerAdapter(webCamRotationAdapter);
-  }
-  var webcamSettingAdapter = WebcamSettingAdapter();
-  if (!Hive.isAdapterRegistered(webcamSettingAdapter.typeId)) {
-    Hive.registerAdapter(webcamSettingAdapter);
-  }
-
   var uriAdapter = UriAdapter();
   if (!Hive.isAdapterRegistered(uriAdapter.typeId)) {
     Hive.registerAdapter(uriAdapter);
+  }
+  var riAdapter = RemoteInterfaceAdapter();
+  if (!Hive.isAdapterRegistered(riAdapter.typeId)) {
+    Hive.registerAdapter(riAdapter);
+  }
+  var nAdapter = NotificationAdapter();
+  if (!Hive.isAdapterRegistered(nAdapter.typeId)) {
+    Hive.registerAdapter(nAdapter);
   }
 
   // Hive.deleteBoxFromDisk('printers');
@@ -104,6 +94,8 @@ setupBoxes() async {
     await openBoxes(keyMaterial);
     Hive.box<Machine>("printers").values.forEach((element) {
       logger.i('Machine in box is ${element.debugStr}#${element.hashCode}');
+      // ToDo remove after machine migration!
+      element.save();
     });
   } catch (e) {
     logger.e('There was an error while trying to init Hive. Resetting all Hive data...');
@@ -156,7 +148,8 @@ Future<List<Box>> openBoxes(Uint8List keyMaterial) {
     Hive.openBox<Machine>('printers').then(_migrateMachine),
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
-    Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
+    Hive.openBox<Notification>('notifications'),
+    // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
   ]);
 }
 
@@ -249,7 +242,13 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   await initializeAvailableMachines(ref);
 
   yield StartUpStep.notificationService;
-  await ref.read(notificationServiceProvider).initialize();
+  await ref
+      .read(notificationServiceProvider)
+      .initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
+
+  yield StartUpStep.workManager;
+  await workerManager.init();
+  logger.i('Completed init for workManager');
 
   yield StartUpStep.complete;
 }
@@ -265,6 +264,7 @@ enum StartUpStep {
   goRouter('🗺'),
   initMachines('⚙️'),
   notificationService('📢'),
+  workManager('💼'),
   complete('🌟');
 
   final String emoji;

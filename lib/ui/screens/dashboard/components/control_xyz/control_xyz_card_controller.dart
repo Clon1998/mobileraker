@@ -5,16 +5,16 @@
 
 import 'dart:math';
 
+import 'package:common/data/dto/config/config_file.dart';
+import 'package:common/data/dto/machine/printer_axis_enum.dart';
+import 'package:common/data/model/moonraker_db/machine_settings.dart';
+import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/data/dto/config/config_file.dart';
-import 'package:mobileraker/data/dto/machine/toolhead.dart';
-import 'package:mobileraker/data/model/moonraker_db/machine_settings.dart';
-import 'package:mobileraker/exceptions.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -52,8 +52,7 @@ class ControlXYZCardController extends _$ControlXYZCardController {
   }
 
   onMoveBtn(PrinterAxis axis, [bool positive = true]) {
-    MachineSettings machineSettings =
-    ref.read(selectedMachineSettingsProvider).value!;
+    MachineSettings machineSettings = ref.read(selectedMachineSettingsProvider).value!;
     var printerService = ref.read(printerServiceSelectedProvider);
 
     double step = machineSettings.moveSteps[state.index].toDouble();
@@ -62,18 +61,15 @@ class ControlXYZCardController extends _$ControlXYZCardController {
     switch (axis) {
       case PrinterAxis.X:
         if (machineSettings.inverts[0]) dirStep *= -1;
-        printerService.movePrintHead(
-            x: dirStep, feedRate: machineSettings.speedXY.toDouble());
+        printerService.movePrintHead(x: dirStep, feedRate: machineSettings.speedXY.toDouble());
         break;
       case PrinterAxis.Y:
         if (machineSettings.inverts[1]) dirStep *= -1;
-        printerService.movePrintHead(
-            y: dirStep, feedRate: machineSettings.speedXY.toDouble());
+        printerService.movePrintHead(y: dirStep, feedRate: machineSettings.speedXY.toDouble());
         break;
       case PrinterAxis.Z:
         if (machineSettings.inverts[2]) dirStep *= -1;
-        printerService.movePrintHead(
-            z: dirStep, feedRate: machineSettings.speedZ.toDouble());
+        printerService.movePrintHead(z: dirStep, feedRate: machineSettings.speedZ.toDouble());
         break;
       default:
         throw const MobilerakerException('Unreachable');
@@ -206,7 +202,6 @@ class ControlXYZCardController extends _$ControlXYZCardController {
       directActions = directActions.sublist(0, min(directActions.length, 3));
     }
 
-    return ControlXYZState(
-        directActions: directActions, moreActions: calibrationActions);
+    return ControlXYZState(directActions: directActions, moreActions: calibrationActions);
   }
 }

@@ -3,17 +3,18 @@
  * All rights reserved.
  */
 
+import 'package:common/util/logger.dart';
 // Generic AsyncValueWidget to work with values of type T
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/logger.dart';
 
 class AsyncValueWidget<T> extends StatelessWidget {
   const AsyncValueWidget(
       {Key? key,
       required this.value,
       required this.data,
+      this.loading,
       this.skipLoadingOnRefresh = false,
       this.skipLoadingOnReload = false})
       : super(key: key);
@@ -23,6 +24,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
 
   // output builder function
   final Widget Function(T) data;
+  final Widget Function()? loading;
 
   final bool skipLoadingOnRefresh;
   final bool skipLoadingOnReload;
@@ -33,7 +35,7 @@ class AsyncValueWidget<T> extends StatelessWidget {
       skipLoadingOnRefresh: this.skipLoadingOnRefresh,
       skipLoadingOnReload: this.skipLoadingOnReload,
       data: data,
-      loading: () => const Center(child: CircularProgressIndicator.adaptive()),
+      loading: loading ?? () => const Center(child: CircularProgressIndicator.adaptive()),
       error: (e, s) {
         logger.e('Error in Widget', e, s);
         return Center(

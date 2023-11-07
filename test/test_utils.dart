@@ -5,8 +5,8 @@
 
 import 'dart:convert';
 
+import 'package:common/util/logger.dart';
 import 'package:logger/logger.dart';
-import 'package:mobileraker/logger.dart';
 
 /// Returns the ObjectsJson from the moonraker JSON result using
 /// /printer/objects/query?<OBJECT> Endpoint

@@ -3,25 +3,23 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/exclude_object.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/machine/exclude_object.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
-import 'package:mobileraker/util/extensions/ref_extension.dart';
 
-final dialogCompleter =
-    Provider.autoDispose<DialogCompleter>((ref) => throw UnimplementedError());
+final dialogCompleter = Provider.autoDispose<DialogCompleter>((ref) => throw UnimplementedError());
 
-final excludeObjectFormKey = Provider.autoDispose<GlobalKey<FormBuilderState>>(
-    (ref) => GlobalKey<FormBuilderState>());
+final excludeObjectFormKey =
+    Provider.autoDispose<GlobalKey<FormBuilderState>>((ref) => GlobalKey<FormBuilderState>());
 
 final excludeObjectProvider = StreamProvider.autoDispose<ExcludeObject?>((ref) {
-  return ref
-      .watchAsSubject(printerSelectedProvider.selectAs((d) => d.excludeObject));
+  return ref.watchAsSubject(printerSelectedProvider.selectAs((d) => d.excludeObject));
 });
 
 final conirmedProvider = StateProvider.autoDispose((ref) => false);
@@ -33,9 +31,8 @@ final excludeObjectControllerProvider =
 class ExcludeObjectController extends StateNotifier<ParsedObject?> {
   ExcludeObjectController(this.ref) : super(null) {
     late ProviderSubscription<AsyncValue<PrintState>> sub;
-    sub = ref
-        .listen(printerSelectedProvider.selectAs((data) => data.print.state),
-            (previous, AsyncValue<PrintState> next) {
+    sub = ref.listen(printerSelectedProvider.selectAs((data) => data.print.state),
+        (previous, AsyncValue<PrintState> next) {
       next.whenData((state) {
         if (!const {PrintState.printing, PrintState.paused}.contains(state)) {
           closeForm();
@@ -53,16 +50,11 @@ class ExcludeObjectController extends StateNotifier<ParsedObject?> {
 
   void onPathTapped(ParsedObject obj) {
     if (ref.read(conirmedProvider)) return;
-    ref
-        .read(excludeObjectFormKey)
-        .currentState!
-        .fields['selected']!
-        .didChange(obj);
+    ref.read(excludeObjectFormKey).currentState!.fields['selected']!.didChange(obj);
   }
 
   onExcludePressed() {
-    if (ref.read(excludeObjectFormKey).currentState?.saveAndValidate() ==
-        false) {
+    if (ref.read(excludeObjectFormKey).currentState?.saveAndValidate() == false) {
       return;
     }
 

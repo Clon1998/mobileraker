@@ -3,19 +3,19 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/config/config_file.dart';
+import 'package:common/data/dto/machine/exclude_object.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/dto/config/config_file.dart';
-import 'package:mobileraker/data/dto/machine/exclude_object.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_objects_controller.dart';
-import 'package:mobileraker/ui/theme/theme_pack.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:touchable/touchable.dart';
 import 'package:vector_math/vector_math.dart' as vec;
@@ -186,8 +186,7 @@ class ExcludeObjectMap extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ConfigFile config =
-        ref.watch(printerSelectedProvider.selectAs((data) => data.configFile)).valueOrFullNull!;
+    ConfigFile config = ref.watch(printerSelectedProvider.selectAs((data) => data.configFile)).valueOrNull!;
 
     return IntrinsicHeight(
       child: Center(
@@ -199,7 +198,7 @@ class ExcludeObjectMap extends ConsumerWidget {
                   painter: ExcludeObjectPainter(
                       context,
                       ref.watch(excludeObjectControllerProvider.notifier),
-                      ref.watch(excludeObjectProvider).valueOrFullNull!,
+                      ref.watch(excludeObjectProvider).valueOrNull!,
                       ref.watch(excludeObjectControllerProvider),
                       config))),
         ),

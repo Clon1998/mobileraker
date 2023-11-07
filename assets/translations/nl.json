@@ -107,7 +107,7 @@
           "more_btn": "Meer"
         },
         "baby_step_card": {
-          "title": "Babystappen Z-as"
+          "title": "Micro-Step Z-as"
         },
         "restart_klipper": "Klipper Herstarten",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -275,8 +275,8 @@
         "speed_z_short": "Speed Z",
         "steps_move": "Move steps",
         "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-        "steps_baby": "Babystepping Z-steps",
-        "steps_baby_short": "Baby Steps"
+        "steps_baby": "Z-Offset steps",
+        "steps_baby_short": "Z-Steps"
       },
       "extruders": {
         "title": "Extruder(s)",

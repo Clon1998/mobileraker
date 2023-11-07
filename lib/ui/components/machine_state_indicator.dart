@@ -3,16 +3,16 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/server/klipper.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/server/klipper.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/ui/theme/theme_pack.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 
 class MachineStateIndicator extends ConsumerWidget {
   const MachineStateIndicator(this.machine, {Key? key}) : super(key: key);
@@ -21,42 +21,34 @@ class MachineStateIndicator extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     KlipperInstance? klippyData;
-    ClientType clientType = ClientType.local;
     ClientState? clientState;
     if (machine != null) {
       var machineUUID = machine!.uuid;
-      klippyData = ref.watch(klipperProvider(machineUUID)).valueOrFullNull;
-      clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
-      clientState =
-          ref.watch(jrpcClientStateProvider(machineUUID)).valueOrFullNull;
+      klippyData = ref.watch(klipperProvider(machineUUID)).valueOrNull;
+      clientState = ref.watch(jrpcClientStateProvider(machineUUID)).valueOrNull;
     }
     clientState ??= ClientState.disconnected;
 
-    KlipperState serverState =
-        klippyData?.klippyState ?? KlipperState.disconnected;
+    KlipperState serverState = klippyData?.klippyState ?? KlipperState.disconnected;
 
     switch (clientState) {
       case ClientState.connected:
+        var klippyStateToColor = _klippyStateToColor(context, serverState);
         return Tooltip(
-          padding: const EdgeInsets.all(8.0),
-          message: 'pages.dashboard.server_status'.tr(args: [
-            serverState.name.tr(),
-            klippyData?.klippyConnected ?? false
-                ? tr('general.connected').toLowerCase()
-                : tr('klipper_state.disconnected').toLowerCase()
-          ], gender: 'available'),
-          child: (clientType == ClientType.local)
-              ? Icon(Icons.radio_button_on,
-                  size: 10, color: _klippyStateToColor(context, serverState))
-              : const Image(
-                  height: 20,
-                  width: 20,
-                  image: AssetImage('assets/images/octo_everywhere.png'),
-                ),
-        );
+            padding: const EdgeInsets.all(8.0),
+            message: 'pages.dashboard.server_status'.tr(args: [
+              serverState.name.tr(),
+              klippyData?.klippyConnected ?? false
+                  ? tr('general.connected').toLowerCase()
+                  : tr('klipper_state.disconnected').toLowerCase()
+            ], gender: 'available'),
+            child: MachineActiveClientTypeIndicator(
+                machineId: machine?.uuid,
+                iconSize: 20,
+                iconColor: klippyStateToColor,
+                localIndicator: Icon(Icons.radio_button_on, size: 10, color: klippyStateToColor)));
       default:
-        return Icon(Icons.radio_button_on,
-            size: 10, color: _stateToColor(context, clientState));
+        return Icon(Icons.radio_button_on, size: 10, color: _stateToColor(context, clientState));
     }
   }
 

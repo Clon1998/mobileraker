@@ -3,10 +3,10 @@
  * All rights reserved.
  */
 
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
-import 'package:mobileraker/util/extensions/object_extension.dart';
 
 class AppVersionText extends ConsumerWidget {
   const AppVersionText({

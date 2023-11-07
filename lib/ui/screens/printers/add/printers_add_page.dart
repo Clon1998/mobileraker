@@ -3,6 +3,9 @@
  * All rights reserved.
  */
 
+import 'package:common/network/json_rpc_client.dart';
+import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_stepper/easy_stepper.dart';
 import 'package:flutter/material.dart';
@@ -12,10 +15,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
 import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
-import 'package:mobileraker/ui/components/supporter_only_feature.dart';
 import 'package:mobileraker/ui/screens/printers/add/printers_add_controller.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
@@ -28,34 +29,46 @@ class PrinterAddPage extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // TabController tabController = useTabController(initialLength: 2);
-    var nonSupError =
-        ref.watch(printerAddViewControllerProvider.select((value) => value.nonSupporterError));
+    var nonSupError = ref.watch(printerAddViewControllerProvider.select((value) => value.nonSupporterError));
     return Scaffold(
       appBar: AppBar(
         title: const Text('pages.printer_add.title').tr(),
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            const _AddPrinterStepperFlow(),
-            const Divider(),
-            if (nonSupError != null) Center(child: SupporterOnlyFeature(text: Text(nonSupError))),
-            if (nonSupError == null) ...[
-              const Expanded(
-                child: CustomScrollView(
-                  physics: ClampingScrollPhysics(),
-                  slivers: [
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: _StepperBody(),
-                    )
-                  ],
+        child: (nonSupError != null)
+            ? Center(
+                child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: SupporterOnlyFeature(
+                  header: Flexible(
+                      child: ConstrainedBox(
+                    constraints: BoxConstraints.loose(const Size(256, 256)),
+                    child: SvgPicture.asset(
+                      'assets/vector/undraw_warning_re_eoyh.svg',
+                      fit: BoxFit.contain,
+                    ),
+                  )),
+                  text: Text(nonSupError),
                 ),
+              ))
+            : const Column(
+                children: [
+                  _AddPrinterStepperFlow(),
+                  Divider(),
+                  Expanded(
+                    child: CustomScrollView(
+                      physics: ClampingScrollPhysics(),
+                      slivers: [
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: _StepperBody(),
+                        )
+                      ],
+                    ),
+                  ),
+                  _StepperFooter(),
+                ],
               ),
-              const _StepperFooter(),
-            ],
-          ],
-        ),
       ),
     );
   }
@@ -91,8 +104,7 @@ class _StepperBody extends ConsumerWidget {
     );
   }
 
-  Widget stepperBody(int stepperIndex, bool isExpert) =>
-      switch (stepperIndex) {
+  Widget stepperBody(int stepperIndex, bool isExpert) => switch (stepperIndex) {
         0 => const _InputModeStepScreen(),
         1 => (isExpert) ? const _AdvancedInputStepScreen() : const _SimpleUrlInputStepScreen(),
         2 => const _TestConnectionStepScreen(),
@@ -110,11 +122,8 @@ class _StepperFooter extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var model = ref.watch(printerAddViewControllerProvider);
 
-    Widget? footer = switch (model.step) {
-      1 => const _UrlInputStepFooter(),
-      2 => const _TestConnectionStepFooter(),
-      _ => null
-    };
+    Widget? footer =
+        switch (model.step) { 1 => const _UrlInputStepFooter(), 2 => const _TestConnectionStepFooter(), _ => null };
 
     if (footer == null) return const SizedBox.shrink();
 
@@ -146,19 +155,13 @@ class _AddPrinterStepperFlow extends HookConsumerWidget {
       showLoadingAnimation: false,
       enableStepTapping: model.step != 3,
       steps: [
-        EasyStep(
-            title: tr('pages.printer_add.steps.mode'),
-            icon: const Icon(Icons.add_moderator_outlined)),
-        EasyStep(
-            title: tr('pages.printer_add.steps.input'), icon: const Icon(Icons.settings_outlined)),
+        EasyStep(title: tr('pages.printer_add.steps.mode'), icon: const Icon(Icons.add_moderator_outlined)),
+        EasyStep(title: tr('pages.printer_add.steps.input'), icon: const Icon(Icons.settings_outlined)),
         EasyStep(
             title: tr('pages.printer_add.steps.test'),
             icon: const Icon(Icons.settings_input_antenna_outlined),
             enabled: false),
-        EasyStep(
-            title: tr('pages.printer_add.steps.done'),
-            icon: const Icon(Icons.done_outline),
-            enabled: false),
+        EasyStep(title: tr('pages.printer_add.steps.done'), icon: const Icon(Icons.done_outline), enabled: false),
       ],
     );
   }
@@ -220,12 +223,23 @@ class _InputModeStepScreen extends ConsumerWidget {
           alignment: Alignment.center,
           child: TextButton.icon(
               onPressed: controller.addFromOcto,
-              icon: const Image(
-                height: 24,
+              icon: SvgPicture.asset(
+                'assets/vector/oe_rocket.svg',
                 width: 24,
-                image: AssetImage('assets/images/octo_everywhere.png'),
+                height: 24,
               ),
               label: const Text('pages.printer_add.select_mode.add_via_oe').tr()),
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: TextButton.icon(
+              onPressed: controller.addFromObico,
+              icon: SvgPicture.asset(
+                'assets/vector/obico_logo.svg',
+                width: 24,
+                height: 24,
+              ),
+              label: const Text('pages.printer_add.select_mode.add_via_obico').tr()),
         ),
         // OctoEveryWhereBtn(
         //     title: 'Add using OctoEverywhere', onPressed: () => null),
@@ -284,7 +298,6 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
             FormBuilderValidators.url(requireTld: false),
-            MobilerakerFormBuilderValidator.disallowMdns(),
             MobilerakerFormBuilderValidator.simpleUrl(),
           ]),
         ),
@@ -381,7 +394,6 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
               'http',
               'https',
             ]),
-            MobilerakerFormBuilderValidator.disallowMdns(),
           ]),
         ),
         FormBuilderTextField(
@@ -398,7 +410,23 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
               'ws',
               'wss',
             ]),
-            MobilerakerFormBuilderValidator.disallowMdns(),
+          ]),
+        ),
+        FormBuilderTextField(
+          keyboardType: const TextInputType.numberWithOptions(),
+          decoration: InputDecoration(
+              labelText: 'pages.printer_edit.general.timeout_label'.tr(),
+              helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
+              helperMaxLines: 3,
+              suffixText: 's'),
+          name: 'advanced.localTimeout',
+          initialValue: "5",
+          valueTransformer: (String? text) => text?.let(int.tryParse) ?? 3,
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.min(0),
+            FormBuilderValidators.max(600),
+            FormBuilderValidators.integer(),
           ]),
         ),
         SectionHeader(
@@ -524,8 +552,7 @@ class _TestConnectionStepFooter extends ConsumerWidget {
           proceedLabel: const Icon(Icons.navigate_next),
           proceedStyle: (model.hasResults && !model.combinedResult)
               ? FilledButton.styleFrom(
-                  backgroundColor: themeData.colorScheme.error,
-                  foregroundColor: themeData.colorScheme.onError)
+                  backgroundColor: themeData.colorScheme.error, foregroundColor: themeData.colorScheme.onError)
               : null,
         )
       ],
@@ -613,4 +640,3 @@ class _FlowControlButtons extends ConsumerWidget {
     );
   }
 }
-

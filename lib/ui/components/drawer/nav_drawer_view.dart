@@ -3,6 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/theme_service.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -10,13 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/machine_service.dart';
-import 'package:mobileraker/service/selected_machine_service.dart';
-import 'package:mobileraker/service/theme_service.dart';
 import 'package:mobileraker/ui/components/drawer/nav_drawer_controller.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -31,19 +31,18 @@ class NavigationDrawerWidget extends ConsumerWidget {
     var themeData = Theme.of(context);
 
     return Drawer(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           const _NavHeader(),
           Expanded(
             child: SingleChildScrollView(
               child: Material(
+                type: MaterialType.transparency,
                 child: Column(
                   children: [
                     const _PrinterSelection(),
-                    if ((ref.watch(allMachinesProvider
-                                .select((value) => value.valueOrFullNull?.length)) ??
-                            0) >
-                        1) ...[
+                    if ((ref.watch(allMachinesProvider.select((value) => value.valueOrNull?.length)) ?? 0) > 1) ...[
                       _DrawerItem(
                         text: 'pages.overview.title'.tr(),
                         icon: FlutterIcons.view_dashboard_mco,
@@ -104,8 +103,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: 20, top: 10),
               child: RichText(
                 text: TextSpan(
-                    style: themeData.textTheme.bodySmall!
-                        .copyWith(color: themeData.colorScheme.onSurface),
+                    style: themeData.textTheme.bodySmall!.copyWith(color: themeData.colorScheme.onSurface),
                     text: 'components.nav_drawer.footer'.tr(),
                     children: [
                       TextSpan(
@@ -131,9 +129,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
                           text: tr('pages.setting.imprint'),
                           style: TextStyle(color: themeData.colorScheme.secondary),
                           recognizer: TapGestureRecognizer()
-                            ..onTap = () => ref
-                                .read(navDrawerControllerProvider.notifier)
-                                .pushingTo('/imprint')),
+                            ..onTap = () => ref.read(navDrawerControllerProvider.notifier).pushingTo('/imprint')),
                     ]),
                 textAlign: TextAlign.center,
               )),
@@ -150,9 +146,7 @@ class _NavHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var themePack = ref.watch(activeThemeProvider).value!.themePack;
-    var brandingIcon = (themeData.brightness == Brightness.light)
-        ? themePack.brandingIcon
-        : themePack.brandingIconDark;
+    var brandingIcon = (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
     var background = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.primary
         : themeData.colorScheme.primaryContainer;
@@ -160,12 +154,9 @@ class _NavHeader extends ConsumerWidget {
         ? themeData.colorScheme.onPrimary
         : themeData.colorScheme.onPrimaryContainer;
 
-    var neverNullMachineAsyncData = ref
-        .watch(selectedMachineProvider)
-        .maybeMap<AsyncValue<Machine>>(
-            orElse: () => const AsyncValue.loading(),
-            data: (data) =>
-                data.value != null ? AsyncData(data.value!) : const AsyncValue.loading());
+    var neverNullMachineAsyncData = ref.watch(selectedMachineProvider).maybeMap<AsyncValue<Machine>>(
+        orElse: () => const AsyncValue.loading(),
+        data: (data) => data.value != null ? AsyncData(data.value!) : const AsyncValue.loading());
     return DrawerHeader(
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
@@ -206,18 +197,15 @@ class _NavHeader extends ConsumerWidget {
                                     orElse: () => 'NO PRINTER', data: (data) => data.name),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style:
-                                    themeData.textTheme.titleLarge?.copyWith(color: onBackground),
+                                style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 neverNullMachineAsyncData.maybeWhen(
-                                    orElse: () => 'Add printer first',
-                                    data: (machine) => machine.wsUri.host),
+                                    orElse: () => 'Add printer first', data: (machine) => machine.wsUri.host),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style:
-                                    themeData.textTheme.titleSmall?.copyWith(color: onBackground),
+                                style: themeData.textTheme.titleSmall?.copyWith(color: onBackground),
                               ),
                             ],
                           ),
@@ -308,14 +296,14 @@ class _PrinterSelection extends ConsumerWidget {
       child: (isExpanded)
           ? Column(
               children: [
-                if (selMachine.valueOrFullNull != null)
+                if (selMachine.valueOrNull != null)
                   _MachineTile(
                     machine: selMachine.value!,
                     isSelected: true,
                   ),
                 ...ref
-                    .watch(allMachinesProvider.selectAs((data) =>
-                        data.where((element) => element.uuid != selMachine.valueOrFullNull?.uuid)))
+                    .watch(allMachinesProvider
+                        .selectAs((data) => data.where((element) => element.uuid != selMachine.valueOrNull?.uuid)))
                     .maybeWhen(
                         orElse: () => [
                               ListTile(
@@ -338,8 +326,7 @@ class _PrinterSelection extends ConsumerWidget {
                     Icons.add,
                     size: baseIconSize,
                   ),
-                  onTap: () =>
-                      ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add'),
+                  onTap: () => ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add'),
                 )
               ],
             )
@@ -386,9 +373,7 @@ class _MachineTile extends ConsumerWidget {
               Navigator.pop(context);
               ref.read(selectedMachineServiceProvider).selectMachine(machine);
             },
-      onLongPress: () => ref
-          .read(navDrawerControllerProvider.notifier)
-          .pushingTo('/printer/edit', arguments: machine),
+      onLongPress: () => ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/edit', arguments: machine),
     );
   }
 }

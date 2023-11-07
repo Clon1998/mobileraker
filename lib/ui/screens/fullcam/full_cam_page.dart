@@ -3,28 +3,26 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/jrpc_client_provider.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/moonraker/webcam_service.dart';
+import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/data/data_source/json_rpc_client.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
-import 'package:mobileraker/data/model/hive/machine.dart';
-import 'package:mobileraker/data/model/moonraker_db/webcam_info.dart';
-import 'package:mobileraker/service/moonraker/jrpc_client_provider.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/moonraker/webcam_service.dart';
+import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
-import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
-import 'package:mobileraker/util/misc.dart';
 
 class FullCamPage extends ConsumerWidget {
   final Machine machine;
   final WebcamInfo initialCam;
 
-  const FullCamPage(this.machine, this.initialCam, {Key? key})
-      : super(key: key);
+  const FullCamPage(this.machine, this.initialCam, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,7 +30,7 @@ class FullCamPage extends ConsumerWidget {
       overrides: [
         fullCamMachineProvider.overrideWithValue(machine),
         initialCamProvider.overrideWithValue(initialCam),
-        fullCamPageControllerProvider
+        // fullCamPageControllerProvider,
       ],
       child: const _FullCamView(),
     );
@@ -49,36 +47,39 @@ class _FullCamView extends ConsumerWidget {
     var selectedCam = ref.watch(fullCamPageControllerProvider);
 
     return Scaffold(
-      body: Stack(alignment: Alignment.center, children: [
-        CenterInteractiveViewer(
-            constrained: true,
-            minScale: 1,
-            maxScale: 10,
-            child: Webcam(
-              machine: machine,
-              webcamInfo: selectedCam,
-              stackContent: const [StackContent()],
-              showFpsIfAvailable: true,
-              showRemoteIndicator: false,
-            )),
-        const _CamSelector(),
-        Align(
-          alignment: Alignment.bottomRight,
-          child: IconButton(
-            icon: const Icon(Icons.close_fullscreen_outlined),
-            tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ),
-        if (clientType != ClientType.local)
-          const Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: EdgeInsets.all(12.0),
-              child: OctoIndicator(),
+      body: SafeArea(
+        child: Stack(alignment: Alignment.center, children: [
+          CenterInteractiveViewer(
+              constrained: true,
+              minScale: 1,
+              maxScale: 10,
+              child: Webcam(
+                machine: machine,
+                webcamInfo: selectedCam,
+                stackContent: const [StackContent()],
+                showFpsIfAvailable: true,
+                showRemoteIndicator: false,
+              )),
+          const _CamSelector(),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: IconButton(
+              icon: const Icon(Icons.close_fullscreen_outlined),
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-      ]),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: MachineActiveClientTypeIndicator(
+                machineId: machine.uuid,
+              ),
+            ),
+          ),
+        ]),
+      ),
     );
   }
 }
@@ -99,19 +100,16 @@ class StackContent extends ConsumerWidget {
               var extruder = d.extruder;
               var target = extruder.target;
 
-              var nozzleText =
-                  tr('pages.dashboard.general.temp_preset_card.h_temp', args: [
+              var nozzleText = tr('pages.dashboard.general.temp_preset_card.h_temp', args: [
                 '${extruder.temperature.toStringAsFixed(1)}${target > 0 ? '/${target.toStringAsFixed(1)}' : ''}'
               ]);
               String info = nozzleText;
 
               if (d.heaterBed != null) {
                 var bedTarget = d.heaterBed!.target;
-                var bedText = tr(
-                    'pages.dashboard.general.temp_preset_card.b_temp',
-                    args: [
-                      '${d.heaterBed!.temperature.toStringAsFixed(1)}${bedTarget > 0 ? '/${bedTarget.toStringAsFixed(1)}' : ''}'
-                    ]);
+                var bedText = tr('pages.dashboard.general.temp_preset_card.b_temp', args: [
+                  '${d.heaterBed!.temperature.toStringAsFixed(1)}${bedTarget > 0 ? '/${bedTarget.toStringAsFixed(1)}' : ''}'
+                ]);
                 info = '$info\n$bedText';
               }
 
@@ -123,10 +121,7 @@ class StackContent extends ConsumerWidget {
                         margin: const EdgeInsets.only(top: 5, left: 2),
                         child: Text(
                           info,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: Colors.white70),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
                         )),
                   ),
                 ),

@@ -3,19 +3,22 @@
  * All rights reserved.
  */
 
+import 'package:common/service/firebase/remote_config.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class PerksDialog extends StatelessWidget {
+class PerksDialog extends ConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const PerksDialog({Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const PerksDialog({Key? key, required this.request, required this.completer}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var maxNonSupporterMachines = ref.watch(remoteConfigProvider).maxNonSupporterMachines;
+
     return Dialog(
       child: Padding(
         padding: const EdgeInsets.only(top: 12.0, bottom: 6, left: 8, right: 8),
@@ -38,40 +41,40 @@ class PerksDialog extends StatelessWidget {
               child: ListView(
                 shrinkWrap: true,
                 children: [
+                  if (maxNonSupporterMachines >= 0)
+                    ListTile(
+                      title: const Text('dialogs.supporter_perks.unlimited_printers_perk.title').tr(),
+                      subtitle: const Text('dialogs.supporter_perks.unlimited_printers_perk.subtitle').tr(),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                    ),
                   ListTile(
-                    title: const Text(
-                            'dialogs.supporter_perks.notification_perk.title')
-                        .tr(),
-                    subtitle: const Text(
-                            'dialogs.supporter_perks.notification_perk.subtitle')
-                        .tr(),
+                    title: const Text('dialogs.supporter_perks.notification_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.notification_perk.subtitle').tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                   ListTile(
-                    title:
-                        const Text('dialogs.supporter_perks.webrtc_perk.title')
-                            .tr(),
-                    subtitle: const Text(
-                            'dialogs.supporter_perks.webrtc_perk.subtitle')
-                        .tr(),
+                    title: const Text('dialogs.supporter_perks.webrtc_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.webrtc_perk.subtitle').tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                   ListTile(
-                    title:
-                        const Text('dialogs.supporter_perks.theme_perk.title')
-                            .tr(),
-                    subtitle: const Text(
-                            'dialogs.supporter_perks.theme_perk.subtitle')
-                        .tr(),
+                    title: const Text('dialogs.supporter_perks.job_queue_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.job_queue_perk.subtitle').tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                   ListTile(
-                    title:
-                        const Text('dialogs.supporter_perks.contact_perk.title')
-                            .tr(),
-                    subtitle: const Text(
-                            'dialogs.supporter_perks.contact_perk.subtitle')
-                        .tr(),
+                    title: const Text('dialogs.supporter_perks.theme_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.theme_perk.subtitle').tr(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  ListTile(
+                    title: const Text('dialogs.supporter_perks.printer_theme_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.printer_theme_perk.subtitle').tr(),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                  ListTile(
+                    title: const Text('dialogs.supporter_perks.contact_perk.title').tr(),
+                    subtitle: const Text('dialogs.supporter_perks.contact_perk.subtitle').tr(),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
                 ],
@@ -89,8 +92,7 @@ class PerksDialog extends StatelessWidget {
               children: [
                 TextButton(
                   onPressed: () => completer(DialogResponse()),
-                  child:
-                      Text(MaterialLocalizations.of(context).closeButtonLabel),
+                  child: Text(MaterialLocalizations.of(context).closeButtonLabel),
                 )
               ],
             )

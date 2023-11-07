@@ -14,8 +14,7 @@ final class MobilerakerFormBuilderValidator {
       if (valueCandidate != null) {
         assert(valueCandidate is String);
 
-        if (!RegExp(r'^[\w.-]+(?::[1-9]+)?$')
-            .hasMatch(valueCandidate as String)) {
+        if (!RegExp(r'^[\w.-]+(?::(?!0)[1-9][0-9]*)?$').hasMatch(valueCandidate as String)) {
           return errorText ?? tr('form_validators.simple_url');
         }
       }

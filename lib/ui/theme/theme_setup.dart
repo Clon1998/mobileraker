@@ -3,16 +3,14 @@
  * All rights reserved.
  */
 
+import 'package:common/service/payment_service.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobileraker/service/payment_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import 'theme_pack.dart';
-
-part 'theme_setup.g.dart';
 
 const int darkRed = 0xffb21818;
 var redish = const MaterialColor(darkRed, <int, Color>{
@@ -83,8 +81,10 @@ var tealy = const MaterialColor(0xff18b2b2, <int, Color>{
 var _elevatedButtonThemeData = ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
         padding: const EdgeInsets.all(8),
-        shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(5.0)))));
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(5.0)))));
+
+var _bottomSheetShape =
+    const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(14.0)));
 
 ThemePack _mobilerakerPack() {
   var light = FlexThemeData.light(
@@ -154,11 +154,10 @@ ThemePack _mobilerakerPack() {
             colorScheme: light.colorScheme,
             indicatorColor: light.colorScheme.onPrimary,
             indicatorWeight: 2),
-        inputDecorationTheme:
-            light.inputDecorationTheme.copyWith(filled: false),
+        inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
         cardTheme: light.cardTheme.copyWith(elevation: 3),
         bottomSheetTheme: light.bottomSheetTheme
-            .copyWith(modalBackgroundColor: light.colorScheme.background),
+            .copyWith(modalBackgroundColor: light.colorScheme.background, shape: _bottomSheetShape),
         extensions: [CustomColors.light]),
     darkTheme: dark.copyWith(
         elevatedButtonTheme: _elevatedButtonThemeData,
@@ -174,7 +173,7 @@ ThemePack _mobilerakerPack() {
         ),
         inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
         bottomSheetTheme: dark.bottomSheetTheme
-            .copyWith(modalBackgroundColor: dark.colorScheme.background),
+            .copyWith(modalBackgroundColor: dark.colorScheme.background, shape: _bottomSheetShape),
         cardTheme: dark.cardTheme.copyWith(elevation: 3),
         extensions: [CustomColors.dark]),
   );
@@ -239,12 +238,10 @@ ThemePack _voronPack() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          inputDecorationTheme:
-              light.inputDecorationTheme.copyWith(filled: false),
+          bottomSheetTheme: light.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
+          inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
           cardTheme: light.cardTheme.copyWith(elevation: 3),
-          extensions: [
-            CustomColors.light.copyWith(danger: const Color(0xfffab487))
-          ]),
+          extensions: [CustomColors.light.copyWith(danger: const Color(0xfffab487))]),
       darkTheme: dark.copyWith(
           elevatedButtonTheme: _elevatedButtonThemeData,
           bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
@@ -257,10 +254,9 @@ ThemePack _voronPack() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          inputDecorationTheme:
-              dark.inputDecorationTheme.copyWith(filled: false),
-          bottomSheetTheme: dark.bottomSheetTheme
-              .copyWith(modalBackgroundColor: dark.colorScheme.background),
+          inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
+          bottomSheetTheme: dark.bottomSheetTheme.copyWith(
+              modalBackgroundColor: dark.colorScheme.background, shape: _bottomSheetShape),
           cardTheme: dark.cardTheme.copyWith(elevation: 3),
           extensions: [CustomColors.dark]),
       brandingIcon: const AssetImage('assets/images/voron_design_padded.png'));
@@ -326,16 +322,14 @@ ThemePack _ratRigPack() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          inputDecorationTheme:
-              light.inputDecorationTheme.copyWith(filled: false),
+          inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
           cardTheme: light.cardTheme.copyWith(elevation: 3),
-          bottomSheetTheme: light.bottomSheetTheme
-              .copyWith(modalBackgroundColor: light.colorScheme.background),
+          bottomSheetTheme: light.bottomSheetTheme.copyWith(
+              modalBackgroundColor: light.colorScheme.background, shape: _bottomSheetShape),
           extensions: [CustomColors.light]),
       darkTheme: dark.copyWith(
           elevatedButtonTheme: _elevatedButtonThemeData,
-          inputDecorationTheme:
-              dark.inputDecorationTheme.copyWith(filled: false),
+          inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
           bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
             colorScheme: dark.colorScheme,
             selectedLabelSchemeColor: SchemeColor.onBackground,
@@ -346,6 +340,7 @@ ThemePack _ratRigPack() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
+          bottomSheetTheme: dark.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
           cardTheme: dark.cardTheme.copyWith(elevation: 3),
           extensions: [CustomColors.dark]),
       brandingIcon: const AssetImage('assets/images/rr_icon_green.png'));
@@ -399,8 +394,8 @@ ThemePack _vzBot() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          inputDecorationTheme:
-              light.inputDecorationTheme.copyWith(filled: false),
+          bottomSheetTheme: light.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
+          inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
           cardTheme: light.cardTheme.copyWith(elevation: 3),
           extensions: [CustomColors.light]),
       darkTheme: dark.copyWith(
@@ -415,10 +410,9 @@ ThemePack _vzBot() {
             showSelectedLabels: false,
             showUnselectedLabels: false,
           ),
-          inputDecorationTheme:
-              dark.inputDecorationTheme.copyWith(filled: false),
-          bottomSheetTheme: dark.bottomSheetTheme
-              .copyWith(modalBackgroundColor: dark.colorScheme.background),
+          inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
+          bottomSheetTheme: dark.bottomSheetTheme.copyWith(
+              modalBackgroundColor: dark.colorScheme.background, shape: _bottomSheetShape),
           cardTheme: dark.cardTheme.copyWith(elevation: 3),
           extensions: [CustomColors.dark]),
       brandingIcon: const AssetImage('assets/images/vz_logo.png'));
@@ -473,9 +467,7 @@ ThemePack _mobilerakerSupporterPack() {
     name: 'Mobileraker Supporter',
     lightTheme: light.copyWith(
         elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
-            colorScheme: light.colorScheme,
-            radius: 5,
-            padding: const EdgeInsets.all(8)),
+            colorScheme: light.colorScheme, radius: 5, padding: const EdgeInsets.all(8)),
         bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
           colorScheme: light.colorScheme,
           selectedLabelSchemeColor: SchemeColor.onPrimary,
@@ -495,14 +487,12 @@ ThemePack _mobilerakerSupporterPack() {
         // inputDecorationTheme:
         // light.inputDecorationTheme.copyWith(filled: false),
         // cardTheme: light.cardTheme.copyWith(elevation: 3),
-        bottomSheetTheme: light.bottomSheetTheme
-            .copyWith(modalBackgroundColor: light.colorScheme.background),
+        bottomSheetTheme:
+            light.bottomSheetTheme.copyWith(modalBackgroundColor: light.colorScheme.background),
         extensions: [CustomColors.light]),
     darkTheme: dark.copyWith(
         elevatedButtonTheme: FlexSubThemes.elevatedButtonTheme(
-            colorScheme: dark.colorScheme,
-            radius: 5,
-            padding: const EdgeInsets.all(8)),
+            colorScheme: dark.colorScheme, radius: 5, padding: const EdgeInsets.all(8)),
         bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
           colorScheme: dark.colorScheme,
           selectedLabelSchemeColor: SchemeColor.onBackground,
@@ -516,21 +506,98 @@ ThemePack _mobilerakerSupporterPack() {
         floatingActionButtonTheme: FlexSubThemes.floatingActionButtonTheme(
             colorScheme: light.colorScheme, alwaysCircular: true),
         inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
-        bottomSheetTheme: dark.bottomSheetTheme
-            .copyWith(modalBackgroundColor: dark.colorScheme.background),
+        bottomSheetTheme:
+            dark.bottomSheetTheme.copyWith(modalBackgroundColor: dark.colorScheme.background),
         cardTheme: dark.cardTheme.copyWith(elevation: 3),
         extensions: [CustomColors.dark]),
   );
 }
 
-@riverpod
-List<ThemePack> themePack(ThemePackRef ref) {
-  var isSupporter = ref.watch(isSupporterAsyncProvider).valueOrFullNull;
+ThemePack _oePack() {
+  var light = FlexThemeData.light(
+    colors: const FlexSchemeColor(
+      primary: Color(0xff78a4fa),
+      secondary: Color(0xffa45cb4),
+      tertiary: Color(0xff4a2b94),
+      error: Color(0xffb00020),
+    ),
+    usedColors: 7,
+    surfaceMode: FlexSurfaceMode.highScaffoldLevelSurface,
+    blendLevel: 11,
+    appBarElevation: 1.0,
+    bottomAppBarElevation: 5.0,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: false,
+    // To use the playground font, add GoogleFonts package and uncomment
+    fontFamily: GoogleFonts.ibmPlexSans().fontFamily,
+  );
+
+  var dark = FlexThemeData.dark(
+    colors: const FlexSchemeColor(
+      primary: Color(0xff78a4fa),
+      secondary: Color(0xffa45cb4),
+      tertiary: Color(0xff4a2b94),
+      error: Color(0xffb00020),
+    ),
+    swapColors: true,
+    surfaceMode: FlexSurfaceMode.highScaffoldLowSurface,
+    blendLevel: 15,
+    appBarStyle: FlexAppBarStyle.background,
+    usedColors: 7,
+    appBarElevation: 1.0,
+    bottomAppBarElevation: 5.0,
+    visualDensity: FlexColorScheme.comfortablePlatformDensity,
+    useMaterial3: false,
+    // To use the playground font, add GoogleFonts package and uncomment
+    fontFamily: GoogleFonts.ibmPlexSans().fontFamily,
+  );
+
+  return ThemePack(
+      name: 'OctoEverywhere',
+      lightTheme: light.copyWith(
+          elevatedButtonTheme: _elevatedButtonThemeData,
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: light.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onPrimary,
+            unselectedLabelSchemeColor: SchemeColor.onPrimary,
+            selectedIconSchemeColor: SchemeColor.onPrimary,
+            unselectedIconSchemeColor: SchemeColor.onPrimary,
+            backgroundSchemeColor: SchemeColor.primary,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
+          // cardTheme: light.cardTheme.copyWith(elevation: 3, color: light.colorScheme.surface),
+          bottomSheetTheme: light.bottomSheetTheme
+              .copyWith(modalBackgroundColor: light.colorScheme.background, shape: _bottomSheetShape),
+          extensions: [CustomColors.light]),
+      darkTheme: dark.copyWith(
+          elevatedButtonTheme: _elevatedButtonThemeData,
+          inputDecorationTheme: dark.inputDecorationTheme.copyWith(filled: false),
+          bottomNavigationBarTheme: FlexSubThemes.bottomNavigationBar(
+            colorScheme: dark.colorScheme,
+            selectedLabelSchemeColor: SchemeColor.onBackground,
+            unselectedLabelSchemeColor: SchemeColor.onBackground,
+            selectedIconSchemeColor: SchemeColor.onBackground,
+            unselectedIconSchemeColor: SchemeColor.onBackground,
+            backgroundSchemeColor: SchemeColor.background,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
+          ),
+          bottomSheetTheme: dark.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
+          cardTheme: dark.cardTheme.copyWith(elevation: 3),
+          extensions: [CustomColors.dark]),
+      brandingIcon: const AssetImage('assets/images/oe_icon.png'));
+}
+
+List<ThemePack> themePacks(ProviderRef ref) {
+  var isSupporter = ref.watch(isSupporterAsyncProvider).valueOrNull;
   return [
     _mobilerakerPack(),
     _voronPack(),
     _ratRigPack(),
     _vzBot(),
+    _oePack(),
     if (isSupporter ?? true) _mobilerakerSupporterPack(),
   ];
 }

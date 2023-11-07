@@ -3,15 +3,15 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:mobileraker/data/dto/files/gcode_file.dart';
-import 'package:mobileraker/data/dto/machine/print_stats.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/moonraker/klippy_service.dart';
-import 'package:mobileraker/service/moonraker/printer_service.dart';
-import 'package:mobileraker/service/ui/dialog_service.dart';
-import 'package:mobileraker/service/ui/snackbar_service.dart';
-import 'package:mobileraker/util/extensions/async_ext.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'gcode_file_details_controller.g.dart';
@@ -24,11 +24,12 @@ bool canStartPrint(CanStartPrintRef ref) {
   var canPrint = ref.watch(printerSelectedProvider.select((value) => {
         PrintState.complete,
         PrintState.error,
-        PrintState.standby
+        PrintState.standby,
+        PrintState.cancelled,
       }.contains(value.valueOrFullNull?.print.state)));
 
-  var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider.select(
-      (value) => value.valueOrFullNull?.klippyCanReceiveCommands == true));
+  var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider
+      .select((value) => value.valueOrFullNull?.klippyCanReceiveCommands == true));
 
   return canPrint && klippyCanReceiveCommands;
 }
@@ -40,8 +41,7 @@ class GCodeFileDetailsController extends _$GCodeFileDetailsController {
     return;
   }
 
-  PrinterService get _printerService =>
-      ref.read(printerServiceSelectedProvider);
+  PrinterService get _printerService => ref.read(printerServiceSelectedProvider);
 
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
@@ -54,10 +54,7 @@ class GCodeFileDetailsController extends _$GCodeFileDetailsController {
 
   onPreHeatPrinterTap() {
     var gCodeFile = ref.read(gcodeProvider);
-    var tempArgs = [
-      '170',
-      gCodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? '60'
-    ];
+    var tempArgs = ['170', gCodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? '60'];
     _dialogService
         .showConfirm(
       title: 'pages.files.details.preheat_dialog.title'.tr(),
@@ -68,8 +65,7 @@ class GCodeFileDetailsController extends _$GCodeFileDetailsController {
       if (dialogResponse?.confirmed ?? false) {
         _printerService.setHeaterTemperature('extruder', 170);
         if (ref
-                .read(printerSelectedProvider
-                    .selectAs((data) => data.heaterBed != null))
+                .read(printerSelectedProvider.selectAs((data) => data.heaterBed != null))
                 .valueOrFullNull ??
             false) {
           _printerService.setHeaterTemperature(
@@ -77,8 +73,7 @@ class GCodeFileDetailsController extends _$GCodeFileDetailsController {
         }
         _snackBarService.show(SnackBarConfig(
             title: tr('pages.files.details.preheat_snackbar.title'),
-            message: tr('pages.files.details.preheat_snackbar.body',
-                args: tempArgs)));
+            message: tr('pages.files.details.preheat_snackbar.body', args: tempArgs)));
       }
     });
   }
