@@ -13,6 +13,7 @@ part 'dialog_service_interface.g.dart';
 mixin DialogIdentifierMixin {}
 
 enum CommonDialogs implements DialogIdentifierMixin {
+  activeMachine,
   stacktrace;
 }
 

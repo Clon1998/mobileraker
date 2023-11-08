@@ -82,6 +82,12 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       routeName: '/paywall',
                     ),
                     const Divider(),
+                    const _DrawerItem(
+                      text: 'Spoolman',
+                      icon: Icons.local_library,
+                      routeName: '/spoolman',
+                    ),
+                    const Divider(),
                     _DrawerItem(
                       text: tr('pages.faq.title'),
                       icon: Icons.help,
