@@ -8,6 +8,7 @@ import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -18,13 +19,11 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../screens/printers/components/http_headers.dart';
 
 part 'add_remote_connection_bottom_sheet_controller.freezed.dart';
-
 part 'add_remote_connection_bottom_sheet_controller.g.dart';
 
 @riverpod

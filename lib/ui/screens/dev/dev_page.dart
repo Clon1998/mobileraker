@@ -6,6 +6,7 @@
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
@@ -16,7 +17,6 @@ import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
-import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
 import 'package:mobileraker/ui/screens/printers/edit/components/macro_group_list.dart';
 import 'package:mobileraker/util/extensions/datetime_extension.dart';

@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/service/app_router.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';

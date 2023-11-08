@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/payment_service.dart';

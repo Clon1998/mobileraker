@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
@@ -21,7 +22,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:loader_overlay/loader_overlay.dart';
-import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/screens/paywall/paywall_page_controller.dart';
 import 'package:mobileraker/util/extensions/revenuecat_extension.dart';

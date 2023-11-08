@@ -8,12 +8,12 @@ import 'dart:io';
 
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'config_file_details_controller.freezed.dart';

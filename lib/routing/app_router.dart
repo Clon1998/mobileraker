@@ -7,6 +7,7 @@
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -73,9 +74,7 @@ Future<String> initialRoute(InitialRouteRef ref) async {
   return '/';
 }
 
-@Riverpod(dependencies: [initialRoute])
-GoRouter goRouter(GoRouterRef ref) {
-  ref.keepAlive();
+GoRouter goRouterImpl(GoRouterRef ref) {
   return GoRouter(
     initialLocation: ref.watch(initialRouteProvider).valueOrNull!,
     debugLogDiagnostics: false,

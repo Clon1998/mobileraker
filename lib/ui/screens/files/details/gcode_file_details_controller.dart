@@ -5,6 +5,7 @@
 
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -68,8 +69,7 @@ class GCodeFileDetailsController extends _$GCodeFileDetailsController {
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false) {
         _printerService.setHeaterTemperature('extruder', 170);
-        if (ref.read(printerSelectedProvider.selectAs((data) => data.heaterBed != null)).valueOrFullNull ??
-            false) {
+        if (ref.read(printerSelectedProvider.selectAs((data) => data.heaterBed != null)).valueOrFullNull ?? false) {
           _printerService.setHeaterTemperature(
             'heater_bed',
             (gCodeFile.firstLayerTempBed ?? 60.0).toInt(),

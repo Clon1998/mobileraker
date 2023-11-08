@@ -4,6 +4,7 @@
  */
 
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/theme_service.dart';
@@ -15,10 +16,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/ui/components/drawer/nav_drawer_controller.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+
+import 'nav_drawer_controller.dart';
 
 const double baseIconSize = 20;
 const basePadding = EdgeInsets.only(left: 16, right: 16);

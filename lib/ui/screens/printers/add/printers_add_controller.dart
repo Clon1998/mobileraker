@@ -15,6 +15,7 @@ import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/exceptions/obico_exception.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';

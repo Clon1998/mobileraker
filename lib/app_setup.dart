@@ -1,9 +1,9 @@
-// ignore_for_file: prefer-match-file-name
-
 /*
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
  */
+
+// ignore_for_file: prefer-match-file-name
 
 import 'dart:convert';
 
@@ -126,9 +126,7 @@ Future<Uint8List> _hiveKey() async {
     encryptionKey = await secureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
   } on PlatformException catch (e) {
     logger.e('Error while reading hive_key from secure storage', e);
-    encryptionKey = await nonEncSharedPrefSecureStorage
-        .read(key: keyName)
-        .then((value) => value?.let(base64Decode));
+    encryptionKey = await nonEncSharedPrefSecureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
     await nonEncSharedPrefSecureStorage.delete(key: keyName);
     await secureStorage.write(
       key: keyName,
@@ -247,9 +245,7 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   await initializeAvailableMachines(ref);
 
   yield StartUpStep.notificationService;
-  await ref
-      .read(notificationServiceProvider)
-      .initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
+  await ref.read(notificationServiceProvider).initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
 
   yield StartUpStep.workManager;
   await workerManager.init();

@@ -6,6 +6,7 @@
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/payment_service.dart';

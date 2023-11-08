@@ -9,6 +9,7 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:mobileraker/routing/app_router.dart';

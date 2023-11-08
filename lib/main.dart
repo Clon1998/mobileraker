@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/service/app_router.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -43,6 +44,7 @@ Future<void> main() async {
       dialogServiceProvider.overrideWith(dialogServiceImpl),
       snackBarServiceProvider.overrideWith(snackBarServiceImpl),
       themePackProvider.overrideWith(themePacks),
+      goRouterProvider.overrideWith(goRouterImpl),
     ],
     observers: const [if (kDebugMode) RiverPodLogger()],
     child: const WarmUp(),

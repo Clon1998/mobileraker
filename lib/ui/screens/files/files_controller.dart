@@ -12,6 +12,7 @@ import 'package:common/data/dto/files/moonraker/file_item.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';

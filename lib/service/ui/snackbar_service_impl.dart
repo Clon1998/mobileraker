@@ -3,11 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/routing/app_router.dart';
 import 'package:stringr/stringr.dart';
 
 SnackBarService snackBarServiceImpl(SnackBarServiceRef ref) => SnackBarServiceImpl(ref);
