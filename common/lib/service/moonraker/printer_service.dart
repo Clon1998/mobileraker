@@ -11,6 +11,7 @@ import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/bed_screw.dart';
 import 'package:common/data/dto/machine/display_status.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
@@ -174,6 +175,7 @@ class PrinterService {
     'bed_screws': _updateBedScrew,
     'heater_generic': _updateGenericHeater,
     'firmware_retraction': _updateFirmwareRetraction,
+    'bed_mesh': _updateBedMesh,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
@@ -761,6 +763,11 @@ class PrinterService {
 
   _updateFirmwareRetraction(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
     printer.firmwareRetraction = FirmwareRetraction.partialUpdate(printer.firmwareRetraction, jsonResponse);
+  }
+
+  _updateBedMesh(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
+    printer.bedMesh = BedMesh.partialUpdate(printer.bedMesh, jsonResponse);
+    logger.e('Got bedMesh: ${printer.bedMesh}');
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {

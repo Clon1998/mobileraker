@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -45,6 +46,7 @@ class PrinterBuilder {
         manualProbe = printer.manualProbe,
         bedScrew = printer.bedScrew,
         firmwareRetraction = printer.firmwareRetraction,
+        bedMesh = printer.bedMesh,
         fans = printer.fans,
         temperatureSensors = printer.temperatureSensors,
         outputPins = printer.outputPins,
@@ -71,6 +73,7 @@ class PrinterBuilder {
   BedScrew? bedScrew;
   GCodeFile? currentFile;
   FirmwareRetraction? firmwareRetraction;
+  BedMesh? bedMesh;
   Map<String, NamedFan> fans = {};
   Map<String, TemperatureSensor> temperatureSensors = {};
   Map<String, OutputPin> outputPins = {};
@@ -115,6 +118,7 @@ class PrinterBuilder {
       manualProbe: manualProbe,
       bedScrew: bedScrew,
       firmwareRetraction: firmwareRetraction,
+      bedMesh: bedMesh,
       currentFile: currentFile,
       fans: Map.unmodifiable(fans),
       temperatureSensors: Map.unmodifiable(temperatureSensors),
@@ -147,6 +151,7 @@ class Printer with _$Printer {
     ManualProbe? manualProbe,
     BedScrew? bedScrew,
     FirmwareRetraction? firmwareRetraction,
+    BedMesh? bedMesh,
     GCodeFile? currentFile,
     @Default({}) Map<String, NamedFan> fans,
     @Default({}) Map<String, TemperatureSensor> temperatureSensors,
