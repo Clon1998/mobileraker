@@ -4,6 +4,8 @@
  */
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:appinio_video_player/appinio_video_player.dart';
 import 'package:common/data/dto/files/generic_file.dart';
@@ -38,9 +40,17 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   @override
   void initState() {
     super.initState();
-    var fileUri = ref.read(fileServiceSelectedProvider).composeFileUriForDownload(widget.file);
+    //TODO: Headers, auth .... missing. Just a dump Uri wont do the trick!
+    var fileService = ref.read(fileServiceSelectedProvider);
+    var fileUri = fileService.composeFileUriForDownload(widget.file);
 
-    videoPlayerController = VideoPlayerController.networkUrl(fileUri)
+    Map<String, String> headers = {
+      ...fileService.headers,
+      if (fileUri.userInfo.isNotEmpty)
+        HttpHeaders.authorizationHeader: 'Basic ${base64.encode(utf8.encode(fileUri.userInfo))}',
+    };
+
+    videoPlayerController = VideoPlayerController.networkUrl(fileUri, httpHeaders: headers)
       ..initialize()
           .then(
         (value) => setState(() {

@@ -91,7 +91,7 @@ class JsonRpcClientBuilder {
 
     return JsonRpcClientBuilder()
       ..headers = {
-        if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
+        ...machine.headerWithApiKey,
         ...remoteInterface.httpHeaders,
       }
       ..uri = remoteInterface.remoteUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
@@ -108,9 +108,7 @@ class JsonRpcClientBuilder {
     var obicoTunnelUri = machine.obicoTunnel!;
 
     return JsonRpcClientBuilder()
-      ..headers = {
-        if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
-      }
+      ..headers = machine.headerWithApiKey
       ..uri = obicoTunnelUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
       ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
       ..clientType = ClientType.obico

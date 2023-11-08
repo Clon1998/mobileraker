@@ -59,6 +59,7 @@ Uri? previewImageUri(PreviewImageUriRef ref) {
     return switch (clientType) {
       ClientType.octo => machine.octoEverywhere?.uri,
       ClientType.manual => machine.remoteInterface?.remoteUri,
+      ClientType.obico => machine.obicoTunnel,
       ClientType.local || _ => machine.httpUri,
     };
   }
@@ -75,10 +76,6 @@ Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
       ClientType.manual => {
           ...machine.headerWithApiKey,
           ...machine.remoteInterface!.httpHeaders,
-        },
-      ClientType.octo => {
-          ...machine.headerWithApiKey,
-          HttpHeaders.authorizationHeader: machine.octoEverywhere!.basicAuthorizationHeader,
         },
       _ => machine.headerWithApiKey,
     };
@@ -283,7 +280,7 @@ class FileService {
 
   // Throws TimeOut exception, if file download took to long!
   Stream<FileDownload> downloadFile({required String filePath, Duration? timeout, bool overWriteLocal = false}) async* {
-    final downloadUri = httpUri.replace(path: 'server/files/$filePath');
+    final downloadUri = httpUri.appendPath('server/files/$filePath');
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID}/$filePath');
     final Map<String, String> isolateSafeHeaders = Map.from(headers);
@@ -322,7 +319,7 @@ class FileService {
     List<String> fileSplit = filePath.split('/');
     String root = fileSplit.removeAt(0);
 
-    Uri uri = httpUri.replace(path: 'server/files/upload');
+    Uri uri = httpUri.appendPath('server/files/upload');
     ;
     logger.i('Trying upload of $filePath');
     http.MultipartRequest multipartRequest = http.MultipartRequest('POST', uri)
@@ -393,7 +390,7 @@ class FileService {
   }
 
   Uri composeFileUriForDownload(RemoteFile file) {
-    return httpUri.replace(path: 'server/files/${file.absolutPath}');
+    return httpUri.appendPath('server/files/${file.absolutPath}');
   }
 
   dispose() {

@@ -22,6 +22,8 @@
 
 - Live activities for multiple printers have been improved to ensure that they update correctly without overwriting each
   other.
+- While using obico or the manual connection, the app is now able to open Gcode and timelapse files
+  again. [#276](https://github.com/Clon1998/mobileraker/issues/276)
 
 ## [2.6.6] - 2023-10-25
 
