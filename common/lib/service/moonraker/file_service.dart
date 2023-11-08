@@ -73,7 +73,7 @@ Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
   if (machine != null) {
     return switch (clientType) {
       ClientType.manual => {
-          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
+          ...machine.headerWithApiKey,
           ...machine.remoteInterface!.httpHeaders,
         },
       ClientType.octo => {
@@ -119,11 +119,18 @@ FileService _fileServicee(_FileServiceeRef ref, String machineUUID, ClientType t
         jsonRpcClient,
         remoteInterface.remoteUri.replace(path: machine.httpUri.path, query: machine.httpUri.query),
         {
-          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
+          ...machine.headerWithApiKey,
           ...remoteInterface.httpHeaders,
         },
       );
-
+    case ClientType.obico:
+      return FileService(
+        ref,
+        machineUUID,
+        jsonRpcClient,
+        machine.obicoTunnel!,
+        machine.headerWithApiKey,
+      );
     case ClientType.local:
     default:
       return FileService(ref, machineUUID, jsonRpcClient, machine.httpUri, machine.headerWithApiKey);
