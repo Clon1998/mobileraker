@@ -41,7 +41,10 @@
     "invalid": "Érvénytelen",
     "free": "Ingyenes",
     "one_time": "Egyszer",
-    "delete": "Töröl"
+    "delete": "Töröl",
+    "clear": "Egyértelmű",
+    "unlink": "Leválasztás",
+    "save": "Mentés"
   },
   "pages": {
     "dashboard": {
@@ -164,6 +167,13 @@
           "accel": "Gyorsulás",
           "sq_corn_vel": "Sebesség a sarkokban",
           "accel_to_decel": "Gyorsítás-Lassítás"
+        },
+        "fw_retraction_card": {
+          "title": "Firmware visszahúzás",
+          "retract_length": "Visszahúzás hossza",
+          "retract_speed": "Visszahúzási sebesség",
+          "extra_unretract_length": "Extra kihúzási hossz",
+          "unretract_speed": "Kihúzási sebesség"
         }
       }
     },
@@ -177,6 +187,8 @@
       "not_printed": "Nincs nyomtatva",
       "fetching_files": "@:general.fetching Fájlok...",
       "no_files_found": "Nem található fájl!",
+      "no_matches_file_pattern": "Csak betűk, számok, aláhúzásjelek, kötőjelek és pontok megengedettek!",
+      "file_name_in_use": "A fájlnév már használatban van!",
       "details": {
         "preheat": "Előmelegítés",
         "print": "Nyomtatás",
@@ -224,7 +236,8 @@
         "use_offset_pos": "Koordináták megjelenítése adott eltolás mellett.",
         "lcFullCam": "Teljes képernyős webkamera fekvő helyzetben",
         "language": "Nyelv",
-        "companion": "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani "
+        "companion": "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani ",
+        "sliders_grouping": "Csoportos csúszó kártyák"
       },
       "notification": {
         "title": "Értesítés",
@@ -239,7 +252,8 @@
         "ios_notifications_title": "IOS értesítések kézbesítése",
         "ios_notifications_desc": "Az értesítésekhez a Mobilerakert legalább egyszer meg kell nyitni, és a háttérben kell futnia.\nElőfordulhat, hogy néhány értesítést még mindig letiltott az operációs rendszer!",
         "missing_companion_title": "Társ nem található!",
-        "missing_companion_body": "Úgy tűnik, hogy a társ nincs telepítve, ezért a következő gépek nem tudnak értesítést küldeni: {}\nKoppints további információért!"
+        "missing_companion_body": "Úgy tűnik, hogy a társ nincs telepítve, ezért a következő gépek nem tudnak értesítést küldeni: {}\nKoppints további információért!",
+        "enable_live_activity": "Élő tevékenység engedélyezése"
       },
       "developer": {
         "title": "Fejlesztő",
@@ -255,6 +269,8 @@
       "fetching_additional_settings": "@:general.fetching további beállítások a hálózatról...",
       "could_not_fetch_additional": "Nem tudtam lekérni a további beállításokat!",
       "fetch_error_hint": "Győződj meg róla, hogy a gép elérhető, és a Mobileraker csatlakozik hozzá.",
+      "reset_notification_registry": "Töröli az értesítési eszköz nyilvántartását",
+      "configure_remote_connection": "Távoli kapcsolat konfigurálása",
       "store_error": {
         "title": "Sikertelen mentés!",
         "message": "Egyes mezők érvénytelen értékeket tartalmaznak!\nKérjük, győződj meg róla, hogy minden mező érvényes.",
@@ -264,19 +280,6 @@
         "title": "Törlöd {}?",
         "body": "A csatlakoztatott nyomtató '{}' eltávolítására készülsz '{}'. \n\nErősítsd meg döntésed."
       },
-      "success_oe_link": {
-        "title": "Összekapcsolva {}",
-        "body": "Sikeresen összekapcsolva {} az OctoEverywhere-el!"
-      },
-      "confirm_oe_unlink": {
-        "title": "Leválasztod {}?",
-        "body": "Kérjük, erősítsd meg {} nyomtatód leválasztását az OctoEverywhere szolgáltatásról.",
-        "button": "Leválasztás"
-      },
-      "success_oe_unlink": {
-        "title": "Leválasztva {}",
-        "body": "Sikeres leválasztás {} az OctoEverywhere-ről!"
-      },
       "general": {
         "displayname": "Megjelenítendő név",
         "printer_addr": "Nyomtató - Cím",
@@ -284,7 +287,12 @@
         "moonraker_api_key": "Moonraker - API Kulcs",
         "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfeleket használsz. A FluiddPI ezt kényszeríti ki!",
         "full_url": "Teljes URL",
-        "self_signed": "Bízz az önaláírt tanúsítványokban"
+        "self_signed": "Bízz az önaláírt tanúsítványokban",
+        "timeout_label": "Kliens időtúllépés",
+        "timeout_helper": "Az ügyfélkapcsolat időtúllépése másodpercben",
+        "theme": "UI-Téma",
+        "theme_helper": "UI téma a nyomtatóhoz",
+        "theme_unavailable": "UI téma a nyomtatóhoz, csak támogatók számára érhető el"
       },
       "motion_system": {
         "title": "Mozgásrendszer",
@@ -320,7 +328,8 @@
         "flip_vertical": "Függőleges fordítás",
         "flip_horizontal": "Vízszintesen fordít",
         "cam_mode": "Kamera mód",
-        "cam_rotate": "Forgatás"
+        "cam_rotate": "Forgatás",
+        "read_only": "Webkamera csak olvasható"
       },
       "macros": {
         "new_macro_grp": "Új makró - Csoport",
@@ -332,11 +341,36 @@
           "other": "{} makrók áthelyezve az alapértelmezett csoportba!"
         }
       },
-      "presets": {
-        "no_presets": "Nincsenek előbeállítások!",
-        "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Hőmérséklet",
-        "bed_temp": "@:pages.dashboard.general.temp_card.bed Hőmérséklet",
-        "new_preset": "Új beállítás"
+      "remote_interface_removed": {
+        "title": "Távoli kapcsolat eltávolítva!",
+        "body": "Mentsd el a nyomtatót a módosítások alkalmazásához."
+      },
+      "remote_interface_added": {
+        "title": {
+          "oe": "Kapcsolódás az OctoEverywhere-hez.",
+          "obico": "Kapcsolódás az Obico-hoz.",
+          "other": "Távoli kapcsolat hozzáadva."
+        },
+        "body": "Mentsd el a nyomtatót a módosítások alkalmazásához."
+      },
+      "wifi_access_warning": {
+        "title": "WiFi információ nem érhető el",
+        "subtitle": "Annak meghatározásához, hogy a Mobilerakernek használnia kell-e a távoli kapcsolatot, engedélyezd a helyhozzáférést. Ez lehetővé teszi az alkalmazás számára, hogy lekérje az aktuális WiFi hálózat nevét.\n\nKoppints az engedély megadásához."
+      },
+      "local_ssid": {
+        "section_header": "Intelligens váltás",
+        "no_ssids": "Nincs hozzáadva WiFi név!",
+        "helper": "Az intelligens váltás révén az alkalmazás automatikusan vált a helyi és a távoli kapcsolat között az aktuális WiFi hálózat alapján. A funkció engedélyezéséhez add hozzá az otthoni WiFi nevét a listához.",
+        "dialog": {
+          "title_add": "Add hozzá a WiFi nevét a listához",
+          "title_edit": "WiFi név szerkesztése",
+          "label": "WiFi Név (SSID)",
+          "quick_add_hint": "Tipp: Az aktuális WiFi név gyors hozzáadásához nyomd hosszan a párbeszédablakot megnyitó gombot."
+        },
+        "error_fetching_snackbar": {
+          "title": "Hiba történt a WiFi név lekérésekor!",
+          "body": "Győződj meg róla, hogy az alkalmazás rendelkezik e szükséges engedélyekkel az eszköz WiFi állapotának eléréséhez."
+        }
       }
     },
     "printer_add": {
@@ -353,7 +387,8 @@
         "body": "Ha még nem ismered ezt, a legjobb, ha maradsz az egyszerű módnál. Ha azonban tapasztalt vagy, és egyéni fejléceket, tanúsítványokat stb. kell használnod, akkor a haladó mód neked készült. Ne feledd, hogy a választott mód nem befolyásolja magát az alkalmazást, de meghatározza, hogy a bemenet hogyan kerül ellenőrzésre és megjelenítésre, és milyen lehetőségek állnak rendelkezésre a gép hozzáadása során.",
         "simple": "Egyszerű",
         "advanced": "Haladó",
-        "add_via_oe": "Egykattintásos OctoEverywhere beállítás"
+        "add_via_oe": "Egykattintásos OctoEverywhere beállítás",
+        "add_via_obico": "Egykattintásos Obico beállítás"
       },
       "simple_form": {
         "hint_title": "Tipp – Egyszerű mód",
@@ -438,7 +473,11 @@
       "free_phase": "Első {} ingyenes",
       "intro_phase": "Élvezd {} kedvezményes {} áron",
       "iap_offer": "{} eredeti árból",
-      "tip_developer": "Borravaló a fejlesztőnek"
+      "tip_developer": "Borravaló a fejlesztőnek",
+      "trial_disclaimer": "Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és a próbaidőszak alatt bármikor lemondhatod az előfizetést."
+    },
+    "video_player": {
+      "downloading_for_sharing": "Videó letöltése megosztáshoz... ({})"
     }
   },
   "components": {
@@ -471,13 +510,30 @@
       "subtitle": "Koppints rám! Nézd meg, hogyan támogathatod a fejlesztést!"
     },
     "supporter_only_feature": {
+      "dialog_title": "Csak támogató funkció",
       "button": "Legyél Mobileraker támogató",
       "webcam": "Sajnáljuk, a {} típusú webkamerák csak a Támogatók számára érhetők el.",
-      "printer_add": "Sajnáljuk, de több mint {} gép kezelése csak a Támogatók számára érhető el."
+      "printer_add": "Sajnáljuk, de több mint {} gép kezelése csak a Támogatók számára érhető el.",
+      "job_queue": "Sajnáljuk, a Várólista csak a Támogatók számára érhető el.",
+      "timelaps_share": "Sajnáljuk, az időzített felvételek megosztása csak a Támogatók számára érhető el.",
+      "printer_theme": "Sajnáljuk, a nyomtatós témák csak a Támogatók számára érhetőek el."
     },
     "machine_deletion_warning": {
       "title": "Gépi törlés",
       "subtitle": "Úgy tűnik, hogy nem vagy támogató. Csak a támogatóknak lehet több mint {} gépe. Neked {} napod van a felesleges gépek eltávolításáig."
+    },
+    "remote_connection_indicator": {
+      "title": "Távoli kapcsolat használata!"
+    },
+    "web_rtc": {
+      "renderer_missing": "WebRtc videó nem elérhető!",
+      "oe_warning": "WebRtc az OctoEverywhere-en keresztül még nem támogatott!"
+    },
+    "ri_indicator": {
+      "tooltip": "Távoli kapcsolat használata!"
+    },
+    "obico_indicator": {
+      "tooltip": "Obico Tunnel használata!"
     }
   },
   "dialogs": {
@@ -552,6 +608,18 @@
       "webrtc_perk": {
         "title": "WebRtc támogatás",
         "subtitle": "Lehetővé teszi a WebRtc webkamerák használatát!"
+      },
+      "job_queue_perk": {
+        "title": "Várólista",
+        "subtitle": "Kezeld a Moonraker várólistát a Mobilerakerből!"
+      },
+      "unlimited_printers_perk": {
+        "title": "Korlátlan nyomtatók",
+        "subtitle": "Vezérelj annyi nyomtatót, amennyit csak akarsz a Mobileraker segítségével!"
+      },
+      "printer_theme_perk": {
+        "title": "Nyomtató alapú témák",
+        "subtitle": "Válassz különböző témát minden nyomtatóhoz!"
       }
     },
     "bed_screw_adjust": {
@@ -583,13 +651,52 @@
       "value_hint": "A fejléc értéke"
     }
   },
+  "bottom_sheets": {
+    "job_queue_sheet": {
+      "next": "Következő nyomtatási feladat",
+      "empty": "A munkák sora üres. A fájlböngészőn keresztül adhatsz hozzá feladatokat.",
+      "start_queue": "Várólista indítása",
+      "pause_queue": "Várólista szünetelése",
+      "remove_all": "Várólista törlése",
+      "remove_all_confirm": "Ez a művelet eltávolítja az összes feladatot a várólistáról."
+    },
+    "add_remote_con": {
+      "disclosure": "{service} nem állsz kapcsolatban a Mobilerakerrel. További előfizetést igényelhetsz. További információkért kérjük, nézd meg a {service} weboldalát.",
+      "active_service_info": {
+        "title": "Meglévő konfigurációt találtunk!",
+        "body": "Jelenleg a {} szolgáltatást használod távoli kapcsolati szolgáltatásként. Távolítsd el, mielőtt újat adnál hozzá."
+      },
+      "octoeverywehre": {
+        "service_name": "OctoEverywhere",
+        "tab_name": "@:bottom_sheets.add_remote_con.octoeverywehre.service_name",
+        "link": "Kapcsolódás OctoEverywhere",
+        "unlink": "Leválasztás OctoEverywhere",
+        "description": "OctoEverywhere.com egy közösségi projekt, amely lehetővé teszi, hogy bárhonnan biztonságosan csatlakozhass a nyomtatódhoz. Az OctoEverywhere a közösség számára ingyenes mesterséges intelligencia alapú nyomtatási hibaérzékelést, értesítéseket, élő közvetítést és egyebeket is biztosít. A beállítás mindössze 20 másodpercet vesz igénybe!"
+      },
+      "manual": {
+        "service_name": "Kézi távoli csatlakozás",
+        "tab_name": "Kézi",
+        "description": "Ha haladó felhasználó vagy, manuálisan is hozzáadhatsz egy alternatív kapcsolatot. Az alternatív kapcsolat akkor lép működésbe, ha az elsődleges címhez való kapcsolódási kísérletek sikertelenek. Ez hasznos lehet, ha fordított proxy-kapcsolatod van a nyomtatóhoz, vagy ha van egy másodlagos IP-címed, amelyet a nyomtatóhoz való csatlakozáshoz használhatsz.",
+        "address_label": "Alternatív cím",
+        "address_hint": "Az eltávolítandó kapcsolat alapcíme"
+      },
+      "obico": {
+        "service_name": "Obico",
+        "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
+        "link": "Kapcsolódás Obico",
+        "unlink": "Leválasztás Obico",
+        "description": "Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja."
+      }
+    }
+  },
   "klipper_state": {
     "ready": "Kész",
     "shutdown": "Leállítás",
     "starting": "Indítás",
     "disconnected": "Szétkapcsolt",
     "error": "Hiba",
-    "unauthorized": "Jogosulatlan"
+    "unauthorized": "Jogosulatlan",
+    "initializing": "Inicializálás"
   },
   "notifications": {
     "channel_printer_grp": "Nyomtató {}",
