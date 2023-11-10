@@ -62,6 +62,7 @@ class _MacroGroupLoading extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Wrap(
               spacing: 5,
+              alignment: WrapAlignment.spaceEvenly,
               children: [
                 for (var i = 0; i < 8; i++)
                   Chip(
@@ -157,6 +158,7 @@ class _SelectedGroup extends ConsumerWidget {
         child: child,
       ),
       child: Wrap(
+        alignment: WrapAlignment.spaceEvenly,
         key: ValueKey(group.uuid),
         spacing: 5,
         children: [
