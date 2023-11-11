@@ -1,9 +1,9 @@
-// ignore_for_file: prefer-single-widget-per-file
-
 /*
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
  */
+
+// ignore_for_file: prefer-single-widget-per-file
 
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -22,7 +22,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../dashboard_controller.dart';
-import 'SliderOrTextInput.dart';
+import 'slider_or_text_input.dart';
 
 part 'multipliers_card.freezed.dart';
 part 'multipliers_card.g.dart';

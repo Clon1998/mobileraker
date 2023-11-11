@@ -20,7 +20,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'SliderOrTextInput.dart';
+import 'slider_or_text_input.dart';
 
 part 'firmware_retraction_card.freezed.dart';
 part 'firmware_retraction_card.g.dart';

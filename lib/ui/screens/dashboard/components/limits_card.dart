@@ -18,7 +18,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'SliderOrTextInput.dart';
+import 'slider_or_text_input.dart';
 
 part 'limits_card.freezed.dart';
 part 'limits_card.g.dart';
