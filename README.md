@@ -17,9 +17,10 @@
 3. [Support the Dev](#support-me)
 4. [Push-Notifications](#push-notifications--remote-notification)
 5. [App Screenshots](#app-impressions)
-6. [Dev-Setup](#environment-setup)
-7. [Changelog](#changelog)
-8. [License](#license)
+6. [Translations](#translations)
+7. [Dev-Setup](#environment-setup)
+8. [Changelog](#changelog)
+9. [License](#license)
 
 ---
 
@@ -84,6 +85,8 @@ Mobileraker allows users to enable push notifications, which are also delivered 
 <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 0.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 1.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 2.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 3.png" width="23%"></img>
 <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 4.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 5.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 6.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 7.png" width="23%"></img>
 
+## Translations
+Mobileraker already supports multiple languages, but it relies on contributions to add new languages and keep existing translations up to date. If you want to add your own language or update an existing one, please feel free to open a Pull Request (PR). This [guide](docs/contribute_i18n.md) provides details on the structure of translation keys and how to add a new language.
 
 ## Environment Setup
 
