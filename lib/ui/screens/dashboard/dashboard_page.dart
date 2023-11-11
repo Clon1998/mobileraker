@@ -13,6 +13,8 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -23,10 +25,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
-import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
-import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
@@ -41,15 +41,14 @@ class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RateMyAppBuilder(
-      rateMyApp: RateMyApp(
-        minDays: 2,
-        minLaunches: 5,
-        remindDays: 7,
-      ),
+      rateMyApp: RateMyApp(minDays: 2, minLaunches: 5, remindDays: 7),
       onInitialized: (context, rateMyApp) {
         if (rateMyApp.shouldOpenDialog) {
-          rateMyApp.showRateDialog(context,
-              title: tr('dialogs.rate_my_app.title'), message: tr('dialogs.rate_my_app.message'));
+          rateMyApp.showRateDialog(
+            context,
+            title: tr('dialogs.rate_my_app.title'),
+            message: tr('dialogs.rate_my_app.message'),
+          );
         }
       },
       builder: (context) => const _DashboardView(),
@@ -138,8 +137,10 @@ class _FloatingActionBtn extends ConsumerWidget {
               ),
               badgeAnimation: const badges.BadgeAnimation.rotation(),
               position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
-              badgeContent: Text('${jobQueueState.valueOrNull?.queuedJobs.length ?? 0}',
-                  style: TextStyle(color: themeData.colorScheme.secondary)),
+              badgeContent: Text(
+                '${jobQueueState.valueOrNull?.queuedJobs.length ?? 0}',
+                style: TextStyle(color: themeData.colorScheme.secondary),
+              ),
               child: const Icon(Icons.content_paste),
             ),
             backgroundColor: themeData.colorScheme.primary,
@@ -162,7 +163,12 @@ class _BottomNavigationBar extends ConsumerWidget {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
-    if (ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => true)).valueOrNull != true) {
+    if (ref
+            .watch(
+              machinePrinterKlippySettingsProvider.selectAs((data) => true),
+            )
+            .valueOrNull !=
+        true) {
       return const SizedBox.shrink();
     }
 
@@ -176,10 +182,7 @@ class _BottomNavigationBar extends ConsumerWidget {
     // }
 
     return AnimatedBottomNavigationBar(
-      icons: const [
-        FlutterIcons.tachometer_faw,
-        FlutterIcons.settings_oct,
-      ],
+      icons: const [FlutterIcons.tachometer_faw, FlutterIcons.settings_oct],
       activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
       inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor,
       gapLocation: GapLocation.end,
@@ -215,53 +218,53 @@ class _DashboardBody extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
-                  const SizedBox(
-                    height: 22,
-                  ),
+                  const SizedBox(height: 22),
                   const Text(
                     'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
                     textAlign: TextAlign.center,
                   ),
                   TextButton(
-                      onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                          type: CommonDialogs.stacktrace,
-                          title: e.runtimeType.toString(),
-                          body: 'Exception:\n $e\n\n$s')),
-                      child: const Text('Show Error'))
+                    onPressed: () => ref.read(dialogServiceProvider).show(
+                          DialogRequest(
+                            type: CommonDialogs.stacktrace,
+                            title: e.runtimeType.toString(),
+                            body: 'Exception:\n $e\n\n$s',
+                          ),
+                        ),
+                    child: const Text('Show Error'),
+                  ),
                 ],
               ),
             );
           },
           loading: () => Center(
-              child: Column(
-            key: UniqueKey(),
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SpinKitFadingCube(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              FadingText(tr('pages.dashboard.fetching_printer')),
-              // Text("Fetching printer ...")
-            ],
-          )),
+            child: Column(
+              key: UniqueKey(),
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SpinKitFadingCube(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+                const SizedBox(height: 30),
+                FadingText(tr('pages.dashboard.fetching_printer')),
+                // Text("Fetching printer ...")
+              ],
+            ),
+          ),
         );
   }
 }
 
 class _IdleFAB extends ConsumerWidget {
-  const _IdleFAB({
-    Key? key,
-  }) : super(key: key);
+  const _IdleFAB({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => FloatingActionButton(
-      onPressed: () async {
-        ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
-      },
+        onPressed: () {
+          ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
+        },
 
-      // onPressed: mdodel.showNonPrintingMenu,
-      child: const Icon(Icons.menu));
+        // onPressed: mdodel.showNonPrintingMenu,
+    child: const Icon(Icons.menu),
+  );
 }

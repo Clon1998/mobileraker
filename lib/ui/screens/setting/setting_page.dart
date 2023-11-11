@@ -9,6 +9,7 @@ import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -23,7 +24,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
-import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -36,9 +36,7 @@ class SettingPage extends ConsumerWidget {
     var themeData = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('pages.setting.title').tr(),
-      ),
+      appBar: AppBar(title: const Text('pages.setting.title').tr()),
       body: FormBuilder(
         key: ref.watch(settingPageFormKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -54,48 +52,94 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'emsConfirmation',
                 title: const Text('pages.setting.general.ems_confirm').tr(),
-                onChanged: (b) => settingService.writeBool(AppSettingKeys.confirmEmergencyStop, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(AppSettingKeys.confirmEmergencyStop, true)),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.confirmEmergencyStop,
+                  b ?? false,
+                ),
+                initialValue: ref.watch(boolSettingProvider(
+                  AppSettingKeys.confirmEmergencyStop,
+                  true,
+                )),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
                 activeColor: themeData.colorScheme.primary,
               ),
               FormBuilderSwitch(
                 name: 'alwaysShowBaby',
                 title: const Text('pages.setting.general.always_baby').tr(),
-                onChanged: (b) => settingService.writeBool(AppSettingKeys.alwaysShowBabyStepping, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping)),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.alwaysShowBabyStepping,
+                  b ?? false,
+                ),
+                initialValue: ref.watch(
+                  boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
                 activeColor: themeData.colorScheme.primary,
               ),
               FormBuilderSwitch(
                 name: 'useTextInputForNum',
                 title: const Text('pages.setting.general.num_edit').tr(),
-                onChanged: (b) => settingService.writeBool(AppSettingKeys.defaultNumEditMode, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(AppSettingKeys.defaultNumEditMode)),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.defaultNumEditMode,
+                  b ?? false,
+                ),
+                initialValue: ref.watch(
+                  boolSettingProvider(AppSettingKeys.defaultNumEditMode),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
                 activeColor: themeData.colorScheme.primary,
               ),
               FormBuilderSwitch(
                 name: 'startWithOverview',
                 title: const Text('pages.setting.general.start_with_overview').tr(),
-                onChanged: (b) => settingService.writeBool(AppSettingKeys.overviewIsHomescreen, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(AppSettingKeys.overviewIsHomescreen)),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.overviewIsHomescreen,
+                  b ?? false,
+                ),
+                initialValue: ref.watch(
+                  boolSettingProvider(AppSettingKeys.overviewIsHomescreen),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
                 activeColor: themeData.colorScheme.primary,
               ),
               FormBuilderSwitch(
                 name: 'useLivePos',
                 title: const Text('pages.setting.general.use_offset_pos').tr(),
-                onChanged: (b) => settingService.writeBool(AppSettingKeys.applyOffsetsToPostion, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(AppSettingKeys.applyOffsetsToPostion)),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.applyOffsetsToPostion,
+                  b ?? false,
+                ),
+                initialValue: ref.watch(
+                  boolSettingProvider(AppSettingKeys.applyOffsetsToPostion),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
                 activeColor: themeData.colorScheme.primary,
               ),
               FormBuilderSwitch(
                 name: 'lcFullCam',
                 title: const Text('pages.setting.general.lcFullCam').tr(),
-                onChanged: (b) => settingService.writeBool(AppSettingKeys.fullscreenCamOrientation, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(AppSettingKeys.fullscreenCamOrientation)),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.fullscreenCamOrientation,
+                  b ?? false,
+                ),
+                initialValue: ref.watch(boolSettingProvider(
+                  AppSettingKeys.fullscreenCamOrientation,
+                )),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,
@@ -105,9 +149,17 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'sliders_grouping',
                 title: const Text('pages.setting.general.sliders_grouping').tr(),
-                onChanged: (b) => settingService.writeBool(AppSettingKeys.groupSliders, b ?? false),
-                initialValue: ref.watch(boolSettingProvider(AppSettingKeys.groupSliders, true)),
-                decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.groupSliders,
+                  b ?? false,
+                ),
+                initialValue: ref.watch(
+                  boolSettingProvider(AppSettingKeys.groupSliders, true),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
                 activeColor: themeData.colorScheme.primary,
               ),
               const _NotificationSection(),
@@ -116,56 +168,71 @@ class SettingPage extends ConsumerWidget {
               const Divider(),
               if (Platform.isIOS)
                 TextButton(
-                    style: TextButton.styleFrom(
-                        minimumSize: Size.zero, // Set this
-                        padding: EdgeInsets.zero,
-                        textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary)),
-                    child: const Text('EULA'),
-                    onPressed: () async {
-                      const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
-                      if (await canLaunchUrlString(url)) {
-                        await launchUrlString(url, mode: LaunchMode.externalApplication);
-                      } else {
-                        throw 'Could not launch $url';
-                      }
-                    }),
-              if (Platform.isAndroid)
-                TextButton(
-                    style: TextButton.styleFrom(
-                        minimumSize: Size.zero, // Set this
-                        padding: EdgeInsets.zero,
-                        textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary)),
-                    child: const Text('EULA'),
-                    onPressed: () async {
-                      const String url = 'https://mobileraker.com/eula.html';
-                      if (await canLaunchUrlString(url)) {
-                        await launchUrlString(url, mode: LaunchMode.externalApplication);
-                      } else {
-                        throw 'Could not launch $url';
-                      }
-                    }),
-              TextButton(
-                style: TextButton.styleFrom(
+                  style: TextButton.styleFrom(
                     minimumSize: Size.zero, // Set this
                     padding: EdgeInsets.zero,
-                    textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary)),
-                child: Text(MaterialLocalizations.of(context).viewLicensesButtonLabel),
+                    textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
+                  ),
+                  child: const Text('EULA'),
+                  onPressed: () async {
+                    const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+                    if (await canLaunchUrlString(url)) {
+                      await launchUrlString(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
+                ),
+              if (Platform.isAndroid)
+                TextButton(
+                  style: TextButton.styleFrom(
+                    minimumSize: Size.zero, // Set this
+                    padding: EdgeInsets.zero,
+                    textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
+                  ),
+                  child: const Text('EULA'),
+                  onPressed: () async {
+                    const String url = 'https://mobileraker.com/eula.html';
+                    if (await canLaunchUrlString(url)) {
+                      await launchUrlString(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } else {
+                      throw 'Could not launch $url';
+                    }
+                  },
+                ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: Size.zero, // Set this
+                  padding: EdgeInsets.zero,
+                  textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
+                ),
+                child: Text(
+                  MaterialLocalizations.of(context).viewLicensesButtonLabel,
+                ),
                 onPressed: () {
-                  var version = ref
-                      .watch(versionInfoProvider)
-                      .maybeWhen(orElse: () => 'unavailable', data: (d) => '${d.version}-${d.buildNumber}');
+                  var version = ref.watch(versionInfoProvider).maybeWhen(
+                        orElse: () => 'unavailable',
+                        data: (d) => '${d.version}-${d.buildNumber}',
+                      );
 
                   showLicensePage(
-                      context: context,
-                      applicationVersion: version,
-                      applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
-                      applicationIcon: Center(
-                        child: SvgPicture.asset(
-                          'assets/vector/mr_logo.svg',
-                          width: 80,
-                          height: 80,
-                        ),
-                      ));
+                    context: context,
+                    applicationVersion: version,
+                    applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
+                    applicationIcon: Center(
+                      child: SvgPicture.asset(
+                        'assets/vector/mr_logo.svg',
+                        width: 80,
+                        height: 80,
+                      ),
+                    ),
+                  );
                 },
               ),
               Align(
@@ -185,9 +252,7 @@ class SettingPage extends ConsumerWidget {
 }
 
 class _NotificationSection extends ConsumerWidget {
-  const _NotificationSection({
-    Key? key,
-  }) : super(key: key);
+  const _NotificationSection({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -204,28 +269,38 @@ class _NotificationSection extends ConsumerWidget {
           FormBuilderSwitch(
             name: 'liveActivity',
             title: const Text('pages.setting.notification.enable_live_activity').tr(),
-            onChanged: (b) => settingService.writeBool(AppSettingKeys.useLiveActivity, b ?? false),
+            onChanged: (b) => settingService.writeBool(
+              AppSettingKeys.useLiveActivity,
+              b ?? false,
+            ),
             initialValue: ref.watch(boolSettingProvider(AppSettingKeys.useLiveActivity)),
-            decoration: const InputDecoration(border: InputBorder.none, isCollapsed: true),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              isCollapsed: true,
+            ),
             activeColor: themeData.colorScheme.primary,
           ),
         const _ProgressNotificationSettingField(),
         const _StateNotificationSettingField(),
         const Divider(),
         RichText(
-          text: TextSpan(style: themeData.textTheme.bodySmall, text: tr('pages.setting.general.companion'), children: [
-            TextSpan(
-              text: '\nOfficial GitHub ',
-              style: TextStyle(color: themeData.colorScheme.secondary),
-              children: const [
-                WidgetSpan(
-                  child: Icon(FlutterIcons.github_alt_faw, size: 18),
-                ),
-              ],
-              recognizer: TapGestureRecognizer()
-                ..onTap = ref.read(settingPageControllerProvider.notifier).openCompanion,
-            ),
-          ]),
+          text: TextSpan(
+            style: themeData.textTheme.bodySmall,
+            text: tr('pages.setting.general.companion'),
+            children: [
+              TextSpan(
+                text: '\nOfficial GitHub ',
+                style: TextStyle(color: themeData.colorScheme.secondary),
+                children: const [
+                  WidgetSpan(
+                    child: Icon(FlutterIcons.github_alt_faw, size: 18),
+                  ),
+                ],
+                recognizer: TapGestureRecognizer()
+                  ..onTap = ref.read(settingPageControllerProvider.notifier).openCompanion,
+              ),
+            ],
+          ),
           textAlign: TextAlign.center,
         ),
       ],
@@ -234,9 +309,7 @@ class _NotificationSection extends ConsumerWidget {
 }
 
 class _DeveloperSection extends ConsumerWidget {
-  const _DeveloperSection({
-    Key? key,
-  }) : super(key: key);
+  const _DeveloperSection({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -258,9 +331,10 @@ class _DeveloperSection extends ConsumerWidget {
         ),
         TextButton(
           style: TextButton.styleFrom(
-              minimumSize: Size.zero, // Set this
-              padding: EdgeInsets.zero,
-              textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary)),
+            minimumSize: Size.zero, // Set this
+            padding: EdgeInsets.zero,
+            textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
+          ),
           child: const Text('Debug-Logs'),
           onPressed: () {
             var dialogService = ref.read(dialogServiceProvider);
@@ -314,7 +388,10 @@ class _LanguageSelector extends ConsumerWidget {
       initialValue: context.locale,
       name: 'lan',
       items: supportedLocals
-          .map((local) => DropdownMenuItem(value: local, child: Text(constructLanguageText(local))))
+          .map((local) => DropdownMenuItem(
+                value: local,
+                child: Text(constructLanguageText(local)),
+              ))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -336,17 +413,24 @@ class _TimeFormatSelector extends ConsumerWidget {
     var now = DateTime.now();
 
     return FormBuilderDropdown(
-        initialValue: ref.watch(boolSettingProvider(AppSettingKeys.timeFormat)),
-        name: 'timeMode',
-        items: [
-          DropdownMenuItem(value: false, child: Text(DateFormat.Hm().format(now))),
-          DropdownMenuItem(value: true, child: Text(DateFormat('h:mm a').format(now)))
-        ],
-        decoration: InputDecoration(
-          labelStyle: Theme.of(context).textTheme.labelLarge,
-          labelText: 'Time Format',
+      initialValue: ref.watch(boolSettingProvider(AppSettingKeys.timeFormat)),
+      name: 'timeMode',
+      items: [
+        DropdownMenuItem(
+          value: false,
+          child: Text(DateFormat.Hm().format(now)),
         ),
-        onChanged: (bool? b) => ref.read(settingServiceProvider).writeBool(AppSettingKeys.timeFormat, b ?? false));
+        DropdownMenuItem(
+          value: true,
+          child: Text(DateFormat('h:mm a').format(now)),
+        ),
+      ],
+      decoration: InputDecoration(
+        labelStyle: Theme.of(context).textTheme.labelLarge,
+        labelText: 'Time Format',
+      ),
+      onChanged: (bool? b) => ref.read(settingServiceProvider).writeBool(AppSettingKeys.timeFormat, b ?? false),
+    );
   }
 }
 
@@ -360,11 +444,7 @@ class _ThemeSelector extends ConsumerWidget {
     List<ThemePack> themeList = themeService.themePacks;
     var themeData = Theme.of(context);
     return FormBuilderDropdown(
-      initialValue: ref
-          .watch(activeThemeProvider.selectAs(
-            (value) => value.themePack,
-          ))
-          .valueOrFullNull!,
+      initialValue: ref.watch(activeThemeProvider.selectAs((value) => value.themePack)).valueOrFullNull!,
       name: 'theme',
       items: themeList.map((theme) {
         var brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
@@ -380,7 +460,7 @@ class _ThemeSelector extends ConsumerWidget {
                     )
                   : Image(height: 32, width: 32, image: brandingIcon),
               const SizedBox(width: 8),
-              Flexible(child: Text(theme.name))
+              Flexible(child: Text(theme.name)),
             ],
           ),
         );
@@ -403,10 +483,15 @@ class _ThemeModeSelector extends ConsumerWidget {
     var themeService = ref.watch(themeServiceProvider);
 
     return FormBuilderDropdown(
-      initialValue: ref.watch(activeThemeProvider.select((d) => d.valueOrFullNull!.themeMode)),
+      initialValue: ref.watch(
+        activeThemeProvider.select((d) => d.valueOrFullNull!.themeMode),
+      ),
       name: 'themeMode',
       items: ThemeMode.values
-          .map((themeMode) => DropdownMenuItem(value: themeMode, child: Text(themeMode.name.capitalize)))
+          .map((themeMode) => DropdownMenuItem(
+                value: themeMode,
+                child: Text(themeMode.name.capitalize),
+              ))
           .toList(),
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
@@ -428,15 +513,19 @@ class _ProgressNotificationSettingField extends ConsumerWidget {
       initialValue: progressSettings,
       name: 'progressNotifyMode',
       items: ProgressNotificationMode.values
-          .map((mode) => DropdownMenuItem(value: mode, child: Text(mode.progressNotificationModeStr())))
+          .map((mode) => DropdownMenuItem(
+                value: mode,
+                child: Text(mode.progressNotificationModeStr()),
+              ))
           .toList(),
       onChanged: (v) => ref
           .read(notificationProgressSettingControllerProvider.notifier)
           .onProgressChanged(v ?? ProgressNotificationMode.TWENTY_FIVE),
       decoration: InputDecoration(
-          labelStyle: Theme.of(context).textTheme.labelLarge,
-          labelText: 'pages.setting.notification.progress_label'.tr(),
-          helperText: 'pages.setting.notification.progress_helper'.tr()),
+        labelStyle: Theme.of(context).textTheme.labelLarge,
+        labelText: 'pages.setting.notification.progress_label'.tr(),
+        helperText: 'pages.setting.notification.progress_helper'.tr(),
+      ),
     );
   }
 }
@@ -453,44 +542,44 @@ class _StateNotificationSettingField extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: FormBuilderField<Set<PrintState>>(
-          name: 'notificationStates',
-          initialValue: stateSettings,
-          onChanged: (values) {
-            if (values == null) return;
-            ref.read(notificationStateSettingControllerProvider.notifier).onStatesChanged(values);
-          },
-          builder: (FormFieldState<Set<PrintState>> field) {
-            Set<PrintState> value = field.value ?? {};
+        name: 'notificationStates',
+        initialValue: stateSettings,
+        onChanged: (values) {
+          if (values == null) return;
+          ref.read(notificationStateSettingControllerProvider.notifier).onStatesChanged(values);
+        },
+        builder: (FormFieldState<Set<PrintState>> field) {
+          Set<PrintState> value = field.value ?? {};
 
-            return InputDecorator(
-              decoration: InputDecoration(
-                  labelText: 'pages.setting.notification.state_label'.tr(),
-                  labelStyle: themeData.textTheme.labelLarge,
-                  helperText: 'pages.setting.notification.state_helper'.tr()),
-              child: Wrap(
-                alignment: WrapAlignment.spaceEvenly,
-                children: PrintState.values.map((e) {
-                  var selected = value.contains(e);
-                  return FilterChip(
-                    selected: selected,
-                    elevation: 2,
-                    label: Text(
-                      e.displayName,
-                    ),
-                    onSelected: (bool s) {
-                      if (s) {
-                        field.didChange({...value, e});
-                      } else {
-                        var set = value.toSet();
-                        set.remove(e);
-                        field.didChange(set);
-                      }
-                    },
-                  );
-                }).toList(growable: false),
-              ),
-            );
-          }),
+          return InputDecorator(
+            decoration: InputDecoration(
+              labelText: 'pages.setting.notification.state_label'.tr(),
+              labelStyle: themeData.textTheme.labelLarge,
+              helperText: 'pages.setting.notification.state_helper'.tr(),
+            ),
+            child: Wrap(
+              alignment: WrapAlignment.spaceEvenly,
+              children: PrintState.values.map((e) {
+                var selected = value.contains(e);
+                return FilterChip(
+                  selected: selected,
+                  elevation: 2,
+                  label: Text(e.displayName),
+                  onSelected: (bool s) {
+                    if (s) {
+                      field.didChange({...value, e});
+                    } else {
+                      var set = value.toSet();
+                      set.remove(e);
+                      field.didChange(set);
+                    }
+                  },
+                );
+              }).toList(growable: false),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -506,10 +595,7 @@ class NotificationPermissionWarning extends ConsumerWidget {
       child: AnimatedSwitcher(
         transitionBuilder: (child, anim) => SizeTransition(
           sizeFactor: anim,
-          child: FadeTransition(
-            opacity: anim,
-            child: child,
-          ),
+          child: FadeTransition(opacity: anim, child: child),
         ),
         duration: kThemeAnimationDuration,
         child: (ref.watch(notificationPermissionControllerProvider))
@@ -521,7 +607,9 @@ class NotificationPermissionWarning extends ConsumerWidget {
                   textColor: themeData.colorScheme.onErrorContainer,
                   iconColor: themeData.colorScheme.onErrorContainer,
                   onTap: ref.watch(notificationPermissionControllerProvider.notifier).requestPermission,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
                   leading: const Icon(
                     Icons.notifications_off_outlined,
                     size: 40,
@@ -529,7 +617,9 @@ class NotificationPermissionWarning extends ConsumerWidget {
                   title: const Text(
                     'pages.setting.notification.no_permission_title',
                   ).tr(),
-                  subtitle: const Text('pages.setting.notification.no_permission_desc').tr(),
+                  subtitle: const Text(
+                    'pages.setting.notification.no_permission_desc',
+                  ).tr(),
                 ),
               ),
       ),
@@ -549,10 +639,7 @@ class NotificationFirebaseWarning extends ConsumerWidget {
       child: AnimatedSwitcher(
         transitionBuilder: (child, anim) => SizeTransition(
           sizeFactor: anim,
-          child: FadeTransition(
-            opacity: anim,
-            child: child,
-          ),
+          child: FadeTransition(opacity: anim, child: child),
         ),
         duration: kThemeAnimationDuration,
         child: (ref.watch(notificationFirebaseAvailableProvider))
@@ -564,7 +651,9 @@ class NotificationFirebaseWarning extends ConsumerWidget {
                   tileColor: themeData.colorScheme.errorContainer,
                   textColor: themeData.colorScheme.onErrorContainer,
                   iconColor: themeData.colorScheme.onErrorContainer,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
+                  ),
                   leading: const Icon(
                     FlutterIcons.notifications_paused_mdi,
                     size: 40,
@@ -595,10 +684,7 @@ class CompanionMissingWarning extends ConsumerWidget {
       child: AnimatedSwitcher(
         transitionBuilder: (child, anim) => SizeTransition(
           sizeFactor: anim,
-          child: FadeTransition(
-            opacity: anim,
-            child: child,
-          ),
+          child: FadeTransition(opacity: anim, child: child),
         ),
         duration: kThemeAnimationDuration,
         child: (machineNames.isEmpty)
@@ -613,16 +699,16 @@ class CompanionMissingWarning extends ConsumerWidget {
                   // onTap: ref
                   //     .watch(notificationPermissionControllerProvider.notifier)
                   //     .requestPermission,
-                  shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15))),
-                  leading: const Icon(
-                    FlutterIcons.uninstall_ent,
-                    size: 40,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15)),
                   ),
+                  leading: const Icon(FlutterIcons.uninstall_ent, size: 40),
                   title: const Text(
                     'pages.setting.notification.missing_companion_title',
                   ).tr(),
-                  subtitle: const Text('pages.setting.notification.missing_companion_body')
-                      .tr(args: [machineNames.join(', ')]),
+                  subtitle: const Text(
+                    'pages.setting.notification.missing_companion_body',
+                  ).tr(args: [machineNames.join(', ')]),
                 ),
               ),
       ),

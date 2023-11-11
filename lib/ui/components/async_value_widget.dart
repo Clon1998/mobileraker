@@ -10,14 +10,14 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AsyncValueWidget<T> extends StatelessWidget {
-  const AsyncValueWidget(
-      {Key? key,
-      required this.value,
-      required this.data,
-      this.loading,
-      this.skipLoadingOnRefresh = false,
-      this.skipLoadingOnReload = false})
-      : super(key: key);
+  const AsyncValueWidget({
+    Key? key,
+    required this.value,
+    required this.data,
+    this.loading,
+    this.skipLoadingOnRefresh = false,
+    this.skipLoadingOnReload = false,
+  }) : super(key: key);
 
   // input async value
   final AsyncValue<T> value;
@@ -43,13 +43,8 @@ class AsyncValueWidget<T> extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(FlutterIcons.bug_faw5s, size: 99),
-              const SizedBox(
-                height: 22,
-              ),
-              Text(
-                'Error:\n$e',
-                textAlign: TextAlign.center,
-              ),
+              const SizedBox(height: 22),
+              Text('Error:\n$e', textAlign: TextAlign.center),
             ],
           ),
         );

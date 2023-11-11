@@ -7,9 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 
 final class MobilerakerFormBuilderValidator {
-  static FormFieldValidator<T> simpleUrl<T>({
-    String? errorText,
-  }) {
+  static FormFieldValidator<T> simpleUrl<T>({String? errorText}) {
     return (T? valueCandidate) {
       if (valueCandidate != null) {
         assert(valueCandidate is String);
@@ -22,9 +20,7 @@ final class MobilerakerFormBuilderValidator {
     };
   }
 
-  static FormFieldValidator<T> disallowMdns<T>({
-    String? errorText,
-  }) {
+  static FormFieldValidator<T> disallowMdns<T>({String? errorText}) {
     return (T? valueCandidate) {
       if (valueCandidate != null) {
         assert(valueCandidate is String);

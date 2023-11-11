@@ -51,32 +51,37 @@ class ToolheadInfo with _$ToolheadInfo {
       if (currentFile.filamentTotal != null) {
         usedFilament = printer.print.filamentUsed / 1000;
         totalFilament = currentFile.filamentTotal! / 1000;
-        usedFilamentPerc =
-            min(100, (printer.print.filamentUsed / currentFile.filamentTotal! * 100));
+        usedFilamentPerc = min(
+          100,
+          (printer.print.filamentUsed / currentFile.filamentTotal! * 100),
+        );
       }
-      double crossSection =
-          pow((printer.configFile.primaryExtruder?.filamentDiameter ?? 1.75) / 2, 2) * pi;
+      double crossSection = pow(
+            (printer.configFile.primaryExtruder?.filamentDiameter ?? 1.75) / 2,
+            2,
+          ) *
+          pi;
       currentFlow = (crossSection * printer.motionReport.liveExtruderVelocity).toPrecision(1).abs();
     }
 
     return ToolheadInfo(
-        livePosition: printer.motionReport.livePosition.toList(growable: false),
-        postion: printer.gCodeMove.gcodePosition.toList(growable: false),
-        printingOrPaused:
-            const {PrintState.printing, PrintState.paused}.contains(printer.print.state),
-        mmSpeed: printer.gCodeMove.mmSpeed,
-        currentLayer: curLayer,
-        maxLayers: maxLayer,
-        currentFlow: currentFlow,
-        usedFilament: usedFilament,
-        totalFilament: totalFilament,
-        usedFilamentPerc: usedFilamentPerc,
-        eta: printer.eta,
-        remaining: printer.remainingTimeAvg,
-        remainingFile: printer.remainingTimeByFile,
-        remainingFilament: printer.remainingTimeByFilament,
-        remainingSlicer: printer.remainingTimeBySlicer,
-        totalDuration: printer.print.totalDuration.toInt());
+      livePosition: printer.motionReport.livePosition.toList(growable: false),
+      postion: printer.gCodeMove.gcodePosition.toList(growable: false),
+      printingOrPaused: const {PrintState.printing, PrintState.paused}.contains(printer.print.state),
+      mmSpeed: printer.gCodeMove.mmSpeed,
+      currentLayer: curLayer,
+      maxLayers: maxLayer,
+      currentFlow: currentFlow,
+      usedFilament: usedFilament,
+      totalFilament: totalFilament,
+      usedFilamentPerc: usedFilamentPerc,
+      eta: printer.eta,
+      remaining: printer.remainingTimeAvg,
+      remainingFile: printer.remainingTimeByFile,
+      remainingFilament: printer.remainingTimeByFilament,
+      remainingSlicer: printer.remainingTimeBySlicer,
+      totalDuration: printer.print.totalDuration.toInt(),
+    );
   }
 
   static int _calculateMaxLayer(Printer printer, GCodeFile? currentFile) {
@@ -95,7 +100,11 @@ class ToolheadInfo with _$ToolheadInfo {
     return max(0, ((objectHeight - firstLayerHeight) / layerHeight + 1).ceil());
   }
 
-  static int _calculateCurrentLayer(Printer printer, GCodeFile? currentFile, int totalLayers) {
+  static int _calculateCurrentLayer(
+    Printer printer,
+    GCodeFile? currentFile,
+    int totalLayers,
+  ) {
     final currentLayer = printer.print.currentLayer;
     final printDuration = printer.print.printDuration;
     final firstLayerHeight = currentFile?.firstLayerHeight;

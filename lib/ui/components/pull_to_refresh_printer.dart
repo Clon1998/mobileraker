@@ -56,7 +56,9 @@ class PullToRefreshPrinterConsumer extends _$PullToRefreshPrinterConsumer {
       await klippyServiceKeepAlive.read().refreshKlippy();
       var read = ref.read(klipperProvider(selMachine.uuid));
       if (!read.hasError && read.hasValue && read.value!.klippyCanReceiveCommands) {
-        logger.i('Klippy reported ready and connected, will try to refresh printer');
+        logger.i(
+          'Klippy reported ready and connected, will try to refresh printer',
+        );
         await printerServiceKeepAlive.read().refreshPrinter();
       }
 
@@ -95,8 +97,7 @@ class _PullToRefreshPrinterState extends ConsumerState<PullToRefreshPrinter> {
         releaseIcon: Icon(Icons.refresh, color: onBackground),
       ),
       controller: refreshController,
-      onRefresh: () =>
-          ref.watch(pullToRefreshPrinterConsumerProvider.notifier).onRefresh(refreshController),
+      onRefresh: () => ref.watch(pullToRefreshPrinterConsumerProvider.notifier).onRefresh(refreshController),
       child: widget.child,
     );
   }

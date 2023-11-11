@@ -8,12 +8,12 @@ import 'dart:io';
 
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'config_file_details_controller.freezed.dart';
@@ -43,7 +43,10 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   _init() async {
     try {
       var downloadFile = await fileService
-          .downloadFile(filePath: ref.read(configFileProvider).absolutPath, overWriteLocal: true)
+          .downloadFile(
+            filePath: ref.read(configFileProvider).absolutPath,
+            overWriteLocal: true,
+          )
           .firstWhere((element) => element is FileDownloadComplete);
       downloadFile as FileDownloadComplete;
       var content = await downloadFile.file.readAsString();
@@ -60,13 +63,17 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
   Future<void> onSaveTapped(String code) async {
     state = state.copyWith(isUploading: true);
     try {
-      await fileService.uploadAsFile(ref.read(configFileProvider).absolutPath, code);
+      await fileService.uploadAsFile(
+        ref.read(configFileProvider).absolutPath,
+        code,
+      );
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
       snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: 'Http-Error',
-          message: 'Could not save File:.\n${e.message}'));
+        type: SnackbarType.error,
+        title: 'Http-Error',
+        message: 'Could not save File:.\n${e.message}',
+      ));
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);
@@ -78,14 +85,18 @@ class ConfigFileDetailsController extends StateNotifier<ConfigDetailPageState> {
     state = state.copyWith(isUploading: true);
 
     try {
-      await fileService.uploadAsFile(ref.read(configFileProvider).absolutPath, code);
+      await fileService.uploadAsFile(
+        ref.read(configFileProvider).absolutPath,
+        code,
+      );
       klippyService.restartMCUs();
       ref.read(goRouterProvider).pop();
     } on HttpException catch (e) {
       snackBarService.show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: 'Http-Error',
-          message: 'Could not save File:.\n${e.message}'));
+        type: SnackbarType.error,
+        title: 'Http-Error',
+        message: 'Could not save File:.\n${e.message}',
+      ));
     } finally {
       if (mounted) {
         state = state.copyWith(isUploading: false);

@@ -19,9 +19,11 @@ class NumEditFormDialog extends ConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const NumEditFormDialog(
-      {Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const NumEditFormDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,7 +34,7 @@ class NumEditFormDialog extends ConsumerWidget {
         dialogCompleter.overrideWithValue(completer),
         initialFormType.overrideWithValue(request.type),
         numFraction.overrideWithValue(data.fraction),
-        numEditFormDialogController
+        numEditFormDialogController,
       ],
       child: _FormEditDialog(request: request, data: data),
     );
@@ -68,10 +70,7 @@ class _FormEditDialog extends HookConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min, // To make the card compact
             children: <Widget>[
-              Text(
-                request.title!,
-                style: themeData.textTheme.titleLarge,
-              ),
+              Text(request.title!, style: themeData.textTheme.titleLarge),
               AnimatedCrossFade(
                 duration: kThemeAnimationDuration,
                 crossFadeState: (ref.watch(numEditFormDialogController) ==
@@ -120,10 +119,11 @@ class _FormEditDialog extends HookConsumerWidget {
                       ),
                       child: ref.watch(numEditFormDialogController) ==
                               DialogType.rangeEdit
-                          ? const Icon(Icons.text_fields,
-                              key: ValueKey('tf'))
-                          : const Icon(Icons.straighten,
-                              key: ValueKey('unlock')),
+                          ? const Icon(Icons.text_fields, key: ValueKey('tf'))
+                          : const Icon(
+                              Icons.straighten,
+                              key: ValueKey('unlock'),
+                            ),
                     ),
                   ),
                   TextButton(
@@ -133,9 +133,9 @@ class _FormEditDialog extends HookConsumerWidget {
                             .onFormConfirm
                         : null,
                     child: Text(request.confirmBtn!),
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),
@@ -151,14 +151,14 @@ class _NumField extends StatelessWidget {
   final int frac;
   final String? description;
 
-  const _NumField(
-      {Key? key,
-      required this.initialValue,
-      required this.lowerBorder,
-      this.upperBorder,
-      required this.frac,
-      this.description})
-      : super(key: key);
+  const _NumField({
+    Key? key,
+    required this.initialValue,
+    required this.lowerBorder,
+    this.upperBorder,
+    required this.frac,
+    this.description,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +169,7 @@ class _NumField extends StatelessWidget {
         FormBuilderValidators.min(lowerBorder),
         FormBuilderValidators.numeric(),
         if (frac == 0) FormBuilderValidators.integer(),
-        FormBuilderValidators.required()
+        FormBuilderValidators.required(),
       ]),
       valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),
       initialValue: initialValue.toStringAsFixed(frac),
@@ -194,14 +194,14 @@ class _NumField extends StatelessWidget {
 }
 
 class RangeEditSlider extends StatelessWidget {
-  const RangeEditSlider(
-      {Key? key,
-      required this.initialValue,
-      required this.lowerBorder,
-      this.upperBorder,
-      required this.frac,
-      this.description})
-      : super(key: key);
+  const RangeEditSlider({
+    Key? key,
+    required this.initialValue,
+    required this.lowerBorder,
+    this.upperBorder,
+    required this.frac,
+    this.description,
+  }) : super(key: key);
 
   final num initialValue;
   final num lowerBorder;
@@ -219,8 +219,9 @@ class RangeEditSlider extends StatelessWidget {
       // divisions: (data.max + data.min.abs()).toInt(),
       autofocus: true,
       numberFormat: NumberFormat(
-          frac == 0 ? "0" : "0.${List.filled(frac, '0').join()}",
-          context.locale.languageCode),
+        frac == 0 ? "0" : "0.${List.filled(frac, '0').join()}",
+        context.locale.languageCode,
+      ),
     );
   }
 }

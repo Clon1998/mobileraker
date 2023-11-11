@@ -26,10 +26,7 @@ part 'firmware_retraction_card.freezed.dart';
 part 'firmware_retraction_card.g.dart';
 
 class FirmwareRetractionCard extends ConsumerWidget {
-  const FirmwareRetractionCard({
-    super.key,
-    required this.machineUUID,
-  });
+  const FirmwareRetractionCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -38,9 +35,7 @@ class FirmwareRetractionCard extends ConsumerWidget {
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 15),
-        child: FirmwareRetractionSlidersOrTexts(
-          machineUUID: machineUUID,
-        ),
+        child: FirmwareRetractionSlidersOrTexts(machineUUID: machineUUID),
       ),
     );
   }
@@ -64,9 +59,7 @@ class FirmwareRetractionSlidersOrTextsLoading extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                SliderOrTextInputSkeleton(
-                  value: 0.7,
-                ),
+                SliderOrTextInputSkeleton(value: 0.7),
                 SliderOrTextInputSkeleton(value: 0.32),
                 SliderOrTextInputSkeleton(value: 0.6),
                 SliderOrTextInputSkeleton(value: 0.88),
@@ -111,17 +104,21 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
           leading: const Icon(Icons.shuffle),
           title: const Text('pages.dashboard.control.fw_retraction_card.title').tr(),
           trailing: IconButton(
-              onPressed: (klippyCanReceiveCommands) ? () => inputLocked.value = !inputLocked.value : null,
-              icon: AnimatedSwitcher(
-                duration: kThemeAnimationDuration,
-                transitionBuilder: (child, anim) => RotationTransition(
-                  turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                  child: ScaleTransition(scale: anim, child: child),
-                ),
-                child: inputLocked.value
-                    ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
-                    : const Icon(FlutterIcons.unlock_faw, key: ValueKey('unlock')),
-              )),
+            onPressed: (klippyCanReceiveCommands) ? () => inputLocked.value = !inputLocked.value : null,
+            icon: AnimatedSwitcher(
+              duration: kThemeAnimationDuration,
+              transitionBuilder: (child, anim) => RotationTransition(
+                turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                child: ScaleTransition(scale: anim, child: child),
+              ),
+              child: inputLocked.value
+                  ? const Icon(FlutterIcons.lock_faw, key: ValueKey('lock'))
+                  : const Icon(
+                      FlutterIcons.unlock_faw,
+                      key: ValueKey('unlock'),
+                    ),
+            ),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -129,7 +126,9 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
             children: [
               SliderOrTextInput(
                 provider: _controllerProvider(machineUUID).select((data) => data.value!.retractLength),
-                prefixText: tr('pages.dashboard.control.fw_retraction_card.retract_length'),
+                prefixText: tr(
+                  'pages.dashboard.control.fw_retraction_card.retract_length',
+                ),
                 onChange: canEdit ? controller.onEditRetractLength : null,
                 numberFormat: NumberFormat('0.0# mm', context.locale.languageCode),
                 unit: 'mm',
@@ -138,7 +137,9 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
               ),
               SliderOrTextInput(
                 provider: _controllerProvider(machineUUID).select((data) => data.value!.unretractExtraLength),
-                prefixText: tr('pages.dashboard.control.fw_retraction_card.extra_unretract_length'),
+                prefixText: tr(
+                  'pages.dashboard.control.fw_retraction_card.extra_unretract_length',
+                ),
                 onChange: canEdit ? controller.onEditUnretractLength : null,
                 numberFormat: NumberFormat('0.0# mm', context.locale.languageCode),
                 unit: 'mm',
@@ -147,7 +148,9 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
               ),
               SliderOrTextInput(
                 provider: _controllerProvider(machineUUID).select((data) => data.value!.retractSpeed),
-                prefixText: tr('pages.dashboard.control.fw_retraction_card.retract_speed'),
+                prefixText: tr(
+                  'pages.dashboard.control.fw_retraction_card.retract_speed',
+                ),
                 onChange: canEdit ? controller.onEditRetractSpeed : null,
                 numberFormat: NumberFormat('0 mm/s', context.locale.languageCode),
                 unit: 'mm/s',
@@ -156,7 +159,9 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
               ),
               SliderOrTextInput(
                 provider: _controllerProvider(machineUUID).select((data) => data.value!.unretractSpeed),
-                prefixText: tr('pages.dashboard.control.fw_retraction_card.unretract_speed'),
+                prefixText: tr(
+                  'pages.dashboard.control.fw_retraction_card.unretract_speed',
+                ),
                 onChange: canEdit ? controller.onEditUnretractSpeed : null,
                 numberFormat: NumberFormat('0 mm/s', context.locale.languageCode),
                 unit: 'mm/s',
@@ -180,19 +185,24 @@ class _Controller extends _$Controller {
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
 
-    var klippyCanReceiveCommands =
-        ref.watchAsSubject(klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands));
-    var firmwareRetraction = ref.watchAsSubject(printerProviderr.selectAs((value) => value.firmwareRetraction!));
+    var klippyCanReceiveCommands = ref.watchAsSubject(
+      klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
+    );
+    var firmwareRetraction = ref.watchAsSubject(
+      printerProviderr.selectAs((value) => value.firmwareRetraction!),
+    );
 
     yield* Rx.combineLatest2(
-        klippyCanReceiveCommands,
-        firmwareRetraction,
-        (a, b) => _Model(
-            klippyCanReceiveCommands: a,
-            retractLength: b.retractLength,
-            unretractExtraLength: b.unretractExtraLength,
-            retractSpeed: b.retractSpeed,
-            unretractSpeed: b.unretractSpeed));
+      klippyCanReceiveCommands,
+      firmwareRetraction,
+      (a, b) => _Model(
+        klippyCanReceiveCommands: a,
+        retractLength: b.retractLength,
+        unretractExtraLength: b.unretractExtraLength,
+        retractSpeed: b.retractSpeed,
+        unretractSpeed: b.unretractSpeed,
+      ),
+    );
   }
 
   PrinterService get _printerService => ref.read(printerServiceSelectedProvider);
@@ -216,10 +226,11 @@ class _Controller extends _$Controller {
 
 @freezed
 class _Model with _$Model {
-  const factory _Model(
-      {required bool klippyCanReceiveCommands,
-      required double retractLength,
-      required double unretractExtraLength,
-      required double retractSpeed,
-      required double unretractSpeed}) = __Model;
+  const factory _Model({
+    required bool klippyCanReceiveCommands,
+    required double retractLength,
+    required double unretractExtraLength,
+    required double retractSpeed,
+    required double unretractSpeed,
+  }) = __Model;
 }

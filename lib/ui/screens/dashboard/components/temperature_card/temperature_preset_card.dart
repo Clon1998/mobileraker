@@ -39,7 +39,8 @@ class TemperaturePresetCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var showLoading = ref.watch(
-        _controllerProvider(machineUUID, onPresetApplied).select((value) => value.isLoading && !value.isReloading));
+      _controllerProvider(machineUUID, onPresetApplied).select((value) => value.isLoading && !value.isReloading),
+    );
     if (showLoading) {
       return const HeaterSensorPresetCardLoading();
     }
@@ -50,13 +51,14 @@ class TemperaturePresetCard extends ConsumerWidget {
         child: Column(
           children: [
             HeaterSensorPresetCardTitle(
-                machineUUID: machineUUID,
-                title: const Text('pages.dashboard.general.temp_card.temp_presets').tr(),
-                trailing: trailing),
+              machineUUID: machineUUID,
+              title: const Text('pages.dashboard.general.temp_card.temp_presets').tr(),
+              trailing: trailing,
+            ),
             _CardBody(
               machineUUID: machineUUID,
               onPresetApplied: onPresetApplied,
-            )
+            ),
           ],
         ),
       ),
@@ -92,7 +94,12 @@ class _CardBody extends ConsumerWidget {
         name: preset.name,
         extruderTemp: preset.extruderTemp,
         bedTemp: model.hasPrintBed ? preset.bedTemp : null,
-        onTap: model.enabled ? () => controller.adjustNozzleAndBed(preset.extruderTemp, preset.bedTemp) : null,
+        onTap: model.enabled
+            ? () => controller.adjustNozzleAndBed(
+                  preset.extruderTemp,
+                  preset.bedTemp,
+                )
+            : null,
       );
     });
     presetWidgets.insert(0, coolOf);
@@ -121,21 +128,31 @@ class _PresetTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CardWithButton(
-        buttonChild: const Text('general.set').tr(),
-        onTap: onTap,
-        builder: (context) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name, style: Theme.of(context).textTheme.titleLarge, maxLines: 1, overflow: TextOverflow.ellipsis),
-              Text('pages.dashboard.general.temp_preset_card.h_temp', style: Theme.of(context).textTheme.bodySmall)
-                  .tr(args: [extruderTemp.toString()]),
-              if (bedTemp != null)
-                Text('pages.dashboard.general.temp_preset_card.b_temp', style: Theme.of(context).textTheme.bodySmall)
-                    .tr(args: [bedTemp.toString()]),
-            ],
-          );
-        });
+      buttonChild: const Text('general.set').tr(),
+      onTap: onTap,
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              name,
+              style: Theme.of(context).textTheme.titleLarge,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              'pages.dashboard.general.temp_preset_card.h_temp',
+              style: Theme.of(context).textTheme.bodySmall,
+            ).tr(args: [extruderTemp.toString()]),
+            if (bedTemp != null)
+              Text(
+                'pages.dashboard.general.temp_preset_card.b_temp',
+                style: Theme.of(context).textTheme.bodySmall,
+              ).tr(args: [bedTemp.toString()]),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -144,27 +161,37 @@ class _Controller extends _$Controller {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   @override
-  Stream<_Model> build(String machineUUID, VoidCallback? onPresetApplied) async* {
+  Stream<_Model> build(
+    String machineUUID,
+    VoidCallback? onPresetApplied,
+  ) async* {
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
     var machineSettingsProviderr = machineSettingsProvider(machineUUID);
-    var klippyCanReceiveCommand =
-        ref.watchAsSubject(klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands));
-    var isPrintingOrPaused = ref.watchAsSubject(
-        printerProviderr.selectAs((value) => {PrintState.printing, PrintState.paused}.contains(value.print.state)));
-    var hasPrintBed = ref.watchAsSubject(printerProviderr.selectAs((value) => value.heaterBed != null));
-    var temperaturePresets = ref.watchAsSubject(machineSettingsProviderr.selectAs((data) => data.temperaturePresets));
+    var klippyCanReceiveCommand = ref.watchAsSubject(
+      klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
+    );
+    var isPrintingOrPaused = ref.watchAsSubject(printerProviderr.selectAs(
+      (value) => {PrintState.printing, PrintState.paused}.contains(value.print.state),
+    ));
+    var hasPrintBed = ref.watchAsSubject(
+      printerProviderr.selectAs((value) => value.heaterBed != null),
+    );
+    var temperaturePresets = ref.watchAsSubject(
+      machineSettingsProviderr.selectAs((data) => data.temperaturePresets),
+    );
 
     yield* Rx.combineLatest4(
-        klippyCanReceiveCommand,
-        isPrintingOrPaused,
-        hasPrintBed,
-        temperaturePresets,
-        (a, b, c, d) => _Model(
-              enabled: a && !b,
-              hasPrintBed: c,
-              temperaturePresets: d,
-            ));
+      klippyCanReceiveCommand,
+      isPrintingOrPaused,
+      hasPrintBed,
+      temperaturePresets,
+      (a, b, c, d) => _Model(
+        enabled: a && !b,
+        hasPrintBed: c,
+        temperaturePresets: d,
+      ),
+    );
   }
 
   adjustNozzleAndBed(int extruderTemp, int? bedTemp) {

@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
@@ -11,12 +10,12 @@ class RangeSelector extends StatelessWidget {
   final Iterable<String> values;
   final int selectedIndex;
 
-  const RangeSelector(
-      {super.key,
-      this.onSelected,
-      required this.values,
-      this.selectedIndex = 0})
-      : assert(selectedIndex >= 0, 'SelectedIndex must be > 0'),
+  const RangeSelector({
+    super.key,
+    this.onSelected,
+    required this.values,
+    this.selectedIndex = 0,
+  })  : assert(selectedIndex >= 0, 'SelectedIndex must be > 0'),
         assert(selectedIndex <= (values.length - 1),
             'selectedIndex is out of bound of provided values');
 
@@ -32,15 +31,15 @@ class RangeSelector extends StatelessWidget {
 
     if (values.isEmpty) {
       return const Text('No Steps configured!');
-    } else {
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const ClampingScrollPhysics(),
-        child: ToggleButtons(
-            isSelected: selectedMap,
-            onPressed: onSelected != null ? _onSelectionChanged : null,
-            children: values.map((e) => Text(e.toString())).toList()),
-      );
     }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const ClampingScrollPhysics(),
+      child: ToggleButtons(
+        isSelected: selectedMap,
+        onPressed: onSelected != null ? _onSelectionChanged : null,
+        children: values.map((e) => Text(e.toString())).toList(),
+      ),
+    );
   }
 }

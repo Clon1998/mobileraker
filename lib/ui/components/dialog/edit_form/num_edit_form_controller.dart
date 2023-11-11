@@ -10,8 +10,9 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 
-final initialFormType =
-    Provider.autoDispose<DialogIdentifierMixin>((ref) => throw UnimplementedError());
+final initialFormType = Provider.autoDispose<DialogIdentifierMixin>(
+  (ref) => throw UnimplementedError(),
+);
 
 final numFraction = Provider.autoDispose<int>((ref) => throw UnimplementedError());
 
@@ -25,10 +26,19 @@ class NumberEditDialogArguments {
   final num current;
   final int fraction;
 
-  NumberEditDialogArguments({this.min = 0, this.max, required this.current, this.fraction = 0});
+  const NumberEditDialogArguments({
+    this.min = 0,
+    this.max,
+    required this.current,
+    this.fraction = 0,
+  });
 
-  NumberEditDialogArguments copyWith(
-      {num? min, num? max = double.nan, num? current, int? fraction, bool? canSwitch}) {
+  NumberEditDialogArguments copyWith({
+    num? min,
+    num? max = double.nan,
+    num? current,
+    int? fraction,
+  }) {
     return NumberEditDialogArguments(
       current: current ?? this.current,
       min: min ?? this.min,
@@ -38,8 +48,9 @@ class NumberEditDialogArguments {
   }
 }
 
-final numEditFormKeyProvider =
-    Provider.autoDispose<GlobalKey<FormBuilderState>>((ref) => GlobalKey<FormBuilderState>());
+final numEditFormKeyProvider = Provider.autoDispose<GlobalKey<FormBuilderState>>(
+  (ref) => GlobalKey<FormBuilderState>(),
+);
 
 final numEditFormDialogController =
     StateNotifierProvider.autoDispose<NumEditFormDialogController, DialogIdentifierMixin>(
@@ -63,8 +74,10 @@ class NumEditFormDialogController extends StateNotifier<DialogIdentifierMixin> {
       double cur = _formBuilderState.value['rangeValue'];
       val = cur;
     }
-    ref.read(dialogCompleter)(
-        DialogResponse(confirmed: true, data: val.toPrecision(ref.read(numFraction))));
+    ref.read(dialogCompleter)(DialogResponse(
+      confirmed: true,
+      data: val.toPrecision(ref.read(numFraction)),
+    ));
   }
 
   onFormDecline() {

@@ -18,14 +18,13 @@ class EmergencyStopBtn extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    KlipperState klippyState = ref.watch(klipperSelectedProvider.select((value) => value.valueOrNull?.klippyState ?? KlipperState.disconnected));
+    KlipperState klippyState = ref.watch(klipperSelectedProvider.select(
+      (value) => value.valueOrNull?.klippyState ?? KlipperState.disconnected,
+    ));
 
     return IconButton(
       color: Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,
-      icon: const Icon(
-        FlutterIcons.skull_outline_mco,
-        size: 26,
-      ),
+      icon: const Icon(FlutterIcons.skull_outline_mco, size: 26),
       tooltip: tr('pages.dashboard.ems_btn'),
       onPressed: klippyState == KlipperState.ready
           ? () async {
@@ -36,14 +35,13 @@ class EmergencyStopBtn extends ConsumerWidget {
                       title: "Emergency Stop - Confirmation",
                       body: "Are you sure?",
                       confirmBtn: "STOP!",
-                      confirmBtnColor:
-                          Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,
+                      confirmBtnColor: Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,
                     );
                 if (!(result?.confirmed ?? false)) return;
               }
 
               ref.read(klipperServiceSelectedProvider).emergencyStop();
-      }
+            }
           : null,
     );
   }

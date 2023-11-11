@@ -23,8 +23,9 @@ class GCodeFileDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-      overrides: [gcodeProvider.overrideWithValue(gcodeFile),
-        gCodeFileDetailsControllerProvider
+      overrides: [
+        gcodeProvider.overrideWithValue(gcodeFile),
+        gCodeFileDetailsControllerProvider,
       ],
       child: const _GCodeFileDetailPage(),
     );
@@ -32,9 +33,7 @@ class GCodeFileDetailPage extends ConsumerWidget {
 }
 
 class _GCodeFileDetailPage extends HookConsumerWidget {
-  const _GCodeFileDetailPage({
-    Key? key,
-  }) : super(key: key);
+  const _GCodeFileDetailPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -72,7 +71,8 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                     tag: 'gCodeImage-${gcodeFile.hashCode}',
                     child: IconTheme(
                       data: IconThemeData(
-                          color: Theme.of(context).colorScheme.onPrimary),
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                       child: (bigImageUri != null)
                           ? CachedNetworkImage(
                               imageUrl: bigImageUri.toString(),
@@ -96,32 +96,30 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                     child: SizeTransition(
                       sizeFactor: animCtrler.view,
                       child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 8),
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(8.0)),
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primaryContainer
-                                .withOpacity(0.8),
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(8.0),
                           ),
-                          child: Text(
-                            gcodeFile.name,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 5,
-                            style: Theme.of(context)
-                                .textTheme
-                                .titleSmall
-                                ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimaryContainer),
-                          )),
+                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
+                        ),
+                        child: Text(
+                          gcodeFile.name,
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 5,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                color: Theme.of(context)
+                                        .colorScheme.onPrimaryContainer,
+                              ),
+                        ),
+                      ),
                     ),
-                  )
+                  ),
                 ]),
               ),
             );
@@ -134,13 +132,15 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                   children: <Widget>[
                     ListTile(
                       leading: const Icon(
-                          FlutterIcons.printer_3d_nozzle_outline_mco),
+                        FlutterIcons.printer_3d_nozzle_outline_mco,
+                      ),
                       title: const Text('pages.setting.general.title').tr(),
                     ),
                     const Divider(),
                     PropertyTile(
-                        title: 'pages.files.details.general_card.path'.tr(),
-                        subtitle: gcodeFile.absolutPath),
+                      title: 'pages.files.details.general_card.path'.tr(),
+                      subtitle: gcodeFile.absolutPath,
+                    ),
                     PropertyTile(
                       title: 'pages.files.details.general_card.last_mod'.tr(),
                       subtitle:
@@ -201,8 +201,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                               .tr(args: [
                         gcodeFile.firstLayerTempExtruder?.toStringAsFixed(0) ??
                             'general.unknown'.tr(),
-                        gcodeFile.firstLayerTempBed?.toStringAsFixed(0) ??
-                            'general.unknown'.tr()
+                        gcodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
                       ]),
                     ),
                   ],
@@ -223,12 +222,10 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
               //     ],
               //   ),
               // ),
-              const SizedBox(
-                height: 80,
-              )
+              const SizedBox(height: 80),
               // Safe Area was not working, added a top padding
             ]),
-          )
+          ),
         ],
       ),
 
@@ -254,9 +251,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
 }
 
 class Fab extends ConsumerWidget {
-  const Fab({
-    Key? key,
-  }) : super(key: key);
+  const Fab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -276,9 +271,7 @@ class Fab extends ConsumerWidget {
 }
 
 class PreHeatBtn extends ConsumerWidget {
-  const PreHeatBtn({
-    Key? key,
-  }) : super(key: key);
+  const PreHeatBtn({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -289,9 +282,7 @@ class PreHeatBtn extends ConsumerWidget {
               .watch(gCodeFileDetailsControllerProvider.notifier)
               .onPreHeatPrinterTap
           : null,
-      icon: const Icon(
-        FlutterIcons.fire_alt_faw5s,
-      ),
+      icon: const Icon(FlutterIcons.fire_alt_faw5s),
       tooltip: 'pages.files.details.preheat'.tr(),
     );
   }
@@ -315,18 +306,9 @@ class PropertyTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            title,
-            textAlign: TextAlign.left,
-          ),
-          const SizedBox(
-            height: 2,
-          ),
-          Text(
-            subtitle,
-            style: subtitleTheme,
-            textAlign: TextAlign.left,
-          )
+          Text(title, textAlign: TextAlign.left),
+          const SizedBox(height: 2),
+          Text(subtitle, style: subtitleTheme, textAlign: TextAlign.left),
         ],
       ),
     );

@@ -84,13 +84,15 @@ class TextInputDialog extends HookWidget {
                       if (formKey.value.currentState!.saveAndValidate()) {
                         String formValue = formKey.value.currentState!.value['newValue'];
                         // if (fileExt != null) formValue += fileExt!;
-                        completer(DialogResponse(confirmed: true, data: formValue));
+                        completer(
+                          DialogResponse(confirmed: true, data: formValue),
+                        );
                       }
                     },
                     child: Text(request.confirmBtn!),
-                  )
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),

@@ -15,6 +15,7 @@ import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/exceptions/obico_exception.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
@@ -39,7 +40,7 @@ part 'printers_add_controller.freezed.dart';
 part 'printers_add_controller.g.dart';
 
 @riverpod
-GlobalKey<FormBuilderState> formKey(FormKeyRef ref) {
+GlobalKey<FormBuilderState> formKey(FormKeyRef _) {
   return GlobalKey<FormBuilderState>();
 }
 
@@ -53,8 +54,11 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       ref.read(allMachinesProvider.selectAsync((data) => data.length)).then((value) {
         if (value >= maxNonSupporterMachines) {
           state = state.copyWith(
-              nonSupporterError:
-                  tr('components.supporter_only_feature.printer_add', args: [maxNonSupporterMachines.toString()]));
+            nonSupporterError: tr(
+              'components.supporter_only_feature.printer_add',
+              args: [maxNonSupporterMachines.toString()],
+            ),
+          );
         }
       });
     }
@@ -87,27 +91,34 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       logger.i('OctoEverywhere returned Local IP: $localIp');
 
       if (localIp == null) {
-        throw const OctoEverywhereException('Could not retrieve Printer\'s local IP.');
+        throw const OctoEverywhereException(
+          'Could not retrieve Printer\'s local IP.',
+        );
       }
 
       var wsUrl = buildMoonrakerWebSocketUri(localIp);
       var httpUri = buildMoonrakerHttpUri(localIp);
       if (wsUrl == null || httpUri == null) {
-        throw const OctoEverywhereException('Could not retrieve Printer\'s local IP.');
+        throw const OctoEverywhereException(
+          'Could not retrieve Printer\'s local IP.',
+        );
       }
 
       var machine = Machine(
-          name: infoResult.printerName,
-          wsUri: wsUrl,
-          httpUri: httpUri,
-          octoEverywhere: OctoEverywhere.fromDto(appPortalResult));
+        name: infoResult.printerName,
+        wsUri: wsUrl,
+        httpUri: httpUri,
+        octoEverywhere: OctoEverywhere.fromDto(appPortalResult),
+      );
       machine = await ref.read(machineServiceProvider).addMachine(machine);
       state = state.copyWith(addedMachine: true, machineToAdd: machine);
     } on OctoEverywhereException catch (e, s) {
       logger.e('Error while trying to add printer via Ocot', e, s);
-      ref
-          .read(snackBarServiceProvider)
-          .show(SnackBarConfig(type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            type: SnackbarType.error,
+            title: 'OctoEverywhere-Error:',
+            message: e.message,
+          ));
       state = state.copyWith(step: 0);
     }
   }
@@ -140,9 +151,11 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       state = state.copyWith(addedMachine: true, machineToAdd: machine);
     } on ObicoException catch (e, s) {
       logger.e('Error while trying to add printer via Obico', e, s);
-      ref
-          .read(snackBarServiceProvider)
-          .show(SnackBarConfig(type: SnackbarType.error, title: 'Obico-Error:', message: e.message));
+      ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            type: SnackbarType.error,
+            title: 'Obico-Error:',
+            message: e.message,
+          ));
       state = state.copyWith(step: 0);
     }
   }
@@ -165,10 +178,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
 
   provideMachine(Machine machine) {
     logger.i('provideMachine got: $machine');
-    state = state.copyWith(
-      step: state.step + 1,
-      machineToAdd: machine,
-    );
+    state = state.copyWith(step: state.step + 1, machineToAdd: machine);
   }
 
   submitMachine() async {
@@ -214,10 +224,15 @@ class SimpleFormController extends _$SimpleFormController {
     if (!_formState.saveAndValidate()) return;
 
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
-        name: _displayNameField.transformedValue,
-        wsUri: buildMoonrakerWebSocketUri('${state.scheme}${_urlField.transformedValue}')!,
-        httpUri: buildMoonrakerHttpUri('${state.scheme}${_urlField.transformedValue}')!,
-        apiKey: _apiKeyField.transformedValue));
+          name: _displayNameField.transformedValue,
+          wsUri: buildMoonrakerWebSocketUri(
+            '${state.scheme}${_urlField.transformedValue}',
+          )!,
+          httpUri: buildMoonrakerHttpUri(
+            '${state.scheme}${_urlField.transformedValue}',
+          )!,
+          apiKey: _apiKeyField.transformedValue,
+        ));
   }
 }
 
@@ -243,8 +258,11 @@ class AdvancedFormController extends _$AdvancedFormController {
 
     if (pState.machineToAdd != null) {
       return AdvancedFormState(
-          wsUriFromHttpUri: buildMoonrakerWebSocketUri(pState.machineToAdd!.httpUri.toString()),
-          headers: pState.machineToAdd!.httpHeaders);
+        wsUriFromHttpUri: buildMoonrakerWebSocketUri(
+          pState.machineToAdd!.httpUri.toString(),
+        ),
+        headers: pState.machineToAdd!.httpHeaders,
+      );
     }
 
     return const AdvancedFormState();
@@ -278,7 +296,8 @@ class AdvancedFormController extends _$AdvancedFormController {
 
   onHttpUriChanged(String? httpInput) {
     state = state.copyWith(
-        wsUriFromHttpUri: (httpInput == null || httpInput.isEmpty) ? null : buildMoonrakerWebSocketUri(httpInput));
+      wsUriFromHttpUri: (httpInput == null || httpInput.isEmpty) ? null : buildMoonrakerWebSocketUri(httpInput),
+    );
   }
 }
 
@@ -298,7 +317,9 @@ class TestConnectionController extends _$TestConnectionController {
     PrinterAddState printerAddState = ref.watch(printerAddViewControllerProvider);
     var machineToAdd = printerAddState.machineToAdd;
     if (machineToAdd == null) {
-      throw ArgumentError('Expected the machine to add to be available. However it is null?');
+      throw ArgumentError(
+        'Expected the machine to add to be available. However it is null?',
+      );
     }
 
     TestConnectionState s;
@@ -327,20 +348,24 @@ class TestConnectionController extends _$TestConnectionController {
     ref.read(printerAddViewControllerProvider.notifier).submitMachine();
   }
 
-  _testWebsocket() async {
+  _testWebsocket() {
     _client.openChannel();
     _testConnectionRPCState = _client.stateStream.listen((event) {
       state = switch (event) {
         ClientState.connected => state.copyWith(wsState: event, wsError: null),
-        ClientState.error =>
-          state.copyWith(wsState: event, wsError: _client.errorReason?.toString() ?? 'Unknown Error'),
+        ClientState.error => state.copyWith(
+            wsState: event,
+            wsError: _client.errorReason?.toString() ?? 'Unknown Error',
+          ),
         _ => state.copyWith(wsState: event),
       };
       if (event == ClientState.connected || event == ClientState.error) {
         _testConnectionRPCState?.cancel();
         _client.dispose();
 
-        logger.i('Test connection got a result, cancel stream and dispose client.');
+        logger.i(
+          'Test connection got a result, cancel stream and dispose client.',
+        );
       }
     });
   }
@@ -356,7 +381,9 @@ class TestConnectionController extends _$TestConnectionController {
 
       var isSuccess = response.statusCode == 200;
       state = state.copyWith(
-          httpState: isSuccess, httpError: isSuccess ? null : '${response.statusCode} - ${response.reasonPhrase}');
+        httpState: isSuccess,
+        httpError: isSuccess ? null : '${response.statusCode} - ${response.reasonPhrase}',
+      );
     } catch (e) {
       logger.w('_testHttp returned error', e);
 
@@ -430,21 +457,24 @@ class TestConnectionState with _$TestConnectionState {
   String get wsStateText => tr(switch (wsState) {
         ClientState.connected => 'general.valid',
         ClientState.error => 'general.invalid',
-        _ => 'general.unknown'
+        _ => 'general.unknown',
       });
 
-  String get httpStateText =>
-      tr(switch (httpState) { true => 'general.valid', false => 'general.invalid', _ => 'general.unknown' });
+  String get httpStateText => tr(switch (httpState) {
+        true => 'general.valid',
+        false => 'general.invalid',
+        _ => 'general.unknown',
+      });
 
   Color wsStateColor(ThemeData theme) => switch (wsState) {
         ClientState.connected => theme.extension<CustomColors>()?.success ?? Colors.green,
         ClientState.error => theme.extension<CustomColors>()?.danger ?? Colors.yellow,
-        _ => theme.extension<CustomColors>()?.info ?? Colors.lightBlue
+        _ => theme.extension<CustomColors>()?.info ?? Colors.lightBlue,
       };
 
   Color httpStateColor(ThemeData theme) => switch (httpState) {
         true => theme.extension<CustomColors>()?.success ?? Colors.green,
         false => theme.extension<CustomColors>()?.danger ?? Colors.yellow,
-        _ => theme.extension<CustomColors>()?.info ?? Colors.lightBlue
+        _ => theme.extension<CustomColors>()?.info ?? Colors.lightBlue,
       };
 }

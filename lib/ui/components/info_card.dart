@@ -22,12 +22,14 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     var theme = Theme.of(context);
     return Center(
-        child: Card(
-            shape: ContinuousRectangleBorder(
-              borderRadius: BorderRadius.circular(20.0),
-            ),
-            color: theme.colorScheme.secondaryContainer,
-            child: child ?? _fallbackChild(theme)));
+      child: Card(
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        color: theme.colorScheme.secondaryContainer,
+        child: child ?? _fallbackChild(theme),
+      ),
+    );
   }
 
   Widget _fallbackChild(ThemeData theme) {
@@ -51,11 +53,14 @@ class InfoCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DefaultTextStyle(
-                      style: theme.textTheme.titleSmall ??
-                          TextStyle(
-                              color: onContainer, fontWeight: FontWeight.bold),
-                      child: title!),
-                  body!
+                    style: theme.textTheme.titleSmall ??
+                        TextStyle(
+                          color: onContainer,
+                          fontWeight: FontWeight.bold,
+                        ),
+                    child: title!,
+                  ),
+                  body!,
                 ],
               ),
             ),

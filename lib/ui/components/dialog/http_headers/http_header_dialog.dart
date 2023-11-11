@@ -14,18 +14,18 @@ class HttpHeaderDialog extends HookConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const HttpHeaderDialog({Key? key, required this.request, required this.completer}) : super(key: key);
+  const HttpHeaderDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-        overrides: [
-          dialogCompleterProvider.overrideWithValue(completer),
-        ],
-        child: _HttpHeaderDialog(
-          request: request,
-          completer: completer,
-        ));
+      overrides: [dialogCompleterProvider.overrideWithValue(completer)],
+      child: _HttpHeaderDialog(request: request, completer: completer),
+    );
   }
 }
 
@@ -92,7 +92,9 @@ class _HttpHeaderDialog extends HookConsumerWidget {
                 children: [
                   TextButton(
                     onPressed: () => completer(DialogResponse.aborted()),
-                    child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
+                    child: Text(
+                      MaterialLocalizations.of(context).cancelButtonLabel,
+                    ),
                   ),
                   TextButton(
                     onPressed: () {
@@ -105,7 +107,7 @@ class _HttpHeaderDialog extends HookConsumerWidget {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

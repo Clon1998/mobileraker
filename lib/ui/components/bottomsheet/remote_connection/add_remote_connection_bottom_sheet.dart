@@ -14,7 +14,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
-import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_sheet_controller.dart';
+import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
@@ -24,35 +24,37 @@ import '../../../screens/printers/components/section_header.dart';
 import '../../obico_widgets.dart';
 
 class AddRemoteConnectionBottomSheet extends ConsumerWidget {
-  const AddRemoteConnectionBottomSheet({
-    Key? key,
-    required this.args,
-  }) : super(key: key);
+  const AddRemoteConnectionBottomSheet({Key? key, required this.args}) : super(key: key);
 
   final AddRemoteConnectionSheetArgs args;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SafeArea(
-      child: ProviderScope(
-        overrides: [sheetArgsProvider.overrideWithValue(args)],
-        child: const _AddRemoteConnectionBottomSheet(),
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.8,
+      minChildSize: 0.35,
+      builder: (ctx, scrollController) => SafeArea(
+        child: ProviderScope(
+          overrides: [sheetArgsProvider.overrideWithValue(args)],
+          child: _AddRemoteConnectionBottomSheet(scrollController: scrollController),
+        ),
       ),
     );
   }
 }
 
 class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
-  const _AddRemoteConnectionBottomSheet({
-    Key? key,
-  }) : super(key: key);
+  const _AddRemoteConnectionBottomSheet({Key? key, required this.scrollController}) : super(key: key);
+
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
+    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
     var obicoEnabled = ref.watch(remoteConfigProvider).obicoEnabled;
 
-    var activeIndex = ref.watch(addRemoteConnectionSheetControllerProvider.select((value) {
+    var activeIndex = ref.watch(addRemoteConnectionBottomSheetControllerProvider.select((value) {
       if (obicoEnabled && value.obicoTunnel != null) {
         return 1;
       }
@@ -65,13 +67,16 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
       return 0;
     }));
 
-    var tabController = useTabController(initialLength: obicoEnabled ? 3 : 2, initialIndex: activeIndex);
+    var tabController = useTabController(
+      initialLength: obicoEnabled ? 3 : 2,
+      initialIndex: activeIndex,
+    );
 
     var viewInsets = MediaQuery.viewInsetsOf(context);
     var themeData = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
-      mainAxisSize: MainAxisSize.min,
+      // mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           color: themeData.colorScheme.primary,
@@ -86,9 +91,20 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                   indicatorColor: themeData.colorScheme.onPrimary,
                   automaticIndicatorColorAdjustment: false,
                   tabs: [
-                    Tab(text: tr('bottom_sheets.add_remote_con.octoeverywehre.tab_name')),
-                    if (obicoEnabled) Tab(text: tr('bottom_sheets.add_remote_con.obico.service_name')),
-                    Tab(text: tr('bottom_sheets.add_remote_con.manual.tab_name')),
+                    Tab(
+                      text: tr(
+                        'bottom_sheets.add_remote_con.octoeverywehre.tab_name',
+                      ),
+                    ),
+                    if (obicoEnabled)
+                      Tab(
+                        text: tr(
+                          'bottom_sheets.add_remote_con.obico.service_name',
+                        ),
+                      ),
+                    Tab(
+                      text: tr('bottom_sheets.add_remote_con.manual.tab_name'),
+                    ),
                   ],
                 ),
               ),
@@ -102,31 +118,22 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
             ],
           ),
         ),
-        Flexible(
-          child: AnimatedSize(
-            alignment: Alignment.bottomCenter,
-            duration: kThemeChangeDuration,
-            // curve: Curves.easeOutCubic,
-            child: ConstraintsTransformBox(
-              constraintsTransform: (BoxConstraints x) {
-                double height = x.maxHeight * 0.8 + viewInsets.bottom;
-
-                return x.tighten(height: height);
-              },
-              child: FormBuilder(
-                key: ref.watch(formKeyProvider),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: viewInsets.bottom),
-                  child: TabBarView(
-                    controller: tabController,
-                    children: [
-                      const _OctoTab(),
-                      if (obicoEnabled) const _ObicoTab(),
-                      const _ManualTab(),
-                    ],
-                  ),
-                ),
+        Expanded(
+          child: FormBuilder(
+            key: ref.watch(formKeyProvider),
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: viewInsets.bottom),
+              child: TabBarView(
+                controller: tabController,
+                children: [
+                  _OctoTab(scrollController: scrollController),
+                  if (obicoEnabled)
+                    _ObicoTab(
+                      scrollController: scrollController,
+                    ),
+                  _ManualTab(scrollController: scrollController),
+                ],
               ),
             ),
           ),
@@ -137,32 +144,45 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
 }
 
 class _OctoTab extends ConsumerWidget {
-  const _OctoTab({
-    Key? key,
-  }) : super(key: key);
+  const _OctoTab({Key? key, required this.scrollController}) : super(key: key);
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
+    var model = ref.watch(addRemoteConnectionBottomSheetControllerProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          const Spacer(),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 80, maxWidth: 80, minHeight: 40, minWidth: 40),
-            child: SvgPicture.asset(
-              'assets/vector/oe_logo.svg',
+          Flexible(
+            child: CustomScrollView(
+              controller: scrollController,
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: SvgPicture.asset(
+                          'assets/vector/oe_logo.svg',
+                          height: 80,
+                          width: 80,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      const Text(
+                        'bottom_sheets.add_remote_con.octoeverywehre.description',
+                        textAlign: TextAlign.center,
+                      ).tr(),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 32),
-          const Text(
-            'bottom_sheets.add_remote_con.octoeverywehre.description',
-            textAlign: TextAlign.center,
-          ).tr(),
-          const Spacer(),
           if (model.activeClientType == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -192,23 +212,23 @@ class _OctoTab extends ConsumerWidget {
 }
 
 class _ManualTab extends ConsumerWidget {
-  const _ManualTab({
-    Key? key,
-  }) : super(key: key);
+  const _ManualTab({Key? key, required this.scrollController}) : super(key: key);
+
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
+    var model = ref.watch(addRemoteConnectionBottomSheetControllerProvider);
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Flexible(
           child: ListView(
+            controller: scrollController,
             padding: const EdgeInsets.all(8.0),
-            physics: const ClampingScrollPhysics(),
-            shrinkWrap: true,
+            // shrinkWrap: true,
             children: [
               Container(
                 padding: const EdgeInsets.all(16),
@@ -225,8 +245,9 @@ class _ManualTab extends ConsumerWidget {
               FormBuilderTextField(
                 name: 'alt.uri',
                 decoration: InputDecoration(
-                    labelText: tr('bottom_sheets.add_remote_con.manual.address_label'),
-                    helperText: tr('bottom_sheets.add_remote_con.manual.address_hint')),
+                  labelText: tr('bottom_sheets.add_remote_con.manual.address_label'),
+                  helperText: tr('bottom_sheets.add_remote_con.manual.address_hint'),
+                ),
                 initialValue: model.remoteInterface?.remoteUri.toString(),
                 validator: FormBuilderValidators.compose([
                   FormBuilderValidators.required(),
@@ -236,10 +257,11 @@ class _ManualTab extends ConsumerWidget {
               FormBuilderTextField(
                 keyboardType: const TextInputType.numberWithOptions(),
                 decoration: InputDecoration(
-                    labelText: 'pages.printer_edit.general.timeout_label'.tr(),
-                    helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
-                    helperMaxLines: 3,
-                    suffixText: 's'),
+                  labelText: 'pages.printer_edit.general.timeout_label'.tr(),
+                  helperText: 'pages.printer_edit.general.timeout_helper'.tr(),
+                  helperMaxLines: 3,
+                  suffixText: 's',
+                ),
                 name: 'alt.remoteTimeout',
                 initialValue: (model.remoteInterface?.timeout ?? 10).toString(),
                 valueTransformer: (String? text) => text?.let(int.tryParse) ?? 10,
@@ -281,34 +303,43 @@ class _ManualTab extends ConsumerWidget {
 }
 
 class _ObicoTab extends ConsumerWidget {
-  const _ObicoTab({
-    Key? key,
-  }) : super(key: key);
+  const _ObicoTab({Key? key, required this.scrollController}) : super(key: key);
+  final ScrollController scrollController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(addRemoteConnectionSheetControllerProvider.notifier);
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+    var controller = ref.watch(addRemoteConnectionBottomSheetControllerProvider.notifier);
+    var model = ref.watch(addRemoteConnectionBottomSheetControllerProvider);
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          const Spacer(),
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxHeight: 80, maxWidth: 80, minHeight: 40, minWidth: 40),
-            child: SvgPicture.asset(
-              'assets/vector/obico_logo.svg',
-              height: double.infinity,
-              width: double.infinity,
+          Flexible(
+            child: CustomScrollView(
+              controller: scrollController,
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/vector/obico_logo.svg',
+                        height: 80,
+                        width: 80,
+                      ),
+                      const SizedBox(height: 32),
+                      const Text(
+                        'bottom_sheets.add_remote_con.obico.description',
+                        textAlign: TextAlign.center,
+                      ).tr(),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 32),
-          const Text(
-            'bottom_sheets.add_remote_con.obico.description',
-            textAlign: TextAlign.center,
-          ).tr(),
-          const Spacer(),
           if (model.activeClientType == null)
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -342,7 +373,7 @@ class _ActiveServiceInfo extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(addRemoteConnectionSheetControllerProvider);
+    var model = ref.watch(addRemoteConnectionBottomSheetControllerProvider);
 
     if (model.activeClientType == null) {
       return const SizedBox.shrink();

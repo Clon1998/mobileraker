@@ -61,15 +61,24 @@ class ControlXYZCardController extends _$ControlXYZCardController {
     switch (axis) {
       case PrinterAxis.X:
         if (machineSettings.inverts[0]) dirStep *= -1;
-        printerService.movePrintHead(x: dirStep, feedRate: machineSettings.speedXY.toDouble());
+        printerService.movePrintHead(
+          x: dirStep,
+          feedRate: machineSettings.speedXY.toDouble(),
+        );
         break;
       case PrinterAxis.Y:
         if (machineSettings.inverts[1]) dirStep *= -1;
-        printerService.movePrintHead(y: dirStep, feedRate: machineSettings.speedXY.toDouble());
+        printerService.movePrintHead(
+          y: dirStep,
+          feedRate: machineSettings.speedXY.toDouble(),
+        );
         break;
       case PrinterAxis.Z:
         if (machineSettings.inverts[2]) dirStep *= -1;
-        printerService.movePrintHead(z: dirStep, feedRate: machineSettings.speedZ.toDouble());
+        printerService.movePrintHead(
+          z: dirStep,
+          feedRate: machineSettings.speedZ.toDouble(),
+        );
         break;
       default:
         throw const MobilerakerException('Unreachable');
@@ -131,16 +140,18 @@ class ControlXYZCardController extends _$ControlXYZCardController {
       ),
       if (configFile?.hasQuadGantry == true)
         QuickAction(
-            title: tr('pages.dashboard.general.move_card.qgl_btn'),
-            description: tr('pages.dashboard.general.move_card.qgl_tooltip'),
-            icon: FlutterIcons.quadcopter_mco,
-            callback: onQuadGantry),
+          title: tr('pages.dashboard.general.move_card.qgl_btn'),
+          description: tr('pages.dashboard.general.move_card.qgl_tooltip'),
+          icon: FlutterIcons.quadcopter_mco,
+          callback: onQuadGantry,
+        ),
       if (configFile?.hasBedMesh == true)
         QuickAction(
-            title: tr('pages.dashboard.general.move_card.mesh_btn'),
-            description: tr('pages.dashboard.general.move_card.mesh_tooltip'),
-            icon: FlutterIcons.map_marker_path_mco,
-            callback: onBedMesh),
+          title: tr('pages.dashboard.general.move_card.mesh_btn'),
+          description: tr('pages.dashboard.general.move_card.mesh_tooltip'),
+          icon: FlutterIcons.map_marker_path_mco,
+          callback: onBedMesh,
+        ),
       if (configFile?.hasScrewTiltAdjust == true)
         QuickAction(
           title: tr('pages.dashboard.general.move_card.stc_btn'),
@@ -202,6 +213,9 @@ class ControlXYZCardController extends _$ControlXYZCardController {
       directActions = directActions.sublist(0, min(directActions.length, 3));
     }
 
-    return ControlXYZState(directActions: directActions, moreActions: calibrationActions);
+    return ControlXYZState(
+      directActions: directActions,
+      moreActions: calibrationActions,
+    );
   }
 }

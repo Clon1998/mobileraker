@@ -52,8 +52,9 @@ class WebcamMjpeg extends ConsumerWidget {
     switch (clientType) {
       case ClientType.octo:
         configBuilder.timeout = const Duration(seconds: 30);
-        var baseUri = octoEverywhere!.uri
-            .replace(userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
+        var baseUri = octoEverywhere!.uri.replace(
+          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}',
+        );
         configBuilder
           ..streamUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl)
           ..snapshotUri = buildRemoteWebCamUri(baseUri, machineUri, camSnapshotUrl);
@@ -64,10 +65,18 @@ class WebcamMjpeg extends ConsumerWidget {
           ..timeout = remoteInterface.timeoutDuration
           ..httpHeader = {
             if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
-            ...remoteInterface.httpHeaders
+            ...remoteInterface.httpHeaders,
           }
-          ..streamUri = buildRemoteWebCamUri(remoteInterface.remoteUri, machineUri, camStreamUrl)
-          ..snapshotUri = buildRemoteWebCamUri(remoteInterface.remoteUri, machineUri, camSnapshotUrl);
+          ..streamUri = buildRemoteWebCamUri(
+            remoteInterface.remoteUri,
+            machineUri,
+            camStreamUrl,
+          )
+          ..snapshotUri = buildRemoteWebCamUri(
+            remoteInterface.remoteUri,
+            machineUri,
+            camSnapshotUrl,
+          );
       case ClientType.local:
       default:
         configBuilder
@@ -81,9 +90,7 @@ class WebcamMjpeg extends ConsumerWidget {
       imageBuilder: imageBuilder,
       config: configBuilder.build(),
       showFps: showFps,
-      stackChild: [
-        ...stackChild,
-      ],
+      stackChild: [...stackChild],
     );
   }
 }

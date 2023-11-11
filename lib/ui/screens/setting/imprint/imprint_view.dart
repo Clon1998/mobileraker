@@ -36,18 +36,21 @@ class ImprintPage extends HookWidget {
         title: const Text('Legal Content'),
         actions: [
           IconButton(
-              tooltip: 'Open in Browser',
-              onPressed: imprintLoaded.value
-                  ? () async {
-                      if (await canLaunchUrl(imprint)) {
-                        await launchUrl(imprint,
-                            mode: LaunchMode.externalApplication);
-                      } else {
-                        throw 'Could not launch $imprint';
-                      }
+            tooltip: 'Open in Browser',
+            onPressed: imprintLoaded.value
+                ? () async {
+                    if (await canLaunchUrl(imprint)) {
+                      await launchUrl(
+                        imprint,
+                        mode: LaunchMode.externalApplication,
+                      );
+                    } else {
+                      throw 'Could not launch $imprint';
                     }
-                  : null,
-              icon: const Icon(Icons.open_in_browser))
+                  }
+                : null,
+            icon: const Icon(Icons.open_in_browser),
+          ),
         ],
       ),
       body: AnimatedSwitcher(
@@ -59,9 +62,7 @@ class ImprintPage extends HookWidget {
         switchInCurve: Curves.easeIn,
         switchOutCurve: Curves.easeOut,
         child: (imprintLoaded.value)
-            ? WebViewWidget(
-                controller: webViewController,
-              )
+            ? WebViewWidget(controller: webViewController)
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -69,8 +70,9 @@ class ImprintPage extends HookWidget {
                     color: Theme.of(context).colorScheme.secondary,
                   ),
                   Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: FadingText('${tr('general.loading')} ...'))
+                    padding: const EdgeInsets.symmetric(vertical: 32),
+                    child: FadingText('${tr('general.loading')} ...'),
+                  ),
                 ],
               ),
       ),

@@ -26,8 +26,9 @@ final dialogCompleter = Provider.autoDispose<DialogCompleter>(name: 'dialogCompl
   throw UnimplementedError();
 });
 
-final importSettingsFormKeyProvider =
-    Provider.autoDispose<GlobalKey<FormBuilderState>>((ref) => GlobalKey<FormBuilderState>());
+final importSettingsFormKeyProvider = Provider.autoDispose<GlobalKey<FormBuilderState>>(
+  (ref) => GlobalKey<FormBuilderState>(),
+);
 
 final importSources = FutureProvider.autoDispose<List<ImportMachineSettingsResult>>((ref) async {
   List<Machine> machines = await ref.watch(allMachinesProvider.future);
@@ -38,13 +39,17 @@ final importSources = FutureProvider.autoDispose<List<ImportMachineSettingsResul
       machines.where((element) => element.uuid != target.uuid).map((e) async {
     try {
       var connected = await ref
-          .watchWhere(jrpcClientStateProvider(e.uuid),
-              (c) => c == ClientState.connected || c == ClientState.error)
+          .watchWhere(
+            jrpcClientStateProvider(e.uuid),
+            (c) => c == ClientState.connected || c == ClientState.error,
+          )
           .then((value) => value == ClientState.connected)
           .timeout(const Duration(seconds: 10));
 
       if (!connected) {
-        logger.w('Could not fetch settings, no JRPC connection for ${e.debugStr}');
+        logger.w(
+          'Could not fetch settings, no JRPC connection for ${e.debugStr}',
+        );
         return null;
       }
 
@@ -64,21 +69,26 @@ final importSources = FutureProvider.autoDispose<List<ImportMachineSettingsResul
   return list;
 });
 
-final importSettingsDialogController = StateNotifierProvider.autoDispose<
-    ImportSettingsDialogController,
-    AsyncValue<ImportMachineSettingsResult>>((ref) => ImportSettingsDialogController(ref));
+final importSettingsDialogController = StateNotifierProvider.autoDispose<ImportSettingsDialogController, AsyncValue<ImportMachineSettingsResult>>(
+  (ref) => ImportSettingsDialogController(ref),
+);
 
 class ImportSettingsDialogController
     extends StateNotifier<AsyncValue<ImportMachineSettingsResult>> {
   ImportSettingsDialogController(this.ref) : super(const AsyncValue.loading()) {
-    ref.listen(importSources, (previous, AsyncValue<List<ImportMachineSettingsResult>> next) {
-      next.when(
+    ref.listen(
+      importSources,
+      (previous, AsyncValue<List<ImportMachineSettingsResult>> next) {
+        next.when(
           data: (sources) {
             state = AsyncValue.data(sources.first);
           },
           error: (e, s) => state = AsyncValue.error(e, s),
-          loading: () => null);
-    }, fireImmediately: true);
+          loading: () => null,
+        );
+      },
+      fireImmediately: true,
+    );
   }
 
   final AutoDisposeRef ref;
@@ -97,9 +107,13 @@ class ImportSettingsDialogController
       fields.addAll(currentState.value['extrudersFields'] ?? []);
 
       ref.read(dialogCompleter)(DialogResponse(
-          confirmed: true,
-          data: ImportSettingsDialogViewResults(
-              source: state.value!, presets: selectedPresets, fields: fields)));
+        confirmed: true,
+        data: ImportSettingsDialogViewResults(
+          source: state.value!,
+          presets: selectedPresets,
+          fields: fields,
+        ),
+      ));
     }
   }
 }
@@ -109,12 +123,15 @@ class ImportSettingsDialogViewResults {
   final List<TemperaturePreset> presets;
   final List<String> fields;
 
-  ImportSettingsDialogViewResults(
-      {required this.source, required this.presets, required this.fields});
+  const ImportSettingsDialogViewResults({
+    required this.source,
+    required this.presets,
+    required this.fields,
+  });
 }
 
 class ImportMachineSettingsResult {
-  ImportMachineSettingsResult(this.machine, this.machineSettings);
+  const ImportMachineSettingsResult(this.machine, this.machineSettings);
 
   final Machine machine;
   final MachineSettings machineSettings;

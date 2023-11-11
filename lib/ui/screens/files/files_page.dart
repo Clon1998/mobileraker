@@ -13,6 +13,8 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
 import 'package:common/util/logger.dart';
@@ -25,11 +27,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
-import 'package:mobileraker/ui/components/drawer/nav_drawer_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
-import 'package:mobileraker/ui/components/selected_printer_app_bar.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
@@ -54,13 +54,13 @@ class FilesPage extends ConsumerWidget {
 }
 
 class _Fab extends ConsumerWidget {
-  const _Fab({
-    Key? key,
-  }) : super(key: key);
+  const _Fab({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var jobQueueStatusAsync = ref.watch(filesPageControllerProvider.select((value) => value.jobQueueStatus));
+    var jobQueueStatusAsync = ref.watch(
+      filesPageControllerProvider.select((value) => value.jobQueueStatus),
+    );
     if (jobQueueStatusAsync.isLoading || jobQueueStatusAsync.hasError) {
       return const SizedBox.shrink();
     }
@@ -71,24 +71,25 @@ class _Fab extends ConsumerWidget {
     }
     var themeData = Theme.of(context);
     return FloatingActionButton(
-        onPressed: ref.read(filesPageControllerProvider.notifier).jobQueueBottomSheet,
-        child: badges.Badge(
-          badgeStyle: badges.BadgeStyle(
-            badgeColor: themeData.colorScheme.onSecondary,
-          ),
-          badgeAnimation: const badges.BadgeAnimation.rotation(),
-          position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
-          badgeContent:
-              Text('${jobQueueStatus.queuedJobs.length}', style: TextStyle(color: themeData.colorScheme.secondary)),
-          child: const Icon(Icons.content_paste),
-        ));
+      onPressed: ref.read(filesPageControllerProvider.notifier).jobQueueBottomSheet,
+      child: badges.Badge(
+        badgeStyle: badges.BadgeStyle(
+          badgeColor: themeData.colorScheme.onSecondary,
+        ),
+        badgeAnimation: const badges.BadgeAnimation.rotation(),
+        position: badges.BadgePosition.bottomEnd(end: -7, bottom: -11),
+        badgeContent: Text(
+          '${jobQueueStatus.queuedJobs.length}',
+          style: TextStyle(color: themeData.colorScheme.secondary),
+        ),
+        child: const Icon(Icons.content_paste),
+      ),
+    );
   }
 }
 
 class _BottomNav extends ConsumerWidget {
-  const _BottomNav({
-    Key? key,
-  }) : super(key: key);
+  const _BottomNav({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -104,10 +105,19 @@ class _BottomNav extends ConsumerWidget {
       onTap: (i) => ref.read(filePageProvider.notifier).state = i,
       // onTap: model.onBottomItemTapped,
       items: [
-        const BottomNavigationBarItem(label: 'GCodes', icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco)),
-        const BottomNavigationBarItem(label: 'Configs', icon: Icon(FlutterIcons.file_code_faw5)),
+        const BottomNavigationBarItem(
+          label: 'GCodes',
+          icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
+        ),
+        const BottomNavigationBarItem(
+          label: 'Configs',
+          icon: Icon(FlutterIcons.file_code_faw5),
+        ),
         if (ref.watch(klipperSelectedProvider.selectAs((data) => data.hasTimelapseComponent)).valueOrNull == true)
-          const BottomNavigationBarItem(label: 'Timelaps', icon: Icon(Icons.subscriptions_outlined)),
+          const BottomNavigationBarItem(
+            label: 'Timelaps',
+            icon: Icon(Icons.subscriptions_outlined),
+          ),
       ],
     );
   }
@@ -156,19 +166,23 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
           ),
         ),
       );
-    } else {
-      return SwitchPrinterAppBar(title: tr('pages.files.title'), actions: <Widget>[
+    }
+    return SwitchPrinterAppBar(
+      title: tr('pages.files.title'),
+      actions: <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrFullNull),
+          child: MachineStateIndicator(
+            ref.watch(selectedMachineProvider).valueOrFullNull,
+          ),
         ),
         const FileSortModeSelector(),
         IconButton(
           icon: const Icon(Icons.search),
           onPressed: () => ref.read(isSearchingProvider.notifier).state = true,
         ),
-      ]);
-    }
+      ],
+    );
   }
 
   @override
@@ -204,133 +218,158 @@ class _FilesBody extends ConsumerWidget {
         child: Column(
           children: [
             const _BreadCrumb(),
-            ref.watch(filesPageControllerProvider.select((value) => value.files)).when(
-                skipLoadingOnReload: true,
-                skipLoadingOnRefresh: false,
-                data: (files) {
-                  int lenFolders = files.folders.length;
-                  int lenGcodes = files.files.length;
-                  int lenTotal = lenFolders + lenGcodes;
+            ref
+                .watch(
+                  filesPageControllerProvider.select((value) => value.files),
+                )
+                .when(
+                  skipLoadingOnReload: true,
+                  skipLoadingOnRefresh: false,
+                  data: (files) {
+                    int lenFolders = files.folders.length;
+                    int lenGcodes = files.files.length;
+                    int lenTotal = lenFolders + lenGcodes;
 
-                  // Add one of the .. folder to back
-                  if (model.isInSubFolder) lenTotal++;
+                    // Add one of the .. folder to back
+                if (model.isInSubFolder) lenTotal++;
 
-                  return Expanded(
-                    child: EaseIn(
-                      duration: const Duration(milliseconds: 100),
-                      curve: Curves.easeOutCubic,
-                      child: SmartRefresher(
-                        header: const WaterDropMaterialHeader(),
-                        controller: RefreshController(),
-                        onRefresh: controller.refreshFiles,
-                        child: (lenTotal == 0)
-                            ? ListTile(
-                                contentPadding: EdgeInsets.zero,
-                                leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.search_off)),
-                                title: const Text('pages.files.no_files_found').tr(),
-                              )
-                            : ListView.builder(
-                                physics: const BouncingScrollPhysics(),
-                                itemCount: lenTotal,
-                                itemBuilder: (context, index) {
-                                  if (model.isInSubFolder) {
-                                    if (index == 0) {
-                                      return ListTile(
-                                        contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-                                        leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
-                                        title: const Text('...'),
-                                        onTap: controller.popFolder,
-                                      );
-                                    } else {
+                    return Expanded(
+                      child: EaseIn(
+                        duration: const Duration(milliseconds: 100),
+                        curve: Curves.easeOutCubic,
+                        child: SmartRefresher(
+                          header: const WaterDropMaterialHeader(),
+                          controller: RefreshController(),
+                          onRefresh: controller.refreshFiles,
+                          child: (lenTotal == 0)
+                              ? ListTile(
+                                  contentPadding: EdgeInsets.zero,
+                                  leading: const SizedBox(
+                                    width: 64,
+                                    height: 64,
+                                    child: Icon(Icons.search_off),
+                                  ),
+                                  title: const Text('pages.files.no_files_found').tr(),
+                                )
+                              : ListView.builder(
+                                  physics: const BouncingScrollPhysics(),
+                                  itemCount: lenTotal,
+                                  itemBuilder: (context, index) {
+                                    if (model.isInSubFolder) {
+                                      if (index == 0) {
+                                        return ListTile(
+                                          contentPadding: const EdgeInsets.symmetric(
+                                            horizontal: 5,
+                                            vertical: 3,
+                                          ),
+                                          leading: const SizedBox(
+                                            width: 64,
+                                            height: 64,
+                                            child: Icon(Icons.folder),
+                                          ),
+                                          title: const Text('...'),
+                                          onTap: controller.popFolder,
+                                        );
+                                      }
                                       index--;
                                     }
-                                  }
 
-                                  if (index < lenFolders) {
-                                    Folder folder = files.folders[index];
-                                    return FolderItem(
-                                      folder: folder,
-                                      key: ValueKey(folder),
-                                    );
-                                  } else {
+                                    if (index < lenFolders) {
+                                      Folder folder = files.folders[index];
+                                      return FolderItem(
+                                        folder: folder,
+                                        key: ValueKey(folder),
+                                      );
+                                    }
                                     RemoteFile file = files.files[index - lenFolders];
                                     if (file is GCodeFile) {
                                       return GCodeFileItem(
                                         key: ValueKey(file),
                                         gCode: file,
                                       );
-                                    } else {
-                                      return FileItem(
-                                        file: file,
-                                        key: ValueKey(file),
-                                      );
                                     }
-                                  }
-                                }),
-                      ),
-                    ),
-                  );
-                },
-                error: (e, s) => Expanded(
-                      child: ErrorCard(
-                        title: const Text('Unable to fetch files!'),
-                        body: Column(
-                          children: [
-                            Text('The following error occued while trying to fetch files:n$e'),
-                            TextButton(
-                                // onPressed: model.showPrinterFetchingErrorDialog,
-                                onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                                    type: CommonDialogs.stacktrace,
-                                    title: e.runtimeType.toString(),
-                                    body: 'Exception:\n $e\n\n$s')),
-                                child: const Text('Show Full Error'))
-                          ],
+                                    return FileItem(
+                                      file: file,
+                                      key: ValueKey(file),
+                                    );
+                                  },
+                                ),
                         ),
                       ),
+                    );
+                  },
+                  error: (e, s) => Expanded(
+                    child: ErrorCard(
+                      title: const Text('Unable to fetch files!'),
+                      body: Column(
+                        children: [
+                          Text(
+                            'The following error occued while trying to fetch files:n$e',
+                          ),
+                          TextButton(
+                            // onPressed: model.showPrinterFetchingErrorDialog,
+                            onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
+                                  type: CommonDialogs.stacktrace,
+                                  title: e.runtimeType.toString(),
+                                  body: 'Exception:\n $e\n\n$s',
+                                )),
+                            child: const Text('Show Full Error'),
+                          ),
+                        ],
+                      ),
                     ),
-                loading: () => Expanded(
-                      child: Shimmer.fromColors(
-                        baseColor: Colors.grey,
-                        highlightColor: theme.colorScheme.background,
-                        child: ListView.builder(
-                            itemCount: 15,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-                                leading: Container(
-                                  decoration: const BoxDecoration(
-                                    borderRadius: BorderRadius.horizontal(
-                                        left: Radius.circular(15.0), right: Radius.circular(15.0)),
+                  ),
+                  loading: () => Expanded(
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.grey,
+                      highlightColor: theme.colorScheme.background,
+                      child: ListView.builder(
+                        itemCount: 15,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
+                            leading: Container(
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.horizontal(
+                                  left: Radius.circular(15.0),
+                                  right: Radius.circular(15.0),
+                                ),
+                                color: Colors.white,
+                              ),
+                              width: 64,
+                              height: 64,
+                              margin: const EdgeInsets.symmetric(
+                                vertical: 2,
+                                horizontal: 2,
+                              ),
+                            ),
+                            title: Container(
+                              width: double.infinity,
+                              height: 16.0,
+                              margin: const EdgeInsets.only(right: 5),
+                              color: Colors.white,
+                            ),
+                            subtitle: Row(
+                              children: [
+                                Flexible(
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 10.0,
                                     color: Colors.white,
                                   ),
-                                  width: 64,
-                                  height: 64,
-                                  margin: const EdgeInsets.symmetric(vertical: 2, horizontal: 2),
                                 ),
-                                title: Container(
-                                  width: double.infinity,
-                                  height: 16.0,
-                                  margin: const EdgeInsets.only(right: 5),
-                                  color: Colors.white,
-                                ),
-                                subtitle: Row(
-                                  children: [
-                                    Flexible(
-                                      child: Container(
-                                        width: double.infinity,
-                                        height: 10.0,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const Spacer(
-                                      flex: 2,
-                                    )
-                                  ],
-                                ),
-                              );
-                            }),
+                                const Spacer(flex: 2),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    )),
+                    ),
+                  ),
+                ),
           ],
         ),
       ),
@@ -349,9 +388,7 @@ class _BreadCrumb extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary,
-      ),
+      decoration: BoxDecoration(color: theme.colorScheme.primary),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
         child: Row(
@@ -364,11 +401,12 @@ class _BreadCrumb extends ConsumerWidget {
                   String p = model[index];
                   List<String> target = model.sublist(0, index + 1);
                   return BreadCrumbItem(
-                      content: Text(
-                        p.toUpperCase(),
-                        style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimary),
-                      ),
-                      onTap: () => controller.goToPath(target));
+                    content: Text(
+                      p.toUpperCase(),
+                      style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimary),
+                    ),
+                    onTap: () => controller.goToPath(target),
+                  );
                 },
                 divider: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -389,7 +427,7 @@ class _BreadCrumb extends ConsumerWidget {
                   size: 20,
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -409,10 +447,11 @@ class FolderItem extends ConsumerWidget {
     return _Slideable(
       file: folder,
       child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-          leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
-          title: Text(folder.name),
-          onTap: () => controller.enterFolder(folder)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+        leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.folder)),
+        title: Text(folder.name),
+        onTap: () => controller.enterFolder(folder),
+      ),
     );
   }
 }
@@ -430,7 +469,11 @@ class FileItem extends ConsumerWidget {
       file: file,
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
-        leading: const SizedBox(width: 64, height: 64, child: Icon(Icons.insert_drive_file)),
+        leading: const SizedBox(
+          width: 64,
+          height: 64,
+          child: Icon(Icons.insert_drive_file),
+        ),
         title: Text(file.name),
         onTap: () => controller.onFileTapped(file),
       ),
@@ -470,12 +513,17 @@ class GCodeFileItem extends ConsumerWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
         leading: SizedBox(
-            width: 64,
-            height: 64,
-            child: Hero(
-              tag: 'gCodeImage-${gCode.hashCode}',
-              child: buildLeading(gCode, ref.watch(previewImageUriProvider), ref.watch(previewImageHttpHeaderProvider)),
-            )),
+          width: 64,
+          height: 64,
+          child: Hero(
+            tag: 'gCodeImage-${gCode.hashCode}',
+            child: buildLeading(
+              gCode,
+              ref.watch(previewImageUriProvider),
+              ref.watch(previewImageHttpHeaderProvider),
+            ),
+          ),
+        ),
         title: Text(gCode.name),
         subtitle: Text(
             (lastPrinted != null) ? '${tr('pages.files.last_printed')}: $lastPrinted' : tr('pages.files.not_printed')),
@@ -484,7 +532,11 @@ class GCodeFileItem extends ConsumerWidget {
     );
   }
 
-  Widget buildLeading(GCodeFile gCodeFile, Uri? machineUri, Map<String, String> headers) {
+  Widget buildLeading(
+    GCodeFile gCodeFile,
+    Uri? machineUri,
+    Map<String, String> headers,
+  ) {
     var bigImageUri = gCodeFile.constructBigImageUri(machineUri);
 
     if (bigImageUri != null) {
@@ -493,7 +545,10 @@ class GCodeFileItem extends ConsumerWidget {
         child: CachedNetworkImage(
           imageBuilder: (context, imageProvider) => Container(
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.horizontal(left: Radius.circular(15.0), right: Radius.circular(15.0)),
+              borderRadius: const BorderRadius.horizontal(
+                left: Radius.circular(15.0),
+                right: Radius.circular(15.0),
+              ),
               image: DecorationImage(
                 image: imageProvider,
                 fit: BoxFit.cover,
@@ -518,9 +573,8 @@ class GCodeFileItem extends ConsumerWidget {
           },
         ),
       );
-    } else {
-      return const Icon(Icons.insert_drive_file);
     }
+    return const Icon(Icons.insert_drive_file);
   }
 }
 

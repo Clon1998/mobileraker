@@ -12,9 +12,7 @@ import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card_controller.dart';
 
 class CamCard extends ConsumerWidget {
-  const CamCard({
-    Key? key,
-  }) : super(key: key);
+  const CamCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -27,20 +25,16 @@ class CamCard extends ConsumerWidget {
       switchInCurve: Curves.easeInOutBack,
       duration: const Duration(milliseconds: 400),
       transitionBuilder: (child, anim) => SizeTransition(
-          sizeFactor: anim,
-          child: FadeTransition(
-            opacity: anim,
-            child: child,
-          )),
+        sizeFactor: anim,
+        child: FadeTransition(opacity: anim, child: child),
+      ),
       child: showCard
           ? Card(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   ListTile(
-                    leading: const Icon(
-                      FlutterIcons.webcam_mco,
-                    ),
+                    leading: const Icon(FlutterIcons.webcam_mco),
                     title: const Text('pages.dashboard.general.cam_card.webcam')
                         .tr(),
                     trailing: const _Trailing(),
@@ -48,42 +42,42 @@ class CamCard extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
                     child: watch.when(
-                        data: (data) =>
-                            data.allCams.isEmpty || data.activeCam == null
-                                ? const SizedBox.shrink()
-                                : Center(
-                                    key: UniqueKey(),
-                                    child: _CamCardData(data: data)),
-                        error: (e, s) => Center(
-                              child: Column(
-                                key: UniqueKey(),
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.error_outline),
-                                  const SizedBox(
-                                    height: 30,
-                                  ),
-                                  Text(e.toString(),
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .error)),
-                                  TextButton.icon(
-                                      onPressed: () => ref
-                                          .read(camCardControllerProvider
-                                          .notifier)
-                                          .onRetry(),
-                                      icon: const Icon(
-                                          Icons.restart_alt_outlined),
-                                      label: const Text('general.retry').tr())
-                                ],
+                      data: (data) => data.allCams.isEmpty || data.activeCam == null
+                          ? const SizedBox.shrink()
+                          : Center(
+                              key: UniqueKey(),
+                              child: _CamCardData(data: data),
+                            ),
+                      error: (e, s) => Center(
+                        child: Column(
+                          key: UniqueKey(),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.error_outline),
+                            const SizedBox(height: 30),
+                            Text(
+                              e.toString(),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
                               ),
                             ),
-                        loading: () => Container(
-                            alignment: Alignment.center,
-                            child: const LinearProgressIndicator())),
+                            TextButton.icon(
+                              onPressed: () => ref.read(camCardControllerProvider.notifier).onRetry(),
+                              icon: const Icon(
+                                Icons.restart_alt_outlined,
+                              ),
+                              label: const Text('general.retry').tr(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      loading: () => Container(
+                        alignment: Alignment.center,
+                        child: const LinearProgressIndicator(),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -94,9 +88,7 @@ class CamCard extends ConsumerWidget {
 }
 
 class _Trailing extends ConsumerWidget {
-  const _Trailing({
-    Key? key,
-  }) : super(key: key);
+  const _Trailing({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -109,23 +101,20 @@ class _Trailing extends ConsumerWidget {
     }
 
     return DropdownButton(
-        value: camState.activeCam!.uuid,
-        onChanged:
-            ref.read(camCardControllerProvider.notifier).onSelectedChange,
-        items: camState.allCams.map((e) {
-          return DropdownMenuItem(
-            value: e.uuid,
-            child: Text(beautifyName(e.name)),
-          );
-        }).toList());
+      value: camState.activeCam!.uuid,
+      onChanged: ref.read(camCardControllerProvider.notifier).onSelectedChange,
+      items: camState.allCams.map((e) {
+        return DropdownMenuItem(
+          value: e.uuid,
+          child: Text(beautifyName(e.name)),
+        );
+      }).toList(),
+    );
   }
 }
 
 class _CamCardData extends ConsumerWidget {
-  const _CamCardData({
-    Key? key,
-    required this.data,
-  }) : super(key: key);
+  const _CamCardData({Key? key, required this.data}) : super(key: key);
   final CamCardState data;
 
   @override
@@ -156,7 +145,8 @@ class _CamCardData extends ConsumerWidget {
 
   Widget _imageBuilder(BuildContext context, Widget imageTransformed) {
     return ClipRRect(
-        borderRadius: const BorderRadius.all(Radius.circular(5)),
-        child: imageTransformed);
+      borderRadius: const BorderRadius.all(Radius.circular(5)),
+      child: imageTransformed,
+    );
   }
 }

@@ -15,8 +15,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final dialogCompleter = Provider.autoDispose<DialogCompleter>((ref) => throw UnimplementedError());
 
-final excludeObjectFormKey =
-    Provider.autoDispose<GlobalKey<FormBuilderState>>((ref) => GlobalKey<FormBuilderState>());
+final excludeObjectFormKey = Provider.autoDispose<GlobalKey<FormBuilderState>>(
+  (ref) => GlobalKey<FormBuilderState>(),
+);
 
 final excludeObjectProvider = StreamProvider.autoDispose<ExcludeObject?>((ref) {
   return ref.watchAsSubject(printerSelectedProvider.selectAs((d) => d.excludeObject));
@@ -26,20 +27,23 @@ final conirmedProvider = StateProvider.autoDispose((ref) => false);
 
 final excludeObjectControllerProvider =
     StateNotifierProvider.autoDispose<ExcludeObjectController, ParsedObject?>(
-        (ref) => ExcludeObjectController(ref));
+  (ref) => ExcludeObjectController(ref),
+);
 
 class ExcludeObjectController extends StateNotifier<ParsedObject?> {
   ExcludeObjectController(this.ref) : super(null) {
     late ProviderSubscription<AsyncValue<PrintState>> sub;
-    sub = ref.listen(printerSelectedProvider.selectAs((data) => data.print.state),
-        (previous, AsyncValue<PrintState> next) {
-      next.whenData((state) {
-        if (!const {PrintState.printing, PrintState.paused}.contains(state)) {
-          closeForm();
-          sub.close();
-        }
-      });
-    });
+    sub = ref.listen(
+      printerSelectedProvider.selectAs((data) => data.print.state),
+      (previous, AsyncValue<PrintState> next) {
+        next.whenData((state) {
+          if (!const {PrintState.printing, PrintState.paused}.contains(state)) {
+            closeForm();
+            sub.close();
+          }
+        });
+      },
+    );
   }
 
   AutoDisposeRef ref;

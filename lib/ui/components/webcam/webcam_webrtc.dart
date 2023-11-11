@@ -45,13 +45,18 @@ class WebcamWebRtc extends ConsumerWidget {
 
     switch (clientType) {
       case ClientType.octo:
-        var baseUri = octoEverywhere!.uri
-            .replace(userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}');
+        var baseUri = octoEverywhere!.uri.replace(
+          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}',
+        );
         webRtcUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl);
         break;
       case ClientType.manual:
         var remoteInterface = machine.remoteInterface!;
-        webRtcUri = buildRemoteWebCamUri(remoteInterface.remoteUri, machineUri, camStreamUrl);
+        webRtcUri = buildRemoteWebCamUri(
+          remoteInterface.remoteUri,
+          machineUri,
+          camStreamUrl,
+        );
         headers = {
           if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
           ...remoteInterface.httpHeaders,

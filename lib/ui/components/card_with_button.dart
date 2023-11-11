@@ -43,22 +43,24 @@ class CardWithButton extends StatelessWidget {
           Container(
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-                color: _backgroundColor,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(radius))),
+              color: _backgroundColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(radius)),
+            ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
               child: Theme(
-                  data: themeData.copyWith(
-                      textTheme: themeData.textTheme.apply(
-                          bodyColor: _onBackgroundColor,
-                          displayColor: _onBackgroundColor),
-                      iconTheme: themeData.iconTheme
-                          .copyWith(color: _onBackgroundColor)),
-                  child: DefaultTextStyle(
-                    style: TextStyle(color: _onBackgroundColor),
-                    child: Builder(builder: builder),
-                  )),
+                data: themeData.copyWith(
+                  textTheme: themeData.textTheme.apply(
+                    bodyColor: _onBackgroundColor,
+                    displayColor: _onBackgroundColor,
+                  ),
+                  iconTheme: themeData.iconTheme.copyWith(color: _onBackgroundColor),
+                ),
+                child: DefaultTextStyle(
+                  style: TextStyle(color: _onBackgroundColor),
+                  child: Builder(builder: builder),
+                ),
+              ),
             ),
           ),
           TextButton(
@@ -76,7 +78,7 @@ class CardWithButton extends StatelessWidget {
             ),
             onPressed: onTap,
             child: buttonChild,
-          )
+          ),
         ],
       ),
     );

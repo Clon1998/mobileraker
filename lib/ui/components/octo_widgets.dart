@@ -45,10 +45,7 @@ class OctoEveryWhereBtn extends StatelessWidget {
 }
 
 class OctoIndicator extends StatelessWidget {
-  const OctoIndicator({
-    Key? key,
-    this.size,
-  }) : super(key: key);
+  const OctoIndicator({Key? key, this.size}) : super(key: key);
 
   final Size? size;
 
@@ -67,11 +64,7 @@ class OctoIndicator extends StatelessWidget {
 }
 
 class GadgetIndicator extends ConsumerWidget {
-  const GadgetIndicator({
-    super.key,
-    required this.appToken,
-    this.iconSize,
-  });
+  const GadgetIndicator({super.key, required this.appToken, this.iconSize});
 
   final String appToken;
   final double? iconSize;

@@ -30,7 +30,9 @@ final pageControllerProvider = Provider.autoDispose<PageController>((ref) {
 });
 
 @riverpod
-Stream<PrinterKlippySettingsMachineWrapper> machinePrinterKlippySettings(MachinePrinterKlippySettingsRef ref) async* {
+Stream<PrinterKlippySettingsMachineWrapper> machinePrinterKlippySettings(
+  MachinePrinterKlippySettingsRef ref,
+) async* {
   var selMachine = await ref.watch(selectedMachineProvider.future);
   if (selMachine == null) {
     return;
@@ -47,20 +49,27 @@ Stream<PrinterKlippySettingsMachineWrapper> machinePrinterKlippySettings(Machine
   var clientType = ref.watch(jrpcClientTypeProvider(selMachine.uuid));
 
   yield* Rx.combineLatest3(
-      printer,
-      klippy,
-      machineSettings,
-      (Printer a, KlipperInstance b, MachineSettings c) => PrinterKlippySettingsMachineWrapper(
-          printerData: a, klippyData: b, settings: c, machine: selMachine, clientType: clientType));
+    printer,
+    klippy,
+    machineSettings,
+    (Printer a, KlipperInstance b, MachineSettings c) => PrinterKlippySettingsMachineWrapper(
+      printerData: a,
+      klippyData: b,
+      settings: c,
+      machine: selMachine,
+      clientType: clientType,
+    ),
+  );
 }
 
 class PrinterKlippySettingsMachineWrapper {
-  const PrinterKlippySettingsMachineWrapper(
-      {required this.printerData,
-      required this.klippyData,
-      required this.settings,
-      required this.machine,
-      required this.clientType});
+  const PrinterKlippySettingsMachineWrapper({
+    required this.printerData,
+    required this.klippyData,
+    required this.settings,
+    required this.machine,
+    required this.clientType,
+  });
 
   final Printer printerData;
   final KlipperInstance klippyData;
@@ -80,28 +89,42 @@ class DashBoardViewController extends StateNotifier<int> {
     setupCalibrationDialogTriggers();
   }
 
-  void setupCalibrationDialogTriggers() async {
+  void setupCalibrationDialogTriggers() {
     // Manual Probe Dialog
-    ref.listen(machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.manualProbe?.isActive),
-        (previous, next) {
-      var dialogService = ref.read(dialogServiceProvider);
+    ref.listen(
+      machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.manualProbe?.isActive),
+      (previous, next) {
+        var dialogService = ref.read(dialogServiceProvider);
 
-      if (next.valueOrNull == true && !dialogService.isDialogOpen) {
-        logger.i('Detected manualProbe... opening Dialog');
-        dialogService.show(DialogRequest(barrierDismissible: false, type: DialogType.manualOffset));
-      }
-    }, fireImmediately: true);
+        if (next.valueOrNull == true && !dialogService.isDialogOpen) {
+          logger.i('Detected manualProbe... opening Dialog');
+          dialogService.show(DialogRequest(
+            barrierDismissible: false,
+            type: DialogType.manualOffset,
+          ));
+        }
+      },
+      fireImmediately: true,
+    );
 
     // Bed Screw Adjust
-    ref.listen(machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.bedScrew?.isActive),
-        (previous, next) {
-      var dialogService = ref.read(dialogServiceProvider);
+    ref.listen(
+      machinePrinterKlippySettingsProvider.selectAs(
+        (data) => data.printerData.bedScrew?.isActive,
+      ),
+      (previous, next) {
+        var dialogService = ref.read(dialogServiceProvider);
 
-      if (next.valueOrNull == true && !dialogService.isDialogOpen) {
-        logger.i('Detected bedScrew... opening Dialog');
-        ref.read(dialogServiceProvider).show(DialogRequest(barrierDismissible: false, type: DialogType.bedScrewAdjust));
-      }
-    }, fireImmediately: true);
+        if (next.valueOrNull == true && !dialogService.isDialogOpen) {
+          logger.i('Detected bedScrew... opening Dialog');
+          ref.read(dialogServiceProvider).show(DialogRequest(
+                barrierDismissible: false,
+                type: DialogType.bedScrewAdjust,
+              ));
+        }
+      },
+      fireImmediately: true,
+    );
   }
 
   final AutoDisposeRef ref;
@@ -110,7 +133,11 @@ class DashBoardViewController extends StateNotifier<int> {
 
   onBottomNavTapped(int value) {
     if (mounted) {
-      pageController.animateToPage(value, duration: kThemeChangeDuration, curve: Curves.easeOutCubic);
+      pageController.animateToPage(
+        value,
+        duration: kThemeChangeDuration,
+        curve: Curves.easeOutCubic,
+      );
     }
   }
 

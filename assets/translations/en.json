@@ -44,7 +44,8 @@
     "delete": "Delete",
     "clear": "Clear",
     "unlink": "Unlink",
-    "save": "Save"
+    "save": "Save",
+    "apply": "Apply"
   },
   "pages": {
     "dashboard": {
@@ -335,6 +336,10 @@
         "new_macro_grp": "New Macro - Group",
         "no_macros_available": "No Macros available!",
         "no_macros_found": "No Macros found!",
+        "no_macros_in_grp": "No macros in the group!",
+        "deleted_grp": "Deleted group {}",
+        "macros": "Macros",
+        "default_name": "New Macro",
         "macros_to_default": {
           "one": "Moved one macro to default group!",
           "two": "Moved two macro to default group!",
@@ -681,6 +686,10 @@
       "header_hint": "The HTTP-Header nam",
       "value": "Header-Value",
       "value_hint": "The value of the header"
+    },
+    "macro_settings": {
+      "show_while_printing": "Show while printing",
+      "visible": "Visible"
     }
   },
   "bottom_sheets": {
@@ -719,6 +728,10 @@
         "unlink": "Unlink Obico",
         "description": "Obico is a community-driven, fully open-source 3D printing software. It enables you to control and monitor your Klipper printer from anywhere, all at no cost. It stands as one of the pioneering solutions for AI-based failure detection, utilizing only your printer's webcam."
       }
+    },
+    "manage_macros_in_grp": {
+      "title": "Add Macros",
+      "hint": "Select macros for group {}"
     }
   },
   "klipper_state": {

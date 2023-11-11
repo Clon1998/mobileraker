@@ -24,7 +24,9 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part 'mjpeg.g.dart';
 
 typedef StreamConnectedBuilder = Widget Function(
-    BuildContext context, Widget imageTransformed);
+  BuildContext context,
+  Widget imageTransformed,
+);
 
 enum MjpegMode { stream, adaptiveStream }
 
@@ -65,9 +67,7 @@ class Mjpeg extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-      overrides: [
-        _mjpegConfigProvider.overrideWithValue(config),
-      ],
+      overrides: [_mjpegConfigProvider.overrideWithValue(config)],
       child: _Mjpeg(
         stackChild: stackChild,
         showFps: showFps,
@@ -119,19 +119,19 @@ class _Mjpeg extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(Icons.error_outline),
-          const SizedBox(
-            height: 30,
-          ),
+          const SizedBox(height: 30),
           Text('WebCam streamURI: ${mjpegConfig.streamUri.obfuscate()}'),
           Text('WebCam snapshotURI: ${mjpegConfig.snapshotUri?.obfuscate()}'),
-          Text(state.error.toString(),
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Theme.of(context).colorScheme.error)),
+          Text(
+            state.error.toString(),
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
           TextButton.icon(
-              onPressed:
-                  ref.read(_mjpegControllerProvider.notifier).onRetryPressed,
-              icon: const Icon(Icons.restart_alt_outlined),
-              label: const Text('components.connection_watcher.reconnect').tr())
+            onPressed: ref.read(_mjpegControllerProvider.notifier).onRetryPressed,
+            icon: const Icon(Icons.restart_alt_outlined),
+            label: const Text('components.connection_watcher.reconnect').tr(),
+          ),
         ],
       );
     }
@@ -144,10 +144,8 @@ class _Mjpeg extends ConsumerWidget {
           SpinKitDancingSquare(
             color: Theme.of(context).colorScheme.secondary,
           ),
-          const SizedBox(
-            height: 15,
-          ),
-          FadingText(tr('components.connection_watcher.trying_connect'))
+          const SizedBox(height: 15),
+          FadingText(tr('components.connection_watcher.trying_connect')),
         ],
       );
     }
@@ -164,7 +162,7 @@ class _Mjpeg extends ConsumerWidget {
         children: [
           (imageBuilder == null) ? img : imageBuilder!(context, img),
           if (showFps) const _FPSDisplay(),
-          ...stackChild
+          ...stackChild,
         ],
       ),
     );
@@ -172,36 +170,37 @@ class _Mjpeg extends ConsumerWidget {
 }
 
 class _FPSDisplay extends ConsumerWidget {
-  const _FPSDisplay({
-    Key? key,
-  }) : super(key: key);
+  const _FPSDisplay({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref
         .watch(_mjpegControllerProvider.selectAs((data) => data.fps))
         .maybeWhen(
-            data: (fps) {
-              var themeData = Theme.of(context);
-              return Positioned.fill(
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                      padding: const EdgeInsets.all(4),
+          data: (fps) {
+            var themeData = Theme.of(context);
+            return Positioned.fill(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
                   margin: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                          color: themeData.colorScheme.secondary,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5))),
-                      child: Text(
-                        'FPS: ${fps.toStringAsFixed(1)}',
-                        style: themeData.textTheme.bodySmall?.copyWith(
-                            color: themeData.colorScheme.onSecondary),
-                      )),
+                    color: themeData.colorScheme.secondary,
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  ),
+                  child: Text(
+                    'FPS: ${fps.toStringAsFixed(1)}',
+                    style: themeData.textTheme.bodySmall?.copyWith(
+                      color: themeData.colorScheme.onSecondary,
+                    ),
+                  ),
                 ),
-              );
-            },
-            orElse: () => const SizedBox.shrink());
+              ),
+            );
+          },
+          orElse: () => const SizedBox.shrink(),
+        );
   }
 }
 
@@ -226,29 +225,30 @@ class _TransformedImage extends ConsumerWidget {
     return ref
         .watch(_mjpegControllerProvider.selectAs((data) => data.image))
         .maybeWhen(
-            data: (image) {
-              Widget img = Image(
-                image: image,
-                width: width,
-                height: height,
-                gaplessPlayback: true,
-                fit: fit,
-              );
-              if (transform != null) {
-                img = Transform(
-                  alignment: Alignment.center,
-                  transform: transform!,
-                  child: img,
-                );
-              }
-              if (rotation == 0) return img;
-
-              return RotatedBox(
-                quarterTurns: 1 * rotation ~/ 90,
+          data: (image) {
+            Widget img = Image(
+              image: image,
+              width: width,
+              height: height,
+              gaplessPlayback: true,
+              fit: fit,
+            );
+            if (transform != null) {
+              img = Transform(
+                alignment: Alignment.center,
+                transform: transform!,
                 child: img,
               );
-            },
-            orElse: () => const SizedBox.shrink());
+            }
+            if (rotation == 0) return img;
+
+            return RotatedBox(
+          quarterTurns: 1 * rotation ~/ 90,
+          child: img,
+        );
+      },
+      orElse: () => const SizedBox.shrink(),
+    );
   }
 }
 
@@ -353,28 +353,30 @@ class MjpegConfigBuilder {
     }
 
     return MjpegConfig(
-        streamUri: streamUri!,
-        snapshotUri: snapshotUri!,
-        mode: mode!,
-        httpHeader: httpHeader ?? {},
-        targetFps: targetFps ?? 10,
-        timeout: timeout ?? const Duration(seconds: 10),
-        rotation: rotation ?? 0,
-        transformation: transformation);
+      streamUri: streamUri!,
+      snapshotUri: snapshotUri!,
+      mode: mode!,
+      httpHeader: httpHeader ?? {},
+      targetFps: targetFps ?? 10,
+      timeout: timeout ?? const Duration(seconds: 10),
+      rotation: rotation ?? 0,
+      transformation: transformation,
+    );
   }
 }
 
 @immutable
 class MjpegConfig {
-  const MjpegConfig(
-      {required this.streamUri,
-      required this.snapshotUri,
-      required this.mode,
-      this.httpHeader = const {},
-      this.targetFps = 10,
-      this.timeout = const Duration(seconds: 10),
-      this.rotation = 0,
-      this.transformation});
+  const MjpegConfig({
+    required this.streamUri,
+    required this.snapshotUri,
+    required this.mode,
+    this.httpHeader = const {},
+    this.targetFps = 10,
+    this.timeout = const Duration(seconds: 10),
+    this.rotation = 0,
+    this.transformation,
+  });
 
   final Uri streamUri;
   final Uri? snapshotUri;
@@ -464,7 +466,8 @@ class _DefaultMjpegManager implements _MjpegManager {
       final request = Request('GET', _uri);
       request.headers.addAll(headers);
       final StreamedResponse response = await _httpClient.send(request).timeout(
-          _timeout); //timeout is to prevent process to hang forever in some case
+            _timeout,
+          ); //timeout is to prevent process to hang forever in some case
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         _subscription = response.stream
@@ -472,8 +475,9 @@ class _DefaultMjpegManager implements _MjpegManager {
       } else {
         if (!_mjpegStreamController.isClosed) {
           _mjpegStreamController.addError(
-              HttpException('Stream returned ${response.statusCode} status'),
-              StackTrace.current);
+            HttpException('Stream returned ${response.statusCode} status'),
+            StackTrace.current,
+          );
         }
       }
     } catch (error, stack) {
@@ -491,7 +495,7 @@ class _DefaultMjpegManager implements _MjpegManager {
   final BytesBuilder _byteBuffer = BytesBuilder();
   final int _lastByte = 0x00;
 
-  _sendImage(Uint8List bytes) async {
+  _sendImage(Uint8List bytes) {
     if (bytes.isNotEmpty && !_mjpegStreamController.isClosed) {
       _mjpegStreamController.add(MemoryImage(bytes));
     }
@@ -603,11 +607,12 @@ class _AdaptiveMjpegManager implements _MjpegManager {
     try {
       Response response = await _httpClient
           .get(
-              _uri.replace(queryParameters: {
-                ..._uri.queryParameters,
-                'cacheBust': lastRefresh.millisecondsSinceEpoch.toString()
-              }),
-              headers: headers)
+            _uri.replace(queryParameters: {
+              ..._uri.queryParameters,
+              'cacheBust': lastRefresh.millisecondsSinceEpoch.toString(),
+            }),
+            headers: headers,
+          )
           .timeout(_timeout);
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
@@ -616,8 +621,9 @@ class _AdaptiveMjpegManager implements _MjpegManager {
       } else {
         if (!_mjpegStreamController.isClosed) {
           _mjpegStreamController.addError(
-              HttpException('Request returned ${response.statusCode} status'),
-              StackTrace.current);
+            HttpException('Request returned ${response.statusCode} status'),
+            StackTrace.current,
+          );
         }
       }
     } catch (error, stack) {
@@ -639,11 +645,13 @@ class _AdaptiveMjpegManager implements _MjpegManager {
     int calcTimeoutMillis = frameTimeInMillis - diff;
     // logger.i('Diff: $diff\n     CalcTi: $calcTimeoutMillis');
     _timer = Timer(
-        Duration(milliseconds: max(0, calcTimeoutMillis)), _timerCallback);
+      Duration(milliseconds: max(0, calcTimeoutMillis)),
+      _timerCallback,
+    );
     lastRefresh = stamp;
   }
 
-  _sendImage(Uint8List bytes) async {
+  _sendImage(Uint8List bytes) {
     if (bytes.isNotEmpty && !_mjpegStreamController.isClosed && active) {
       _mjpegStreamController.add(MemoryImage(bytes));
     }
