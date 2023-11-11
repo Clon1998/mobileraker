@@ -126,7 +126,8 @@ class PrintCard extends ConsumerWidget {
                           'pages.dashboard.general.print_card.current_object',
                         ).tr(),
                         Text(
-                          excludeObject?.currentObject ?? 'general.none'.tr(),
+                          excludeObject.currentObject ?? 'general.none'.tr(),
+                          textAlign: TextAlign.center,
                           style: themeData.textTheme.bodyMedium?.copyWith(
                             color: themeData.textTheme.bodySmall?.color,
                           ),
