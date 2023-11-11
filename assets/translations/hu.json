@@ -75,7 +75,7 @@
           "fullscreen": "Teljes képernyő"
         },
         "temp_card": {
-          "title": "Hőmérséklet szabályozók",
+          "title": "Hőmérsékletszabályzók",
           "presets_btn": "Előbeállítások",
           "hotend": "Nyomtatófej",
           "bed": "Ágy",
@@ -101,7 +101,7 @@
           "mesh_btn": "Háló",
           "m84_tooltip": "Motorok kikapcsolása",
           "m84_btn": "M84",
-          "step_size": "Lépés mérete",
+          "step_size": "Lépésméret",
           "stc_tooltip": "Csavar dőlésszámítás indítása",
           "stc_btn": "STC",
           "ztilt_tooltip": "Z-Tilt kalibráció indítása",
@@ -134,7 +134,7 @@
         },
         "extrude_card": {
           "title": "Adagoló",
-          "extrude": "Extrudálás",
+          "extrude": "Száladagolás",
           "retract": "Visszahúzás",
           "extrude_len": "@:pages.dashboard.control.extrude_card.extrude hossza",
           "cold_extrude_error": "A nyomtatófej még nem érte el a {}°C-os hőmérsékletet min_extrude_temp {}°C !"
@@ -157,7 +157,7 @@
         },
         "multipl_card": {
           "title": "Szorzók",
-          "flow": "Folyam",
+          "flow": "Átfolyás",
           "press_adv": "Nyomás előtolás",
           "smooth_time": "Simítási idő"
         },
@@ -233,11 +233,11 @@
         "always_baby": "Mindig mutassa a mikroléptető kártyát",
         "num_edit": "Számbevitelhez billentyűzet használata",
         "start_with_overview": "@:pages.overview.title mutatása alapesetben",
-        "use_offset_pos": "Koordináták megjelenítése adott eltolás mellett.",
+        "use_offset_pos": "Koordináták megjelenítése adott eltolás mellett",
         "lcFullCam": "Teljes képernyős webkamera fekvő helyzetben",
         "language": "Nyelv",
         "companion": "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani ",
-        "sliders_grouping": "Csoportos csúszó kártyák"
+        "sliders_grouping": "Csúszó kártyák csoportosítása"
       },
       "notification": {
         "title": "Értesítés",
@@ -285,7 +285,7 @@
         "printer_addr": "Nyomtató - Cím",
         "ws_addr": "Websocket – Cím",
         "moonraker_api_key": "Moonraker - API Kulcs",
-        "moonraker_api_desc": "Csak akkor szükséges, ha megbízható ügyfeleket használsz. A FluiddPI ezt kényszeríti ki!",
+        "moonraker_api_desc": "Csak akkor szükséges, ha megbízható klienst használsz. A FluiddPI ezt kikényszeríti!",
         "full_url": "Teljes URL",
         "self_signed": "Bízz az önaláírt tanúsítványokban",
         "timeout_label": "Kliens időtúllépés",
@@ -308,8 +308,8 @@
         "speed_z_short": "Sebesség Z",
         "steps_move": "Mozgási lépések",
         "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
-        "steps_baby": "Mikroléptetés Z - tengely",
-        "steps_baby_short": "Mikro Lépések"
+        "steps_baby": "Z-eltolási lépések",
+        "steps_baby_short": "Z lépések"
       },
       "extruders": {
         "title": "Adagolók",
@@ -452,7 +452,7 @@
         "title": "Köszönet a támogatásodért!",
         "list_title": "Támogatói szint módosítása:",
         "store_btn": "Előfizetés lemondása itt {}",
-        "sub_warning": "Kérjük, vedd figyelembe, hogy az élethosszig tartó támogatói szint megvásárlása nem von le automatikusan más aktív előfizetést sem. Minden aktív előfizetést manuálisan kell lemondanod. Lehetőséged van azonban arra, hogy továbbra is rendszeresen támogasd a Mobileraker fejlesztését, még az élethosszig tartó támogatói szint megvásárlása után is."
+        "sub_warning": "Kérjük, vedd figyelembe, hogy az élethosszig tartó támogatói szint megvásárlása nem mond le automatikusan más aktív előfizetést. Minden aktív előfizetést manuálisan kell lemondanod. Lehetőséged van azonban arra, hogy továbbra is rendszeresen támogasd a Mobileraker fejlesztését, még az élethosszig tartó támogatói szint megvásárlása után is."
       },
       "subscribe_view": {
         "title": "Legyél Mobileraker támogató!",
@@ -500,7 +500,7 @@
       "trying_connect_remote": "Távoli kliensel próbál csatlakozni...",
       "server_starting": "Szerver elindul...",
       "more_details": "További részletek",
-      "add_printer": "Halihó,\nÖrülök, hogy itt látlak!\nAz élmény beindításához kérjük, adj hozzá nyomtatót a Mobilerakerhez. Miután befejezted ezt a lépést, közvetlenül a Mobilerakerből irányíthatod a nyomtatót."
+      "add_printer": "Halihó,\nÖrülök, hogy itt vagy!\nAz élmény beindításához kérjük, adj hozzá nyomtatót a Mobilerakerhez. Miután befejezted ezt a lépést, közvetlenül a Mobilerakerből irányíthatod a nyomtatót."
     },
     "octo_indicator": {
       "tooltip": "Az OctoEveryWhere használata!"
@@ -746,7 +746,7 @@
     },
     "month": {
       "one": "Havi",
-      "other": "Hónapok"
+      "other": "Hónapig"
     },
     "week": {
       "one": "Heti",
