@@ -32,8 +32,6 @@ import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
-import 'package:mobileraker_pro/pro_routes.dart';
-import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/files/details/video_player_page.dart';
@@ -210,11 +208,11 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         name: AppRoute.dev.name,
         builder: (context, state) => DevPage(),
       ),
-      GoRoute(
-        path: '/spoolman',
-        name: ProRoutes.spoolman.name,
-        builder: (context, state) => const SpoolmanPage(),
-      ),
+      // GoRoute(
+      //   path: '/spoolman',
+      //   name: ProRoutes.spoolman.name,
+      //   builder: (context, state) => const SpoolmanPage(),
+      // ),
       // GoRoute(
       //   path: 'cart',
       //   name: AppRoute.cart.name,
