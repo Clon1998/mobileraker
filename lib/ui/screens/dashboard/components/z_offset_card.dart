@@ -72,7 +72,7 @@ class _ZOffsetLoading extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CardTitleSkeleton(
+            const CardTitleSkeleton(
               trailing: Chip(
                 label: SizedBox(width: 90),
                 backgroundColor: Colors.white,
@@ -83,13 +83,13 @@ class _ZOffsetLoading extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Column(
+                  const Column(
                     children: [
                       SquareElevatedIconButtonSkeleton(
-                        margin: const EdgeInsets.all(10),
+                        margin: EdgeInsets.all(10),
                       ),
                       SquareElevatedIconButtonSkeleton(
-                        margin: const EdgeInsets.all(10),
+                        margin: EdgeInsets.all(10),
                       ),
                     ],
                   ),
@@ -102,7 +102,7 @@ class _ZOffsetLoading extends StatelessWidget {
                         color: Colors.white,
                       ),
                     ),
-                    RangeSelectorSkeleton(itemCount: 4),
+                    const RangeSelectorSkeleton(itemCount: 4),
                   ]),
                 ],
               ),
