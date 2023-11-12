@@ -34,52 +34,8 @@ import '../../../animation/SizeAndFadeTransition.dart';
 part 'macro_group_card.freezed.dart';
 part 'macro_group_card.g.dart';
 
-class MacroGroupCard extends StatelessWidget {
+class MacroGroupCard extends ConsumerWidget {
   const MacroGroupCard({super.key, required this.machineUUID});
-
-  final String machineUUID;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(child: _MacroGroup(machineUUID: machineUUID));
-  }
-}
-
-class _MacroGroupLoading extends StatelessWidget {
-  const _MacroGroupLoading({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var themeData = Theme.of(context);
-    return Shimmer.fromColors(
-      baseColor: Colors.grey,
-      highlightColor: themeData.colorScheme.background,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          CardTitleSkeleton.trailingText(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Wrap(
-              spacing: 5,
-              alignment: WrapAlignment.spaceEvenly,
-              children: [
-                for (var i = 0; i < 8; i++)
-                  Chip(
-                    label: SizedBox(width: 40 + (i * 18 % 40)),
-                    backgroundColor: Colors.white,
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MacroGroup extends ConsumerWidget {
-  const _MacroGroup({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -90,23 +46,58 @@ class _MacroGroup extends ConsumerWidget {
 
     if (showLoading) return const _MacroGroupLoading();
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _Title(machineUUID: machineUUID),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: _SelectedGroup(
-            machineUUID: machineUUID,
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _CardTitle(machineUUID: machineUUID),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: _SelectedGroup(machineUUID: machineUUID),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
-class _Title extends ConsumerWidget {
-  const _Title({super.key, required this.machineUUID});
+class _MacroGroupLoading extends StatelessWidget {
+  const _MacroGroupLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var themeData = Theme.of(context);
+    return Card(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey,
+        highlightColor: themeData.colorScheme.background,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CardTitleSkeleton.trailingText(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Wrap(
+                spacing: 5,
+                alignment: WrapAlignment.spaceEvenly,
+                children: [
+                  for (var i = 0; i < 8; i++)
+                    Chip(
+                      label: SizedBox(width: 40 + (i * 18 % 40)),
+                      backgroundColor: Colors.white,
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CardTitle extends ConsumerWidget {
+  const _CardTitle({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -247,11 +238,12 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
     var initialIndex = _settingService.readInt(_settingsKey, 0);
 
     yield* Rx.combineLatest4(klippyCanReceiveCommands, groups, configMacros, isPrinting, (a, b, c, d) {
+      var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex;
       return _Model(
         klippyCanReceiveCommands: a,
         isPrinting: d,
         groups: b,
-        selected: min(b.length - 1, max(0, initialIndex)),
+        selected: min(b.length - 1, max(0, idx)),
         configMacros: c,
       );
     });
