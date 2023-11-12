@@ -17,12 +17,10 @@ import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
-import 'package:mobileraker/ui/screens/printers/edit/components/macro_group_list.dart';
 import 'package:mobileraker/util/extensions/datetime_extension.dart';
 
 import '../../../service/date_format_service.dart';
-import '../dashboard/components/firmware_retraction_card.dart';
+import '../dashboard/components/z_offset_card.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
@@ -41,9 +39,8 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
-          MacroGroupCard(machineUUID: selMachine!.uuid),
-          FirmwareRetractionSlidersOrTextsLoading(),
-          MacroGroupList(machineUUID: selMachine!.uuid),
+          ZOffsetCard(machineUUID: selMachine!.uuid),
+
           const Text('One'),
           ElevatedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
           ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),

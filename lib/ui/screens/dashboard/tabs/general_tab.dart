@@ -57,7 +57,9 @@ class GeneralTab extends ConsumerWidget {
                   if (printState != PrintState.printing) const ControlXYZCard(),
                   if (ref.watch(settingServiceProvider).readBool(AppSettingKeys.alwaysShowBabyStepping) ||
                       const {PrintState.printing, PrintState.paused}.contains(printState))
-                    const ZOffsetCard(),
+                    ZOffsetCard(
+                      machineUUID: machineId,
+                    ),
                 ],
               ),
             );

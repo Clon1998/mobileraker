@@ -103,6 +103,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   nonSupporterMachineCleanup('nSMachCleanDate'),
   supporterTokenDate('supTknDate'),
   liveActivityStore('liveActivityStore'),
+  zOffsetStepIndex('zOffsetStepIndex'),
   ;
 
   @override
