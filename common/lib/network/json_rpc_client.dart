@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../data/dto/jrpc/rpc_response.dart';
 import '../data/model/hive/machine.dart';
@@ -265,51 +266,37 @@ class JsonRpcClient {
     logger.i('$logPrefix Trying to connect');
     curState = ClientState.connecting;
     _resetChannel();
-    try {
-      // if (clientType == ClientType.local) {
-      //   await Future.delayed(Duration(seconds: 15));
-      //   throw Exception("Teeeest");
-      // }
+    HttpClient httpClient = _constructHttpClient();
+    logger.i('$logPrefix Using headers $headers');
+    logger.i('$logPrefix Using timeout $timeout');
 
-      // Premetive checks for the plausability if the URI is even reachable
-      // If an ip, we check if it is in the same subnet as the machine, if that is not the case we can savely assume it is not reachable
-      // If it is a hostname, we check if it is resolvable
-      // IF it is a dns, we check if it is reachable
-      // Add an overwrite to skip this check, since an IP can be a remote IP, so we would want to connect to it!
+    final ioChannel = IOWebSocketChannel.connect(
+      uri,
+      headers: headers,
+      pingInterval: const Duration(seconds: 5),
+      connectTimeout: Duration(seconds: timeout.inSeconds + 2),
+      customClient: httpClient,
+    );
 
-      HttpClient httpClient = _constructHttpClient();
-      logger.i('$logPrefix Using headers $headers');
-      logger.i('$logPrefix Using timeout $timeout');
-      WebSocket socket = await WebSocket.connect(
-        uri.toString(),
-        headers: headers,
-        customClient: httpClient,
-      ).timeout(Duration(seconds: timeout.inSeconds + 2))
-        ..pingInterval = const Duration(seconds: 5);
+    _channel = ioChannel;
 
-      if (_disposed) {
-        socket.close();
-        return false;
-      }
+    ///
+    /// Start listening to notifications / messages
+    ///
+    _channelSub = ioChannel.stream.listen(
+      _onChannelMessage,
+      onError: _onChannelError,
+      onDone: () => _onChannelDone(ioChannel),
+    );
 
-      var ioChannel = IOWebSocketChannel(socket);
-      _channel = ioChannel;
-
-      ///
-      /// Start listening to notifications / messages
-      ///
-      _channelSub = ioChannel.stream.listen(
-        _onChannelMessage,
-        onError: _onChannelError,
-        onDone: () => _onChannelClosesNormal(socket.closeCode, socket.closeReason),
-      );
-
+    return ioChannel.ready.then((value) {
       curState = ClientState.connected;
+      logger.i('$logPrefix IOWebSocketChannel reported READY!');
       return true;
-    } catch (e) {
-      _onChannelError(e);
+    }, onError: (_, __) {
+      logger.i('$logPrefix IOWebSocketChannel reported NOT READY!');
       return false;
-    }
+    });
   }
 
   HttpClient _constructHttpClient() {
@@ -371,11 +358,23 @@ class JsonRpcClient {
     }
   }
 
-  _onChannelClosesNormal(int? closeCode, String? closeReason) {
+  _onChannelDone(WebSocketChannel ioChannel) async {
     if (_disposed) {
-      logger.i('$logPrefix WS-Stream Subscription is DONE!');
+      logger.i('$logPrefix WS-Stream is DONE!');
       return;
     }
+
+    var closedNormally = await ioChannel.ready.then((value) => true, onError: (_, __) => false);
+    if (closedNormally) {
+      _onChannelClosedNormally(ioChannel);
+    } else {
+      _onChannelClosedAbnormally();
+    }
+  }
+
+  _onChannelClosedNormally(WebSocketChannel ioChannel) {
+    var closeCode = ioChannel.closeCode;
+    var closeReason = ioChannel.closeReason;
 
     logger.i('$logPrefix WS-Stream closed normal! Code: $closeCode, Reason: $closeReason');
 
@@ -392,16 +391,9 @@ class JsonRpcClient {
     openChannel();
   }
 
-  _onChannelError(error) async {
-    logger.w('$logPrefix Got channel error $error');
-    if (error is! WebSocketException) {
-      _updateError(error);
-      return;
-    }
+  _onChannelClosedAbnormally() async {
     // Here we figure out exactly what is the problem!
-    var httpUri = uri.replace(
-      scheme: uri.isScheme("wss") ? "https" : "http",
-    );
+    var httpUri = uri.toHttpUri();
     var httpClient = _constructHttpClient();
     try {
       logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine error reason');
@@ -417,10 +409,14 @@ class JsonRpcClient {
       logger.i('$logPrefix Got Response to determine error reason: ${response.statusCode}');
       verifyHttpResponseCodes(response.statusCode, clientType);
       // openChannel(); // If no exception was thrown, we just try again!
-      _updateError(error);
     } catch (e) {
       _updateError(e);
     }
+  }
+
+  _onChannelError(error) async {
+    logger.w('$logPrefix Got channel error $error');
+    _updateError(error);
   }
 
   _updateError(error) {
