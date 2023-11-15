@@ -43,7 +43,9 @@
           "elapsed": "Verstrichen",
           "flow": "Fluss",
           "filament": "Filament",
-          "filament_tooltip": "{} % Filament Verwendet, dass ist {} m der vorhergesagten {} m."
+          "filament_tooltip": "{} % Filament Verwendet, dass ist {} m der vorhergesagten {} m.",
+          "eta_tooltip": "Verbleibende Zeit:\nØ: {avg}\nSlicer: {slicer}\nDatei: {file}\nFilament: {filament}",
+          "remaining": "Verbleibend"
         },
         "cam_card": {
           "webcam": "Webcam",

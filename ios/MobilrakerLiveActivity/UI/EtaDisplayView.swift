@@ -6,22 +6,40 @@
 //
 
 import SwiftUI
+import WidgetKit
 import Foundation
 
 struct EtaDisplayView: View {
+    let activityContext: ActivityViewContext<LiveActivitiesAppAttributes>
     let etaDate: Date?
-    
+
+    // Computed property for etaLabel
+    private var etaLabel: String {
+        return sharedDefault.string(forKey: activityContext.attributes.prefixedKey(key: "eta_label"))!
+    }
+
+    // Computed property for remainingLabel
+    private var remainingLabel: String {
+        return sharedDefault.string(forKey: activityContext.attributes.prefixedKey(key: "remaining_label"))!
+    }
+
     var body: some View {
-        if let eta = etaDate {
-            if shouldShowAsTimer(eta: eta) {
-                TimerTextView(eta: eta)
+        VStack(alignment: .leading) {
+            Text(shouldShowAsTimer(eta: etaDate) ? remainingLabel : etaLabel)
+                .font(.title2)
+                .fontWeight(.light)
+
+            if let eta = etaDate {
+                if shouldShowAsTimer(eta: eta) {
+                    TimerTextView(eta: eta)
+                } else {
+                    FormattedDateTextView(eta: eta)
+                }
             } else {
-                FormattedDateTextView(eta: eta)
+                Text("--")
+                    .font(.title)
+                    .fontWeight(.semibold)
             }
-        } else {
-            Text("--")
-                .font(.title)
-                .fontWeight(.semibold)
         }
     }
 }
@@ -104,14 +122,6 @@ struct FormattedDateTextView: View {
     }
 
 }
-
-
-struct EtaDisplayView_Previews: PreviewProvider {
-    static var previews: some View {
-        EtaDisplayView(etaDate: Date()  )
-    }
-}
-
 
 func shouldShowAsTimer(eta: Date?, delta: Int = 3) -> Bool {
     guard let eta = eta else {
