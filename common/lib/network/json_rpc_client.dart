@@ -273,7 +273,7 @@ class JsonRpcClient {
     final ioChannel = IOWebSocketChannel.connect(
       uri,
       headers: headers,
-      pingInterval: const Duration(seconds: 5),
+      pingInterval: const Duration(seconds: 30),
       connectTimeout: Duration(seconds: timeout.inSeconds + 2),
       customClient: httpClient,
     );
