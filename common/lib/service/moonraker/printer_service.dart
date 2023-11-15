@@ -175,7 +175,7 @@ class PrinterService {
     'bed_screws': _updateBedScrew,
     'heater_generic': _updateGenericHeater,
     'firmware_retraction': _updateFirmwareRetraction,
-    'bed_mesh': _updateBedMesh,
+    // 'bed_mesh': _updateBedMesh,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
