@@ -72,6 +72,10 @@ Future<Machine?> machine(MachineRef ref, String uuid) async {
 
 @riverpod
 Future<List<Machine>> allMachines(AllMachinesRef ref) async {
+  ref.listenSelf((previous, next) {
+    next.whenData((value) => logger.i('Updated allMachinesProvider: ${value.map((e) => e.debugStr).join()}'));
+  });
+
   var settingService = ref.watch(settingServiceProvider);
   var machines = await ref.watch(machineServiceProvider).fetchAll();
   logger.i('Received fetchAll');
@@ -112,6 +116,10 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
 
 @riverpod
 Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
+  ref.listenSelf((previous, next) {
+    next.whenData((value) => logger.i('Updated hiddenMachinesProvider: ${value.map((e) => e.debugStr).join()}'));
+  });
+
   var machinesAvailableToUser = await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
   var actualStoredMachines = await ref.watch(machineServiceProvider).fetchAll();
   var hiddenMachines = actualStoredMachines.where((e) => !machinesAvailableToUser.contains(e.uuid));
