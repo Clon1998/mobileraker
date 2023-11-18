@@ -16,9 +16,11 @@ import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
+import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
@@ -73,7 +75,7 @@ Future<Machine?> machine(MachineRef ref, String uuid) async {
 @riverpod
 Future<List<Machine>> allMachines(AllMachinesRef ref) async {
   ref.listenSelf((previous, next) {
-    next.whenData((value) => logger.i('Updated allMachinesProvider: ${value.map((e) => e.debugStr).join()}'));
+    next.whenData((value) => logger.i('Updated allMachinesProvider: ${value.map((e) => e.logName).join()}'));
   });
 
   var settingService = ref.watch(settingServiceProvider);
@@ -117,7 +119,7 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
 @riverpod
 Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
   ref.listenSelf((previous, next) {
-    next.whenData((value) => logger.i('Updated hiddenMachinesProvider: ${value.map((e) => e.debugStr).join()}'));
+    next.whenData((value) => logger.i('Updated hiddenMachinesProvider: ${value.map((e) => e.logName).join()}'));
   });
 
   var machinesAvailableToUser = await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
@@ -249,6 +251,7 @@ class MachineService {
     ref.invalidate(announcementServiceProvider(machine.uuid));
     ref.invalidate(fileNotificationsProvider(machine.uuid));
     ref.invalidate(fileServiceProvider(machine.uuid));
+    ref.invalidate(webcamServiceProvider(machine.uuid));
     ref.invalidate(printerProvider(machine.uuid));
     ref.invalidate(printerServiceProvider(machine.uuid));
     ref.invalidate(klipperProvider(machine.uuid));
@@ -293,6 +296,7 @@ class MachineService {
     // Use this as a workaround to keep the repo active until method is done!
     var providerSubscription = ref.keepAliveExternally(deviceFcmSettingsRepositoryProvider(machine.uuid));
     try {
+      logger.i('${machine.logTagExtended} Trying to update DeviceFcmSettings');
       DeviceFcmSettingsRepository fcmRepo = ref.read(deviceFcmSettingsRepositoryProvider(machine.uuid));
 
       // Remove DeviceFcmSettings if the device does not has the machineUUID anymore!
@@ -304,11 +308,12 @@ class MachineService {
 
       // Clear all of the DeviceFcmSettings that are left
       for (String uuid in allDeviceSettings.keys) {
-        logger.w('Found an old DeviceFcmSettings entry with uuid $uuid that is not present anymore!');
+        logger.w(
+            '${machine.logTagExtended} Found an old DeviceFcmSettings entry with uuid $uuid that is not present anymore');
         fcmRepo.delete(uuid);
       }
 
-      DeviceFcmSettings? fcmCfg = await fcmRepo.get(machine.uuid);
+      DeviceFcmSettings? fcmSettings = await fcmRepo.get(machine.uuid);
 
       int progressModeInt = _settingService.readInt(AppSettingKeys.progressNotificationMode, -1);
       var progressMode = (progressModeInt < 0)
@@ -320,24 +325,27 @@ class MachineService {
           .split(',')
           .toSet();
 
-      if (fcmCfg == null) {
-        fcmCfg = DeviceFcmSettings.fallback(deviceFcmToken, machine.name);
-        fcmCfg.settings = NotificationSettings(progress: progressMode.value, states: states);
-        logger.i('Registered FCM Token in MoonrakerDB: $fcmCfg');
-
-        await fcmRepo.update(machine.uuid, fcmCfg);
-      } else if (fcmCfg.machineName != machine.name ||
-          fcmCfg.fcmToken != deviceFcmToken ||
-          fcmCfg.settings.progress != progressMode.value ||
-          !setEquals(fcmCfg.settings.states, states)) {
-        fcmCfg.machineName = machine.name;
-        fcmCfg.fcmToken = deviceFcmToken;
-        fcmCfg.settings = fcmCfg.settings.copyWith(progress: progressMode.value, states: states);
-        logger.i('Updating fcmCfgs');
-        await fcmRepo.update(machine.uuid, fcmCfg);
+      if (fcmSettings == null) {
+        fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name);
+        fcmSettings.settings = NotificationSettings(progress: progressMode.value, states: states);
+        logger.i(
+            '${machine.logTagExtended} Did not find DeviceFcmSettings in MoonrakerDB, trying to add it: $fcmSettings');
+        await fcmRepo.update(machine.uuid, fcmSettings);
+        logger.i('${machine.logTagExtended} Successfully added DeviceFcmSettings');
+      } else if (fcmSettings.machineName != machine.name ||
+          fcmSettings.fcmToken != deviceFcmToken ||
+          fcmSettings.settings.progress != progressMode.value ||
+          !setEquals(fcmSettings.settings.states, states)) {
+        fcmSettings.machineName = machine.name;
+        fcmSettings.fcmToken = deviceFcmToken;
+        fcmSettings.settings = fcmSettings.settings.copyWith(progress: progressMode.value, states: states);
+        logger.i('${machine.logTagExtended} Trying to update DeviceFcmSettings');
+        await fcmRepo.update(machine.uuid, fcmSettings);
+        logger.i('${machine.logTagExtended} Successfully updated DeviceFcmSettings');
+      } else {
+        logger.i('${machine.logTagExtended} DeviceFcmSettings is in sync!');
       }
-
-      logger.i('Current FCMConfig in MoonrakerDB: $fcmCfg');
+      logger.i('${machine.logTagExtended} Latest DeviceFcmSettings is: $fcmSettings');
     } finally {
       providerSubscription.close();
     }

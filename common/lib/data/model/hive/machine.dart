@@ -67,8 +67,6 @@ class Machine extends HiveObject {
 
   String get printProgressChannelKey => '$uuid-progressUpdates';
 
-  String get debugStr => '$name ($uuid)';
-
   Map<String, String> get headerWithApiKey => {...httpHeaders, if (apiKey?.isNotEmpty == true) 'X-Api-Key': apiKey!};
 
   bool get hasRemoteConnection => remoteInterface != null || octoEverywhere != null || obicoTunnel != null;

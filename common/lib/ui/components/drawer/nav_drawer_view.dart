@@ -81,12 +81,12 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       icon: FlutterIcons.hand_holding_heart_faw5s,
                       routeName: '/paywall',
                     ),
-                    const Divider(),
-                    const _DrawerItem(
-                      text: 'Spoolman',
-                      icon: Icons.local_library,
-                      routeName: '/spoolman',
-                    ),
+                    // const Divider(),
+                    // const _DrawerItem(
+                    //   text: 'Spoolman',
+                    //   icon: Icons.local_library,
+                    //   routeName: '/spoolman',
+                    // ),
                     const Divider(),
                     _DrawerItem(
                       text: tr('pages.faq.title'),

@@ -21,6 +21,7 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/notification_service.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -95,7 +96,7 @@ setupBoxes() async {
   try {
     await openBoxes(keyMaterial);
     Hive.box<Machine>("printers").values.forEach((element) {
-      logger.i('Machine in box is ${element.debugStr}#${element.hashCode}');
+      logger.i('Machine in box is ${element.logName}#${element.hashCode}');
       // ToDo remove after machine migration!
       element.save();
     });
