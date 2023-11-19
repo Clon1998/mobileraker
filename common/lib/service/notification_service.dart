@@ -362,7 +362,7 @@ class NotificationService {
 
     var subscription =
         _ref.listen(klipperProvider(machine.uuid).selectAs((data) => data.klippyState), (previous, next) async {
-      if (next.valueOrNull == KlipperState.ready) {
+      if (next.valueOrFullNull == KlipperState.ready) {
         var fcmToken = await _notifyFCM.requestFirebaseAppToken();
         try {
           logger.i('Updating FCM settings on ${machine.name}(${machine.wsUri.obfuscate()})');
