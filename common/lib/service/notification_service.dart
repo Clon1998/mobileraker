@@ -121,13 +121,14 @@ class NotificationService {
   }
 
   void onMachineAdded(Machine machine) {
-    List<NotificationChannel> channelsOfmachines = _channelsForMachine(machine);
-    for (var channels in channelsOfmachines) {
-      _notifyAPI.setChannel(channels);
-    }
+    // Channels wont work since the group needs to be created first!
+    // List<NotificationChannel> channelsOfmachines = _channelsForMachine(machine);
+    // for (var channels in channelsOfmachines) {
+    //   _notifyAPI.setChannel(channels);
+    // }
     _setupMachineFcmUpdater(machine);
     _registerLocalMessageHandlingForMachine(machine);
-    logger.i("Added notifications channels and stream-listener for ${machine.logName}");
+    logger.i("Added stream-listener for ${machine.logName}");
   }
 
   void onMachineRemoved(String uuid) {
@@ -207,8 +208,14 @@ class NotificationService {
     List<NotificationChannel> channels = [
       NotificationChannel(
         channelKey: 'basic_channel',
-        channelName: 'General Notifications',
-        channelDescription: 'Notifications regarding updates and infos about Mobileraker!',
+        channelName: 'News & Updates',
+        channelDescription: 'Stay updated with Mobileraker! Get the latest news and important info here.',
+        channelGroupKey: 'mobileraker_default_grp',
+      ),
+      NotificationChannel(
+        channelKey: 'marketing_channel',
+        channelName: 'Promotions',
+        channelDescription: 'Be the first to know about special promotions and discounts!',
         channelGroupKey: 'mobileraker_default_grp',
       )
     ];
