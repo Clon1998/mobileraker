@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.x] - 2023-12-x
+
+### Bug Fixes
+
+- Fixed neopixel parsing error for legacy configs [#287](https://github.com/Clon1998/mobileraker/issues/287)
+
 ## [2.6.7] - 2023-11-11
 
 ### Major Updates
