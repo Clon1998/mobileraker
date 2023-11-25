@@ -19,7 +19,7 @@ import '../exceptions/mobileraker_exception.dart';
 
 part 'dio_provider.g.dart';
 
-const _remoteConnectionTimeout = Duration(seconds: 30);
+const _thirdPartyRemoteConnectionTimeout = Duration(seconds: 30);
 
 @riverpod
 Dio dioClient(DioClientRef ref, String machineUUID) {
@@ -37,8 +37,8 @@ Dio dioClient(DioClientRef ref, String machineUUID) {
           HttpHeaders.authorizationHeader: machine.octoEverywhere!.basicAuthorizationHeader
         },
         baseUrl: machine.octoEverywhere!.url,
-        connectTimeout: _remoteConnectionTimeout,
-        receiveTimeout: _remoteConnectionTimeout,
+        connectTimeout: _thirdPartyRemoteConnectionTimeout,
+        receiveTimeout: _thirdPartyRemoteConnectionTimeout,
       ),
     ClientType.obico => BaseOptions(
         headers: {
@@ -46,8 +46,8 @@ Dio dioClient(DioClientRef ref, String machineUUID) {
           HttpHeaders.authorizationHeader: machine.obicoTunnel!.basicAuth,
         },
         baseUrl: machine.obicoTunnel!.removeUserInfo().toString(),
-        connectTimeout: machine.remoteInterface!.timeoutDuration,
-        receiveTimeout: machine.remoteInterface!.timeoutDuration,
+        connectTimeout: _thirdPartyRemoteConnectionTimeout,
+        receiveTimeout: _thirdPartyRemoteConnectionTimeout,
       ),
     ClientType.manual => BaseOptions(
         headers: {
