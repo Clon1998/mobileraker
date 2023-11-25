@@ -152,7 +152,7 @@ class FileService {
           '.gco',
         };
       } else if (path.startsWith('config')) {
-        allowedFileType = {'.conf', '.cfg', '.md', '.bak', '.txt'};
+        allowedFileType = {'.conf', '.cfg', '.md', '.bak', '.txt', '.jpeg', '.jpg', '.png'};
       } else if (path.startsWith('timelapse')) {
         allowedFileType = {'.mp4'};
       }
@@ -224,7 +224,7 @@ class FileService {
 
   Stream<FileDownload> downloadFile({required String filePath, bool overWriteLocal = false}) async* {
     final tmpDir = await getTemporaryDirectory();
-    final File file = File('${tmpDir.path}/$_machineUUID}/$filePath');
+    final File file = File('${tmpDir.path}/$_machineUUID/$filePath');
     final ReceivePort receiverPort = ReceivePort();
     final String isolateSafePortName = '$_downloadReceiverPortName-${filePath.hashCode}';
     final BaseOptions isolateSafeBaseOptions = _dio.options.copyWith();

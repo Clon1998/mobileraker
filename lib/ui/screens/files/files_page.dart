@@ -17,6 +17,7 @@ import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/extensions/remote_file_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
@@ -288,6 +289,13 @@ class _FilesBody extends ConsumerWidget {
                                         gCode: file,
                                       );
                                     }
+                                    if (file.isImage) {
+                                      return _ImageFileItem(
+                                        key: ValueKey(file),
+                                        file: file,
+                                      );
+                                    }
+
                                     return _FileItem(
                                       file: file,
                                       key: ValueKey(file),
@@ -481,6 +489,66 @@ class _FileItem extends ConsumerWidget {
   }
 }
 
+class _ImageFileItem extends ConsumerWidget {
+  final RemoteFile file;
+
+  const _ImageFileItem({Key? key, required this.file}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    logger.wtf('ImageFileItem: ${file.absolutPath}');
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+    var imageBaseUri = ref.watch(previewImageUriProvider);
+    var imageHeaders = ref.watch(previewImageHttpHeaderProvider);
+    var imageUri = file.downloadUri(imageBaseUri);
+    return _Slideable(
+      file: file,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 5, vertical: 3),
+        leading: SizedBox(
+          width: 64,
+          height: 64,
+          child: Hero(
+            tag: 'img-${file.hashCode}',
+            child: CachedNetworkImage(
+              imageBuilder: (context, imageProvider) => Container(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(15.0),
+                    right: Radius.circular(15.0),
+                  ),
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      spreadRadius: 1,
+                      blurRadius: 2,
+                      offset: const Offset(-1, 1), // changes position of shadow
+                    ),
+                  ],
+                ),
+              ),
+              imageUrl: imageUri.toString(),
+              httpHeaders: imageHeaders,
+              placeholder: (context, url) => const Icon(Icons.image),
+              errorWidget: (context, url, error) {
+                logger.w(url);
+                logger.e(error);
+                return const Icon(Icons.error);
+              },
+            ),
+          ),
+        ),
+        title: Text(file.name),
+        onTap: () => controller.onFileTapped(file),
+      ),
+    );
+  }
+}
+
 class _GCodeFileItem extends ConsumerWidget {
   final GCodeFile gCode;
 
@@ -555,7 +623,7 @@ class _GCodeFileItem extends ConsumerWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.5),
+                  color: Colors.black.withOpacity(0.15),
                   spreadRadius: 1,
                   blurRadius: 2,
                   offset: const Offset(-1, 1), // changes position of shadow

@@ -333,6 +333,8 @@ class FilesPageController extends _$FilesPageController {
       _goRouter.goNamed(AppRoute.gcodeDetail.name, extra: file);
     } else if (file.isVideo) {
       _goRouter.goNamed(AppRoute.videoPlayer.name, extra: file);
+    } else if (file.isImage) {
+      _goRouter.goNamed(AppRoute.imageViewer.name, extra: file);
     } else {
       _goRouter.goNamed(AppRoute.configDetail.name, extra: file);
     }
