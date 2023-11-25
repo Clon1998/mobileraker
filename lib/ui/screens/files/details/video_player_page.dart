@@ -4,13 +4,13 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
 
 import 'package:appinio_video_player/appinio_video_player.dart';
 import 'package:common/data/dto/files/generic_file.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/logger.dart';
@@ -40,16 +40,12 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   @override
   void initState() {
     super.initState();
-    //TODO: Headers, auth .... missing. Just a dump Uri wont do the trick!
-    var fileService = ref.read(fileServiceSelectedProvider);
-    var fileUri = fileService.composeFileUriForDownload(widget.file);
+    var machine = ref.read(selectedMachineProvider).value!;
+    var dio = ref.read(dioClientProvider(machine.uuid));
+    var fileUri = Uri.parse('${dio.options.baseUrl}/server/files/${widget.file.absolutPath}');
 
-    Map<String, String> headers = {
-      // ...fileService.headers,
-      if (fileUri.userInfo.isNotEmpty)
-        HttpHeaders.authorizationHeader: 'Basic ${base64.encode(utf8.encode(fileUri.userInfo))}',
-    };
-
+    Map<String, String> headers = dio.options.headers.cast<String, String>();
+    logger.i('FileUri: $fileUri, headers: $headers');
     videoPlayerController = VideoPlayerController.networkUrl(fileUri, httpHeaders: headers)
       ..initialize()
           .then(
