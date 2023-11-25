@@ -256,7 +256,7 @@ class FileService {
       _dio.download(
         '/server/files/$filePath',
         file.path,
-        options: Options(receiveTimeout: Duration(seconds: 2)), // This is requried because of a bug in dio
+        options: Options(receiveTimeout: Duration(seconds: 300)), // This is requried because of a bug in dio
         onReceiveProgress: (received, total) {
           if (total <= 0) return;
           logger.i('Progress for $filePath: ${received / total * 100}');
@@ -364,9 +364,6 @@ class FileService {
     return GCodeFile.fromJson(response, split.join('/'));
   }
 
-  Uri composeFileUriForDownload(RemoteFile file) {
-    return Uri.parse('${_dio.options.baseUrl}/server/files/${file.absolutPath}');
-  }
 
   dispose() {
     _fileActionStreamCtrler.close();
