@@ -5,6 +5,7 @@
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
@@ -33,21 +34,19 @@ class WebcamWebRtc extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var dio = ref.watch(dioClientProvider(machine.uuid));
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
-    var octoEverywhere = machine.octoEverywhere;
     var machineUri = machine.httpUri;
 
     var camStreamUrl = webcamInfo.streamUrl;
     // var camSnapshotUrl = webcamInfo.snapshotUrl;y
 
     Uri webRtcUri;
-    Map<String, String> headers = machine.httpHeaders;
 
     switch (clientType) {
       case ClientType.octo:
-        var baseUri = octoEverywhere!.uri.replace(
-          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}',
-        );
+        var octoEverywhere = machine.octoEverywhere;
+        var baseUri = octoEverywhere!.uri;
         webRtcUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl);
         break;
       case ClientType.manual:
@@ -57,10 +56,7 @@ class WebcamWebRtc extends ConsumerWidget {
           machineUri,
           camStreamUrl,
         );
-        headers = {
-          if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
-          ...remoteInterface.httpHeaders,
-        };
+
       case ClientType.local:
       default:
         webRtcUri = buildWebCamUri(machineUri, camStreamUrl);
@@ -78,11 +74,11 @@ class WebcamWebRtc extends ConsumerWidget {
     return WebRtc(
       key: ValueKey(webcamInfo.uuid + machine.uuid),
       camUri: webRtcUri,
+      dio: dio,
       stackContent: stackContent,
       rotation: webcamInfo.rotation,
       transform: webcamInfo.transformMatrix,
       imageBuilder: imageBuilder,
-      headers: headers,
     );
   }
 }

@@ -231,7 +231,7 @@ class _FilesBody extends ConsumerWidget {
                     int lenTotal = lenFolders + lenGcodes;
 
                     // Add one of the .. folder to back
-                if (model.isInSubFolder) lenTotal++;
+                    if (model.isInSubFolder) lenTotal++;
 
                     return Expanded(
                       child: EaseIn(
@@ -276,19 +276,19 @@ class _FilesBody extends ConsumerWidget {
 
                                     if (index < lenFolders) {
                                       Folder folder = files.folders[index];
-                                      return FolderItem(
+                                      return _FolderItem(
                                         folder: folder,
                                         key: ValueKey(folder),
                                       );
                                     }
                                     RemoteFile file = files.files[index - lenFolders];
                                     if (file is GCodeFile) {
-                                      return GCodeFileItem(
+                                      return _GCodeFileItem(
                                         key: ValueKey(file),
                                         gCode: file,
                                       );
                                     }
-                                    return FileItem(
+                                    return _FileItem(
                                       file: file,
                                       key: ValueKey(file),
                                     );
@@ -435,10 +435,10 @@ class _BreadCrumb extends ConsumerWidget {
   }
 }
 
-class FolderItem extends ConsumerWidget {
+class _FolderItem extends ConsumerWidget {
   final Folder folder;
 
-  const FolderItem({Key? key, required this.folder}) : super(key: key);
+  const _FolderItem({Key? key, required this.folder}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -456,10 +456,10 @@ class FolderItem extends ConsumerWidget {
   }
 }
 
-class FileItem extends ConsumerWidget {
+class _FileItem extends ConsumerWidget {
   final RemoteFile file;
 
-  const FileItem({Key? key, required this.file}) : super(key: key);
+  const _FileItem({Key? key, required this.file}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -481,10 +481,10 @@ class FileItem extends ConsumerWidget {
   }
 }
 
-class GCodeFileItem extends ConsumerWidget {
+class _GCodeFileItem extends ConsumerWidget {
   final GCodeFile gCode;
 
-  const GCodeFileItem({Key? key, required this.gCode}) : super(key: key);
+  const _GCodeFileItem({Key? key, required this.gCode}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -526,7 +526,8 @@ class GCodeFileItem extends ConsumerWidget {
         ),
         title: Text(gCode.name),
         subtitle: Text(
-            (lastPrinted != null) ? '${tr('pages.files.last_printed')}: $lastPrinted' : tr('pages.files.not_printed')),
+          (lastPrinted != null) ? '${tr('pages.files.last_printed')}: $lastPrinted' : tr('pages.files.not_printed'),
+        ),
         onTap: () => ref.read(filesPageControllerProvider.notifier).onFileTapped(gCode),
       ),
     );
@@ -538,7 +539,6 @@ class GCodeFileItem extends ConsumerWidget {
     Map<String, String> headers,
   ) {
     var bigImageUri = gCodeFile.constructBigImageUri(machineUri);
-
     if (bigImageUri != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0),

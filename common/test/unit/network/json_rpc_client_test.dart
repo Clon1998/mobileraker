@@ -29,6 +29,6 @@ void main() {
     var jsonRpcClientBuilder = JsonRpcClientBuilder.fromOcto(m);
 
     expect(jsonRpcClientBuilder.uri.toString(),
-        'wss://app-fwduvgajpbcz1e7mwm0ivscpo4ebtg6o.octoeverywhere.com/websocket/AAA');
+        'wss://user:password@app-fwduvgajpbcz1e7mwm0ivscpo4ebtg6o.octoeverywhere.com/websocket/AAA');
   });
 }

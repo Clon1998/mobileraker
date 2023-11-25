@@ -41,7 +41,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
     steps = (widget.childsPerScreen == null) ? widget.steps : (widget.steps / widget.childsPerScreen!).ceil();
 
     if (controller is PageController?) {
-      logger.i(
+      logger.d(
         'initiPage ${pageController.initialPage} - ${pageController.hasClients}',
       );
       controller.addListener(_updateIndexFromPage);

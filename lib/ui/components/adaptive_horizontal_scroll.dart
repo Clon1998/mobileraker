@@ -40,7 +40,7 @@ class AdaptiveHorizontalScroll extends HookWidget {
           final int visibleCnt = (constraints.maxWidth / minWidth).floor();
           final double width = constraints.maxWidth / visibleCnt;
 
-          logger.i(
+          logger.d(
             '$pageStorageKey - visibleCnt: $visibleCnt, width: $width, $constraints',
           );
           return Column(

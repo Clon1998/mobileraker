@@ -723,9 +723,6 @@ class _MiscCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var pageController = usePageController();
 
-    var viewInsets = MediaQuery.sizeOf(context);
-    logger.i('ViewInsets: $viewInsets');
-
     var macineUUID = ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid)).value!;
     var childs = [
       MultipliersSlidersOrTexts(machineUUID: macineUUID),

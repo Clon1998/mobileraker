@@ -363,7 +363,6 @@ class JsonRpcClient {
       logger.i('$logPrefix WS-Stream is DONE!');
       return;
     }
-
     var closedNormally = await ioChannel.ready.then((value) => true, onError: (_, __) => false);
     if (closedNormally) {
       _onChannelClosedNormally(ioChannel);
@@ -392,6 +391,7 @@ class JsonRpcClient {
   }
 
   _onChannelClosedAbnormally() async {
+    logger.i('$logPrefix WS-Stream closed abnormally!');
     // Here we figure out exactly what is the problem!
     var httpUri = uri.toHttpUri();
     var httpClient = _constructHttpClient();
@@ -416,7 +416,7 @@ class JsonRpcClient {
 
   _onChannelError(error) async {
     logger.w('$logPrefix Got channel error $error');
-    _updateError(error);
+    // _updateError(error);
   }
 
   _updateError(error) {

@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:convert';
+
 import 'package:common/util/extensions/string_extension.dart';
 
 extension MobilerakerUri on Uri {
@@ -17,6 +19,8 @@ extension MobilerakerUri on Uri {
         'https' => 443,
         _ => 0,
       });
+
+  Uri removeUserInfo() => replace(userInfo: '');
 
   Uri toWebsocketUri() {
     return replace(
@@ -50,4 +54,12 @@ extension MobilerakerUri on Uri {
 
   /// Hide the userInfo to ensure we can safely log the uri
   Uri obfuscate() => replace(userInfo: userInfo.obfuscate());
+
+  String? get basicAuth {
+    if (userInfo.isNotEmpty) {
+      String auth = base64Encode(utf8.encode(userInfo));
+      return 'Basic $auth';
+    }
+    return null;
+  }
 }

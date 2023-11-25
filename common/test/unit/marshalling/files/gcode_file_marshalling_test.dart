@@ -29,8 +29,8 @@ void main() {
     expect(obj.nozzleDiameter, 0.4);
     expect(obj.layerHeight, 0.2);
     expect(obj.firstLayerHeight, 0.2);
-    expect(obj.firstLayerTempBed, 285);
-    expect(obj.firstLayerTempExtruder, 110);
+    expect(obj.firstLayerTempBed, 110);
+    expect(obj.firstLayerTempExtruder, 285);
     expect(obj.chamberTemp, 50);
     expect(obj.filamentName, 'AzurFilm ABS+ @VORON');
     expect(obj.filamentType, 'ABS');

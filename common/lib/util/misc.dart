@@ -5,6 +5,8 @@
 
 import 'dart:io';
 
+import 'package:common/util/extensions/dio_options_extension.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:stringr/stringr.dart';
@@ -117,15 +119,12 @@ verifyHttpResponseCodes(int statusCode, [ClientType clientType = ClientType.loca
     _verifyOctoHttpResponseCodes(statusCode);
   } else if (clientType == ClientType.obico) {
     _verifyObicoHttpResponseCodes(statusCode);
-  } else {
-    _verifyLocalHttpResponseCodes(statusCode);
   }
+  _verifyHttpResponseCodes(statusCode);
 }
 
 _verifyOctoHttpResponseCodes(int statusCode) {
   switch (statusCode) {
-    case 200:
-      return;
     case 400:
       throw const OctoEverywhereHttpException(
           'Internal App error while trying too fetch info. No AppToken was found!', 400);
@@ -153,29 +152,154 @@ _verifyOctoHttpResponseCodes(int statusCode) {
       throw const OctoEverywhereHttpException('File Upload Limit Exceeded', 608);
     case 609:
       throw const OctoEverywhereHttpException('Webcam Back to Back Limit Exceeded', 609);
-    default:
-      throw MobilerakerException(
-          'Unknown Error - Response from octoeverywhere could not be parsed. StatusCode $statusCode');
   }
 }
 
-_verifyLocalHttpResponseCodes(int statusCode) {
+_verifyHttpResponseCodes(int statusCode) {
   switch (statusCode) {
     case 200:
       return;
+
+    //-------
+    case 400:
+      throw const HttpException('Bad-Response: 400-BadRequest');
+    case 401:
+      throw const HttpException('Bad-Response: 401-Unauthorized');
+    case 403:
+      throw const HttpException('Bad-Response: 403-Forbidden');
+    case 404:
+      throw const HttpException('Bad-Response: 404-NotFound');
+    case 405:
+      throw const HttpException('Bad-Response: 405-MethodNotAllowed');
+    case 408:
+      throw const HttpException('Bad-Response: 408-RequestTimeout');
+    case 422:
+      throw const HttpException('Bad-Response: 422-UnprocessableEntity');
+    case 429:
+      throw const HttpException('Bad-Response: 429-TooManyRequests');
+
+    case 500:
+      throw const HttpException('Bad-Response: 500-InternalServerError');
+    case 501:
+      throw const HttpException('Bad-Response: 501-NotImplemented');
+    case 502:
+      throw const HttpException('Bad-Response: 502-BadGateway');
+    case 503:
+      throw const HttpException('Bad-Response: 503-ServiceUnavailable');
+    case 504:
+      throw const HttpException('Bad-Response: 504-GatewayTimeout');
+    case 505:
+      throw const HttpException('Bad-Response: 505-HTTPVersionNotSupported');
+    case 507:
+      throw const HttpException('Bad-Response: 507-InsufficientStorage');
+    case 508:
+      throw const HttpException('Bad-Response: 508-LoopDetected');
+    case 511:
+      throw const HttpException('Bad-Response: 511-NetworkAuthenticationRequired');
+
+    case 440:
+      throw const HttpException('Bad-Response: 440-LoginTimeout (IIS)');
+    case 460:
+      throw const HttpException('Bad-Response: 460-ClientClosedRequest (AWS Elastic Load Balancer)');
+    case 499:
+      throw const HttpException('Bad-Response: 499-ClientClosedRequest (ngnix)');
+    case 520:
+      throw const HttpException('Bad-Response: 520-WebServerReturnedUnknownError');
+    case 521:
+      throw const HttpException('Bad-Response: 521-WebServerIsDown');
+    case 522:
+      throw const HttpException('Bad-Response: 522-ConnectionTimedOut');
+    case 523:
+      throw const HttpException('Bad-Response: 523-OriginIsUnreachable');
+    case 524:
+      throw const HttpException('Bad-Response: 524-TimeoutOccurred');
+    case 525:
+      throw const HttpException('Bad-Response: 525-SSLHandshakeFailed');
+    case 527:
+      throw const HttpException('Bad-Response: 527-RailgunError');
+    case 598:
+      throw const HttpException('Bad-Response: 598-NetworkReadTimeoutError');
+    case 599:
+      throw const HttpException('Bad-Response: 599-NetworkConnectTimeoutError It\'s possible to override this list');
+
     default:
-      throw MobilerakerException('Unknown Error - StatusCode $statusCode');
+      throw HttpException('HttpException - StatusCode $statusCode');
   }
 }
 
-_verifyObicoHttpResponseCodes(int statusCode) => switch (statusCode) {
-      401 => throw const ObicoHttpException('Unauthenticated request', 401),
-      481 => throw const ObicoHttpException('Over free tunnel monthly data cap.', 481),
-      482 => throw const ObicoHttpException('Obico for Klipper is not connected to the Obico server.', 482),
-      483 => throw const ObicoHttpException('Obico for Klipper is connected but timed out (30s)', 483),
-      _ => throw MobilerakerException('Unknown Error - StatusCode $statusCode')
-    };
+_verifyObicoHttpResponseCodes(int statusCode) {
+  var err = switch (statusCode) {
+    401 => throw const ObicoHttpException('Unauthenticated request', 401),
+    481 => throw const ObicoHttpException('Over free tunnel monthly data cap.', 481),
+    482 => throw const ObicoHttpException('Obico for Klipper is not connected to the Obico server.', 482),
+    483 => throw const ObicoHttpException('Obico for Klipper is connected but timed out (30s)', 483),
+    _ => null
+  };
+  if (err != null) {
+    throw err;
+  }
+}
 
 String storeName() {
   return tr((Platform.isAndroid) ? 'general.google_play' : 'general.ios_store');
+}
+
+MobilerakerDioException convertDioException(DioException base) {
+  var err = switch (base.requestOptions.clientType) {
+    ClientType.octo => _convertBadResponseOctoeverywhere(base),
+    ClientType.obico => _convertBadResponseObico(base),
+    _ => base
+  };
+  if (err is! MobilerakerDioException) {
+    err = MobilerakerDioException.fromDio(err);
+  }
+
+  return err;
+}
+
+DioException _convertBadResponseObico(DioException base) {
+  if (base.type != DioExceptionType.badResponse) return base;
+
+  var statusCode = base.response?.statusCode;
+  if (statusCode == null) return base;
+  return switch (statusCode) {
+    401 => ObicoDioException('Unauthenticated request', 401, requestOptions: base.requestOptions),
+    481 => ObicoDioException('Over free tunnel monthly data cap.', 481, requestOptions: base.requestOptions),
+    482 => ObicoDioException('Obico for Klipper is not connected to the Obico server.', 482,
+        requestOptions: base.requestOptions),
+    483 =>
+      ObicoDioException('Obico for Klipper is connected but timed out (30s)', 483, requestOptions: base.requestOptions),
+    _ => base
+  };
+}
+
+DioException _convertBadResponseOctoeverywhere(DioException base) {
+  if (base.type != DioExceptionType.badResponse) return base;
+
+  var statusCode = base.response?.statusCode;
+  if (statusCode == null) return base;
+  return switch (statusCode) {
+    400 => OctoEverywhereDioException('Internal App error while trying to fetch info. No AppToken was found!', 400,
+        requestOptions: base.requestOptions),
+    401 => OctoEverywhereDioException('Internal App error while trying to fetch info. No AppToken was found!', 400,
+        requestOptions: base.requestOptions),
+    500 => OctoEverywhereDioException('Internal Server Error - OctoEverywhere\'s server is faulty', 500,
+        requestOptions: base.requestOptions),
+    600 => OctoEverywhereDioException('Unknown Error - Something went wrong, try again later.', 600,
+        requestOptions: base.requestOptions),
+    601 => OctoEverywhereDioException('Printer is Not Connected To OctoEverywhere', 601,
+        requestOptions: base.requestOptions),
+    602 => OctoEverywhereDioException('OctoEverywhere\'s Connection to Klipper Timed Out.', 602,
+        requestOptions: base.requestOptions),
+    603 => OctoEverywhereDioException('App Connection Not Found', 603, requestOptions: base.requestOptions),
+    604 => OctoEverywhereDioException('App Connection Revoked/Expired. Please unlink and link the app again!', 604,
+        requestOptions: base.requestOptions),
+    605 => OctoEverywhereDioException('App Connection Owner\'s Account Is No Longer an Octoeverywhere-Supporter.', 605,
+        requestOptions: base.requestOptions),
+    606 => OctoEverywhereDioException('Invalid App Connection Credentials', 606, requestOptions: base.requestOptions),
+    607 => OctoEverywhereDioException('File Download Limit Exceeded', 607, requestOptions: base.requestOptions),
+    608 => OctoEverywhereDioException('File Upload Limit Exceeded', 608, requestOptions: base.requestOptions),
+    609 => OctoEverywhereDioException('Webcam Back to Back Limit Exceeded', 609, requestOptions: base.requestOptions),
+    _ => base,
+  };
 }
