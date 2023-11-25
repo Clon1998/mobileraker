@@ -3,19 +3,18 @@
  * All rights reserved.
  */
 
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:common/data/dto/obico/platform_info.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../exceptions/obico_exception.dart';
+import '../../network/dio_provider.dart';
 import '../../util/logger.dart';
-import '../../util/misc.dart';
 
 part 'obico_tunnel_service.g.dart';
 
@@ -25,7 +24,9 @@ ObicoTunnelService obicoTunnelService(ObicoTunnelServiceRef ref) {
 }
 
 class ObicoTunnelService {
-  ObicoTunnelService(Ref ref);
+  ObicoTunnelService(AutoDisposeRef ref) : _dio = ref.watch(obicoApiClientProvider);
+
+  final Dio _dio;
 
   final Uri _obicoUri = Uri(
     scheme: 'https',
@@ -59,15 +60,13 @@ class ObicoTunnelService {
   Future<PlatformInfo> retrievePlatformInfo(Uri tunnelUri) async {
     var uri = tunnelUri.resolve('_tsd_/dest_platform_info/');
 
-    var response = await http.get(uri);
-    verifyHttpResponseCodesForObico(response.statusCode);
+    var response = await _dio.getUri(uri);
 
-    logger.i('Received platform info from obico tunnel: ${response.body}');
-    var responseJson = jsonDecode(response.body);
+    logger.i('Received platform info from obico tunnel: ${response.data}');
     try {
-      return PlatformInfo.fromJson(responseJson);
+      return PlatformInfo.fromJson(response.data);
     } catch (e, s) {
-      logger.i('Error while parsing PlatformInfo response from obico tunnel: ${response.body}', e, s);
+      logger.i('Error while parsing PlatformInfo response from obico tunnel: ${response.data}', e, s);
       throw ObicoException('Error while parsing response from Obico');
     }
   }

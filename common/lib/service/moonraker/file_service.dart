@@ -4,7 +4,6 @@
  */
 
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:ui';
@@ -19,22 +18,19 @@ import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/data/enums/file_action_enum.dart';
 import 'package:common/exceptions/file_fetch_exception.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
-import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:worker_manager/worker_manager.dart';
 
 import '../../network/jrpc_client_provider.dart';
-import '../machine_service.dart';
 import '../selected_machine_service.dart';
 
 part 'file_service.freezed.dart';
@@ -54,91 +50,29 @@ class FolderContentWrapper with _$FolderContentWrapper {
 @riverpod
 Uri? previewImageUri(PreviewImageUriRef ref) {
   var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
-  var clientType = (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
-  if (machine != null) {
-    return switch (clientType) {
-      ClientType.octo => machine.octoEverywhere?.uri,
-      ClientType.manual => machine.remoteInterface?.remoteUri,
-      ClientType.obico => machine.obicoTunnel,
-      ClientType.local || _ => machine.httpUri,
-    };
-  }
-  return null;
+
+  if (machine == null) return null;
+
+  var dio = ref.watch(dioClientProvider(machine.uuid));
+
+  return Uri.tryParse(dio.options.baseUrl);
 }
 
 @riverpod
 Map<String, String> previewImageHttpHeader(PreviewImageHttpHeaderRef ref) {
   var machine = ref.watch(selectedMachineProvider).valueOrFullNull;
+  if (machine == null) return {};
 
-  var clientType = (machine != null) ? ref.watch(jrpcClientTypeProvider(machine.uuid)) : ClientType.local;
-  if (machine != null) {
-    return switch (clientType) {
-      ClientType.manual => {
-          ...machine.headerWithApiKey,
-          ...machine.remoteInterface!.httpHeaders,
-        },
-      _ => machine.headerWithApiKey,
-    };
-  }
-  return {};
-}
-
-@riverpod
-FileService _fileServicee(_FileServiceeRef ref, String machineUUID, ClientType type) {
-  var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
-
-  if (machine == null) {
-    throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
-  }
-
-  var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
-
-  switch (type) {
-    case ClientType.octo:
-      var octoEverywhere = machine.octoEverywhere;
-      if (octoEverywhere == null) {
-        throw ArgumentError('The provided machine,$machineUUID does not offer OctoEverywhere');
-      }
-      return FileService(
-        ref,
-        machineUUID,
-        jsonRpcClient,
-        octoEverywhere.uri
-            .replace(userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}'),
-        machine.headerWithApiKey,
-      );
-    case ClientType.manual:
-      var remoteInterface = machine.remoteInterface!;
-
-      return FileService(
-        ref,
-        machineUUID,
-        jsonRpcClient,
-        remoteInterface.remoteUri.replace(path: machine.httpUri.path, query: machine.httpUri.query),
-        {
-          ...machine.headerWithApiKey,
-          ...remoteInterface.httpHeaders,
-        },
-      );
-    case ClientType.obico:
-      return FileService(
-        ref,
-        machineUUID,
-        jsonRpcClient,
-        machine.obicoTunnel!,
-        machine.headerWithApiKey,
-      );
-    case ClientType.local:
-    default:
-      return FileService(ref, machineUUID, jsonRpcClient, machine.httpUri, machine.headerWithApiKey);
-  }
+  var dio = ref.watch(dioClientProvider(machine.uuid));
+  return dio.options.headers.cast<String, String>();
 }
 
 @riverpod
 FileService fileService(FileServiceRef ref, String machineUUID) {
-  var clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
+  var dio = ref.watch(dioClientProvider(machineUUID));
+  var jsonRpcClient = ref.watch(jrpcClientProvider(machineUUID));
 
-  return ref.watch(_fileServiceeProvider(machineUUID, clientType));
+  return FileService(ref, machineUUID, jsonRpcClient, dio);
 }
 
 @riverpod
@@ -167,28 +101,22 @@ Stream<FileActionResponse> fileNotificationsSelected(FileNotificationsSelectedRe
 /// 1. https://moonraker.readthedocs.io/en/latest/web_api/#file-operations
 /// 2. https://moonraker.readthedocs.io/en/latest/web_api/#file-list-changed
 class FileService {
-  FileService(AutoDisposeRef ref, this._machineUUID, this._jRpcClient, this.httpUri, this.headers)
-      : _downloadReceiverPortName = 'downloadFilePort-${httpUri.hashCode}' {
-    // var downloadManager = DownloadManager.instance;
-
-    // We need an mobileraker HTTP client
-    // downloadManager.init();
-
+  FileService(AutoDisposeRef ref, this._machineUUID, this._jRpcClient, this._dio)
+      : _downloadReceiverPortName = 'downloadFilePort-${_machineUUID.hashCode}' {
     ref.onDispose(dispose);
-    _jRpcClient.addMethodListener(_onFileListChanged, "notify_filelist_changed");
+    ref.listen(jrpcMethodEventProvider(_machineUUID, 'notify_filelist_changed'), _onFileListChanged);
   }
 
   final String _machineUUID;
   final String _downloadReceiverPortName;
-
-  final Uri httpUri;
-  final Map<String, String> headers;
 
   final StreamController<FileActionResponse> _fileActionStreamCtrler = StreamController();
 
   Stream<FileActionResponse> get fileNotificationStream => _fileActionStreamCtrler.stream;
 
   final JsonRpcClient _jRpcClient;
+
+  final Dio _dio;
 
   Future<List<FileRoot>> fetchRoots() async {
     logger.i('Fetching roots');
@@ -203,7 +131,7 @@ class FileService {
       });
     } on JRpcError catch (e) {
       logger.w('Error while fetching roots', e);
-      throw FileFetchException(e.toString());
+      throw FileFetchException('Jrpc error while trying to fetch roots.', parent: e);
     }
   }
 
@@ -231,7 +159,7 @@ class FileService {
 
       return _parseDirectory(blockingResp, path, allowedFileType);
     } on JRpcError catch (e) {
-      throw FileFetchException(e.toString(), reqPath: path);
+      throw FileFetchException('Jrpc error while trying to fetch directory.', reqPath: path, parent: e);
     }
   }
 
@@ -244,74 +172,114 @@ class FileService {
 
       return _parseFileMeta(blockingResp, filename);
     } on JRpcError catch (e) {
-      throw FileFetchException(e.toString(), reqPath: filename);
+      throw FileFetchException('Jrpc error while trying to get metadata.', reqPath: filename, parent: e);
     }
   }
 
   Future<FileActionResponse> createDir(String filePath) async {
     logger.i('Creating Folder "$filePath"');
 
-    var rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory', params: {'path': filePath});
-    return FileActionResponse.fromJson(rpcResponse.result);
+    try {
+      var rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.post_directory', params: {'path': filePath});
+      return FileActionResponse.fromJson(rpcResponse.result);
+    } on JRpcError catch (e) {
+      throw FileActionException('Jrpc error while trying to create directory.', reqPath: filePath, parent: e);
+    }
   }
 
   Future<FileActionResponse> deleteFile(String filePath) async {
     logger.i('Deleting File "$filePath"');
 
-    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
-    return FileActionResponse.fromJson(rpcResponse.result);
+    try {
+      RpcResponse rpcResponse =
+          await _jRpcClient.sendJRpcMethod('server.files.delete_file', params: {'path': filePath});
+      return FileActionResponse.fromJson(rpcResponse.result);
+    } on JRpcError catch (e) {
+      throw FileActionException('Jrpc error while trying to delete file.', reqPath: filePath, parent: e);
+    }
   }
 
   Future<FileActionResponse> deleteDirForced(String filePath) async {
     logger.i('Deleting Folder-Forced "$filePath"');
-
-    RpcResponse rpcResponse =
-        await _jRpcClient.sendJRpcMethod('server.files.delete_directory', params: {'path': filePath, 'force': true});
-    return FileActionResponse.fromJson(rpcResponse.result);
+    try {
+      RpcResponse rpcResponse =
+          await _jRpcClient.sendJRpcMethod('server.files.delete_directory', params: {'path': filePath, 'force': true});
+      return FileActionResponse.fromJson(rpcResponse.result);
+    } on JRpcError catch (e) {
+      throw FileActionException('Jrpc error while trying to force-delete directory.', reqPath: filePath, parent: e);
+    }
   }
 
   Future<FileActionResponse> moveFile(String origin, String destination) async {
     logger.i('Moving file from $origin to $destination');
 
-    RpcResponse rpcResponse =
-        await _jRpcClient.sendJRpcMethod('server.files.move', params: {'source': origin, 'dest': destination});
-    return FileActionResponse.fromJson(rpcResponse.result);
+    try {
+      RpcResponse rpcResponse =
+          await _jRpcClient.sendJRpcMethod('server.files.move', params: {'source': origin, 'dest': destination});
+      return FileActionResponse.fromJson(rpcResponse.result);
+    } on JRpcError catch (e) {
+      throw FileActionException('Jrpc error while trying to move file.', reqPath: origin, parent: e);
+    }
   }
 
-  // Throws TimeOut exception, if file download took to long!
-  Stream<FileDownload> downloadFile({required String filePath, Duration? timeout, bool overWriteLocal = false}) async* {
-    final downloadUri = httpUri.appendPath('server/files/$filePath');
+  Stream<FileDownload> downloadFile({required String filePath, bool overWriteLocal = false}) async* {
     final tmpDir = await getTemporaryDirectory();
     final File file = File('${tmpDir.path}/$_machineUUID}/$filePath');
-    final Map<String, String> isolateSafeHeaders = Map.from(headers);
-    final String isolateSafePortName = _downloadReceiverPortName;
-    logger.i('Will try to download $filePath to file $file from uri ${downloadUri.obfuscate()}');
-
     final ReceivePort receiverPort = ReceivePort();
+    final String isolateSafePortName = '$_downloadReceiverPortName-${filePath.hashCode}';
+    final BaseOptions isolateSafeBaseOptions = _dio.options.copyWith();
     IsolateNameServer.registerPortWithName(receiverPort.sendPort, isolateSafePortName);
+    try {
+      // logger.i('Will try to download $filePath to file $file');
+      //
+      // var download = workerManager.execute<FileDownload>(() async {
+      //   await setupIsolateLogger();
+      //   logger.i('Hello from worker ${file.path} - my port will be: $isolateSafePortName');
+      //   var port = IsolateNameServer.lookupPortByName(isolateSafePortName)!;
+      //
+      //   return await isolateDownloadFile(
+      //       dioBaseOptions: isolateSafeBaseOptions,
+      //       urlPath: '/server/files/$filePath',
+      //       savePath: file.path,
+      //       port: port,
+      //       overWriteLocal: true);
+      // });
+      //
+      //
+      // yield* receiverPort.takeUntil(download.asStream()).cast<FileDownload>();
+      // logger.i('blub');
+      // yield await download;
 
-    var download = workerManager.execute<FileDownload>(() async {
-      await setupIsolateLogger();
-      logger.i('Hello from worker ${file.path} - my port will be: $isolateSafePortName');
-      var port = IsolateNameServer.lookupPortByName(isolateSafePortName)!;
+      // This code is not using a seperate isolate. Lets see how it goes lol
 
-      return await isolateDownloadFile(
-          port: port,
-          targetUri: downloadUri,
-          downloadPath: file.path,
-          headers: isolateSafeHeaders,
-          timeout: timeout,
-          overWriteLocal: overWriteLocal);
-    });
-    download.whenComplete(() {
-      logger.i('File download done, cleaning up port');
+      StreamController<FileDownload> ctrler = StreamController();
+      _dio.download(
+        '/server/files/$filePath',
+        file.path,
+        options: Options(receiveTimeout: Duration(seconds: 2)), // This is requried because of a bug in dio
+        onReceiveProgress: (received, total) {
+          if (total <= 0) return;
+          logger.i('Progress for $filePath: ${received / total * 100}');
+          ctrler.add(FileDownloadProgress(received / total));
+        },
+      ).then((response) {
+        ctrler.add(FileDownloadComplete(file));
+      }).catchError((e, s) {
+        logger.e('Error while downloading file cought in catchError', e);
+        ctrler.addError(e, s);
+      }).then((value) => ctrler.close());
+
+      yield* ctrler.stream;
+      logger.i('File download completed');
+    } catch (e) {
+      // This is only required for the isolate version, the non isolate version should handle the error in the catchError
+      logger.e('Error while downloading file', e);
+      rethrow;
+    } finally {
       IsolateNameServer.removePortNameMapping(isolateSafePortName);
-    });
-
-    yield* receiverPort.takeUntil(download.asStream()).cast<FileDownload>();
-    receiverPort.close();
-    logger.i('Closed the port');
-    yield await download;
+      receiverPort.close();
+      logger.i('Removed port mapping and closed the port for $isolateSafePortName');
+    }
   }
 
   Future<FileActionResponse> uploadAsFile(String filePath, String content) async {
@@ -319,22 +287,29 @@ class FileService {
     List<String> fileSplit = filePath.split('/');
     String root = fileSplit.removeAt(0);
 
-    Uri uri = httpUri.appendPath('server/files/upload');
-    ;
     logger.i('Trying upload of $filePath');
-    http.MultipartRequest multipartRequest = http.MultipartRequest('POST', uri)
-      ..files.add(http.MultipartFile.fromString('file', content, filename: fileSplit.join('/')))
-      ..fields['root'] = root;
-    http.StreamedResponse streamedResponse = await multipartRequest.send();
-    http.Response response = await http.Response.fromStream(streamedResponse);
 
-    if (response.statusCode != 201) {
-      throw HttpException('Error while uploading file $filePath.', uri: uri);
-    }
-    return FileActionResponse.fromJson(jsonDecode(response.body));
+    var data = FormData.fromMap({
+      'root': root,
+      'file': MultipartFile.fromString(content, filename: fileSplit.join('/')),
+    });
+
+    var response = await _dio.post(
+      '/server/files/upload',
+      data: data,
+      options: Options(validateStatus: (status) => status == 201),
+    );
+
+    return FileActionResponse.fromJson(response.data);
   }
 
-  _onFileListChanged(Map<String, dynamic> rawMessage) {
+  _onFileListChanged(AsyncValue<Map<String, dynamic>>? previous, AsyncValue<Map<String, dynamic>> next) {
+    if (next.isLoading) return;
+    if (next.hasError) {
+      _fileActionStreamCtrler.addError(next.error!, next.stackTrace);
+      return;
+    }
+    var rawMessage = next.value!;
     Map<String, dynamic> params = rawMessage['params'][0];
     FileAction? fileAction = FileAction.tryFromJson(params['action']);
 
@@ -390,49 +365,55 @@ class FileService {
   }
 
   Uri composeFileUriForDownload(RemoteFile file) {
-    return httpUri.appendPath('server/files/${file.absolutPath}');
+    return Uri.parse('${_dio.options.baseUrl}/server/files/${file.absolutPath}');
   }
 
   dispose() {
-    _jRpcClient.removeMethodListener(_onFileListChanged, "notify_filelist_changed");
     _fileActionStreamCtrler.close();
   }
 }
 
 Future<FileDownload> isolateDownloadFile({
+  required BaseOptions dioBaseOptions,
+  required String urlPath,
+  required String savePath,
   required SendPort port,
-  required Uri targetUri,
-  required String downloadPath,
-  Map<String, String> headers = const {},
-  Duration? timeout,
   bool overWriteLocal = false,
 }) async {
-  logger.i('Got headers: $headers and timeout: $timeout');
-  var file = File(downloadPath);
-  timeout ??= const Duration(seconds: 10);
+  var dio = Dio(dioBaseOptions);
+  logger.i(
+      'Created new dio instance for download with options: ${dioBaseOptions.connectTimeout}, ${dioBaseOptions.receiveTimeout}, ${dioBaseOptions.sendTimeout}');
+  try {
+    var file = File(savePath);
+    if (!overWriteLocal && await file.exists()) {
+      logger.i('File already exists, skipping download');
+      return FileDownloadComplete(file);
+    }
+    logger.i('Starting download of $urlPath to $savePath');
+    var progress = FileDownloadProgress(0);
+    port.send(progress);
+    await file.create(recursive: true);
 
-  if (!overWriteLocal && await file.exists()) {
-    logger.i('File already exists, skipping download');
+    var response = await dio.download(
+      urlPath,
+      savePath,
+      onReceiveProgress: (received, total) {
+        if (total <= 0) return;
+        port.send(FileDownloadProgress(received / total));
+      },
+    );
+
+    logger.i('Download complete');
     return FileDownloadComplete(file);
+  } on DioException catch (e) {
+    rethrow;
+  } catch (e) {
+    logger.e('Error inside of isolate', e);
+    throw MobilerakerException('Error while downloading file', parentException: e);
+  } finally {
+    logger.i('Closing dio instance');
+    dio.close();
   }
-  port.send(FileDownloadProgress(0));
-  await file.create(recursive: true);
-
-  HttpClientRequest clientRequest = await HttpClient().getUrl(targetUri).timeout(timeout);
-  headers.forEach(clientRequest.headers.add);
-  HttpClientResponse clientResponse = await clientRequest.close().timeout(timeout);
-
-  IOSink writer = file.openWrite();
-  var totalLen = clientResponse.contentLength;
-  var received = 0;
-  await clientResponse.map((s) {
-    received += s.length;
-    port.send(FileDownloadProgress(received / totalLen));
-    return s;
-  }).pipe(writer);
-  await writer.close();
-  logger.i('Download completed!');
-  return FileDownloadComplete(file);
 }
 
 sealed class FileDownload {}

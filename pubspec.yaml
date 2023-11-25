@@ -38,7 +38,8 @@ dependencies:
     path: common
 
   web_socket_channel: ^2.1.0
-  http: ^0.13.4
+  dio: ^5.3.3
+  dio_smart_retry: ^6.0.0
 
   #firebase
   firebase_core_platform_interface: ^4.8.0

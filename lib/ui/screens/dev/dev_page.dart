@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:io';
+
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
@@ -10,6 +12,7 @@ import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,6 +21,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/util/extensions/datetime_extension.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../service/date_format_service.dart';
 import '../dashboard/components/z_offset_card.dart';
@@ -46,6 +50,7 @@ class DevPage extends HookConsumerWidget {
           ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
           ElevatedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
           TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
+          ElevatedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
           // Expanded(child: WebRtcCam()),
           AsyncValueWidget(
             value: ref.watch(printerSelectedProvider.selectAs((p) => p.bedMesh)),
@@ -353,4 +358,26 @@ Map<String, dynamic> dataSeries(BedMesh mesh) {
       "show": false,
     },
   };
+}
+
+void dummyDownload() async {
+  final tmpDir = await getTemporaryDirectory();
+  final File file = File('${tmpDir.path}/dummy.zip');
+
+  var dio = Dio(BaseOptions(
+    connectTimeout: Duration(seconds: 5),
+    receiveTimeout: Duration(seconds: 5),
+  ));
+
+  // Some file that is rather "large" and takes longer to download
+  var uri = "https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip";
+
+  var response = await dio.download(
+    uri,
+    file.path,
+    onReceiveProgress: (received, total) {
+      logger.i('Received: $received, Total: $total');
+    },
+  );
+  print('Download is done: ${response.statusCode}');
 }

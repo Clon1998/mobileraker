@@ -113,13 +113,11 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       machine = await ref.read(machineServiceProvider).addMachine(machine);
       state = state.copyWith(addedMachine: true, machineToAdd: machine);
     } on OctoEverywhereException catch (e, s) {
-      logger.e('Error while trying to add printer via Ocot', e, s);
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.error,
-            title: 'OctoEverywhere-Error:',
-            message: e.message,
-          ));
-      state = state.copyWith(step: 0);
+      logger.e('Error while trying to add printer via Octo', e, s);
+      _thirdPartyAddError('OctoEverywhere-Error:', e.message);
+    } catch (e, s) {
+      logger.e('Error while trying to add printer via Octo', e, s);
+      _thirdPartyAddError('Error:', e.toString());
     }
   }
 
@@ -151,12 +149,10 @@ class PrinterAddViewController extends _$PrinterAddViewController {
       state = state.copyWith(addedMachine: true, machineToAdd: machine);
     } on ObicoException catch (e, s) {
       logger.e('Error while trying to add printer via Obico', e, s);
-      ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.error,
-            title: 'Obico-Error:',
-            message: e.message,
-          ));
-      state = state.copyWith(step: 0);
+      _thirdPartyAddError('Obico-Error:', e.message);
+    } catch (e, s) {
+      logger.e('Error while trying to add printer via Obico', e, s);
+      _thirdPartyAddError('Error', e.toString());
     }
   }
 
@@ -191,6 +187,15 @@ class PrinterAddViewController extends _$PrinterAddViewController {
 
   goToDashboard() {
     ref.read(goRouterProvider).goNamed(AppRoute.dashBoard.name);
+  }
+
+  _thirdPartyAddError(String title, String message) {
+    ref.read(snackBarServiceProvider).show(SnackBarConfig(
+          type: SnackbarType.error,
+          title: title,
+          message: message,
+        ));
+    state = state.copyWith(step: 0);
   }
 }
 

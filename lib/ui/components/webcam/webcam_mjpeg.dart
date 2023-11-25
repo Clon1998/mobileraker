@@ -6,12 +6,16 @@
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/misc.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/mjpeg.dart';
+import 'package:mobileraker/ui/components/mjpeg/mjpeg.dart';
+
+import '../mjpeg/mjpeg_config.dart';
+import '../mjpeg/mjpeg_mode.dart';
 
 class WebcamMjpeg extends ConsumerWidget {
   const WebcamMjpeg({
@@ -27,7 +31,7 @@ class WebcamMjpeg extends ConsumerWidget {
 
   final Machine machine;
 
-  final StreamConnectedBuilder? imageBuilder;
+  final MjpegImageBuilder? imageBuilder;
 
   final List<Widget> stackChild;
 
@@ -36,7 +40,8 @@ class WebcamMjpeg extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
-    var octoEverywhere = machine.octoEverywhere;
+    var dio = ref.watch(dioClientProvider(machine.uuid));
+
     var machineUri = machine.wsUri;
 
     var camStreamUrl = webcamInfo.streamUrl;
@@ -47,14 +52,13 @@ class WebcamMjpeg extends ConsumerWidget {
           (webcamInfo.service == WebcamServiceType.mjpegStreamerAdaptive) ? MjpegMode.adaptiveStream : MjpegMode.stream
       ..targetFps = webcamInfo.targetFps
       ..rotation = webcamInfo.rotation
-      ..transformation = webcamInfo.transformMatrix;
+      ..transformation = webcamInfo.transformMatrix
+      ..trustSelfSignedCertificate = clientType == ClientType.local && machine.trustUntrustedCertificate;
 
     switch (clientType) {
       case ClientType.octo:
-        configBuilder.timeout = const Duration(seconds: 30);
-        var baseUri = octoEverywhere!.uri.replace(
-          userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}',
-        );
+        var octoEverywhere = machine.octoEverywhere;
+        var baseUri = octoEverywhere!.uri;
         configBuilder
           ..streamUri = buildRemoteWebCamUri(baseUri, machineUri, camStreamUrl)
           ..snapshotUri = buildRemoteWebCamUri(baseUri, machineUri, camSnapshotUrl);
@@ -62,11 +66,6 @@ class WebcamMjpeg extends ConsumerWidget {
       case ClientType.manual:
         var remoteInterface = machine.remoteInterface!;
         configBuilder
-          ..timeout = remoteInterface.timeoutDuration
-          ..httpHeader = {
-            if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
-            ...remoteInterface.httpHeaders,
-          }
           ..streamUri = buildRemoteWebCamUri(
             remoteInterface.remoteUri,
             machineUri,
@@ -87,10 +86,11 @@ class WebcamMjpeg extends ConsumerWidget {
 
     return Mjpeg(
       key: ValueKey(webcamInfo.uuid + machine.uuid),
+      dio: dio,
       imageBuilder: imageBuilder,
       config: configBuilder.build(),
       showFps: showFps,
-      stackChild: [...stackChild],
+      stackChild: stackChild,
     );
   }
 }

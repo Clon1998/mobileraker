@@ -18,6 +18,8 @@ dependencies:
   #network
   web_socket_channel: ^2.1.0
   http: ^0.13.4
+  dio: ^5.3.3
+  dio_smart_retry: ^6.0.0
   flutter_web_auth: ^0.5.0
 
   #firebase

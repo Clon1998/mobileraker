@@ -45,7 +45,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
     var fileUri = fileService.composeFileUriForDownload(widget.file);
 
     Map<String, String> headers = {
-      ...fileService.headers,
+      // ...fileService.headers,
       if (fileUri.userInfo.isNotEmpty)
         HttpHeaders.authorizationHeader: 'Basic ${base64.encode(utf8.encode(fileUri.userInfo))}',
     };
