@@ -22,6 +22,7 @@ import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
+import 'package:mobileraker/ui/screens/files/details/image_file_page.dart';
 import 'package:mobileraker/ui/screens/files/files_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
@@ -51,6 +52,7 @@ enum AppRoute {
   imprint,
   gcodeDetail,
   configDetail,
+  imageViewer,
   dev,
   faq,
   changelog,
@@ -149,6 +151,11 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             path: 'video-player',
             name: AppRoute.videoPlayer.name,
             builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
+          ),
+          GoRoute(
+            path: 'image-viewer',
+            name: AppRoute.imageViewer.name,
+            builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
           ),
         ],
       ),

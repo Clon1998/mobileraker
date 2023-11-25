@@ -13,6 +13,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/util/extensions/remote_file_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -42,10 +43,9 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
     super.initState();
     var machine = ref.read(selectedMachineProvider).value!;
     var dio = ref.read(dioClientProvider(machine.uuid));
-    var fileUri = Uri.parse('${dio.options.baseUrl}/server/files/${widget.file.absolutPath}');
+    var fileUri = widget.file.downloadUri(Uri.tryParse(dio.options.baseUrl))!;
 
     Map<String, String> headers = dio.options.headers.cast<String, String>();
-    logger.i('FileUri: $fileUri, headers: $headers');
     videoPlayerController = VideoPlayerController.networkUrl(fileUri, httpHeaders: headers)
       ..initialize()
           .then(

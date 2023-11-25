@@ -2,9 +2,18 @@
 
 ## [2.6.x] - 2023-12-x
 
+### Major Updates
+
+- Added the ability to view `.png`, `.jpg`, and `.jpeg` files in the file browser.
+
+### Changed Features
+
+- The full-screen webcam can now fill the entire screen if zoomed or panned.
+
 ### Bug Fixes
 
-- Fixed neopixel parsing error for legacy configs [#287](https://github.com/Clon1998/mobileraker/issues/287)
+- Fixed neopixel parsing error for legacy configs. [#287](https://github.com/Clon1998/mobileraker/issues/287)
+- Fixed file browser not working for obico connections.
 
 ## [2.6.7] - 2023-11-11
 
