@@ -14,7 +14,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
-import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
 
@@ -48,17 +47,20 @@ class _FullCamView extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Stack(alignment: Alignment.center, children: [
-          CenterInteractiveViewer(
+        child: Stack(children: [
+          InteractiveViewer(
             constrained: true,
-            minScale: 1,
             maxScale: 10,
-            child: Webcam(
-              machine: machine,
-              webcamInfo: selectedCam,
-              stackContent: const [StackContent()],
-              showFpsIfAvailable: true,
-              showRemoteIndicator: false,
+            child: SizedBox.expand(
+              child: Center(
+                child: Webcam(
+                  machine: machine,
+                  webcamInfo: selectedCam,
+                  stackContent: const [StackContent()],
+                  showFpsIfAvailable: true,
+                  showRemoteIndicator: false,
+                ),
+              ),
             ),
           ),
           const _CamSelector(),
