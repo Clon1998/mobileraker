@@ -31,7 +31,7 @@ class PowerDevice with _$PowerDevice {
   const factory PowerDevice({
     @JsonKey(name: 'device')  required String name,
     required PowerState status,
-    required PowerDeviceType type,
+    @JsonKey(unknownEnumValue: PowerDeviceType.gpio) required PowerDeviceType type,
     @JsonKey(name: 'locked_while_printing') @Default(false) bool lockedWhilePrinting,
 
   }) = _PowerDevice;
