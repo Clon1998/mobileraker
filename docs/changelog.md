@@ -12,8 +12,10 @@
 
 ### Bug Fixes
 
-- Fixed neopixel parsing error for legacy configs. [#287](https://github.com/Clon1998/mobileraker/issues/287)
-- Fixed file browser not working for obico connections.
+- Fixed Neopixel parsing error for legacy configs. [#287](https://github.com/Clon1998/mobileraker/issues/287)
+- Fixed the file browser not working for Obico connections.
+- Resolved an issue where uploading a file with the same name as an existing one wouldn't update the thumbnail,
+  resulting in the old image persisting in the application.
 
 ## [2.6.7] - 2023-11-11
 
