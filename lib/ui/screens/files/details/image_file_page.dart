@@ -52,6 +52,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
             transitionOnUserGestures: true,
             tag: 'img-${widget.file.hashCode}',
             child: CachedNetworkImage(
+              cacheKey: '${imageUri.hashCode}-${widget.file.hashCode}',
               imageBuilder: (context, imageProvider) => InteractiveViewer(
                 boundaryMargin: EdgeInsets.symmetric(vertical: s.height / 2, horizontal: s.width / 2),
                 child: SizedBox.expand(child: Image(image: imageProvider, semanticLabel: widget.file.name)),

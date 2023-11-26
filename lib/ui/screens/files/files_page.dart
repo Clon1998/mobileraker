@@ -509,8 +509,10 @@ class _ImageFileItem extends ConsumerWidget {
           width: 64,
           height: 64,
           child: Hero(
+            transitionOnUserGestures: true,
             tag: 'img-${file.hashCode}',
             child: CachedNetworkImage(
+              cacheKey: '${imageUri.hashCode}-${file.hashCode}',
               imageBuilder: (context, imageProvider) => Container(
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.horizontal(
@@ -584,6 +586,7 @@ class _GCodeFileItem extends ConsumerWidget {
           width: 64,
           height: 64,
           child: Hero(
+            transitionOnUserGestures: true,
             tag: 'gCodeImage-${gCode.hashCode}',
             child: buildLeading(
               gCode,
@@ -611,6 +614,7 @@ class _GCodeFileItem extends ConsumerWidget {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0),
         child: CachedNetworkImage(
+          cacheKey: '${bigImageUri.hashCode}-${gCodeFile.hashCode}',
           imageBuilder: (context, imageProvider) => Container(
             decoration: BoxDecoration(
               borderRadius: const BorderRadius.horizontal(
