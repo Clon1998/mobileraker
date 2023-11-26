@@ -76,6 +76,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                       child: (bigImageUri != null)
                           ? CachedNetworkImage(
                               imageUrl: bigImageUri.toString(),
+                              cacheKey: '${bigImageUri.hashCode}-${gcodeFile.hashCode}',
                               httpHeaders:
                                   ref.watch(previewImageHttpHeaderProvider),
                               imageBuilder: (context, imageProvider) => Image(
