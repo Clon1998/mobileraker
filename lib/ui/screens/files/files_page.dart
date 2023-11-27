@@ -472,6 +472,10 @@ class _FileItem extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(filesPageControllerProvider.notifier);
+    var modified = ref
+        .read(dateFormatServiceProvider)
+        .add_Hm(DateFormat.yMd(context.deviceLocale.languageCode))
+        .format(file.modifiedDate);
 
     return _Slideable(
       file: file,
@@ -483,6 +487,7 @@ class _FileItem extends ConsumerWidget {
           child: Icon(Icons.insert_drive_file),
         ),
         title: Text(file.name),
+        subtitle: Text('${tr('pages.files.last_mod')}: $modified'),
         onTap: () => controller.onFileTapped(file),
       ),
     );
@@ -496,7 +501,11 @@ class _ImageFileItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    logger.wtf('ImageFileItem: ${file.absolutPath}');
+    var modified = ref
+        .read(dateFormatServiceProvider)
+        .add_Hm(DateFormat.yMd(context.deviceLocale.languageCode))
+        .format(file.modifiedDate);
+
     var controller = ref.watch(filesPageControllerProvider.notifier);
     var imageBaseUri = ref.watch(previewImageUriProvider);
     var imageHeaders = ref.watch(previewImageHttpHeaderProvider);
@@ -545,6 +554,7 @@ class _ImageFileItem extends ConsumerWidget {
           ),
         ),
         title: Text(file.name),
+        subtitle: Text('${tr('pages.files.last_mod')}: $modified'),
         onTap: () => controller.onFileTapped(file),
       ),
     );

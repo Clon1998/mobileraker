@@ -9,6 +9,7 @@
 ### Changed Features
 
 - The full-screen webcam can now fill the entire screen if zoomed or panned.
+- Non GCode files now display their last modified date in the file browser.
 
 ### Bug Fixes
 
