@@ -17,6 +17,7 @@
 - Fixed the file browser not working for Obico connections.
 - Resolved an issue where uploading a file with the same name as an existing one wouldn't update the thumbnail,
   resulting in the old image persisting in the application.
+- GCode errors are now displayed via the Snackbar again.
 
 ## [2.6.7] - 2023-11-11
 
