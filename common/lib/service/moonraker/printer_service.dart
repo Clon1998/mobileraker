@@ -81,7 +81,7 @@ Stream<Printer> printer(PrinterRef ref, String machineUUID) {
         next.hasValue &&
             (nextFileName?.isNotEmpty == true && next.value?.currentFile == null ||
                 nextFileName?.isEmpty == true && next.value?.currentFile != null)) {
-      printerService.updateCurrentFile(nextFileName);
+      printerService.updateCurrentFile(nextFileName).ignore();
     }
   });
   return printerService.printerStream;
@@ -454,18 +454,23 @@ class PrinterService {
     return List.empty();
   }
 
-  excludeObject(ParsedObject objToExc) {
+  void excludeObject(ParsedObject objToExc) {
     gCode('EXCLUDE_OBJECT NAME=${objToExc.name}');
   }
 
-  updateCurrentFile(String? file) async {
+  Future<void> updateCurrentFile(String? file) async {
     logger.i('Also requesting an update for current_file: $file');
 
-    var gCodeMeta = (file?.isNotEmpty == true) ? await _fileService.getGCodeMetadata(file!) : null;
+    try {
+      var gCodeMeta = (file?.isNotEmpty == true) ? await _fileService.getGCodeMetadata(file!) : null;
 
-    if (hasCurrent) {
-      logger.i('UPDATED current_file: $gCodeMeta');
-      current = current.copyWith(currentFile: gCodeMeta);
+      if (hasCurrent) {
+        logger.i('UPDATED current_file: $gCodeMeta');
+        current = current.copyWith(currentFile: gCodeMeta);
+      }
+    } catch (e, s) {
+      logger.e('Error while updating current_file', e, s);
+      current = current.copyWith(currentFile: null);
     }
   }
 
