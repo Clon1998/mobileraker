@@ -243,8 +243,10 @@ class JsonRpcClient {
     if (timeout == Duration.zero) {
       return completer.future;
     }
-    return completer.future.timeout(timeout).onError<TimeoutException>(
-        (error, stackTrace) => throw JRpcTimeoutError('JRpcMethod($method) timed out after ${error.duration}'));
+    return completer.future.timeout(timeout).onError<TimeoutException>((error, stackTrace) {
+      _pendingRequests.remove(mId);
+      throw JRpcTimeoutError('JRpcMethod($method) timed out after ${error.duration}');
+    });
   }
 
   /// add a method listener for all(all=*) or given [method]
