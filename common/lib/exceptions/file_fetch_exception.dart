@@ -13,7 +13,7 @@ class FileFetchException extends MobilerakerException {
 
   @override
   String toString() {
-    return 'FileFetchException{path: $reqPath, error: $message, parent: $parent}';
+    return 'FileFetchException{path: $reqPath, message: $message, parent: $parent}';
   }
 }
 
@@ -25,6 +25,6 @@ class FileActionException extends MobilerakerException {
 
   @override
   String toString() {
-    return 'FileActionException{path: $reqPath, error: $message, parent: $parent}';
+    return 'FileActionException{path: $reqPath, message: $message, parent: $parent}';
   }
 }
