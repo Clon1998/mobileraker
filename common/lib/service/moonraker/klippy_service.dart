@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -124,10 +125,17 @@ class KlippyService {
     } on JRpcError catch (e, s) {
       logger.w('Jrpc Error while refreshing KlippyObject: ${e.message}');
 
-      _current = _current.copyWith(
-          klippyConnected: false,
-          klippyState: (e.message == 'Unauthorized') ? KlipperState.unauthorized : KlipperState.error,
-          klippyStateMessage: e.message);
+      _updateError(MobilerakerException('Error while refreshing KlippyObject', parentException: e), s);
+      // _current = _current.copyWith(
+      //     klippyConnected: false,
+      //     klippyState: (e.message == 'Unauthorized') ? KlipperState.unauthorized : KlipperState.error,
+      //     klippyStateMessage: e.message);
+    }
+  }
+
+  void _updateError(Object error, StackTrace stackTrace) {
+    if (!_klipperStreamCtler.isClosed) {
+      _klipperStreamCtler.addError(error, stackTrace);
     }
   }
 

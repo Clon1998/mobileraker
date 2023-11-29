@@ -37,6 +37,8 @@ import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../components/simple_error_widget.dart';
+
 class FilesPage extends ConsumerWidget {
   const FilesPage({Key? key}) : super(key: key);
 
@@ -325,18 +327,14 @@ class _FilesError extends ConsumerWidget {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text('Unable to fetch files!', style: themeData.textTheme.titleMedium),
-              Text(message, textAlign: TextAlign.center, style: themeData.textTheme.bodySmall),
-              TextButton.icon(
-                onPressed: ref.read(filesPageControllerProvider.notifier).refreshFiles,
-                icon: const Icon(Icons.restart_alt_outlined),
-                label: const Text('general.retry').tr(),
-              ),
-            ],
+          child: SimpleErrorWidget(
+            title: Text('Unable to fetch files!', style: themeData.textTheme.titleMedium),
+            body: Text(message, textAlign: TextAlign.center, style: themeData.textTheme.bodySmall),
+            action: TextButton.icon(
+              onPressed: ref.read(filesPageControllerProvider.notifier).refreshFiles,
+              icon: const Icon(Icons.restart_alt_outlined),
+              label: const Text('general.retry').tr(),
+            ),
           ),
         ),
       );
