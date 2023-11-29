@@ -219,23 +219,23 @@ class _FilesBody extends ConsumerWidget {
         child: Column(
           children: [
             const _BreadCrumb(),
-            ref
-                .watch(
-                  filesPageControllerProvider.select((value) => value.files),
-                )
-                .when(
-                  skipLoadingOnReload: true,
-                  skipLoadingOnRefresh: false,
-                  data: (files) {
-                    int lenFolders = files.folders.length;
-                    int lenGcodes = files.files.length;
-                    int lenTotal = lenFolders + lenGcodes;
+            Expanded(
+              child: ref
+                  .watch(
+                    filesPageControllerProvider.select((value) => value.files),
+                  )
+                  .when(
+                    skipLoadingOnReload: true,
+                    skipLoadingOnRefresh: false,
+                    data: (files) {
+                      int lenFolders = files.folders.length;
+                      int lenGcodes = files.files.length;
+                      int lenTotal = lenFolders + lenGcodes;
 
-                    // Add one of the .. folder to back
-                    if (model.isInSubFolder) lenTotal++;
+                      // Add one of the .. folder to back
+                  if (model.isInSubFolder) lenTotal++;
 
-                    return Expanded(
-                      child: EaseIn(
+                      return EaseIn(
                         duration: const Duration(milliseconds: 100),
                         curve: Curves.easeOutCubic,
                         child: SmartRefresher(
@@ -303,11 +303,9 @@ class _FilesBody extends ConsumerWidget {
                                   },
                                 ),
                         ),
-                      ),
-                    );
-                  },
-                  error: (e, s) => Expanded(
-                    child: ErrorCard(
+                      );
+                    },
+                    error: (e, s) => ErrorCard(
                       title: const Text('Unable to fetch files!'),
                       body: Column(
                         children: [
@@ -326,9 +324,7 @@ class _FilesBody extends ConsumerWidget {
                         ],
                       ),
                     ),
-                  ),
-                  loading: () => Expanded(
-                    child: Shimmer.fromColors(
+                    loading: () => Shimmer.fromColors(
                       baseColor: Colors.grey,
                       highlightColor: theme.colorScheme.background,
                       child: ListView.builder(
@@ -377,7 +373,7 @@ class _FilesBody extends ConsumerWidget {
                       ),
                     ),
                   ),
-                ),
+            ),
           ],
         ),
       ),
