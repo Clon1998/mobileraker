@@ -3,8 +3,6 @@
  * All rights reserved.
  */
 
-import 'dart:convert';
-
 import '../network/json_rpc_client.dart';
 import 'mobileraker_exception.dart';
 
@@ -17,9 +15,7 @@ class GCodeException extends MobilerakerException {
       return GCodeException(e.message, -1, 'JrpcTimeout', parentException: e, parentStack: parentStack);
     }
 
-    Map<String, dynamic> errorInfo = jsonDecode(e.message.replaceAll('\'', '"'));
-
-    return GCodeException(errorInfo['message'] ?? 'UNKNOWN', e.code, errorInfo['error'], parentException: e);
+    return GCodeException(e.message, e.code, e.runtimeType.toString(), parentException: e, parentStack: parentStack);
   }
 
   final int code;
