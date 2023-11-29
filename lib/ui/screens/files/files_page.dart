@@ -139,6 +139,8 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
     TextEditingController textCtler = ref.watch(searchTextEditingControllerProvider);
 
+    var areFilesReady = ref.watch(filesPageControllerProvider.select((value) => value.areFilesReady));
+
     if (ref.watch(isSearchingProvider)) {
       return AppBar(
         leading: IconButton(
@@ -181,7 +183,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
         const FileSortModeSelector(),
         IconButton(
           icon: const Icon(Icons.search),
-          onPressed: () => ref.read(isSearchingProvider.notifier).state = true,
+          onPressed: areFilesReady ? () => ref.read(isSearchingProvider.notifier).state = true : null,
         ),
       ],
     );
@@ -198,7 +200,6 @@ class _FilesBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var theme = Theme.of(context);
 
-    var model = ref.watch(filesPageControllerProvider);
     var controller = ref.watch(filesPageControllerProvider.notifier);
 
     return WillPopScope(
@@ -228,133 +229,9 @@ class _FilesBody extends ConsumerWidget {
                   .when(
                     skipLoadingOnReload: true,
                     skipLoadingOnRefresh: false,
-                    data: (files) {
-                      int lenFolders = files.folders.length;
-                      int lenGcodes = files.files.length;
-                      int lenTotal = lenFolders + lenGcodes;
-
-                      // Add one of the .. folder to back
-                      if (model.isInSubFolder) lenTotal++;
-
-                      return EaseIn(
-                        duration: const Duration(milliseconds: 100),
-                        curve: Curves.easeOutCubic,
-                        child: SmartRefresher(
-                          header: const WaterDropMaterialHeader(),
-                          controller: RefreshController(),
-                          onRefresh: controller.refreshFiles,
-                          child: (lenTotal == 0)
-                              ? ListTile(
-                                  contentPadding: EdgeInsets.zero,
-                                  leading: const SizedBox(
-                                    width: 64,
-                                    height: 64,
-                                    child: Icon(Icons.search_off),
-                                  ),
-                                  title: const Text('pages.files.no_files_found').tr(),
-                                )
-                              : ListView.builder(
-                                  physics: const BouncingScrollPhysics(),
-                                  itemCount: lenTotal,
-                                  itemBuilder: (context, index) {
-                                    if (model.isInSubFolder) {
-                                      if (index == 0) {
-                                        return ListTile(
-                                          contentPadding: const EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                            vertical: 3,
-                                          ),
-                                          leading: const SizedBox(
-                                            width: 64,
-                                            height: 64,
-                                            child: Icon(Icons.folder),
-                                          ),
-                                          title: const Text('...'),
-                                          onTap: controller.popFolder,
-                                        );
-                                      }
-                                      index--;
-                                    }
-
-                                    if (index < lenFolders) {
-                                      Folder folder = files.folders[index];
-                                      return _FolderItem(
-                                        folder: folder,
-                                        key: ValueKey(folder),
-                                      );
-                                    }
-                                    RemoteFile file = files.files[index - lenFolders];
-                                    if (file is GCodeFile) {
-                                      return _GCodeFileItem(
-                                        key: ValueKey(file),
-                                        gCode: file,
-                                      );
-                                    }
-                                    if (file.isImage) {
-                                      return _ImageFileItem(
-                                        key: ValueKey(file),
-                                        file: file,
-                                      );
-                                    }
-
-                                    return _FileItem(
-                                      file: file,
-                                      key: ValueKey(file),
-                                    );
-                                  },
-                                ),
-                        ),
-                      );
-                    },
-                    error: (e, s) => _ErrorFetching(error: e, stack: s),
-                    loading: () => Shimmer.fromColors(
-                      baseColor: Colors.grey,
-                      highlightColor: theme.colorScheme.background,
-                      child: ListView.builder(
-                        itemCount: 15,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 2,
-                            ),
-                            leading: Container(
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.horizontal(
-                                  left: Radius.circular(15.0),
-                                  right: Radius.circular(15.0),
-                                ),
-                                color: Colors.white,
-                              ),
-                              width: 64,
-                              height: 64,
-                              margin: const EdgeInsets.symmetric(
-                                vertical: 2,
-                                horizontal: 2,
-                              ),
-                            ),
-                            title: Container(
-                              width: double.infinity,
-                              height: 16.0,
-                              margin: const EdgeInsets.only(right: 5),
-                              color: Colors.white,
-                            ),
-                            subtitle: Row(
-                              children: [
-                                Flexible(
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 10.0,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const Spacer(flex: 2),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
+                    data: (files) => _FilesData(files: files),
+                    error: (e, s) => _FilesError(error: e, stack: s),
+                    loading: () => _FilesLoading(theme: theme),
                   ),
             ),
           ],
@@ -364,8 +241,69 @@ class _FilesBody extends ConsumerWidget {
   }
 }
 
-class _ErrorFetching extends ConsumerWidget {
-  const _ErrorFetching({
+class _FilesLoading extends StatelessWidget {
+  const _FilesLoading({
+    super.key,
+    required this.theme,
+  });
+
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey,
+      highlightColor: theme.colorScheme.background,
+      child: ListView.builder(
+        itemCount: 15,
+        itemBuilder: (context, index) {
+          return ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 5,
+              vertical: 2,
+            ),
+            leading: Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.horizontal(
+                  left: Radius.circular(15.0),
+                  right: Radius.circular(15.0),
+                ),
+                color: Colors.white,
+              ),
+              width: 64,
+              height: 64,
+              margin: const EdgeInsets.symmetric(
+                vertical: 2,
+                horizontal: 2,
+              ),
+            ),
+            title: Container(
+              width: double.infinity,
+              height: 16.0,
+              margin: const EdgeInsets.only(right: 5),
+              color: Colors.white,
+            ),
+            subtitle: Row(
+              children: [
+                Flexible(
+                  child: Container(
+                    width: double.infinity,
+                    height: 10.0,
+                    color: Colors.white,
+                  ),
+                ),
+                const Spacer(flex: 2),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _FilesError extends ConsumerWidget {
+  const _FilesError({
     super.key,
     required this.error,
     required this.stack,
@@ -426,6 +364,83 @@ class _ErrorFetching extends ConsumerWidget {
   }
 }
 
+class _FilesData extends ConsumerWidget {
+  const _FilesData({super.key, required this.files});
+
+  final FolderContentWrapper files;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var model = ref.watch(filesPageControllerProvider);
+    var controller = ref.watch(filesPageControllerProvider.notifier);
+
+    int lenFolders = files.folders.length;
+    int lenGcodes = files.files.length;
+    int lenTotal = lenFolders + lenGcodes;
+
+    // Add one of the .. folder to back
+    if (model.isInSubFolder) lenTotal++;
+
+    return EaseIn(
+      duration: const Duration(milliseconds: 100),
+      curve: Curves.easeOutCubic,
+      child: SmartRefresher(
+        header: const WaterDropMaterialHeader(),
+        controller: RefreshController(),
+        onRefresh: controller.refreshFiles,
+        child: (lenTotal == 0)
+            ? ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: Icon(Icons.search_off),
+                ),
+                title: const Text('pages.files.no_files_found').tr(),
+              )
+            : ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: lenTotal,
+                itemBuilder: (context, index) {
+                  if (model.isInSubFolder) {
+                    if (index == 0) {
+                      return ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 5,
+                          vertical: 3,
+                        ),
+                        leading: const SizedBox(
+                          width: 64,
+                          height: 64,
+                          child: Icon(Icons.folder),
+                        ),
+                        title: const Text('...'),
+                        onTap: controller.popFolder,
+                      );
+                    }
+                    index--;
+                  }
+
+                  if (index < lenFolders) {
+                    Folder folder = files.folders[index];
+                    return _FolderItem(folder: folder, key: ValueKey(folder));
+                  }
+                  RemoteFile file = files.files[index - lenFolders];
+                  if (file is GCodeFile) {
+                    return _GCodeFileItem(key: ValueKey(file), gCode: file);
+                  }
+                  if (file.isImage) {
+                    return _ImageFileItem(key: ValueKey(file), file: file);
+                  }
+
+                  return _FileItem(file: file, key: ValueKey(file));
+                },
+              ),
+      ),
+    );
+  }
+}
+
 class _BreadCrumb extends ConsumerWidget {
   const _BreadCrumb({Key? key}) : super(key: key);
 
@@ -433,8 +448,7 @@ class _BreadCrumb extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ThemeData theme = Theme.of(context);
     var model = ref.watch(filesPageControllerProvider.select((value) => value.path));
-    var enableButton =
-        ref.watch(filesPageControllerProvider.select((value) => !value.files.isLoading && !value.files.hasError));
+    var enableButton = ref.watch(filesPageControllerProvider.select((value) => value.areFilesReady));
     var controller = ref.watch(filesPageControllerProvider.notifier);
 
     return Container(

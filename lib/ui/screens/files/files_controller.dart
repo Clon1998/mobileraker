@@ -369,4 +369,6 @@ class FilePageState with _$FilePageState {
   bool get isInSubFolder => path.length > 1;
 
   String get pathAsString => path.join('/');
+
+  bool get areFilesReady => !files.hasError && !files.isLoading;
 }
