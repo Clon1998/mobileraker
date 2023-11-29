@@ -8,6 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
+import 'package:common/exceptions/file_fetch_exception.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
@@ -233,7 +234,7 @@ class _FilesBody extends ConsumerWidget {
                       int lenTotal = lenFolders + lenGcodes;
 
                       // Add one of the .. folder to back
-                  if (model.isInSubFolder) lenTotal++;
+                      if (model.isInSubFolder) lenTotal++;
 
                       return EaseIn(
                         duration: const Duration(milliseconds: 100),
@@ -305,25 +306,7 @@ class _FilesBody extends ConsumerWidget {
                         ),
                       );
                     },
-                    error: (e, s) => ErrorCard(
-                      title: const Text('Unable to fetch files!'),
-                      body: Column(
-                        children: [
-                          Text(
-                            'The following error occued while trying to fetch files:n$e',
-                          ),
-                          TextButton(
-                            // onPressed: model.showPrinterFetchingErrorDialog,
-                            onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
-                                  type: CommonDialogs.stacktrace,
-                                  title: e.runtimeType.toString(),
-                                  body: 'Exception:\n $e\n\n$s',
-                                )),
-                            child: const Text('Show Full Error'),
-                          ),
-                        ],
-                      ),
-                    ),
+                    error: (e, s) => _ErrorFetching(error: e, stack: s),
                     loading: () => Shimmer.fromColors(
                       baseColor: Colors.grey,
                       highlightColor: theme.colorScheme.background,
@@ -381,6 +364,68 @@ class _FilesBody extends ConsumerWidget {
   }
 }
 
+class _ErrorFetching extends ConsumerWidget {
+  const _ErrorFetching({
+    super.key,
+    required this.error,
+    required this.stack,
+  });
+
+  final Object error;
+  final StackTrace stack;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (error is FileFetchException) {
+      FileFetchException ffe = error as FileFetchException;
+      String message = ffe.message;
+      if (ffe.parent != null) {
+        message += '\n${ffe.parent}';
+      }
+
+      var themeData = Theme.of(context);
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text('Unable to fetch files!', style: themeData.textTheme.titleMedium),
+              Text(message, textAlign: TextAlign.center, style: themeData.textTheme.bodySmall),
+              TextButton.icon(
+                onPressed: ref.read(filesPageControllerProvider.notifier).refreshFiles,
+                icon: const Icon(Icons.restart_alt_outlined),
+                label: const Text('general.retry').tr(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return ErrorCard(
+      title: const Text('Unable to fetch files!'),
+      body: Column(
+        children: [
+          Text(
+            'The following error occued while trying to fetch files:n$error',
+          ),
+          TextButton(
+            // onPressed: model.showPrinterFetchingErrorDialog,
+            onPressed: () => ref.read(dialogServiceProvider).show(DialogRequest(
+                  type: CommonDialogs.stacktrace,
+                  title: error.runtimeType.toString(),
+                  body: 'Exception:\n$error\n\n$stack',
+                )),
+            child: const Text('Show Full Error'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _BreadCrumb extends ConsumerWidget {
   const _BreadCrumb({Key? key}) : super(key: key);
 
@@ -388,6 +433,8 @@ class _BreadCrumb extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ThemeData theme = Theme.of(context);
     var model = ref.watch(filesPageControllerProvider.select((value) => value.path));
+    var enableButton =
+        ref.watch(filesPageControllerProvider.select((value) => !value.files.isLoading && !value.files.hasError));
     var controller = ref.watch(filesPageControllerProvider.notifier);
 
     return Container(
@@ -421,17 +468,18 @@ class _BreadCrumb extends ConsumerWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: InkWell(
-                onTap: ref.watch(filesPageControllerProvider.notifier).onCreateDirTapped,
-                child: Icon(
-                  Icons.create_new_folder_outlined,
-                  color: theme.colorScheme.onPrimary,
-                  size: 20,
+            if (enableButton)
+              Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: InkWell(
+                  onTap: ref.watch(filesPageControllerProvider.notifier).onCreateDirTapped,
+                  child: Icon(
+                    Icons.create_new_folder_outlined,
+                    color: theme.colorScheme.onPrimary,
+                    size: 20,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),

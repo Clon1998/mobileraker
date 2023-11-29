@@ -245,7 +245,7 @@ class JsonRpcClient {
     }
     return completer.future.timeout(timeout).onError<TimeoutException>((error, stackTrace) {
       _pendingRequests.remove(mId);
-      throw JRpcTimeoutError('JRpcMethod($method) timed out after ${error.duration}');
+      throw JRpcTimeoutError('JRpcMethod($method) timed out after ${error.duration?.inSeconds} seconds');
     });
   }
 
