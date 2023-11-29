@@ -3,24 +3,20 @@
  * All rights reserved.
  */
 
-import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
-import 'package:common/service/moonraker/klippy_service.dart';
-import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
+import 'package:mobileraker/ui/components/connection/klippy_state_widget.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
-import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConnectionStateView extends ConsumerWidget {
@@ -38,15 +34,15 @@ class ConnectionStateView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(selectedMachineProvider);
 
-    return machine.when(
-      data: (machine) {
-        return machine != null
-            ? WebSocketState(
-                onConnected: onConnected,
-                skipKlipperReady: skipKlipperReady,
-              )
-            : Center(
-                child: Padding(
+    return Center(
+      child: machine.when(
+        data: (machine) {
+          return machine != null
+              ? _WebsocketStateWidget(
+                  onConnected: onConnected,
+                  skipKlipperReady: skipKlipperReady,
+                )
+              : Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -72,21 +68,21 @@ class ConnectionStateView extends ConsumerWidget {
                       const Spacer(),
                     ],
                   ),
-                ),
-              );
-      },
-      error: (e, _) => ErrorCard(
-        title: const Text('Error selecting active machine'),
-        body: Text(e.toString()),
+                );
+        },
+        error: (e, _) => ErrorCard(
+          title: const Text('Error selecting active machine'),
+          body: Text(e.toString()),
+        ),
+        loading: () => const CircularProgressIndicator.adaptive(),
+        skipLoadingOnRefresh: false,
       ),
-      loading: () => const Center(child: CircularProgressIndicator.adaptive()),
-      skipLoadingOnRefresh: false,
     );
   }
 }
 
-class WebSocketState extends HookConsumerWidget {
-  const WebSocketState({
+class _WebsocketStateWidget extends HookConsumerWidget {
+  const _WebsocketStateWidget({
     Key? key,
     required this.onConnected,
     this.skipKlipperReady = false,
@@ -103,57 +99,53 @@ class WebSocketState extends HookConsumerWidget {
     var connectionStateController = ref.watch(connectionStateControllerProvider.notifier);
 
     return AsyncValueWidget(
+      key: ValueKey(clientType),
       value: connectionState,
       data: (ClientState clientState) {
         switch (clientState) {
           case ClientState.connected:
-            return KlippyState(
+            return KlippyStateWidget(
               onConnected: onConnected,
               skipKlipperReady: skipKlipperReady,
             );
 
           case ClientState.disconnected:
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.warning_amber_outlined,
-                    size: 50,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 30),
-                  const Text('@:klipper_state.disconnected !').tr(),
-                  TextButton.icon(
-                    onPressed: connectionStateController.onRetryPressed,
-                    icon: const Icon(Icons.restart_alt_outlined),
-                    label: const Text('components.connection_watcher.reconnect').tr(),
-                  ),
-                ],
-              ),
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.warning_amber_outlined,
+                  size: 50,
+                  color: Theme.of(context).colorScheme.error,
+                ),
+                const SizedBox(height: 30),
+                const Text('@:klipper_state.disconnected !').tr(),
+                TextButton.icon(
+                  onPressed: connectionStateController.onRetryPressed,
+                  icon: const Icon(Icons.restart_alt_outlined),
+                  label: const Text('components.connection_watcher.reconnect').tr(),
+                ),
+              ],
             );
           case ClientState.connecting:
-            return Center(
-              key: ValueKey(clientType),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (clientType == ClientType.local)
-                    SpinKitPulse(
-                      size: 100,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  if (clientType == ClientType.octo)
-                    SpinKitPouringHourGlassRefined(
-                      size: 100,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  const SizedBox(height: 30),
-                  FadingText(tr(clientType == ClientType.local
-                      ? 'components.connection_watcher.trying_connect'
-                      : 'components.connection_watcher.trying_connect_remote')),
-                ],
-              ),
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (clientType == ClientType.local)
+                  SpinKitPulse(
+                    size: 100,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                if (clientType == ClientType.octo)
+                  SpinKitPouringHourGlassRefined(
+                    size: 100,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                const SizedBox(height: 30),
+                FadingText(tr(clientType == ClientType.local
+                    ? 'components.connection_watcher.trying_connect'
+                    : 'components.connection_watcher.trying_connect_remote')),
+              ],
             );
           case ClientState.error:
           default:
@@ -192,136 +184,6 @@ class WebSocketState extends HookConsumerWidget {
                 ],
               ),
             );
-        }
-      },
-    );
-  }
-}
-
-class KlippyState extends ConsumerWidget {
-  const KlippyState({
-    Key? key,
-    required this.onConnected,
-    this.skipKlipperReady = false,
-  }) : super(key: key);
-  final Widget onConnected;
-  final bool skipKlipperReady;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (skipKlipperReady) {
-      return onConnected;
-    }
-    if (ref.watch(printerSelectedProvider.select((value) => value.hasValue && !value.isLoading))) {
-      return onConnected;
-    }
-
-    var watch = ref.watch(klipperSelectedProvider);
-    return AsyncValueWidget<KlipperInstance>(
-      value: watch,
-      data: (data) {
-        var themeData = Theme.of(context);
-        switch (data.klippyState) {
-          case KlipperState.disconnected:
-          case KlipperState.shutdown:
-          case KlipperState.error:
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      child: Column(
-                        children: [
-                          ListTile(
-                            leading: const Icon(FlutterIcons.disconnect_ant),
-                            title: Text(data.klippyState.name).tr(),
-                          ),
-                          Text(
-                            data.klippyStateMessage ?? tr(data.klippyState.name),
-                            style: TextStyle(color: themeData.colorScheme.error),
-                          ),
-                          ElevatedButtonTheme(
-                            data: ElevatedButtonThemeData(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: themeData.colorScheme.error,
-                                foregroundColor: themeData.colorScheme.onError,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                ElevatedButton(
-                                  onPressed:
-                                      ref.read(connectionStateControllerProvider.notifier).onRestartKlipperPressed,
-                                  child: const Text(
-                                    'pages.dashboard.general.restart_klipper',
-                                  ).tr(),
-                                ),
-                                ElevatedButton(
-                                  onPressed: ref.read(connectionStateControllerProvider.notifier).onRestartMCUPressed,
-                                  child: const Text(
-                                    'pages.dashboard.general.restart_mcu',
-                                  ).tr(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (data.components.contains('power')) const PowerApiCard(),
-                ],
-              ),
-            );
-          case KlipperState.startup:
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      child: Column(
-                        children: [
-                          ListTile(
-                            leading: const Icon(FlutterIcons.disconnect_ant),
-                            title: Text(data.klippyState.name).tr(),
-                          ),
-                          const Text(
-                            'components.connection_watcher.server_starting',
-                          ).tr(),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          case KlipperState.unauthorized:
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.gpp_bad, size: 70),
-                  const SizedBox(height: 30),
-                  const Text(
-                    'It seems like you configured trusted clients for Moonraker. Please add the API key in the printers settings!\n',
-                    textAlign: TextAlign.center,
-                  ),
-                  TextButton(
-                    onPressed: ref.read(connectionStateControllerProvider.notifier).onEditPrinter,
-                    child: Text('components.nav_drawer.printer_settings'.tr()),
-                  ),
-                ],
-              ),
-            );
-
-          case KlipperState.ready:
-          default:
-            return onConnected;
         }
       },
     );
