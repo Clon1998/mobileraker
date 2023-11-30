@@ -7,6 +7,7 @@ import 'dart:async';
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/misc_providers.dart';
@@ -24,12 +25,17 @@ part 'jrpc_client_provider.g.dart';
 @riverpod
 JsonRpcClient _jsonRpcClient(_JsonRpcClientRef ref, String machineUUID, ClientType type) {
   var machine = ref.watch(machineProvider(machineUUID)).valueOrNull;
-
   if (machine == null) {
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
   }
 
-  JsonRpcClient jsonRpcClient = JsonRpcClientBuilder.fromClientType(type, machine).build();
+  var clientOptions = ref.watch(baseOptionsProvider(machineUUID, type));
+  var httpClient = ref.watch(httpClientProvider(machineUUID, type));
+
+  var jrpcClientBuilder = JsonRpcClientBuilder.fromBaseOptions(clientOptions, machine);
+  jrpcClientBuilder.httpClient = httpClient;
+
+  JsonRpcClient jsonRpcClient = jrpcClientBuilder.build();
   logger.i('${jsonRpcClient.logPrefix} JsonRpcClient CREATED!!');
   ref.onDispose(jsonRpcClient.dispose);
 

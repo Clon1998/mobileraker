@@ -47,18 +47,16 @@ Future<GadgetStatus> gadgetStatus(GadgetStatusRef ref, String appToken) async {
     refreshTimer.cancel();
   });
 
-  return gadgetService.getStatus(appToken);
+  return gadgetService.getStatus(appToken).catchError((error, stackTrace) {
+    refreshTimer.cancel();
+    throw error;
+  });
 }
 
 class GadgetService {
   GadgetService(AutoDisposeRef ref) : _dio = ref.watch(octoApiClientProvider);
 
   final Dio _dio;
-
-  final Uri _octoURI = Uri(
-    scheme: 'https',
-    host: 'octoeverywhere.com',
-  );
 
   // https://octoeverywhere.stoplight.io/docs/octoeverywhere-api-docs/b538c771f5cef-get-gadget-s-status-for-app-connections
   Future<GadgetStatus> getStatus(String appToken) async {
@@ -67,7 +65,7 @@ class GadgetService {
     var response =
         await _dio.post('/gadget/GetStatusFromAppConnection', options: Options(headers: {'AppToken': appToken}));
 
-    var responseJson = jsonDecode(response.data);
+    var responseJson = response.data;
     if (responseJson['Result'] == null) {
       throw OctoEverywhereException('Could not get gadget status! Response: ${responseJson['Error']}');
     }

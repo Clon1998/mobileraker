@@ -7,6 +7,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:common/util/extensions/dio_options_extension.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
@@ -53,92 +55,33 @@ class JRpcTimeoutError extends JRpcError {
 class JsonRpcClientBuilder {
   JsonRpcClientBuilder();
 
-  factory JsonRpcClientBuilder.fromOcto(Machine machine) {
-    if (machine.octoEverywhere == null) {
-      throw ArgumentError('The provided machine,${machine.uuid} does not offer OctoEverywhere');
-    }
-
-    var octoEverywhere = machine.octoEverywhere!;
+  factory JsonRpcClientBuilder.fromBaseOptions(BaseOptions options, Machine machine) {
     var localWsUir = machine.wsUri;
-    var octoUri = Uri.parse(octoEverywhere.url);
+    var baseURL = Uri.parse(options.baseUrl);
 
-    return JsonRpcClientBuilder()
-      ..headers = machine.headerWithApiKey
-      ..timeout = const Duration(seconds: 10)
-      ..uri = localWsUir
-          .replace(
-              scheme: 'wss',
-              host: octoUri.host,
-              userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
-          .removePort() // OE automatically redirects the ports
-      ..clientType = ClientType.octo;
-  }
+    var builder = JsonRpcClientBuilder()
+      ..headers = options.headers
+      ..clientType = options.clientType
+      ..timeout = options.receiveTimeout ?? const Duration(seconds: 10)
+      ..uri = baseURL.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri();
 
-  factory JsonRpcClientBuilder.fromLocal(Machine machine) {
-    return JsonRpcClientBuilder()
-      ..headers = machine.headerWithApiKey
-      ..uri = machine.wsUri
-      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
-      ..clientType = ClientType.local
-      ..timeout = Duration(seconds: machine.timeout);
-  }
-
-  factory JsonRpcClientBuilder.fromRemoteInterface(Machine machine) {
-    if (machine.remoteInterface == null) {
-      throw ArgumentError('The provided machine,${machine.uuid} does not offer a remoteInterface');
-    }
-    var localWsUir = machine.wsUri;
-    var remoteInterface = machine.remoteInterface!;
-
-    return JsonRpcClientBuilder()
-      ..headers = {
-        ...machine.headerWithApiKey,
-        ...remoteInterface.httpHeaders,
-      }
-      ..uri = remoteInterface.remoteUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
-      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
-      ..clientType = ClientType.manual
-      ..timeout = remoteInterface.timeoutDuration;
-  }
-
-  factory JsonRpcClientBuilder.fromObicoTunnel(Machine machine) {
-    if (machine.obicoTunnel == null) {
-      throw ArgumentError('The provided machine,${machine.uuid} does not offer a obicoTunnel');
-    }
-    var localWsUir = machine.wsUri;
-    var obicoTunnelUri = machine.obicoTunnel!;
-
-    return JsonRpcClientBuilder()
-      ..headers = machine.headerWithApiKey
-      ..uri = obicoTunnelUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
-      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
-      ..clientType = ClientType.obico
-      ..timeout = const Duration(seconds: 10);
-  }
-
-  factory JsonRpcClientBuilder.fromClientType(ClientType clientType, Machine machine) {
-    return switch (clientType) {
-      ClientType.local => JsonRpcClientBuilder.fromLocal(machine),
-      ClientType.octo => JsonRpcClientBuilder.fromOcto(machine),
-      ClientType.manual => JsonRpcClientBuilder.fromRemoteInterface(machine),
-      ClientType.obico => JsonRpcClientBuilder.fromObicoTunnel(machine),
-    };
+    return builder;
   }
 
   ClientType clientType = ClientType.local;
   Uri? uri;
-  bool trustSelfSignedCertificate = false;
   Duration timeout = const Duration(seconds: 3);
   Map<String, dynamic> headers = {};
+  HttpClient? httpClient;
 
   JsonRpcClient build() {
     assert(uri != null, 'Provided URI was null');
     return JsonRpcClient(
       uri: uri!,
       timeout: timeout,
-      trustSelfSignedCertificate: trustSelfSignedCertificate,
       headers: headers,
       clientType: clientType,
+      httpClient: httpClient,
     );
   }
 }
@@ -146,9 +89,9 @@ class JsonRpcClientBuilder {
 class JsonRpcClient {
   JsonRpcClient({
     required this.uri,
-    Duration? timeout,
-    this.trustSelfSignedCertificate = false,
     this.headers = const {},
+    this.httpClient,
+    Duration? timeout,
     this.clientType = ClientType.local,
   })  : timeout = timeout ?? const Duration(seconds: 3),
         assert(['ws', 'wss'].contains(uri.scheme), 'Scheme of provided URI must be WS or WSS!');
@@ -159,9 +102,9 @@ class JsonRpcClient {
 
   final Duration timeout;
 
-  final bool trustSelfSignedCertificate;
-
   final Map<String, dynamic> headers;
+
+  final HttpClient? httpClient;
 
   Exception? errorReason;
 
@@ -302,13 +245,7 @@ class JsonRpcClient {
   }
 
   HttpClient _constructHttpClient() {
-    HttpClient httpClient = HttpClient();
-    httpClient.connectionTimeout = timeout;
-    if (trustSelfSignedCertificate) {
-      // only allow self signed certificates!
-      httpClient.badCertificateCallback = (cert, host, port) => true;
-    }
-    return httpClient;
+    return httpClient ?? HttpClient();
   }
 
   Map<String, dynamic> _constructJsonRPCMessage(String method, {dynamic params}) =>
@@ -466,8 +403,8 @@ class JsonRpcClient {
           clientType == other.clientType &&
           uri == other.uri &&
           timeout == other.timeout &&
-          trustSelfSignedCertificate == other.trustSelfSignedCertificate &&
           mapEquals(headers, other.headers) &&
+          httpClient == other.httpClient &&
           errorReason == other.errorReason &&
           _disposed == other._disposed &&
           _channel == other._channel &&
@@ -483,7 +420,7 @@ class JsonRpcClient {
       clientType.hashCode ^
       uri.hashCode ^
       timeout.hashCode ^
-      trustSelfSignedCertificate.hashCode ^
+      httpClient.hashCode ^
       headers.hashCode ^
       errorReason.hashCode ^
       _disposed.hashCode ^

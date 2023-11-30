@@ -163,23 +163,9 @@ class _BottomNavigationBar extends ConsumerWidget {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
-    if (ref
-            .watch(
-              machinePrinterKlippySettingsProvider.selectAs((data) => true),
-            )
-            .valueOrNull !=
-        true) {
+    if (ref.watch(machinePrinterKlippySettingsProvider.select((value) => value.isReloading || value.hasError))) {
       return const SizedBox.shrink();
     }
-
-    // AsyncValue<KlipperState> klippyState =
-    //     ref.watch(klipperSelectedProvider.selectAs((data) => data.klippyState));
-    // AsyncValue<PrintState> printState =
-    //     ref.watch(printerSelectedProvider.selectAs((data) => data.print.state));
-    //
-    // if (!klippyState.hasValue || !printState.hasValue) {
-    //   return const SizedBox.shrink();
-    // }
 
     return AnimatedBottomNavigationBar(
       icons: const [FlutterIcons.tachometer_faw, FlutterIcons.settings_oct],
@@ -265,6 +251,6 @@ class _IdleFAB extends ConsumerWidget {
         },
 
         // onPressed: mdodel.showNonPrintingMenu,
-    child: const Icon(Icons.menu),
-  );
+        child: const Icon(Icons.menu),
+      );
 }

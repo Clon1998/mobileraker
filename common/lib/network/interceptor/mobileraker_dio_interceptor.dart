@@ -11,9 +11,7 @@ import '../../util/misc.dart';
 class MobilerakerDioInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    logger.w('[MobilerakerDioInterceptor] Received error: ${err.message}');
-
-    // var mobilerakerDioException = MobilerakerDioException.fromDio(err);
+    logger.d('[MobilerakerDioInterceptor] Received error: ${err.message}');
 
     var converted = convertDioException(err);
     handler.reject(converted);
