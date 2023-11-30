@@ -15,6 +15,7 @@ import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/obico/obico_tunnel_service.dart';
@@ -256,6 +257,7 @@ class MachineService {
     ref.invalidate(printerServiceProvider(machine.uuid));
     ref.invalidate(klipperProvider(machine.uuid));
     ref.invalidate(klipperServiceProvider(machine.uuid));
+    ref.invalidate(dioClientProvider(machine.uuid));
     ref.invalidate(jrpcClientStateProvider(machine.uuid));
     ref.invalidate(jrpcClientProvider(machine.uuid));
     ref.invalidate(machineProvider(machine.uuid));

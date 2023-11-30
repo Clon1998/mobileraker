@@ -329,11 +329,15 @@ class TestConnectionController extends _$TestConnectionController {
 
     TestConnectionState s;
     HttpClient httpClient = HttpClient()..connectionTimeout = Duration(seconds: min(10, machineToAdd.timeout));
+    if (machineToAdd.trustUntrustedCertificate) {
+      httpClient.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
+    }
+
     JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder()
       ..headers = machineToAdd.httpHeaders
       ..timeout = httpClient.connectionTimeout!
       ..uri = machineToAdd.wsUri
-      ..trustSelfSignedCertificate = machineToAdd.trustUntrustedCertificate;
+      ..httpClient = httpClient;
     // ..headers = machineToAdd.headers;
 
     s = TestConnectionState(

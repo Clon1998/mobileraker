@@ -127,7 +127,7 @@ class PrinterEditController extends _$PrinterEditController {
         await _saveMachineRemoteSettings(storedValues);
       }
       await _saveMachine(storedValues);
-    } on Error catch (e, s) {
+    } catch (e, s) {
       state = false;
       logger.e('Error while trying to save printer data', e, s);
       ref.read(snackBarServiceProvider).show(SnackBarConfig(
@@ -254,7 +254,7 @@ class PrinterEditController extends _$PrinterEditController {
       var webcamService = ref.read(webcamServiceProvider(_machine.uuid));
       await webcamService.addOrModifyWebcamInfoInBulk(camsToStore);
       await webcamService.deleteWebcamInfoInBulk(camsToDelete);
-      await ref.refresh(allWebcamInfosProvider(_machine.uuid).future);
+      // await ref.refresh(allWebcamInfosProvider(_machine.uuid).future);
     }
   }
 

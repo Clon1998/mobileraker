@@ -56,6 +56,8 @@ class Machine extends HiveObject {
   List<String> localSsids;
   @HiveField(8, defaultValue: -1)
   int printerThemePack;
+  @HiveField(26)
+  String? pinnedCertificateDER;
 
   PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
 
