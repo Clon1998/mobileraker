@@ -86,6 +86,11 @@ class WebcamService {
 
   Future<void> addOrModifyWebcamInfo(WebcamInfo cam) async {
     logger.i('ADD/MODIFY Webcam "${cam.name}" request...');
+    if (cam.source == 'config') {
+      logger.w('Webcam "${cam.name}" is a config webcam. Skipping...');
+      return;
+    }
+
     try {
       await _webcamInfoRepository.addOrUpdate(cam);
       logger.e(cam);
