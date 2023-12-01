@@ -21,8 +21,8 @@ class GCodeThumbnail with _$GCodeThumbnail {
   const GCodeThumbnail._();
 
   const factory GCodeThumbnail({
-    @IntegerConverter() required int width,
-    @IntegerConverter() required int height,
+    @IntegerConverter() @JsonKey(readValue: _potentiallyStringifiedIntegerToJson) required int width,
+    @IntegerConverter() @JsonKey(readValue: _potentiallyStringifiedIntegerToJson) required int height,
     @IntegerConverter() required int size,
     @JsonKey(name: 'relative_path') required String relativePath,
   }) = _GCodeThumbnail;
@@ -30,4 +30,12 @@ class GCodeThumbnail with _$GCodeThumbnail {
   factory GCodeThumbnail.fromJson(Map<String, dynamic> json) => _$GCodeThumbnailFromJson(json);
 
   int get pixels => width * height;
+}
+
+num _potentiallyStringifiedIntegerToJson(Map input, String key) {
+  var value = input[key];
+  if (value is String) {
+    return int.parse(value);
+  }
+  return value;
 }
