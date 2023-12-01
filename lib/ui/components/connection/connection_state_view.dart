@@ -149,8 +149,7 @@ class _WebsocketStateWidget extends HookConsumerWidget {
             );
           case ClientState.error:
           default:
-            return Container(
-              alignment: Alignment.center,
+            return Padding(
               padding: const EdgeInsets.all(22),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
