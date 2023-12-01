@@ -69,45 +69,43 @@ class _ZOffsetLoading extends StatelessWidget {
       child: Shimmer.fromColors(
         baseColor: Colors.grey,
         highlightColor: themeData.colorScheme.background,
-        child: Column(
+        child: const Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const CardTitleSkeleton(
+            CardTitleSkeleton(
               trailing: Chip(
                 label: SizedBox(width: 90),
                 backgroundColor: Colors.white,
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
+              padding: EdgeInsets.symmetric(horizontal: 15),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  const Column(
+                  Column(
                     children: [
-                      SquareElevatedIconButtonSkeleton(
-                        margin: EdgeInsets.all(10),
-                      ),
-                      SquareElevatedIconButtonSkeleton(
-                        margin: EdgeInsets.all(10),
-                      ),
+                      SquareElevatedIconButtonSkeleton(margin: EdgeInsets.all(10)),
+                      SquareElevatedIconButtonSkeleton(margin: EdgeInsets.all(10)),
                     ],
                   ),
                   Column(children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Container(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: SizedBox(
                         width: 100,
                         height: 19,
-                        color: Colors.white,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(color: Colors.white),
+                        ),
                       ),
                     ),
-                    const RangeSelectorSkeleton(itemCount: 4),
+                    RangeSelectorSkeleton(itemCount: 4),
                   ]),
                 ],
               ),
             ),
-            const SizedBox(height: 15),
+            SizedBox(height: 15),
           ],
         ),
       ),
@@ -199,7 +197,7 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    ref.timeoutKeepAlive();
+    ref.keepAliveFor();
 
     var klippyCanReceiveCommands = ref.watchAsSubject(
       klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),

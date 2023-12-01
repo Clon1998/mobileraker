@@ -121,7 +121,15 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
                           Flexible(child: _tile(height)),
                         ],
                       ),
-                      Container(width: 30, height: 12, color: Colors.white),
+                      const SizedBox(
+                        width: 30,
+                        height: 12,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ],
                   );
                 }),

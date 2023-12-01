@@ -12,14 +12,23 @@ class SquareElevatedIconButtonSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(2.5),
-      child: Container(
-        margin: margin,
+    const raw = Padding(
+      padding: EdgeInsets.all(2.5),
+      child: SizedBox(
         width: 43,
         height: 43,
-        color: Colors.white,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+          ),
+        ),
       ),
+    );
+    if (margin == null) return raw;
+
+    return Padding(
+      padding: margin!,
+      child: raw,
     );
   }
 }

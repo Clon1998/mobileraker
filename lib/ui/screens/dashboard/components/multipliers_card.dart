@@ -43,8 +43,8 @@ class MultipliersCard extends StatelessWidget {
   }
 }
 
-class MultipliersSlidersOrTextsLoading extends StatelessWidget {
-  const MultipliersSlidersOrTextsLoading({super.key});
+class _MultipliersSlidersOrTextsLoading extends StatelessWidget {
+  const _MultipliersSlidersOrTextsLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +85,7 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
         ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
     if (showLoading) {
-      return const MultipliersSlidersOrTextsLoading();
+      return const _MultipliersSlidersOrTextsLoading();
     }
 
     var inputLocked = useState(true);
@@ -169,7 +169,7 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
 class _Controller extends _$Controller {
   @override
   Stream<_Model> build(String machineUUID) async* {
-    ref.timeoutKeepAlive();
+    ref.keepAliveFor();
 
     var klippyCanReceiveCommands = ref.watchAsSubject(
       klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),

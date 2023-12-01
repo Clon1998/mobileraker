@@ -75,17 +75,20 @@ class _MacroGroupLoading extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             CardTitleSkeleton.trailingText(),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 15),
               child: Wrap(
                 spacing: 5,
                 alignment: WrapAlignment.spaceEvenly,
                 children: [
-                  for (var i = 0; i < 8; i++)
-                    Chip(
-                      label: SizedBox(width: 40 + (i * 18 % 40)),
-                      backgroundColor: Colors.white,
-                    ),
+                  Chip(label: SizedBox(width: 40), backgroundColor: Colors.white),
+                  Chip(label: SizedBox(width: 58), backgroundColor: Colors.white),
+                  Chip(label: SizedBox(width: 76), backgroundColor: Colors.white),
+                  Chip(label: SizedBox(width: 94), backgroundColor: Colors.white),
+                  Chip(label: SizedBox(width: 12), backgroundColor: Colors.white),
+                  Chip(label: SizedBox(width: 30), backgroundColor: Colors.white),
+                  Chip(label: SizedBox(width: 48), backgroundColor: Colors.white),
+                  Chip(label: SizedBox(width: 66), backgroundColor: Colors.white),
                 ],
               ),
             ),
@@ -216,7 +219,7 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    ref.timeoutKeepAlive();
+    ref.keepAliveFor();
     // Keep the printerService alive while this controller is alive
     ref.keepAliveExternally(printerServiceProvider(machineUUID));
 
