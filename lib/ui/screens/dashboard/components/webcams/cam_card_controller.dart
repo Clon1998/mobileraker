@@ -40,7 +40,7 @@ class CamCardController extends _$CamCardController {
 
   @override
   FutureOr<CamCardState> build() async {
-    ref.timeoutKeepAlive();
+    ref.keepAliveFor();
     Machine machine = (await ref.watch(selectedMachineProvider.future))!;
     var filteredCams = await ref.watch(allSupportedWebcamInfosProvider(machine.uuid).future);
     _keySuffix = machine.uuid;

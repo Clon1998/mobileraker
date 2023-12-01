@@ -132,7 +132,7 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 
 @riverpod
 Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) async* {
-  ref.timeoutKeepAlive();
+  ref.keepAliveFor();
 
   var machine = await ref.watch(machineProvider(machineUUID).future);
   if (machine == null) return;
