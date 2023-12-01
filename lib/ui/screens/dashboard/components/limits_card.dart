@@ -37,8 +37,8 @@ class LimitsCard extends StatelessWidget {
       );
 }
 
-class LimitsSlidersOrTextsLoading extends StatelessWidget {
-  const LimitsSlidersOrTextsLoading({super.key});
+class _LimitsSlidersOrTextsLoading extends StatelessWidget {
+  const _LimitsSlidersOrTextsLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +79,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
         ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
     if (showLoading) {
-      return const LimitsSlidersOrTextsLoading();
+      return const _LimitsSlidersOrTextsLoading();
     }
 
     var inputLocked = useState(true);
@@ -160,7 +160,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
 class _Controller extends _$Controller {
   @override
   Stream<_Model> build(String machineUUID) async* {
-    ref.timeoutKeepAlive();
+    ref.keepAliveFor();
 
     var klippyCanReceiveCommands = ref.watchAsSubject(
       klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),

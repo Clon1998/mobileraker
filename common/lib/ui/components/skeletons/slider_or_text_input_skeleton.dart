@@ -20,11 +20,15 @@ class SliderOrTextInputSkeleton extends StatelessWidget {
       children: [
         Flexible(
           child: InputDecorator(
-            decoration: InputDecoration(
-              label: Container(
+            decoration: const InputDecoration(
+              label: SizedBox(
                 width: 85,
                 height: 16,
-                color: Colors.white,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                  ),
+                ),
               ),
               isCollapsed: true,
               border: InputBorder.none,
@@ -38,11 +42,14 @@ class SliderOrTextInputSkeleton extends StatelessWidget {
         // Padding(padding: EdgeInsets.all(4.5),
         // child: Icon(Icons.edit, color: Colors.white,),
         // )
-        Container(
-          margin: const EdgeInsets.all(4.5),
+        const SizedBox(
           width: 24,
           height: 24,
-          color: Colors.white,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white,
+            ),
+          ),
         ),
       ],
     );

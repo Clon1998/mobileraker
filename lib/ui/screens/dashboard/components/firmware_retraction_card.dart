@@ -41,8 +41,8 @@ class FirmwareRetractionCard extends ConsumerWidget {
   }
 }
 
-class FirmwareRetractionSlidersOrTextsLoading extends StatelessWidget {
-  const FirmwareRetractionSlidersOrTextsLoading({super.key});
+class _FirmwareRetractionSlidersOrTextsLoading extends StatelessWidget {
+  const _FirmwareRetractionSlidersOrTextsLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +86,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
         ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
     if (showLoading) {
-      return const FirmwareRetractionSlidersOrTextsLoading();
+      return const _FirmwareRetractionSlidersOrTextsLoading();
     }
 
     var inputLocked = useState(true);
@@ -180,7 +180,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
 class _Controller extends _$Controller {
   @override
   Stream<_Model> build(String machineUUID) async* {
-    ref.timeoutKeepAlive();
+    ref.keepAliveFor();
 
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
