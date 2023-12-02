@@ -104,6 +104,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   supporterTokenDate('supTknDate'),
   liveActivityStore('liveActivityStore'),
   zOffsetStepIndex('zOffsetStepIndex'),
+  moveStepIndex('moveStepIndex'),
   ;
 
   @override

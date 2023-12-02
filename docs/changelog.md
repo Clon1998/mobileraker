@@ -18,6 +18,8 @@
 - Resolved an issue where uploading a file with the same name as an existing one wouldn't update the thumbnail,
   resulting in the old image persisting in the application.
 - GCode errors are now displayed via the Snackbar again.
+- Fixed a parsing error on Creality printer of gCode
+  thumbnails. [#288](https://github.com/Clon1998/mobileraker/issues/288)
 
 ## [2.6.7] - 2023-11-11
 

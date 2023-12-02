@@ -9,7 +9,6 @@ import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
@@ -19,12 +18,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
-import 'package:mobileraker/ui/components/async_value_widget.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card.dart';
 import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../../service/date_format_service.dart';
-import '../dashboard/components/z_offset_card.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
@@ -43,26 +41,27 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
-          ZOffsetCard(machineUUID: selMachine!.uuid),
-
-          const Text('One'),
-          ElevatedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
-          ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
-          ElevatedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
-          TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
-          ElevatedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
-          // Expanded(child: WebRtcCam()),
-          AsyncValueWidget(
-            value: ref.watch(printerSelectedProvider.selectAs((p) => p.bedMesh)),
-            data: (data) => getMeshChart(data),
-          ),
+          ControlXYZCard(machineUUID: selMachine!.uuid),
+          const ControlXYZLoading(),
+          // const ZOffsetLoading(),
+          // const Text('One'),
+          // ElevatedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
+          // ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
+          // ElevatedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
+          // TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
+          // ElevatedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
+          // // Expanded(child: WebRtcCam()),
+          // AsyncValueWidget(
+          //   value: ref.watch(printerSelectedProvider.selectAs((p) => p.bedMesh)),
+          //   data: (data) => getMeshChart(data),
+          // ),
         ],
       ),
     );
   }
 
   Widget getMeshChart(BedMesh? mesh) {
-    if (mesh == null) return Text('No Mesh');
+    if (mesh == null) return const Text('No Mesh');
 
     var options = getChartOptions(mesh);
     return Container(
@@ -102,7 +101,7 @@ class DevPage extends HookConsumerWidget {
       'progress': 0.2,
       'state': 'printing',
       'file': 'Benchy.gcode' ?? 'Unknown',
-      'eta': DateTime.now().add(Duration(seconds: 60 * 120)).secondsSinceEpoch ?? -1,
+      'eta': DateTime.now().add(const Duration(seconds: 60 * 120)).secondsSinceEpoch ?? -1,
 
       // Labels
       'primary_color_light': Colors.amber.value,
@@ -141,7 +140,7 @@ class DevPage extends HookConsumerWidget {
       'progress': 0.8,
       'state': 'printing',
       'file': 'Benchy.gcode' ?? 'Unknown',
-      'eta': DateTime.now().add(Duration(seconds: 60 * 100)).secondsSinceEpoch ?? -1,
+      'eta': DateTime.now().add(const Duration(seconds: 60 * 100)).secondsSinceEpoch ?? -1,
 
       // Labels
       'primary_color_light': Colors.cyan.value,
@@ -365,8 +364,8 @@ void dummyDownload() async {
   final File file = File('${tmpDir.path}/dummy.zip');
 
   var dio = Dio(BaseOptions(
-    connectTimeout: Duration(seconds: 5),
-    receiveTimeout: Duration(seconds: 5),
+    connectTimeout: const Duration(seconds: 5),
+    receiveTimeout: const Duration(seconds: 5),
   ));
 
   // Some file that is rather "large" and takes longer to download
