@@ -24,6 +24,8 @@ class PrintCard extends ConsumerWidget {
     KlipperInstance klippyInstance =
         ref.watch(generalTabViewControllerProvider.select((data) => data.value!.klippyData));
 
+    var machineUUID = ref.watch(generalTabViewControllerProvider.select((data) => data.value!.machine.uuid));
+
     bool isPrintingOrPaused = ref.watch(generalTabViewControllerProvider.select((data) {
       var printState = data.value!.printerData.print.state;
 
@@ -141,7 +143,7 @@ class PrintCard extends ConsumerWidget {
           ],
           if (klippyCanReceiveCommands && isPrintingOrPaused) ...[
             const Divider(thickness: 1, height: 0),
-            const ToolheadInfoTable(),
+            ToolheadInfoTable(machineUUID: machineUUID),
           ],
         ],
       ),

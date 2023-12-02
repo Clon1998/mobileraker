@@ -9,7 +9,9 @@ import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/double_extension.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -21,7 +23,6 @@ part 'toolhead_info_table_controller.g.dart';
 @freezed
 class ToolheadInfo with _$ToolheadInfo {
   const factory ToolheadInfo({
-    required List<double> livePosition,
     required List<double> postion,
     required bool printingOrPaused,
     required int mmSpeed,
@@ -39,10 +40,10 @@ class ToolheadInfo with _$ToolheadInfo {
     int? remainingSlicer,
   }) = _ToolheadInfo;
 
-  factory ToolheadInfo.byComponents(Printer printer) {
+  factory ToolheadInfo.byComponents(Printer printer, bool positionWithOffset) {
     final GCodeFile? currentFile = printer.currentFile;
-    int maxLayer = _calculateMaxLayer(printer, currentFile);
-    int curLayer = _calculateCurrentLayer(printer, currentFile, maxLayer);
+    int maxLayer = _calculateMaxLayer(printer);
+    int curLayer = _calculateCurrentLayer(printer, maxLayer);
     double currentFlow = 0;
     double? usedFilament, totalFilament;
     double usedFilamentPerc = 0;
@@ -64,9 +65,10 @@ class ToolheadInfo with _$ToolheadInfo {
       currentFlow = (crossSection * printer.motionReport.liveExtruderVelocity).toPrecision(1).abs();
     }
 
+    var position = positionWithOffset ? printer.gCodeMove.gcodePosition : printer.motionReport.livePosition;
+
     return ToolheadInfo(
-      livePosition: printer.motionReport.livePosition.toList(growable: false),
-      postion: printer.gCodeMove.gcodePosition.toList(growable: false),
+      postion: position.toList(growable: false),
       printingOrPaused: const {PrintState.printing, PrintState.paused}.contains(printer.print.state),
       mmSpeed: printer.gCodeMove.mmSpeed,
       currentLayer: curLayer,
@@ -84,7 +86,8 @@ class ToolheadInfo with _$ToolheadInfo {
     );
   }
 
-  static int _calculateMaxLayer(Printer printer, GCodeFile? currentFile) {
+  static int _calculateMaxLayer(Printer printer) {
+    final GCodeFile? currentFile = printer.currentFile;
     final totalLayer = printer.print.totalLayer;
     final objectHeight = currentFile?.objectHeight;
     final firstLayerHeight = currentFile?.firstLayerHeight;
@@ -100,11 +103,8 @@ class ToolheadInfo with _$ToolheadInfo {
     return max(0, ((objectHeight - firstLayerHeight) / layerHeight + 1).ceil());
   }
 
-  static int _calculateCurrentLayer(
-    Printer printer,
-    GCodeFile? currentFile,
-    int totalLayers,
-  ) {
+  static int _calculateCurrentLayer(Printer printer, int totalLayers) {
+    final GCodeFile? currentFile = printer.currentFile;
     final currentLayer = printer.print.currentLayer;
     final printDuration = printer.print.printDuration;
     final firstLayerHeight = currentFile?.firstLayerHeight;
@@ -121,8 +121,11 @@ class ToolheadInfo with _$ToolheadInfo {
 }
 
 @riverpod
-Future<ToolheadInfo> toolheadInfo(ToolheadInfoRef ref) async {
-  var printer = await ref.watch(printerSelectedProvider.future);
+Stream<ToolheadInfo> toolheadInfo(ToolheadInfoRef ref, String machineUUID) async* {
+  ref.keepAliveFor();
+  var settingService = ref.watch(settingServiceProvider);
 
-  return ToolheadInfo.byComponents(printer);
+  yield* ref
+      .watchAsSubject(printerProvider(machineUUID))
+      .map((event) => ToolheadInfo.byComponents(event, settingService.readBool(AppSettingKeys.applyOffsetsToPostion)));
 }

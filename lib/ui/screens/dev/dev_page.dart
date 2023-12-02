@@ -42,7 +42,7 @@ class DevPage extends HookConsumerWidget {
       body: ListView(
         children: [
           ControlXYZCard(machineUUID: selMachine!.uuid),
-          const ControlXYZLoading(),
+          // const ControlXYZLoading(),
           // const ZOffsetLoading(),
           // const Text('One'),
           // ElevatedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),

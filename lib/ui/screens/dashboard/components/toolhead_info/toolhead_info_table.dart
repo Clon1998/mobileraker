@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:common/service/setting_service.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -12,6 +12,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhead_info_table_controller.dart';
+import 'package:shimmer/shimmer.dart';
 
 class ToolheadInfoTable extends ConsumerWidget {
   static const String POS_ROW = "p";
@@ -21,53 +22,34 @@ class ToolheadInfoTable extends ConsumerWidget {
 
   const ToolheadInfoTable({
     Key? key,
+    required this.machineUUID,
     this.rowsToShow = const [POS_ROW, MOV_ROW],
-    this.animated = true,
   }) : super(key: key);
 
-  final bool animated;
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var toolheadInfo = ref.watch(toolheadInfoProvider);
-
-    var widget = toolheadInfo.hasValue
-        ? _ToolheadData(
-            toolheadInfo: toolheadInfo.value!,
-            rowsToShow: rowsToShow,
-          )
-        : const LinearProgressIndicator();
-    if (!animated) return widget;
-
-    return AnimatedSwitcher(
-      switchInCurve: Curves.easeInOutBack,
-      duration: kThemeAnimationDuration,
-      transitionBuilder: (child, anim) => SizeTransition(
-        sizeFactor: anim,
-        child: FadeTransition(opacity: anim, child: child),
-      ),
-      child: widget,
-    );
+    return _ToolheadData(machineUUID: machineUUID, rowsToShow: rowsToShow);
   }
 }
 
 class _ToolheadData extends ConsumerWidget {
   const _ToolheadData({
     Key? key,
-    required this.toolheadInfo,
+    required this.machineUUID,
     required this.rowsToShow,
   }) : super(key: key);
 
-  final ToolheadInfo toolheadInfo;
+  final String machineUUID;
   final List<String> rowsToShow;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var labelStyle = Theme.of(context).textTheme.bodySmall;
+    var isPrintingOrPaused =
+        ref.watch(toolheadInfoProvider(machineUUID).selectAs((data) => data.printingOrPaused)).valueOrNull == true;
+    var dateFormat = ref.watch(dateFormatServiceProvider).Hm();
 
-    var position = ref.watch(settingServiceProvider).readBool(AppSettingKeys.applyOffsetsToPostion)
-        ? toolheadInfo.postion
-        : toolheadInfo.livePosition;
     return Table(
       border: TableBorder(
         horizontalInside: BorderSide(
@@ -85,28 +67,42 @@ class _ToolheadData extends ConsumerWidget {
               padding: EdgeInsets.all(8.0),
               child: Icon(FlutterIcons.axis_arrow_mco),
             ),
-            _TableCell(label: 'X', value: position[0].toStringAsFixed(2)),
-            _TableCell(label: 'Y', value: position[1].toStringAsFixed(2)),
-            _TableCell(label: 'Z', value: position[2].toStringAsFixed(2)),
+            _ConsumerCell(
+              label: 'X',
+              consumerListenable: toolheadInfoProvider(machineUUID)
+                  .selectAs((value) => value.postion.elementAtOrNull(0)?.toStringAsFixed(2) ?? '--'),
+            ),
+            _ConsumerCell(
+              label: 'Y',
+              consumerListenable: toolheadInfoProvider(machineUUID)
+                  .selectAs((value) => value.postion.elementAtOrNull(1)?.toStringAsFixed(2) ?? '--'),
+            ),
+            _ConsumerCell(
+              label: 'Z',
+              consumerListenable: toolheadInfoProvider(machineUUID)
+                  .selectAs((value) => value.postion.elementAtOrNull(2)?.toStringAsFixed(2) ?? '--'),
+            ),
           ]),
-        if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW) && toolheadInfo.printingOrPaused) ...[
+        if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW) && isPrintingOrPaused) ...[
           TableRow(
             children: [
               const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Icon(FlutterIcons.layers_fea),
               ),
-              _TableCell(
+              _ConsumerCell(
                 label: tr('pages.dashboard.general.print_card.speed'),
-                value: '${toolheadInfo.mmSpeed} mm/s',
+                consumerListenable: toolheadInfoProvider(machineUUID).selectAs((value) => '${value.mmSpeed} mm/s'),
               ),
-              _TableCell(
+              _ConsumerCell(
                 label: tr('pages.dashboard.general.print_card.layer'),
-                value: '${toolheadInfo.currentLayer}/${toolheadInfo.maxLayers}',
+                consumerListenable:
+                    toolheadInfoProvider(machineUUID).selectAs((value) => '${value.currentLayer}/${value.maxLayers}'),
               ),
-              _TableCell(
+              _ConsumerCell(
                 label: tr('pages.dashboard.general.print_card.elapsed'),
-                value: secondsToDurationText(toolheadInfo.totalDuration),
+                consumerListenable:
+                    toolheadInfoProvider(machineUUID).selectAs((value) => secondsToDurationText(value.totalDuration)),
               ),
             ],
           ),
@@ -116,41 +112,39 @@ class _ToolheadData extends ConsumerWidget {
                 padding: EdgeInsets.all(8.0),
                 child: Icon(FlutterIcons.printer_3d_mco),
               ),
-              _TableCell(
+              _ConsumerCell(
                 label: tr('pages.dashboard.general.print_card.flow'),
-                value: '${toolheadInfo.currentFlow ?? 0} mm³/s',
+                consumerListenable:
+                    toolheadInfoProvider(machineUUID).selectAs((value) => '${value.currentFlow ?? 0} mm³/s'),
               ),
-              Tooltip(
-                textAlign: TextAlign.center,
-                message: tr(
-                  'pages.dashboard.general.print_card.filament_tooltip',
-                  args: [
-                    toolheadInfo.usedFilamentPerc.toStringAsFixed(0),
-                    toolheadInfo.usedFilament?.toStringAsFixed(1) ?? '0',
-                    toolheadInfo.totalFilament?.toStringAsFixed(1) ?? '-',
-                  ],
-                ),
-                child: _TableCell(
-                  label: tr('pages.dashboard.general.print_card.filament'),
-                  value: '${toolheadInfo.usedFilament?.toStringAsFixed(1) ?? 0} m',
-                ),
+              _ConsumerTooltipCell(
+                label: tr('pages.dashboard.general.print_card.filament'),
+                consumerListenable: toolheadInfoProvider(machineUUID)
+                    .selectAs((value) => '${value.usedFilament?.toStringAsFixed(1) ?? 0} m'),
+                consumerTooltipListenable: toolheadInfoProvider(machineUUID).selectAs((value) => tr(
+                      'pages.dashboard.general.print_card.filament_tooltip',
+                      args: [
+                        value.usedFilamentPerc.toStringAsFixed(0),
+                        value.usedFilament?.toStringAsFixed(1) ?? '0',
+                        value.totalFilament?.toStringAsFixed(1) ?? '-',
+                      ],
+                    )),
               ),
-              Tooltip(
-                textAlign: TextAlign.end,
-                message: tr(
-                  'pages.dashboard.general.print_card.eta_tooltip',
-                  namedArgs: {
-                    'avg': toolheadInfo.remaining?.let(secondsToDurationText) ?? '--',
-                    'slicer': toolheadInfo.remainingSlicer?.let(secondsToDurationText) ?? '--',
-                    'file': toolheadInfo.remainingFile?.let(secondsToDurationText) ?? '--',
-                    'filament': toolheadInfo.remainingFilament?.let(secondsToDurationText) ?? '--',
-                  },
+              _ConsumerTooltipCell(
+                label: tr(
+                  'pages.dashboard.general.print_card.filament',
                 ),
-                child: _TableCell(
-                  label: tr('pages.dashboard.general.print_card.eta'),
-                  value:
-                      toolheadInfo.eta?.let((eta) => ref.read(dateFormatServiceProvider).Hm().format(eta)) ?? '--:--',
-                ),
+                consumerListenable: toolheadInfoProvider(machineUUID)
+                    .selectAs((value) => value.eta?.let((eta) => dateFormat.format(eta)) ?? '--:--'),
+                consumerTooltipListenable: toolheadInfoProvider(machineUUID).selectAs((value) => tr(
+                      'pages.dashboard.general.print_card.eta_tooltip',
+                      namedArgs: {
+                        'avg': value.remaining?.let(secondsToDurationText) ?? '--',
+                        'slicer': value.remainingSlicer?.let(secondsToDurationText) ?? '--',
+                        'file': value.remainingFile?.let(secondsToDurationText) ?? '--',
+                        'filament': value.remainingFilament?.let(secondsToDurationText) ?? '--',
+                      },
+                    )),
               ),
             ],
           ),
@@ -160,20 +154,94 @@ class _ToolheadData extends ConsumerWidget {
   }
 }
 
-class _TableCell extends StatelessWidget {
-  const _TableCell({super.key, required this.label, required this.value});
+class _ConsumerCell extends StatelessWidget {
+  const _ConsumerCell({super.key, required this.label, required this.consumerListenable});
 
   final String label;
-  final String value;
+  final ProviderListenable<AsyncValue<String>> consumerListenable;
+
+  @override
+  Widget build(_) => Consumer(
+        builder: (context, ref, child) {
+          var asyncValue = ref.watch(consumerListenable);
+
+          if (asyncValue.isLoading && !asyncValue.isReloading) return const _LoadingCell();
+
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [child!, Text(asyncValue.value!)],
+            ),
+          );
+        },
+        child: Text(label),
+      );
+}
+
+class _LoadingCell extends StatelessWidget {
+  const _LoadingCell({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [Text(label), Text(value)],
+    var themeData = Theme.of(context);
+
+    return Shimmer.fromColors(
+      baseColor: Colors.grey,
+      highlightColor: themeData.colorScheme.background,
+      child: const Padding(
+        padding: EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 20,
+              height: 17,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Colors.white),
+              ),
+            ),
+            SizedBox(height: 4),
+            SizedBox(
+              width: 44,
+              height: 17,
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
+}
+
+class _ConsumerTooltipCell extends StatelessWidget {
+  const _ConsumerTooltipCell({
+    super.key,
+    required this.label,
+    required this.consumerListenable,
+    required this.consumerTooltipListenable,
+  });
+
+  final String label;
+  final ProviderListenable<AsyncValue<String>> consumerListenable;
+  final ProviderListenable<AsyncValue<String>> consumerTooltipListenable;
+
+  @override
+  Widget build(_) => Consumer(
+        builder: (context, ref, child) {
+          var asyncTooltipValue = ref.watch(consumerTooltipListenable);
+
+          if (asyncTooltipValue.isLoading && !asyncTooltipValue.isReloading) return child!;
+
+          return Tooltip(
+            margin: const EdgeInsets.all(8.0),
+            textAlign: TextAlign.center,
+            message: asyncTooltipValue.value!,
+            child: child!,
+          );
+        },
+        child: _ConsumerCell(label: label, consumerListenable: consumerListenable),
+      );
 }
