@@ -10,6 +10,9 @@
 
 - The full-screen webcam can now fill the entire screen if zoomed or panned.
 - Non GCode files now display their last modified date in the file browser.
+- Replaced the shadow of the console page with a more subtle border among all light mode themes.
+- The select printer dialog now displays the printer's http URL under its name.
+- Improved the Control Axis card, making it a separate and more polished component.
 
 ### Bug Fixes
 
