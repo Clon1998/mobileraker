@@ -5,6 +5,7 @@
 
 import 'package:flutter/scheduler.dart';
 import 'package:network_info_plus/network_info_plus.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,6 +16,11 @@ part 'misc_providers.g.dart';
 @Riverpod(keepAlive: true)
 NetworkInfo networkInfoService(NetworkInfoServiceRef ref) {
   return NetworkInfo();
+}
+
+@Riverpod(keepAlive: true)
+Future<PackageInfo> versionInfo(VersionInfoRef _) {
+  return PackageInfo.fromPlatform();
 }
 
 @riverpod

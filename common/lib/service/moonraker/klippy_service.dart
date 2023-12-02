@@ -5,10 +5,13 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/machine_service.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -84,6 +87,8 @@ class KlippyService {
 
   KlipperInstance __current = KlipperInstance(moonrakerVersion: MoonrakerVersion.fallback());
 
+  bool _connectionIdentified = false;
+
   set _current(KlipperInstance nI) {
     __current = nI;
     if (!_klipperStreamCtler.isClosed) {
@@ -121,7 +126,13 @@ class KlippyService {
 
   Future<void> refreshKlippy() async {
     try {
-      await Future.wait([_fetchServerInfo(), _fetchPrinterInfo()]);
+      var futures = [_fetchServerInfo(), _fetchPrinterInfo()];
+      if (!_connectionIdentified) {
+        _connectionIdentified = true;
+        futures.add(_identifyConnection());
+      }
+
+      await Future.wait(futures);
     } on JRpcError catch (e, s) {
       logger.w('Jrpc Error while refreshing KlippyObject: ${e.message}');
 
@@ -152,6 +163,25 @@ class KlippyService {
     logger.i(">>>Fetching Printer.Info");
     RpcResponse response = await _jRpcClient.sendJRpcMethod("printer.info");
     _parsePrinterInfo(response.result);
+  }
+
+  Future<void> _identifyConnection() async {
+    logger.i('>>>Identifying Connection');
+
+    var version = await ref.read(versionInfoProvider.future);
+
+    var machine = await ref.read(machineProvider(ownerUUID).future);
+
+    await _jRpcClient.sendJRpcMethod(
+      'server.connection.identify',
+      params: {
+        'client_name': 'Mobileraker-${Platform.operatingSystem}',
+        'version': '${version.version}-${version.buildNumber}',
+        'type': Platform.isMacOS || Platform.isWindows ? 'desktop' : 'mobile',
+        'url': 'www.mobileraker.com',
+        if (machine?.apiKey != null) 'api_key': machine!.apiKey,
+      },
+    );
   }
 
   _parsePrinterInfo(Map<String, dynamic> result) {
