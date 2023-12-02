@@ -61,6 +61,7 @@ class SelectPrinterDialog extends HookConsumerWidget {
                       tileColor: themeData.colorScheme.surfaceVariant.withOpacity(.5),
                       textColor: themeData.colorScheme.onSurfaceVariant,
                       title: Text(beautifyName(machine.name)),
+                      subtitle: Text(machine.httpUri.toString()),
                       onTap: () {
                         selected.value = true;
                         ref.read(selectPrinterDialogControllerProvider.notifier).selectMachine(machine);
