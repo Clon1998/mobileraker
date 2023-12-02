@@ -215,6 +215,15 @@ class JsonRpcClient {
     logger.i('$logPrefix Using headers $headers');
     logger.i('$logPrefix Using timeout $timeout');
 
+    // Since obico is not closing/terminating the websocket connection in case of statusCode errors like limit reached, we need to send a good old http request.
+    if (clientType == ClientType.obico) {
+      var obicoValid = await _obicoConnectionIsValid(httpClient);
+      if (!obicoValid) {
+        logger.i('$logPrefix Obico connection is not valid, aborting opening of websocket');
+        return false;
+      }
+    }
+
     final ioChannel = IOWebSocketChannel.connect(
       uri,
       headers: headers,
@@ -338,12 +347,6 @@ class JsonRpcClient {
       logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine error reason');
       var request = await httpClient.openUrl("GET", httpUri);
 
-      if (uri.userInfo.isNotEmpty) {
-        // If the URL contains user information use that for basic
-        // authorization.
-        String auth = base64Encode(utf8.encode(uri.userInfo));
-        request.headers.set(HttpHeaders.authorizationHeader, "Basic $auth");
-      }
       HttpClientResponse response = await request.close();
       logger.i('$logPrefix Got Response to determine error reason: ${response.statusCode}');
       verifyHttpResponseCodes(response.statusCode, clientType);
@@ -363,6 +366,25 @@ class JsonRpcClient {
     logger.e('$logPrefix WS-Stream error: $error');
     errorReason = error;
     curState = ClientState.error;
+  }
+
+  Future<bool> _obicoConnectionIsValid(HttpClient client) async {
+    var httpUri = uri.toHttpUri().replace(path: '/server/info');
+
+    try {
+      logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine obico statusCode');
+
+      var request = await client.openUrl("GET", httpUri);
+
+      HttpClientResponse response = await request.close();
+      logger.i('$logPrefix Got Response to determine obico statusCode: ${response.statusCode}');
+
+      verifyHttpResponseCodes(response.statusCode, clientType);
+    } catch (e) {
+      _updateError(e);
+      return false;
+    }
+    return true;
   }
 
   dispose() async {
