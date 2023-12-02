@@ -38,15 +38,16 @@ AwesomeNotificationsFcm awesomeNotificationFcm(AwesomeNotificationFcmRef ref) =>
 
 @riverpod
 NotificationService notificationService(NotificationServiceRef ref) {
+  ref.keepAlive();
   var notificationService = NotificationService(ref);
   ref.onDispose(notificationService.dispose);
-  ref.keepAlive();
   return notificationService;
 }
 
 @riverpod
 Future<String> fcmToken(FcmTokenRef ref) async {
-  var notificationService = ref.watch(notificationServiceProvider);
+  // Need to use read on the notificationService to prevent a circular dependency, this is fine because the service is kept alive anyway.
+  var notificationService = ref.read(notificationServiceProvider);
   await notificationService.initialized;
   return notificationService.requestFirebaseToken();
 }
