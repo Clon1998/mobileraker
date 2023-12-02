@@ -48,7 +48,7 @@ class ControlXYZCard extends HookConsumerWidget {
     var showLoading = ref
         .watch(_controlXYZCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
-    if (showLoading) return const ControlXYZLoading();
+    if (showLoading) return const _ControlXYZLoading();
 
     return Card(
       child: Column(
@@ -65,8 +65,8 @@ class ControlXYZCard extends HookConsumerWidget {
   }
 }
 
-class ControlXYZLoading extends StatelessWidget {
-  const ControlXYZLoading({super.key});
+class _ControlXYZLoading extends StatelessWidget {
+  const _ControlXYZLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -124,9 +124,9 @@ class ControlXYZLoading extends StatelessWidget {
                     child: SizedBox(height: 54, width: double.infinity),
                   ),
                   // QuickActions
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: const Wrap(
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4.0),
+                    child: Wrap(
                       runSpacing: 4,
                       spacing: 8,
                       alignment: WrapAlignment.center,
@@ -227,11 +227,11 @@ class _CardBody extends ConsumerWidget {
             _ZMotionWidget(machineUUID: machineUUID),
           ],
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: ToolheadInfoTable(
-            rowsToShow: [ToolheadInfoTable.POS_ROW],
-            animated: false,
+            machineUUID: machineUUID,
+            rowsToShow: const [ToolheadInfoTable.POS_ROW],
           ),
         ),
         _QuickActionsWidget(machineUUID: machineUUID),
