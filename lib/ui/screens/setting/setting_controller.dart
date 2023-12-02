@@ -13,7 +13,6 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -21,11 +20,6 @@ part 'setting_controller.g.dart';
 
 @riverpod
 GlobalKey<FormBuilderState> settingPageFormKey(SettingPageFormKeyRef _) => GlobalKey<FormBuilderState>();
-
-@riverpod
-Future<PackageInfo> versionInfo(VersionInfoRef _) {
-  return PackageInfo.fromPlatform();
-}
 
 @riverpod
 bool boolSetting(

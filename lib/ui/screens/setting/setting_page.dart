@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:common/service/misc_providers.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
