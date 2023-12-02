@@ -56,20 +56,22 @@ class _ConsoleBody extends HookConsumerWidget {
     var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
 
     var theme = Theme.of(context);
+
     return SafeArea(
       child: Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
+          border: Border.all(color: theme.colorScheme.primary, width: 0.5),
           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
-          boxShadow: [
-            if (theme.brightness == Brightness.light)
-              BoxShadow(
-                color: theme.colorScheme.shadow,
-                offset: const Offset(0.0, 4.0), //(x,y)
-                blurRadius: 1.0,
-              ),
-          ],
+          // boxShadow: [
+          //   if (theme.brightness == Brightness.light)
+          //     BoxShadow(
+          //       color: theme.colorScheme.shadow,
+          //       offset: const Offset(0.0, 0.0), //(x,y)
+          //       blurRadius: 0.5,
+          //     ),
+          // ],
         ),
         child: Column(
           children: [
@@ -271,7 +273,7 @@ class _Console extends ConsumerWidget {
                 idleText: tr('components.pull_to_refresh.pull_up_idle'),
               ),
               controller: ref.watch(consoleRefreshControllerProvider),
-              onRefresh: () => ref.refresh(consoleListControllerProvider),
+              onRefresh: () => ref.invalidate(consoleListControllerProvider),
               child: ListView.builder(
                 reverse: true,
                 itemCount: entries.length,
