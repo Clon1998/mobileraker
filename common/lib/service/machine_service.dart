@@ -80,7 +80,8 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
   });
 
   var settingService = ref.watch(settingServiceProvider);
-  var machines = await ref.watch(machineServiceProvider).fetchAll();
+  // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
+  var machines = await ref.read(machineServiceProvider).fetchAll();
   logger.i('Received fetchAll');
 
   var isSupporter = await ref.watch(isSupporterAsyncProvider.future);
@@ -124,7 +125,8 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
   });
 
   var machinesAvailableToUser = await ref.watch(allMachinesProvider.selectAsync((data) => data.map((e) => e.uuid)));
-  var actualStoredMachines = await ref.watch(machineServiceProvider).fetchAll();
+  // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
+  var actualStoredMachines = await ref.read(machineServiceProvider).fetchAll();
   var hiddenMachines = actualStoredMachines.where((e) => !machinesAvailableToUser.contains(e.uuid));
 
   return hiddenMachines.toList(growable: false);
@@ -140,7 +142,8 @@ Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUU
   var klippyState = await ref.watch(klipperSelectedProvider.selectAsync((data) => data.klippyState));
   if (klippyState != KlipperState.ready) return;
 
-  var fetchSettings = await ref.watch(machineServiceProvider).fetchSettings(machine);
+  // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
+  var fetchSettings = await ref.read(machineServiceProvider).fetchSettings(machine);
   yield fetchSettings;
 }
 
