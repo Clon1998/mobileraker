@@ -13,7 +13,6 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -29,7 +28,6 @@ class PullToRefreshPrinterConsumer extends _$PullToRefreshPrinterConsumer {
   onRefresh(RefreshController refreshController) async {
     final Machine? selMachine;
     try {
-      ref.invalidate(controlXYZCardControllerProvider);
 
       selMachine = await ref.read(selectedMachineProvider.future);
 

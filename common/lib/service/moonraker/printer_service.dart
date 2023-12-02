@@ -262,13 +262,13 @@ class PrinterService {
     gCode(gcode);
   }
 
-  movePrintHead({double? x, double? y, double? z, double feedRate = 100}) {
+  Future<void> movePrintHead({double? x, double? y, double? z, double feedRate = 100}) {
     List<String> moves = [];
     if (x != null) moves.add(_gcodeMoveCode('X', x));
     if (y != null) moves.add(_gcodeMoveCode('Y', y));
     if (z != null) moves.add(_gcodeMoveCode('Z', z));
 
-    gCode('G91\nG1 ${moves.join(' ')} F${feedRate * 60}\nG90');
+    return gCode('G91\nG1 ${moves.join(' ')} F${feedRate * 60}\nG90');
   }
 
   activateExtruder([int extruderIndex = 0]) {

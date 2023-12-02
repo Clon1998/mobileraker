@@ -22,11 +22,22 @@ class ToolheadInfoTable extends ConsumerWidget {
   const ToolheadInfoTable({
     Key? key,
     this.rowsToShow = const [POS_ROW, MOV_ROW],
+    this.animated = true,
   }) : super(key: key);
+
+  final bool animated;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var toolheadInfo = ref.watch(toolheadInfoProvider);
+
+    var widget = toolheadInfo.hasValue
+        ? _ToolheadData(
+            toolheadInfo: toolheadInfo.value!,
+            rowsToShow: rowsToShow,
+          )
+        : const LinearProgressIndicator();
+    if (!animated) return widget;
 
     return AnimatedSwitcher(
       switchInCurve: Curves.easeInOutBack,
@@ -35,12 +46,7 @@ class ToolheadInfoTable extends ConsumerWidget {
         sizeFactor: anim,
         child: FadeTransition(opacity: anim, child: child),
       ),
-      child: toolheadInfo.hasValue
-          ? _ToolheadData(
-              toolheadInfo: toolheadInfo.value!,
-              rowsToShow: rowsToShow,
-            )
-          : const LinearProgressIndicator(),
+      child: widget,
     );
   }
 }
