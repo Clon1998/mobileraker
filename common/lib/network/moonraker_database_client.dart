@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -101,7 +102,7 @@ class MoonrakerDatabaseClient {
 
   _validateClientConnection() {
     if (_jsonRpcClient.curState != ClientState.connected) {
-      throw WebSocketException('JsonRpcClient is not connected. Target-URL: ${_jsonRpcClient.uri}');
+      throw WebSocketException('JsonRpcClient is not connected. Target-URL: ${_jsonRpcClient.uri.obfuscate()}');
     }
   }
 }
