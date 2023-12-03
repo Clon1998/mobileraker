@@ -5,7 +5,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:common/data/dto/jrpc/rpc_response.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
@@ -87,8 +86,6 @@ class KlippyService {
 
   KlipperInstance __current = KlipperInstance(moonrakerVersion: MoonrakerVersion.fallback());
 
-  bool _connectionIdentified = false;
-
   set _current(KlipperInstance nI) {
     __current = nI;
     if (!_klipperStreamCtler.isClosed) {
@@ -124,13 +121,9 @@ class KlippyService {
     _jRpcClient.sendJRpcMethod("printer.emergency_stop").ignore();
   }
 
-  Future<void> refreshKlippy() async {
+  Future<void> refreshKlippy([bool useIdentify = false]) async {
     try {
-      var futures = [_fetchServerInfo(), _fetchPrinterInfo()];
-      if (!_connectionIdentified) {
-        _connectionIdentified = true;
-        futures.add(_identifyConnection());
-      }
+      var futures = [_identifyConnection(), _fetchServerInfo(), _fetchPrinterInfo()];
 
       await Future.wait(futures);
     } on JRpcError catch (e, s) {
@@ -166,22 +159,10 @@ class KlippyService {
   }
 
   Future<void> _identifyConnection() async {
-    logger.i('>>>Identifying Connection');
-
     var version = await ref.read(versionInfoProvider.future);
-
     var machine = await ref.read(machineProvider(ownerUUID).future);
 
-    await _jRpcClient.sendJRpcMethod(
-      'server.connection.identify',
-      params: {
-        'client_name': 'Mobileraker-${Platform.operatingSystem}',
-        'version': '${version.version}-${version.buildNumber}',
-        'type': Platform.isMacOS || Platform.isWindows ? 'desktop' : 'mobile',
-        'url': 'www.mobileraker.com',
-        if (machine?.apiKey != null) 'api_key': machine!.apiKey,
-      },
-    );
+    await _jRpcClient.identifyConnection(version, machine?.apiKey);
   }
 
   _parsePrinterInfo(Map<String, dynamic> result) {

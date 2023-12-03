@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:common/util/extensions/dio_options_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -138,6 +139,8 @@ class JsonRpcClient {
 
   ClientState get curState => _curState;
 
+  bool _connectionIdentified = false;
+
   set curState(ClientState newState) {
     if (curState == newState) return;
     logger.i('$logPrefix $curState ➝ $newState');
@@ -205,6 +208,28 @@ class JsonRpcClient {
       return foundListeners.map((element) => element.remove(callback)).reduce((value, element) => value || element);
     }
     return _methodListeners[method]?.remove(callback) ?? false;
+  }
+
+  Future<void> identifyConnection(PackageInfo packageInfo, String? apiKey) async {
+    if (_connectionIdentified) return;
+
+    logger.i('$logPrefix Identifying connection');
+    _connectionIdentified = true;
+
+    try {
+      await sendJRpcMethod(
+        'server.connection.identify',
+        params: {
+          'client_name': 'Mobileraker-${Platform.operatingSystem}',
+          'version': '${packageInfo.version}-${packageInfo.buildNumber}',
+          'type': Platform.isMacOS || Platform.isWindows ? 'desktop' : 'mobile',
+          'url': 'www.mobileraker.com',
+          if (apiKey != null) 'api_key': apiKey,
+        },
+      );
+    } catch (e) {
+      logger.e('$logPrefix Error while identifying connection: $e');
+    }
   }
 
   Future<bool> _tryConnect() async {
