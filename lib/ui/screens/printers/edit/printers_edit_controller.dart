@@ -41,6 +41,7 @@ import 'package:mobileraker/ui/components/dialog/import_settings/import_settings
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
+import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -234,7 +235,10 @@ class PrinterEditController extends _$PrinterEditController {
     if (wsUri != null) {
       _machine.wsUri = wsUri;
     }
-    _machine.trustUntrustedCertificate = storedValues['trustSelfSigned'];
+    var sslSettings = ref.read(sslSettingsControllerProvider(_machine));
+    _machine.trustUntrustedCertificate = sslSettings.trustSelfSigned;
+    _machine.pinnedCertificateDERBase64 = sslSettings.certificateDER;
+
     _machine.httpHeaders = ref.read(headersControllerProvider(_machine.httpHeaders));
     _machine.localSsids = ref.read(ssidPreferenceListControllerProvider(_machine.localSsids));
     await ref.read(machineServiceProvider).updateMachine(_machine);

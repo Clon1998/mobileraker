@@ -14,6 +14,7 @@ import 'package:common/service/misc_providers.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/components/decorator_suffix_icon_button.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -33,6 +34,7 @@ import 'package:mobileraker/ui/components/warning_card.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
+import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
@@ -116,10 +118,13 @@ class _Body extends ConsumerWidget {
         key: ref.watch(editPrinterFormKeyProvider),
         autovalidateMode: AutovalidateMode.onUserInteraction,
         child: Padding(
-          padding: const EdgeInsets.all(10.0),
+          padding: const EdgeInsets.all(6.0),
           child: Column(
             children: <Widget>[
-              SectionHeader(title: 'pages.setting.general.title'.tr()),
+              SectionHeader(
+                title: 'pages.setting.general.title'.tr(),
+                padding: EdgeInsets.zero,
+              ),
               FormBuilderTextField(
                 enableInteractiveSelection: true,
                 keyboardType: TextInputType.text,
@@ -174,9 +179,12 @@ class _Body extends ConsumerWidget {
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
-                  suffix: IconButton(
-                    icon: const Icon(Icons.qr_code_sharp),
-                    onPressed: () => controller.openQrScanner(context),
+                  suffix: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: InkWell(
+                      child: const Icon(Icons.qr_code_sharp, size: 18),
+                      onTap: () => controller.openQrScanner(context),
+                    ),
                   ),
                   helperText: 'pages.printer_edit.general.moonraker_api_desc'.tr(),
                   helperMaxLines: 3,
@@ -204,12 +212,7 @@ class _Body extends ConsumerWidget {
                   FormBuilderValidators.integer(),
                 ]),
               ),
-              FormBuilderCheckbox(
-                name: 'trustSelfSigned',
-                title: const Text('pages.printer_edit.general.self_signed').tr(),
-                controlAffinity: ListTileControlAffinity.trailing,
-                initialValue: machine.trustUntrustedCertificate,
-              ),
+              SslSettings(machine: machine),
               HttpHeaders(initialValue: machine.httpHeaders),
               const Divider(),
               // if (machine.hasRemoteConnection)
@@ -333,8 +336,8 @@ class _WebCamItem extends HookConsumerWidget {
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     labelText: 'pages.printer_edit.general.displayname'.tr(),
-                    suffix: IconButton(
-                      icon: const Icon(Icons.delete),
+                    suffix: DecoratorSuffixIconButton(
+                      icon: Icons.delete,
                       onPressed: ref.watch(printerEditControllerProvider)
                           ? null
                           : () => ref.read(webcamListControllerProvider.notifier).removeWebcam(cam),
@@ -737,8 +740,8 @@ class _TempPresetItem extends HookConsumerWidget {
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
               labelText: 'pages.printer_edit.general.displayname'.tr(),
-              suffix: IconButton(
-                icon: const Icon(Icons.delete),
+              suffix: DecoratorSuffixIconButton(
+                icon: Icons.delete,
                 onPressed: ref.watch(printerEditControllerProvider)
                     ? null
                     : () => ref
@@ -999,7 +1002,7 @@ class _ThemeSelector extends ConsumerWidget {
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
         labelText: tr('pages.printer_edit.general.theme'),
-        helperText: tr('pages.printer_edit.general.theme_helper'),
+        helperText: isSupporter ? tr('pages.printer_edit.general.theme_helper') : null,
         suffix: isSupporter
             ? null
             : IconButton(

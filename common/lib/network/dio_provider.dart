@@ -51,7 +51,7 @@ BaseOptions baseOptions(BaseOptionsRef ref, String machineUUID, ClientType clien
     throw MobilerakerException('Machine with UUID "$machineUUID" was not found!');
   }
 
-  var pinnedSha256Fp = machine.pinnedCertificateDER?.let((it) => HashDigest(fromHex(it)));
+  var pinnedSha256Fp = machine.pinnedCertificateDERBase64?.let((it) => sha256.convert(fromBase64(it)));
 
   return switch (clientType) {
     ClientType.octo => BaseOptions(
@@ -101,7 +101,7 @@ HttpClient httpClient(HttpClientRef ref, String machineUUID, ClientType clientTy
     ..idleTimeout = const Duration(seconds: 3)
     ..connectionTimeout = options.connectTimeout;
 
-  if (!options.trustUntrustedCertificate) return client;
+  if (!options.trustUntrustedCertificate && options.pinnedCertificateFingerPrint == null) return client;
 
   var fingerPrint = options.pinnedCertificateFingerPrint;
 
@@ -110,7 +110,6 @@ HttpClient httpClient(HttpClientRef ref, String machineUUID, ClientType clientTy
       if (fingerPrint == null) {
         return true;
       }
-
       // Manually verified that using DER of cert is correctly working to generate a SHA256 FP for the cert
       HashDigest sha256Fp = sha256.convert(cert.der);
       return fingerPrint == sha256Fp;
