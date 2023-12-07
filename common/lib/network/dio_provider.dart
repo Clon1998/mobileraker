@@ -97,6 +97,12 @@ BaseOptions baseOptions(BaseOptionsRef ref, String machineUUID, ClientType clien
 HttpClient httpClient(HttpClientRef ref, String machineUUID, ClientType clientType) {
   var options = ref.watch(baseOptionsProvider(machineUUID, clientType));
 
+  var client = httpClientFromBaseOptions(options);
+  ref.onDispose(client.close);
+  return client;
+}
+
+HttpClient httpClientFromBaseOptions(BaseOptions options) {
   final client = HttpClient()
     ..idleTimeout = const Duration(seconds: 3)
     ..connectionTimeout = options.connectTimeout;
