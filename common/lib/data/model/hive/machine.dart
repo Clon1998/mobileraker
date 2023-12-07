@@ -87,6 +87,7 @@ class Machine extends HiveObject {
     this.localSsids = const [],
     this.printerThemePack = -1,
     this.obicoTunnel,
+    this.pinnedCertificateDERBase64,
   })  : name = name.trim(),
         apiKey = apiKey?.trim();
 

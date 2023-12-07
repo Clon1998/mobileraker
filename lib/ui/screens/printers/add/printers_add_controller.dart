@@ -14,6 +14,7 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/exceptions/obico_exception.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
@@ -23,18 +24,25 @@ import 'package:common/service/octoeverywhere/app_connection_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/extensions/dio_options_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hashlib/hashlib.dart';
+import 'package:hashlib_codecs/hashlib_codecs.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../components/ssl_settings.dart';
 
 part 'printers_add_controller.freezed.dart';
 part 'printers_add_controller.g.dart';
@@ -267,6 +275,8 @@ class AdvancedFormController extends _$AdvancedFormController {
           pState.machineToAdd!.httpUri.toString(),
         ),
         headers: pState.machineToAdd!.httpHeaders,
+        trustUntrustedCertificate: pState.machineToAdd!.trustUntrustedCertificate,
+        pinnedCertificateDER: pState.machineToAdd!.pinnedCertificateDERBase64,
       );
     }
 
@@ -288,6 +298,8 @@ class AdvancedFormController extends _$AdvancedFormController {
     var wsInput = (wsInputEmpty) ? httpInput : _wsField.transformedValue;
 
     var headers = ref.read(headersControllerProvider(state.headers));
+    var sslSettings =
+        ref.read(sslSettingsControllerProvider(state.pinnedCertificateDER, state.trustUntrustedCertificate));
 
     ref.read(printerAddViewControllerProvider.notifier).provideMachine(Machine(
           name: _displayNameField.transformedValue,
@@ -296,6 +308,8 @@ class AdvancedFormController extends _$AdvancedFormController {
           apiKey: _apiKeyField.transformedValue,
           timeout: _localTimeoutField.transformedValue,
           httpHeaders: headers,
+          trustUntrustedCertificate: sslSettings.trustSelfSigned,
+          pinnedCertificateDERBase64: sslSettings.certificateDER,
         ));
   }
 
@@ -328,17 +342,22 @@ class TestConnectionController extends _$TestConnectionController {
     }
 
     TestConnectionState s;
-    HttpClient httpClient = HttpClient()..connectionTimeout = Duration(seconds: min(10, machineToAdd.timeout));
-    if (machineToAdd.trustUntrustedCertificate) {
-      httpClient.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-    }
 
-    JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder()
-      ..headers = machineToAdd.httpHeaders
-      ..timeout = httpClient.connectionTimeout!
-      ..uri = machineToAdd.wsUri
-      ..httpClient = httpClient;
-    // ..headers = machineToAdd.headers;
+    var baseOptions = BaseOptions(
+      baseUrl: machineToAdd.httpUri.toString(),
+      headers: machineToAdd.headerWithApiKey,
+      connectTimeout: Duration(seconds: machineToAdd.timeout),
+      receiveTimeout: Duration(seconds: machineToAdd.timeout),
+    )
+      ..trustUntrustedCertificate = machineToAdd.trustUntrustedCertificate
+      ..pinnedCertificateFingerPrint =
+          machineToAdd.pinnedCertificateDERBase64?.let((it) => sha256.convert(fromBase64(it)))
+      ..clientType = ClientType.local;
+
+    var httpClient = httpClientFromBaseOptions(baseOptions);
+
+    JsonRpcClientBuilder jsonRpcClientBuilder = JsonRpcClientBuilder.fromBaseOptions(baseOptions, machineToAdd);
+    jsonRpcClientBuilder.httpClient = httpClient;
 
     s = TestConnectionState(
       wsUri: machineToAdd.wsUri,
@@ -403,6 +422,7 @@ class TestConnectionController extends _$TestConnectionController {
   dispose() {
     _testConnectionRPCState?.cancel();
     _client.dispose();
+    _httpClient.close();
   }
 }
 
@@ -443,6 +463,8 @@ class AdvancedFormState with _$AdvancedFormState {
   const factory AdvancedFormState({
     Uri? wsUriFromHttpUri,
     @Default({}) Map<String, String> headers,
+    @Default(false) bool trustUntrustedCertificate,
+    String? pinnedCertificateDER,
   }) = _AdvancedFormState;
 }
 
