@@ -212,7 +212,10 @@ class _Body extends ConsumerWidget {
                   FormBuilderValidators.integer(),
                 ]),
               ),
-              SslSettings(machine: machine),
+              SslSettings(
+                initialCertificateDER: machine.pinnedCertificateDERBase64,
+                initialTrustSelfSigned: machine.trustUntrustedCertificate,
+              ),
               HttpHeaders(initialValue: machine.httpHeaders),
               const Divider(),
               // if (machine.hasRemoteConnection)

@@ -235,7 +235,8 @@ class PrinterEditController extends _$PrinterEditController {
     if (wsUri != null) {
       _machine.wsUri = wsUri;
     }
-    var sslSettings = ref.read(sslSettingsControllerProvider(_machine));
+    var sslSettings = ref
+        .read(sslSettingsControllerProvider(_machine.pinnedCertificateDERBase64, _machine.trustUntrustedCertificate));
     _machine.trustUntrustedCertificate = sslSettings.trustSelfSigned;
     _machine.pinnedCertificateDERBase64 = sslSettings.certificateDER;
 

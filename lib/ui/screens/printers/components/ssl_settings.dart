@@ -5,7 +5,6 @@
 
 import 'dart:convert';
 
-import 'package:common/data/model/hive/machine.dart';
 import 'package:common/ui/components/decorator_suffix_icon_button.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,17 +20,17 @@ import 'package:pem/pem.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'ssl_settings.freezed.dart';
-
 part 'ssl_settings.g.dart';
 
 class SslSettings extends HookConsumerWidget {
-  const SslSettings({super.key, required this.machine});
+  const SslSettings({super.key, required this.initialCertificateDER, required this.initialTrustSelfSigned});
 
-  final Machine machine;
+  final String? initialCertificateDER;
+  final bool initialTrustSelfSigned;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var provider = sslSettingsControllerProvider(machine);
+    var provider = sslSettingsControllerProvider(initialCertificateDER, initialTrustSelfSigned);
     var model = ref.watch(provider);
     var controller = ref.watch(provider.notifier);
 
@@ -92,16 +91,16 @@ class SslSettings extends HookConsumerWidget {
 @riverpod
 class SslSettingsController extends _$SslSettingsController {
   @override
-  SslSettingsModel build(Machine machine) {
-    bool trustSelfSigned = machine.trustUntrustedCertificate;
+  SslSettingsModel build(String? initialCertificateDER, bool initialTrustSelfSigned) {
+    bool trustSelfSigned = initialTrustSelfSigned;
 
-    if (machine.pinnedCertificateDERBase64 == null) {
+    if (initialCertificateDER == null) {
       return SslSettingsModel(certificateDER: null, fingerprintSHA256: null, trustSelfSigned: trustSelfSigned);
     }
 
     return SslSettingsModel(
-      certificateDER: machine.pinnedCertificateDERBase64,
-      fingerprintSHA256: _fingerPrint(machine.pinnedCertificateDERBase64!),
+      certificateDER: initialCertificateDER,
+      fingerprintSHA256: _fingerPrint(initialCertificateDER),
       trustSelfSigned: trustSelfSigned,
     );
   }

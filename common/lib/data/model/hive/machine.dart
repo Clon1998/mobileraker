@@ -157,6 +157,6 @@ class Machine extends HiveObject {
 
   @override
   String toString() {
-    return 'Machine{name: $name, wsUri: $wsUri, uuid: $uuid, apiKey: $apiKey, temperaturePresets: $temperaturePresets, httpUri: $httpUri, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified}';
+    return 'Machine{name: $name, wsUri: $wsUri, httpUri: $httpUri, uuid: $uuid, apiKey: $apiKey, httpHeaders: $httpHeaders, timeout: $timeout, temperaturePresets: $temperaturePresets, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified, trustUntrustedCertificate: $trustUntrustedCertificate, octoEverywhere: $octoEverywhere, camOrdering: $camOrdering, remoteInterface: $remoteInterface, obicoTunnel: $obicoTunnel, localSsids: $localSsids, printerThemePack: $printerThemePack, pinnedCertificateDERBase64: $pinnedCertificateDERBase64}';
   }
 }
