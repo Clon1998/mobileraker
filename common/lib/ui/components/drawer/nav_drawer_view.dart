@@ -81,12 +81,14 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       icon: FlutterIcons.hand_holding_heart_faw5s,
                       routeName: '/paywall',
                     ),
-                    // const Divider(),
-                    // const _DrawerItem(
-                    //   text: 'Spoolman',
-                    //   icon: Icons.local_library,
-                    //   routeName: '/spoolman',
-                    // ),
+                    if (kDebugMode) ...[
+                      const Divider(),
+                      const _DrawerItem(
+                        text: 'Spoolman',
+                        icon: Icons.local_library,
+                        routeName: '/spoolman',
+                      ),
+                    ],
                     const Divider(),
                     _DrawerItem(
                       text: tr('pages.faq.title'),
@@ -171,10 +173,7 @@ class _NavHeader extends ConsumerWidget {
         ? themeData.colorScheme.onPrimary
         : themeData.colorScheme.onPrimaryContainer;
 
-    var neverNullMachineAsyncData = ref.watch(selectedMachineProvider).maybeMap<AsyncValue<Machine>>(
-          orElse: () => const AsyncValue.loading(),
-          data: (data) => data.value != null ? AsyncData(data.value!) : const AsyncValue.loading(),
-        );
+    var selectedMachine = ref.watch(selectedMachineProvider);
     return DrawerHeader(
       margin: EdgeInsets.zero,
       padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
@@ -184,10 +183,10 @@ class _NavHeader extends ConsumerWidget {
         children: [
           InkWell(
             onTap: () {
-              if (neverNullMachineAsyncData.hasValue) {
+              if (selectedMachine.hasValue && selectedMachine.value != null) {
                 ref.read(navDrawerControllerProvider.notifier).pushingTo(
                       '/printer/edit',
-                      arguments: neverNullMachineAsyncData.value!,
+                      arguments: selectedMachine.value!,
                     );
               } else {
                 ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add');
@@ -212,20 +211,14 @@ class _NavHeader extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              neverNullMachineAsyncData.maybeWhen<String>(
-                                orElse: () => 'NO PRINTER',
-                                data: (data) => data.name,
-                              ),
+                              selectedMachine.valueOrNull?.name ?? 'NO PRINTER',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: themeData.textTheme.titleLarge?.copyWith(color: onBackground),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              neverNullMachineAsyncData.maybeWhen(
-                                orElse: () => 'Add printer first',
-                                data: (machine) => machine.wsUri.host,
-                              ),
+                              selectedMachine.valueOrNull?.httpUri.host ?? 'Add printer first',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: themeData.textTheme.titleSmall?.copyWith(color: onBackground),
