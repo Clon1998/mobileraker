@@ -31,11 +31,17 @@ class TemperaturePreset {
       identical(this, other) ||
       other is TemperaturePreset &&
           runtimeType == other.runtimeType &&
-          name == other.name &&
-          uuid == other.uuid &&
-          bedTemp == other.bedTemp &&
-          extruderTemp == other.extruderTemp;
+          (identical(name, other.name) || name == other.name) &&
+          (identical(uuid, other.uuid) || uuid == other.uuid) &&
+          (identical(bedTemp, other.bedTemp) || bedTemp == other.bedTemp) &&
+          (identical(extruderTemp, other.extruderTemp) || extruderTemp == other.extruderTemp);
 
   @override
-  int get hashCode => name.hashCode ^ uuid.hashCode ^ bedTemp.hashCode ^ extruderTemp.hashCode;
+  int get hashCode => Object.hash(
+        runtimeType,
+        name,
+        uuid,
+        bedTemp,
+        extruderTemp,
+      );
 }

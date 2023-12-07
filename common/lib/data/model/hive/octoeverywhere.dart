@@ -67,23 +67,18 @@ class OctoEverywhere extends HiveObject {
       identical(this, other) ||
       other is OctoEverywhere &&
           runtimeType == other.runtimeType &&
-          appApiToken == other.appApiToken &&
-          authBasicHttpPassword == other.authBasicHttpPassword &&
-          authBasicHttpUser == other.authBasicHttpUser &&
-          authBearerToken == other.authBearerToken &&
-          appConnectionId == other.appConnectionId &&
-          url == other.url &&
-          lastModified == other.lastModified;
+          (identical(appApiToken, other.appApiToken) || appApiToken == other.appApiToken) &&
+          (identical(authBasicHttpPassword, other.authBasicHttpPassword) ||
+              authBasicHttpPassword == other.authBasicHttpPassword) &&
+          (identical(authBasicHttpUser, other.authBasicHttpUser) || authBasicHttpUser == other.authBasicHttpUser) &&
+          (identical(authBearerToken, other.authBearerToken) || authBearerToken == other.authBearerToken) &&
+          (identical(appConnectionId, other.appConnectionId) || appConnectionId == other.appConnectionId) &&
+          (identical(url, other.url) || url == other.url) &&
+          (identical(lastModified, other.lastModified) || lastModified == other.lastModified);
 
   @override
-  int get hashCode =>
-      appApiToken.hashCode ^
-      authBasicHttpPassword.hashCode ^
-      authBasicHttpUser.hashCode ^
-      authBearerToken.hashCode ^
-      appConnectionId.hashCode ^
-      url.hashCode ^
-      lastModified.hashCode;
+  int get hashCode => Object.hash(runtimeType, appApiToken, authBasicHttpPassword, authBasicHttpUser, authBearerToken,
+      appConnectionId, url, lastModified);
 
   @override
   String toString() {
