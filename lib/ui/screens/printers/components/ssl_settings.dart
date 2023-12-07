@@ -23,7 +23,7 @@ part 'ssl_settings.freezed.dart';
 part 'ssl_settings.g.dart';
 
 class SslSettings extends HookConsumerWidget {
-  const SslSettings({super.key, required this.initialCertificateDER, required this.initialTrustSelfSigned});
+  const SslSettings({super.key, this.initialCertificateDER, this.initialTrustSelfSigned = false});
 
   final String? initialCertificateDER;
   final bool initialTrustSelfSigned;
@@ -65,23 +65,25 @@ class SslSettings extends HookConsumerWidget {
             controlAffinity: ListTileControlAffinity.trailing,
           ),
         ),
-        TextField(
-          canRequestFocus: false,
-          controller: textController,
-          decoration: InputDecoration(
-            labelText: tr('pages.printer_edit.ssl.pin_certificate_label'),
-            helperText: tr('pages.printer_edit.ssl.pin_certificate_helper'),
-            hintText: 'DER-Encoded Certificate',
-            helperMaxLines: 100,
-            suffix: model.fingerprintSHA256?.isNotEmpty == true
-                ? DecoratorSuffixIconButton(
-                    icon: Icons.close,
-                    onPressed: controller.clearCertificate,
-                  )
-                : null,
+        Flexible(
+          child: TextField(
+            canRequestFocus: false,
+            controller: textController,
+            decoration: InputDecoration(
+              labelText: tr('pages.printer_edit.ssl.pin_certificate_label'),
+              helperText: tr('pages.printer_edit.ssl.pin_certificate_helper'),
+              hintText: 'DER-Encoded Certificate',
+              helperMaxLines: 100,
+              suffix: model.fingerprintSHA256?.isNotEmpty == true
+                  ? DecoratorSuffixIconButton(
+                      icon: Icons.close,
+                      onPressed: controller.clearCertificate,
+                    )
+                  : null,
+            ),
+            readOnly: true,
+            onTap: controller.pickCertificate,
           ),
-          readOnly: true,
-          onTap: controller.pickCertificate,
         ),
       ],
     );
