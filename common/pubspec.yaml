@@ -4,7 +4,7 @@ version: 2.6.7
 homepage: mobileraker.com
 
 environment:
-  sdk: '>=3.2.0 <4.0.0'
+  sdk: '>=3.1.0 <4.0.0'
   flutter: '>=3.7.2'
 
 #dependency_overrides:
@@ -20,7 +20,7 @@ dependencies:
   dio: ^5.3.3
   dio_smart_retry: ^6.0.0
   flutter_web_auth: ^0.5.0
-  http: ^1.1.2
+  http: ^1.0.0
 
   #firebase
   firebase_core_platform_interface: ^4.8.0
