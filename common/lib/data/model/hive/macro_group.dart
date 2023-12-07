@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:collection/collection.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
 
@@ -34,10 +35,10 @@ class MacroGroup {
       identical(this, other) ||
       other is MacroGroup &&
           runtimeType == other.runtimeType &&
-          name == other.name &&
-          uuid == other.uuid &&
-          macros == other.macros;
+          (identical(name, other.name) || name == other.name) &&
+          (identical(uuid, other.uuid) || uuid == other.uuid) &&
+          const DeepCollectionEquality().equals(other.macros, macros);
 
   @override
-  int get hashCode => name.hashCode ^ uuid.hashCode ^ macros.hashCode;
+  int get hashCode => Object.hash(runtimeType, name, uuid, const DeepCollectionEquality().hash(macros));
 }

@@ -3,8 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:collection/collection.dart';
 import 'package:common/util/extensions/object_extension.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -57,7 +57,7 @@ class Machine extends HiveObject {
   @HiveField(8, defaultValue: -1)
   int printerThemePack;
   @HiveField(26)
-  String? pinnedCertificateDER;
+  String? pinnedCertificateDERBase64; // Base64 encoded DER certificate
 
   PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
 
@@ -107,35 +107,53 @@ class Machine extends HiveObject {
       identical(this, other) ||
       other is Machine &&
           runtimeType == other.runtimeType &&
-          name == other.name &&
-          wsUri == other.wsUri &&
-          uuid == other.uuid &&
-          apiKey == other.apiKey &&
-          listEquals(temperaturePresets, other.temperaturePresets) &&
-          httpUri == other.httpUri &&
-          lastPrintProgress == other.lastPrintProgress &&
-          _lastPrintState == other._lastPrintState &&
-          fcmIdentifier == other.fcmIdentifier &&
-          lastModified == other.lastModified &&
-          octoEverywhere == other.octoEverywhere &&
-          listEquals(camOrdering, other.camOrdering) &&
-          listEquals(localSsids, other.localSsids);
+          (identical(name, other.name) || name == other.name) &&
+          (identical(wsUri, other.wsUri) || wsUri == other.wsUri) &&
+          (identical(uuid, other.uuid) || uuid == other.uuid) &&
+          (identical(apiKey, other.apiKey) || apiKey == other.apiKey) &&
+          (identical(httpUri, other.httpUri) || httpUri == other.httpUri) &&
+          (identical(lastPrintProgress, other.lastPrintProgress) || lastPrintProgress == other.lastPrintProgress) &&
+          (identical(_lastPrintState, other._lastPrintState) || _lastPrintState == other._lastPrintState) &&
+          (identical(fcmIdentifier, other.fcmIdentifier) || fcmIdentifier == other.fcmIdentifier) &&
+          (identical(lastModified, other.lastModified) || lastModified == other.lastModified) &&
+          (identical(octoEverywhere, other.octoEverywhere) || octoEverywhere == other.octoEverywhere) &&
+          (identical(remoteInterface, other.remoteInterface) || remoteInterface == other.remoteInterface) &&
+          (identical(timeout, other.timeout) || timeout == other.timeout) &&
+          (identical(printerThemePack, other.printerThemePack) || printerThemePack == other.printerThemePack) &&
+          (identical(obicoTunnel, other.obicoTunnel) || obicoTunnel == other.obicoTunnel) &&
+          (identical(pinnedCertificateDERBase64, other.pinnedCertificateDERBase64) ||
+              pinnedCertificateDERBase64 == other.pinnedCertificateDERBase64) &&
+          (identical(trustUntrustedCertificate, other.trustUntrustedCertificate) ||
+              trustUntrustedCertificate == other.trustUntrustedCertificate) &&
+          const DeepCollectionEquality().equals(other.temperaturePresets, temperaturePresets) &&
+          const DeepCollectionEquality().equals(other.camOrdering, camOrdering) &&
+          const DeepCollectionEquality().equals(other.localSsids, localSsids) &&
+          const DeepCollectionEquality().equals(other.httpHeaders, httpHeaders);
 
   @override
-  int get hashCode =>
-      name.hashCode ^
-      wsUri.hashCode ^
-      uuid.hashCode ^
-      apiKey.hashCode ^
-      temperaturePresets.hashCode ^
-      httpUri.hashCode ^
-      lastPrintProgress.hashCode ^
-      _lastPrintState.hashCode ^
-      fcmIdentifier.hashCode ^
-      lastModified.hashCode ^
-      octoEverywhere.hashCode ^
-      camOrdering.hashCode ^
-      localSsids.hashCode;
+  int get hashCode => Object.hashAll([
+        runtimeType,
+        name,
+        wsUri,
+        uuid,
+        apiKey,
+        const DeepCollectionEquality().hash(temperaturePresets),
+        httpUri,
+        lastPrintProgress,
+        _lastPrintState,
+        fcmIdentifier,
+        lastModified,
+        octoEverywhere,
+        const DeepCollectionEquality().hash(camOrdering),
+        const DeepCollectionEquality().hash(localSsids),
+        const DeepCollectionEquality().hash(httpHeaders),
+        remoteInterface,
+        timeout,
+        printerThemePack,
+        obicoTunnel,
+        pinnedCertificateDERBase64,
+        trustUntrustedCertificate,
+      ]);
 
   @override
   String toString() {
