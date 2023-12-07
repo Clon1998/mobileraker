@@ -5,6 +5,9 @@
 ### Major Updates
 
 - Added the ability to view `.png`, `.jpg`, and `.jpeg` files in the file browser.
+- Users can now select a PEM-Certificate for SSL-Pinning in the printer settings. This option enhances security in
+  comparison to trusting all self-signed certificates.
+  device. [#193](https://github.com/Clon1998/mobileraker/issues/193) [#280](https://github.com/Clon1998/mobileraker/issues/280)
 
 ### Changed Features
 
