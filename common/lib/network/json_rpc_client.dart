@@ -91,10 +91,11 @@ class JsonRpcClient {
   JsonRpcClient({
     required this.uri,
     this.headers = const {},
-    this.httpClient,
+    HttpClient? httpClient,
     Duration? timeout,
     this.clientType = ClientType.local,
   })  : timeout = timeout ?? const Duration(seconds: 3),
+        _httpClient = httpClient ?? HttpClient(),
         assert(['ws', 'wss'].contains(uri.scheme), 'Scheme of provided URI must be WS or WSS!');
 
   final ClientType clientType;
@@ -105,7 +106,7 @@ class JsonRpcClient {
 
   final Map<String, dynamic> headers;
 
-  final HttpClient? httpClient;
+  final HttpClient _httpClient;
 
   Exception? errorReason;
 
@@ -236,13 +237,13 @@ class JsonRpcClient {
     logger.i('$logPrefix Trying to connect');
     curState = ClientState.connecting;
     _resetChannel();
-    HttpClient httpClient = _constructHttpClient();
+
     logger.i('$logPrefix Using headers $headers');
     logger.i('$logPrefix Using timeout $timeout');
 
     // Since obico is not closing/terminating the websocket connection in case of statusCode errors like limit reached, we need to send a good old http request.
     if (clientType == ClientType.obico) {
-      var obicoValid = await _obicoConnectionIsValid(httpClient);
+      var obicoValid = await _obicoConnectionIsValid(_httpClient);
       if (!obicoValid) {
         logger.i('$logPrefix Obico connection is not valid, aborting opening of websocket');
         return false;
@@ -254,7 +255,7 @@ class JsonRpcClient {
       headers: headers,
       pingInterval: const Duration(seconds: 30),
       connectTimeout: Duration(seconds: timeout.inSeconds + 2),
-      customClient: httpClient,
+      customClient: _httpClient,
     );
 
     _channel = ioChannel;
@@ -276,10 +277,6 @@ class JsonRpcClient {
       logger.i('$logPrefix IOWebSocketChannel reported NOT READY!');
       return false;
     });
-  }
-
-  HttpClient _constructHttpClient() {
-    return httpClient ?? HttpClient();
   }
 
   Map<String, dynamic> _constructJsonRPCMessage(String method, {dynamic params}) =>
@@ -367,10 +364,9 @@ class JsonRpcClient {
     logger.i('$logPrefix WS-Stream closed abnormally!');
     // Here we figure out exactly what is the problem!
     var httpUri = uri.toHttpUri();
-    var httpClient = _constructHttpClient();
     try {
       logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine error reason');
-      var request = await httpClient.openUrl("GET", httpUri);
+      var request = await _httpClient.openUrl("GET", httpUri);
       headers.forEach((key, value) {
         request.headers.add(key, value);
       });
@@ -456,7 +452,7 @@ class JsonRpcClient {
           uri == other.uri &&
           timeout == other.timeout &&
           mapEquals(headers, other.headers) &&
-          httpClient == other.httpClient &&
+          _httpClient == other._httpClient &&
           errorReason == other.errorReason &&
           _disposed == other._disposed &&
           _channel == other._channel &&
@@ -472,7 +468,7 @@ class JsonRpcClient {
       clientType.hashCode ^
       uri.hashCode ^
       timeout.hashCode ^
-      httpClient.hashCode ^
+      _httpClient.hashCode ^
       headers.hashCode ^
       errorReason.hashCode ^
       _disposed.hashCode ^
