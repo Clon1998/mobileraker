@@ -25,8 +25,10 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:http/io_client.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -45,6 +47,22 @@ class FolderContentWrapper with _$FolderContentWrapper {
     @Default([]) List<Folder> folders,
     @Default([]) List<RemoteFile> files,
   ]) = _FolderContentWrapper;
+}
+
+@riverpod
+CacheManager httpCacheManager(HttpCacheManagerRef ref, String machineUUID) {
+  var clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
+
+  HttpClient httpClient = ref.watch(httpClientProvider(machineUUID, clientType));
+
+  return CacheManager(
+    Config(
+      '${DefaultCacheManager.key}-http',
+      fileService: HttpFileService(
+        httpClient: IOClient(httpClient),
+      ),
+    ),
+  );
 }
 
 @riverpod
