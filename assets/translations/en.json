@@ -289,12 +289,17 @@
         "moonraker_api_key": "Moonraker - API Key",
         "moonraker_api_desc": "Only needed if youre using trusted clients. FluiddPI enforces this!",
         "full_url": "Full URL",
-        "self_signed": "Trust Self-Signed Certificates",
         "timeout_label": "Client timeout",
         "timeout_helper": "The timeout for the client connection in seconds",
         "theme": "UI-Theme",
         "theme_helper": "UI theme for printer",
         "theme_unavailable": "UI theme for printer, only available for Supporters"
+      },
+      "ssl": {
+        "title": "SSL - Settings",
+        "pin_certificate_label": "Certificate Fingerprint Pinning",
+        "pin_certificate_helper": "Select a certificate file in PEM format for SSL-Pinning",
+        "self_signed": "Trust Self-Signed Certificates"
       },
       "motion_system": {
         "title": "Motion System",

@@ -12,6 +12,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/decorator_suffix_icon_button.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
@@ -163,8 +164,8 @@ class _MacroGroup extends HookConsumerWidget {
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                 labelText: 'pages.printer_edit.general.displayname'.tr(),
-                suffix: IconButton(
-                  icon: const Icon(Icons.delete),
+                suffix: DecoratorSuffixIconButton(
+                  icon: Icons.delete,
                   onPressed: enabled ? () => controller.removeMacroGroup(macroGroup) : null,
                 ),
               ),

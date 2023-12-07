@@ -6,10 +6,16 @@
 import 'package:flutter/material.dart';
 
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({Key? key, required this.title, this.trailing}) : super(key: key);
+  const SectionHeader({
+    Key? key,
+    required this.title,
+    this.trailing,
+    this.padding = const EdgeInsets.only(top: 16.0),
+  }) : super(key: key);
 
   final String title;
   final Widget? trailing;
+  final EdgeInsets padding;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +24,7 @@ class SectionHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 8.0),
+          padding: padding,
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
