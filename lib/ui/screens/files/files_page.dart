@@ -24,6 +24,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
+import 'package:flutter_cache_manager/src/cache_manager.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -566,6 +567,9 @@ class _ImageFileItem extends ConsumerWidget {
     var imageBaseUri = ref.watch(previewImageUriProvider);
     var imageHeaders = ref.watch(previewImageHttpHeaderProvider);
     var imageUri = file.downloadUri(imageBaseUri);
+    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.value!.uuid));
+    var cacheManager = ref.watch(httpCacheManagerProvider(machineUUID));
+
     return _Slideable(
       file: file,
       child: ListTile(
@@ -577,6 +581,7 @@ class _ImageFileItem extends ConsumerWidget {
             transitionOnUserGestures: true,
             tag: 'img-${file.hashCode}',
             child: CachedNetworkImage(
+              cacheManager: cacheManager,
               cacheKey: '${imageUri.hashCode}-${file.hashCode}',
               imageBuilder: (context, imageProvider) => Container(
                 decoration: BoxDecoration(
@@ -631,6 +636,9 @@ class _GCodeFileItem extends ConsumerWidget {
             .format(gCode.lastPrintDate!)
         : null;
     var themeData = Theme.of(context);
+    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.value!.uuid));
+    var cacheManager = ref.watch(httpCacheManagerProvider(machineUUID));
+
     return _Slideable(
       file: gCode,
       startActionPane: ActionPane(motion: const StretchMotion(), children: [
@@ -658,6 +666,7 @@ class _GCodeFileItem extends ConsumerWidget {
               gCode,
               ref.watch(previewImageUriProvider),
               ref.watch(previewImageHttpHeaderProvider),
+              cacheManager,
             ),
           ),
         ),
@@ -674,12 +683,14 @@ class _GCodeFileItem extends ConsumerWidget {
     GCodeFile gCodeFile,
     Uri? machineUri,
     Map<String, String> headers,
+    CacheManager cacheManager,
   ) {
     var bigImageUri = gCodeFile.constructBigImageUri(machineUri);
     if (bigImageUri != null) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2.0),
         child: CachedNetworkImage(
+          cacheManager: cacheManager,
           cacheKey: '${bigImageUri.hashCode}-${gCodeFile.hashCode}',
           imageBuilder: (context, imageProvider) => Container(
             decoration: BoxDecoration(

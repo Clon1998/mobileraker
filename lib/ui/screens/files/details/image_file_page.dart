@@ -34,6 +34,8 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
     var imageUri = widget.file.downloadUri(Uri.tryParse(dio.options.baseUrl))!;
     var imageHeaders = dio.options.headers.cast<String, String>();
 
+    var cacheManager = ref.watch(httpCacheManagerProvider(machine.uuid));
+
     var s = MediaQuery.sizeOf(context);
 
     return Scaffold(
@@ -52,6 +54,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
             transitionOnUserGestures: true,
             tag: 'img-${widget.file.hashCode}',
             child: CachedNetworkImage(
+              cacheManager: cacheManager,
               cacheKey: '${imageUri.hashCode}-${widget.file.hashCode}',
               imageBuilder: (context, imageProvider) => InteractiveViewer(
                 boundaryMargin: EdgeInsets.symmetric(vertical: s.height / 2, horizontal: s.width / 2),
