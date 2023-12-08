@@ -31,8 +31,8 @@ dependencies:
 
   #packages maintained by mobileraker
   mobileraker_pro:
-    #    path: ../mobileraker_pro
-    path: ../mobileraker_pro_public # Uncomment this line if you want to contribute to the project. Alsoo remove the line above
+    path: ../mobileraker_pro
+    #path: ../mobileraker_pro_public # Uncomment this line if you want to contribute to the project. Alsoo remove the line above
 
   common:
     path: common
