@@ -517,7 +517,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
           _ => throw ArgumentError('Can not determine inverts, invalid axis: $axis'),
         } ==
         true;
-    double dirStep = (positive && !invert) ? step : -1 * step;
+    double dirStep = (positive ^ invert) ? step : -1 * step;
 
     await switch (axis) {
       PrinterAxis.X => _printerService.movePrintHead(
