@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.6.7+245
+version: 2.6.7+245rea
 
 environment:
   sdk: '>=3.1.2 <4.0.0'
@@ -31,7 +31,8 @@ dependencies:
 
   #packages maintained by mobileraker
   mobileraker_pro:
-    path: ../mobileraker_pro
+    #    path: ../mobileraker_pro
+    path: ../mobileraker_pro_public # Uncomment this line if you want to contribute to the project. Alsoo remove the line above
 
   common:
     path: common
