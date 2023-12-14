@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.9] - 2024-xx-xx
+
+### Bug Fixes
+
+- Fixed bed mesh button not correctly going into loading state after pressing it.
+
 ## [2.6.8] - 2023-12-8
 
 ### Major Updates

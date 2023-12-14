@@ -298,6 +298,10 @@ class PrinterService {
     return gCode('M84');
   }
 
+  Future<bool> bedMeshLevel() {
+    return gCode('BED_MESH_CALIBRATE');
+  }
+
   Future<bool> zTiltAdjust() {
     return gCode('Z_TILT_ADJUST');
   }
@@ -324,10 +328,6 @@ class PrinterService {
 
   m117([String? msg]) {
     gCode('M117 ${msg ?? ''}');
-  }
-
-  bedMeshLevel() {
-    gCode('BED_MESH_CALIBRATE');
   }
 
   partCoolingFan(double perc) {
