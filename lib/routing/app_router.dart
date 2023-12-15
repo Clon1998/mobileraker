@@ -33,9 +33,11 @@ import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
+import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/files/details/video_player_page.dart';
+import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
 
@@ -57,7 +59,9 @@ enum AppRoute {
   faq,
   changelog,
   supportDev,
-  videoPlayer
+  videoPlayer,
+  tool,
+  beltTuner,
 }
 
 @riverpod
@@ -214,6 +218,32 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         path: '/dev',
         name: AppRoute.dev.name,
         builder: (context, state) => DevPage(),
+      ),
+      GoRoute(
+        path: '/tool',
+        name: AppRoute.tool.name,
+        builder: (context, state) => ToolPage(),
+        routes: [
+          GoRoute(
+            path: 'belt-tuner',
+            name: AppRoute.beltTuner.name,
+            pageBuilder: (context, state) => CustomTransitionPage(
+                transitionDuration: kThemeAnimationDuration,
+                reverseTransitionDuration: kThemeAnimationDuration,
+                child: const BeltTuner(),
+                transitionsBuilder: (BuildContext context, Animation<double> animation,
+                    Animation<double> secondaryAnimation, Widget child) {
+                  return SlideTransition(
+                      position: animation.drive(
+                        Tween<Offset>(
+                          begin: const Offset(1, 0),
+                          end: Offset.zero,
+                        ).chain(CurveTween(curve: Curves.easeInCubic)),
+                      ),
+                      child: child);
+                }),
+          ),
+        ],
       ),
       // GoRoute(
       //   path: '/spoolman',
