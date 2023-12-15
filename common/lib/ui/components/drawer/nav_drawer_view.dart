@@ -108,7 +108,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       ),
                     const _DrawerItem(
                       text: 'Tools',
-                      icon: FlutterIcons.build_mdi,
+                      icon: FlutterIcons.toolbox_faw5s,
                       routeName: '/tool',
                     ),
                   ],
