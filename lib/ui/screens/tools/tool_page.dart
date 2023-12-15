@@ -6,9 +6,11 @@
 import 'package:common/service/app_router.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/info_card.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../routing/app_router.dart';
 
@@ -51,16 +53,21 @@ class ToolPage extends HookConsumerWidget {
                 alignment: WrapAlignment.spaceEvenly,
                 children: [
                   _ToolCard(
-                    icon: const Icon(FlutterIcons.md_construct_ion),
+                    icon: const Icon(Icons.graphic_eq),
                     label: const Text('Belt Tuner'),
                     onTap: () {
                       ref.read(goRouterProvider).goNamed(AppRoute.beltTuner.name);
                     },
                   ),
-                  const _ToolCard(
-                    icon: Icon(FlutterIcons.question_ant),
-                    label: Text('Work In Progress', textAlign: TextAlign.center),
+                  const _UrlToolCard(
+                    icon: Icon(FlutterIcons.speedometer_slow_mco),
+                    label: Text('Shake & Tune'),
+                    url: 'https://github.com/Frix-x/klippain-shaketune',
                   ),
+                  // const _ToolCard(
+                  //   icon: Icon(FlutterIcons.question_ant),
+                  //   label: Text('Work In Progress', textAlign: TextAlign.center),
+                  // ),
                 ],
               ),
             )
@@ -113,5 +120,37 @@ class _ToolCard extends StatelessWidget {
             ),
           ),
         ));
+  }
+}
+
+class _UrlToolCard extends HookWidget {
+  const _UrlToolCard({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.url,
+  });
+
+  final Widget icon;
+  final Widget label;
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    var launching = useState(false);
+
+    launch() async {
+      if (await canLaunchUrlString(url)) {
+        launching.value = true;
+        launchUrlString(
+          url,
+          mode: LaunchMode.externalApplication,
+        ).whenComplete(() => launching.value = false);
+      } else {
+        throw 'Could not launch $url';
+      }
+    }
+
+    return _ToolCard(icon: icon, label: label, onTap: launching.value ? null : launch);
   }
 }
