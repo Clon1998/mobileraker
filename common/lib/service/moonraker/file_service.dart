@@ -274,7 +274,7 @@ class FileService {
       _dio.download(
         '/server/files/$filePath',
         file.path,
-        options: Options(receiveTimeout: Duration(seconds: 300)), // This is requried because of a bug in dio
+        // options: Options(receiveTimeout: Duration(seconds: 300)), // This is requried because of a bug in dio
         onReceiveProgress: (received, total) {
           if (total <= 0) return;
           logger.i('Progress for $filePath: ${received / total * 100}');

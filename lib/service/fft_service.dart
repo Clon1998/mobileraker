@@ -42,8 +42,17 @@ class FftService {
 
     _capture.start(
       (e) {
-        var micData = e as MicData;
+        // logger.i('Received data from capturer: ${e.runtimeType}: ${e.length}');
+        MicData micData;
+        if (e is MicData) {
+          micData = e;
+        } else if (e is List) {
+          micData = Float32List.fromList(e.cast<double>());
+        } else {
+          throw ArgumentError('Unknown data type: ${e.runtimeType}');
+        }
         var actualSampleRate = _capture.actualSampleRate;
+        // logger.i('Actual sample rate: $actualSampleRate');
         if (_sendPort == null) return;
         if (actualSampleRate == null) {
           logger.w('Sample rate is null, try again on next chunk');
@@ -66,7 +75,7 @@ class FftService {
   }
 
   _onIsolateMessage(dynamic message) {
-    logger.i('Received message from isolate: $message');
+    // logger.i('Received message from isolate: $message');
     if (message is SendPort) {
       _sendPort = message;
     } else if (message is _PeakFrequencyMessage) {

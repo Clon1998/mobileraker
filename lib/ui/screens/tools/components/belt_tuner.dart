@@ -6,6 +6,8 @@
 import 'dart:math';
 
 import 'package:common/service/misc_providers.dart';
+import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/logger.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -13,8 +15,11 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/fft_service.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+
+import '../../../components/warning_card.dart';
 
 part 'belt_tuner.g.dart';
 
@@ -29,80 +34,80 @@ class BeltTuner extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Belt Tuner'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: Column(
-          children: [
-            Flexible(
-              child: ConstrainedBox(
-                constraints: BoxConstraints.loose(const Size(256, 256)),
-                child: SvgPicture.asset(
-                  'assets/vector/undraw_settings_re_b08x.svg',
-                  fit: BoxFit.contain,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Column(
+            children: [
+              Flexible(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints.loose(const Size(256, 256)),
+                  child: SvgPicture.asset(
+                    'assets/vector/undraw_settings_re_b08x.svg',
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
-            ),
-            Text(
-              'Proper belt tension is crucial for 3D printers. Belts that are too tight (or too loose) can cause mechanical issues, premature wear, and print quality issues.',
-              textAlign: TextAlign.justify,
-              style: themeData.textTheme.bodyMedium,
-            ),
-            const SizedBox(
-              height: 4,
-            ),
-            Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Select your belt type:',
-                  style: themeData.textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                )),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                TextButton(onPressed: null, child: Text('6mm')),
-                TextButton(onPressed: null, child: Text('9mm')),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: _PeakFrequency(),
-            ),
-            Text('Target: 110 Hz over 150mm', style: themeData.textTheme.bodySmall),
-            Spacer(),
-            Text.rich(
-              TextSpan(
-                text: 'This tool is still in development and based on the ',
-                style: themeData.textTheme.bodySmall,
+              Text(
+                'Proper belt tension is crucial for 3D printers. Belts that are too tight (or too loose) can cause mechanical issues, premature wear, and print quality issues.',
+                textAlign: TextAlign.justify,
+                style: themeData.textTheme.bodyMedium,
+              ),
+              const SizedBox(
+                height: 4,
+              ),
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Select your belt type:',
+                    style: themeData.textTheme.titleMedium,
+                    textAlign: TextAlign.center,
+                  )),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  TextSpan(
-                    text: 'Voron Design tuning guide',
-                    style: TextStyle(color: themeData.colorScheme.secondary),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () async {
-                        // Open the Voron documentation link
-                        // Example: launch('https://vorondesign.com/');
-                        const String url =
-                            'https://docs.vorondesign.com/tuning/secondary_printer_tuning.html#belt-tension';
-                        if (await canLaunchUrlString(url)) {
-                          await launchUrlString(
-                            url,
-                            mode: LaunchMode.externalApplication,
-                          );
-                        } else {
-                          throw 'Could not launch $url';
-                        }
-                      },
-                  ),
-                  TextSpan(
-                    text: '. Please use with caution.',
-                  ),
+                  TextButton(onPressed: null, child: Text('6mm')),
+                  TextButton(onPressed: null, child: Text('9mm')),
                 ],
               ),
-              textAlign: TextAlign.center,
-            ),
-          ],
+              const SizedBox(height: 16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: _PeakFrequency(),
+              ),
+              Text('Target: 110 Hz over 150mm', style: themeData.textTheme.bodySmall),
+              const Spacer(),
+              Text.rich(
+                TextSpan(
+                  text: 'This tool is still in development and based on the ',
+                  style: themeData.textTheme.bodySmall,
+                  children: [
+                    TextSpan(
+                      text: 'Voron Design tuning guide',
+                      style: TextStyle(color: themeData.colorScheme.secondary),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          // Open the Voron documentation link
+                          // Example: launch('https://vorondesign.com/');
+                          const String url =
+                              'https://docs.vorondesign.com/tuning/secondary_printer_tuning.html#belt-tension';
+                          if (await canLaunchUrlString(url)) {
+                            await launchUrlString(
+                              url,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          } else {
+                            throw 'Could not launch $url';
+                          }
+                        },
+                    ),
+                    const TextSpan(text: '. Please use with caution.'),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -122,13 +127,16 @@ class _PeakFrequency extends HookConsumerWidget {
     var showLoading = peakFrequency.isLoading || peakFrequency.hasError || !peakFrequency.hasValue;
 
     var animController = useAnimationController(duration: const Duration(milliseconds: 700));
-    useEffect(() {
-      if (showLoading) {
-        animController.repeat(reverse: true);
-      } else {
-        animController.stop();
-      }
-    }, [controller, showLoading]);
+    useEffect(
+      () {
+        if (showLoading) {
+          animController.repeat(reverse: true);
+        } else {
+          animController.stop();
+        }
+      },
+      [controller, showLoading],
+    );
     var animValue = useAnimation(animController);
 
     double peak;
@@ -141,6 +149,18 @@ class _PeakFrequency extends HookConsumerWidget {
 
     return Column(
       children: [
+        WarningCard(
+          show: ref
+                  .watch(permissionStatusProvider(Permission.microphone).selectAs((data) => !data.isGranted))
+                  .valueOrNull ==
+              true,
+          title: const Text('Microphone permission required'),
+          subtitle: const Text(
+            'The belt tuner works by analyzing the sound of your printer. Please grant microphone permission to use this tool.',
+          ),
+          leadingIcon: const Icon(Icons.mic_off),
+          onTap: controller.requestPermission,
+        ),
         Text(
           '${showLoading ? '--' : peakFrequency.value!.toString()} HZ',
           style: const TextStyle(fontWeight: FontWeight.w800),
@@ -159,7 +179,7 @@ class _PeakFrequency extends HookConsumerWidget {
               width: 4,
               pointerAlignment: PointerAlignment.center,
               enableAnimation: false,
-            )
+            ),
           ],
           linearGaugeBoxDecoration: const LinearGaugeBoxDecoration(
             thickness: 30,
@@ -256,16 +276,35 @@ class _BeltTunerController extends _$BeltTunerController {
     ref.onDispose(() {
       _fftService.dispose();
     });
-    _fftService.start();
-
+    start();
     yield* _fftService.peakFrequencyStream;
+  }
+
+  Future<void> requestPermission() async {
+    var status = await ref.read(permissionStatusProvider(Permission.microphone).future);
+    if (status.isGranted) return;
+    logger.i('Mic permission is not granted ($status), requesting it now');
+
+    if (status == PermissionStatus.denied) {
+      status = await Permission.microphone.request();
+    }
+
+    if (!status.isGranted) {
+      await openAppSettings();
+    }
+
+    ref.invalidate(permissionStatusProvider(Permission.microphone));
+    ref.invalidateSelf();
   }
 
   stop() {
     _fftService.stop();
   }
 
-  start() {
+  start() async {
+    var status = await ref.read(permissionStatusProvider(Permission.microphone).future);
+    logger.e(status);
+    if (!status.isGranted) return;
     _fftService.start();
   }
 }

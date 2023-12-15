@@ -37,6 +37,8 @@
 	<string>Required to access WiFi SSID to enable faster switching to remote connection.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Required to access WiFi SSID to enable faster switching to remote connection.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>To enable the functionality of the belt tuner, kindly grant permission for microphone access.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
