@@ -132,7 +132,7 @@ class _ToolheadData extends ConsumerWidget {
               ),
               _ConsumerTooltipCell(
                 label: tr(
-                  'pages.dashboard.general.print_card.filament',
+                  'pages.dashboard.general.print_card.eta',
                 ),
                 consumerListenable: toolheadInfoProvider(machineUUID)
                     .selectAs((value) => value.eta?.let((eta) => dateFormat.format(eta)) ?? '--:--'),
