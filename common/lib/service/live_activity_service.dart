@@ -259,6 +259,7 @@ class LiveActivityService {
         'eta_label': tr('pages.dashboard.general.print_card.eta'),
         'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
         'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
+        'completed_label': tr('general.completed'),
       };
       if ({PrintState.printing, PrintState.paused, PrintState.complete, PrintState.cancelled}
           .contains(printer.print.state)) {

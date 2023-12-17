@@ -4,7 +4,6 @@
  */
 
 import 'dart:io';
-import 'dart:math';
 
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/service/live_activity_service.dart';
@@ -40,7 +39,7 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
-          ControlXYZCard(machineUUID: selMachine!.uuid),
+          if (selMachine?.uuid != null) ControlXYZCard(machineUUID: selMachine!.uuid),
           // const ControlXYZLoading(),
           // const ZOffsetLoading(),
           // const Text('One'),
@@ -106,6 +105,7 @@ class DevPage extends HookConsumerWidget {
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
       'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
+      'completed_label': tr('general.completed'),
     };
 
     var activityId = await liveActivities.createActivity(
@@ -127,7 +127,7 @@ class DevPage extends HookConsumerWidget {
     // });
 
     Map<String, dynamic> data = {
-      'progress': Random().nextDouble(),
+      'progress': 1,
       'state': 'printing',
       'file': 'Benchy.gcode' ?? 'Unknown',
       'eta': DateTime.now().add(const Duration(seconds: 60 * 120)).secondsSinceEpoch ?? -1,
@@ -142,6 +142,7 @@ class DevPage extends HookConsumerWidget {
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
       'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
+      'completed_label': tr('general.completed'),
     };
 
     var activityId = await liveActivities.updateActivity(

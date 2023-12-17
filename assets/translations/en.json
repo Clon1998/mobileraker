@@ -45,7 +45,8 @@
     "clear": "Clear",
     "unlink": "Unlink",
     "save": "Save",
-    "apply": "Apply"
+    "apply": "Apply",
+    "completed": "Completed"
   },
   "pages": {
     "dashboard": {

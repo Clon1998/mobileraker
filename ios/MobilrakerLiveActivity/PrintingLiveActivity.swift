@@ -54,33 +54,43 @@ struct PrintingLiveActivity: Widget {
             let primaryColor = sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"primary_color_light"))
             let machineName = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"machine_name"))!
             let elapsedLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"elapsed_label"))!
+            let completedLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"completed_label"))!
             
             
             let backgroundColor = isPrintDone ? Color.green.opacity(0.45) : Color.black.opacity(0.55)
             let foregroundColor = isPrintDone ? Color.black : nil
-
-            //ToDo
+            
             
             // Lock screen/banner UI goes here
             VStack(alignment: .leading, spacing: 8.0) {
-                HStack{
-                    VStack(alignment: .leading){
-                        PrintEndView(activityContext: context, etaDate: etaDate)
-                            .font(.title)
-                            .fontWeight(.medium)
-                        Text(file)
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(Color(UIColor.secondaryLabel))
-                        
+                if (!isPrintDone) {
+                    HStack{
+                        VStack(alignment: .leading){
+                            PrintEndView(activityContext: context, etaDate: etaDate)
+                                .font(.title)
+                                .fontWeight(.medium)
+                            Text(file)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(Color(UIColor.secondaryLabel))
+                            
+                        }
+                        //TODO: Add image herer!
                     }
+                } else {
+                    Text(file)
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(Color(UIColor.secondaryLabel))
                 }
                 ProgressView(value: progress)
                     .tint(colorWithRGBA(primaryColor))
                 HStack{
                     Text(machineName)
                     Spacer()
-                    if (shouldShowAsTimer(etaDate)) {
+                    if (isPrintDone) {
+                        Text(completedLabel)
+                    } else if (shouldShowAsTimer(etaDate)) {
                         if let eta = etaDate {
                             FormattedDateTextView(eta: eta)
                         }
