@@ -56,12 +56,43 @@ struct PrintingLiveActivity: Widget {
             let elapsedLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"elapsed_label"))!
             
             
-            let backgroundColor = isPrintDone ? Color.green.opacity(0.45) : Color.white.opacity(0.45)
+            let backgroundColor = isPrintDone ? Color.green.opacity(0.45) : Color.black.opacity(0.55)
+            let foregroundColor = isPrintDone ? Color.black : nil
 
             //ToDo
             
             // Lock screen/banner UI goes here
             VStack(alignment: .leading, spacing: 8.0) {
+                HStack{
+                    VStack(alignment: .leading){
+                        PrintEndView(activityContext: context, etaDate: etaDate)
+                            .font(.title)
+                            .fontWeight(.medium)
+                        Text(file)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(Color(UIColor.secondaryLabel))
+                        
+                    }
+                }
+                ProgressView(value: progress)
+                    .tint(colorWithRGBA(primaryColor))
+                HStack{
+                    Text(machineName)
+                    Spacer()
+                    if (shouldShowAsTimer(etaDate)) {
+                        if let eta = etaDate {
+                            FormattedDateTextView(eta: eta)
+                        }
+                        //LabeledEtaView(activityContext: context, etaDate: etaDate)
+                    }
+                }
+                .font(.caption)
+                .foregroundColor(Color(UIColor.secondaryLabel))
+                .fontWeight(.light)
+                    
+                
+                /*
                 HStack{
                     VStack(alignment: .leading){
                         Text(machineName)
@@ -78,13 +109,15 @@ struct PrintingLiveActivity: Widget {
                 if !isPrintDone {
                     EtaDisplayView(activityContext: context, etaDate: etaDate)
                 }
+                 */
                 
             }
             
             .padding(.all)
-            //.foregroundColor(Color.black)
             .activityBackgroundTint(backgroundColor)
-            .activitySystemActionForegroundColor(Color.black)
+            //.activityBackgroundTint(Color(UIColor.systemBackground).opacity(0.25))
+            //.activityBackgroundTint(colorScheme == .dark ? Color.red : Color.yellow)
+            .activitySystemActionForegroundColor(foregroundColor)
             
         } dynamicIsland: { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
@@ -159,7 +192,7 @@ struct PrintingLiveActivity: Widget {
                 CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
             }
-            .keylineTint(Color.red)
+            .keylineTint(colorWithRGBA(primaryColor))
         }
     }
 }

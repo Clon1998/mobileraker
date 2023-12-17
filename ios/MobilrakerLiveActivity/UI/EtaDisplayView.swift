@@ -25,15 +25,19 @@ struct EtaDisplayView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            Text(shouldShowAsTimer(eta: etaDate) ? remainingLabel : etaLabel)
+            Text(shouldShowAsTimer(etaDate) ? remainingLabel : etaLabel)
                 .font(.title2)
                 .fontWeight(.light)
 
             if let eta = etaDate {
-                if shouldShowAsTimer(eta: eta) {
+                if shouldShowAsTimer(eta) {
                     TimerTextView(eta: eta)
+                        .font(.title)
+                        .fontWeight(.semibold)
                 } else {
                     FormattedDateTextView(eta: eta)
+                        .font(.title)
+                        .fontWeight(.semibold)
                 }
             } else {
                 Text("--")
@@ -50,7 +54,7 @@ struct EtaDisplayViewCompact: View {
     
     var body: some View {
         if let eta = etaDate {
-            if shouldShowAsTimer(eta: eta, delta: 1) {
+            if shouldShowAsTimer(eta, delta: 1) {
                 TimerTextView(eta: eta, width: width)
             } else {
                 Image("mr_logo")
@@ -67,6 +71,37 @@ struct EtaDisplayViewCompact: View {
 }
 
 
+struct EtaTimerView: View {
+    let activityContext: ActivityViewContext<LiveActivitiesAppAttributes>
+    let etaDate: Date?
+
+    // Computed property for etaLabel
+    private var etaLabel: String {
+        return sharedDefault.string(forKey: activityContext.attributes.prefixedKey(key: "eta_label"))!
+    }
+
+    // Computed property for remainingLabel
+    private var remainingLabel: String {
+        return sharedDefault.string(forKey: activityContext.attributes.prefixedKey(key: "remaining_label"))!
+    }
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Spacer()
+            if let eta = etaDate {
+                Text(shouldShowAsTimer(etaDate) ? remainingLabel : etaLabel)
+                if shouldShowAsTimer(eta) {
+                    TimerTextView(eta: eta)
+                } else {
+                    FormattedDateTextView(eta: eta)
+                }
+            }
+        }
+        .font(.caption)
+        .fontWeight(.thin)
+    }
+}
+
 
 struct TimerTextView: View {
     let eta: Date
@@ -77,8 +112,6 @@ struct TimerTextView: View {
             timerInterval: Date.now...eta,
             countsDown: true
         )
-        .font(.title)
-        .fontWeight(.semibold)
         .monospacedDigit()
         .if(width != nil) { view in
             view.frame(width: width!)
@@ -91,9 +124,7 @@ struct FormattedDateTextView: View {
     
     var body: some View {
         Text(etaFormatted(eta: eta))
-            .font(.title)
             .monospacedDigit()
-            .fontWeight(.semibold)
     }
     
     
@@ -123,7 +154,7 @@ struct FormattedDateTextView: View {
 
 }
 
-func shouldShowAsTimer(eta: Date?, delta: Int = 3) -> Bool {
+func shouldShowAsTimer(_ eta: Date?, delta: Int = 3) -> Bool {
     guard let eta = eta else {
         return false
     }
@@ -132,4 +163,52 @@ func shouldShowAsTimer(eta: Date?, delta: Int = 3) -> Bool {
     let calendar = Calendar.current
     let timeDifference = calendar.dateComponents([.hour], from: currentDate, to: eta).hour ?? 0
     return timeDifference < delta
+}
+
+
+
+
+
+
+
+// Either shows an ETA in a Time/DateTime format or a timer that counts down
+struct PrintEndView: View {
+    let activityContext: ActivityViewContext<LiveActivitiesAppAttributes>
+    let etaDate: Date?
+
+    var body: some View {
+        if let eta = etaDate {
+            if shouldShowAsTimer(eta) {
+                TimerTextView(eta: eta)
+            } else {
+                FormattedDateTextView(eta: eta)
+            }
+        } else {
+            Text("--")
+        }
+
+    }
+}
+
+// Shows the eta if timer is active
+struct LabeledEtaView: View {
+    let activityContext: ActivityViewContext<LiveActivitiesAppAttributes>
+    let etaDate: Date?
+
+    // Computed property for etaLabel
+    private var etaLabel: String {
+        return sharedDefault.string(forKey: activityContext.attributes.prefixedKey(key: "eta_label"))!
+    }
+
+    var body: some View {
+        HStack(spacing: 2) {
+            if let eta = etaDate {
+                Text(etaLabel)
+                FormattedDateTextView(eta: eta)
+            } else {
+                EmptyView()
+            }
+        }
+        
+    }
 }

@@ -4,8 +4,10 @@
  */
 
 import 'dart:io';
+import 'dart:math';
 
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
+import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
@@ -19,10 +21,7 @@ import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card.dart';
-import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:path_provider/path_provider.dart';
-
-import '../../../service/date_format_service.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
@@ -46,8 +45,8 @@ class DevPage extends HookConsumerWidget {
           // const ZOffsetLoading(),
           // const Text('One'),
           // ElevatedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
-          // ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
-          // ElevatedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
+          ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
+          ElevatedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
           // TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
           // ElevatedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
           // // Expanded(child: WebRtcCam()),
@@ -84,14 +83,8 @@ class DevPage extends HookConsumerWidget {
   }
 
   startLiveActivity(WidgetRef ref) async {
-    var eta = DateTime.now().add(const Duration(hours: 5));
-
-    var dateFormat = (eta.isToday())
-        ? ref.read(dateFormatServiceProvider).Hm()
-        : ref.read(dateFormatServiceProvider).add_Hm(DateFormat('E, '));
-
-    final _liveActivitiesPlugin = LiveActivities();
-    _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
+    ref.read(liveActivityServiceProvider).disableClearing();
+    var liveActivities = ref.read(liveActivityProvider);
 
     // _liveActivitiesPlugin.activityUpdateStream.listen((event) {
     //   logger.wtf('xxxLiveActivityUpdate: $event');
@@ -101,56 +94,57 @@ class DevPage extends HookConsumerWidget {
       'progress': 0.2,
       'state': 'printing',
       'file': 'Benchy.gcode' ?? 'Unknown',
-      'eta': DateTime.now().add(const Duration(seconds: 60 * 120)).secondsSinceEpoch ?? -1,
+      'eta': DateTime.now().add(const Duration(seconds: 60 * 200)).secondsSinceEpoch ?? -1,
+
+      // Not sure yet if I want to use this
+      'printStartTime': DateTime.now().secondsSinceEpoch ?? -1,
 
       // Labels
-      'primary_color_light': Colors.amber.value,
-      'primary_color_dark': Colors.amberAccent.value,
-      'machine_name': 'Cool Printer Yo',
+      'primary_color_dark': Colors.yellow.value,
+      'primary_color_light': Colors.pinkAccent.value,
+      'machine_name': 'Voronator',
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
+      'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
     };
 
-    var activityId = await _liveActivitiesPlugin.createActivity(
+    var activityId = await liveActivities.createActivity(
       data,
       removeWhenAppIsKilled: true,
     );
     logger.i('Created activity with id: $activityId');
     _bla = activityId;
-    var pushToken = await _liveActivitiesPlugin.getPushToken(activityId!);
+    var pushToken = await liveActivities.getPushToken(activityId!);
     logger.i('LiveActivity PushToken: $pushToken');
   }
 
   updateLiveActivity(WidgetRef ref) async {
     if (_bla == null) return;
-    var eta = DateTime.now().add(const Duration(hours: 5));
 
-    var dateFormat = (eta.isToday())
-        ? ref.read(dateFormatServiceProvider).Hm()
-        : ref.read(dateFormatServiceProvider).add_Hm(DateFormat('E, '));
-
-    final _liveActivitiesPlugin = LiveActivities();
-    _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
-
+    var liveActivities = ref.read(liveActivityProvider);
     // _liveActivitiesPlugin.activityUpdateStream.listen((event) {
     //   logger.wtf('xxxLiveActivityUpdate: $event');
     // });
 
     Map<String, dynamic> data = {
-      'progress': 0.8,
+      'progress': Random().nextDouble(),
       'state': 'printing',
       'file': 'Benchy.gcode' ?? 'Unknown',
-      'eta': DateTime.now().add(const Duration(seconds: 60 * 100)).secondsSinceEpoch ?? -1,
+      'eta': DateTime.now().add(const Duration(seconds: 60 * 120)).secondsSinceEpoch ?? -1,
+
+      // Not sure yet if I want to use this
+      'printStartTime': DateTime.now().secondsSinceEpoch ?? -1,
 
       // Labels
-      'primary_color_light': Colors.cyan.value,
-      'primary_color_dark': Colors.cyanAccent.value,
-      'machine_name': 'UPDATED: Cool Printer',
+      'primary_color_dark': Colors.red.value,
+      'primary_color_light': Colors.pinkAccent.value,
+      'machine_name': 'Voronator',
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
+      'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
     };
 
-    var activityId = await _liveActivitiesPlugin.updateActivity(
+    var activityId = await liveActivities.updateActivity(
       _bla!,
       data,
     );

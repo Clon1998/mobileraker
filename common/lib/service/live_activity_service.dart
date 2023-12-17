@@ -73,6 +73,8 @@ class LiveActivityService {
 
   Future<bool> get initialized => _initialized.future;
 
+  bool _disableClearing = false;
+
   Future<void> initialize() async {
     try {
       await _initIos();
@@ -153,6 +155,7 @@ class LiveActivityService {
       (_, next) async {
         // Force a liveActivity update once the app is back in foreground!
         if (next != AppLifecycleState.resumed) return;
+        if (_disableClearing) return;
         _refreshLiveActivitiesForMachines().ignore();
       },
     );
@@ -360,6 +363,10 @@ class LiveActivityService {
       element.close();
     }
     _initialized.completeError(StateError('Disposed notification service before it was initialized!'));
+  }
+
+  disableClearing() {
+    _disableClearing = true;
   }
 }
 
