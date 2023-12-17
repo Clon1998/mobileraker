@@ -2,6 +2,11 @@
 
 ## [2.6.9] - 2024-xx-xx
 
+### Major Updates
+
+- Added a tool page that contains a list of tools and links useful for 3D printing.
+- Adding a belt tuner tool to the tool page.
+
 ### Bug Fixes
 
 - Fixed bed mesh button not correctly going into loading state after pressing it.
