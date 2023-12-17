@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -23,25 +24,27 @@ import '../../../components/warning_card.dart';
 
 part 'belt_tuner.g.dart';
 
-class BeltTuner extends ConsumerWidget {
+class BeltTuner extends HookWidget {
   const BeltTuner({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     var themeData = Theme.of(context);
 
+    var target = useState((110, 150));
+
+    updateTarget(int f, int l) => target.value = (f, l);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Belt Tuner'),
-      ),
+      appBar: AppBar(title: const Text('pages.beltTuner.title').tr()),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(4.0),
           child: Column(
             children: [
-              Flexible(
+              Expanded(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints.loose(const Size(256, 256)),
+                  constraints: BoxConstraints.loose(const Size(300, 300)),
                   child: SvgPicture.asset(
                     'assets/vector/undraw_settings_re_b08x.svg',
                     fit: BoxFit.contain,
@@ -49,33 +52,39 @@ class BeltTuner extends ConsumerWidget {
                 ),
               ),
               Text(
-                'Proper belt tension is crucial for 3D printers. Belts that are too tight (or too loose) can cause mechanical issues, premature wear, and print quality issues.',
+                'pages.beltTuner.description',
                 textAlign: TextAlign.justify,
-                style: themeData.textTheme.bodyMedium,
-              ),
-              const SizedBox(
-                height: 4,
-              ),
-              Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Select your belt type:',
-                    style: themeData.textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  )),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextButton(onPressed: null, child: Text('6mm')),
-                  TextButton(onPressed: null, child: Text('9mm')),
-                ],
-              ),
-              const SizedBox(height: 16),
+                style: themeData.textTheme.bodySmall,
+              ).tr(),
+              const SizedBox(height: 32),
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: _PeakFrequency(),
               ),
-              Text('Target: 110 Hz over 150mm', style: themeData.textTheme.bodySmall),
+              Text('pages.beltTuner.target', style: themeData.textTheme.bodySmall)
+                  .tr(args: [target.value.$1.toString(), target.value.$2.toString()]),
+              const SizedBox(height: 32),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'pages.beltTuner.beltType',
+                  style: themeData.textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ).tr(),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  TextButton(
+                    onPressed: () => updateTarget(110, 150),
+                    child: const Text('6mm'),
+                  ),
+                  TextButton(
+                    onPressed: () => updateTarget(140, 150),
+                    child: const Text('9mm'),
+                  ),
+                ],
+              ),
               const Spacer(),
               Text.rich(
                 TextSpan(
@@ -121,6 +130,8 @@ class _PeakFrequency extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var themeData = Theme.of(context);
+
     var peakFrequency = ref.watch(_beltTunerControllerProvider);
     var controller = ref.watch(_beltTunerControllerProvider.notifier);
 
@@ -154,10 +165,8 @@ class _PeakFrequency extends HookConsumerWidget {
                   .watch(permissionStatusProvider(Permission.microphone).selectAs((data) => !data.isGranted))
                   .valueOrNull ==
               true,
-          title: const Text('Microphone permission required'),
-          subtitle: const Text(
-            'The belt tuner works by analyzing the sound of your printer. Please grant microphone permission to use this tool.',
-          ),
+          title: const Text('pages.beltTuner.permissionWarning.title').tr(),
+          subtitle: const Text('pages.beltTuner.permissionWarning.subtitle').tr(),
           leadingIcon: const Icon(Icons.mic_off),
           onTap: controller.requestPermission,
         ),
@@ -188,65 +197,15 @@ class _PeakFrequency extends HookConsumerWidget {
           ),
           steps: 4,
           rulers: RulerStyle(
-              rulerPosition: RulerPosition.center,
-              showLabel: false,
-              primaryRulersHeight: 30,
-              primaryRulersWidth: 2,
-              showSecondaryRulers: false,
-              primaryRulerColor: Colors.white),
+            rulerPosition: RulerPosition.center,
+            showLabel: false,
+            primaryRulersHeight: 30,
+            primaryRulersWidth: 2,
+            showSecondaryRulers: false,
+            primaryRulerColor: themeData.scaffoldBackgroundColor,
+          ),
         ),
         // TextButton(onPressed: controller.start, child: const Text('START')),
-      ],
-    );
-  }
-}
-
-class _PeakFrequencyLoading extends HookWidget {
-  const _PeakFrequencyLoading({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    var controller = useAnimationController(duration: const Duration(milliseconds: 500));
-    useEffect(() {
-      controller.repeat(reverse: true);
-    }, [controller]);
-
-    var animValue = useAnimation(controller);
-
-    return Column(
-      children: [
-        const Text(
-          '-- HZ',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
-        LinearGauge(
-          enableGaugeAnimation: false,
-          // animationDuration: 1500,
-          end: 220,
-          pointers: [
-            Pointer(
-              enableAnimation: false,
-              value: 70 + animValue * 80,
-              shape: PointerShape.rectangle,
-              height: 50,
-              width: 5,
-              pointerAlignment: PointerAlignment.center,
-            )
-          ],
-          linearGaugeBoxDecoration: const LinearGaugeBoxDecoration(
-            thickness: 30,
-            linearGradient: LinearGradient(colors: [Colors.red, Colors.green, Colors.red]),
-            borderRadius: 0,
-          ),
-          steps: 4,
-          rulers: RulerStyle(
-              rulerPosition: RulerPosition.center,
-              showLabel: false,
-              primaryRulersHeight: 30,
-              primaryRulersWidth: 2,
-              showSecondaryRulers: false,
-              primaryRulerColor: Colors.white),
-        ),
       ],
     );
   }

@@ -521,6 +521,19 @@
     },
     "video_player": {
       "downloading_for_sharing": "Downloading video for sharing... ({})"
+    },
+    "tool": {
+      "title": "Tools"
+    },
+    "beltTuner": {
+      "title": "Belt Tuner",
+      "description": "\nEnsuring proper belt tension is essential for optimal performance in 3D printers. Incorrect tension, whether too tight or too loose, may lead to mechanical problems, premature wear, and compromised print quality. The tension values provided serve as reference points; however, it is advisable to consult the manufacturer's recommendations for specific guidelines tailored to your printer model. Adjustments should be made based on both these recommendations and individual printer requirements and conditions.",
+      "beltType": "Select your belt type:",
+      "target": "Target: {} Hz over {} mm",
+      "permissionWarning": {
+        "title": "Microphone permission required",
+        "subtitle": "The belt tuner uses your phone's microphone to analyze the frequency of your belts.\n\nTap to grant the permission."
+      }
     }
   },
   "components": {

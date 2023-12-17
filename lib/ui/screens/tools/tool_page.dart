@@ -5,6 +5,7 @@
 
 import 'package:common/service/app_router.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -15,16 +16,12 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../../../routing/app_router.dart';
 
 class ToolPage extends HookConsumerWidget {
-  ToolPage({
-    Key? key,
-  }) : super(key: key);
+  const ToolPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tools'),
-      ),
+      appBar: AppBar(title: const Text('pages.tool.title').tr()),
       drawer: const NavigationDrawerWidget(),
       body: Padding(
         padding: const EdgeInsets.all(4.0),
@@ -54,7 +51,7 @@ class ToolPage extends HookConsumerWidget {
                 children: [
                   _ToolCard(
                     icon: const Icon(Icons.graphic_eq),
-                    label: const Text('Belt Tuner'),
+                    label: const Text('pages.beltTuner.title').tr(),
                     onTap: () {
                       ref.read(goRouterProvider).goNamed(AppRoute.beltTuner.name);
                     },
@@ -70,7 +67,7 @@ class ToolPage extends HookConsumerWidget {
                   // ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -93,33 +90,30 @@ class _ToolCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          child: SizedBox.square(
-            dimension: 132,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Flexible(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: SizedBox.expand(
-                        child: FittedBox(
-                          child: icon,
-                        ),
-                      ),
-                    ),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: SizedBox.square(
+          dimension: 132,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox.expand(child: FittedBox(child: icon)),
                   ),
-                  label,
-                ],
-              ),
+                ),
+                label,
+              ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
@@ -142,15 +136,16 @@ class _UrlToolCard extends HookWidget {
     launch() async {
       if (await canLaunchUrlString(url)) {
         launching.value = true;
-        launchUrlString(
-          url,
-          mode: LaunchMode.externalApplication,
-        ).whenComplete(() => launching.value = false);
+        launchUrlString(url, mode: LaunchMode.externalApplication).whenComplete(() => launching.value = false);
       } else {
         throw 'Could not launch $url';
       }
     }
 
-    return _ToolCard(icon: icon, label: label, onTap: launching.value ? null : launch);
+    return _ToolCard(
+      icon: icon,
+      label: label,
+      onTap: launching.value ? null : launch,
+    );
   }
 }

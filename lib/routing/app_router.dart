@@ -227,22 +227,28 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           GoRoute(
             path: 'belt-tuner',
             name: AppRoute.beltTuner.name,
-            pageBuilder: (context, state) => CustomTransitionPage(
-                transitionDuration: kThemeAnimationDuration,
-                reverseTransitionDuration: kThemeAnimationDuration,
-                child: const BeltTuner(),
-                transitionsBuilder: (BuildContext context, Animation<double> animation,
-                    Animation<double> secondaryAnimation, Widget child) {
-                  return SlideTransition(
-                      position: animation.drive(
-                        Tween<Offset>(
-                          begin: const Offset(1, 0),
-                          end: Offset.zero,
-                        ).chain(CurveTween(curve: Curves.easeInCubic)),
-                      ),
-                      child: child);
-                }),
+            builder: (context, state) => const BeltTuner(),
           ),
+          //
+          // GoRoute(
+          //   path: 'belt-tuner',
+          //   name: AppRoute.beltTuner.name,
+          //   pageBuilder: (context, state) => CustomTransitionPage(
+          //       transitionDuration: kThemeAnimationDuration,
+          //       reverseTransitionDuration: kThemeAnimationDuration,
+          //       child: const BeltTuner(),
+          //       transitionsBuilder: (BuildContext context, Animation<double> animation,
+          //           Animation<double> secondaryAnimation, Widget child) {
+          //         return SlideTransition(
+          //             position: animation.drive(
+          //               Tween<Offset>(
+          //                 begin: const Offset(1, 0),
+          //                 end: Offset.zero,
+          //               ).chain(CurveTween(curve: Curves.easeInCubic)),
+          //             ),
+          //             child: child);
+          //       }),
+          // ),
         ],
       ),
       // GoRoute(
