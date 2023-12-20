@@ -105,6 +105,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   liveActivityStore('liveActivityStore'),
   zOffsetStepIndex('zOffsetStepIndex'),
   moveStepIndex('moveStepIndex'),
+  extruderStepIndex('extruderStepIndex'),
   ;
 
   @override

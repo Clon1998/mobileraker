@@ -22,8 +22,6 @@ import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../dashboard/components/control_extruder_card.dart';
-
 class DevPage extends HookConsumerWidget {
   DevPage({
     Key? key,
@@ -41,7 +39,8 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
-          if (selMachine?.uuid != null) ControlXYZCard(machineUUID: selMachine!.uuid),
+          // ControlExtruderLoading(),
+          ControlXYZCard(machineUUID: selMachine!.uuid),
           // const ControlXYZLoading(),
           // const ZOffsetLoading(),
           // const Text('One'),

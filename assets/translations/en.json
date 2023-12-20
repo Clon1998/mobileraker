@@ -321,8 +321,8 @@
       },
       "extruders": {
         "title": "Extruder(s)",
-        "feedrate": "Extruder feed rate",
-        "feedrate_short": "Feed rate",
+        "feedrate": "Extruder velocity",
+        "feedrate_short": "Velocity",
         "steps_extrude": "Extrude steps",
         "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
       },
@@ -710,6 +710,9 @@
     "macro_settings": {
       "show_while_printing": "Show while printing",
       "visible": "Visible"
+    },
+    "extruder_feedrate": {
+      "title": "Extruder Velocity [mm/s]"
     }
   },
   "bottom_sheets": {

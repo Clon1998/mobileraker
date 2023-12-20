@@ -275,8 +275,8 @@ class PrinterService {
     gCode('ACTIVATE_EXTRUDER EXTRUDER=extruder${extruderIndex > 0 ? extruderIndex : ''}');
   }
 
-  moveExtruder(double length, [double feedRate = 5]) {
-    gCode('M83\nG1 E$length F${feedRate * 60}');
+  Future<void> moveExtruder(double length, [double velocity = 5]) async {
+    await gCode('M83\nG1 E$length F${velocity * 60}');
   }
 
   Future<bool> homePrintHead(Set<PrinterAxis> axis) {
