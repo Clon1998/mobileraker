@@ -14,7 +14,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/machine_deletion_warning.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/supporter_ad.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -57,9 +57,7 @@ class GeneralTab extends ConsumerWidget {
                   if (printState != PrintState.printing) ControlXYZCard(machineUUID: machineId),
                   if (ref.watch(settingServiceProvider).readBool(AppSettingKeys.alwaysShowBabyStepping) ||
                       const {PrintState.printing, PrintState.paused}.contains(printState))
-                    ZOffsetCard(
-                      machineUUID: machineId,
-                    ),
+                    ZOffsetCard(machineUUID: machineId),
                 ],
               ),
             );

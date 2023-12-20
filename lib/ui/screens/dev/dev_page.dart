@@ -19,8 +19,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../dashboard/components/control_extruder_card.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
