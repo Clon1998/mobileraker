@@ -67,13 +67,6 @@ As I am only able to work on Mobileraker in my free time, I am always thankful f
 lovely messages of people enjoying Mobileraker, good reviews in the store or through donations. I hope you enjoy
 Mobileraker and happy printing 🙏!
 
-## Support me
-
-Want to say thank you? Want to help covering some of the costs of mobileraker?  
-Feel free to donate any amount of ☕️/🍕.
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/PadS)
-
 ## Push Notifications / Remote Notification
 
 > **Note**  
