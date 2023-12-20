@@ -7,6 +7,11 @@
 - Added a tool page that contains a list of tools and links useful for 3D printing.
 - Adding a belt tuner tool to the tool page.
 
+### Changed Features
+
+- Improved the Extruder card, making it a separate and more polished component and allowing users to modify extruder
+  velocity.[#268](https://github.com/Clon1998/mobileraker/issues/268)
+
 ### Bug Fixes
 
 - Fixed bed mesh button not correctly going into loading state after pressing it.

@@ -19,8 +19,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
 import 'package:path_provider/path_provider.dart';
+
+import '../dashboard/components/temperature_card/heaters_sensor_card.dart';
+import '../dashboard/components/temperature_card/temperature_preset_card.dart';
+import '../dashboard/components/temperature_card/temperature_sensor_preset_card.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
@@ -40,7 +43,9 @@ class DevPage extends HookConsumerWidget {
       body: ListView(
         children: [
           // ControlExtruderLoading(),
-          ControlXYZCard(machineUUID: selMachine!.uuid),
+          HeaterSensorCard(machineUUID: selMachine!.uuid),
+          TemperaturePresetCard(machineUUID: selMachine!.uuid),
+          HeaterSensorPresetCardLoading(),
           // const ControlXYZLoading(),
           // const ZOffsetLoading(),
           // const Text('One'),
