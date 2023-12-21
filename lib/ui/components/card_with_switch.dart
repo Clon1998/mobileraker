@@ -71,37 +71,39 @@ class CardWithSwitch extends HookWidget {
               ),
             ),
           ),
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: themeData.colorScheme.primary,
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(radius),
+          IconButton(
+            style: TextButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              maximumSize: const Size.fromHeight(48),
+              padding: EdgeInsets.zero,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(radius)),
               ),
+              foregroundColor: themeData.colorScheme.onPrimary,
+              backgroundColor: themeData.colorScheme.primary,
+              disabledForegroundColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
             ),
-            child: IconButton(
-              disabledColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
-              color: themeData.colorScheme.onPrimary,
-              onPressed: onChanged != null && !loading.value
-                  ? () {
-                      lastState.value = value;
-                      loading.value = true;
-                      onChanged!(!value);
-                    }
-                  : null,
-              icon: AnimatedSwitcher(
-                duration: kThemeAnimationDuration,
-                switchInCurve: Curves.easeIn,
-                switchOutCurve: Curves.easeOut,
-                transitionBuilder: (child, anim) => RotationTransition(
-                  turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                  child: ScaleTransition(
-                    scale: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                    child: child,
-                  ),
+            // disabledColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
+            // color: themeData.colorScheme.onPrimary,
+            onPressed: onChanged != null && !loading.value
+                ? () {
+                    lastState.value = value;
+                    loading.value = true;
+                    onChanged!(!value);
+                  }
+                : null,
+            icon: AnimatedSwitcher(
+              duration: kThemeAnimationDuration,
+              switchInCurve: Curves.easeIn,
+              switchOutCurve: Curves.easeOut,
+              transitionBuilder: (child, anim) => RotationTransition(
+                turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                  child: child,
                 ),
-                child: _animIcon(loading.value, value),
               ),
+              child: _animIcon(loading.value, value),
             ),
           ),
         ],
