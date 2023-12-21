@@ -66,6 +66,7 @@ class CardWithButton extends StatelessWidget {
           TextButton(
             style: TextButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
+              maximumSize: const Size.fromHeight(48),
               padding: EdgeInsets.zero,
               shape: const RoundedRectangleBorder(
                 borderRadius:
