@@ -194,6 +194,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   void dispose() {
     downloadStreamSub?.cancel();
     _customVideoPlayerController.dispose();
+    videoPlayerController.dispose();
     super.dispose();
   }
 }
