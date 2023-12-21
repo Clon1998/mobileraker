@@ -37,7 +37,7 @@ class PaywallPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: LoaderOverlay(
         useDefaultLoading: false,
-        overlayWidget: Center(
+        overlayWidgetBuilder: (_) => Center(
           child: Column(
             key: UniqueKey(),
             mainAxisAlignment: MainAxisAlignment.center,
@@ -222,9 +222,7 @@ class _PaywallOfferings extends ConsumerWidget {
       top: false,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ref.watch(isSupporterProvider)
-            ? _ManageTiers(model: model)
-            : _SubscribeTiers(model: model),
+        child: ref.watch(isSupporterProvider) ? _ManageTiers(model: model) : _SubscribeTiers(model: model),
       ),
     );
   }
@@ -285,10 +283,7 @@ class _BenefitOverview extends ConsumerWidget {
       children: [
         Text(
           'Learn about Supporter Perks',
-          style: Theme.of(context)
-              .textTheme
-              .displaySmall
-              ?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         IconButton(
           onPressed: ref.read(paywallPageControllerProvider.notifier).openPerksInfo,
@@ -385,17 +380,17 @@ class _OfferedProductList extends ConsumerWidget {
                       );
 
                       return _InAppPurchaseProduct(
-                    iapPackage: package,
-                    promoPackage: promoPackage,
-                  );
-                }
-                // Android Subscriptions since they might have options (E.g. offers/promos)
-                if (package.storeProduct.defaultOption != null) {
-                  return _SubscriptionOptionProduct(package: package);
-                }
-                return _SubscriptionProduct(package: package);
-              }),
-            ))
+                        iapPackage: package,
+                        promoPackage: promoPackage,
+                      );
+                    }
+                    // Android Subscriptions since they might have options (E.g. offers/promos)
+                    if (package.storeProduct.defaultOption != null) {
+                      return _SubscriptionOptionProduct(package: package);
+                    }
+                    return _SubscriptionProduct(package: package);
+                  }),
+                ))
             .toList(),
       ),
     );
@@ -444,9 +439,11 @@ class _InAppPurchaseProduct extends ConsumerWidget {
     );
   }
 
-  Widget? _constructHeader(BuildContext context,
-      StoreProduct storeProduct,
-      StoreProduct? promoStoreProduct,) {
+  Widget? _constructHeader(
+    BuildContext context,
+    StoreProduct storeProduct,
+    StoreProduct? promoStoreProduct,
+  ) {
     final themeData = Theme.of(context);
 
     if (promoStoreProduct == null) return null;
@@ -657,8 +654,7 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     }
     if (subscriptionOption.introPhase != null) {
       var discount = 1 -
-          (subscriptionOption.introPhase!.price.amountMicros /
-              subscriptionOption.fullPricePhase!.price.amountMicros);
+          (subscriptionOption.introPhase!.price.amountMicros / subscriptionOption.fullPricePhase!.price.amountMicros);
       tmp.add(tr('pages.paywall.intro_phase', args: [
         subscriptionOption.introPhaseDurationText!,
         NumberFormat.percentPattern(context.locale.languageCode).format(discount),
@@ -707,9 +703,7 @@ class _ProductTile extends StatelessWidget {
     var themeData = Theme.of(context);
     var borderRadius = BorderRadius.circular(16);
     var defaultTextStyle = themeData.textTheme.labelLarge!.copyWith(
-      color: isActiveSubscription
-          ? themeData.colorScheme.onPrimary
-          : themeData.colorScheme.onPrimaryContainer,
+      color: isActiveSubscription ? themeData.colorScheme.onPrimary : themeData.colorScheme.onPrimaryContainer,
     );
 
     return DefaultTextStyle(
@@ -720,8 +714,7 @@ class _ProductTile extends StatelessWidget {
           color: isActiveSubscription ? themeData.colorScheme.primary : themeData.colorScheme.primaryContainer,
         ),
         child: InkWell(
-          onTap: isActiveSubscription && (isRenewingSubscription || isLifetimeSubscription) ? null
-              : purchasePackage,
+          onTap: isActiveSubscription && (isRenewingSubscription || isLifetimeSubscription) ? null : purchasePackage,
           borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
