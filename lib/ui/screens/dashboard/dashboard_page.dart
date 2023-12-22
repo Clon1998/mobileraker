@@ -146,7 +146,9 @@ class _FloatingActionBtn extends ConsumerWidget {
             backgroundColor: themeData.colorScheme.primary,
             foregroundColor: themeData.colorScheme.onPrimary,
             label: tr('dialogs.supporter_perks.job_queue_perk.title'),
-            onTap: () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu)),
+            onTap: () => ref
+                .read(bottomSheetServiceProvider)
+                .show(BottomSheetConfig(type: SheetType.jobQueueMenu, isScrollControlled: true)),
           ),
       ],
       spacing: 5,

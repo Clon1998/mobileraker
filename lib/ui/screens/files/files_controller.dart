@@ -167,7 +167,9 @@ class FilesPageController extends _$FilesPageController {
   }
 
   jobQueueBottomSheet() {
-    ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu));
+    ref
+        .read(bottomSheetServiceProvider)
+        .show(BottomSheetConfig(type: SheetType.jobQueueMenu, isScrollControlled: true));
   }
 
   goToPath(List<String> path) {

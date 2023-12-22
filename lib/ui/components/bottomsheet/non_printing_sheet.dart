@@ -86,7 +86,9 @@ class NonPrintingBottomSheet extends ConsumerWidget {
           FullWidthButton(
             onPressed: _btnAction(
               context,
-              () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu)),
+              () => ref
+                  .read(bottomSheetServiceProvider)
+                  .show(BottomSheetConfig(type: SheetType.jobQueueMenu, isScrollControlled: true)),
             ),
             buttonStyle: buttonStyle,
             child: const Text('dialogs.supporter_perks.job_queue_perk.title').tr(),
