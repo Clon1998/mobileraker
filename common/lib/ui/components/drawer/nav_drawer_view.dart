@@ -38,6 +38,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
           const _NavHeader(),
           Expanded(
             child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
               child: Material(
                 type: MaterialType.transparency,
                 child: Column(
