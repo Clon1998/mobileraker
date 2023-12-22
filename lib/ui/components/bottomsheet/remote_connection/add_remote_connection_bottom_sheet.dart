@@ -72,7 +72,6 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
       initialIndex: activeIndex,
     );
 
-    var viewInsets = MediaQuery.viewInsetsOf(context);
     var themeData = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -122,19 +121,13 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
           child: FormBuilder(
             key: ref.watch(formKeyProvider),
             autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: viewInsets.bottom),
-              child: TabBarView(
-                controller: tabController,
-                children: [
-                  _OctoTab(scrollController: scrollController),
-                  if (obicoEnabled)
-                    _ObicoTab(
-                      scrollController: scrollController,
-                    ),
-                  _ManualTab(scrollController: scrollController),
-                ],
-              ),
+            child: TabBarView(
+              controller: tabController,
+              children: [
+                _OctoTab(scrollController: scrollController),
+                if (obicoEnabled) _ObicoTab(scrollController: scrollController),
+                _ManualTab(scrollController: scrollController),
+              ],
             ),
           ),
         ),
