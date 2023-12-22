@@ -7,8 +7,8 @@ environment:
   sdk: '>=3.2.3 <4.0.0'
   flutter: '>=3.16.5'
 
-#dependency_overrides:
-#  intl: ^0.18.1 # required due to awesome notifications and formbuilder
+dependency_overrides:
+  intl: ^0.18.1 # required due to awesome notifications and formbuilder
 
 
 dependencies:
@@ -36,7 +36,7 @@ dependencies:
 
   #notification
   awesome_notifications_core: ^0.8.1
-  awesome_notifications: ^0.8.2
+  awesome_notifications: ^0.8.3
   awesome_notifications_fcm: ^0.8.0
   live_activities: ^1.9.0
 
