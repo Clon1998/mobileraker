@@ -26,33 +26,33 @@ class ConfigFileDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ProviderScope(overrides: [
-      configFileProvider.overrideWithValue(file),
-      configFileDetailsControllerProvider
-    ], child: const _ConfigFileDetail());
+    return ProviderScope(
+      overrides: [
+        configFileProvider.overrideWithValue(file),
+        configFileDetailsControllerProvider,
+      ],
+      child: const _ConfigFileDetail(),
+    );
   }
 }
 
 class _ConfigFileDetail extends HookConsumerWidget {
-  const _ConfigFileDetail({
-    Key? key,
-  }) : super(key: key);
+  const _ConfigFileDetail({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var codeController = useValueNotifier(CodeController(language: properties));
     var file = ref.watch(configFileProvider);
-    ref.listen(configFileDetailsControllerProvider.select((value) => value.config),
-        (previous, AsyncValue<String> next) {
-      next.whenData((value) => codeController.value.text = value);
-    });
+    ref.listen(
+      configFileDetailsControllerProvider.select((value) => value.config),
+      (previous, AsyncValue<String> next) {
+        next.whenData((value) => codeController.value.text = value);
+      },
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          file.name,
-          overflow: TextOverflow.fade,
-        ),
+        title: Text(file.name, overflow: TextOverflow.fade),
         actions: [
           // IconButton(onPressed: null, icon: Icon(Icons.live_help_outlined)),
           // IconButton(onPressed: null, icon: Icon(Icons.search))
@@ -61,15 +61,13 @@ class _ConfigFileDetail extends HookConsumerWidget {
       body: Column(
         children: [
           Expanded(
-              child: _Editor(
-            codeController: codeController,
-          )),
+            child: _Editor(codeController: codeController),
+          ),
         ],
       ),
-      floatingActionButton:
-          (ref.watch(configFileDetailsControllerProvider.select((value) => value.config)).hasValue)
-              ? _Fab(codeController: codeController)
-              : null,
+      floatingActionButton: (ref.watch(configFileDetailsControllerProvider.select((value) => value.config)).hasValue)
+          ? _Fab(codeController: codeController)
+          : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
     );
   }
@@ -84,9 +82,13 @@ class _Editor extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData themeData = Theme.of(context);
     var textStyleOnError = TextStyle(color: themeData.colorScheme.onErrorContainer);
-    return ref.watch(configFileDetailsControllerProvider.select((value) => value.config)).when(
-        error: (e, _) => ErrorCard(
-                child: Column(
+    return ref
+        .watch(
+          configFileDetailsControllerProvider.select((value) => value.config),
+        )
+        .when(
+          error: (e, _) => ErrorCard(
+            child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
@@ -94,46 +96,43 @@ class _Editor extends ConsumerWidget {
                     FlutterIcons.issue_opened_oct,
                     color: themeData.colorScheme.onErrorContainer,
                   ),
-                  title: Text('Error while loading file!', style: textStyleOnError),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                  ),
-                  child: Text(
-                    e.toString(),
+                  title: Text(
+                    'Error while loading file!',
                     style: textStyleOnError,
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(e.toString(), style: textStyleOnError),
+                ),
               ],
-            )),
-        loading: () => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SpinKitRipple(
-                    color: themeData.colorScheme.secondary,
-                    size: 100,
-                  ),
-                  const SizedBox(
-                    height: 30,
-                  ),
-                  FadingText('Downloading file ${ref.watch(configFileProvider).name}'),
-                  // Text('Fetching printer ...')
-                ],
-              ),
             ),
-        data: (file) => _FileReadyBody(
-              codeController: codeController.value,
-            ));
+          ),
+          loading: () => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SpinKitRipple(
+                  color: themeData.colorScheme.secondary,
+                  size: 100,
+                ),
+                const SizedBox(height: 30),
+                FadingText(
+                  'Downloading file ${ref.watch(configFileProvider).name}',
+                ),
+                // Text('Fetching printer ...')
+              ],
+            ),
+          ),
+          data: (file) => _FileReadyBody(
+            codeController: codeController.value,
+          ),
+        );
   }
 }
 
 class _Fab extends ConsumerWidget {
-  const _Fab({
-    Key? key,
-    required this.codeController,
-  }) : super(key: key);
+  const _Fab({Key? key, required this.codeController}) : super(key: key);
 
   final ValueNotifier<CodeController> codeController;
 
@@ -157,8 +156,9 @@ class _Fab extends ConsumerWidget {
                     .read(configFileDetailsControllerProvider.notifier)
                     .onSaveTapped(codeController.value.text),
               ),
-        if (!{PrintState.paused, PrintState.printing}.contains(ref.watch(
-                  printerSelectedProvider.select((value) => value.valueOrFullNull?.print.state))))
+              if (!{PrintState.paused, PrintState.printing}.contains(ref.watch(
+                printerSelectedProvider.select((value) => value.valueOrFullNull?.print.state),
+              )))
                 SpeedDialChild(
                   child: const Icon(Icons.restart_alt),
                   backgroundColor: themeData.colorScheme.primary,
@@ -196,9 +196,7 @@ class _FileReadyBody extends ConsumerWidget {
               // wrap: true,
             ),
           ),
-          const SizedBox(
-            height: 30,
-          )
+          const SizedBox(height: 30),
         ],
       ),
     );

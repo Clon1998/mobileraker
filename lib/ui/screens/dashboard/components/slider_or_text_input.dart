@@ -116,7 +116,9 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
           child: AnimatedCrossFade(
             firstChild: InputDecorator(
               decoration: InputDecoration(
-                label: Text('${widget.prefixText}: ${_numberFormat.format(sliderPos)}'),
+                label: Text(
+                  '${widget.prefixText}: ${_numberFormat.format(sliderPos)}',
+                ),
                 isCollapsed: true,
                 border: InputBorder.none,
               ),
@@ -144,7 +146,9 @@ class SliderOrTextInputState extends ConsumerState<SliderOrTextInput> {
               controller: textEditingController,
               textAlign: TextAlign.end,
               keyboardType: const TextInputType.numberWithOptions(),
-              inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[\d.,]'))],
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[\d.,]')),
+              ],
             ),
             duration: kThemeAnimationDuration,
             crossFadeState: fadeState,

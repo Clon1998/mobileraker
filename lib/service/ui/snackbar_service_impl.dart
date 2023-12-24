@@ -3,11 +3,11 @@
  * All rights reserved.
  */
 
+import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/routing/app_router.dart';
 import 'package:stringr/stringr.dart';
 
 SnackBarService snackBarServiceImpl(SnackBarServiceRef ref) => SnackBarServiceImpl(ref);
@@ -66,10 +66,10 @@ class SnackBarServiceImpl implements SnackBarService {
                   children: [
                     Text(
                       config.title ?? config.type.name.titleCase(),
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleLarge
-                          ?.copyWith(color: txtCol, fontWeight: FontWeight.w900),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: txtCol,
+                            fontWeight: FontWeight.w900,
+                          ),
                     ),
                     Text(
                       config.message ?? '',
@@ -80,19 +80,20 @@ class SnackBarServiceImpl implements SnackBarService {
               ),
               if (config.mainButtonTitle != null)
                 ElevatedButton(
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: btnBg, foregroundColor: btnOnBg),
-                    onPressed: config.onMainButtonTapped != null
-                        ? () {
-                            if (config.closeOnMainButtonTapped == true) {
-                              ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                            }
-                            config.onMainButtonTapped!();
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: btnBg,
+                    foregroundColor: btnOnBg,
+                  ),
+                  onPressed: config.onMainButtonTapped != null
+                      ? () {
+                          if (config.closeOnMainButtonTapped == true) {
+                            ScaffoldMessenger.of(context).hideCurrentSnackBar();
                           }
-                        : null,
-                    child: Text(
-                      config.mainButtonTitle!,
-                    ))
+                          config.onMainButtonTapped!();
+                        }
+                      : null,
+                  child: Text(config.mainButtonTitle!),
+                ),
             ],
           ),
         ),

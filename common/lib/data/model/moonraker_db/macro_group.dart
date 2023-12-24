@@ -3,58 +3,49 @@
  * All rights reserved.
  */
 
-import 'package:common/util/extensions/iterable_extension.dart';
 import 'package:flutter/foundation.dart';
-import 'package:json_annotation/json_annotation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:uuid/uuid.dart';
 
 import 'gcode_macro.dart';
-import 'stamped_entity.dart';
 
+part 'macro_group.freezed.dart';
 part 'macro_group.g.dart';
 
-@JsonSerializable(explicitToJson: true)
-class MacroGroup extends StampedEntity {
-  MacroGroup({
-    DateTime? created,
-    DateTime? lastModified,
-    required this.name,
-    String? uuid,
-    this.macros = const [],
-  })  : uuid = uuid ?? const Uuid().v4(),
-        super(created, lastModified ?? DateTime.now());
+@freezed
+class MacroGroup with _$MacroGroup {
+  const MacroGroup._();
 
-  String name;
-  final String uuid;
-  List<GCodeMacro> macros;
+  @JsonSerializable(explicitToJson: true)
+  const factory MacroGroup.__({
+    required String uuid,
+    required String name,
+    @Default([]) List<GCodeMacro> macros,
+  }) = _MacroGroup;
 
-  factory MacroGroup.fromJson(Map<String, dynamic> json) => _$MacroGroupFromJson(json);
-
-  Map<String, dynamic> toJson() => _$MacroGroupToJson(this);
-
-  MacroGroup copyWith({String? name, List<GCodeMacro>? macros}) {
-    return MacroGroup(
-      created: created,
-      name: name ?? this.name,
-      uuid: uuid,
-      macros: macros ?? this.macros,
+  factory MacroGroup({
+    required String name,
+    List<GCodeMacro> macros = const [],
+  }) {
+    return MacroGroup.__(
+      uuid: const Uuid().v4(),
+      name: name,
+      macros: macros,
     );
   }
 
-  @override
-  String toString() {
-    return 'MacroGroup{name: $name, uuid: $uuid}';
+  factory MacroGroup.defaultGroup({
+    required String name,
+    List<GCodeMacro> macros = const [],
+  }) {
+    return MacroGroup.__(
+      uuid: 'default',
+      name: name,
+      macros: macros,
+    );
   }
 
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MacroGroup &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          uuid == other.uuid &&
-          listEquals(macros, other.macros);
+  factory MacroGroup.fromJson(Map<String, dynamic> json) => _$MacroGroupFromJson(json);
 
-  @override
-  int get hashCode => name.hashCode ^ uuid.hashCode ^ macros.hashIterable;
+  bool get isDefaultGroup => uuid == 'default';
 }

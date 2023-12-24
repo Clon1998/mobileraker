@@ -35,20 +35,33 @@ class MachineStateIndicator extends ConsumerWidget {
       case ClientState.connected:
         var klippyStateToColor = _klippyStateToColor(context, serverState);
         return Tooltip(
-            padding: const EdgeInsets.all(8.0),
-            message: 'pages.dashboard.server_status'.tr(args: [
+          padding: const EdgeInsets.all(8.0),
+          message: 'pages.dashboard.server_status'.tr(
+            args: [
               serverState.name.tr(),
               klippyData?.klippyConnected ?? false
                   ? tr('general.connected').toLowerCase()
-                  : tr('klipper_state.disconnected').toLowerCase()
-            ], gender: 'available'),
-            child: MachineActiveClientTypeIndicator(
-                machineId: machine?.uuid,
-                iconSize: 20,
-                iconColor: klippyStateToColor,
-                localIndicator: Icon(Icons.radio_button_on, size: 10, color: klippyStateToColor)));
+                  : tr('klipper_state.disconnected').toLowerCase(),
+            ],
+            gender: 'available',
+          ),
+          child: MachineActiveClientTypeIndicator(
+            machineId: machine?.uuid,
+            iconSize: 20,
+            iconColor: klippyStateToColor,
+            localIndicator: Icon(
+              Icons.radio_button_on,
+              size: 10,
+              color: klippyStateToColor,
+            ),
+          ),
+        );
       default:
-        return Icon(Icons.radio_button_on, size: 10, color: _stateToColor(context, clientState));
+        return Icon(
+          Icons.radio_button_on,
+          size: 10,
+          color: _stateToColor(context, clientState),
+        );
     }
   }
 

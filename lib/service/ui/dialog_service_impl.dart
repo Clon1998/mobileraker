@@ -6,13 +6,13 @@
 import 'dart:async';
 
 import 'package:common/exceptions/mobileraker_exception.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_srew_adjust_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
@@ -29,6 +29,7 @@ import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/tipping_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 
+import '../../ui/components/dialog/macro_settings/macro_settings_dialog.dart';
 import '../../ui/components/dialog/supporter_only_dialog.dart';
 import '../../ui/components/dialog/text_input/text_input_dialog.dart';
 
@@ -43,7 +44,6 @@ enum DialogType implements DialogIdentifierMixin {
   ledRGBW,
   logging,
   webcamPreview,
-  activeMachine,
   perks,
   manualOffset,
   bedScrewAdjust,
@@ -51,6 +51,7 @@ enum DialogType implements DialogIdentifierMixin {
   httpHeader,
   textInput,
   supporterOnlyFeature,
+  macroSettings,
 }
 
 DialogService dialogServiceImpl(DialogServiceRef ref) => DialogServiceImpl(ref);
@@ -81,13 +82,10 @@ class DialogServiceImpl implements DialogService {
         ),
     CommonDialogs.stacktrace: (r, c) => StackTraceDialog(request: r, completer: c),
     DialogType.gcodeParams: (r, c) => MacroParamsDialog(request: r, completer: c),
-    DialogType.ledRGBW: (r, c) => LedRGBWDialog(
-          request: r,
-          completer: c,
-        ),
+    DialogType.ledRGBW: (r, c) => LedRGBWDialog(request: r, completer: c),
     DialogType.logging: (r, c) => LoggerDialog(request: r, completer: c),
     DialogType.webcamPreview: (r, c) => WebcamPreviewDialog(request: r, completer: c),
-    DialogType.activeMachine: (r, c) => SelectPrinterDialog(request: r, completer: c),
+    CommonDialogs.activeMachine: (r, c) => SelectPrinterDialog(request: r, completer: c),
     DialogType.perks: (r, c) => PerksDialog(request: r, completer: c),
     DialogType.manualOffset: (r, c) => ManualOffsetDialog(request: r, completer: c),
     DialogType.bedScrewAdjust: (r, c) => BedScrewAdjustDialog(request: r, completer: c),
@@ -95,6 +93,7 @@ class DialogServiceImpl implements DialogService {
     DialogType.httpHeader: (r, c) => HttpHeaderDialog(request: r, completer: c),
     DialogType.textInput: (r, c) => TextInputDialog(request: r, completer: c),
     DialogType.supporterOnlyFeature: (r, c) => SupporterOnlyDialog(request: r, completer: c),
+    DialogType.macroSettings: (r, c) => MacroSettingsDialog(request: r, completer: c),
   };
 
   @override
@@ -136,11 +135,12 @@ class DialogServiceImpl implements DialogService {
     }
 
     return showDialog<DialogResponse>(
-        barrierDismissible: request.barrierDismissible,
-        context: ctx!,
-        builder: (_) {
-          return availableDialogs[request.type]!(request, _completeDialog);
-        }).whenComplete(() => _currentDialogRequest = null);
+      barrierDismissible: request.barrierDismissible,
+      context: ctx!,
+      builder: (_) {
+        return availableDialogs[request.type]!(request, _completeDialog);
+      },
+    ).whenComplete(() => _currentDialogRequest = null);
   }
 
   void _completeDialog(DialogResponse response) {

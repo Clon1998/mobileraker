@@ -51,55 +51,59 @@ class CardWithSwitch extends HookWidget {
           Container(
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-                color: _backgroundColor,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(radius))),
+              color: _backgroundColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(radius)),
+            ),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
               child: Theme(
-                  data: themeData.copyWith(
-                      textTheme: themeData.textTheme.apply(
-                          bodyColor: _onBackgroundColor,
-                          displayColor: _onBackgroundColor),
-                      iconTheme: themeData.iconTheme
-                          .copyWith(color: _onBackgroundColor)),
-                  child: DefaultTextStyle(
-                    style: TextStyle(color: _onBackgroundColor),
-                    child: Builder(builder: builder),
-                  )),
+                data: themeData.copyWith(
+                  textTheme: themeData.textTheme.apply(
+                    bodyColor: _onBackgroundColor,
+                    displayColor: _onBackgroundColor,
+                  ),
+                  iconTheme: themeData.iconTheme.copyWith(color: _onBackgroundColor),
+                ),
+                child: DefaultTextStyle(
+                  style: TextStyle(color: _onBackgroundColor),
+                  child: Builder(builder: builder),
+                ),
+              ),
             ),
           ),
           Container(
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: themeData.colorScheme.primary,
-                borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(radius)),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: themeData.colorScheme.primary,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(radius),
               ),
-              child: IconButton(
-                  disabledColor:
-                      themeData.colorScheme.onPrimary.withOpacity(0.38),
-                  color: themeData.colorScheme.onPrimary,
-                  onPressed: onChanged != null && !loading.value
-                      ? () {
-                          lastState.value = value;
-                          loading.value = true;
-                          onChanged!(!value);
-                        }
-                      : null,
-                  icon: AnimatedSwitcher(
-                      duration: kThemeAnimationDuration,
-                      switchInCurve: Curves.easeIn,
-                      switchOutCurve: Curves.easeOut,
-                      transitionBuilder: (child, anim) => RotationTransition(
-                            turns:
-                                Tween<double>(begin: 0.5, end: 1).animate(anim),
-                            child: ScaleTransition(
-                                scale: Tween<double>(begin: 0.5, end: 1)
-                                    .animate(anim),
-                                child: child),
-                          ),
-                      child: _animIcon(loading.value, value))))
+            ),
+            child: IconButton(
+              disabledColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
+              color: themeData.colorScheme.onPrimary,
+              onPressed: onChanged != null && !loading.value
+                  ? () {
+                      lastState.value = value;
+                      loading.value = true;
+                      onChanged!(!value);
+                    }
+                  : null,
+              icon: AnimatedSwitcher(
+                duration: kThemeAnimationDuration,
+                switchInCurve: Curves.easeIn,
+                switchOutCurve: Curves.easeOut,
+                transitionBuilder: (child, anim) => RotationTransition(
+                  turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                  child: ScaleTransition(
+                    scale: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                    child: child,
+                  ),
+                ),
+                child: _animIcon(loading.value, value),
+              ),
+            ),
+          ),
         ],
       ),
     );

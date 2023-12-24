@@ -2,10 +2,12 @@
  * Copyright (c) 2023. Patrick Schmidt.
  * All rights reserved.
  */
+// ignore_for_file: prefer-match-file-name
 
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/generic_file.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -20,6 +22,7 @@ import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
+import 'package:mobileraker/ui/screens/files/details/image_file_page.dart';
 import 'package:mobileraker/ui/screens/files/files_page.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_page.dart';
 import 'package:mobileraker/ui/screens/markdown/mark_down_page.dart';
@@ -49,6 +52,7 @@ enum AppRoute {
   imprint,
   gcodeDetail,
   configDetail,
+  imageViewer,
   dev,
   faq,
   changelog,
@@ -72,9 +76,7 @@ Future<String> initialRoute(InitialRouteRef ref) async {
   return '/';
 }
 
-@Riverpod(dependencies: [initialRoute])
-GoRouter goRouter(GoRouterRef ref) {
-  ref.keepAlive();
+GoRouter goRouterImpl(GoRouterRef ref) {
   return GoRouter(
     initialLocation: ref.watch(initialRouteProvider).valueOrNull!,
     debugLogDiagnostics: false,
@@ -131,27 +133,32 @@ GoRouter goRouter(GoRouterRef ref) {
         ],
       ),
       GoRoute(
-          path: '/files',
-          name: AppRoute.files.name,
-          builder: (context, state) => const FilesPage(),
-          routes: [
-            GoRoute(
-              path: 'gcode-details',
-              name: AppRoute.gcodeDetail.name,
-              builder: (context, state) =>
-                  GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
-            ),
-            GoRoute(
-              path: 'config-details',
-              name: AppRoute.configDetail.name,
-              builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
-            ),
-        GoRoute(
-          path: 'video-player',
-          name: AppRoute.videoPlayer.name,
-          builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
-        ),
-      ]),
+        path: '/files',
+        name: AppRoute.files.name,
+        builder: (context, state) => const FilesPage(),
+        routes: [
+          GoRoute(
+            path: 'gcode-details',
+            name: AppRoute.gcodeDetail.name,
+            builder: (context, state) => GCodeFileDetailPage(gcodeFile: state.extra! as GCodeFile),
+          ),
+          GoRoute(
+            path: 'config-details',
+            name: AppRoute.configDetail.name,
+            builder: (context, state) => ConfigFileDetailPage(file: state.extra! as GenericFile),
+          ),
+          GoRoute(
+            path: 'video-player',
+            name: AppRoute.videoPlayer.name,
+            builder: (context, state) => VideoPlayerPage(state.extra! as GenericFile),
+          ),
+          GoRoute(
+            path: 'image-viewer',
+            name: AppRoute.imageViewer.name,
+            builder: (context, state) => ImageFilePage(state.extra! as GenericFile),
+          ),
+        ],
+      ),
       GoRoute(
         path: '/setting',
         name: AppRoute.settings.name,
@@ -168,37 +175,51 @@ GoRouter goRouter(GoRouterRef ref) {
         builder: (context, state) => const ConsolePage(),
       ),
       GoRoute(
-          path: '/faq',
-          name: AppRoute.faq.name,
-          builder: (context, state) => MarkDownPage(
-            title: tr('pages.faq.title'),
-                mdRoot: Uri.parse(
-                    'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/faq.md'),
-                mdHuman:
-                    Uri.parse('https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md'),
-              )),
+        path: '/faq',
+        name: AppRoute.faq.name,
+        builder: (context, state) => MarkDownPage(
+          title: tr('pages.faq.title'),
+          mdRoot: Uri.parse(
+            'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/faq.md',
+          ),
+          mdHuman: Uri.parse(
+            'https://github.com/Clon1998/mobileraker/blob/master/docs/faq.md',
+          ),
+        ),
+      ),
       GoRoute(
-          path: '/changelog',
-          name: AppRoute.changelog.name,
-          builder: (context, state) => MarkDownPage(
-            title: tr('pages.changelog.title'),
-                mdRoot: Uri.parse(
-                    'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/changelog.md'),
-                mdHuman: Uri.parse(
-                    'https://github.com/Clon1998/mobileraker/blob/master/docs/changelog.md'),
-                topWidget: InfoCard(
-                  leading: const Icon(FlutterIcons.code_fork_faw),
-                  title: const Text('components.app_version_display.installed_version').tr(),
-                  body: const AppVersionText(
-                    prefix: 'Mobileraker',
-                  ),
-                ),
-              )),
+        path: '/changelog',
+        name: AppRoute.changelog.name,
+        builder: (context, state) => MarkDownPage(
+          title: tr('pages.changelog.title'),
+          mdRoot: Uri.parse(
+            'https://raw.githubusercontent.com/Clon1998/mobileraker/master/docs/changelog.md',
+          ),
+          mdHuman: Uri.parse(
+            'https://github.com/Clon1998/mobileraker/blob/master/docs/changelog.md',
+          ),
+          topWidget: InfoCard(
+            leading: const Icon(FlutterIcons.code_fork_faw),
+            title: const Text('components.app_version_display.installed_version').tr(),
+            body: const AppVersionText(prefix: 'Mobileraker'),
+          ),
+        ),
+      ),
       GoRoute(
-          path: '/paywall',
-          name: AppRoute.supportDev.name,
-          builder: (context, state) => const PaywallPage()),
-      GoRoute(path: '/dev', name: AppRoute.dev.name, builder: (context, state) => const DevPage()),
+        path: '/paywall',
+        name: AppRoute.supportDev.name,
+        builder: (context, state) => const PaywallPage(),
+      ),
+      GoRoute(
+        path: '/dev',
+        name: AppRoute.dev.name,
+        builder: (context, state) => DevPage(),
+      ),
+      // GoRoute(
+      //   path: '/spoolman',
+      //   name: ProRoutes.spoolman.name,
+      //   builder: (context, state) => const SpoolmanPage(),
+      // ),
       // GoRoute(
       //   path: 'cart',
       //   name: AppRoute.cart.name,

@@ -20,26 +20,24 @@ import 'package:mobileraker/ui/screens/overview/components/printer_card_controll
 import 'package:progress_indicators/progress_indicators.dart';
 
 class SinglePrinterCard extends ConsumerWidget {
-  const SinglePrinterCard(
-    this._machine, {
-    Key? key,
-  }) : super(key: key);
+  const SinglePrinterCard(this._machine, {Key? key}) : super(key: key);
 
   final Machine _machine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-      overrides: [printerCardMachineProvider.overrideWithValue(_machine), printerCardControllerProvider],
+      overrides: [
+        printerCardMachineProvider.overrideWithValue(_machine),
+        printerCardControllerProvider,
+      ],
       child: const _PrinterCard(),
     );
   }
 }
 
 class _PrinterCard extends ConsumerWidget {
-  const _PrinterCard({
-    Key? key,
-  }) : super(key: key);
+  const _PrinterCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -55,7 +53,7 @@ class _PrinterCard extends ConsumerWidget {
             title: Text(machine.name),
             subtitle: Text(machine.httpUri.toString()),
             trailing: const _Trailing(),
-          )
+          ),
         ],
       ),
     );
@@ -63,41 +61,38 @@ class _PrinterCard extends ConsumerWidget {
 }
 
 class _Trailing extends ConsumerWidget {
-  const _Trailing({
-    Key? key,
-  }) : super(key: key);
+  const _Trailing({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(printerCardMachineProvider);
 
     return ref.watch(jrpcClientStateProvider(machine.uuid)).when(
-        data: (d) {
-          if (d != ClientState.connected) {
-            return Icon(
-              FlutterIcons.disconnect_ant,
-              size: 20,
-              color: Theme.of(context).colorScheme.error,
-            );
-          }
-          return MachineStateIndicator(machine);
-        },
-        error: (e, s) => Tooltip(
-              message: e.toString(),
-              child: Icon(
+          data: (d) {
+            if (d != ClientState.connected) {
+              return Icon(
                 FlutterIcons.disconnect_ant,
                 size: 20,
-                color: Theme.of(context).errorColor,
-              ),
+                color: Theme.of(context).colorScheme.error,
+              );
+            }
+            return MachineStateIndicator(machine);
+          },
+          error: (e, s) => Tooltip(
+            message: e.toString(),
+            child: Icon(
+              FlutterIcons.disconnect_ant,
+              size: 20,
+              color: Theme.of(context).errorColor,
             ),
-        loading: () => FadingText('...'));
+          ),
+          loading: () => FadingText('...'),
+        );
   }
 }
 
 class _PrintProgressBar extends ConsumerWidget {
-  const _PrintProgressBar({
-    Key? key,
-  }) : super(key: key);
+  const _PrintProgressBar({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -105,10 +100,11 @@ class _PrintProgressBar extends ConsumerWidget {
 
     return Positioned.fill(
       child: Align(
-          alignment: Alignment.bottomCenter,
-          child: LinearProgressIndicator(
-            value: ref.watch(printerProvider(machine.uuid).selectAs((data) => data.printProgress)).valueOrFullNull ?? 0,
-          )),
+        alignment: Alignment.bottomCenter,
+        child: LinearProgressIndicator(
+          value: ref.watch(printerProvider(machine.uuid).selectAs((data) => data.printProgress)).valueOrFullNull ?? 0,
+        ),
+      ),
     );
   }
 }
@@ -127,11 +123,9 @@ class _Cam extends ConsumerWidget {
       switchInCurve: Curves.easeInOutBack,
       duration: const Duration(milliseconds: 600),
       transitionBuilder: (child, anim) => SizeTransition(
-          sizeFactor: anim,
-          child: FadeTransition(
-            opacity: anim,
-            child: child,
-          )),
+        sizeFactor: anim,
+        child: FadeTransition(opacity: anim, child: child),
+      ),
       child: (webcamInfo == null)
           ? const SizedBox.shrink()
           : Center(
@@ -152,14 +146,17 @@ class _Cam extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  if (printState == PrintState.printing) const _PrintProgressBar()
+                  if (printState == PrintState.printing) const _PrintProgressBar(),
                 ],
               ),
             ),
     );
   }
 
-  Widget _imageBuilder(BuildContext context, Widget imageTransformed) {
-    return ClipRRect(borderRadius: const BorderRadius.vertical(top: Radius.circular(5)), child: imageTransformed);
+  Widget _imageBuilder(Widget imageTransformed) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
+      child: imageTransformed,
+    );
   }
 }

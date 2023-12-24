@@ -33,11 +33,11 @@ class GCodeMacro {
       identical(this, other) ||
       other is GCodeMacro &&
           runtimeType == other.runtimeType &&
-          name == other.name &&
-          uuid == other.uuid &&
-          visible == other.visible &&
-          showWhilePrinting == other.showWhilePrinting;
+          (identical(name, other.name) || name == other.name) &&
+          (identical(uuid, other.uuid) || uuid == other.uuid) &&
+          (identical(visible, other.visible) || visible == other.visible) &&
+          (identical(showWhilePrinting, other.showWhilePrinting) || showWhilePrinting == other.showWhilePrinting);
 
   @override
-  int get hashCode => name.hashCode ^ uuid.hashCode ^ visible.hashCode ^ showWhilePrinting.hashCode;
+  int get hashCode => Object.hash(runtimeType, name, uuid, visible, showWhilePrinting);
 }

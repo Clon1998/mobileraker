@@ -8,20 +8,30 @@ import 'package:flutter/material.dart';
 class CardTitleSkeleton extends StatelessWidget {
   factory CardTitleSkeleton.trailingIcon({Widget? leading}) => CardTitleSkeleton(
         leading: leading,
-        trailing: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          width: 24,
-          height: 24,
-          color: Colors.white,
+        trailing: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+            ),
+          ),
         ),
       );
 
   factory CardTitleSkeleton.trailingText({Widget? leading}) => CardTitleSkeleton(
         leading: leading,
-        trailing: Container(
+        trailing: const SizedBox(
           width: 75,
           height: 20,
-          color: Colors.white,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: Colors.white,
+            ),
+          ),
         ),
       );
 
@@ -34,15 +44,23 @@ class CardTitleSkeleton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: leading ??
-          Container(
+          const SizedBox(
             width: 24,
             height: 24,
-            color: Colors.white,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.white,
+              ),
+            ),
           ),
-      title: Container(
+      title: const SizedBox(
         width: double.infinity,
         height: 20,
-        color: Colors.white,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.white,
+          ),
+        ),
       ),
       trailing: trailing,
     );

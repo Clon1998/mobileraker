@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+// ignore_for_file: prefer-match-file-name
+
 import 'dart:convert';
 
 import 'package:common/data/adapters/uri_adapter.dart';
@@ -19,6 +21,7 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/notification_service.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -93,12 +96,14 @@ setupBoxes() async {
   try {
     await openBoxes(keyMaterial);
     Hive.box<Machine>("printers").values.forEach((element) {
-      logger.i('Machine in box is ${element.debugStr}#${element.hashCode}');
+      logger.i('Machine in box is ${element.logName}#${element.hashCode}');
       // ToDo remove after machine migration!
       element.save();
     });
   } catch (e) {
-    logger.e('There was an error while trying to init Hive. Resetting all Hive data...');
+    logger.e(
+      'There was an error while trying to init Hive. Resetting all Hive data...',
+    );
     await Hive.deleteBoxFromDisk('printers');
     await Hive.deleteBoxFromDisk('uuidbox');
     await Hive.deleteBoxFromDisk('settingsbox');
@@ -112,23 +117,25 @@ Future<Uint8List> _hiveKey() async {
 
   /// due to the move to encSharedPref it could be that the hive_key is still in the normmal shared pref
   /// Therfore first try to load it from the secureShared pref else try the normal one else generate a new one
-  var secureStorage =
-      const FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true));
+  var secureStorage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
   const nonEncSharedPrefSecureStorage = FlutterSecureStorage();
 
   Uint8List? encryptionKey;
   try {
-    encryptionKey =
-        await secureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
+    encryptionKey = await secureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
   } on PlatformException catch (e) {
     logger.e('Error while reading hive_key from secure storage', e);
-    encryptionKey = await nonEncSharedPrefSecureStorage
-        .read(key: keyName)
-        .then((value) => value?.let(base64Decode));
+    encryptionKey = await nonEncSharedPrefSecureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
     await nonEncSharedPrefSecureStorage.delete(key: keyName);
-    await secureStorage.write(key: keyName, value: encryptionKey?.let(base64Encode));
+    await secureStorage.write(
+      key: keyName,
+      value: encryptionKey?.let(base64Encode),
+    );
     logger.e(
-        'Transfered hive_key from non-encryptedSharedPreferences to secureStorage using encryptedSharedPreferences');
+      'Transfered hive_key from non-encryptedSharedPreferences to secureStorage using encryptedSharedPreferences',
+    );
   }
 
   if (encryptionKey != null) {
@@ -136,14 +143,11 @@ Future<Uint8List> _hiveKey() async {
   }
 
   final key = Hive.generateSecureKey();
-  await secureStorage.write(
-    key: keyName,
-    value: base64UrlEncode(key),
-  );
+  await secureStorage.write(key: keyName, value: base64UrlEncode(key));
   return Uint8List.fromList(key);
 }
 
-Future<List<Box>> openBoxes(Uint8List keyMaterial) {
+Future<List<Box>> openBoxes(Uint8List _) {
   return Future.wait([
     Hive.openBox<Machine>('printers').then(_migrateMachine),
     Hive.openBox<String>('uuidbox'),
@@ -156,9 +160,7 @@ Future<List<Box>> openBoxes(Uint8List keyMaterial) {
 Future<Box<Machine>> _migrateMachine(Box<Machine> box) async {
   var allMigratedPrinters = box.values.toList();
   await box.clear();
-  await box.putAll({
-    for (var p in allMigratedPrinters) p.uuid: p,
-  });
+  await box.putAll({for (var p in allMigratedPrinters) p.uuid: p});
   return box;
 }
 
@@ -175,7 +177,9 @@ initializeAvailableMachines(Ref ref) async {
   List<Machine> machines = await ref.read(allMachinesProvider.future);
   logger.i('Received all machines');
 
-  await Future.wait(machines.map((e) => ref.read(machineProvider(e.uuid).future)));
+  await Future.wait(
+    machines.map((e) => ref.read(machineProvider(e.uuid).future)),
+  );
   logger.i('initialized all machineProviders');
   // for (var machine in machines) {
   //   logger.i('Init for ${machine.name}(${machine.uuid})');
@@ -242,9 +246,7 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   await initializeAvailableMachines(ref);
 
   yield StartUpStep.notificationService;
-  await ref
-      .read(notificationServiceProvider)
-      .initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
+  await ref.read(notificationServiceProvider).initialize([AWESOME_FCM_LICENSE_ANDROID, AWESOME_FCM_LICENSE_IOS]);
 
   yield StartUpStep.workManager;
   await workerManager.init();

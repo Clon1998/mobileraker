@@ -17,14 +17,14 @@ import '../tabs/general_tab_controller.dart';
 import 'toolhead_info/toolhead_info_table.dart';
 
 class PrintCard extends ConsumerWidget {
-  const PrintCard({
-    Key? key,
-  }) : super(key: key);
+  const PrintCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     KlipperInstance klippyInstance =
         ref.watch(generalTabViewControllerProvider.select((data) => data.value!.klippyData));
+
+    var machineUUID = ref.watch(generalTabViewControllerProvider.select((data) => data.value!.machine.uuid));
 
     bool isPrintingOrPaused = ref.watch(generalTabViewControllerProvider.select((data) {
       var printState = data.value!.printerData.print.state;
@@ -45,19 +45,26 @@ class PrintCard extends ConsumerWidget {
             contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
             leading: Icon(klippyCanReceiveCommands ? FlutterIcons.monitor_dashboard_mco : FlutterIcons.disconnect_ant),
             title: Text(
-                klippyCanReceiveCommands
-                    ? ref.watch(
-                        generalTabViewControllerProvider.select((data) => data.value!.printerData.print.stateName))
-                    : klippyInstance.klippyStateMessage ?? 'Klipper: ${tr(klippyInstance.klippyState.name)}',
-                style: TextStyle(color: !klippyCanReceiveCommands ? themeData.colorScheme.error : null)),
+              klippyCanReceiveCommands
+                  ? ref.watch(generalTabViewControllerProvider.select(
+                      (data) => data.value!.printerData.print.stateName,
+                    ))
+                  : klippyInstance.klippyStateMessage ?? 'Klipper: ${tr(klippyInstance.klippyState.name)}',
+              style: TextStyle(
+                color: !klippyCanReceiveCommands ? themeData.colorScheme.error : null,
+              ),
+            ),
             subtitle: _subTitle(ref),
             trailing: _trailing(context, ref, themeData, klippyCanReceiveCommands),
           ),
           if (const {KlipperState.shutdown, KlipperState.error}.contains(klippyInstance.klippyState))
             ElevatedButtonTheme(
               data: ElevatedButtonThemeData(
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: themeData.colorScheme.error, foregroundColor: themeData.colorScheme.onError)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: themeData.colorScheme.error,
+                  foregroundColor: themeData.colorScheme.onError,
+                ),
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -68,16 +75,13 @@ class PrintCard extends ConsumerWidget {
                   ElevatedButton(
                     onPressed: ref.read(generalTabViewControllerProvider.notifier).onRestartMCUPressed,
                     child: const Text('pages.dashboard.general.restart_mcu').tr(),
-                  )
+                  ),
                 ],
               ),
             ),
           const _M117Message(),
           if (klippyCanReceiveCommands && isPrintingOrPaused && excludeObject != null && excludeObject.available) ...[
-            const Divider(
-              thickness: 1,
-              height: 0,
-            ),
+            const Divider(thickness: 1, height: 0),
             Padding(
               padding: const EdgeInsets.only(right: 8.0, bottom: 4.0),
               child: Row(
@@ -93,21 +97,23 @@ class PrintCard extends ConsumerWidget {
                         children: [
                           const Icon(FlutterIcons.printer_3d_nozzle_mco),
                           Positioned(
-                              bottom: -0.6,
-                              right: 1,
-                              child: Icon(
-                                Icons.circle,
-                                size: 16,
-                                color: themeData.colorScheme.onError,
-                              )),
+                            bottom: -0.6,
+                            right: 1,
+                            child: Icon(
+                              Icons.circle,
+                              size: 16,
+                              color: themeData.colorScheme.onError,
+                            ),
+                          ),
                           Positioned(
-                              bottom: -1,
-                              right: 0,
-                              child: Icon(
-                                Icons.cancel,
-                                size: 18,
-                                color: themeData.colorScheme.error,
-                              )),
+                            bottom: -1,
+                            right: 0,
+                            child: Icon(
+                              Icons.cancel,
+                              size: 18,
+                              color: themeData.colorScheme.error,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -118,10 +124,15 @@ class PrintCard extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        const Text('pages.dashboard.general.print_card.current_object').tr(),
+                        const Text(
+                          'pages.dashboard.general.print_card.current_object',
+                        ).tr(),
                         Text(
-                          excludeObject?.currentObject ?? 'general.none'.tr(),
-                          style: themeData.textTheme.bodyMedium?.copyWith(color: themeData.textTheme.bodySmall?.color),
+                          excludeObject.currentObject ?? 'general.none'.tr(),
+                          textAlign: TextAlign.center,
+                          style: themeData.textTheme.bodyMedium?.copyWith(
+                            color: themeData.textTheme.bodySmall?.color,
+                          ),
                         ),
                       ],
                     ),
@@ -131,18 +142,20 @@ class PrintCard extends ConsumerWidget {
             ),
           ],
           if (klippyCanReceiveCommands && isPrintingOrPaused) ...[
-            const Divider(
-              thickness: 1,
-              height: 0,
-            ),
-            const ToolheadInfoTable()
+            const Divider(thickness: 1, height: 0),
+            ToolheadInfoTable(machineUUID: machineUUID),
           ],
         ],
       ),
     );
   }
 
-  Widget? _trailing(BuildContext context, WidgetRef ref, ThemeData themeData, bool klippyCanReceiveCommands) {
+  Widget? _trailing(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeData themeData,
+    bool klippyCanReceiveCommands,
+  ) {
     PrintState printState =
         ref.watch(generalTabViewControllerProvider.select((data) => data.value!.printerData.print.state));
 
@@ -174,12 +187,11 @@ class PrintCard extends ConsumerWidget {
                     Icons.restart_alt_outlined,
                     color: themeData.colorScheme.primary,
                   ),
-                  const SizedBox(
-                    width: 8,
-                  ),
-                  Text('pages.dashboard.general.print_card.reset',
-                          style: TextStyle(color: themeData.colorScheme.primary))
-                      .tr()
+                  const SizedBox(width: 8),
+                  Text(
+                    'pages.dashboard.general.print_card.reset',
+                    style: TextStyle(color: themeData.colorScheme.primary),
+                  ).tr(),
                 ],
               ),
             ),
@@ -193,24 +205,25 @@ class PrintCard extends ConsumerWidget {
                     FlutterIcons.printer_3d_nozzle_mco,
                     color: themeData.colorScheme.primary,
                   ),
-                  const SizedBox(
-                    width: 8,
-                  ),
+                  const SizedBox(width: 8),
                   Text(
                     'pages.dashboard.general.print_card.reprint',
                     style: TextStyle(color: themeData.colorScheme.primary),
-                  ).tr()
+                  ).tr(),
                 ],
               ),
-            )
+            ),
           ],
           child: TextButton.icon(
-              style: klippyCanReceiveCommands
-                  ? TextButton.styleFrom(disabledForegroundColor: themeData.colorScheme.primary)
-                  : null,
-              onPressed: null,
-              icon: const Icon(Icons.more_vert),
-              label: const Text('pages.dashboard.general.move_card.more_btn').tr()),
+            style: klippyCanReceiveCommands
+                ? TextButton.styleFrom(
+                    disabledForegroundColor: themeData.colorScheme.primary,
+                  )
+                : null,
+            onPressed: null,
+            icon: const Icon(Icons.more_vert),
+            label: const Text('pages.dashboard.general.move_card.more_btn').tr(),
+          ),
         );
       default:
         return null;
@@ -233,9 +246,7 @@ class PrintCard extends ConsumerWidget {
 }
 
 class _M117Message extends ConsumerWidget {
-  const _M117Message({
-    Key? key,
-  }) : super(key: key);
+  const _M117Message({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -248,10 +259,7 @@ class _M117Message extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            'M117',
-            style: themeData.textTheme.titleSmall,
-          ),
+          Text('M117', style: themeData.textTheme.titleSmall),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(left: 12),
@@ -267,7 +275,7 @@ class _M117Message extends ConsumerWidget {
             iconSize: 16,
             color: themeData.colorScheme.primary,
             tooltip: "Clear M117",
-          )
+          ),
         ],
       ),
     );

@@ -54,6 +54,14 @@ class SettingService {
     return (_boxSettings.get(key.key) as List<dynamic>?)?.cast<T>() ?? fallback ?? [];
   }
 
+  Future<void> writeMap<K, T>(KeyValueStoreKey key, Map<K, T> map) {
+    return _boxSettings.put(key.key, map);
+  }
+
+  Map<K, T> readMap<K, T>(KeyValueStoreKey key, [Map<K, T>? fallback]) {
+    return (_boxSettings.get(key.key) as Map?)?.cast<K, T>() ?? fallback ?? {};
+  }
+
   Future<void> delete(KeyValueStoreKey key) {
     return _boxSettings.delete(key.key);
   }
@@ -94,6 +102,9 @@ enum UtilityKeys implements KeyValueStoreKey {
   nonSupporterDismiss('nSWDismiss'),
   nonSupporterMachineCleanup('nSMachCleanDate'),
   supporterTokenDate('supTknDate'),
+  liveActivityStore('liveActivityStore'),
+  zOffsetStepIndex('zOffsetStepIndex'),
+  moveStepIndex('moveStepIndex'),
   ;
 
   @override

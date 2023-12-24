@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'package:dio/dio.dart';
+
 import 'mobileraker_exception.dart';
 
 class ObicoException extends MobilerakerException {
@@ -23,5 +25,18 @@ class ObicoHttpException extends ObicoException {
   @override
   String toString() {
     return 'ObicoHttpException{$message, $statusCode, parentException: $parentException, parentStack: $parentStack}';
+  }
+}
+
+class ObicoDioException extends MobilerakerDioException implements ObicoException {
+  ObicoDioException(
+    String message,
+    int statusCode, {
+    required super.requestOptions,
+  }) : super(type: DioExceptionType.badResponse, message: '$message - $statusCode');
+
+  @override
+  String toString() {
+    return 'ObicoDioException [Bad Response]: $message';
   }
 }

@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 
 part 'remote_interface.g.dart';
@@ -53,11 +53,12 @@ class RemoteInterface extends HiveObject {
       identical(this, other) ||
       other is RemoteInterface &&
           runtimeType == other.runtimeType &&
-          remoteUri == other.remoteUri &&
-          mapEquals(httpHeaders, other.httpHeaders) &&
-          timeout == other.timeout &&
-          lastModified == other.lastModified;
+          (identical(remoteUri, other.remoteUri) || remoteUri == other.remoteUri) &&
+          (identical(timeout, other.timeout) || timeout == other.timeout) &&
+          (identical(lastModified, other.lastModified) || lastModified == other.lastModified) &&
+          const DeepCollectionEquality().equals(other.httpHeaders, httpHeaders);
 
   @override
-  int get hashCode => remoteUri.hashCode ^ httpHeaders.hashCode ^ timeout.hashCode ^ lastModified.hashCode;
+  int get hashCode =>
+      Object.hash(runtimeType, remoteUri, timeout, lastModified, const DeepCollectionEquality().hash(httpHeaders));
 }

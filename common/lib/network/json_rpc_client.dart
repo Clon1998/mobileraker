@@ -7,9 +7,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:common/util/extensions/dio_options_extension.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import '../data/dto/jrpc/rpc_response.dart';
 import '../data/model/hive/machine.dart';
@@ -52,94 +56,33 @@ class JRpcTimeoutError extends JRpcError {
 class JsonRpcClientBuilder {
   JsonRpcClientBuilder();
 
-  factory JsonRpcClientBuilder.fromOcto(Machine machine) {
-    if (machine.octoEverywhere == null) {
-      throw ArgumentError('The provided machine,${machine.uuid} does not offer OctoEverywhere');
-    }
-
-    var octoEverywhere = machine.octoEverywhere!;
+  factory JsonRpcClientBuilder.fromBaseOptions(BaseOptions options, Machine machine) {
     var localWsUir = machine.wsUri;
-    var octoUri = Uri.parse(octoEverywhere.url);
+    var baseURL = Uri.parse(options.baseUrl);
 
-    return JsonRpcClientBuilder()
-      ..headers = machine.headerWithApiKey
-      ..timeout = const Duration(seconds: 10)
-      ..uri = localWsUir
-          .replace(
-              scheme: 'wss',
-              host: octoUri.host,
-              userInfo: '${octoEverywhere.authBasicHttpUser}:${octoEverywhere.authBasicHttpPassword}')
-          .removePort() // OE automatically redirects the ports
-      ..clientType = ClientType.octo;
-  }
+    var builder = JsonRpcClientBuilder()
+      ..headers = options.headers
+      ..clientType = options.clientType
+      ..timeout = options.receiveTimeout ?? const Duration(seconds: 10)
+      ..uri = baseURL.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri();
 
-  factory JsonRpcClientBuilder.fromLocal(Machine machine) {
-    return JsonRpcClientBuilder()
-      ..headers = machine.headerWithApiKey
-      ..uri = machine.wsUri
-      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
-      ..clientType = ClientType.local
-      ..timeout = Duration(seconds: machine.timeout);
-  }
-
-  factory JsonRpcClientBuilder.fromRemoteInterface(Machine machine) {
-    if (machine.remoteInterface == null) {
-      throw ArgumentError('The provided machine,${machine.uuid} does not offer a remoteInterface');
-    }
-    var localWsUir = machine.wsUri;
-    var remoteInterface = machine.remoteInterface!;
-
-    return JsonRpcClientBuilder()
-      ..headers = {
-        if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
-        ...remoteInterface.httpHeaders,
-      }
-      ..uri = remoteInterface.remoteUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
-      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
-      ..clientType = ClientType.manual
-      ..timeout = remoteInterface.timeoutDuration;
-  }
-
-  factory JsonRpcClientBuilder.fromObicoTunnel(Machine machine) {
-    if (machine.obicoTunnel == null) {
-      throw ArgumentError('The provided machine,${machine.uuid} does not offer a obicoTunnel');
-    }
-    var localWsUir = machine.wsUri;
-    var obicoTunnelUri = machine.obicoTunnel!;
-
-    return JsonRpcClientBuilder()
-      ..headers = {
-        if (machine.apiKey?.isNotEmpty == true) 'X-Api-Key': machine.apiKey!,
-      }
-      ..uri = obicoTunnelUri.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri()
-      ..trustSelfSignedCertificate = machine.trustUntrustedCertificate
-      ..clientType = ClientType.obico
-      ..timeout = const Duration(seconds: 10);
-  }
-
-  factory JsonRpcClientBuilder.fromClientType(ClientType clientType, Machine machine) {
-    return switch (clientType) {
-      ClientType.local => JsonRpcClientBuilder.fromLocal(machine),
-      ClientType.octo => JsonRpcClientBuilder.fromOcto(machine),
-      ClientType.manual => JsonRpcClientBuilder.fromRemoteInterface(machine),
-      ClientType.obico => JsonRpcClientBuilder.fromObicoTunnel(machine),
-    };
+    return builder;
   }
 
   ClientType clientType = ClientType.local;
   Uri? uri;
-  bool trustSelfSignedCertificate = false;
   Duration timeout = const Duration(seconds: 3);
   Map<String, dynamic> headers = {};
+  HttpClient? httpClient;
 
   JsonRpcClient build() {
     assert(uri != null, 'Provided URI was null');
     return JsonRpcClient(
       uri: uri!,
       timeout: timeout,
-      trustSelfSignedCertificate: trustSelfSignedCertificate,
       headers: headers,
       clientType: clientType,
+      httpClient: httpClient,
     );
   }
 }
@@ -147,11 +90,12 @@ class JsonRpcClientBuilder {
 class JsonRpcClient {
   JsonRpcClient({
     required this.uri,
-    Duration? timeout,
-    this.trustSelfSignedCertificate = false,
     this.headers = const {},
+    HttpClient? httpClient,
+    Duration? timeout,
     this.clientType = ClientType.local,
   })  : timeout = timeout ?? const Duration(seconds: 3),
+        _httpClient = httpClient ?? HttpClient(),
         assert(['ws', 'wss'].contains(uri.scheme), 'Scheme of provided URI must be WS or WSS!');
 
   final ClientType clientType;
@@ -160,9 +104,9 @@ class JsonRpcClient {
 
   final Duration timeout;
 
-  final bool trustSelfSignedCertificate;
-
   final Map<String, dynamic> headers;
+
+  final HttpClient _httpClient;
 
   Exception? errorReason;
 
@@ -195,6 +139,8 @@ class JsonRpcClient {
   ClientState _curState = ClientState.disconnected;
 
   ClientState get curState => _curState;
+
+  bool _connectionIdentified = false;
 
   set curState(ClientState newState) {
     if (curState == newState) return;
@@ -244,8 +190,10 @@ class JsonRpcClient {
     if (timeout == Duration.zero) {
       return completer.future;
     }
-    return completer.future.timeout(timeout).onError<TimeoutException>(
-        (error, stackTrace) => throw JRpcTimeoutError('JRpcMethod($method) timed out after ${error.duration}'));
+    return completer.future.timeout(timeout).onError<TimeoutException>((error, stackTrace) {
+      _pendingRequests.remove(mId);
+      throw JRpcTimeoutError('JRpcMethod($method) timed out after ${error.duration?.inSeconds} seconds');
+    });
   }
 
   /// add a method listener for all(all=*) or given [method]
@@ -263,65 +211,72 @@ class JsonRpcClient {
     return _methodListeners[method]?.remove(callback) ?? false;
   }
 
+  Future<void> identifyConnection(PackageInfo packageInfo, String? apiKey) async {
+    if (_connectionIdentified) return;
+
+    logger.i('$logPrefix Identifying connection');
+    _connectionIdentified = true;
+
+    try {
+      await sendJRpcMethod(
+        'server.connection.identify',
+        params: {
+          'client_name': 'Mobileraker-${Platform.operatingSystem}',
+          'version': '${packageInfo.version}-${packageInfo.buildNumber}',
+          'type': Platform.isMacOS || Platform.isWindows ? 'desktop' : 'mobile',
+          'url': 'www.mobileraker.com',
+          if (apiKey != null) 'api_key': apiKey,
+        },
+      );
+    } catch (e) {
+      logger.e('$logPrefix Error while identifying connection: $e');
+    }
+  }
+
   Future<bool> _tryConnect() async {
     logger.i('$logPrefix Trying to connect');
     curState = ClientState.connecting;
     _resetChannel();
-    try {
-      // if (clientType == ClientType.local) {
-      //   await Future.delayed(Duration(seconds: 15));
-      //   throw Exception("Teeeest");
-      // }
 
-      // Premetive checks for the plausability if the URI is even reachable
-      // If an ip, we check if it is in the same subnet as the machine, if that is not the case we can savely assume it is not reachable
-      // If it is a hostname, we check if it is resolvable
-      // IF it is a dns, we check if it is reachable
-      // Add an overwrite to skip this check, since an IP can be a remote IP, so we would want to connect to it!
+    logger.i('$logPrefix Using headers $headers');
+    logger.i('$logPrefix Using timeout $timeout');
 
-      HttpClient httpClient = _constructHttpClient();
-      logger.i('$logPrefix Using headers $headers');
-      logger.i('$logPrefix Using timeout $timeout');
-      WebSocket socket = await WebSocket.connect(
-        uri.toString(),
-        headers: headers,
-        customClient: httpClient,
-      ).timeout(Duration(seconds: timeout.inSeconds + 2))
-        ..pingInterval = const Duration(seconds: 5);
-
-      if (_disposed) {
-        socket.close();
+    // Since obico is not closing/terminating the websocket connection in case of statusCode errors like limit reached, we need to send a good old http request.
+    if (clientType == ClientType.obico) {
+      var obicoValid = await _obicoConnectionIsValid(_httpClient);
+      if (!obicoValid) {
+        logger.i('$logPrefix Obico connection is not valid, aborting opening of websocket');
         return false;
       }
+    }
 
-      var ioChannel = IOWebSocketChannel(socket);
-      _channel = ioChannel;
+    final ioChannel = IOWebSocketChannel.connect(
+      uri,
+      headers: headers,
+      pingInterval: const Duration(seconds: 30),
+      connectTimeout: Duration(seconds: timeout.inSeconds + 2),
+      customClient: _httpClient,
+    );
 
-      ///
-      /// Start listening to notifications / messages
-      ///
-      _channelSub = ioChannel.stream.listen(
-        _onChannelMessage,
-        onError: _onChannelError,
-        onDone: () => _onChannelClosesNormal(socket.closeCode, socket.closeReason),
-      );
+    _channel = ioChannel;
 
+    ///
+    /// Start listening to notifications / messages
+    ///
+    _channelSub = ioChannel.stream.listen(
+      _onChannelMessage,
+      onError: _onChannelError,
+      onDone: () => _onChannelDone(ioChannel),
+    );
+
+    return ioChannel.ready.then((value) {
       curState = ClientState.connected;
+      logger.i('$logPrefix IOWebSocketChannel reported READY!');
       return true;
-    } catch (e) {
-      _onChannelError(e);
+    }, onError: (_, __) {
+      logger.i('$logPrefix IOWebSocketChannel reported NOT READY!');
       return false;
-    }
-  }
-
-  HttpClient _constructHttpClient() {
-    HttpClient httpClient = HttpClient();
-    httpClient.connectionTimeout = timeout;
-    if (trustSelfSignedCertificate) {
-      // only allow self signed certificates!
-      httpClient.badCertificateCallback = (cert, host, port) => true;
-    }
-    return httpClient;
+    });
   }
 
   Map<String, dynamic> _constructJsonRPCMessage(String method, {dynamic params}) =>
@@ -373,11 +328,22 @@ class JsonRpcClient {
     }
   }
 
-  _onChannelClosesNormal(int? closeCode, String? closeReason) {
+  _onChannelDone(WebSocketChannel ioChannel) async {
     if (_disposed) {
-      logger.i('$logPrefix WS-Stream Subscription is DONE!');
+      logger.i('$logPrefix WS-Stream is DONE!');
       return;
     }
+    var closedNormally = await ioChannel.ready.then((value) => true, onError: (_, __) => false);
+    if (closedNormally) {
+      _onChannelClosedNormally(ioChannel);
+    } else {
+      _onChannelClosedAbnormally();
+    }
+  }
+
+  _onChannelClosedNormally(WebSocketChannel ioChannel) {
+    var closeCode = ioChannel.closeCode;
+    var closeReason = ioChannel.closeReason;
 
     logger.i('$logPrefix WS-Stream closed normal! Code: $closeCode, Reason: $closeReason');
 
@@ -394,35 +360,29 @@ class JsonRpcClient {
     openChannel();
   }
 
-  _onChannelError(error) async {
-    logger.w('$logPrefix Got channel error $error');
-    if (error is! WebSocketException) {
-      _updateError(error);
-      return;
-    }
+  _onChannelClosedAbnormally() async {
+    logger.i('$logPrefix WS-Stream closed abnormally!');
     // Here we figure out exactly what is the problem!
-    var httpUri = uri.replace(
-      scheme: uri.isScheme("wss") ? "https" : "http",
-    );
-    var httpClient = _constructHttpClient();
+    var httpUri = uri.toHttpUri();
     try {
       logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine error reason');
-      var request = await httpClient.openUrl("GET", httpUri);
+      var request = await _httpClient.openUrl("GET", httpUri);
+      headers.forEach((key, value) {
+        request.headers.add(key, value);
+      });
 
-      if (uri.userInfo.isNotEmpty) {
-        // If the URL contains user information use that for basic
-        // authorization.
-        String auth = base64Encode(utf8.encode(uri.userInfo));
-        request.headers.set(HttpHeaders.authorizationHeader, "Basic $auth");
-      }
       HttpClientResponse response = await request.close();
       logger.i('$logPrefix Got Response to determine error reason: ${response.statusCode}');
       verifyHttpResponseCodes(response.statusCode, clientType);
       // openChannel(); // If no exception was thrown, we just try again!
-      _updateError(error);
     } catch (e) {
       _updateError(e);
     }
+  }
+
+  _onChannelError(error) async {
+    logger.w('$logPrefix Got channel error $error');
+    // _updateError(error);
   }
 
   _updateError(error) {
@@ -430,6 +390,27 @@ class JsonRpcClient {
     logger.e('$logPrefix WS-Stream error: $error');
     errorReason = error;
     curState = ClientState.error;
+  }
+
+  Future<bool> _obicoConnectionIsValid(HttpClient client) async {
+    var httpUri = uri.toHttpUri().replace(path: '/server/info');
+
+    try {
+      logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine obico statusCode');
+
+      var request = await client.openUrl("GET", httpUri);
+      headers.forEach((key, value) {
+        request.headers.add(key, value);
+      });
+      HttpClientResponse response = await request.close();
+      logger.i('$logPrefix Got Response to determine obico statusCode: ${response.statusCode}');
+
+      verifyHttpResponseCodes(response.statusCode, clientType);
+    } catch (e) {
+      _updateError(e);
+      return false;
+    }
+    return true;
   }
 
   dispose() async {
@@ -470,8 +451,8 @@ class JsonRpcClient {
           clientType == other.clientType &&
           uri == other.uri &&
           timeout == other.timeout &&
-          trustSelfSignedCertificate == other.trustSelfSignedCertificate &&
           mapEquals(headers, other.headers) &&
+          _httpClient == other._httpClient &&
           errorReason == other.errorReason &&
           _disposed == other._disposed &&
           _channel == other._channel &&
@@ -487,7 +468,7 @@ class JsonRpcClient {
       clientType.hashCode ^
       uri.hashCode ^
       timeout.hashCode ^
-      trustSelfSignedCertificate.hashCode ^
+      _httpClient.hashCode ^
       headers.hashCode ^
       errorReason.hashCode ^
       _disposed.hashCode ^

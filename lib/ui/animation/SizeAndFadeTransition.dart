@@ -26,10 +26,7 @@ class SizeAndFadeTransition extends StatelessWidget {
       axis: sizeAxis,
       axisAlignment: sizeAxisAlignment,
       sizeFactor: sizeAndFadeFactor,
-      child: FadeTransition(
-        opacity: sizeAndFadeFactor,
-        child: child,
-      ),
+      child: FadeTransition(opacity: sizeAndFadeFactor, child: child),
     );
   }
 }

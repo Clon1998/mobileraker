@@ -20,8 +20,11 @@ class SelectPrinterDialog extends HookConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const SelectPrinterDialog({Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const SelectPrinterDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,53 +35,53 @@ class SelectPrinterDialog extends HookConsumerWidget {
     var activeName = ref.watch(selectedMachineProvider.selectAs((data) => data?.name)).valueOrNull;
     var themeData = Theme.of(context);
     return Dialog(
-        child: Padding(
-      padding: const EdgeInsets.only(top: 15.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'dialogs.select_machine.title',
-            style: themeData.textTheme.headlineSmall,
-          ).tr(),
-          Text(
-            'dialogs.select_machine.active_machine',
-            style: themeData.textTheme.bodyMedium,
-          ).tr(args: [beautifyName(activeName ?? tr('general.unknown'))]),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: AsyncValueWidget<List<Machine>>(
-              value: ref.watch(selectPrinterDialogControllerProvider),
-              data: (d) => ListView.builder(
-                shrinkWrap: true,
-                itemCount: d.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var machine = d[index];
-                  return ListTile(
-                    tileColor: themeData.colorScheme.surfaceVariant.withOpacity(.5),
-                    textColor: themeData.colorScheme.onSurfaceVariant,
-                    title: Text(beautifyName(machine.name)),
-                    onTap: () {
-                      selected.value = true;
-                      ref
-                          .read(selectPrinterDialogControllerProvider.notifier)
-                          .selectMachine(machine);
-                      completer(DialogResponse.confirmed());
-                    },
-                    trailing: MachineStateIndicator(machine),
-                  );
-                },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 15.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'dialogs.select_machine.title',
+              style: themeData.textTheme.headlineSmall,
+            ).tr(),
+            Text(
+              'dialogs.select_machine.active_machine',
+              style: themeData.textTheme.bodyMedium,
+            ).tr(args: [beautifyName(activeName ?? tr('general.unknown'))]),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: AsyncValueWidget<List<Machine>>(
+                value: ref.watch(selectPrinterDialogControllerProvider),
+                data: (d) => ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: d.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    var machine = d[index];
+                    return ListTile(
+                      tileColor: themeData.colorScheme.surfaceVariant.withOpacity(.5),
+                      textColor: themeData.colorScheme.onSurfaceVariant,
+                      title: Text(beautifyName(machine.name)),
+                      subtitle: Text(machine.httpUri.toString()),
+                      onTap: () {
+                        selected.value = true;
+                        ref.read(selectPrinterDialogControllerProvider.notifier).selectMachine(machine);
+                        completer(DialogResponse.confirmed());
+                      },
+                      trailing: MachineStateIndicator(machine),
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          Text(
-            'dialogs.select_machine.hint',
-            style: themeData.textTheme.bodySmall,
-          ).tr(),
-          _Footer(dialogCompleter: completer)
-        ],
+            Text(
+              'dialogs.select_machine.hint',
+              style: themeData.textTheme.bodySmall,
+            ).tr(),
+            _Footer(dialogCompleter: completer),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }
 
@@ -96,7 +99,7 @@ class _Footer extends ConsumerWidget {
             dialogCompleter(DialogResponse.aborted());
           },
           child: const Text('general.cancel').tr(),
-        )
+        ),
       ],
     );
   }

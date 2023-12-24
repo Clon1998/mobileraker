@@ -42,17 +42,18 @@ class SsidPreferenceListController extends _$SsidPreferenceListController {
   Future<void> _openSSIDDialog({String? initial, bool showHint = true}) async {
     var dialogResponse = await ref.read(dialogServiceProvider).show(
           DialogRequest(
-              type: DialogType.textInput,
-              title: tr(initial == null
-                  ? 'pages.printer_edit.local_ssid.dialog.title_add'
-                  : 'pages.printer_edit.local_ssid.dialog.title_edit'),
-              confirmBtn: tr(initial == null ? 'general.add' : 'general.save'),
-              data: TextInputDialogArguments(
-                initialValue: initial ?? '',
-                labelText: tr('pages.printer_edit.local_ssid.dialog.label'),
-                helperText: showHint ? tr('pages.printer_edit.local_ssid.dialog.quick_add_hint') : null,
-                validator: FormBuilderValidators.required(),
-              )),
+            type: DialogType.textInput,
+            title: tr(initial == null
+                ? 'pages.printer_edit.local_ssid.dialog.title_add'
+                : 'pages.printer_edit.local_ssid.dialog.title_edit'),
+            confirmBtn: tr(initial == null ? 'general.add' : 'general.save'),
+            data: TextInputDialogArguments(
+              initialValue: initial ?? '',
+              labelText: tr('pages.printer_edit.local_ssid.dialog.label'),
+              helperText: showHint ? tr('pages.printer_edit.local_ssid.dialog.quick_add_hint') : null,
+              validator: FormBuilderValidators.required(),
+            ),
+          ),
         );
 
     if (dialogResponse?.confirmed == true) {
@@ -70,17 +71,22 @@ class SsidPreferenceListController extends _$SsidPreferenceListController {
   Future<void> addCurrentSSID() async {
     var wifiName = await ref.read(networkInfoServiceProvider).getWifiName();
     if (state.contains(wifiName)) {
-      await ref
-          .read(snackBarServiceProvider)
-          .show(SnackBarConfig(type: SnackbarType.warning, title: '$wifiName already in List'));
+      await ref.read(snackBarServiceProvider).show(SnackBarConfig(
+            type: SnackbarType.warning,
+            title: '$wifiName already in List',
+          ));
       return;
     }
 
     if (wifiName?.isNotEmpty != true) {
       await ref.read(snackBarServiceProvider).show(SnackBarConfig(
             type: SnackbarType.warning,
-            title: tr('pages.printer_edit.local_ssid.error_fetching_snackbar.title'),
-            message: tr('pages.printer_edit.local_ssid.error_fetching_snackbar.body'),
+            title: tr(
+              'pages.printer_edit.local_ssid.error_fetching_snackbar.title',
+            ),
+            message: tr(
+              'pages.printer_edit.local_ssid.error_fetching_snackbar.body',
+            ),
           ));
       return;
     }
@@ -90,10 +96,7 @@ class SsidPreferenceListController extends _$SsidPreferenceListController {
 }
 
 class SsidPreferenceList extends ConsumerWidget {
-  const SsidPreferenceList({
-    Key? key,
-    this.initialValue = const [],
-  }) : super(key: key);
+  const SsidPreferenceList({Key? key, this.initialValue = const []}) : super(key: key);
 
   final List<String> initialValue;
 
@@ -116,15 +119,21 @@ class SsidPreferenceList extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SectionHeader(title: tr('pages.printer_edit.local_ssid.section_header')),
+              SectionHeader(
+                title: tr('pages.printer_edit.local_ssid.section_header'),
+              ),
               TextButton.icon(
-                  onPressed: controller.addSSID,
-                  onLongPress: controller.addCurrentSSID,
-                  icon: const Icon(Icons.add_box_outlined),
-                  label: const Text('general.add').tr())
+                onPressed: controller.addSSID,
+                onLongPress: controller.addCurrentSSID,
+                icon: const Icon(Icons.add_box_outlined),
+                label: const Text('general.add').tr(),
+              ),
             ],
           ),
-          if (model.isEmpty) Center(child: const Text('pages.printer_edit.local_ssid.no_ssids').tr()),
+          if (model.isEmpty)
+            Center(
+              child: const Text('pages.printer_edit.local_ssid.no_ssids').tr(),
+            ),
           ...model.map((e) => _SSID(
                 value: e,
                 onDelete: () => controller.deleteSSID(e),
@@ -137,12 +146,7 @@ class SsidPreferenceList extends ConsumerWidget {
 }
 
 class _SSID extends StatelessWidget {
-  const _SSID({
-    Key? key,
-    required this.value,
-    this.onTap,
-    this.onDelete,
-  }) : super(key: key);
+  const _SSID({Key? key, required this.value, this.onTap, this.onDelete}) : super(key: key);
 
   final String value;
   final VoidCallback? onDelete;
@@ -157,20 +161,21 @@ class _SSID extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
-              child: Row(children: [
-            Icon(Icons.wifi),
-            SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                value,
-                style: themeData.listTileTheme.titleTextStyle,
+            child: Row(children: [
+              Icon(Icons.wifi),
+              SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  value,
+                  style: themeData.listTileTheme.titleTextStyle,
+                ),
               ),
-            )
-          ])),
+            ]),
+          ),
           IconButton(
             onPressed: onDelete,
             icon: const Icon(Icons.delete_forever),
-          )
+          ),
         ],
       ),
     );

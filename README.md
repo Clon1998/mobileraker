@@ -17,9 +17,10 @@
 3. [Support the Dev](#support-me)
 4. [Push-Notifications](#push-notifications--remote-notification)
 5. [App Screenshots](#app-impressions)
-6. [Dev-Setup](#environment-setup)
-7. [Changelog](#changelog)
-8. [License](#license)
+6. [Translations](#translations)
+7. [Dev-Setup](#environment-setup)
+8. [Changelog](#changelog)
+9. [License](#license)
 
 ---
 
@@ -66,38 +67,89 @@ As I am only able to work on Mobileraker in my free time, I am always thankful f
 lovely messages of people enjoying Mobileraker, good reviews in the store or through donations. I hope you enjoy
 Mobileraker and happy printing 🙏!
 
-## Support me
-
-Want to say thank you? Want to help covering some of the costs of mobileraker?  
-Feel free to donate any amount of ☕️/🍕.
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/PadS)
-
 ## Push Notifications / Remote Notification
->**Note**  
-> Android's progress notification (Shown in the Impression Images) is not supported anymore, due to a change in a 3rd party [library](https://pub.dev/packages/awesome_notifications). As soon as this library offers support for this kind of notification again, I will revisit the implementation (Feel free to contribute).
 
-Mobileraker allows users to enable push notifications, which are also delivered if your phone is not in the same network as your klipperized 3D printer. To allow Mobileraker to send push notifications to your phone, please install and configure the [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion). You can learn more about it by visiting the [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion) GitHub project to learn more.
+> **Note**  
+> Android's progress notification (Shown in the Impression Images) is not supported anymore, due to a change in a 3rd
+> party [library](https://pub.dev/packages/awesome_notifications). As soon as this library offers support for this kind
+> of
+> notification again, I will revisit the implementation (Feel free to contribute).
+
+Mobileraker allows users to enable push notifications, which are also delivered if your phone is not in the same network
+as your klipperized 3D printer. To allow Mobileraker to send push notifications to your phone, please install and
+configure the [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion). You can learn more about it
+by visiting the [Mobileraker's Companion](https://github.com/Clon1998/mobileraker_companion) GitHub project to learn
+more.
 
 ## App Impressions
 
 <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 0.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 1.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 2.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 3.png" width="23%"></img>
 <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 4.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 5.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 6.png" width="23%"></img> <img src="misc/AppMockUp&#32;Screenshots/Google&#32;Pixel&#32;4&#32;XL&#32;(1520x3040)/Google Pixel 4 XL Screenshot 7.png" width="23%"></img>
 
+## Translations
 
-## Environment Setup
+Mobileraker already supports multiple languages, but it relies on contributions to add new languages and keep existing
+translations up to date. If you want to add your own language or update an existing one, please feel free to open a Pull
+Request (PR). This [guide](docs/contribute_i18n.md) provides details on the structure of translation keys and how to add
+a new language.
 
-> **Warning**   
-> This is only required if you plan to contribute to this project or want to build the app locally
+## Environment Setup for Contribution
 
-1. Ensure you have [flutter](https://docs.flutter.dev/get-started/install "Flutter installation instructions")
-   and [flutterfire](https://firebase.google.com/docs/flutter/setup?platform=android#install-cli-tools "Firebase Flutter Command Line tools installation instructions")
-   installed on your machine
-2. Import the project into your IDE
-3. Run `flutter pub get` then `flutter packages pub run build_runner build` to generate required files
-4. Create `lib\license.dart` with `const AWESOME_FCM_LICENSE_ANDROID = ""; const AWESOME_FCM_LICENSE_IOS = "";` as the
-   content of the file
-5. Run `flutterfire configure` for your firebase project, targeting android and ios platforms
+> **Note:**   
+> This section outlines the steps required for contributors who wish to enhance or contribute to the project, or for
+> those who want to build the app locally.
+
+1. **Flutter and FlutterFire Installation:**
+   - Ensure that you have [Flutter](https://docs.flutter.dev/get-started/install "Flutter installation instructions")
+     and [FlutterFire](https://firebase.google.com/docs/flutter/setup?platform=android#install-cli-tools "Firebase Flutter Command Line tools installation instructions")
+     installed on your machine.
+
+2. **Import Project into IDE:**
+   - Import the project into your preferred Integrated Development Environment (IDE).
+
+3. **Clone the `mobileraker_pro_pub` Repository:**
+   - Clone the [mobileraker_pro](https://github.com/Clon1998/mobileraker_pro_pub) repository into same location as the
+     `mobileraker` repository.
+   - Folder structure should look like this:
+     ```bash
+     .
+     ├── mobileraker
+     └── mobileraker_pro_pub
+     ```
+
+4. **Configure Dependency in `pubspec.yaml`:**
+   - In [pubspec.yaml](pubspec.yaml), verify that the `path` option for the `mobileraker_pro` dependency is used that
+     points to the cloned `mobileraker_pro_pub` repository.
+     ```yaml
+     ...
+       mobileraker_pro:
+         path: ../mobileraker_pro_pub
+     ```
+
+5. **Generate Required Files:**
+   - Run the following commands in the terminal of the repos root folder:
+     ```bash
+     flutter pub get
+     flutter packages pub run build_runner build
+     cd common
+     flutter pub get
+     flutter packages pub run build_runner build
+     ```
+     This will generate necessary files in both the root folder and the `common` folder.
+
+6. **Firebase Configuration:**
+   - Run the command:
+     ```bash
+     flutterfire configure
+     ```
+     This step configures your Firebase project, targeting both Android and iOS platforms, and generates
+     a `firebase_options.dart` file.
+
+7. **Update `firebase_options.dart`:**
+   - Replace the contents of the `firebase_options.dart` file in the cloned `mobileraker_pro_pub` repository with the
+     contents of the `firebase_options.dart` file generated in the previous step.
+8. **Run the App:**
+   - Run the app on your preferred device or emulator. Happy coding!
 
 ---
 
@@ -106,7 +158,11 @@ Mobileraker allows users to enable push notifications, which are also delivered 
 The changelog can be found in [docs/changelog.md](docs/changelog.md).
 
 ## License
-The project is licensed under a modified MIT license, known as the Mobileraker License v1, crafted by Patrick Schmidt. It allows non-commercial use, redistribution, and modification of the software and documentation, provided that copyright and permission notices are preserved. However, commercial usage is restricted unless explicit written consent is obtained from Patrick Schmidt, who also maintains all intellectual property rights.
+
+The project is licensed under a modified MIT license, known as the Mobileraker License v1, crafted by Patrick Schmidt.
+It allows non-commercial use, redistribution, and modification of the software and documentation, provided that
+copyright and permission notices are preserved. However, commercial usage is restricted unless explicit written consent
+is obtained from Patrick Schmidt, who also maintains all intellectual property rights.
 
 The project's license can be found here [LICENSE](LICENSE).
 

@@ -6,10 +6,13 @@
 import 'package:flutter/material.dart';
 
 class ErrorCard extends StatelessWidget {
-  const ErrorCard(
-      {Key? key, this.child, this.title, this.titleLeading, this.body})
-      : assert(child != null || (title != null && body != null),
-            'Either provide the child or the title'),
+  const ErrorCard({
+    Key? key,
+    this.child,
+    this.title,
+    this.titleLeading,
+    this.body,
+  })  : assert(child != null || (title != null && body != null), 'Either provide the child or the title'),
         assert(child == null || (title == null && body == null),
             'Only define the child or the title and body!'),
         super(key: key);
@@ -23,11 +26,12 @@ class ErrorCard extends StatelessWidget {
     var scheme = Theme.of(context).colorScheme;
     return Center(
       child: Card(
-          shape: ContinuousRectangleBorder(
-            borderRadius: BorderRadius.circular(40.0),
-          ),
-          color: scheme.errorContainer,
-          child: child ?? _fallbackChild(scheme)),
+        shape: ContinuousRectangleBorder(
+          borderRadius: BorderRadius.circular(40.0),
+        ),
+        color: scheme.errorContainer,
+        child: child ?? _fallbackChild(scheme),
+      ),
     );
   }
 

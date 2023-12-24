@@ -35,4 +35,18 @@ class Notification extends HiveObject {
   PrintState? get printState => _printState?.let(PrintState.tryFromJson);
 
   set printState(PrintState? value) => _printState = value?.toJsonEnum();
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Notification &&
+          runtimeType == other.runtimeType &&
+          (identical(machineUuid, other.machineUuid) || machineUuid == other.machineUuid) &&
+          (identical(_printState, other._printState) || _printState == other._printState) &&
+          (identical(progress, other.progress) || progress == other.progress) &&
+          (identical(file, other.file) || file == other.file) &&
+          (identical(eta, other.eta) || eta == other.eta);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, machineUuid, _printState, progress, file, eta);
 }

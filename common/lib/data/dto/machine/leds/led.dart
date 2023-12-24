@@ -19,13 +19,30 @@ class Pixel with _$Pixel {
     @Default(0) double green,
     @Default(0) double blue,
     @Default(0) double white,
+    @Default(false) bool legacy,
   }) = _Pixel;
 
   factory Pixel.fromList(List<double> list) {
-    return Pixel(red: list[0], green: list[1], blue: list[2], white: list[3]);
+    return Pixel(
+        red: list.elementAtOrNull(0) ?? 0,
+        green: list.elementAtOrNull(1) ?? 0,
+        blue: list.elementAtOrNull(2) ?? 0,
+        white: list.elementAtOrNull(3) ?? 0);
+  }
+
+  factory Pixel.fromMap(Map<String, double> map) {
+    return Pixel(
+      red: map['R'] ?? 0,
+      green: map['G'] ?? 0,
+      blue: map['B'] ?? 0,
+      white: map['W'] ?? 0,
+      legacy: true,
+    );
   }
 
   List<double> asList() => [red, green, blue, white];
+
+  Map<String, double> asMap() => {'R': red, 'G': green, 'B': blue, 'W': white};
 
   bool get hasColor => red + green + blue + white > 0;
 }

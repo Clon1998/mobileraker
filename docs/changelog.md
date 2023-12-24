@@ -1,5 +1,57 @@
 # Mobileraker - Changelog
 
+## [2.6.8] - 2023-12-8
+
+### Major Updates
+
+- Added the ability to view `.png`, `.jpg`, and `.jpeg` files in the file browser.
+- Users can now select a PEM-Certificate for SSL-Pinning in the printer settings. This option enhances security in
+  comparison to trusting all self-signed certificates.
+  device. [#193](https://github.com/Clon1998/mobileraker/issues/193) [#280](https://github.com/Clon1998/mobileraker/issues/280)
+
+### Changed Features
+
+- The full-screen webcam can now fill the entire screen if zoomed or panned.
+- Non GCode files now display their last modified date in the file browser.
+- Replaced the shadow of the console page with a more subtle border among all light mode themes.
+- The select printer dialog now displays the printer's http URL under its name.
+- Improved the Control Axis card, making it a separate and more polished component.
+
+### Bug Fixes
+
+- Fixed Neopixel parsing error for legacy configs. [#287](https://github.com/Clon1998/mobileraker/issues/287)
+- Fixed the file browser not working for Obico connections.
+- Resolved an issue where uploading a file with the same name as an existing one wouldn't update the thumbnail,
+  resulting in the old image persisting in the application.
+- GCode errors are now displayed via the Snackbar again.
+- Fixed a parsing error on Creality printer of gCode
+  thumbnails. [#288](https://github.com/Clon1998/mobileraker/issues/288)
+
+## [2.6.7] - 2023-11-11
+
+### Major Updates
+
+- You can now organize GCode macros in your printer settings more conveniently. Instead of moving each one separately,
+  you can assign them to a new group with just a button click. You can also change the visibility of individual macros.
+- The GCode macro card on your dashboard has been improved. It's now a separate, smoother component, and it adds a nice
+  animation when you switch between different groups.
+
+### Changed Features
+
+- The internal states that saves your settings for the selected macro group, webcam choice on the dashboard, and file
+  sorting preferences on the files
+  page are now unique to each of your printers. They won't be mixed up between your different devices.
+- When you add a remote connection, the bottom sheet now adjusts itself to your screen, reaching the top instead of
+  staying a fixed size. This change makes sure everything fits properly, even if you need to scroll through some
+  content.
+
+### Bug Fixes
+
+- Live activities for multiple printers have been improved to ensure that they update correctly without overwriting each
+  other.
+- While using obico or the manual connection, the app is now able to open Gcode and timelapse files
+  again. [#276](https://github.com/Clon1998/mobileraker/issues/276)
+
 ## [2.6.6] - 2023-10-25
 
 ### Major Changes

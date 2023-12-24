@@ -22,8 +22,7 @@ class HeadersController extends _$HeadersController {
   }
 
   Future<void> addHttpHeader() async {
-    var dialogResponse =
-        await ref.read(dialogServiceProvider).show(DialogRequest(type: DialogType.httpHeader));
+    var dialogResponse = await ref.read(dialogServiceProvider).show(DialogRequest(type: DialogType.httpHeader));
 
     if (dialogResponse?.confirmed == true) {
       var data = dialogResponse!.data as MapEntry<String, String>;
@@ -59,10 +58,7 @@ class HeadersController extends _$HeadersController {
 }
 
 class HttpHeaders extends ConsumerWidget {
-  const HttpHeaders({
-    Key? key,
-    this.initialValue = const {},
-  }) : super(key: key);
+  const HttpHeaders({Key? key, this.initialValue = const {}}) : super(key: key);
 
   final Map<String, String> initialValue;
 
@@ -79,15 +75,20 @@ class HttpHeaders extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SectionHeader(title: tr('pages.printer_add.advanced_form.section_headers')),
+            SectionHeader(
+              title: tr('pages.printer_add.advanced_form.section_headers'),
+            ),
             TextButton.icon(
-                onPressed: controller.addHttpHeader,
-                icon: const Icon(Icons.add_box_outlined),
-                label: const Text('general.add').tr())
+              onPressed: controller.addHttpHeader,
+              icon: const Icon(Icons.add_box_outlined),
+              label: const Text('general.add').tr(),
+            ),
           ],
         ),
         if (model.isEmpty)
-          Center(child: const Text('pages.printer_add.advanced_form.empty_headers').tr()),
+          Center(
+            child: const Text('pages.printer_add.advanced_form.empty_headers').tr(),
+          ),
         ...model.entries.map((e) => _HttpHeader(
               header: e.key,
               value: e.value,
@@ -126,23 +127,20 @@ class _HttpHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  header,
-                  style: themeData.listTileTheme.titleTextStyle,
-                ),
+                Text(header, style: themeData.listTileTheme.titleTextStyle),
                 Text(
                   value.isEmpty ? '<EMPTY_VALUE>' : value,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: themeData.textTheme.bodySmall?.copyWith(fontSize: 13),
-                )
+                ),
               ],
             ),
           ),
           IconButton(
             onPressed: onDelete,
             icon: const Icon(Icons.delete_forever),
-          )
+          ),
         ],
       ),
     );

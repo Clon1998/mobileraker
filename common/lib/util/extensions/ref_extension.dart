@@ -205,7 +205,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
   ///
   /// Returns a [KeepAliveLink] that can be used to manually close the link before the timeout
   /// if needed.
-  KeepAliveLink timeoutKeepAlive([Duration timeout = const Duration(seconds: 30)]) {
+  KeepAliveLink keepAliveFor([Duration timeout = const Duration(seconds: 30)]) {
     var link = keepAlive();
 
     Timer? timer;
@@ -213,7 +213,7 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
       timer = Timer(timeout, () => link.close());
     });
     onResume(() => timer?.cancel());
-    onDispose(() => timer?.cancel);
+    onDispose(() => timer?.cancel());
     return link;
   }
 }

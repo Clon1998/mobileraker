@@ -12,8 +12,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'bed_screw_adjust_controller.freezed.dart';
-part 'bed_screw_adjust_controller.g.dart';
+part 'bed_screw_adjust_dialog_controller.freezed.dart';
+part 'bed_screw_adjust_dialog_controller.g.dart';
 
 @riverpod
 class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
@@ -39,6 +39,7 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
     return BedScrewAndConfig(bedScrew: bedScrew, config: config);
   }
 
+  // ignore: avoid-unnecessary-futures
   Future<bool> onPopTriggered() async {
     onAbortPressed();
     return false;
@@ -66,6 +67,8 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
 
 @freezed
 class BedScrewAndConfig with _$BedScrewAndConfig {
-  const factory BedScrewAndConfig({required BedScrew bedScrew,
-    required ConfigFile config}) = _BedScrewAndConfig;
+  const factory BedScrewAndConfig({
+    required BedScrew bedScrew,
+    required ConfigFile config,
+  }) = _BedScrewAndConfig;
 }

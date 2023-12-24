@@ -60,20 +60,12 @@ class ClientTypeIndicator extends StatelessWidget {
 
     return switch (clientType) {
       ClientType.local => localIndicator ?? const SizedBox.shrink(),
-      ClientType.octo => OctoIndicator(
-          size: size,
-        ),
-      ClientType.obico => ObicoIndicator(
-          size: size,
-        ),
+      ClientType.octo => OctoIndicator(size: size),
+      ClientType.obico => ObicoIndicator(size: size),
       ClientType.manual || _ => Tooltip(
           message: tr('components.ri_indicator.tooltip'),
-          child: Icon(
-            Icons.cloud,
-            color: iconColor,
-            size: iconSize,
-          ),
-        )
+          child: Icon(Icons.cloud, color: iconColor, size: iconSize),
+        ),
     };
   }
 }

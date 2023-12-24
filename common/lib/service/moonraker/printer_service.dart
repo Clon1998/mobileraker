@@ -11,6 +11,7 @@ import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/jrpc/rpc_response.dart';
+import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/bed_screw.dart';
 import 'package:common/data/dto/machine/display_status.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
@@ -80,7 +81,7 @@ Stream<Printer> printer(PrinterRef ref, String machineUUID) {
         next.hasValue &&
             (nextFileName?.isNotEmpty == true && next.value?.currentFile == null ||
                 nextFileName?.isEmpty == true && next.value?.currentFile != null)) {
-      printerService.updateCurrentFile(nextFileName);
+      printerService.updateCurrentFile(nextFileName).ignore();
     }
   });
   return printerService.printerStream;
@@ -174,6 +175,7 @@ class PrinterService {
     'bed_screws': _updateBedScrew,
     'heater_generic': _updateGenericHeater,
     'firmware_retraction': _updateFirmwareRetraction,
+    // 'bed_mesh': _updateBedMesh,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
@@ -212,7 +214,7 @@ class PrinterService {
       if (disposed) return;
       // I need this temp variable since in some edge cases the updateSettings otherwise throws?
       var printerObj = printerBuilder.build();
-      _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros);
+      _machineService.updateMacrosInSettings(ownerUUID, printerObj.gcodeMacros).ignore();
       _registerJrpcHandlers();
       _makeSubscribeRequest(printerObj.queryableObjects);
       current = printerObj;
@@ -260,13 +262,13 @@ class PrinterService {
     gCode(gcode);
   }
 
-  movePrintHead({double? x, double? y, double? z, double feedRate = 100}) {
+  Future<void> movePrintHead({double? x, double? y, double? z, double feedRate = 100}) {
     List<String> moves = [];
     if (x != null) moves.add(_gcodeMoveCode('X', x));
     if (y != null) moves.add(_gcodeMoveCode('Y', y));
     if (z != null) moves.add(_gcodeMoveCode('Z', z));
 
-    gCode('G91\nG1 ${moves.join(' ')} F${feedRate * 60}\nG90');
+    return gCode('G91\nG1 ${moves.join(' ')} F${feedRate * 60}\nG90');
   }
 
   activateExtruder([int extruderIndex = 0]) {
@@ -452,18 +454,23 @@ class PrinterService {
     return List.empty();
   }
 
-  excludeObject(ParsedObject objToExc) {
+  void excludeObject(ParsedObject objToExc) {
     gCode('EXCLUDE_OBJECT NAME=${objToExc.name}');
   }
 
-  updateCurrentFile(String? file) async {
+  Future<void> updateCurrentFile(String? file) async {
     logger.i('Also requesting an update for current_file: $file');
 
-    var gCodeMeta = (file?.isNotEmpty == true) ? await _fileService.getGCodeMetadata(file!) : null;
+    try {
+      var gCodeMeta = (file?.isNotEmpty == true) ? await _fileService.getGCodeMetadata(file!) : null;
 
-    if (hasCurrent) {
-      logger.i('UPDATED current_file: $gCodeMeta');
-      current = current.copyWith(currentFile: gCodeMeta);
+      if (hasCurrent) {
+        logger.i('UPDATED current_file: $gCodeMeta');
+        current = current.copyWith(currentFile: gCodeMeta);
+      }
+    } catch (e, s) {
+      logger.e('Error while updating current_file', e, s);
+      current = current.copyWith(currentFile: null);
     }
   }
 
@@ -761,6 +768,11 @@ class PrinterService {
 
   _updateFirmwareRetraction(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
     printer.firmwareRetraction = FirmwareRetraction.partialUpdate(printer.firmwareRetraction, jsonResponse);
+  }
+
+  _updateBedMesh(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
+    printer.bedMesh = BedMesh.partialUpdate(printer.bedMesh, jsonResponse);
+    logger.e('Got bedMesh: ${printer.bedMesh}');
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {

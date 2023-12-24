@@ -11,8 +11,11 @@ class StackTraceDialog extends StatelessWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const StackTraceDialog({Key? key, required this.request, required this.completer})
-      : super(key: key);
+  const StackTraceDialog({
+    Key? key,
+    required this.request,
+    required this.completer,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +30,7 @@ class StackTraceDialog extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Text(request.body!),
-              ),
+              child: SingleChildScrollView(child: Text(request.body!)),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -40,12 +41,14 @@ class StackTraceDialog extends StatelessWidget {
                 ),
                 IconButton(
                   color: Theme.of(context).colorScheme.primary,
-                  onPressed: () => Clipboard.setData(ClipboardData(text: request.body ?? '')),
+                  onPressed: () => Clipboard.setData(
+                    ClipboardData(text: request.body ?? ''),
+                  ),
                   icon: const Icon(Icons.copy_all),
                   tooltip: MaterialLocalizations.of(context).copyButtonLabel,
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

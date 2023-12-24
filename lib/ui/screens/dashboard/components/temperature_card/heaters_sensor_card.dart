@@ -63,12 +63,11 @@ class HeaterSensorCard extends ConsumerWidget {
         child: Column(
           children: [
             HeaterSensorPresetCardTitle(
-                machineUUID: machineUUID,
-                title: const Text('pages.dashboard.general.temp_card.title').tr(),
-                trailing: trailing),
-            _CardBody(
               machineUUID: machineUUID,
+              title: const Text('pages.dashboard.general.temp_card.title').tr(),
+              trailing: trailing,
             ),
+            _CardBody(machineUUID: machineUUID),
           ],
         ),
       ),
@@ -77,10 +76,7 @@ class HeaterSensorCard extends ConsumerWidget {
 }
 
 class _CardBody extends ConsumerWidget {
-  const _CardBody({
-    Key? key,
-    required this.machineUUID,
-  }) : super(key: key);
+  const _CardBody({Key? key, required this.machineUUID}) : super(key: key);
 
   final String machineUUID;
 
@@ -101,7 +97,9 @@ class _CardBody extends ConsumerWidget {
         ..._extruderTiles(extruderCount),
         if (hasPrintBed)
           _HeaterMixinTile(
-              machineUUID: machineUUID, heaterProvider: provider.select((value) => value.value!.heaterBed!)),
+            machineUUID: machineUUID,
+            heaterProvider: provider.select((value) => value.value!.heaterBed!),
+          ),
         ..._genericHeaterTiles(genericHeatersCount),
         ..._temperatureSensorTiles(temperatureSensorCount),
         ..._temperatureFanTiles(temperatureFanCount),
@@ -111,42 +109,52 @@ class _CardBody extends ConsumerWidget {
 
   List<Widget> _extruderTiles(int count) {
     return List.generate(
-        count,
-        (index) => _HeaterMixinTile(
-            machineUUID: machineUUID,
-            heaterProvider: _controllerProvider(machineUUID).select((value) => value.value!.extruders[index])));
+      count,
+      (index) => _HeaterMixinTile(
+        machineUUID: machineUUID,
+        heaterProvider: _controllerProvider(machineUUID).select((value) => value.value!.extruders[index]),
+      ),
+    );
   }
 
   List<Widget> _genericHeaterTiles(int count) {
     return List.generate(
       count,
       (index) => _HeaterMixinTile(
-          machineUUID: machineUUID,
-          heaterProvider: _controllerProvider(machineUUID).select((value) => value.value!.genericHeaters[index])),
+        machineUUID: machineUUID,
+        heaterProvider: _controllerProvider(machineUUID).select((value) => value.value!.genericHeaters[index]),
+      ),
     );
   }
 
   List<Widget> _temperatureSensorTiles(int count) {
     return List.generate(
-        count,
-        (index) => _TemperatureSensorTile(
-            sensorProvider:
-                _controllerProvider(machineUUID).select((value) => value.value!.temperatureSensors[index])));
+      count,
+      (index) => _TemperatureSensorTile(
+        sensorProvider: _controllerProvider(machineUUID).select((value) => value.value!.temperatureSensors[index]),
+      ),
+    );
   }
 
   List<Widget> _temperatureFanTiles(int count) {
     return List.generate(
-        count,
-        (index) => _TemperatureFanTile(
-            machineUUID: machineUUID,
-            tempFanProvider: _controllerProvider(machineUUID).select((value) => value.value!.temperatureFans[index])));
+      count,
+      (index) => _TemperatureFanTile(
+        machineUUID: machineUUID,
+        tempFanProvider: _controllerProvider(machineUUID).select((value) => value.value!.temperatureFans[index]),
+      ),
+    );
   }
 }
 
 class _HeaterMixinTile extends HookConsumerWidget {
   static const int _stillHotTemp = 50;
 
-  const _HeaterMixinTile({Key? key, required this.machineUUID, required this.heaterProvider}) : super(key: key);
+  const _HeaterMixinTile({
+    Key? key,
+    required this.machineUUID,
+    required this.heaterProvider,
+  }) : super(key: key);
   final String machineUUID;
   final ProviderListenable<HeaterMixin> heaterProvider;
 
@@ -172,56 +180,66 @@ class _HeaterMixinTile extends HookConsumerWidget {
     Color colorBg = themeData.colorScheme.surfaceVariant;
     if (genericHeater.target > 0 && klippyCanReceiveCommands) {
       colorBg = Color.alphaBlend(
-          const Color.fromRGBO(178, 24, 24, 1).withOpacity(min(genericHeater.temperature / genericHeater.target, 1)),
-          colorBg);
+        const Color.fromRGBO(178, 24, 24, 1).withOpacity(
+          min(genericHeater.temperature / genericHeater.target, 1),
+        ),
+        colorBg,
+      );
     } else if (genericHeater.temperature > _stillHotTemp) {
       colorBg = Color.alphaBlend(
-          const Color.fromRGBO(243, 106, 65, 1.0).withOpacity(min(genericHeater.temperature / _stillHotTemp - 1, 1)),
-          colorBg);
+        const Color.fromRGBO(243, 106, 65, 1.0).withOpacity(
+          min(genericHeater.temperature / _stillHotTemp - 1, 1),
+        ),
+        colorBg,
+      );
     }
     var name = beautifyName(genericHeater.name);
 
     return GraphCardWithButton(
-        backgroundColor: colorBg,
-        plotSpots: spots.value,
-        buttonChild: const Text('general.set').tr(),
-        onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(genericHeater) : null,
-        builder: (BuildContext context) {
-          var innerTheme = Theme.of(context);
-          return Tooltip(
-            message: name,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: innerTheme.textTheme.bodySmall,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text('${numberFormat.format(genericHeater.temperature)} °C',
-                        style: innerTheme.textTheme.titleLarge),
-                    Text(genericHeater.target > 0
-                        ? 'pages.dashboard.general.temp_card.heater_on'
-                            .tr(args: [numberFormat.format(genericHeater.target)])
-                        : 'general.off'.tr()),
-                  ],
-                ),
-                AnimatedOpacity(
-                  opacity: genericHeater.temperature > _stillHotTemp ? 1 : 0,
-                  duration: kThemeAnimationDuration,
-                  child: Tooltip(
-                    message: '$name is still hot!',
-                    child: const Icon(Icons.do_not_touch_outlined),
+      backgroundColor: colorBg,
+      plotSpots: spots.value,
+      buttonChild: const Text('general.set').tr(),
+      onTap: klippyCanReceiveCommands ? () => controller.adjustHeater(genericHeater) : null,
+      builder: (BuildContext context) {
+        var innerTheme = Theme.of(context);
+        return Tooltip(
+          message: name,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: innerTheme.textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                )
-              ],
-            ),
-          );
-        });
+                  Text(
+                    '${numberFormat.format(genericHeater.temperature)} °C',
+                    style: innerTheme.textTheme.titleLarge,
+                  ),
+                  Text(genericHeater.target > 0
+                      ? 'pages.dashboard.general.temp_card.heater_on'.tr(
+                          args: [numberFormat.format(genericHeater.target)],
+                        )
+                      : 'general.off'.tr()),
+                ],
+              ),
+              AnimatedOpacity(
+                opacity: genericHeater.temperature > _stillHotTemp ? 1 : 0,
+                duration: kThemeAnimationDuration,
+                child: Tooltip(
+                  message: '$name is still hot!',
+                  child: const Icon(Icons.do_not_touch_outlined),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -258,8 +276,10 @@ class _TemperatureSensorTile extends HookConsumerWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            Text('${temperatureSensor.temperature.toStringAsFixed(1)} °C',
-                style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              '${temperatureSensor.temperature.toStringAsFixed(1)} °C',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             Text(
               '${temperatureSensor.measuredMaxTemp.toStringAsFixed(1)} °C max',
             ),
@@ -273,7 +293,11 @@ class _TemperatureSensorTile extends HookConsumerWidget {
 class _TemperatureFanTile extends HookConsumerWidget {
   static const double icoSize = 30;
 
-  const _TemperatureFanTile({Key? key, required this.tempFanProvider, required this.machineUUID}) : super(key: key);
+  const _TemperatureFanTile({
+    Key? key,
+    required this.tempFanProvider,
+    required this.machineUUID,
+  }) : super(key: key);
   final ProviderListenable<TemperatureFan> tempFanProvider;
   final String machineUUID;
 
@@ -312,8 +336,10 @@ class _TemperatureFanTile extends HookConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text('${temperatureFan.temperature.toStringAsFixed(1)} °C',
-                    style: Theme.of(context).textTheme.titleLarge),
+                Text(
+                  '${temperatureFan.temperature.toStringAsFixed(1)} °C',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
                 Text(
                   'pages.dashboard.general.temp_card.heater_on'.tr(args: [temperatureFan.target.toStringAsFixed(1)]),
                 ),
@@ -321,10 +347,7 @@ class _TemperatureFanTile extends HookConsumerWidget {
             ),
             temperatureFan.speed > 0
                 ? const SpinningFan(size: icoSize)
-                : const Icon(
-                    FlutterIcons.fan_off_mco,
-                    size: icoSize,
-                  ),
+                : const Icon(FlutterIcons.fan_off_mco, size: icoSize),
           ],
         ),
       ),
@@ -340,13 +363,14 @@ class _Controller extends _$Controller {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    ref.timeoutKeepAlive();
+    ref.keepAliveFor();
 
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
 
-    var klippyCanReceiveCommands =
-        ref.watchAsSubject(klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref.watchAsSubject(
+      klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
+    );
     // Kinda overkill to use a stream for each value, I am pretty sure I could just use printer directly too !
     // Pro:
     // - Pontentially less updates since only specifc values are listened to
@@ -357,31 +381,39 @@ class _Controller extends _$Controller {
     var genericHeaters = ref.watchAsSubject(printerProviderr.selectAs(
         (value) => value.genericHeaters.values.where((e) => !e.name.startsWith('_')).toList(growable: false)));
     var temperatureSensors = ref.watchAsSubject(printerProviderr.selectAs(
-        (value) => value.temperatureSensors.values.where((e) => !e.name.startsWith('_')).toList(growable: false)));
-    var temperatureFans = ref.watchAsSubject(printerProviderr.selectAs((value) =>
-        value.fans.values.whereType<TemperatureFan>().where((e) => !e.name.startsWith('_')).toList(growable: false)));
+      (value) => value.temperatureSensors.values.where((e) => !e.name.startsWith('_')).toList(growable: false),
+    ));
+    var temperatureFans = ref.watchAsSubject(printerProviderr.selectAs(
+      (value) =>
+          value.fans.values.whereType<TemperatureFan>().where((e) => !e.name.startsWith('_')).toList(growable: false),
+    ));
     var heaterBed = ref.watchAsSubject(printerProviderr.selectAs((value) => value.heaterBed));
 
     yield* Rx.combineLatest6(
-        klippyCanReceiveCommands,
-        extruders,
-        genericHeaters,
-        temperatureSensors,
-        temperatureFans,
-        heaterBed,
-        (a, b, c, d, e, f) => _Model(
-              klippyCanReceiveCommands: a,
-              extruders: b,
-              genericHeaters: c,
-              temperatureSensors: d,
-              temperatureFans: e,
-              heaterBed: f,
-            ));
+      klippyCanReceiveCommands,
+      extruders,
+      genericHeaters,
+      temperatureSensors,
+      temperatureFans,
+      heaterBed,
+      (a, b, c, d, e, f) => _Model(
+        klippyCanReceiveCommands: a,
+        extruders: b,
+        genericHeaters: c,
+        temperatureSensors: d,
+        temperatureFans: e,
+        heaterBed: f,
+      ),
+    );
   }
 
   adjustHeater(HeaterMixin heater) {
     double? maxValue;
-    var configFile = ref.read(printerProvider(machineUUID).selectAs((value) => value.configFile)).value!;
+    var configFile = ref
+        .read(
+          printerProvider(machineUUID).selectAs((value) => value.configFile),
+        )
+        .value!;
     if (heater is Extruder) {
       maxValue = configFile.extruders[heater.name]?.maxTemp;
     } else if (heater is HeaterBed) {
@@ -392,13 +424,18 @@ class _Controller extends _$Controller {
 
     _dialogService
         .show(DialogRequest(
-            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-                ? DialogType.numEdit
-                : DialogType.rangeEdit,
-            title: "Edit ${beautifyName(heater.name)} Temperature",
-            cancelBtn: tr('general.cancel'),
-            confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(current: heater.target, min: 0, max: maxValue ?? 150)))
+      type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+          ? DialogType.numEdit
+          : DialogType.rangeEdit,
+      title: "Edit ${beautifyName(heater.name)} Temperature",
+      cancelBtn: tr('general.cancel'),
+      confirmBtn: tr('general.confirm'),
+      data: NumberEditDialogArguments(
+        current: heater.target,
+        min: 0,
+        max: maxValue ?? 150,
+      ),
+    ))
         .then((value) {
       if (value == null || !value.confirmed || value.data == null) return;
 
@@ -414,17 +451,18 @@ class _Controller extends _$Controller {
     ref
         .read(dialogServiceProvider)
         .show(DialogRequest(
-            type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
-                ? DialogType.numEdit
-                : DialogType.rangeEdit,
-            title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
-            cancelBtn: tr('general.cancel'),
-            confirmBtn: tr('general.confirm'),
-            data: NumberEditDialogArguments(
-              current: temperatureFan.target.round(),
-              min: (configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,
-              max: (configFan is ConfigTemperatureFan) ? configFan.maxTemp : 100,
-            )))
+          type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
+              ? DialogType.numEdit
+              : DialogType.rangeEdit,
+          title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
+          cancelBtn: tr('general.cancel'),
+          confirmBtn: tr('general.confirm'),
+          data: NumberEditDialogArguments(
+            current: temperatureFan.target.round(),
+            min: (configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,
+            max: (configFan is ConfigTemperatureFan) ? configFan.maxTemp : 100,
+          ),
+        ))
         .then((value) {
       if (value == null || !value.confirmed || value.data == null) return;
       num v = value.data;

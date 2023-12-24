@@ -51,36 +51,38 @@ class Webcam extends ConsumerWidget {
       ...stackContent,
       if (machine.octoEverywhere != null)
         Positioned.fill(
-            child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GadgetIndicator(
-                    appToken: machine.octoEverywhere!.appApiToken,
-                    iconSize: 22,
-                  ),
-                ))),
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GadgetIndicator(
+                appToken: machine.octoEverywhere!.appApiToken,
+                iconSize: 22,
+              ),
+            ),
+          ),
+        ),
       if (showRemoteIndicator)
         Positioned.fill(
-            child: Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: MachineActiveClientTypeIndicator(
-                    machineId: machine.uuid,
-                    iconColor: Colors.white,
-                    iconSize: 20,
-                  ),
-                )))
+          child: Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: MachineActiveClientTypeIndicator(
+                machineId: machine.uuid,
+                iconColor: Colors.white,
+                iconSize: 20,
+              ),
+            ),
+          ),
+        ),
     ];
 
     logger.wtf('webcamInfo.service: ${modifiedStack.length}');
 
     if (webcamInfo.service.forSupporters && !ref.watch(isSupporterProvider)) {
       return SupporterOnlyFeature(
-        text: const Text(
-          'components.supporter_only_feature.webcam',
-        ).tr(args: [webcamInfo.service.name.titleCase()]),
+        text: const Text('components.supporter_only_feature.webcam').tr(args: [webcamInfo.service.name.titleCase()]),
       );
     }
 
@@ -104,7 +106,9 @@ class Webcam extends ConsumerWidget {
           imageBuilder: imageBuilder,
         );
       default:
-        return Text('Sorry... the webcam type "${webcamInfo.service}" is not yet supported!');
+        return Text(
+          'Sorry... the webcam type "${webcamInfo.service}" is not yet supported!',
+        );
     }
   }
 }

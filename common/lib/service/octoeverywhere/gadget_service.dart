@@ -9,13 +9,12 @@ import 'dart:convert';
 import 'package:common/data/dto/octoeverywhere/gadget_status.dart';
 import 'package:common/util/extensions/string_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:dio/dio.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:http/http.dart' as http;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../exceptions/octo_everywhere_exception.dart';
-import '../../network/json_rpc_client.dart';
-import '../../util/misc.dart';
+import '../../network/dio_provider.dart';
 
 part 'gadget_service.g.dart';
 
@@ -48,29 +47,25 @@ Future<GadgetStatus> gadgetStatus(GadgetStatusRef ref, String appToken) async {
     refreshTimer.cancel();
   });
 
-  return gadgetService.getStatus(appToken);
+  return gadgetService.getStatus(appToken).catchError((error, stackTrace) {
+    refreshTimer.cancel();
+    throw error;
+  });
 }
 
 class GadgetService {
-  GadgetService(AutoDisposeRef ref) {
-    // ref.onDispose(() { });
-  }
+  GadgetService(AutoDisposeRef ref) : _dio = ref.watch(octoApiClientProvider);
 
-  final Uri _octoURI = Uri(
-    scheme: 'https',
-    host: 'octoeverywhere.com',
-  );
+  final Dio _dio;
 
   // https://octoeverywhere.stoplight.io/docs/octoeverywhere-api-docs/b538c771f5cef-get-gadget-s-status-for-app-connections
   Future<GadgetStatus> getStatus(String appToken) async {
     logger.i('Getting gadget status for appToken: ${appToken.obfuscate()}');
-    http.Response response = await http.post(
-      _octoURI.replace(path: 'api/gadget/GetStatusFromAppConnection'),
-      headers: {'AppToken': appToken},
-    );
-    verifyHttpResponseCodes(response.statusCode, ClientType.octo);
 
-    var responseJson = jsonDecode(response.body);
+    var response =
+        await _dio.post('/gadget/GetStatusFromAppConnection', options: Options(headers: {'AppToken': appToken}));
+
+    var responseJson = response.data;
     if (responseJson['Result'] == null) {
       throw OctoEverywhereException('Could not get gadget status! Response: ${responseJson['Error']}');
     }

@@ -13,27 +13,26 @@ import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 part 'setting_controller.g.dart';
 
 @riverpod
-GlobalKey<FormBuilderState> settingPageFormKey(SettingPageFormKeyRef ref) =>
-    GlobalKey<FormBuilderState>();
+GlobalKey<FormBuilderState> settingPageFormKey(SettingPageFormKeyRef _) => GlobalKey<FormBuilderState>();
 
 @riverpod
-Future<PackageInfo> versionInfo(VersionInfoRef ref) async {
-  return PackageInfo.fromPlatform();
-}
-
-@riverpod
-bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key, [bool fallback = false]) =>
+bool boolSetting(
+  BoolSettingRef ref,
+  KeyValueStoreKey key, [
+  bool fallback = false,
+]) =>
     ref.watch(settingServiceProvider).readBool(key, fallback);
 
 @riverpod
-Future<List<Machine>> machinesWithoutCompanion(MachinesWithoutCompanionRef ref) {
+Future<List<Machine>> machinesWithoutCompanion(
+  MachinesWithoutCompanionRef ref,
+) {
   var machineService = ref.watch(machineServiceProvider);
 
   return machineService.fetchMachinesWithoutCompanion();
@@ -41,7 +40,8 @@ Future<List<Machine>> machinesWithoutCompanion(MachinesWithoutCompanionRef ref) 
 
 final notificationPermissionControllerProvider =
     StateNotifierProvider.autoDispose<NotificationPermissionController, bool>(
-        (ref) => NotificationPermissionController(ref));
+  (ref) => NotificationPermissionController(ref),
+);
 
 class NotificationPermissionController extends StateNotifier<bool> {
   NotificationPermissionController(AutoDisposeRef ref)
@@ -62,16 +62,14 @@ class NotificationPermissionController extends StateNotifier<bool> {
 }
 
 final notificationProgressSettingControllerProvider =
-    NotifierProvider.autoDispose<NotificationProgressSettingController, ProgressNotificationMode>(
-        () {
+    NotifierProvider.autoDispose<NotificationProgressSettingController, ProgressNotificationMode>(() {
   return NotificationProgressSettingController();
 });
 
 class NotificationProgressSettingController extends AutoDisposeNotifier<ProgressNotificationMode> {
   @override
   ProgressNotificationMode build() {
-    int progressModeInt =
-        ref.watch(settingServiceProvider).readInt(AppSettingKeys.progressNotificationMode, -1);
+    int progressModeInt = ref.watch(settingServiceProvider).readInt(AppSettingKeys.progressNotificationMode, -1);
     var progressMode = (progressModeInt < 0)
         ? ProgressNotificationMode.TWENTY_FIVE
         : ProgressNotificationMode.values[progressModeInt];
@@ -105,7 +103,10 @@ class NotificationStateSettingController extends AutoDisposeNotifier<Set<PrintSt
   Set<PrintState> build() {
     return ref
         .watch(settingServiceProvider)
-        .read(AppSettingKeys.statesTriggeringNotification, 'standby,printing,paused,complete,error')
+        .read(
+          AppSettingKeys.statesTriggeringNotification,
+          'standby,printing,paused,complete,error',
+        )
         .split(',')
         .map((e) => EnumToString.fromString(PrintState.values, e) ?? PrintState.error)
         .toSet();
@@ -120,9 +121,10 @@ class NotificationStateSettingController extends AutoDisposeNotifier<Set<PrintSt
 
     List<Machine> allMachine = await ref.read(allMachinesProvider.future);
     for (var machine in allMachine) {
-      ref
-          .read(machineServiceProvider)
-          .updateMachineFcmNotificationConfig(machine: machine, printStates: state);
+      ref.read(machineServiceProvider).updateMachineFcmNotificationConfig(
+            machine: machine,
+            printStates: state,
+          );
     }
   }
 }

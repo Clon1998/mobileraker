@@ -15,10 +15,10 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.6.6+245
+version: 2.6.8+245
 
 environment:
-  sdk: '>=3.1.2 <4.0.0'
+  sdk: '>=3.1.0 <4.0.0'
   flutter: '>=3.7.2'
 
 
@@ -32,12 +32,14 @@ dependencies:
   #packages maintained by mobileraker
   mobileraker_pro:
     path: ../mobileraker_pro
+    #path: ../mobileraker_pro_public # Uncomment this line if you want to contribute to the project. Alsoo remove the line above
 
   common:
     path: common
 
   web_socket_channel: ^2.1.0
-  http: ^0.13.4
+  dio: ^5.3.3
+  dio_smart_retry: ^6.0.0
 
   #firebase
   firebase_core_platform_interface: ^4.8.0
@@ -72,6 +74,11 @@ dependencies:
   permission_handler: ^10.4.3
   collection: ^1.17.0
 
+  #crypto
+  hashlib_codecs: ^2.2.0
+  hashlib: ^1.12.0
+  pem: ^2.0.4
+
   #persisstent
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -89,7 +96,8 @@ dependencies:
   awesome_notifications_core: ^0.8.1
   awesome_notifications: ^0.8.2
   awesome_notifications_fcm: ^0.8.0
-  live_activities: ^1.7.5
+  live_activities: ^1.9.0
+
 
   #form
   flutter_form_builder: ^9.1.0
@@ -129,12 +137,14 @@ dependencies:
   fl_chart: ^0.63.0
   flutter_slidable: ^3.0.0
   code_text_field: ^1.0.2
-  mobile_scanner: ^3.0.0
+  mobile_scanner: ^3.5.5
   touchable: ^1.0.2
   flutter_markdown: ^0.6.14
   flutter_svg: ^2.0.5
   loader_overlay: ^2.2.0
   appinio_video_player: ^1.2.2
+  flutter_echarts: ^2.5.0
+  file_picker: ^6.1.1
 
 
 #  ditredi: ^1.0.3

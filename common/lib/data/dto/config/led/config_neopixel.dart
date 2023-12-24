@@ -12,6 +12,16 @@ part 'config_neopixel.g.dart';
 
 String unpackColorOrder(List<dynamic> e) => e.isEmpty ? '' : e.cast<String>().first.toUpperCase();
 
+String versionedColorOrder(dynamic e) {
+  if (e is String) {
+    return e.toUpperCase();
+  } else if (e is List) {
+    return unpackColorOrder(e);
+  } else {
+    throw ArgumentError('Invalid color order type: ${e.runtimeType}');
+  }
+}
+
 @freezed
 class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
   const ConfigNeopixel._();
@@ -21,7 +31,7 @@ class ConfigNeopixel extends ConfigLed with _$ConfigNeopixel {
     required String name,
     @JsonKey(required: true) required String pin,
     required int chainCount,
-    @JsonKey(fromJson: unpackColorOrder) @Default('RGB') String colorOrder,
+    @JsonKey(fromJson: versionedColorOrder) @Default('RGB') String colorOrder,
     @Default(0) double initialRed,
     @Default(0) double initialGreen,
     @Default(0) double initialBlue,

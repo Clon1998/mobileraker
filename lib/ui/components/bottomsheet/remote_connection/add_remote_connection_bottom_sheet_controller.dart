@@ -8,6 +8,7 @@ import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
@@ -18,26 +19,31 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:mobileraker/routing/app_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../screens/printers/components/http_headers.dart';
 
-part 'add_remote_connection_sheet_controller.freezed.dart';
-part 'add_remote_connection_sheet_controller.g.dart';
+part 'add_remote_connection_bottom_sheet_controller.freezed.dart';
+part 'add_remote_connection_bottom_sheet_controller.g.dart';
 
 @riverpod
-GlobalKey<FormBuilderState> formKey(FormKeyRef ref) {
+GlobalKey<FormBuilderState> formKey(FormKeyRef _) {
   return GlobalKey<FormBuilderState>();
 }
 
 @Riverpod(dependencies: [])
-AddRemoteConnectionSheetArgs sheetArgs(SheetArgsRef ref) {
+AddRemoteConnectionSheetArgs sheetArgs(SheetArgsRef _) {
   throw UnimplementedError();
 }
 
-@Riverpod(dependencies: [sheetArgs, goRouter, machineService, snackBarService, dialogService])
-class AddRemoteConnectionSheetController extends _$AddRemoteConnectionSheetController {
+@Riverpod(dependencies: [
+  sheetArgs,
+  goRouter,
+  machineService,
+  snackBarService,
+  dialogService,
+])
+class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBottomSheetController {
   FormBuilderState get _formState => ref.read(formKeyProvider).currentState!;
 
   FormBuilderFieldState get _uri => _formState.fields['alt.uri']!;
@@ -69,9 +75,16 @@ class AddRemoteConnectionSheetController extends _$AddRemoteConnectionSheetContr
 
       ref.read(goRouterProvider).pop(BottomSheetResult.confirmed(result));
     } on OctoEverywhereException catch (e, s) {
-      logger.e('Error while trying to Link machine with UUID ${_machine.uuid} to Octo', e, s);
-      _snackBarService
-          .show(SnackBarConfig(type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
+      logger.e(
+        'Error while trying to Link machine with UUID ${_machine.uuid} to Octo',
+        e,
+        s,
+      );
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: 'OctoEverywhere-Error:',
+        message: e.message,
+      ));
     }
   }
 
@@ -81,16 +94,25 @@ class AddRemoteConnectionSheetController extends _$AddRemoteConnectionSheetContr
 
       ref.read(goRouterProvider).pop(BottomSheetResult.confirmed(result));
     } on OctoEverywhereException catch (e, s) {
-      logger.e('Error while trying to Link machine with UUID ${_machine.uuid} to Octo', e, s);
-      _snackBarService
-          .show(SnackBarConfig(type: SnackbarType.error, title: 'OctoEverywhere-Error:', message: e.message));
+      logger.e(
+        'Error while trying to Link machine with UUID ${_machine.uuid} to Octo',
+        e,
+        s,
+      );
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.error,
+        title: 'OctoEverywhere-Error:',
+        message: e.message,
+      ));
     }
   }
 
   saveManual() {
     if (!_formState.saveAndValidate()) return;
 
-    var headers = ref.read(headersControllerProvider(_remoteInterface?.httpHeaders ?? const {}));
+    var headers = ref.read(
+      headersControllerProvider(_remoteInterface?.httpHeaders ?? const {}),
+    );
     var httpUri = buildMoonrakerHttpUri(_uri.transformedValue);
 
     ref.read(goRouterProvider).pop(BottomSheetResult.confirmed(RemoteInterface(
@@ -103,10 +125,22 @@ class AddRemoteConnectionSheetController extends _$AddRemoteConnectionSheetContr
   removeRemoteConnection(bool is3p) async {
     var gender = is3p ? 'oe' : 'other';
     var dialogResponse = await _dialogService.showConfirm(
-        title: tr('pages.printer_edit.confirm_remote_interface_removal.title', args: [_machine.name], gender: gender),
-        body: tr('pages.printer_edit.confirm_remote_interface_removal.body', args: [_machine.name], gender: gender),
-        confirmBtn: tr('pages.printer_edit.confirm_remote_interface_removal.button', gender: gender),
-        confirmBtnColor: Colors.red);
+      title: tr(
+        'pages.printer_edit.confirm_remote_interface_removal.title',
+        args: [_machine.name],
+        gender: gender,
+      ),
+      body: tr(
+        'pages.printer_edit.confirm_remote_interface_removal.body',
+        args: [_machine.name],
+        gender: gender,
+      ),
+      confirmBtn: tr(
+        'pages.printer_edit.confirm_remote_interface_removal.button',
+        gender: gender,
+      ),
+      confirmBtnColor: Colors.red,
+    );
 
     if (dialogResponse?.confirmed == true) {
       ref.read(goRouterProvider).pop(BottomSheetResult.confirmed());
@@ -154,8 +188,7 @@ class AddRemoteConnectionSheetArgs with _$AddRemoteConnectionSheetArgs {
       return ClientType.obico;
     } else if (remoteInterface != null) {
       return ClientType.manual;
-    } else {
-      return null;
     }
+    return null;
   }
 }

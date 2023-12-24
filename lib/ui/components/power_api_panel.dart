@@ -19,44 +19,44 @@ import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_switch.dart';
 
 class PowerApiCard extends ConsumerWidget {
-  const PowerApiCard({
-    Key? key,
-  }) : super(key: key);
+  const PowerApiCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var powerDevicesLen = ref.watch(powerDevicesSelectedProvider
-        .selectAs((data) => data.where((element) => !element.name.startsWith('_')).length));
+    var powerDevicesLen = ref.watch(powerDevicesSelectedProvider.selectAs(
+      (data) => data.where((element) => !element.name.startsWith('_')).length,
+    ));
     return powerDevicesLen.maybeWhen(
-        data: (data) => (data == 0)
-            ? const SizedBox.shrink()
-            : Card(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(
-                          FlutterIcons.power_fea,
-                        ),
-                        title: const Text('pages.dashboard.control.power_card.title').tr(),
-                      ),
-                      AdaptiveHorizontalScroll(
-                        pageStorageKey: 'powers',
-                        children: List.generate(data, (index) {
-                          var powerDeviceProvider = powerDevicesSelectedProvider.selectAs((data) =>
-                              data
-                                  .where((element) => !element.name.startsWith('_'))
-                                  .elementAt(index));
+      data: (data) => (data == 0)
+          ? const SizedBox.shrink()
+          : Card(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(FlutterIcons.power_fea),
+                      title: const Text(
+                        'pages.dashboard.control.power_card.title',
+                      ).tr(),
+                    ),
+                    AdaptiveHorizontalScroll(
+                      pageStorageKey: 'powers',
+                      children: List.generate(data, (index) {
+                        var powerDeviceProvider = powerDevicesSelectedProvider.selectAs(
+                            (data) => data.where((element) => !element.name.startsWith('_')).elementAt(index));
 
-                          return _PowerDeviceCard(powerDeviceProvider: powerDeviceProvider);
-                        }),
-                      )
-                    ],
-                  ),
-                ),
+                        return _PowerDeviceCard(
+                    powerDeviceProvider: powerDeviceProvider,
+                  );
+                }),
               ),
-        orElse: () => const SizedBox.shrink());
+            ],
+          ),
+        ),
+      ),
+      orElse: () => const SizedBox.shrink(),
+    );
   }
 }
 
@@ -69,25 +69,32 @@ class _PowerDeviceCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var powerDevice = ref.watch(powerDeviceProvider).valueOrNull!;
     return CardWithSwitch(
-        value: powerDevice.status == PowerState.on,
-        onChanged: (powerDevice.status == PowerState.error ||
-                powerDevice.status == PowerState.unknown ||
-                powerDevice.lockedWhilePrinting &&
-                    ref.watch(printerSelectedProvider.select((d) => d.valueOrNull?.print.state == PrintState.printing)) ||
-                powerDevice.status == PowerState.init)
-            ? null
-            : (d) => ref
-                .read(powerServiceSelectedProvider)
-                .setDeviceStatus(powerDevice.name, d ? PowerState.on : PowerState.off),
-        builder: (context) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(beautifyName(powerDevice.name), style: Theme.of(context).textTheme.bodySmall),
-              Text(powerDevice.status.name.capitalize,
-                  style: Theme.of(context).textTheme.headlineSmall),
-            ],
-          );
-        });
+      value: powerDevice.status == PowerState.on,
+      onChanged: (powerDevice.status == PowerState.error ||
+              powerDevice.status == PowerState.unknown ||
+              powerDevice.lockedWhilePrinting &&
+                  ref.watch(printerSelectedProvider.select((d) => d.valueOrNull?.print.state == PrintState.printing)) ||
+              powerDevice.status == PowerState.init)
+          ? null
+          : (d) => ref.read(powerServiceSelectedProvider).setDeviceStatus(
+                powerDevice.name,
+                d ? PowerState.on : PowerState.off,
+              ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              beautifyName(powerDevice.name),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            Text(
+              powerDevice.status.name.capitalize,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ],
+        );
+      },
+    );
   }
 }

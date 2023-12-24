@@ -28,9 +28,7 @@ class LoggerDialog extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Text(logData),
-              ),
+              child: SingleChildScrollView(child: Text(logData)),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -48,14 +46,17 @@ class LoggerDialog extends StatelessWidget {
                         .map((e) => XFile(e.path, mimeType: 'text/plain'))
                         .toList();
 
-                    Share.shareXFiles(logFiles,
-                        subject: "Debug-Logs", text: "Most recent Mobileraker logs");
+                    Share.shareXFiles(
+                      logFiles,
+                      subject: "Debug-Logs",
+                      text: "Most recent Mobileraker logs",
+                    );
                   },
                   icon: const Icon(Icons.download),
                   tooltip: MaterialLocalizations.of(context).saveButtonLabel,
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),

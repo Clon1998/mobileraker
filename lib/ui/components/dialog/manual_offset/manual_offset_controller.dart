@@ -27,20 +27,24 @@ class ManualOffsetDialogController extends _$ManualOffsetDialogController {
     // also prevents opening the dialog by mistake!
     ref.listenSelf((previous, next) {
       if (next.valueOrNull?.isActive == false) {
-        logger.i('Dialog closed externally since manual_probe is not active anymore!');
+        logger.i(
+          'Dialog closed externally since manual_probe is not active anymore!',
+        );
         _complete(DialogResponse.confirmed());
         ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            duration: const Duration(seconds: 30),
-            title: tr('dialogs.manual_offset.snackbar_title'),
-            message: tr('dialogs.manual_offset.snackbar_message'),
-            mainButtonTitle: 'Save_Config',
-            closeOnMainButtonTapped: true,
-            onMainButtonTapped: ref.read(printerServiceSelectedProvider).saveConfig));
+              duration: const Duration(seconds: 30),
+              title: tr('dialogs.manual_offset.snackbar_title'),
+              message: tr('dialogs.manual_offset.snackbar_message'),
+              mainButtonTitle: 'Save_Config',
+              closeOnMainButtonTapped: true,
+              onMainButtonTapped: ref.read(printerServiceSelectedProvider).saveConfig,
+            ));
       }
     });
 
     return ref.watch(
-        printerSelectedProvider.selectAsync((data) => data.manualProbe!));
+      printerSelectedProvider.selectAsync((data) => data.manualProbe!),
+    );
   }
 
   onOffsetPlusPressed(double step) {
@@ -55,6 +59,7 @@ class ManualOffsetDialogController extends _$ManualOffsetDialogController {
         .gCode('TESTZ Z=-${step.abs().toStringAsFixed(3)}');
   }
 
+  // ignore: avoid-unnecessary-futures
   Future<bool> onPopTriggered() async {
     onAbortPressed();
     return false;

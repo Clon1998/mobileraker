@@ -14,7 +14,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
-import 'package:mobileraker/ui/components/interactive_viewer_center.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/fullcam/full_cam_controller.dart';
 
@@ -48,18 +47,22 @@ class _FullCamView extends ConsumerWidget {
 
     return Scaffold(
       body: SafeArea(
-        child: Stack(alignment: Alignment.center, children: [
-          CenterInteractiveViewer(
-              constrained: true,
-              minScale: 1,
-              maxScale: 10,
-              child: Webcam(
-                machine: machine,
-                webcamInfo: selectedCam,
-                stackContent: const [StackContent()],
-                showFpsIfAvailable: true,
-                showRemoteIndicator: false,
-              )),
+        child: Stack(children: [
+          InteractiveViewer(
+            constrained: true,
+            maxScale: 10,
+            child: SizedBox.expand(
+              child: Center(
+                child: Webcam(
+                  machine: machine,
+                  webcamInfo: selectedCam,
+                  stackContent: const [StackContent()],
+                  showFpsIfAvailable: true,
+                  showRemoteIndicator: false,
+                ),
+              ),
+            ),
+          ),
           const _CamSelector(),
           Align(
             alignment: Alignment.bottomRight,
@@ -95,55 +98,59 @@ class StackContent extends ConsumerWidget {
     return Positioned.fill(
       child: Stack(
         children: printer.maybeWhen(
-            orElse: () => [],
-            data: (d) {
-              var extruder = d.extruder;
-              var target = extruder.target;
+          orElse: () => [],
+          data: (d) {
+            var extruder = d.extruder;
+            var target = extruder.target;
 
-              var nozzleText = tr('pages.dashboard.general.temp_preset_card.h_temp', args: [
-                '${extruder.temperature.toStringAsFixed(1)}${target > 0 ? '/${target.toStringAsFixed(1)}' : ''}'
-              ]);
-              String info = nozzleText;
+            var nozzleText = tr('pages.dashboard.general.temp_preset_card.h_temp', args: [
+              '${extruder.temperature.toStringAsFixed(1)}${target > 0 ? '/${target.toStringAsFixed(1)}' : ''}',
+            ]);
+            String info = nozzleText;
 
-              if (d.heaterBed != null) {
-                var bedTarget = d.heaterBed!.target;
-                var bedText = tr('pages.dashboard.general.temp_preset_card.b_temp', args: [
-                  '${d.heaterBed!.temperature.toStringAsFixed(1)}${bedTarget > 0 ? '/${bedTarget.toStringAsFixed(1)}' : ''}'
-                ]);
-                info = '$info\n$bedText';
-              }
+            if (d.heaterBed != null) {
+              var bedTarget = d.heaterBed!.target;
+              var bedText = tr(
+                'pages.dashboard.general.temp_preset_card.b_temp',
+                args: [
+                  '${d.heaterBed!.temperature.toStringAsFixed(1)}${bedTarget > 0 ? '/${bedTarget.toStringAsFixed(1)}' : ''}',
+                ],
+              );
+              info = '$info\n$bedText';
+            }
 
-              return [
-                Positioned.fill(
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Container(
-                        margin: const EdgeInsets.only(top: 5, left: 2),
-                        child: Text(
-                          info,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                        )),
+            return [
+              Positioned.fill(
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 5, left: 2),
+                    child: Text(
+                      info,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                    ),
                   ),
                 ),
-                if (d.print.state == PrintState.printing)
-                  Positioned.fill(
-                    child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: LinearProgressIndicator(
-                          value: d.printProgress,
-                        )),
-                  )
-              ];
-            }),
+              ),
+              if (d.print.state == PrintState.printing)
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: LinearProgressIndicator(
+                      value: d.printProgress,
+                    ),
+                  ),
+                ),
+            ];
+          },
+        ),
       ),
     );
   }
 }
 
 class _CamSelector extends ConsumerWidget {
-  const _CamSelector({
-    Key? key,
-  }) : super(key: key);
+  const _CamSelector({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -156,14 +163,15 @@ class _CamSelector extends ConsumerWidget {
     return Align(
       alignment: Alignment.bottomCenter,
       child: DropdownButton<WebcamInfo>(
-          value: ref.watch(fullCamPageControllerProvider),
-          onChanged: ref.watch(fullCamPageControllerProvider.notifier).selectCam,
-          items: webcams
-              .map((c) => DropdownMenuItem(
-                    value: c,
-                    child: Text(beautifyName(c.name)),
-                  ))
-              .toList()),
+        value: ref.watch(fullCamPageControllerProvider),
+        onChanged: ref.watch(fullCamPageControllerProvider.notifier).selectCam,
+        items: webcams
+            .map((c) => DropdownMenuItem(
+                  value: c,
+                  child: Text(beautifyName(c.name)),
+                ))
+            .toList(),
+      ),
     );
   }
 }

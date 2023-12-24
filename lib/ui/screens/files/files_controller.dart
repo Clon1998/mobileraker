@@ -12,6 +12,7 @@ import 'package:common/data/dto/files/moonraker/file_item.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -76,8 +77,11 @@ class IsSearching extends _$IsSearching {
 class _FilePath extends _$FilePath {
   @override
   List<String> build() {
-    var baseDir = ref
-        .watch(filePageProvider.select((value) => switch (value) { 1 => 'config', 2 => 'timelapse', _ => 'gcodes' }));
+    var baseDir = ref.watch(filePageProvider.select((value) => switch (value) {
+          1 => 'config',
+          2 => 'timelapse',
+          _ => 'gcodes',
+        }));
     return [baseDir];
   }
 
@@ -85,7 +89,10 @@ class _FilePath extends _$FilePath {
 }
 
 @riverpod
-Future<FolderContentWrapper> _fileApiResponse(_FileApiResponseRef ref, [String path = 'gcodes']) {
+Future<FolderContentWrapper> _fileApiResponse(
+  _FileApiResponseRef ref, [
+  String path = 'gcodes',
+]) {
   return ref.watch(fileServiceSelectedProvider).fetchDirectoryInfo(path, true);
 }
 
@@ -129,17 +136,16 @@ class FilesPageController extends _$FilesPageController {
 
   List<String> get _usedFileNames {
     var folderContentWrapper = ref.read(_fileApiResponseProvider(state.pathAsString)).value!;
-    return [
-      ...folderContentWrapper.folders,
-      ...folderContentWrapper.files,
-    ].map((e) => e.name).toList();
+    return [...folderContentWrapper.folders, ...folderContentWrapper.files].map((e) => e.name).toList();
   }
 
   @override
   FilePageState build() {
     ref.keepAliveExternally(fileServiceSelectedProvider);
-    ref.listen(fileNotificationsSelectedProvider,
-        (previous, AsyncValue<FileActionResponse> next) => next.whenData(_onFileListChanged));
+    ref.listen(
+      fileNotificationsSelectedProvider,
+      (previous, AsyncValue<FileActionResponse> next) => next.whenData(_onFileListChanged),
+    );
 
     final path = ref.watch(_filePathProvider);
 
@@ -180,6 +186,7 @@ class FilesPageController extends _$FilesPageController {
     }
   }
 
+  // ignore: avoid-unnecessary-futures
   Future<bool> onWillPop() async {
     if (ref.read(isSearchingProvider)) {
       ref.read(isSearchingProvider.notifier).toggle();
@@ -196,8 +203,10 @@ class FilesPageController extends _$FilesPageController {
   onDeleteTapped(RemoteFile file) async {
     var dialogResponse = await _dialogService.showConfirm(
       title: tr('dialogs.delete_folder.title'),
-      body: tr(file is Folder ? 'dialogs.delete_folder.description' : 'dialogs.delete_file.description',
-          args: [file.name]),
+      body: tr(
+        file is Folder ? 'dialogs.delete_folder.description' : 'dialogs.delete_file.description',
+        args: [file.name],
+      ),
       confirmBtn: tr('general.delete'),
     );
 
@@ -225,18 +234,26 @@ class FilesPageController extends _$FilesPageController {
 
     var dialogResponse = await _dialogService.show(
       DialogRequest(
-          type: DialogType.textInput,
-          title: file is Folder ? tr('dialogs.rename_folder.title') : tr('dialogs.rename_file.title'),
-          confirmBtn: tr('general.rename'),
-          data: TextInputDialogArguments(
-              initialValue: file.fileName,
-              labelText: file is Folder ? tr('dialogs.rename_folder.label') : tr('dialogs.rename_file.label'),
-              suffixText: file.fileExtension,
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.match('^[\\w.-]+\$', errorText: tr('pages.files.no_matches_file_pattern')),
-                notContains(fileNames, errorText: tr('pages.files.file_name_in_use'))
-              ]))),
+        type: DialogType.textInput,
+        title: file is Folder ? tr('dialogs.rename_folder.title') : tr('dialogs.rename_file.title'),
+        confirmBtn: tr('general.rename'),
+        data: TextInputDialogArguments(
+          initialValue: file.fileName,
+          labelText: file is Folder ? tr('dialogs.rename_folder.label') : tr('dialogs.rename_file.label'),
+          suffixText: file.fileExtension,
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.match(
+              '^[\\w.-]+\$',
+              errorText: tr('pages.files.no_matches_file_pattern'),
+            ),
+            notContains(
+              fileNames,
+              errorText: tr('pages.files.file_name_in_use'),
+            ),
+          ]),
+        ),
+      ),
     );
 
     if (dialogResponse?.confirmed == true) {
@@ -246,7 +263,10 @@ class FilesPageController extends _$FilesPageController {
       state = state.copyWith(files: state.files.toLoading());
 
       try {
-        await _fileService.moveFile('${state.pathAsString}/${file.name}', '${state.pathAsString}/$newName');
+        await _fileService.moveFile(
+          '${state.pathAsString}/${file.name}',
+          '${state.pathAsString}/$newName',
+        );
       } on JRpcError catch (e) {
         logger.e('Could not perform rename.', e);
         _snackBarService.show(SnackBarConfig(
@@ -271,17 +291,25 @@ class FilesPageController extends _$FilesPageController {
   onCreateDirTapped() async {
     var dialogResponse = await _dialogService.show(
       DialogRequest(
-          type: DialogType.textInput,
-          title: tr('dialogs.create_folder.title'),
-          confirmBtn: tr('general.create'),
-          data: TextInputDialogArguments(
-              initialValue: '',
-              labelText: tr('dialogs.create_folder.label'),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.match('^[\\w.\\-]+\$', errorText: tr('pages.files.no_matches_file_pattern')),
-                notContains(_usedFileNames, errorText: tr('pages.files.file_name_in_use'))
-              ]))),
+        type: DialogType.textInput,
+        title: tr('dialogs.create_folder.title'),
+        confirmBtn: tr('general.create'),
+        data: TextInputDialogArguments(
+          initialValue: '',
+          labelText: tr('dialogs.create_folder.label'),
+          validator: FormBuilderValidators.compose([
+            FormBuilderValidators.required(),
+            FormBuilderValidators.match(
+              '^[\\w.\\-]+\$',
+              errorText: tr('pages.files.no_matches_file_pattern'),
+            ),
+            notContains(
+              _usedFileNames,
+              errorText: tr('pages.files.file_name_in_use'),
+            ),
+          ]),
+        ),
+      ),
     );
 
     if (dialogResponse?.confirmed == true) {
@@ -305,6 +333,8 @@ class FilesPageController extends _$FilesPageController {
       _goRouter.goNamed(AppRoute.gcodeDetail.name, extra: file);
     } else if (file.isVideo) {
       _goRouter.goNamed(AppRoute.videoPlayer.name, extra: file);
+    } else if (file.isImage) {
+      _goRouter.goNamed(AppRoute.imageViewer.name, extra: file);
     } else {
       _goRouter.goNamed(AppRoute.configDetail.name, extra: file);
     }
@@ -339,4 +369,6 @@ class FilePageState with _$FilePageState {
   bool get isInSubFolder => path.length > 1;
 
   String get pathAsString => path.join('/');
+
+  bool get areFilesReady => !files.hasError && !files.isLoading;
 }

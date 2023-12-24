@@ -7,10 +7,13 @@ import 'dart:async';
 
 import 'package:appinio_video_player/appinio_video_player.dart';
 import 'package:common/data/dto/files/generic_file.dart';
+import 'package:common/network/dio_provider.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/util/extensions/remote_file_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -38,9 +41,12 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   @override
   void initState() {
     super.initState();
-    var fileUri = ref.read(fileServiceSelectedProvider).composeFileUriForDownload(widget.file);
+    var machine = ref.read(selectedMachineProvider).value!;
+    var dio = ref.read(dioClientProvider(machine.uuid));
+    var fileUri = widget.file.downloadUri(Uri.tryParse(dio.options.baseUrl))!;
 
-    videoPlayerController = VideoPlayerController.networkUrl(fileUri)
+    Map<String, String> headers = dio.options.headers.cast<String, String>();
+    videoPlayerController = VideoPlayerController.networkUrl(fileUri, httpHeaders: headers)
       ..initialize()
           .then(
         (value) => setState(() {
@@ -70,13 +76,16 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
         body = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SupporterOnlyFeature(text: Text("components.supporter_only_feature.timelaps_share").tr()),
+            SupporterOnlyFeature(
+              text: Text("components.supporter_only_feature.timelaps_share").tr(),
+            ),
             ElevatedButton(
-                onPressed: () => setState(() {
-                      fileDownloadProgress = null;
-                      loading = false;
-                    }),
-                child: Text(MaterialLocalizations.of(context).backButtonTooltip)),
+              onPressed: () => setState(() {
+                fileDownloadProgress = null;
+                loading = false;
+              }),
+              child: Text(MaterialLocalizations.of(context).backButtonTooltip),
+            ),
           ],
         );
       } else if (fileDownloadProgress != null) {
@@ -115,17 +124,14 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
           IconButton(
             onPressed: loading ? null : _startDownload,
             icon: const Icon(Icons.share),
-          )
+          ),
         ],
       ),
-      body: SafeArea(
-          child: SizedBox.expand(
-        child: body,
-      )),
+      body: SafeArea(child: SizedBox.expand(child: body)),
     );
   }
 
-  _startDownload() async {
+  _startDownload() {
     var isSupporter = ref.read(isSupporterProvider);
 
     setState(() {
@@ -148,13 +154,17 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
         }
         var downloadFile = event as FileDownloadComplete;
         // logger.i('File in FS is at ${file.absolute.path}');
-        logger.i('File in FS is at ${downloadFile.file.absolute.path}, size : ${downloadFile.file.lengthSync()}');
+        logger.i(
+          'File in FS is at ${downloadFile.file.absolute.path}, size : ${downloadFile.file.lengthSync()}',
+        );
         setState(() {
           fileDownloadProgress = 1;
         });
 
-        await Share.shareXFiles([XFile(downloadFile.file.path, mimeType: 'video/mp4')],
-            subject: "Video ${widget.file.name}");
+        await Share.shareXFiles(
+          [XFile(downloadFile.file.path, mimeType: 'video/mp4')],
+          subject: "Video ${widget.file.name}",
+        );
         logger.i('Done with sharing');
         setState(() {
           fileDownloadProgress = null;
@@ -163,7 +173,10 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
       },
       onError: (e) {
         ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.error, title: 'Error while downloading file for sharing.', message: e.toString()));
+              type: SnackbarType.error,
+              title: 'Error while downloading file for sharing.',
+              message: e.toString(),
+            ));
         setState(() {
           fileDownloadProgress = null;
           loading = false;
@@ -179,8 +192,8 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
 
   @override
   void dispose() {
-    super.dispose();
     downloadStreamSub?.cancel();
     _customVideoPlayerController.dispose();
+    super.dispose();
   }
 }

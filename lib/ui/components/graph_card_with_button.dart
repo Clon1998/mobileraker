@@ -52,36 +52,36 @@ class GraphCardWithButton extends StatelessWidget {
           Container(
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-                color: _backgroundColor,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(radius))),
+              color: _backgroundColor,
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(radius)),
+            ),
             child: Stack(
               alignment: Alignment.centerLeft,
               children: [
                 // Only way i found to expand the stack completly...
-                Container(
-                  width: double.infinity,
-                ),
+                Container(width: double.infinity),
                 Positioned.fill(
                   top: radius,
                   child: _Chart(
                     graphColor: _graphColor,
                     plotSpots: plotSpots,
-                  )
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
                   child: Theme(
-                      data: themeData.copyWith(
-                          textTheme: themeData.textTheme.apply(
-                              bodyColor: _onBackgroundColor,
-                              displayColor: _onBackgroundColor),
-                          iconTheme: themeData.iconTheme
-                              .copyWith(color: _onBackgroundColor)),
-                      child: DefaultTextStyle(
-                        style: TextStyle(color: _onBackgroundColor),
-                        child: Builder(builder: builder),
-                      )),
+                    data: themeData.copyWith(
+                      textTheme: themeData.textTheme.apply(
+                        bodyColor: _onBackgroundColor,
+                        displayColor: _onBackgroundColor,
+                      ),
+                      iconTheme: themeData.iconTheme.copyWith(color: _onBackgroundColor),
+                    ),
+                    child: DefaultTextStyle(
+                      style: TextStyle(color: _onBackgroundColor),
+                      child: Builder(builder: builder),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -101,7 +101,7 @@ class GraphCardWithButton extends StatelessWidget {
             ),
             onPressed: onTap,
             child: buttonChild,
-          )
+          ),
         ],
       ),
     );
@@ -121,7 +121,6 @@ class _Chart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return LineChart(
       LineChartData(
         gridData: FlGridData(show: false),
@@ -136,9 +135,7 @@ class _Chart extends StatelessWidget {
             isCurved: true,
             barWidth: 0,
             isStrokeCapRound: true,
-            dotData: FlDotData(
-              show: false,
-            ),
+            dotData: FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
               color: graphColor,
