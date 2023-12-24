@@ -44,7 +44,8 @@
     "delete": "Töröl",
     "clear": "Egyértelmű",
     "unlink": "Leválasztás",
-    "save": "Mentés"
+    "save": "Mentés",
+    "apply": "Alkalmaz"
   },
   "pages": {
     "dashboard": {
@@ -68,7 +69,8 @@
           "flow": "Áramlás",
           "filament": "Nyomtatószál",
           "filament_tooltip": "A nyomtatószál {} %-át használta fel, ami {} méter a jelzett {} méterből.",
-          "eta_tooltip": "Hátralévő idő: {} "
+          "eta_tooltip": "Hátralévő idő: {} ",
+          "remaining": "Fennmaradó"
         },
         "cam_card": {
           "webcam": "Webkamera",
@@ -287,12 +289,17 @@
         "moonraker_api_key": "Moonraker - API Kulcs",
         "moonraker_api_desc": "Csak akkor szükséges, ha megbízható klienst használsz. A FluiddPI ezt kikényszeríti!",
         "full_url": "Teljes URL",
-        "self_signed": "Bízz az önaláírt tanúsítványokban",
         "timeout_label": "Kliens időtúllépés",
         "timeout_helper": "Az ügyfélkapcsolat időtúllépése másodpercben",
         "theme": "UI-Téma",
         "theme_helper": "UI téma a nyomtatóhoz",
         "theme_unavailable": "UI téma a nyomtatóhoz, csak támogatók számára érhető el"
+      },
+      "ssl": {
+        "title": "SSL - Beállítások",
+        "pin_certificate_label": "Tanúsítvány ujjlenyomat rögzítése",
+        "pin_certificate_helper": "Válassz ki egy PEM formátumú tanúsítványfájlt az SSL-beszúráshoz",
+        "self_signed": "Önaláírt tanúsítványok megbízhatósága"
       },
       "motion_system": {
         "title": "Mozgásrendszer",
@@ -335,10 +342,46 @@
         "new_macro_grp": "Új makró - Csoport",
         "no_macros_available": "Nincsenek elérhető makrók!",
         "no_macros_found": "Nem találtam makrókat!",
+        "no_macros_in_grp": "Nincs makró a csoportban!",
+        "deleted_grp": "Törölt csoport {}",
+        "macros": "Makrók",
+        "default_name": "Új makró",
         "macros_to_default": {
           "one": "Áthelyeztem egy makrót az alapértelmezett csoportba!",
           "two": "Két makró áthelyezve az alapértelmezett csoportba!",
           "other": "{} makrók áthelyezve az alapértelmezett csoportba!"
+        }
+      },
+      "presets": {
+        "no_presets": "Nincs előbeállítás hozzáadva!",
+        "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Hőmérséklet",
+        "bed_temp": "@:pages.dashboard.general.temp_card.bed Hőmérséklet",
+        "new_preset": "Új előbeállítás"
+      },
+      "confirm_fcm_reset": {
+        "title": "Értesítési eszköz nyilvántartás törlése?",
+        "body": "Most készülsz visszaállítani az eszközregisztert, amely meghatározza, hogy a társ milyen eszközökre küld értesítést.\nA push-értesítések visszaállításához újra kell indítanod az alkalmazást az összes eszközön, és újra csatlakoztatnia kell őket a géphez. \n\nErősítsd meg a műveletet."
+      },
+      "confirm_remote_interface_removal": {
+        "title": {
+          "oe": "Leválasztod {}?",
+          "other": "Eltávolítod a kapcsolatot?"
+        },
+        "body": {
+          "oe": "Kérjük, erősítsd meg a nyomtató {} leválasztását az OctoEverywhere-ről.",
+          "other": "Kérjük, erősítsd meg a távoli kapcsolat eltávolítását a nyomtatóról {}."
+        },
+        "button": {
+          "oe": "@:general.unlink",
+          "other": "@:general.remove"
+        }
+      },
+      "remote_interface_exists": {
+        "title": "Távoli kapcsolat található",
+        "body": {
+          "oe": "Ez a nyomtató már összekapcsolódott az OctoEverywhere rendszerrel a távoli hozzáférés érdekében. Kérjük, a folytatás előtt old fel a kapcsolatot.",
+          "obico": "Ez a nyomtató már Obico távoli hozzáféréshez van beállítva. Kérjük, a folytatás előtt távolítsd el a linket.",
+          "other": "Ehhez a nyomtatóhoz már létrejött egy távoli kapcsolat. Kérjük, távolítsd el azt a folytatás előtt."
         }
       },
       "remote_interface_removed": {
@@ -649,12 +692,16 @@
       "header_hint": "A HTTP-fejléc neve",
       "value": "Fejléc-érték",
       "value_hint": "A fejléc értéke"
+    },
+    "macro_settings": {
+      "show_while_printing": "Megjelenítés nyomtatáskor",
+      "visible": "Látható"
     }
   },
   "bottom_sheets": {
     "job_queue_sheet": {
       "next": "Következő nyomtatási feladat",
-      "empty": "A munkák sora üres. A fájlböngészőn keresztül adhatsz hozzá feladatokat.",
+      "empty": "A várólista üres. A fájlböngészőn keresztül adhatsz hozzá feladatokat.",
       "start_queue": "Várólista indítása",
       "pause_queue": "Várólista szünetelése",
       "remove_all": "Várólista törlése",
@@ -687,6 +734,10 @@
         "unlink": "Leválasztás Obico",
         "description": "Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja."
       }
+    },
+    "manage_macros_in_grp": {
+      "title": "Makrók hozzáadása",
+      "hint": "Makrók kiválasztása a csoporthoz {}"
     }
   },
   "klipper_state": {
