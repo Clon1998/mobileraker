@@ -272,7 +272,6 @@ class _Profile extends ConsumerWidget {
               textAlign: TextAlign.center,
               style: TextStyle(color: themeData.colorScheme.error),
             ),
-          // if (!model.isSupporter)
           const _RestoreButton(),
           AsyncOutlinedButton.icon(
             onPressed: controller.signOut,
@@ -501,9 +500,8 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     logger.i('Rebuilding UserBottomSheetController');
     var wAuth = ref.watch(authProvider);
     var providers = FirebaseUIAuth.providersFor(wAuth.app);
-    var iS = ref.watch(isSupporterProvider);
     yield* ref.watchAsSubject(firebaseUserProvider).map((user) {
-      return _Model(user: user, providers: providers, isSupporter: iS);
+      return _Model(user: user, providers: providers);
     });
   }
 
@@ -566,7 +564,6 @@ class _Model with _$Model {
   const factory _Model({
     @Default([]) List<AuthProvider> providers,
     required fba.User? user,
-    required bool isSupporter,
     String? errorText,
     String? infoText,
   }) = __Model;
