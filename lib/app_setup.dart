@@ -17,6 +17,7 @@ import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/data/model/hive/temperature_preset.dart';
 import 'package:common/service/firebase/analytics.dart';
+import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/notification_service.dart';
@@ -28,6 +29,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -224,6 +226,16 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   yield StartUpStep.firebaseAnalytics;
   ref.read(analyticsProvider).logAppOpen().ignore();
 
+  yield StartUpStep.firebaseAuthUi;
+  // Just make sure it is created!
+  ref.read(firebaseUserProvider);
+
+  FirebaseUIAuth.configureProviders([
+    EmailAuthProvider(),
+    // GoogleProvider(clientId: GOOGLE_CLIENT_ID),
+    // fui_apple.AppleProvider(),
+  ]);
+
   setupLicenseRegistry();
 
   // Prepare "Database"
@@ -260,6 +272,7 @@ enum StartUpStep {
   firebaseAppCheck('🔎'),
   firebaseRemoteConfig('🌐'),
   firebaseAnalytics('📈'),
+  firebaseAuthUi('🔑'),
   hiveBoxes('📂'),
   easyLocalization('🌍'),
   paymentService('💸'),

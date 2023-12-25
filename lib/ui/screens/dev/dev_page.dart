@@ -9,6 +9,8 @@ import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
@@ -19,11 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_echarts/flutter_echarts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
+import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:path_provider/path_provider.dart';
-
-import '../dashboard/components/temperature_card/heaters_sensor_card.dart';
-import '../dashboard/components/temperature_card/temperature_preset_card.dart';
-import '../dashboard/components/temperature_card/temperature_sensor_preset_card.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
@@ -34,6 +33,7 @@ class DevPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    logger.i('REBUILIDNG DEV PAGE!');
     var selMachine = ref.watch(selectedMachineProvider).value;
     return Scaffold(
       appBar: AppBar(
@@ -43,15 +43,28 @@ class DevPage extends HookConsumerWidget {
       body: ListView(
         children: [
           // ControlExtruderLoading(),
-          HeaterSensorCard(machineUUID: selMachine!.uuid),
-          TemperaturePresetCard(machineUUID: selMachine!.uuid),
-          HeaterSensorPresetCardLoading(),
+          // HeaterSensorCard(machineUUID: selMachine!.uuid),
+          // TemperaturePresetCard(machineUUID: selMachine!.uuid),
+          // HeaterSensorPresetCardLoading(),
           // const ControlXYZLoading(),
           // const ZOffsetLoading(),
           // const Text('One'),
           // ElevatedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
           ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
           ElevatedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
+          ElevatedButton(
+              onPressed: () => ref
+                  .read(bottomSheetServiceProvider)
+                  .show(BottomSheetConfig(type: SheetType.userManagement, isScrollControlled: true)),
+              child: const Text('UserMngnt')),
+          ElevatedButton(
+              onPressed: () {
+                ref.read(snackBarServiceProvider).show(SnackBarConfig(
+                    type: SnackbarType.info,
+                    title: 'Purchases restored',
+                    message: 'Managed to restore Supporter-Status!'));
+              },
+              child: const Text('SNACKBAR')),
           // TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
           // ElevatedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
           // // Expanded(child: WebRtcCam()),

@@ -6,6 +6,7 @@
 import 'dart:io';
 
 import 'package:common/service/payment_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
@@ -17,6 +18,8 @@ import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+
+import '../../../service/ui/bottom_sheet_service_impl.dart';
 
 part 'paywall_page_controller.freezed.dart';
 part 'paywall_page_controller.g.dart';
@@ -116,10 +119,10 @@ class PaywallPageController extends _$PaywallPageController {
     state = state.whenData((value) => value.copyWith(makingPurchase: false));
   }
 
-  restore() async {
-    state = state.whenData((value) => value.copyWith(makingPurchase: true));
-    await ref.read(paymentServiceProvider).restorePurchases();
-    state = state.whenData((value) => value.copyWith(makingPurchase: false));
+  void userSignIn() {
+    ref
+        .read(bottomSheetServiceProvider)
+        .show(BottomSheetConfig(type: SheetType.userManagement, isScrollControlled: true));
   }
 
   openManagement() async {

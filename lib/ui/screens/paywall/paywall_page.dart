@@ -344,6 +344,7 @@ class _ManageTiers extends ConsumerWidget {
                   ? () => ref.read(paywallPageControllerProvider.notifier).openManagement()
                   : null,
         ),
+        const _RestoreButton(),
       ],
     );
   }
@@ -795,10 +796,10 @@ class _RestoreButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => TextButton.icon(
-        onPressed: ref.read(paywallPageControllerProvider.notifier).restore,
+        onPressed: ref.read(paywallPageControllerProvider.notifier).userSignIn,
         onLongPress: ref.read(paywallPageControllerProvider.notifier).copyRCatIdToClipboard,
         icon: const Icon(Icons.restore, size: 18),
-        label: const Text('general.restore', style: TextStyle(fontSize: 12)).tr(),
+        label: const Text('pages.paywall.restore_sign_in', style: TextStyle(fontSize: 12)).tr(),
       );
 }
 

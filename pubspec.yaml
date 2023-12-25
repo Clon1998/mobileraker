@@ -48,8 +48,11 @@ dependencies:
   firebase_remote_config: ^4.3.8
   cloud_firestore: ^4.13.6
 
-  #  firebase_auth: ^4.15.3
-  #  firebase_ui_auth: ^1.11.0
+  firebase_auth: ^4.15.3
+  firebase_ui_auth: ^1.11.0
+  firebase_ui_oauth_google: ^1.2.15
+  firebase_ui_oauth_apple: ^1.2.15
+  firebase_ui_oauth: ^1.2.15
 
 
   #architecture
@@ -150,6 +153,7 @@ dependencies:
   flutter_echarts: ^2.5.0
   file_picker: ^6.1.1
   geekyants_flutter_gauges: ^1.0.3
+  bottom_sheet: ^4.0.0
 
 
 #  ditredi: ^1.0.3
