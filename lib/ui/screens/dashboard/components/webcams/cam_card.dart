@@ -11,11 +11,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card_controller.dart';
 
-class CamCard extends ConsumerWidget {
+class CamCard extends ConsumerStatefulWidget {
   const CamCard({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CamCard> createState() => _CamCardState();
+}
+
+class _CamCardState extends ConsumerState<CamCard> with AutomaticKeepAliveClientMixin {
+  @override
+  Widget build(BuildContext context) {
     var watch = ref.watch(camCardControllerProvider);
 
     bool showCard =
@@ -35,8 +40,7 @@ class CamCard extends ConsumerWidget {
                 children: [
                   ListTile(
                     leading: const Icon(FlutterIcons.webcam_mco),
-                    title: const Text('pages.dashboard.general.cam_card.webcam')
-                        .tr(),
+                    title: const Text('pages.dashboard.general.cam_card.webcam').tr(),
                     trailing: const _Trailing(),
                   ),
                   Padding(
@@ -85,6 +89,9 @@ class CamCard extends ConsumerWidget {
           : const SizedBox.shrink(),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class _Trailing extends ConsumerWidget {
@@ -94,9 +101,7 @@ class _Trailing extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var camState = ref.watch(camCardControllerProvider).valueOrNull;
 
-    if (camState == null ||
-        camState.allCams.length < 2 ||
-        camState.activeCam == null) {
+    if (camState == null || camState.allCams.length < 2 || camState.activeCam == null) {
       return const SizedBox.shrink();
     }
 
@@ -132,8 +137,7 @@ class _CamCardData extends ConsumerWidget {
               color: Colors.white,
               icon: const Icon(Icons.aspect_ratio),
               tooltip: 'pages.dashboard.general.cam_card.fullscreen'.tr(),
-              onPressed:
-                  ref.read(camCardControllerProvider.notifier).onFullScreenTap,
+              onPressed: ref.read(camCardControllerProvider.notifier).onFullScreenTap,
             ),
           ),
         ),

@@ -45,6 +45,7 @@ class GeneralTab extends ConsumerWidget {
 
             return PullToRefreshPrinter(
               child: ListView(
+                physics: const BouncingScrollPhysics(), // Reproduces the iOS bounce effect and cam jumping scroll
                 key: const PageStorageKey('gTab'),
                 padding: const EdgeInsets.only(bottom: 20),
                 children: [
@@ -54,6 +55,7 @@ class GeneralTab extends ConsumerWidget {
                   const PrintCard(),
                   TemperatureSensorPresetCard(machineUUID: machineId),
                   const CamCard(),
+                  if (printState != PrintState.printing) ControlXYZCard(machineUUID: machineId),
                   if (printState != PrintState.printing) ControlXYZCard(machineUUID: machineId),
                   if (ref.watch(settingServiceProvider).readBool(AppSettingKeys.alwaysShowBabyStepping) ||
                       const {PrintState.printing, PrintState.paused}.contains(printState))
