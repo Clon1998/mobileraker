@@ -22,8 +22,7 @@ NotificationSettingsRepository notificationSettingsRepository(
 @riverpod
 NotificationSettingsRepository notificationSettingsRepositorySelected(
     NotificationSettingsRepositorySelectedRef ref) {
-  return ref.watch(
-      notificationSettingsRepositoryProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+  return ref.watch(notificationSettingsRepositoryProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 class NotificationSettingsRepositoryImpl extends NotificationSettingsRepository {

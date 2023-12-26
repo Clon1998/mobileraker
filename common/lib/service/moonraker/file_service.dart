@@ -100,7 +100,7 @@ Stream<FileActionResponse> fileNotifications(FileNotificationsRef ref, String ma
 
 @riverpod
 FileService fileServiceSelected(FileServiceSelectedRef ref) {
-  return ref.watch(fileServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+  return ref.watch(fileServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod

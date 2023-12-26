@@ -67,7 +67,7 @@ class _PowerDeviceCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var powerDevice = ref.watch(powerDeviceProvider).valueOrNull!;
+    var powerDevice = ref.watch(powerDeviceProvider).requireValue;
     return CardWithSwitch(
       value: powerDevice.status == PowerState.on,
       onChanged: (powerDevice.status == PowerState.error ||

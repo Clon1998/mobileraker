@@ -32,7 +32,7 @@ Stream<List<PowerDevice>> powerDevices(PowerDevicesRef ref, String machineUUID) 
 
 @riverpod
 PowerService powerServiceSelected(PowerServiceSelectedRef ref) {
-  return ref.watch(powerServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+  return ref.watch(powerServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod

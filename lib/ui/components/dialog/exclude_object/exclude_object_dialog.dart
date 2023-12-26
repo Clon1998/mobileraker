@@ -193,7 +193,7 @@ class ExcludeObjectMap extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ConfigFile config = ref.watch(printerSelectedProvider.selectAs((data) => data.configFile)).valueOrNull!;
+    ConfigFile config = ref.watch(printerSelectedProvider.selectAs((data) => data.configFile)).requireValue!;
 
     return IntrinsicHeight(
       child: Center(
@@ -208,7 +208,7 @@ class ExcludeObjectMap extends ConsumerWidget {
               painter: ExcludeObjectPainter(
                 context,
                 ref.watch(excludeObjectControllerProvider.notifier),
-                ref.watch(excludeObjectProvider).valueOrNull!,
+                ref.watch(excludeObjectProvider).requireValue!,
                 ref.watch(excludeObjectControllerProvider),
                 config,
               ),

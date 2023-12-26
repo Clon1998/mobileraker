@@ -82,7 +82,7 @@ Future<String> initialRoute(InitialRouteRef ref) async {
 
 GoRouter goRouterImpl(GoRouterRef ref) {
   return GoRouter(
-    initialLocation: ref.watch(initialRouteProvider).valueOrNull!,
+    initialLocation: ref.watch(initialRouteProvider).requireValue,
     debugLogDiagnostics: false,
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),

@@ -36,7 +36,7 @@ Stream<KlipperInstance> klipper(KlipperRef ref, String machineUUID) {
 
 @riverpod
 KlippyService klipperServiceSelected(KlipperServiceSelectedRef ref) {
-  return ref.watch(klipperServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+  return ref.watch(klipperServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod

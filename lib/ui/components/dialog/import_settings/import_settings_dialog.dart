@@ -126,7 +126,7 @@ class _DialogBody extends ConsumerWidget {
               ),
               items: ref
                   .watch(importSources)
-                  .valueOrNull!
+                  .requireValue
                   .map(
                     (e) => DropdownMenuItem<ImportMachineSettingsResult>(
                       value: e,

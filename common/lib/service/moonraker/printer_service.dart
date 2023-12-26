@@ -89,7 +89,7 @@ Stream<Printer> printer(PrinterRef ref, String machineUUID) {
 
 @riverpod
 PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
-  return ref.watch(printerServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+  return ref.watch(printerServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod
