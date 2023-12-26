@@ -171,7 +171,7 @@ class _PeakFrequency extends HookConsumerWidget {
           onTap: controller.requestPermission,
         ),
         Text(
-          '${showLoading ? '--' : peakFrequency.value!.toString()} HZ',
+          '${showLoading ? '--' : peakFrequency.requireValue.toString()} HZ',
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 4),

@@ -120,7 +120,7 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var zOffset = ref.watch(_ZOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).value!;
+    var zOffset = ref.watch(_ZOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
 
     return ListTile(
       leading: const Icon(FlutterIcons.align_vertical_middle_ent),
@@ -145,10 +145,12 @@ class _CardBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_zOffsetCardControllerProvider(machineUUID).notifier);
-    var klippyCanReceiveCommands =
-        ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).value!;
-    var selected = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected)).value!;
-    var steps = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps)).value!;
+    var klippyCanReceiveCommands = ref
+        .watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
+        .requireValue;
+    var selected =
+        ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
+    var steps = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

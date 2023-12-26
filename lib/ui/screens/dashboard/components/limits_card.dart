@@ -86,7 +86,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
 
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).value!;
+        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).requireValue;
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
     return Column(
@@ -117,7 +117,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.maxVelocity),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.maxVelocity),
                 prefixText: tr('pages.dashboard.control.limit_card.velocity'),
                 onChange: canEdit ? controller.onEditedMaxVelocity : null,
                 numberFormat: NumberFormat('0 mm/s', context.locale.languageCode),
@@ -125,7 +125,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
                 maxValue: 500,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.maxAccel),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.maxAccel),
                 prefixText: tr('pages.dashboard.control.limit_card.accel'),
                 onChange: canEdit ? controller.onEditedMaxAccel : null,
                 numberFormat: NumberFormat('0 mm/s²', context.locale.languageCode),
@@ -133,7 +133,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
                 maxValue: 5000,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.squareCornerVelocity),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.squareCornerVelocity),
                 prefixText: tr('pages.dashboard.control.limit_card.sq_corn_vel'),
                 onChange: canEdit ? controller.onEditedMaxSquareCornerVelocity : null,
                 numberFormat: NumberFormat('0.# mm/s', context.locale.languageCode),
@@ -141,7 +141,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
                 maxValue: 8,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.maxAccelToDecel),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.maxAccelToDecel),
                 prefixText: tr('pages.dashboard.control.limit_card.accel_to_decel'),
                 onChange: canEdit ? controller.onEditedMaxAccelToDecel : null,
                 numberFormat: NumberFormat('0 mm/s²', context.locale.languageCode),
@@ -166,7 +166,7 @@ class _Controller extends _$Controller {
       klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
     );
     var toohlhead = ref.watchAsSubject(
-      printerProvider(machineUUID).selectAs((value) => value.toolhead!),
+      printerProvider(machineUUID).selectAs((value) => value.toolhead),
     );
 
     yield* Rx.combineLatest2(

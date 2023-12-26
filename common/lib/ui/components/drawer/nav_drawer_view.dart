@@ -170,7 +170,7 @@ class _NavHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var themePack = ref.watch(activeThemeProvider).value!.themePack;
+    var themePack = ref.watch(activeThemeProvider).requireValue.themePack;
     var brandingIcon = (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
     var background = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.primary
@@ -192,7 +192,7 @@ class _NavHeader extends ConsumerWidget {
               if (selectedMachine.hasValue && selectedMachine.value != null) {
                 ref.read(navDrawerControllerProvider.notifier).pushingTo(
                       '/printer/edit',
-                      arguments: selectedMachine.value!,
+                      arguments: selectedMachine.requireValue!,
                     );
               } else {
                 ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add');
@@ -318,7 +318,7 @@ class _PrinterSelection extends ConsumerWidget {
       child: (isExpanded)
           ? Column(
               children: [
-                if (selMachine.valueOrNull != null) _MachineTile(machine: selMachine.value!, isSelected: true),
+                if (selMachine.valueOrNull != null) _MachineTile(machine: selMachine.requireValue!, isSelected: true),
                 ...ref
                     .watch(allMachinesProvider.selectAs((data) => data.where(
                           (element) => element.uuid != selMachine.valueOrNull?.uuid,

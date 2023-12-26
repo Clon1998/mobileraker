@@ -148,7 +148,7 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.value!));
+    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID)).requireValue;
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
     return ListTile(
@@ -199,7 +199,7 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.value!));
+    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID)).requireValue;
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
     var canExtrude = model.minExtrudeTempReached && model.klippyCanReceiveCommands;
@@ -343,7 +343,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       cancelBtn: tr('general.cancel'),
       confirmBtn: tr('general.confirm'),
       data: NumberEditDialogArguments(
-        current: state.value!.extruderVelocity,
+        current: state.requireValue.extruderVelocity,
         min: 0.1,
         max: maxVelocity ?? 20,
         fraction: 1,

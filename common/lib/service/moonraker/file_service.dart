@@ -327,7 +327,7 @@ class FileService {
       _fileActionStreamCtrler.addError(next.error!, next.stackTrace);
       return;
     }
-    var rawMessage = next.value!;
+    var rawMessage = next.requireValue;
     Map<String, dynamic> params = rawMessage['params'][0];
     FileAction? fileAction = FileAction.tryFromJson(params['action']);
 

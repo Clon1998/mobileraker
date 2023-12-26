@@ -34,7 +34,7 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
       var v = ref.state;
       var now = DateTime.now();
       if (v.hasValue) {
-        var hasExpired = v.value!.entitlements.active.values
+        var hasExpired = v.requireValue.entitlements.active.values
             .any((ent) => ent.expirationDate != null && DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
         if (hasExpired) {
           logger.i('Found expired Entitlement, force refresh!');
@@ -228,7 +228,7 @@ class PaymentService {
 
         if (isLogin) {
           try {
-            LogInResult logInResult = await Purchases.logIn(next.value!.uid);
+            LogInResult logInResult = await Purchases.logIn(next.requireValue!.uid);
             logger.i('Logged user into rCat: created: ${logInResult.created} - ${logInResult.customerInfo}}');
           } on PlatformException catch (e) {
             var errorCode = PurchasesErrorHelper.getErrorCode(e);

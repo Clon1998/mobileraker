@@ -92,7 +92,7 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
 
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).value!;
+        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).requireValue;
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
 
@@ -125,7 +125,7 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
             children: [
               SliderOrTextInput(
                 provider: machinePrinterKlippySettingsProvider.select(
-                  (data) => data.value!.printerData.gCodeMove.speedFactor,
+                  (data) => data.requireValue.printerData.gCodeMove.speedFactor,
                 ),
                 prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
                 onChange: canEdit ? controller.onEditedSpeedMultiplier : null,
@@ -133,14 +133,14 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
               ),
               SliderOrTextInput(
                 provider: machinePrinterKlippySettingsProvider.select(
-                  (data) => data.value!.printerData.gCodeMove.extrudeFactor,
+                  (data) => data.requireValue.printerData.gCodeMove.extrudeFactor,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.flow'.tr(),
                 onChange: canEdit ? controller.onEditedFlowMultiplier : null,
               ),
               SliderOrTextInput(
                 provider: machinePrinterKlippySettingsProvider.select(
-                  (data) => data.value!.printerData.extruder.pressureAdvance,
+                  (data) => data.requireValue.printerData.extruder.pressureAdvance,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
                 onChange: canEdit ? controller.onEditedPressureAdvanced : null,
@@ -149,7 +149,7 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
               ),
               SliderOrTextInput(
                 provider: machinePrinterKlippySettingsProvider.select(
-                  (data) => data.value!.printerData.extruder.smoothTime,
+                  (data) => data.requireValue.printerData.extruder.smoothTime,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
                 onChange: canEdit ? controller.onEditedSmoothTime : null,

@@ -171,7 +171,7 @@ class _ConsumerCell extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [child!, Text(asyncValue.value!)],
+              children: [child!, Text(asyncValue.requireValue)],
             ),
           );
         },
@@ -238,7 +238,7 @@ class _ConsumerTooltipCell extends StatelessWidget {
           return Tooltip(
             margin: const EdgeInsets.all(8.0),
             textAlign: TextAlign.center,
-            message: asyncTooltipValue.value!,
+            message: asyncTooltipValue.requireValue,
             child: child!,
           );
         },

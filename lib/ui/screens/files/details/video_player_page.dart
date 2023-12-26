@@ -41,7 +41,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   @override
   void initState() {
     super.initState();
-    var machine = ref.read(selectedMachineProvider).value!;
+    var machine = ref.read(selectedMachineProvider).requireValue!;
     var dio = ref.read(dioClientProvider(machine.uuid));
     var fileUri = widget.file.downloadUri(Uri.tryParse(dio.options.baseUrl))!;
 
