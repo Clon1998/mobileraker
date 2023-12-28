@@ -11,7 +11,6 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -210,7 +209,7 @@ class _CardBody extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            AsyncElevatedButton.icon(
+            ElevatedButton.icon(
               icon: const Icon(FlutterIcons.minus_ant),
               label: const Text(
                 'pages.dashboard.control.extrude_card.retract',
@@ -218,12 +217,12 @@ class _CardBody extends ConsumerWidget {
               onPressed: canExtrude ? () => controller.onMoveE(true) : null,
             ),
             IconButton(onPressed: controller.onFeedrateButtonPressed, icon: const Icon(Icons.speed)),
-            AsyncElevatedButton.icon(
+            ElevatedButton.icon(
               icon: const Icon(FlutterIcons.plus_ant),
               label: const Text(
                 'pages.dashboard.control.extrude_card.extrude',
               ).tr(),
-              onPressed: canExtrude ? controller.onMoveE : null,
+              onPressed: canExtrude ? () => controller.onMoveE() : null,
             ),
           ],
         ),
