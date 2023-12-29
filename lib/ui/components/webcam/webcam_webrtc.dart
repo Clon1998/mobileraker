@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/dio_provider.dart';
@@ -64,7 +65,9 @@ class WebcamWebRtc extends ConsumerWidget {
     }
 
     var remoteConfig = ref.watch(remoteConfigProvider);
-    if (clientType == ClientType.octo && remoteConfig.oeWebrtc) {
+    if (clientType == ClientType.octo &&
+        remoteConfig.oeWebrtc &&
+        webcamInfo.service == WebcamServiceType.webRtcCamStreamer) {
       return Text(
         'components.web_rtc.oe_warning',
         style: Theme.of(context).textTheme.bodySmall,
@@ -75,6 +78,7 @@ class WebcamWebRtc extends ConsumerWidget {
       key: ValueKey(webcamInfo.uuid + machine.uuid),
       camUri: webRtcUri,
       dio: dio,
+      service: webcamInfo.service,
       stackContent: stackContent,
       rotation: webcamInfo.rotation,
       transform: webcamInfo.transformMatrix,

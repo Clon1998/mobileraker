@@ -98,7 +98,8 @@ class Webcam extends ConsumerWidget {
           stackChild: modifiedStack,
         );
 
-      case WebcamServiceType.webRtc:
+      case WebcamServiceType.webRtcGo2Rtc:
+      case WebcamServiceType.webRtcCamStreamer:
         return WebcamWebRtc(
           machine: machine,
           webcamInfo: webcamInfo,
