@@ -6,6 +6,7 @@
 
 - Added a tool page that contains a list of tools and links useful for 3D printing.
 - Adding a belt tuner tool to the tool page.
+- [Supporters] Added support for go2Rtc based WebRtc webcams. [#304](https://github.com/Clon1998/mobileraker/issues/304)
 
 ### Changed Features
 
