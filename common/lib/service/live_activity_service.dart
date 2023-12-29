@@ -4,16 +4,16 @@
  */
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:io' show Platform;
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer.dart';
-import 'package:common/data/model/ModelEvent.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/notification.dart';
+import 'package:common/data/model/model_event.dart';
 import 'package:common/data/repository/notifications_hive_repository.dart';
 import 'package:common/data/repository/notifications_repository.dart';
 import 'package:common/service/machine_service.dart';
