@@ -788,7 +788,8 @@
     "disconnected": "Disconnected",
     "error": "Error",
     "unauthorized": "Unauthorized",
-    "initializing": "Initializing"
+    "initializing": "Initializing",
+    "not_connected": "Moonraker cannot establish a connection with Klipper. Please verify that Klipper is running on your system."
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",
