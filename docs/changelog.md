@@ -6,6 +6,8 @@
 
 - Added a tool page that contains a list of tools and links useful for 3D printing.
 - Adding a belt tuner tool to the tool page.
+- Added support for cross-platform and multi-device purchases. Purchases made on a device will now be available on all
+  your devices. This however, will require you to create an account with Mobileraker and log in on all your devices.
 - [Supporters] Added support for go2Rtc based WebRtc webcams. [#304](https://github.com/Clon1998/mobileraker/issues/304)
 
 ### Changed Features
