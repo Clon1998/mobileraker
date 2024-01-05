@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -266,19 +266,21 @@ class NotificationService {
   static Future<void> _onActionReceivedMethod(ReceivedAction receivedAction) async {
     SendPort? port = IsolateNameServer.lookupPortByName(_notificationTappedPortName);
     if (port != null) {
-      port.send(receivedAction);
+      port.send(receivedAction.toMap());
     } else {
       logger.e('Received an action from the onActionReceivedMethod Port but the port is null!');
     }
   }
 
   Future<void> _onNotificationTapPortMessage(dynamic data) async {
-    if (data is! ReceivedAction) {
+    if (data is! Map<String, dynamic>) {
       logger.w(
-          'Received object from the onNotificationTap Port is not of type: ReceivedAction it is type:${data.runtimeType}');
+          'Received object from the onNotificationTap Port is not of type: Map<String, dynamic> it is type:${data.runtimeType}');
       return;
     }
-    var payload = data.payload;
+
+    final receivedAction = ReceivedAction().fromMap(data);
+    var payload = receivedAction.payload;
     logger.i('Received payload from notification port: $payload');
 
     if (payload?.containsKey('printerId') == true) {

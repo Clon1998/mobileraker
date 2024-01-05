@@ -14,6 +14,7 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		B65DF667A8C80B7CFC012CA5 /* Pods_MobilerakerNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40AF21014E4857D4B76DB3E3 /* Pods_MobilerakerNotificationServiceExtension.framework */; };
 		CD1B916429FFEE170062AE26 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD1B916329FFEE170062AE26 /* StoreKit.framework */; };
 		CD1E1FD82ACF654400A311C3 /* ViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1E1FD72ACF654400A311C3 /* ViewExtension.swift */; };
 		CDCC27F52AAB9A0800116FFF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */; };
@@ -79,7 +80,10 @@
 		2108742160750C1D989CC2EE /* Pods-MobilerakerServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-MobilerakerServiceExtension/Pods-MobilerakerServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		2A67BFF3797D6AA4C62E1EC8 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		31A2812A4009592F7C4E83FF /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		38033550FFC80F7D1A55AF24 /* Pods-MobilerakerNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationServiceExtension/Pods-MobilerakerNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		40AF21014E4857D4B76DB3E3 /* Pods_MobilerakerNotificationServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobilerakerNotificationServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D9C48F02B104C646E597459 /* Pods-MobilerakerNotificationServiceExtension.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationServiceExtension.profile.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationServiceExtension/Pods-MobilerakerNotificationServiceExtension.profile.xcconfig"; sourceTree = "<group>"; };
 		51F71D0176A204AD1BFDFED5 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		5D6F2F48B767FDC75E23C818 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		644C962C21918C5A86B49C1B /* Pods_MobilerakerServiceExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobilerakerServiceExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -109,6 +113,7 @@
 		CDCDCEE52A4B7BF300E1B5C8 /* MobilerakerNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobilerakerNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		CDF967FB2AB5E2A900D7FF15 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		CDF967FD2AB5EAE500D7FF15 /* EtaDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtaDisplayView.swift; sourceTree = "<group>"; };
+		EAE0A4955F45E8075EF2E189 /* Pods-MobilerakerNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationServiceExtension/Pods-MobilerakerNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		FB914D1C27C43AD0005E5F80 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		FC87F71B355261A988C6B3D7 /* Pods-MobilerakerServiceExtension.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerServiceExtension.profile.xcconfig"; path = "Target Support Files/Pods-MobilerakerServiceExtension/Pods-MobilerakerServiceExtension.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -136,6 +141,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B65DF667A8C80B7CFC012CA5 /* Pods_MobilerakerNotificationServiceExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -151,6 +157,9 @@
 				15282A90F9FFDAAED5951624 /* Pods-MobilerakerServiceExtension.debug.xcconfig */,
 				2108742160750C1D989CC2EE /* Pods-MobilerakerServiceExtension.release.xcconfig */,
 				FC87F71B355261A988C6B3D7 /* Pods-MobilerakerServiceExtension.profile.xcconfig */,
+				EAE0A4955F45E8075EF2E189 /* Pods-MobilerakerNotificationServiceExtension.debug.xcconfig */,
+				38033550FFC80F7D1A55AF24 /* Pods-MobilerakerNotificationServiceExtension.release.xcconfig */,
+				4D9C48F02B104C646E597459 /* Pods-MobilerakerNotificationServiceExtension.profile.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -247,6 +256,7 @@
 				644C962C21918C5A86B49C1B /* Pods_MobilerakerServiceExtension.framework */,
 				CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */,
 				CDCC27F62AAB9A0800116FFF /* SwiftUI.framework */,
+				40AF21014E4857D4B76DB3E3 /* Pods_MobilerakerNotificationServiceExtension.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -301,6 +311,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CDCDCEE42A4B784200E1B5C8 /* Build configuration list for PBXNativeTarget "MobilerakerNotificationServiceExtension" */;
 			buildPhases = (
+				1CE2BCC9B4F83DA5DAC86079 /* [CP] Check Pods Manifest.lock */,
 				CDCDCED52A4B784100E1B5C8 /* Sources */,
 				CDCDCED62A4B784100E1B5C8 /* Frameworks */,
 				CDCDCED72A4B784100E1B5C8 /* Resources */,
@@ -387,6 +398,28 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		1CE2BCC9B4F83DA5DAC86079 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MobilerakerNotificationServiceExtension-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 		2D43081B6CAA39778291564C /* [firebase_crashlytics] Crashlytics Upload Symbols */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -599,6 +632,7 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ENABLE_MODULES = YES;
@@ -735,6 +769,7 @@
 			baseConfigurationReference = 9740EEB21CF90195004384FC /* Debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ENABLE_MODULES = YES;
@@ -765,6 +800,7 @@
 			baseConfigurationReference = 7AFA3C8E1D35360C0083082E /* Release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				APPLICATION_EXTENSION_API_ONLY = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ENABLE_MODULES = YES;
@@ -908,6 +944,7 @@
 		};
 		CDCDCEE12A4B784200E1B5C8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EAE0A4955F45E8075EF2E189 /* Pods-MobilerakerNotificationServiceExtension.debug.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
@@ -936,6 +973,7 @@
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "-D TARGET_EXTENSION";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -949,6 +987,7 @@
 		};
 		CDCDCEE22A4B784200E1B5C8 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 38033550FFC80F7D1A55AF24 /* Pods-MobilerakerNotificationServiceExtension.release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
@@ -976,6 +1015,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "-D TARGET_EXTENSION";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -987,6 +1027,7 @@
 		};
 		CDCDCEE32A4B784200E1B5C8 /* Profile */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 4D9C48F02B104C646E597459 /* Pods-MobilerakerNotificationServiceExtension.profile.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
@@ -1014,6 +1055,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
+				OTHER_SWIFT_FLAGS = "-D TARGET_EXTENSION";
 				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationServiceExtension;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;

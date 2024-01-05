@@ -100,9 +100,9 @@ dependencies:
 
 
   #notification
-  awesome_notifications_core: ^0.8.1
-  awesome_notifications: ^0.8.3
-  awesome_notifications_fcm: ^0.8.0
+  awesome_notifications_core: ^0.9.0
+  awesome_notifications: ^0.9.0
+  awesome_notifications_fcm: ^0.9.1
   live_activities: ^1.9.0
 
 
