@@ -56,7 +56,6 @@ class GeneralTab extends ConsumerWidget {
                   TemperatureSensorPresetCard(machineUUID: machineId),
                   const CamCard(),
                   if (printState != PrintState.printing) ControlXYZCard(machineUUID: machineId),
-                  if (printState != PrintState.printing) ControlXYZCard(machineUUID: machineId),
                   if (ref.watch(settingServiceProvider).readBool(AppSettingKeys.alwaysShowBabyStepping) ||
                       const {PrintState.printing, PrintState.paused}.contains(printState))
                     ZOffsetCard(machineUUID: machineId),
