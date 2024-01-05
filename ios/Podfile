@@ -113,11 +113,11 @@ update_awesome_main_target_settings('Runner', File.dirname(File.realpath(__FILE_
 ################  Awesome Notifications FCM pod mod  ###################
 awesome_fcm_pod_file = File.expand_path(File.join('plugins', 'awesome_notifications_fcm', 'ios', 'Scripts', 'AwesomeFcmPodFile'), '.symlinks')
 require awesome_fcm_pod_file
-target 'MobilerakerNotificationServiceExtension' do
+target 'MobilerakerNotificationExtention' do
   use_frameworks!
   use_modular_headers!
 
   install_awesome_fcm_ios_pod_target File.dirname(File.realpath(__FILE__))
 end
-update_awesome_fcm_service_target('MobilerakerNotificationServiceExtension', File.dirname(File.realpath(__FILE__)), flutter_root)
+update_awesome_fcm_service_target('MobilerakerNotificationExtention', File.dirname(File.realpath(__FILE__)), flutter_root)
 ################  Awesome Notifications FCM pod mod  ###################

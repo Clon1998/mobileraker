@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0180255D688DDDB51384FE10 /* Pods_MobilerakerNotificationExtention.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3E233C927AD425800616FB0 /* Pods_MobilerakerNotificationExtention.framework */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		336E4D4D92C7E1C09A971456 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 31A2812A4009592F7C4E83FF /* GoogleService-Info.plist */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
@@ -14,7 +15,6 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		B65DF667A8C80B7CFC012CA5 /* Pods_MobilerakerNotificationServiceExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 40AF21014E4857D4B76DB3E3 /* Pods_MobilerakerNotificationServiceExtension.framework */; };
 		CD1B916429FFEE170062AE26 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD1B916329FFEE170062AE26 /* StoreKit.framework */; };
 		CD1E1FD82ACF654400A311C3 /* ViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1E1FD72ACF654400A311C3 /* ViewExtension.swift */; };
 		CDCC27F52AAB9A0800116FFF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */; };
@@ -23,8 +23,8 @@
 		CDCC28042AAB9A0A00116FFF /* MobilrakerLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CDCC280C2AAB9F2400116FFF /* PrintingLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCC280A2AAB9E0100116FFF /* PrintingLiveActivity.swift */; };
 		CDCC280F2AABA70000116FFF /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCC280E2AABA70000116FFF /* CircularProgressView.swift */; };
-		CDCDCEDC2A4B784100E1B5C8 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCDCEDB2A4B784100E1B5C8 /* NotificationService.swift */; };
-		CDCDCEE02A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDCDCED92A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CDF5F8F72B4858120007F060 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF5F8F62B4858120007F060 /* NotificationService.swift */; };
+		CDF5F8FB2B4858120007F060 /* MobilerakerNotificationExtention.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDF5F8F42B4858120007F060 /* MobilerakerNotificationExtention.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CDF967FC2AB5E2A900D7FF15 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF967FB2AB5E2A900D7FF15 /* Utils.swift */; };
 		CDF967FE2AB5EAE500D7FF15 /* EtaDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF967FD2AB5EAE500D7FF15 /* EtaDisplayView.swift */; };
 		EB8FF16108BE47D3DA3C53EC /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D6F2F48B767FDC75E23C818 /* Pods_Runner.framework */; };
@@ -38,12 +38,12 @@
 			remoteGlobalIDString = CDCC27F22AAB9A0800116FFF;
 			remoteInfo = MobilrakerLiveActivityExtension;
 		};
-		CDCDCEDE2A4B784100E1B5C8 /* PBXContainerItemProxy */ = {
+		CDF5F8F92B4858120007F060 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 97C146E61CF9000F007C117D /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = CDCDCED82A4B784100E1B5C8;
-			remoteInfo = MobilerakerNotificationServiceExtension;
+			remoteGlobalIDString = CDF5F8F32B4858120007F060;
+			remoteInfo = MobilerakerNotificationExtention;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -64,7 +64,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				CDCDCEE02A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension.appex in Embed Foundation Extensions */,
+				CDF5F8FB2B4858120007F060 /* MobilerakerNotificationExtention.appex in Embed Foundation Extensions */,
 				CDCC28042AAB9A0A00116FFF /* MobilrakerLiveActivityExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -78,6 +78,7 @@
 		15282A90F9FFDAAED5951624 /* Pods-MobilerakerServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-MobilerakerServiceExtension/Pods-MobilerakerServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		20CBD7C36CD0C5572C3269A2 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		2108742160750C1D989CC2EE /* Pods-MobilerakerServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-MobilerakerServiceExtension/Pods-MobilerakerServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
+		240D377862452F745BC80325 /* Pods-MobilerakerNotificationExtention.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationExtention.release.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationExtention/Pods-MobilerakerNotificationExtention.release.xcconfig"; sourceTree = "<group>"; };
 		2A67BFF3797D6AA4C62E1EC8 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		31A2812A4009592F7C4E83FF /* GoogleService-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "Runner/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		38033550FFC80F7D1A55AF24 /* Pods-MobilerakerNotificationServiceExtension.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationServiceExtension.release.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationServiceExtension/Pods-MobilerakerNotificationServiceExtension.release.xcconfig"; sourceTree = "<group>"; };
@@ -97,6 +98,9 @@
 		97C146FD1CF9000F007C117D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B9AC232B1C05A65B9EF85AD5 /* Pods-MobilerakerNotificationExtention.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationExtention.profile.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationExtention/Pods-MobilerakerNotificationExtention.profile.xcconfig"; sourceTree = "<group>"; };
+		C3E233C927AD425800616FB0 /* Pods_MobilerakerNotificationExtention.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobilerakerNotificationExtention.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C8DBAD1BF192FD666AD8BCEF /* Pods-MobilerakerNotificationExtention.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationExtention.debug.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationExtention/Pods-MobilerakerNotificationExtention.debug.xcconfig"; sourceTree = "<group>"; };
 		CD1B916329FFEE170062AE26 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		CD1E1FD72ACF654400A311C3 /* ViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtension.swift; sourceTree = "<group>"; };
 		CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MobilrakerLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -107,10 +111,10 @@
 		CDCC28092AAB9B4000116FFF /* MobilrakerLiveActivityExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobilrakerLiveActivityExtension.entitlements; sourceTree = "<group>"; };
 		CDCC280A2AAB9E0100116FFF /* PrintingLiveActivity.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PrintingLiveActivity.swift; sourceTree = "<group>"; };
 		CDCC280E2AABA70000116FFF /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
-		CDCDCED92A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MobilerakerNotificationServiceExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		CDCDCEDB2A4B784100E1B5C8 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
-		CDCDCEDD2A4B784100E1B5C8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		CDCDCEE52A4B7BF300E1B5C8 /* MobilerakerNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobilerakerNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
+		CDF5F8F42B4858120007F060 /* MobilerakerNotificationExtention.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MobilerakerNotificationExtention.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDF5F8F62B4858120007F060 /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		CDF5F8F82B4858120007F060 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CDF5F9002B4861E40007F060 /* MobilerakerNotificationExtention.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MobilerakerNotificationExtention.entitlements; sourceTree = "<group>"; };
 		CDF967FB2AB5E2A900D7FF15 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		CDF967FD2AB5EAE500D7FF15 /* EtaDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtaDisplayView.swift; sourceTree = "<group>"; };
 		EAE0A4955F45E8075EF2E189 /* Pods-MobilerakerNotificationServiceExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobilerakerNotificationServiceExtension.debug.xcconfig"; path = "Target Support Files/Pods-MobilerakerNotificationServiceExtension/Pods-MobilerakerNotificationServiceExtension.debug.xcconfig"; sourceTree = "<group>"; };
@@ -137,11 +141,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CDCDCED62A4B784100E1B5C8 /* Frameworks */ = {
+		CDF5F8F12B4858120007F060 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B65DF667A8C80B7CFC012CA5 /* Pods_MobilerakerNotificationServiceExtension.framework in Frameworks */,
+				0180255D688DDDB51384FE10 /* Pods_MobilerakerNotificationExtention.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,6 +164,9 @@
 				EAE0A4955F45E8075EF2E189 /* Pods-MobilerakerNotificationServiceExtension.debug.xcconfig */,
 				38033550FFC80F7D1A55AF24 /* Pods-MobilerakerNotificationServiceExtension.release.xcconfig */,
 				4D9C48F02B104C646E597459 /* Pods-MobilerakerNotificationServiceExtension.profile.xcconfig */,
+				C8DBAD1BF192FD666AD8BCEF /* Pods-MobilerakerNotificationExtention.debug.xcconfig */,
+				240D377862452F745BC80325 /* Pods-MobilerakerNotificationExtention.release.xcconfig */,
+				B9AC232B1C05A65B9EF85AD5 /* Pods-MobilerakerNotificationExtention.profile.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -181,8 +188,8 @@
 				CDCC28092AAB9B4000116FFF /* MobilrakerLiveActivityExtension.entitlements */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
-				CDCDCEDA2A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension */,
 				CDCC27F82AAB9A0800116FFF /* MobilrakerLiveActivity */,
+				CDF5F8F52B4858120007F060 /* MobilerakerNotificationExtention */,
 				97C146EF1CF9000F007C117D /* Products */,
 				608A3AB57A96DD225C3B1F1B /* Pods */,
 				D5C75935D8D0025F2486829C /* Frameworks */,
@@ -194,8 +201,8 @@
 			isa = PBXGroup;
 			children = (
 				97C146EE1CF9000F007C117D /* Runner.app */,
-				CDCDCED92A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension.appex */,
 				CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */,
+				CDF5F8F42B4858120007F060 /* MobilerakerNotificationExtention.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -238,14 +245,14 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
-		CDCDCEDA2A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension */ = {
+		CDF5F8F52B4858120007F060 /* MobilerakerNotificationExtention */ = {
 			isa = PBXGroup;
 			children = (
-				CDCDCEE52A4B7BF300E1B5C8 /* MobilerakerNotificationServiceExtension.entitlements */,
-				CDCDCEDB2A4B784100E1B5C8 /* NotificationService.swift */,
-				CDCDCEDD2A4B784100E1B5C8 /* Info.plist */,
+				CDF5F9002B4861E40007F060 /* MobilerakerNotificationExtention.entitlements */,
+				CDF5F8F62B4858120007F060 /* NotificationService.swift */,
+				CDF5F8F82B4858120007F060 /* Info.plist */,
 			);
-			path = MobilerakerNotificationServiceExtension;
+			path = MobilerakerNotificationExtention;
 			sourceTree = "<group>";
 		};
 		D5C75935D8D0025F2486829C /* Frameworks */ = {
@@ -257,6 +264,7 @@
 				CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */,
 				CDCC27F62AAB9A0800116FFF /* SwiftUI.framework */,
 				40AF21014E4857D4B76DB3E3 /* Pods_MobilerakerNotificationServiceExtension.framework */,
+				C3E233C927AD425800616FB0 /* Pods_MobilerakerNotificationExtention.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -282,8 +290,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				CDCDCEDF2A4B784100E1B5C8 /* PBXTargetDependency */,
 				CDCC28032AAB9A0A00116FFF /* PBXTargetDependency */,
+				CDF5F8FA2B4858120007F060 /* PBXTargetDependency */,
 			);
 			name = Runner;
 			productName = Runner;
@@ -307,22 +315,22 @@
 			productReference = CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
-		CDCDCED82A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension */ = {
+		CDF5F8F32B4858120007F060 /* MobilerakerNotificationExtention */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CDCDCEE42A4B784200E1B5C8 /* Build configuration list for PBXNativeTarget "MobilerakerNotificationServiceExtension" */;
+			buildConfigurationList = CDF5F8FF2B4858120007F060 /* Build configuration list for PBXNativeTarget "MobilerakerNotificationExtention" */;
 			buildPhases = (
-				1CE2BCC9B4F83DA5DAC86079 /* [CP] Check Pods Manifest.lock */,
-				CDCDCED52A4B784100E1B5C8 /* Sources */,
-				CDCDCED62A4B784100E1B5C8 /* Frameworks */,
-				CDCDCED72A4B784100E1B5C8 /* Resources */,
+				CF08C9BA3CB6DEC76A5B2AD1 /* [CP] Check Pods Manifest.lock */,
+				CDF5F8F02B4858120007F060 /* Sources */,
+				CDF5F8F12B4858120007F060 /* Frameworks */,
+				CDF5F8F22B4858120007F060 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = MobilerakerNotificationServiceExtension;
-			productName = MobilerakerNotificationServiceExtension;
-			productReference = CDCDCED92A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension.appex */;
+			name = MobilerakerNotificationExtention;
+			productName = MobilerakerNotificationExtention;
+			productReference = CDF5F8F42B4858120007F060 /* MobilerakerNotificationExtention.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -331,7 +339,7 @@
 		97C146E61CF9000F007C117D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1430;
+				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
@@ -342,8 +350,8 @@
 					CDCC27F22AAB9A0800116FFF = {
 						CreatedOnToolsVersion = 14.3.1;
 					};
-					CDCDCED82A4B784100E1B5C8 = {
-						CreatedOnToolsVersion = 14.3.1;
+					CDF5F8F32B4858120007F060 = {
+						CreatedOnToolsVersion = 15.0;
 					};
 				};
 			};
@@ -361,7 +369,7 @@
 			projectRoot = "";
 			targets = (
 				97C146ED1CF9000F007C117D /* Runner */,
-				CDCDCED82A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension */,
+				CDF5F8F32B4858120007F060 /* MobilerakerNotificationExtention */,
 				CDCC27F22AAB9A0800116FFF /* MobilrakerLiveActivityExtension */,
 			);
 		};
@@ -388,7 +396,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CDCDCED72A4B784100E1B5C8 /* Resources */ = {
+		CDF5F8F22B4858120007F060 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -398,28 +406,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		1CE2BCC9B4F83DA5DAC86079 /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-MobilerakerNotificationServiceExtension-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		2D43081B6CAA39778291564C /* [firebase_crashlytics] Crashlytics Upload Symbols */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -510,6 +496,28 @@
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
+		CF08C9BA3CB6DEC76A5B2AD1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-MobilerakerNotificationExtention-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -534,11 +542,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CDCDCED52A4B784100E1B5C8 /* Sources */ = {
+		CDF5F8F02B4858120007F060 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDCDCEDC2A4B784100E1B5C8 /* NotificationService.swift in Sources */,
+				CDF5F8F72B4858120007F060 /* NotificationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -550,10 +558,10 @@
 			target = CDCC27F22AAB9A0800116FFF /* MobilrakerLiveActivityExtension */;
 			targetProxy = CDCC28022AAB9A0A00116FFF /* PBXContainerItemProxy */;
 		};
-		CDCDCEDF2A4B784100E1B5C8 /* PBXTargetDependency */ = {
+		CDF5F8FA2B4858120007F060 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = CDCDCED82A4B784100E1B5C8 /* MobilerakerNotificationServiceExtension */;
-			targetProxy = CDCDCEDE2A4B784100E1B5C8 /* PBXContainerItemProxy */;
+			target = CDF5F8F32B4858120007F060 /* MobilerakerNotificationExtention */;
+			targetProxy = CDF5F8F92B4858120007F060 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -942,11 +950,12 @@
 			};
 			name = Profile;
 		};
-		CDCDCEE12A4B784200E1B5C8 /* Debug */ = {
+		CDF5F8FC2B4858120007F060 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EAE0A4955F45E8075EF2E189 /* Pods-MobilerakerNotificationServiceExtension.debug.xcconfig */;
+			baseConfigurationReference = C8DBAD1BF192FD666AD8BCEF /* Pods-MobilerakerNotificationExtention.debug.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -954,15 +963,16 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationServiceExtension/MobilerakerNotificationServiceExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationExtention/MobilerakerNotificationExtention.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q4XB68D4T7;
 				ENABLE_BITCODE = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MobilerakerNotificationServiceExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationServiceExtension;
+				INFOPLIST_FILE = MobilerakerNotificationExtention/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationExtention;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -970,14 +980,15 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "-D TARGET_EXTENSION";
-				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationServiceExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationExtention;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -985,11 +996,12 @@
 			};
 			name = Debug;
 		};
-		CDCDCEE22A4B784200E1B5C8 /* Release */ = {
+		CDF5F8FD2B4858120007F060 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 38033550FFC80F7D1A55AF24 /* Pods-MobilerakerNotificationServiceExtension.release.xcconfig */;
+			baseConfigurationReference = 240D377862452F745BC80325 /* Pods-MobilerakerNotificationExtention.release.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -997,15 +1009,16 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationServiceExtension/MobilerakerNotificationServiceExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationExtention/MobilerakerNotificationExtention.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q4XB68D4T7;
 				ENABLE_BITCODE = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MobilerakerNotificationServiceExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationServiceExtension;
+				INFOPLIST_FILE = MobilerakerNotificationExtention/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationExtention;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1013,10 +1026,11 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "-D TARGET_EXTENSION";
-				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationServiceExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationExtention;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1025,11 +1039,12 @@
 			};
 			name = Release;
 		};
-		CDCDCEE32A4B784200E1B5C8 /* Profile */ = {
+		CDF5F8FE2B4858120007F060 /* Profile */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 4D9C48F02B104C646E597459 /* Pods-MobilerakerNotificationServiceExtension.profile.xcconfig */;
+			baseConfigurationReference = B9AC232B1C05A65B9EF85AD5 /* Pods-MobilerakerNotificationExtention.profile.xcconfig */;
 			buildSettings = {
 				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				BUILD_LIBRARY_FOR_DISTRIBUTION = NO;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -1037,15 +1052,16 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationServiceExtension/MobilerakerNotificationServiceExtension.entitlements;
+				CODE_SIGN_ENTITLEMENTS = MobilerakerNotificationExtention/MobilerakerNotificationExtention.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = Q4XB68D4T7;
 				ENABLE_BITCODE = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = MobilerakerNotificationServiceExtension/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationServiceExtension;
+				INFOPLIST_FILE = MobilerakerNotificationExtention/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = MobilerakerNotificationExtention;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 13.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1053,10 +1069,11 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MTL_FAST_MATH = YES;
 				OTHER_SWIFT_FLAGS = "-D TARGET_EXTENSION";
-				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationServiceExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mobileraker.ios.MobilerakerNotificationExtention;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1098,12 +1115,12 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CDCDCEE42A4B784200E1B5C8 /* Build configuration list for PBXNativeTarget "MobilerakerNotificationServiceExtension" */ = {
+		CDF5F8FF2B4858120007F060 /* Build configuration list for PBXNativeTarget "MobilerakerNotificationExtention" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				CDCDCEE12A4B784200E1B5C8 /* Debug */,
-				CDCDCEE22A4B784200E1B5C8 /* Release */,
-				CDCDCEE32A4B784200E1B5C8 /* Profile */,
+				CDF5F8FC2B4858120007F060 /* Debug */,
+				CDF5F8FD2B4858120007F060 /* Release */,
+				CDF5F8FE2B4858120007F060 /* Profile */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

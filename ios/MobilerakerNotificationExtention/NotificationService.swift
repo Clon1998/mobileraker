@@ -1,8 +1,8 @@
 //
 //  NotificationService.swift
-//  MobilerakerNotificationServiceExtension
+//  MobilerakerNotificationExtention
 //
-//  Created by Patrick Schmidt on 27.06.23.
+//  Created by Patrick Schmidt on 05.01.24.
 //
 
 import UserNotifications
