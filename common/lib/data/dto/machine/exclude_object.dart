@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -9,7 +9,6 @@ import 'package:vector_math/vector_math.dart';
 import '../../converters/vector2_converter.dart';
 
 part 'exclude_object.freezed.dart';
-
 part 'exclude_object.g.dart';
 
 @freezed
