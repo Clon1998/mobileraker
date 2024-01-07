@@ -14,6 +14,8 @@
 
 - Improved the Extruder card, making it a separate and more polished component and allowing users to modify extruder
   velocity.[#268](https://github.com/Clon1998/mobileraker/issues/268)
+- [IOS] Reworked the design of live activities in a more compact form. It also is now black instead of white to match
+  the system theme.
 
 ### Bug Fixes
 
