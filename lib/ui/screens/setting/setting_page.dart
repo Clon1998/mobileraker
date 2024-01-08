@@ -274,7 +274,7 @@ class _NotificationSection extends ConsumerWidget {
               AppSettingKeys.useLiveActivity,
               b ?? false,
             ),
-            initialValue: ref.watch(boolSettingProvider(AppSettingKeys.useLiveActivity)),
+            initialValue: ref.watch(boolSettingProvider(AppSettingKeys.useLiveActivity, true)),
             decoration: const InputDecoration(
               border: InputBorder.none,
               isCollapsed: true,

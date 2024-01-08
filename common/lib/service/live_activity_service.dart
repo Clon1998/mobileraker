@@ -83,7 +83,7 @@ class LiveActivityService {
       FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        reason: 'Error while setting up NotificationService',
+        reason: 'Error while setting up the LiveActivityService',
       );
       logger.w('Error encountered while trying to setup the LiveActivityService.', e, s);
     } finally {
@@ -98,7 +98,7 @@ class LiveActivityService {
     _restoreActivityMap();
     _setupLiveActivityListener();
     _registerMachineHandlers();
-    _registerAppLfeCycleHandler();
+    _registerAppLifecycleHandler();
   }
 
   void _setupLiveActivityListener() {
@@ -149,7 +149,7 @@ class LiveActivityService {
     );
   }
 
-  void _registerAppLfeCycleHandler() {
+  void _registerAppLifecycleHandler() {
     ref.listen(
       appLifecycleProvider,
       (_, next) async {
@@ -261,9 +261,12 @@ class LiveActivityService {
         'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
         'completed_label': tr('general.completed'),
       };
-      if ({PrintState.printing, PrintState.paused, PrintState.complete, PrintState.cancelled}
-          .contains(printer.print.state)) {
-        await _updateOrCreateLiveActivity(data, machine);
+
+      var isPrinting = {PrintState.printing, PrintState.paused}.contains(printer.print.state);
+      var isDone = {PrintState.complete, PrintState.cancelled}.contains(printer.print.state);
+
+      if (isPrinting || isDone) {
+        await _updateOrCreateLiveActivity(data, machine, isPrinting);
       } else {
         _endLiveActivity(machine);
       }
@@ -287,7 +290,8 @@ class LiveActivityService {
     var allActivities = await _liveActivityAPI.getAllActivitiesIds();
     logger.i('Found ${allActivities.length} LiveActivities');
     // Get the state of all activities
-    var activityAndStateList = await Future.wait(allActivities.map((e) => _liveActivityAPI.getActivityState(e).then((state) => (e, state))));
+    var activityAndStateList =
+        await Future.wait(allActivities.map((e) => _liveActivityAPI.getActivityState(e).then((state) => (e, state))));
     // logger.i('activityAndStateList: $activityAndStateList');
 
     // Filter out all activities not known to the app -> The api/app can not address anymore
@@ -308,7 +312,8 @@ class LiveActivityService {
     _backupLiveActivityMap();
   }
 
-  Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, Machine machine) async {
+  Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, Machine machine,
+      [bool createIfMissing = true]) async {
     // Check if an activity is already running for this machine and if we can still address it
     if (_machineLiveActivityMap.containsKey(machine.uuid)) {
       var activityEntry = _machineLiveActivityMap[machine.uuid]!;
@@ -326,6 +331,12 @@ class LiveActivityService {
       // Okay we can not update the activity remove and end it
       await _liveActivityAPI.endActivity(activityEntry.id);
       _machineLiveActivityMap.remove(machine.uuid);
+    }
+
+    // If we are not allowed to create a new activity we can just return null
+    if (!createIfMissing) {
+      logger.i('Not allowed to create a new LiveActivity for ${machine.name} since createIfMissing is false');
+      return null;
     }
 
     // Okay I guess we need to create a new activity for this machine
