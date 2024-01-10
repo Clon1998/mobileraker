@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.6.9] - 2024-xx-xx
+## [2.6.9] - 2024-01-10
 
 ### Major Updates
 
@@ -20,6 +20,7 @@
 ### Bug Fixes
 
 - Fixed bed mesh button not correctly going into loading state after pressing it.
+- Fixed ETA Cell using the Filament label instead of the ETA label.
 
 ## [2.6.8] - 2023-12-8
 
