@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -42,7 +42,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
     animCtrler.forward();
     var gcodeFile = ref.watch(gcodeProvider);
 
-    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.value!.uuid));
+    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.requireValue!.uuid));
     var cacheManager = ref.watch(httpCacheManagerProvider(machineUUID));
 
     var machineUri = ref.watch(previewImageUriProvider);

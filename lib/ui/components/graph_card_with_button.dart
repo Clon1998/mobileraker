@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -89,6 +89,7 @@ class GraphCardWithButton extends StatelessWidget {
           TextButton(
             style: TextButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
+              maximumSize: const Size.fromHeight(48),
               padding: EdgeInsets.zero,
               shape: const RoundedRectangleBorder(
                 borderRadius:

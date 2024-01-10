@@ -31,8 +31,8 @@ void main() {
             "nozzle_diameter": 0.4,
             "filament_diameter": 1.75,
             "max_extrude_cross_section": 50,
-            "max_extrude_only_velocity": 133.04054018457214,
-            "max_extrude_only_accel": 1862.5675625840101,
+            "max_extrude_only_velocity": 133.5,
+            "max_extrude_only_accel": 1862.5,
             "max_extrude_only_distance": 200,
             "instantaneous_corner_velocity": 1,
             "step_pin": "PG4",
@@ -57,6 +57,8 @@ void main() {
     expect(configExtruder.maxTemp, 300);
     expect(configExtruder.maxPower, 1);
     expect(configExtruder.filamentDiameter, 1.75);
+    expect(configExtruder.maxExtrudeOnlyVelocity, 133.5);
+    expect(configExtruder.maxExtrudeOnlyAccel, 1862.5);
   });
 
   test('ConfigExtruder.fromJson() creates ConfigExtruder instance from JSON with combined sensor', () {
@@ -82,8 +84,8 @@ void main() {
             "nozzle_diameter": 0.4,
             "filament_diameter": 1.75,
             "max_extrude_cross_section": 50,
-            "max_extrude_only_velocity": 133.04054018457214,
-            "max_extrude_only_accel": 1862.5675625840101,
+            "max_extrude_only_velocity": 133.5,
+            "max_extrude_only_accel": 1862.5,
             "max_extrude_only_distance": 200,
             "instantaneous_corner_velocity": 1,
             "step_pin": "PG4",
@@ -108,5 +110,7 @@ void main() {
     expect(configExtruder.maxTemp, 300);
     expect(configExtruder.maxPower, 1);
     expect(configExtruder.filamentDiameter, 1.75);
+    expect(configExtruder.maxExtrudeOnlyVelocity, 133.5);
+    expect(configExtruder.maxExtrudeOnlyAccel, 1862.5);
   });
 }

@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'package:collection/collection.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
+import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flip_card/flip_card.dart';
@@ -109,30 +110,46 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-                  var height = constraints.maxWidth * 0.35;
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Flexible(child: _tile(height)),
-                          Flexible(child: _tile(height)),
-                        ],
-                      ),
-                      const SizedBox(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Flexible(
+                          child: CardWithSkeleton(
+                            contentTextStyles: [
+                              themeData.textTheme.titleLarge,
+                              themeData.textTheme.bodySmall,
+                              themeData.textTheme.bodySmall,
+                            ],
+                          ),
+                        ),
+                        Flexible(
+                          child: CardWithSkeleton(
+                            contentTextStyles: [
+                              themeData.textTheme.titleLarge,
+                              themeData.textTheme.bodySmall,
+                              themeData.textTheme.bodySmall,
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      child: const SizedBox(
                         width: 30,
-                        height: 12,
+                        height: 11,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             color: Colors.white,
                           ),
                         ),
                       ),
-                    ],
-                  );
-                }),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

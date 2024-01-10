@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -89,7 +89,7 @@ Stream<Printer> printer(PrinterRef ref, String machineUUID) {
 
 @riverpod
 PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
-  return ref.watch(printerServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+  return ref.watch(printerServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod
@@ -275,8 +275,8 @@ class PrinterService {
     gCode('ACTIVATE_EXTRUDER EXTRUDER=extruder${extruderIndex > 0 ? extruderIndex : ''}');
   }
 
-  moveExtruder(double length, [double feedRate = 5]) {
-    gCode('M83\nG1 E$length F${feedRate * 60}');
+  Future<void> moveExtruder(double length, [double velocity = 5]) async {
+    await gCode('M83\nG1 E$length F${velocity * 60}');
   }
 
   Future<bool> homePrintHead(Set<PrinterAxis> axis) {
@@ -296,6 +296,10 @@ class PrinterService {
 
   Future<bool> m84() {
     return gCode('M84');
+  }
+
+  Future<bool> bedMeshLevel() {
+    return gCode('BED_MESH_CALIBRATE');
   }
 
   Future<bool> zTiltAdjust() {
@@ -324,10 +328,6 @@ class PrinterService {
 
   m117([String? msg]) {
     gCode('M117 ${msg ?? ''}');
-  }
-
-  bedMeshLevel() {
-    gCode('BED_MESH_CALIBRATE');
   }
 
   partCoolingFan(double perc) {

@@ -8,8 +8,8 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>group.awn.a33d20e1</string>
 		<string>group.mobileraker.liveactivity</string>
+		<string>group.mobileraker.awn</string>
 	</array>
 </dict>
 </plist>

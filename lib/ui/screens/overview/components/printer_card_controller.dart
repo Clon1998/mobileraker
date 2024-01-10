@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -65,7 +65,7 @@ class PrinterCardController extends _$PrinterCardController {
   onFullScreenTap() {
     _goRouter.pushNamed(
       AppRoute.fullCam.name,
-      extra: {'machine': _machine, 'selectedCam': state.value!},
+      extra: {'machine': _machine, 'selectedCam': state.requireValue},
     );
   }
 }

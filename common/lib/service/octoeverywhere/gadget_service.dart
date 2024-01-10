@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:common/data/dto/octoeverywhere/gadget_status.dart';
 import 'package:common/util/extensions/string_extension.dart';

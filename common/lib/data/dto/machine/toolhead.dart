@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -8,7 +8,6 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'printer_axis_enum.dart';
 
 part 'toolhead.freezed.dart';
-
 part 'toolhead.g.dart';
 
 Set<PrinterAxis> _homedAxisFromJson(String haxis) =>
@@ -18,6 +17,8 @@ String _homedAxisToJson(Set<PrinterAxis> homed) => homed.map((e) => e.name).join
 
 @freezed
 class Toolhead with _$Toolhead {
+  const Toolhead._();
+
   const factory Toolhead({
     @JsonKey(name: 'homed_axes', fromJson: _homedAxisFromJson, toJson: _homedAxisToJson)
     @Default(<PrinterAxis>{})
@@ -31,6 +32,8 @@ class Toolhead with _$Toolhead {
     @JsonKey(name: 'max_accel_to_decel') @Default(3000) double maxAccelToDecel,
     @JsonKey(name: 'square_corner_velocity') @Default(1500) double squareCornerVelocity,
   }) = _Toolhead;
+
+  int get activeExtruderIndex => int.tryParse(activeExtruder.substring(8)) ?? 0;
 
   factory Toolhead.fromJson(Map<String, dynamic> json) => _$ToolheadFromJson(json);
 

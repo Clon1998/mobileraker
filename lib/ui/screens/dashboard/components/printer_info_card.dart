@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -7,6 +7,7 @@ import 'package:common/data/dto/machine/exclude_object.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -49,7 +50,7 @@ class PrintCard extends ConsumerWidget {
                   ? ref.watch(generalTabViewControllerProvider.select(
                       (data) => data.value!.printerData.print.stateName,
                     ))
-                  : klippyInstance.klippyStateMessage ?? 'Klipper: ${tr(klippyInstance.klippyState.name)}',
+                  : klippyInstance.statusMessage,
               style: TextStyle(
                 color: !klippyCanReceiveCommands ? themeData.colorScheme.error : null,
               ),

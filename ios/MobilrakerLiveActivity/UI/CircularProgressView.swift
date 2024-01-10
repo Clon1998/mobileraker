@@ -46,16 +46,6 @@ struct CircularProgressView: View {
             }
         }
     }
-    
-    func colorWithRGBA(_ rgba: UInt32) -> Color {
-        let red = CGFloat((rgba >> 16) & 0xFF) / 255.0
-        let green = CGFloat((rgba >> 8) & 0xFF) / 255.0
-        let blue = CGFloat(rgba & 0xFF) / 255.0
-        let alpha = CGFloat((rgba >> 24) & 0xFF) / 255.0
-        
-        return Color(UIColor(red: red, green: green, blue: blue, alpha: alpha))
-    }
-    
 }
 
 struct CircularProgressView_Previews: PreviewProvider {

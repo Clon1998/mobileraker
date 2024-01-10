@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -107,7 +107,7 @@ class _CardTitle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_macroGroupCardControllerProvider(machineUUID).notifier);
-    var model = ref.watch(_macroGroupCardControllerProvider(machineUUID)).value!;
+    var model = ref.watch(_macroGroupCardControllerProvider(machineUUID)).requireValue;
 
     return ListTile(
       leading: const Icon(FlutterIcons.code_braces_mco),

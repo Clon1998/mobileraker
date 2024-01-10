@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -224,7 +224,7 @@ class _ScrewLocationIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var data = ref.watch(bedScrewAdjustDialogControllerProvider).valueOrNull!;
+    var data = ref.watch(bedScrewAdjustDialogControllerProvider).requireValue;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

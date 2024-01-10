@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -41,7 +41,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   @override
   void initState() {
     super.initState();
-    var machine = ref.read(selectedMachineProvider).value!;
+    var machine = ref.read(selectedMachineProvider).requireValue!;
     var dio = ref.read(dioClientProvider(machine.uuid));
     var fileUri = widget.file.downloadUri(Uri.tryParse(dio.options.baseUrl))!;
 
@@ -194,6 +194,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
   void dispose() {
     downloadStreamSub?.cancel();
     _customVideoPlayerController.dispose();
+    videoPlayerController.dispose();
     super.dispose();
   }
 }

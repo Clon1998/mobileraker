@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -63,25 +63,25 @@ class CamCardController extends _$CamCardController {
   }
 
   onSelectedChange(String? camUUID) {
-    if (camUUID == null || !state.hasValue || state.value?.activeCam?.uuid == camUUID) return;
+    if (camUUID == null || !state.hasValue || state.requireValue.activeCam?.uuid == camUUID) return;
 
-    var cams = state.value!.allCams;
+    var cams = state.requireValue.allCams;
     var indexOf = cams.indexWhere((cam) => cam.uuid == camUUID);
     ref.read(settingServiceProvider).writeInt(_webcamIndexKey, indexOf);
-    state = AsyncValue.data(state.value!.copyWith(activeCam: cams[indexOf]));
+    state = AsyncValue.data(state.requireValue.copyWith(activeCam: cams[indexOf]));
   }
 
   onFullScreenTap() {
-    Machine machine = ref.read(selectedMachineProvider).value!;
+    if (!state.hasValue) return;
     ref.read(goRouterProvider).pushNamed(
       AppRoute.fullCam.name,
-      extra: {'machine': machine, 'selectedCam': state.value!.activeCam},
+      extra: {'machine': state.requireValue.machine, 'selectedCam': state.requireValue.activeCam},
     );
   }
 
   onRetry() {
-    if (state.hasValue && state.value!.activeCam != null) {
-      ref.invalidate(allWebcamInfosProvider(state.value!.machine.uuid));
+    if (state.hasValue && state.requireValue.activeCam != null) {
+      ref.invalidate(allWebcamInfosProvider(state.requireValue.machine.uuid));
     }
   }
 }

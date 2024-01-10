@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -69,7 +69,7 @@ class _Fab extends ConsumerWidget {
     if (jobQueueStatusAsync.isLoading || jobQueueStatusAsync.hasError) {
       return const SizedBox.shrink();
     }
-    var jobQueueStatus = jobQueueStatusAsync.value!;
+    var jobQueueStatus = jobQueueStatusAsync.requireValue;
 
     if (jobQueueStatus.queuedJobs.isEmpty) {
       return const SizedBox.shrink();
@@ -567,7 +567,7 @@ class _ImageFileItem extends ConsumerWidget {
     var imageBaseUri = ref.watch(previewImageUriProvider);
     var imageHeaders = ref.watch(previewImageHttpHeaderProvider);
     var imageUri = file.downloadUri(imageBaseUri);
-    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.value!.uuid));
+    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.requireValue!.uuid));
     var cacheManager = ref.watch(httpCacheManagerProvider(machineUUID));
 
     return _Slideable(
@@ -636,7 +636,7 @@ class _GCodeFileItem extends ConsumerWidget {
             .format(gCode.lastPrintDate!)
         : null;
     var themeData = Theme.of(context);
-    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.value!.uuid));
+    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.requireValue!.uuid));
     var cacheManager = ref.watch(httpCacheManagerProvider(machineUUID));
 
     return _Slideable(

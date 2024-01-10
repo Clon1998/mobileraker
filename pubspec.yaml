@@ -15,15 +15,15 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.6.8+245
+version: 2.6.9+245
 
 environment:
-  sdk: '>=3.1.0 <4.0.0'
-  flutter: '>=3.7.2'
+  sdk: '>=3.2.3 <4.0.0'
+  flutter: '>=3.16.5'
 
 
-#dependency_overrides:
-#  intl: ^0.18.1 # required due to awesome notifications and formbuilder
+dependency_overrides:
+  intl: ^0.18.1 # required due to awesome notifications and formbuilder
 
 dependencies:
   flutter:
@@ -37,18 +37,22 @@ dependencies:
   common:
     path: common
 
-  web_socket_channel: ^2.1.0
   dio: ^5.3.3
-  dio_smart_retry: ^6.0.0
 
   #firebase
-  firebase_core_platform_interface: ^4.8.0
-  firebase_core: ^2.16.0
-  firebase_analytics: ^10.5.0
-  firebase_app_check: ^0.2.0
-  firebase_crashlytics: ^3.3.6
-  firebase_remote_config: ^4.2.6
-  cloud_firestore: ^4.9.2
+  firebase_core_platform_interface: ^5.0.0
+  firebase_core: ^2.24.2
+  firebase_analytics: ^10.7.4
+  firebase_app_check: ^0.2.1+8
+  firebase_crashlytics: ^3.4.8
+  firebase_remote_config: ^4.3.8
+  cloud_firestore: ^4.13.6
+
+  firebase_auth: ^4.15.3
+  firebase_ui_auth: ^1.11.0
+  firebase_ui_oauth_google: ^1.2.15
+  firebase_ui_oauth_apple: ^1.2.15
+  firebase_ui_oauth: ^1.2.15
 
 
   #architecture
@@ -67,12 +71,15 @@ dependencies:
   stringr: ^1.0.0
   vector_math: ^2.1.2
   enum_to_string: ^2.0.1
-  uuid: ^3.0.5
   url_launcher: ^6.1.6
   logger: ^1.3.0
-  package_info_plus: ^4.1.0
-  permission_handler: ^10.4.3
+  permission_handler: ^11.0.0
   collection: ^1.17.0
+  fftea: ^1.5.0
+  #  mic_stream: ^0.7.1+2
+  flutter_audio_capture: ^1.1.6
+  worker_manager: ^6.3.1
+
 
   #crypto
   hashlib_codecs: ^2.2.0
@@ -89,13 +96,13 @@ dependencies:
   #theme
   cupertino_icons: ^1.0.2
   flex_color_scheme: ^7.0.4
-  google_fonts: ^4.0.3
+  google_fonts: ^6.1.0
 
 
   #notification
-  awesome_notifications_core: ^0.8.1
-  awesome_notifications: ^0.8.2
-  awesome_notifications_fcm: ^0.8.0
+  awesome_notifications_core: ^0.9.0
+  awesome_notifications: ^0.9.0
+  awesome_notifications_fcm: ^0.9.1
   live_activities: ^1.9.0
 
 
@@ -107,7 +114,7 @@ dependencies:
   easy_localization: ^3.0.3
 
   #purchases
-  purchases_flutter: ^5.3.0
+  purchases_flutter: ^6.5.1
 
   #rating
   rate_my_app: ^2.0.0
@@ -115,7 +122,7 @@ dependencies:
   #ui
   expandable_page_view: ^1.0.17
   badges: ^3.1.1
-  easy_stepper: ^0.7.2
+  easy_stepper: ^0.8.3
   flutter_colorpicker: ^1.0.3
   percent_indicator: ^4.0.1
   flutter_icons:
@@ -134,17 +141,19 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   dots_indicator: 2.1.2
   webview_flutter: ^4.4.0
-  fl_chart: ^0.63.0
+  fl_chart: ^0.65.0
   flutter_slidable: ^3.0.0
   code_text_field: ^1.0.2
   mobile_scanner: ^3.5.5
   touchable: ^1.0.2
   flutter_markdown: ^0.6.14
   flutter_svg: ^2.0.5
-  loader_overlay: ^2.2.0
+  loader_overlay: ^4.0.0
   appinio_video_player: ^1.2.2
   flutter_echarts: ^2.5.0
   file_picker: ^6.1.1
+  geekyants_flutter_gauges: ^1.0.3
+  bottom_sheet: ^4.0.0
 
 
 #  ditredi: ^1.0.3
@@ -154,13 +163,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^2.3.3
+  build_runner: ^2.4.7
   hive_generator: ^2.0.0
-  flutter_lints: ^2.0.3
+  flutter_lints: ^3.0.1
   freezed: ^2.2.1
   mockito: ^5.3.2
   json_serializable: ^6.4.1
-  riverpod_generator: 2.3.2 #// Todo use ^ again once dependency error is fixed
+  riverpod_generator: ^2.3.9
   # riverpod_lint makes it easier to work with Riverpod
   riverpod_lint: ^2.1.0
   # import custom_lint too as riverpod_lint depends on it

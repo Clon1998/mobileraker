@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -38,6 +38,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
           const _NavHeader(),
           Expanded(
             child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
               child: Material(
                 type: MaterialType.transparency,
                 child: Column(
@@ -106,6 +107,11 @@ class NavigationDrawerWidget extends ConsumerWidget {
                         icon: FlutterIcons.build_mdi,
                         routeName: '/dev',
                       ),
+                    const _DrawerItem(
+                      text: 'Tools',
+                      icon: FlutterIcons.toolbox_faw5s,
+                      routeName: '/tool',
+                    ),
                   ],
                 ),
               ),
@@ -164,7 +170,7 @@ class _NavHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var themePack = ref.watch(activeThemeProvider).value!.themePack;
+    var themePack = ref.watch(activeThemeProvider).requireValue.themePack;
     var brandingIcon = (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
     var background = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.primary
@@ -186,7 +192,7 @@ class _NavHeader extends ConsumerWidget {
               if (selectedMachine.hasValue && selectedMachine.value != null) {
                 ref.read(navDrawerControllerProvider.notifier).pushingTo(
                       '/printer/edit',
-                      arguments: selectedMachine.value!,
+                      arguments: selectedMachine.requireValue!,
                     );
               } else {
                 ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add');
@@ -312,7 +318,7 @@ class _PrinterSelection extends ConsumerWidget {
       child: (isExpanded)
           ? Column(
               children: [
-                if (selMachine.valueOrNull != null) _MachineTile(machine: selMachine.value!, isSelected: true),
+                if (selMachine.valueOrNull != null) _MachineTile(machine: selMachine.requireValue!, isSelected: true),
                 ...ref
                     .watch(allMachinesProvider.selectAs((data) => data.where(
                           (element) => element.uuid != selMachine.valueOrNull?.uuid,

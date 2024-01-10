@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -135,7 +135,7 @@ class FilesPageController extends _$FilesPageController {
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
   List<String> get _usedFileNames {
-    var folderContentWrapper = ref.read(_fileApiResponseProvider(state.pathAsString)).value!;
+    var folderContentWrapper = ref.read(_fileApiResponseProvider(state.pathAsString)).requireValue;
     return [...folderContentWrapper.folders, ...folderContentWrapper.files].map((e) => e.name).toList();
   }
 
@@ -167,7 +167,9 @@ class FilesPageController extends _$FilesPageController {
   }
 
   jobQueueBottomSheet() {
-    ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu));
+    ref
+        .read(bottomSheetServiceProvider)
+        .show(BottomSheetConfig(type: SheetType.jobQueueMenu, isScrollControlled: true));
   }
 
   goToPath(List<String> path) {

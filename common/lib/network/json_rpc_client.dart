@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -156,7 +156,7 @@ class JsonRpcClient {
 
   /// Closes the WebSocket communication
   _resetChannel() {
-    _channel?.sink.close(WebSocketStatus.goingAway);
+    _channel?.sink.close(WebSocketStatus.goingAway).ignore();
   }
 
   /// Ensures that the ws is still connected.

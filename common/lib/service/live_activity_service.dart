@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:io' show Platform;
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer.dart';
-import 'package:common/data/model/ModelEvent.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/notification.dart';
+import 'package:common/data/model/model_event.dart';
 import 'package:common/data/repository/notifications_hive_repository.dart';
 import 'package:common/data/repository/notifications_repository.dart';
 import 'package:common/service/machine_service.dart';
@@ -73,6 +73,8 @@ class LiveActivityService {
 
   Future<bool> get initialized => _initialized.future;
 
+  bool _disableClearing = false;
+
   Future<void> initialize() async {
     try {
       await _initIos();
@@ -81,7 +83,7 @@ class LiveActivityService {
       FirebaseCrashlytics.instance.recordError(
         e,
         s,
-        reason: 'Error while setting up NotificationService',
+        reason: 'Error while setting up the LiveActivityService',
       );
       logger.w('Error encountered while trying to setup the LiveActivityService.', e, s);
     } finally {
@@ -95,8 +97,8 @@ class LiveActivityService {
 
     _restoreActivityMap();
     _setupLiveActivityListener();
-    // _registerMachineHandlers();
-    _registerAppLfeCycleHandler();
+    _registerMachineHandlers();
+    _registerAppLifecycleHandler();
   }
 
   void _setupLiveActivityListener() {
@@ -147,12 +149,13 @@ class LiveActivityService {
     );
   }
 
-  void _registerAppLfeCycleHandler() {
+  void _registerAppLifecycleHandler() {
     ref.listen(
       appLifecycleProvider,
       (_, next) async {
         // Force a liveActivity update once the app is back in foreground!
         if (next != AppLifecycleState.resumed) return;
+        if (_disableClearing) return;
         _refreshLiveActivitiesForMachines().ignore();
       },
     );
@@ -256,10 +259,14 @@ class LiveActivityService {
         'eta_label': tr('pages.dashboard.general.print_card.eta'),
         'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
         'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
+        'completed_label': tr('general.completed'),
       };
-      if ({PrintState.printing, PrintState.paused, PrintState.complete, PrintState.cancelled}
-          .contains(printer.print.state)) {
-        await _updateOrCreateLiveActivity(data, machine);
+
+      var isPrinting = {PrintState.printing, PrintState.paused}.contains(printer.print.state);
+      var isDone = {PrintState.complete, PrintState.cancelled}.contains(printer.print.state);
+
+      if (isPrinting || isDone) {
+        await _updateOrCreateLiveActivity(data, machine, isPrinting);
       } else {
         _endLiveActivity(machine);
       }
@@ -283,7 +290,8 @@ class LiveActivityService {
     var allActivities = await _liveActivityAPI.getAllActivitiesIds();
     logger.i('Found ${allActivities.length} LiveActivities');
     // Get the state of all activities
-    var activityAndStateList = await Future.wait(allActivities.map((e) => _liveActivityAPI.getActivityState(e).then((state) => (e, state))));
+    var activityAndStateList =
+        await Future.wait(allActivities.map((e) => _liveActivityAPI.getActivityState(e).then((state) => (e, state))));
     // logger.i('activityAndStateList: $activityAndStateList');
 
     // Filter out all activities not known to the app -> The api/app can not address anymore
@@ -304,7 +312,8 @@ class LiveActivityService {
     _backupLiveActivityMap();
   }
 
-  Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, Machine machine) async {
+  Future<String?> _updateOrCreateLiveActivity(Map<String, dynamic> activityData, Machine machine,
+      [bool createIfMissing = true]) async {
     // Check if an activity is already running for this machine and if we can still address it
     if (_machineLiveActivityMap.containsKey(machine.uuid)) {
       var activityEntry = _machineLiveActivityMap[machine.uuid]!;
@@ -322,6 +331,12 @@ class LiveActivityService {
       // Okay we can not update the activity remove and end it
       await _liveActivityAPI.endActivity(activityEntry.id);
       _machineLiveActivityMap.remove(machine.uuid);
+    }
+
+    // If we are not allowed to create a new activity we can just return null
+    if (!createIfMissing) {
+      logger.i('Not allowed to create a new LiveActivity for ${machine.name} since createIfMissing is false');
+      return null;
     }
 
     // Okay I guess we need to create a new activity for this machine
@@ -360,6 +375,10 @@ class LiveActivityService {
       element.close();
     }
     _initialized.completeError(StateError('Disposed notification service before it was initialized!'));
+  }
+
+  disableClearing() {
+    _disableClearing = true;
   }
 }
 

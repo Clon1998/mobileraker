@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -72,6 +72,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
       initialIndex: activeIndex,
     );
 
+    // ViewInserts are required for the keyboard, in case the sheet has text fields. Otherwise the keyboard might overlap the text fields.
     var viewInsets = MediaQuery.viewInsetsOf(context);
     var themeData = Theme.of(context);
     return Column(
@@ -128,10 +129,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
                 controller: tabController,
                 children: [
                   _OctoTab(scrollController: scrollController),
-                  if (obicoEnabled)
-                    _ObicoTab(
-                      scrollController: scrollController,
-                    ),
+                  if (obicoEnabled) _ObicoTab(scrollController: scrollController),
                   _ManualTab(scrollController: scrollController),
                 ],
               ),

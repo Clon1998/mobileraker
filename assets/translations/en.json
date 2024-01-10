@@ -45,7 +45,8 @@
     "clear": "Clear",
     "unlink": "Unlink",
     "save": "Save",
-    "apply": "Apply"
+    "apply": "Apply",
+    "completed": "Completed"
   },
   "pages": {
     "dashboard": {
@@ -320,8 +321,8 @@
       },
       "extruders": {
         "title": "Extruder(s)",
-        "feedrate": "Extruder feed rate",
-        "feedrate_short": "Feed rate",
+        "feedrate": "Extruder velocity",
+        "feedrate_short": "Velocity",
         "steps_extrude": "Extrude steps",
         "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
       },
@@ -517,10 +518,24 @@
       "intro_phase": "Enjoy {} at {} off",
       "iap_offer": "{} off original price",
       "tip_developer": "Tip Developer",
-      "trial_disclaimer": "You won't be charged until the end of the free trial, and you can cancel anytime during it."
+      "trial_disclaimer": "You won't be charged until the end of the free trial, and you can cancel anytime during it.",
+      "restore_sign_in": "Restore / Sign in"
     },
     "video_player": {
       "downloading_for_sharing": "Downloading video for sharing... ({})"
+    },
+    "tool": {
+      "title": "Tools"
+    },
+    "beltTuner": {
+      "title": "Belt Tuner",
+      "description": "\nEnsuring proper belt tension is essential for optimal performance in 3D printers. Incorrect tension, whether too tight or too loose, may lead to mechanical problems, premature wear, and compromised print quality. The tension values provided serve as reference points; however, it is advisable to consult the manufacturer's recommendations for specific guidelines tailored to your printer model. Adjustments should be made based on both these recommendations and individual printer requirements and conditions.",
+      "beltType": "Select your belt type:",
+      "target": "Target: {} Hz over {} mm",
+      "permissionWarning": {
+        "title": "Microphone permission required",
+        "subtitle": "The belt tuner uses your phone's microphone to analyze the frequency of your belts.\n\nTap to grant the permission."
+      }
     }
   },
   "components": {
@@ -696,6 +711,9 @@
     "macro_settings": {
       "show_while_printing": "Show while printing",
       "visible": "Visible"
+    },
+    "extruder_feedrate": {
+      "title": "Extruder Velocity [mm/s]"
     }
   },
   "bottom_sheets": {
@@ -738,6 +756,29 @@
     "manage_macros_in_grp": {
       "title": "Add Macros",
       "hint": "Select macros for group {}"
+    },
+    "signIn": {
+      "subtitle": "Although creating an account is optional, it is necessary to do so in order to restore purchases made on another device or platform."
+    },
+    "profile": {
+      "title": "You are signed in.",
+      "description": "Welcome back! Your user account is the key to an enhanced experience on any of your mobile devices. Seamlessly share your Supporter status to enjoy privileges effortlessly, wherever you go with your phone, tablet or other devices.",
+      "restore_purchases": "Restore Purchases",
+      "restore_success": "Successfully restored purchases!",
+      "sign_out": "Sign Out",
+      "delete_account": "Delete Account",
+      "email_verification": {
+        "title": {
+          "pending": "Verification email sent",
+          "not_verified": "Email is not verified"
+        },
+        "description": "Please verify your email address to ensure you can always access your account.",
+        "send": "Send Cerification"
+      },
+      "delete_account_dialog": {
+        "title": "Delete Account?",
+        "body": "You are about to delete your account. This action cannot be undone."
+      }
     }
   },
   "klipper_state": {
@@ -747,7 +788,8 @@
     "disconnected": "Disconnected",
     "error": "Error",
     "unauthorized": "Unauthorized",
-    "initializing": "Initializing"
+    "initializing": "Initializing",
+    "not_connected": "Moonraker cannot establish a connection with Klipper. Please verify that Klipper is running on your system."
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",

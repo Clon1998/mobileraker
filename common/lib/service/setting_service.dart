@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -105,6 +105,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   liveActivityStore('liveActivityStore'),
   zOffsetStepIndex('zOffsetStepIndex'),
   moveStepIndex('moveStepIndex'),
+  extruderStepIndex('extruderStepIndex'),
   ;
 
   @override

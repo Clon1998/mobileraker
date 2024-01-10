@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -93,7 +93,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
 
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).value!;
+        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).requireValue;
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
 
@@ -125,7 +125,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.retractLength),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.retractLength),
                 prefixText: tr(
                   'pages.dashboard.control.fw_retraction_card.retract_length',
                 ),
@@ -136,7 +136,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.unretractExtraLength),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.unretractExtraLength),
                 prefixText: tr(
                   'pages.dashboard.control.fw_retraction_card.extra_unretract_length',
                 ),
@@ -147,7 +147,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.retractSpeed),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.retractSpeed),
                 prefixText: tr(
                   'pages.dashboard.control.fw_retraction_card.retract_speed',
                 ),
@@ -158,7 +158,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.unretractSpeed),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.unretractSpeed),
                 prefixText: tr(
                   'pages.dashboard.control.fw_retraction_card.unretract_speed',
                 ),

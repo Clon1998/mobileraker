@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -69,7 +69,7 @@ class MacroGroupList extends ConsumerWidget {
               );
             }
 
-            var groups = ref.read(controllerProvider).value!;
+            var groups = ref.read(controllerProvider).requireValue;
 
             return ReorderableListView(
               buildDefaultDragHandles: false,
@@ -126,8 +126,7 @@ class _MacroGroup extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(macroGroupListControllerProvider(machineUUID).notifier);
     (int, MacroGroup?) indexedMacroGroup = ref.watch(macroGroupListControllerProvider(machineUUID).select((data) {
-      if (data.value == null) return (-1, null);
-      var list = data.value!;
+      var list = data.requireValue;
       var index = list.indexWhere((e) => e.uuid == groupUUID);
       return (index, index >= 0 ? list.elementAtOrNull(index) : null);
     }))!;
@@ -317,7 +316,7 @@ class MacroGroupListController extends _$MacroGroupListController {
 
   onMacroGroupReorderStart(int index) {
     logger.i("on Macro Group Reorder Start. Index: $index");
-    var list = state.valueOrNull!;
+    var list = state.requireValue;
     _beforeReorderExpandedGroups.clear();
 
     for (var value in list) {
@@ -386,7 +385,7 @@ class MacroGroupListController extends _$MacroGroupListController {
   Future<void> manageMacros(MacroGroup group) async {
     var arguments = ManageMacroGroupMacrosBottomSheetArguments(
       targetMacroGroup: group,
-      allMacroGroups: state.valueOrNull!,
+      allMacroGroups: state.requireValue,
     );
 
     var result = await ref

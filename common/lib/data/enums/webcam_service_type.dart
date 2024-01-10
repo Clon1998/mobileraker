@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -19,7 +19,9 @@ enum WebcamServiceType {
   @JsonValue('ipstream')
   ipSream(false, false),
   @JsonValue('webrtc-camerastreamer')
-  webRtc(true, true),
+  webRtcCamStreamer(true, true),
+  @JsonValue('webrtc-go2rtc')
+  webRtcGo2Rtc(true, true),
   @JsonValue('unknown')
   unknown(false, false);
 

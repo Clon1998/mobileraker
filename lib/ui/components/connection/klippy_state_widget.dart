@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -8,6 +8,7 @@ import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -59,11 +60,12 @@ class KlippyStateWidget extends ConsumerWidget {
                         children: [
                           ListTile(
                             leading: const Icon(FlutterIcons.disconnect_ant),
-                            title: Text(data.klippyState.name).tr(),
+                            title: Text('Klippy: @:${data.klippyState.name}').tr(),
                           ),
                           Text(
-                            data.klippyStateMessage ?? tr(data.klippyState.name),
+                            data.statusMessage,
                             style: TextStyle(color: themeData.colorScheme.error),
+                            textAlign: TextAlign.center,
                           ),
                           ElevatedButtonTheme(
                             data: ElevatedButtonThemeData(
