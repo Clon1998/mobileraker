@@ -27,6 +27,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Notification;
+import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:live_activities/models/activity_update.dart';
@@ -93,12 +94,24 @@ class LiveActivityService {
 
   Future<void> _initIos() async {
     if (!Platform.isIOS) return;
-    await _liveActivityAPI.init(appGroupId: "group.mobileraker.liveactivity");
 
-    _restoreActivityMap();
-    _setupLiveActivityListener();
-    _registerMachineHandlers();
-    _registerAppLifecycleHandler();
+    try {
+      await _liveActivityAPI.init(appGroupId: "group.mobileraker.liveactivity");
+
+      _restoreActivityMap();
+      _setupLiveActivityListener();
+      _registerMachineHandlers();
+      _registerAppLifecycleHandler();
+    } catch (e, s) {
+      if (e is PlatformException) {
+        if (e.code == 'WRONG_IOS_VERSION') {
+          logger.i('Could not initialize LiveActivityService because the iOS version is to low');
+          return;
+        }
+      }
+      logger.e('Error while setting up the LiveActivityService', e, s);
+      rethrow;
+    }
   }
 
   void _setupLiveActivityListener() {
