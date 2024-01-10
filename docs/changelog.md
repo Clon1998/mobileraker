@@ -4,23 +4,35 @@
 
 ### Major Updates
 
-- Added a tool page that contains a list of tools and links useful for 3D printing.
-- Adding a belt tuner tool to the tool page.
-- Added support for cross-platform and multi-device purchases. Purchases made on a device will now be available on all
-  your devices. This however, will require you to create an account with Mobileraker and log in on all your devices.
-- [Supporters] Added support for go2Rtc based WebRtc webcams. [#304](https://github.com/Clon1998/mobileraker/issues/304)
+- Introduced a new tool page featuring a list of tools and helpful links for 3D printing.
+- Added the Belt Tuner tool to enhance user control over belt tension.
+- Enabled support for cross-platform and multi-device purchases, ensuring accessibility of purchases across all devices.
+  Users need to create a Mobileraker account and log in on all devices for synchronization. Note: An account is only
+  required to synchronize purchases. The app and supporter status can still be used without an account.
+- [Supporters] Implemented support for go2Rtc-based WebRtc
+  webcams. [#304](https://github.com/Clon1998/mobileraker/issues/304)
 
 ### Changed Features
 
-- Improved the Extruder card, making it a separate and more polished component and allowing users to modify extruder
-  velocity.[#268](https://github.com/Clon1998/mobileraker/issues/268)
-- [IOS] Reworked the design of live activities in a more compact form. It also is now black instead of white to match
-  the system theme.
+- Enhanced the Extruder card, elevating it to a separate, more refined component that empowers users to modify extruder
+  velocity. [#268](https://github.com/Clon1998/mobileraker/issues/268)
+- [IOS] Revamped the design of live activities, adopting a more compact form with a black theme to align with the system
+  UI.
 
 ### Bug Fixes
 
-- Fixed bed mesh button not correctly going into loading state after pressing it.
-- Fixed ETA Cell using the Filament label instead of the ETA label.
+- Resolved the issue with the bed mesh button not entering the correct loading state after being pressed.
+- Corrected the ETA Cell, now displaying the ETA label instead of the Filament
+  label. [#300](https://github.com/Clon1998/mobileraker/issues/300) [#305](https://github.com/Clon1998/mobileraker/issues/305)
+- Resolved a critical issue where the app displayed an error when Moonraker encountered difficulties connecting to the
+  Klipper domain. [#308](https://github.com/Clon1998/mobileraker/issues/308)
+
+### Localization
+
+- Added a Turkish translation, courtesy
+  of [@larinspub](https://github.com/larinspub). [#297](https://github.com/Clon1998/mobileraker/issues/297)
+- Updated the Hungarian translation, thanks
+  to [@AntoszHUN](https://github.com/AntoszHUN). [#302](https://github.com/Clon1998/mobileraker/issues/302)
 
 ## [2.6.8] - 2023-12-8
 
