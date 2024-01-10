@@ -19,6 +19,7 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -56,11 +57,13 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
-class _DashboardView extends ConsumerWidget {
+class _DashboardView extends HookConsumerWidget {
   const _DashboardView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var pageController = usePageController();
+
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: tr('pages.dashboard.title'),
@@ -69,10 +72,10 @@ class _DashboardView extends ConsumerWidget {
           const EmergencyStopBtn(),
         ],
       ),
-      body: const ConnectionStateView(onConnected: _DashboardBody()),
+      body: ConnectionStateView(onConnected: _DashboardBody(controller: pageController)),
       floatingActionButton: const _FloatingActionBtn(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: const _BottomNavigationBar(),
+      bottomNavigationBar: _BottomNavigationBar(pageController: pageController),
       drawer: const NavigationDrawerWidget(),
     );
   }
@@ -157,8 +160,10 @@ class _FloatingActionBtn extends ConsumerWidget {
   }
 }
 
-class _BottomNavigationBar extends ConsumerWidget {
-  const _BottomNavigationBar({Key? key}) : super(key: key);
+class _BottomNavigationBar extends HookConsumerWidget {
+  const _BottomNavigationBar({super.key, required this.pageController});
+
+  final PageController pageController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -169,6 +174,9 @@ class _BottomNavigationBar extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    int activeIndex =
+        useListenableSelector(pageController, () => pageController.hasClients ? pageController.page?.round() ?? 0 : 0);
+
     return AnimatedBottomNavigationBar(
       icons: const [FlutterIcons.tachometer_faw, FlutterIcons.settings_oct],
       activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
@@ -176,14 +184,17 @@ class _BottomNavigationBar extends ConsumerWidget {
       gapLocation: GapLocation.end,
       backgroundColor: themeData.bottomNavigationBarTheme.backgroundColor ?? colorScheme.primary,
       notchSmoothness: NotchSmoothness.softEdge,
-      activeIndex: ref.watch(dashBoardViewControllerProvider),
-      onTap: ref.watch(dashBoardViewControllerProvider.notifier).onBottomNavTapped,
+      activeIndex: activeIndex,
+      splashSpeedInMilliseconds: kThemeAnimationDuration.inMilliseconds,
+      onTap: (index) => pageController.animateToPage(index, duration: kThemeChangeDuration, curve: Curves.easeOutCubic),
     );
   }
 }
 
-class _DashboardBody extends ConsumerWidget {
-  const _DashboardBody({Key? key}) : super(key: key);
+class _DashboardBody extends HookConsumerWidget {
+  const _DashboardBody({super.key, required this.controller});
+
+  final PageController controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -193,8 +204,7 @@ class _DashboardBody extends ConsumerWidget {
         .when<Widget>(
           data: (d) => PageView(
             key: const PageStorageKey<String>('dashboardPages'),
-            controller: ref.watch(pageControllerProvider),
-            onPageChanged: ref.watch(dashBoardViewControllerProvider.notifier).onPageChanged,
+            controller: controller,
             children: const [GeneralTab(), ControlTab()],
             // children: [const GeneralTab(), const ControlTab()],
           ),

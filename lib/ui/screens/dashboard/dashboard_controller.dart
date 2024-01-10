@@ -13,21 +13,11 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
-import 'package:common/util/logger.dart';
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
 part 'dashboard_controller.g.dart';
-
-final pageControllerProvider = Provider.autoDispose<PageController>((ref) {
-  return PageController();
-});
 
 @riverpod
 Stream<PrinterKlippySettingsMachineWrapper> machinePrinterKlippySettings(
@@ -76,78 +66,4 @@ class PrinterKlippySettingsMachineWrapper {
   final MachineSettings settings;
   final Machine machine;
   final ClientType clientType;
-}
-
-final dashBoardViewControllerProvider = StateNotifierProvider.autoDispose<DashBoardViewController, int>((ref) {
-  return DashBoardViewController(ref);
-});
-
-class DashBoardViewController extends StateNotifier<int> {
-  DashBoardViewController(this.ref)
-      : pageController = ref.watch(pageControllerProvider),
-        super(0) {
-    setupCalibrationDialogTriggers();
-  }
-
-  void setupCalibrationDialogTriggers() {
-    // Manual Probe Dialog
-    ref.listen(
-      machinePrinterKlippySettingsProvider.selectAs((data) => data.printerData.manualProbe?.isActive),
-      (previous, next) {
-        var dialogService = ref.read(dialogServiceProvider);
-
-        if (next.valueOrNull == true && !dialogService.isDialogOpen) {
-          logger.i('Detected manualProbe... opening Dialog');
-          dialogService.show(DialogRequest(
-            barrierDismissible: false,
-            type: DialogType.manualOffset,
-          ));
-        }
-      },
-      fireImmediately: true,
-    );
-
-    // Bed Screw Adjust
-    ref.listen(
-      machinePrinterKlippySettingsProvider.selectAs(
-        (data) => data.printerData.bedScrew?.isActive,
-      ),
-      (previous, next) {
-        var dialogService = ref.read(dialogServiceProvider);
-
-        if (next.valueOrNull == true && !dialogService.isDialogOpen) {
-          logger.i('Detected bedScrew... opening Dialog');
-          ref.read(dialogServiceProvider).show(DialogRequest(
-                barrierDismissible: false,
-                type: DialogType.bedScrewAdjust,
-              ));
-        }
-      },
-      fireImmediately: true,
-    );
-  }
-
-  final AutoDisposeRef ref;
-
-  final PageController pageController;
-
-  onBottomNavTapped(int value) {
-    if (mounted) {
-      pageController.animateToPage(
-        value,
-        duration: kThemeChangeDuration,
-        curve: Curves.easeOutCubic,
-      );
-    }
-  }
-
-  onPageChanged(int index) {
-    state = index;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    pageController.dispose();
-  }
 }
