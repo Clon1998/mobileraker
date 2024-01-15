@@ -36,7 +36,7 @@ struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key: "progress"))
-            let isPrintDone = abs(progress - 1) < 0.0001
+            let isPrintDone = abs(progress - 1) < 0.0001 || true
             
             let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
             let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
@@ -57,10 +57,10 @@ struct PrintingLiveActivity: Widget {
             let completedLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"completed_label"))!
             
             
-            let backgroundColor = isPrintDone ? Color.green.opacity(0.45) : Color.black.opacity(0.55)
+            let backgroundColor = Color.black.opacity(0.55)
             
-            let labelColor = isPrintDone ? Color(UIColor.label.light): Color(UIColor.label.dark)
-            let secondaryLabel = isPrintDone ? Color(UIColor.secondaryLabel.light): Color(UIColor.secondaryLabel.dark)
+            let labelColor = Color(UIColor.label.dark)
+            let secondaryLabel = Color(UIColor.secondaryLabel.dark)
             
             // Lock screen/banner UI goes here
             VStack(alignment: .leading, spacing: 8.0) {
@@ -83,7 +83,6 @@ struct PrintingLiveActivity: Widget {
                     Text(file)
                         .font(.subheadline)
                         .fontWeight(.bold)
-                        .foregroundStyle(secondaryLabel)
                 }
                 ProgressView(value: progress)
                     .tint(colorWithRGBA(primaryColor))
@@ -92,6 +91,8 @@ struct PrintingLiveActivity: Widget {
                     Spacer()
                     if (isPrintDone) {
                         Text(completedLabel)
+                            .foregroundStyle(.green)
+                            .fontWeight(.bold)
                     } else if (shouldShowAsTimer(etaDate)) {
                         if let eta = etaDate {
                             FormattedDateTextView(eta: eta)
