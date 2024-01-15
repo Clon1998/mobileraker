@@ -170,7 +170,7 @@ class _BottomNavigationBar extends HookConsumerWidget {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
-    if (ref.watch(machinePrinterKlippySettingsProvider.select((value) => value.isReloading || value.hasError))) {
+    if (ref.watch(machinePrinterKlippySettingsProvider.select((value) => value.isLoading && !value.isReloading))) {
       return const SizedBox.shrink();
     }
 
