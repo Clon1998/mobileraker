@@ -36,7 +36,7 @@ struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key: "progress"))
-            let isPrintDone = abs(progress - 1) < 0.0001 || true
+            let isPrintDone = abs(progress - 1) < 0.0001
             
             let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
             let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
@@ -75,6 +75,8 @@ struct PrintingLiveActivity: Widget {
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(secondaryLabel)
+                                .lineLimit(2)
+                                .truncationMode(.tail)
                             
                         }
                         //TODO: Add image herer!
@@ -82,7 +84,10 @@ struct PrintingLiveActivity: Widget {
                 } else {
                     Text(file)
                         .font(.subheadline)
+                        .foregroundStyle(labelColor)
                         .fontWeight(.bold)
+                        .lineLimit(2)
+                        .truncationMode(.tail)
                 }
                 ProgressView(value: progress)
                     .tint(colorWithRGBA(primaryColor))
