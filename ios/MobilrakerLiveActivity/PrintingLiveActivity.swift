@@ -58,8 +58,9 @@ struct PrintingLiveActivity: Widget {
             
             
             let backgroundColor = isPrintDone ? Color.green.opacity(0.45) : Color.black.opacity(0.55)
-            let foregroundColor = isPrintDone ? Color.black : nil
             
+            let labelColor = isPrintDone ? Color(UIColor.label.light): Color(UIColor.label.dark)
+            let secondaryLabel = isPrintDone ? Color(UIColor.secondaryLabel.light): Color(UIColor.secondaryLabel.dark)
             
             // Lock screen/banner UI goes here
             VStack(alignment: .leading, spacing: 8.0) {
@@ -69,10 +70,11 @@ struct PrintingLiveActivity: Widget {
                             PrintEndView(activityContext: context, etaDate: etaDate)
                                 .font(.title)
                                 .fontWeight(.medium)
+                                .foregroundStyle(labelColor)
                             Text(file)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color(UIColor.secondaryLabel))
+                                .foregroundStyle(secondaryLabel)
                             
                         }
                         //TODO: Add image herer!
@@ -81,7 +83,7 @@ struct PrintingLiveActivity: Widget {
                     Text(file)
                         .font(.subheadline)
                         .fontWeight(.bold)
-                        .foregroundColor(Color(UIColor.secondaryLabel))
+                        .foregroundStyle(secondaryLabel)
                 }
                 ProgressView(value: progress)
                     .tint(colorWithRGBA(primaryColor))
@@ -98,7 +100,7 @@ struct PrintingLiveActivity: Widget {
                     }
                 }
                 .font(.caption)
-                .foregroundColor(Color(UIColor.secondaryLabel))
+                .foregroundStyle(secondaryLabel)
                 .fontWeight(.light)
                     
                 
@@ -127,7 +129,7 @@ struct PrintingLiveActivity: Widget {
             .activityBackgroundTint(backgroundColor)
             //.activityBackgroundTint(Color(UIColor.systemBackground).opacity(0.25))
             //.activityBackgroundTint(colorScheme == .dark ? Color.red : Color.yellow)
-            .activitySystemActionForegroundColor(foregroundColor)
+            .activitySystemActionForegroundColor(labelColor)
             
         } dynamicIsland: { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
