@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.6.10] - 2024-01-15
+
+### Bug Fixes
+
+- [IOS] Fixed live activities foreground color on IOS 16.4 [#315](https://github.com/Clon1998/mobileraker/issues/315)
+- Fixed typo on profile page's 'Send Verification Mail' button
+
 ## [2.6.9] - 2024-01-10
 
 ### Major Updates
