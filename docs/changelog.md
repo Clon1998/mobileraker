@@ -2,6 +2,10 @@
 
 ## [2.6.10] - 2024-01-15
 
+### Changed Features
+
+- The printer overview page now displays the webcams corresponding to the selected camera for each printer.
+
 ### Bug Fixes
 
 - [IOS] Fixed live activities foreground color on IOS 16.4 [#315](https://github.com/Clon1998/mobileraker/issues/315)
