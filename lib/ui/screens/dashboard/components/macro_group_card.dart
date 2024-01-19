@@ -151,12 +151,17 @@ class _SelectedGroup extends ConsumerWidget {
         sizeAndFadeFactor: anim,
         child: child,
       ),
-      child: Wrap(
-        alignment: WrapAlignment.spaceEvenly,
+      child: Column(
         key: ValueKey(group.uuid),
-        spacing: 5,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (var macro in group.macros) _MacroChip(machineUUID: machineUUID, macro: macro),
+          Wrap(
+            alignment: WrapAlignment.spaceEvenly,
+            spacing: 5,
+            children: [
+              for (var macro in group.macros) _MacroChip(machineUUID: machineUUID, macro: macro),
+            ],
+          ),
         ],
       ),
     );
