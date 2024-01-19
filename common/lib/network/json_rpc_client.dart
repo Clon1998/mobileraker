@@ -432,7 +432,8 @@ class JsonRpcClient {
     }
 
     _pendingRequests.forEach((key, value) => value.completer.completeError(
-        StateError('Websocket is closing, request id=$key, method ${value.method} never got an response!')));
+        StateError('Websocket is closing, request id=$key, method ${value.method} never got an response!'),
+        StackTrace.current));
     _methodListeners.clear();
     _channelSub?.cancel();
 

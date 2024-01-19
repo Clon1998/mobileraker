@@ -3,6 +3,9 @@
  * All rights reserved.
  */
 
+import 'dart:io';
+
+import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -47,7 +50,7 @@ Future<void> main() async {
       goRouterProvider.overrideWith(goRouterImpl),
     ],
     observers: const [if (kDebugMode) RiverPodLogger()],
-    child: const WarmUp(),
+    child: const _WarmUp(),
   ));
 }
 
@@ -122,8 +125,8 @@ class MyApp extends ConsumerWidget {
   }
 }
 
-class WarmUp extends HookConsumerWidget {
-  const WarmUp({Key? key}) : super(key: key);
+class _WarmUp extends HookConsumerWidget {
+  const _WarmUp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -143,17 +146,84 @@ class WarmUp extends HookConsumerWidget {
               return const _LoadingSplashScreen();
             },
             error: (e, s) {
-              return MaterialApp(
-                home: ErrorCard(
-                  title: const Text('Error while starting Mobileraker!'),
-                  body: Text(
-                    'I am sorry...\nSomething unexpected happed.\nPlease report this bug to the developer!\n\n$e\n$s',
-                  ),
-                ),
-              );
+              return MaterialApp(home: _WarmUpError(e, s));
             },
             loading: () => const _LoadingSplashScreen(),
           ),
+    );
+  }
+}
+
+class _WarmUpError extends StatelessWidget {
+  const _WarmUpError(this.error, this.stackTrace, {super.key});
+
+  final Object error;
+  final StackTrace stackTrace;
+
+  @override
+  Widget build(BuildContext context) {
+    var e = error;
+    var isStartupErr = e is MobilerakerStartupException;
+    var showReset = isStartupErr && e.canResetStorage;
+    return SafeArea(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: SingleChildScrollView(
+              child: ErrorCard(
+                title: const Text('Error while starting Mobileraker!'),
+                body: isStartupErr
+                    ? Text('${e.message}\n\nStackTrace:\n${stackTrace}')
+                    : Text(
+                        'I am sorry...\nSomething unexpected happened.\nPlease report this bug to the developer!\n\n$e\n$stackTrace',
+                      ),
+              ),
+            ),
+          ),
+          if (showReset)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: const Text('Reset Storage?'),
+                      content: const Text(
+                        'Are you sure you want to reset the storage? This action will permanently delete all your machines and settings. Please be aware that this process cannot be undone.\nThe app will automatically close after the reset.',
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(ctx).pop(false);
+                          },
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(ctx).pop(true);
+                            deleteBoxes()
+                                .then((value) => Future.delayed(const Duration(seconds: 1)))
+                                .whenComplete(() => exit(0));
+                          },
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: const Text('RESET'),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                child: const Text('Reset Storage'),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

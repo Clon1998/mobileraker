@@ -57,9 +57,10 @@ struct PrintingLiveActivity: Widget {
             let completedLabel = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"completed_label"))!
             
             
-            let backgroundColor = isPrintDone ? Color.green.opacity(0.45) : Color.black.opacity(0.55)
-            let foregroundColor = isPrintDone ? Color.black : nil
+            let backgroundColor = Color.black.opacity(0.55)
             
+            let labelColor = Color(UIColor.label.dark)
+            let secondaryLabel = Color(UIColor.secondaryLabel.dark)
             
             // Lock screen/banner UI goes here
             VStack(alignment: .leading, spacing: 8.0) {
@@ -69,10 +70,13 @@ struct PrintingLiveActivity: Widget {
                             PrintEndView(activityContext: context, etaDate: etaDate)
                                 .font(.title)
                                 .fontWeight(.medium)
+                                .foregroundStyle(labelColor)
                             Text(file)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(Color(UIColor.secondaryLabel))
+                                .foregroundStyle(secondaryLabel)
+                                .lineLimit(2)
+                                .truncationMode(.tail)
                             
                         }
                         //TODO: Add image herer!
@@ -80,8 +84,10 @@ struct PrintingLiveActivity: Widget {
                 } else {
                     Text(file)
                         .font(.subheadline)
+                        .foregroundStyle(labelColor)
                         .fontWeight(.bold)
-                        .foregroundColor(Color(UIColor.secondaryLabel))
+                        .lineLimit(2)
+                        .truncationMode(.tail)
                 }
                 ProgressView(value: progress)
                     .tint(colorWithRGBA(primaryColor))
@@ -90,6 +96,8 @@ struct PrintingLiveActivity: Widget {
                     Spacer()
                     if (isPrintDone) {
                         Text(completedLabel)
+                            .foregroundStyle(.green)
+                            .fontWeight(.bold)
                     } else if (shouldShowAsTimer(etaDate)) {
                         if let eta = etaDate {
                             FormattedDateTextView(eta: eta)
@@ -98,7 +106,7 @@ struct PrintingLiveActivity: Widget {
                     }
                 }
                 .font(.caption)
-                .foregroundColor(Color(UIColor.secondaryLabel))
+                .foregroundStyle(secondaryLabel)
                 .fontWeight(.light)
                     
                 
@@ -127,7 +135,7 @@ struct PrintingLiveActivity: Widget {
             .activityBackgroundTint(backgroundColor)
             //.activityBackgroundTint(Color(UIColor.systemBackground).opacity(0.25))
             //.activityBackgroundTint(colorScheme == .dark ? Color.red : Color.yellow)
-            .activitySystemActionForegroundColor(foregroundColor)
+            .activitySystemActionForegroundColor(labelColor)
             
         } dynamicIsland: { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))

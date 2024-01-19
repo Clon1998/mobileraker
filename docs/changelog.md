@@ -1,5 +1,18 @@
 # Mobileraker - Changelog
 
+## [2.6.10] - 2024-01-15
+
+### Changed Features
+
+- The printer overview page now displays the webcams corresponding to the selected camera for each printer.
+
+### Bug Fixes
+
+- [IOS] Fixed live activities foreground color on IOS 16.4 [#315](https://github.com/Clon1998/mobileraker/issues/315)
+- [IOS] Fixed an issue with the live activities that would reset the entire local storage of the
+  app [#315](https://github.com/Clon1998/mobileraker/issues/321)
+- Fixed typo on profile page's 'Send Verification Mail' button
+
 ## [2.6.9] - 2024-01-10
 
 ### Major Updates

@@ -773,7 +773,7 @@
           "not_verified": "Email is not verified"
         },
         "description": "Please verify your email address to ensure you can always access your account.",
-        "send": "Send Cerification"
+        "send": "Send Verification"
       },
       "delete_account_dialog": {
         "title": "Delete Account?",

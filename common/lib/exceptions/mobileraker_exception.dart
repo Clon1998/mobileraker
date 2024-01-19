@@ -62,3 +62,18 @@ class MobilerakerDioException extends DioException implements MobilerakerExcepti
     return msg;
   }
 }
+
+class MobilerakerStartupException implements Exception {
+  final String message;
+  final Object? parentException;
+  final StackTrace? parentStack;
+  final bool canResetStorage;
+
+  const MobilerakerStartupException(this.message,
+      {this.parentException, this.parentStack, this.canResetStorage = false});
+
+  @override
+  String toString() {
+    return 'MobilerakerStartupError{$message, parentException: $parentException, parentStack: $parentStack, canResetStorage: $canResetStorage}';
+  }
+}

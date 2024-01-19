@@ -121,11 +121,11 @@ class KlippyService {
     _jRpcClient.sendJRpcMethod("printer.emergency_stop").ignore();
   }
 
-  Future<void> refreshKlippy([bool useIdentify = false]) async {
+  Future<void> refreshKlippy() async {
     try {
       await _identifyConnection();
       var klippyReady = await _fetchServerInfo();
-
+      logger.i('KlippyReady: $klippyReady');
       // We can only fetch the printer info if klippy reported ready (So klippy domain is connected to moonraker)
       if (klippyReady) {
         await _fetchPrinterInfo();
@@ -181,22 +181,24 @@ class KlippyService {
   }
 
   _onNotifyKlippyReady(Map<String, dynamic> m) {
-    _current = _current.copyWith(klippyState: KlipperState.ready);
+    _current = _current.copyWith(klippyState: KlipperState.ready, klippyConnected: true, klippyStateMessage: null);
     logger.i('State: notify_klippy_ready');
+    // Just to be sure, fetch all klippy info again
+    refreshKlippy();
   }
 
-  _onNotifyKlippyShutdown(Map<String, dynamic> m) {
-    _current = _current.copyWith(klippyState: KlipperState.shutdown);
-    _fetchPrinterInfo();
+  _onNotifyKlippyShutdown(Map<String, dynamic> m) async {
+    _current = _current.copyWith(klippyState: KlipperState.shutdown, klippyStateMessage: null);
     logger.i('State: notify_klippy_shutdown');
+    // Just to be sure, fetch all klippy info again (Also fetches the statusMessage that contains the shutdown reason)
+    refreshKlippy();
   }
 
   _onNotifyKlippyDisconnected(Map<String, dynamic> m) {
-    _current = _current.copyWith(klippyState: KlipperState.disconnected, klippyStateMessage: null);
+    _current =
+        _current.copyWith(klippyConnected: false, klippyState: KlipperState.disconnected, klippyStateMessage: null);
     logger.i('State: notify_klippy_disconnected: $m');
-
-    Future.delayed(const Duration(seconds: 2))
-        .then((value) => _fetchPrinterInfo()); // need to delay this until its bac connected!
+    // NO need to call refreshKlippy() here, because we can not get printer.info if klippy HOST is not connected with Moonraker
   }
 
   dispose() {

@@ -129,7 +129,6 @@ struct FormattedDateTextView: View {
     
     
     func etaFormatted(eta: Date) -> String {
-        let currentDate = Date()
         let calendar = Calendar.current
         let dateFormatter = DateFormatter()
         
