@@ -73,7 +73,7 @@ class PrinterCardController extends _$PrinterCardController {
 
   onTapTile() {
     ref.read(selectedMachineServiceProvider).selectMachine(_machine);
-    _goRouter.goNamed(AppRoute.dashBoard.name);
+    _goRouter.pushNamed(AppRoute.dashBoard.name);
   }
 
   onLongPressTile() {
