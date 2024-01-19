@@ -186,7 +186,11 @@ class _BottomNavigationBar extends HookConsumerWidget {
       notchSmoothness: NotchSmoothness.softEdge,
       activeIndex: activeIndex,
       splashSpeedInMilliseconds: kThemeAnimationDuration.inMilliseconds,
-      onTap: (index) => pageController.animateToPage(index, duration: kThemeChangeDuration, curve: Curves.easeOutCubic),
+      onTap: (index) {
+        if (pageController.hasClients) {
+          pageController.animateToPage(index, duration: kThemeChangeDuration, curve: Curves.easeOutCubic);
+        }
+      },
     );
   }
 }
