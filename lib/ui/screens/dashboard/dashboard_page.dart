@@ -28,6 +28,7 @@ import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
+import 'package:mobileraker/ui/components/printer_calibration_watcher.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
@@ -204,13 +205,16 @@ class _DashboardBody extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref
         // We use selectAs null since we want to prevent rebuilding this widget to often!
-        .watch(machinePrinterKlippySettingsProvider.selectAs((data) => true))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid))
         .when<Widget>(
-          data: (d) => PageView(
-            key: const PageStorageKey<String>('dashboardPages'),
-            controller: controller,
-            children: const [GeneralTab(), ControlTab()],
-            // children: [const GeneralTab(), const ControlTab()],
+          data: (d) => PrinterCalibrationWatcher(
+            machineUUID: d,
+            child: PageView(
+              key: const PageStorageKey<String>('dashboardPages'),
+              controller: controller,
+              children: const [GeneralTab(), ControlTab()],
+              // children: [const GeneralTab(), const ControlTab()],
+            ),
           ),
           error: (e, s) {
             //TODO Error catching wont work..... does not work .....
