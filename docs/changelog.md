@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.11] - 2024-01-xx
+
+### Changed Features
+
+- Relative webcam paths now respect the port of the configured http address (Printer address) instead of ignoring it.
+
 ## [2.6.10] - 2024-01-19
 
 ### Changed Features

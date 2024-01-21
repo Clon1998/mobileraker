@@ -42,7 +42,7 @@ class WebcamMjpeg extends ConsumerWidget {
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
     var dio = ref.watch(dioClientProvider(machine.uuid));
 
-    var machineUri = machine.wsUri;
+    var machineUri = machine.httpUri;
 
     var camStreamUrl = webcamInfo.streamUrl;
     var camSnapshotUrl = webcamInfo.snapshotUrl;
