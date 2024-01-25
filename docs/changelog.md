@@ -6,6 +6,10 @@
 
 - Relative webcam paths now respect the port of the configured http address (Printer address) instead of ignoring it.
 
+### Bug Fixes
+
+- [IOS] Fixed an issue that caused any playback to stop while opening the app for the first time.
+
 ## [2.6.10] - 2024-01-19
 
 ### Changed Features

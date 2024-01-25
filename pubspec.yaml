@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.6.10+245
+version: 2.6.11+245
 
 environment:
   sdk: '>=3.2.3 <4.0.0'
@@ -77,7 +77,11 @@ dependencies:
   collection: ^1.17.0
   fftea: ^1.5.0
   #  mic_stream: ^0.7.1+2
-  flutter_audio_capture: ^1.1.6
+  flutter_audio_capture:
+    #    path: ../flutter_audio_capture
+    git:
+      url: https://github.com/Clon1998/flutter_audio_capture.git
+      ref: init-code
   worker_manager: ^6.3.1
 
 

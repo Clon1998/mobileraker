@@ -39,6 +39,8 @@ class FftService {
     var token = RootIsolateToken.instance!;
     _isolate?.kill();
     _isolate = await Isolate.spawn(_isolateSpawn, token);
+    var res = await _capture.init();
+    logger.i('Initialized capture reported init-state: $res');
 
     _capture.start(
       (e) {
@@ -46,8 +48,6 @@ class FftService {
         MicData micData;
         if (e is MicData) {
           micData = e;
-        } else if (e is List) {
-          micData = Float32List.fromList(e.cast<double>());
         } else {
           throw ArgumentError('Unknown data type: ${e.runtimeType}');
         }
@@ -64,8 +64,6 @@ class FftService {
         logger.w('Error in capturer', e);
       },
       sampleRate: sampleRate,
-      waitForFirstDataOnAndroid: true,
-      waitForFirstDataOnIOS: true,
     );
   }
 
