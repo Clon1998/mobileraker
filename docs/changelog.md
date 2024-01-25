@@ -4,11 +4,14 @@
 
 ### Changed Features
 
-- Relative webcam paths now respect the port of the configured http address (Printer address) instead of ignoring it.
+- Webcam paths (URLs) now support relative paths and respect the configured HTTP address port (Printer address),
+  addressing
+  previous issues of ignoring it. This might require users to reconfigure their webcams.
 
 ### Bug Fixes
 
-- [IOS] Fixed an issue that caused any playback to stop while opening the app for the first time.
+- Resolved an issue that was causing the Belt Tuner display to crash if the necessary permissions were not granted.
+- [IOS] Fixed playback interruptions upon opening the app for the first time.
 
 ## [2.6.10] - 2024-01-19
 
