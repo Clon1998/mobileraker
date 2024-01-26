@@ -238,7 +238,6 @@ class NotificationService {
       List<String> licenseKeys, List<Machine> allMachines, List<Machine> hiddenMachines) async {
     logger.i('Initializing remote messaging');
     hiddenMachines.forEach(_wipeFCMOnPrinterOnceConnected);
-
     if (await isFirebaseAvailable()) {
       await _notifyFCM.initialize(
           onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,

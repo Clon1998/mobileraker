@@ -175,7 +175,7 @@ class PrinterService {
     'bed_screws': _updateBedScrew,
     'heater_generic': _updateGenericHeater,
     'firmware_retraction': _updateFirmwareRetraction,
-    // 'bed_mesh': _updateBedMesh,
+    'bed_mesh': _updateBedMesh,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
@@ -571,6 +571,22 @@ class PrinterService {
     }
   }
 
+  /// Parses the list of printer objects received from the server.
+  ///
+  /// This method takes a Map of printer objects and processes each object
+  /// based on its type. It creates a new PrinterBuilder and populates it
+  /// with the parsed printer objects.
+  ///
+  /// The method handles different types of printer objects including
+  /// extruders, fans, temperature sensors, output pins, LEDs, heaters, etc.
+  /// For each type of object, it calls the appropriate method to parse
+  /// the object and add it to the PrinterBuilder.
+  ///
+  /// @param result A Map of printer objects received from the server.
+  /// Each key in the Map is the name of a printer object and the value
+  /// is a Map of properties for that object.
+  ///
+  /// @return A PrinterBuilder populated with the parsed printer objects.
   _parsePrinterObjectsList(Map<String, dynamic> result) {
     logger.i('<<<Received printer objects list!');
     logger.v('PrinterObjList: ${const JsonEncoder.withIndent('  ').convert(result)}');
@@ -625,6 +641,8 @@ class PrinterService {
           name: objectName,
           lastHistory: DateTime(1990),
         );
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.bed_mesh)) {
+        printerBuilder.bedMesh = const BedMesh();
       }
     }
     printerBuilder.extruders =
@@ -772,7 +790,6 @@ class PrinterService {
 
   _updateBedMesh(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
     printer.bedMesh = BedMesh.partialUpdate(printer.bedMesh, jsonResponse);
-    logger.e('Got bedMesh: ${printer.bedMesh}');
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {

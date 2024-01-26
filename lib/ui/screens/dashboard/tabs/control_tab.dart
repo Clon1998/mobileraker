@@ -32,6 +32,7 @@ import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/card_with_switch.dart';
 import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/bed_mesh_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_extruder_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
@@ -57,7 +58,7 @@ class ControlTab extends ConsumerWidget {
             return PullToRefreshPrinter(
               child: ListView(
                 key: const PageStorageKey<String>('cTab'),
-                padding: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: 30),
                 children: [
                   if (ref
                           .watch(machinePrinterKlippySettingsProvider
@@ -95,6 +96,7 @@ class ControlTab extends ConsumerWidget {
                         true)
                       FirmwareRetractionCard(machineUUID: data),
                   ],
+                  BedMeshCard(machineUUID: data),
                 ],
               ),
             );

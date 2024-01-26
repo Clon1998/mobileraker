@@ -12,7 +12,7 @@ part 'bed_mesh_profile.g.dart';
 
 @freezed
 class BedMeshProfile with _$BedMeshProfile {
-  @JsonSerializable(fieldRename: FieldRename.snake)
+  @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory BedMeshProfile({
     required String name,
 

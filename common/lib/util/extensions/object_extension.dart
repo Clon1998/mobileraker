@@ -10,4 +10,9 @@ extension ScopeFunctions<R> on R {
     fun(this);
     return this;
   }
+
+  R apply(void Function(R it) fun) {
+    fun(this);
+    return this;
+  }
 }

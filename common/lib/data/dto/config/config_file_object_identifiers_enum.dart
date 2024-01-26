@@ -22,6 +22,7 @@ enum ConfigFileObjectIdentifiers {
   bed_screws(null),
   heater_bed(null),
   printer(null),
+  bed_mesh(null),
   ;
 
   /// IF it is possible to check a object with a == (null) or startsWith (true)
