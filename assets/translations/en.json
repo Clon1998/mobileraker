@@ -94,9 +94,9 @@
         },
         "move_card": {
           "title": "Move Axis",
-          "home_xy_tooltip": "Home X and Y axis",
+          "home_xy_tooltip": "Home X and Y axes",
           "home_z_tooltip": "Home Z axis",
-          "home_all_tooltip": "Home all axis",
+          "home_all_tooltip": "Home all axes",
           "home_all_btn": "All",
           "qgl_tooltip": "Run Quad-Gantry leveling",
           "qgl_btn": "QGL",
