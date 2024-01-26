@@ -125,13 +125,16 @@ class _CardTitle extends ConsumerWidget {
     return ListTile(
       leading: const Icon(FlutterIcons.align_vertical_middle_ent),
       title: const Text('pages.dashboard.general.baby_step_card.title').tr(),
-      trailing: Chip(
-        avatar: Icon(
-          FlutterIcons.progress_wrench_mco,
-          color: Theme.of(context).iconTheme.color,
-          size: 20,
+      trailing: Tooltip(
+        message: 'pages.dashboard.general.baby_step_card.z_offset'.tr(),
+        child: Chip(
+          avatar: Icon(
+            FlutterIcons.progress_wrench_mco,
+            color: Theme.of(context).iconTheme.color,
+            size: 20,
+          ),
+          label: Text('${zOffset.toPrecision(3).toStringAsFixed(3)}mm'),
         ),
-        label: Text('${zOffset.toPrecision(3).toStringAsFixed(3)}mm'),
       ),
     );
   }

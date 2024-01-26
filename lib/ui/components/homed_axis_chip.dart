@@ -22,22 +22,25 @@ class HomedAxisChip extends ConsumerWidget {
             .selectAs((value) => value.printerData.toolhead.homedAxes.length))
         .requireValue;
 
-    return Chip(
-      avatar: const Icon(
-        FlutterIcons.shield_home_mco,
-        // color: Colors.white,
-        size: 20,
+    return Tooltip(
+      message: 'pages.dashboard.general.move_card.homed'.tr(),
+      child: Chip(
+        avatar: const Icon(
+          FlutterIcons.shield_home_mco,
+          // color: Colors.white,
+          size: 20,
+        ),
+        // shape: StadiumBorder(side: BorderSide(color: Colors.limeAccent)),
+        side: BorderSide(
+          color: (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
+          width: 3,
+        ),
+        // shape: ContinuousRectangleBorder(side: BorderSide(width: 1),),
+        label: Text(_homedChipTitle(
+            ref.read(machinePrinterKlippySettingsProvider).requireValue.printerData.toolhead.homedAxes)),
+        // backgroundColor:
+        //     (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
       ),
-      // shape: StadiumBorder(side: BorderSide(color: Colors.limeAccent)),
-      side: BorderSide(
-        color: (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
-        width: 3,
-      ),
-      // shape: ContinuousRectangleBorder(side: BorderSide(width: 1),),
-      label: Text(
-          _homedChipTitle(ref.read(machinePrinterKlippySettingsProvider).requireValue.printerData.toolhead.homedAxes)),
-      // backgroundColor:
-      //     (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
     );
   }
 

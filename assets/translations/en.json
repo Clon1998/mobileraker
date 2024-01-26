@@ -117,10 +117,12 @@
           "bsa_btn": "Bed Screw Adjust",
           "save_tooltip": "Save calibration results",
           "save_btn": "Save Config",
-          "more_btn": "More"
+          "more_btn": "More",
+          "homed": "Homed Axes"
         },
         "baby_step_card": {
-          "title": "Micro-Step Z-Axis"
+          "title": "Micro-Step Z-Axis",
+          "z_offset": "Z-Offset"
         },
         "restart_klipper": "Restart Klipper",
         "restart_mcu": "@:general.restart @:general.firmware"
