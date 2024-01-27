@@ -184,7 +184,12 @@
         "bed_mesh_card": {
           "title": "Bed Mesh",
           "profiles": "Profiles",
-          "range_tooltip": "Range between highest and lowest point"
+          "range_tooltip": "Range between highest and lowest point",
+          "showing_matrix": {
+            "probed": "Showing probed matrix",
+            "mesh": "Showing mesh matrix"
+          }
+
         }
       }
     },

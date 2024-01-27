@@ -153,13 +153,51 @@ class _CardBody extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (meshIsActive) ...[
-                BedMeshLegend(
-                    valueRange: model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh),
+                Column(
+                  children: [
+                    Expanded(
+                      child: BedMeshLegend(
+                        valueRange:
+                            model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: controller.changeMode,
+                      child: Tooltip(
+                        message: tr(
+                          'pages.dashboard.control.bed_mesh_card.showing_matrix',
+                          gender: model.showProbed ? 'probed' : 'mesh',
+                        ),
+                        child: AnimatedSwitcher(
+                          duration: kThemeAnimationDuration,
+                          child: (model.showProbed
+                              ? Icon(
+                                  Icons.blur_on,
+                                  key: const ValueKey('probed'),
+                                  size: 30,
+                                  color: themeData.colorScheme.secondary,
+                                )
+                              : Icon(
+                                  Icons.grid_on,
+                                  key: const ValueKey('mesh'),
+                                  size: 30,
+                                  color: themeData.colorScheme.secondary,
+                                )),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 const SizedBox(width: 8),
               ],
               Expanded(
                 child: BedMeshPlot(
-                    bedMesh: model.bedMesh, bedMin: model.bedMin, bedMax: model.bedMax, isProbed: model.showProbed),
+                  bedMesh: model.bedMesh,
+                  bedMin: model.bedMin,
+                  bedMax: model.bedMax,
+                  isProbed: model.showProbed,
+                ),
               ),
               // _GradientLegend(machineUUID: machineUUID),
               // _ScaleIndicator(gradient: invertedGradient, min: zMin, max: zMax),
@@ -218,7 +256,7 @@ class _Controller extends _$Controller {
     );
   }
 
-  onSettingsTap() async {
+  onSettingsTap() {
     // TODO : Make this safer and not use requireValue and !
     state.whenData((value) async {
       if (value.bedMesh == null) {
