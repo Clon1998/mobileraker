@@ -99,7 +99,7 @@ class SpectrumAnalyzer {
 
     if (peakIdx > 0) {
       var peakFreq = _fft.frequency(peakIdx, _sampleRate);
-      logger.i('Peak: ${peakFreq.toStringAsFixed(1)}Hz : ${max.toStringAsFixed(2)}');
+      // logger.i('Peak: ${peakFreq.toStringAsFixed(1)}Hz : ${max.toStringAsFixed(2)}');
       _peakFrequencyController.add(peakFreq.round());
     }
   }

@@ -3,8 +3,6 @@
  * All rights reserved.
  */
 
-import 'dart:math';
-
 import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
@@ -57,9 +55,11 @@ class BeltTuner extends HookWidget {
                 style: themeData.textTheme.bodySmall,
               ).tr(),
               const SizedBox(height: 32),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: _PeakFrequency(),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: _PeakFrequency(
+                  targetFrequency: target.value.$1.toDouble(),
+                ),
               ),
               Text('pages.beltTuner.target', style: themeData.textTheme.bodySmall)
                   .tr(args: [target.value.$1.toString(), target.value.$2.toString()]),
@@ -124,9 +124,15 @@ class BeltTuner extends HookWidget {
 }
 
 class _PeakFrequency extends HookConsumerWidget {
-  const _PeakFrequency({super.key});
+  const _PeakFrequency({super.key, this.targetFrequency = 110})
+      : maxPeak = targetFrequency + 25,
+        minPeak = targetFrequency - 25,
+        range = 50;
 
-  static const maxPeak = 220.0;
+  final double targetFrequency;
+  final double range;
+  final double minPeak;
+  final double maxPeak;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -152,10 +158,10 @@ class _PeakFrequency extends HookConsumerWidget {
 
     double peak;
     if (showLoading) {
-      peak = maxPeak / 4 + animValue * maxPeak / 2;
+      peak = minPeak + range * .2 + animValue * range * .6;
       // peak = 70 + animValue * 80;
     } else {
-      peak = min(maxPeak, peakFrequency.value?.toDouble() ?? 0);
+      peak = peakFrequency.value?.clamp(minPeak, maxPeak).toDouble() ?? minPeak;
     }
 
     return Column(
@@ -179,6 +185,7 @@ class _PeakFrequency extends HookConsumerWidget {
           // enableGaugeAnimation: true,
           // animationDuration: 1500,
           // animationGap: 0.5,
+          start: minPeak,
           end: maxPeak,
           pointers: [
             Pointer(
@@ -192,10 +199,13 @@ class _PeakFrequency extends HookConsumerWidget {
           ],
           linearGaugeBoxDecoration: const LinearGaugeBoxDecoration(
             thickness: 30,
-            linearGradient: LinearGradient(colors: [Colors.red, Colors.green, Colors.red]),
+            linearGradient: LinearGradient(
+              colors: [Colors.red, Colors.green, Colors.red],
+              stops: [0.2, 0.5, 0.8],
+            ),
             borderRadius: 0,
           ),
-          steps: 4,
+          steps: 1,
           rulers: RulerStyle(
             rulerPosition: RulerPosition.center,
             showLabel: false,
