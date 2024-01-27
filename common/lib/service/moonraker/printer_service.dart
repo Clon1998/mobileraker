@@ -491,6 +491,16 @@ class PrinterService {
     }
   }
 
+  Future<void> loadBedMeshProfile(String profileName) async {
+    assert(profileName.isNotEmpty);
+    // BED_MESH_PROFILE LOAD="VW-Plate(Probe)"
+    await gCode('BED_MESH_PROFILE LOAD="$profileName"');
+  }
+
+  Future<void> clearBedMeshProfile() async {
+    await gCode('BED_MESH_CLEAR');
+  }
+
   Future<void> _temperatureStore(PrinterBuilder printer) async {
     if (disposed) return;
     logger.i('Fetching cached temperature store data');

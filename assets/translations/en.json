@@ -46,7 +46,8 @@
     "unlink": "Unlink",
     "save": "Save",
     "apply": "Apply",
-    "completed": "Completed"
+    "completed": "Completed",
+    "activate": "Activate"
   },
   "pages": {
     "dashboard": {

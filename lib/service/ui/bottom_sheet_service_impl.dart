@@ -10,6 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker_pro/ui/components/bottomsheet/job_queue_sheet.dart';
 
+import '../../ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import '../../ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
@@ -21,6 +22,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   addRemoteCon,
   manageMacroGroupMacros,
   userManagement,
+  bedMeshSettings,
   ;
 }
 
@@ -42,6 +44,9 @@ class BottomSheetServiceImpl implements BottomSheetService {
           arguments: data as ManageMacroGroupMacrosBottomSheetArguments,
         ),
     SheetType.userManagement: (ctx, data) => const UserBottomSheet(),
+    SheetType.bedMeshSettings: (ctx, data) => BedMeshSettingsBottomSheet(
+          arguments: data as BedMeshSettingsBottomSheetArguments,
+        ),
   };
 
   @override

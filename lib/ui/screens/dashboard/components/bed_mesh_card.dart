@@ -8,8 +8,12 @@ import 'dart:async';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/setting_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -17,8 +21,11 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_legend.dart';
 import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_plot.dart';
+import 'package:mobileraker/ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../../../../service/ui/bottom_sheet_service_impl.dart';
 
 part 'bed_mesh_card.freezed.dart';
 part 'bed_mesh_card.g.dart';
@@ -35,7 +42,7 @@ class BedMeshCard extends HookConsumerWidget {
 
     if (showLoading) return const _ControlExtruderLoading();
 
-    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.hasMeshComponent)).requireValue;
+    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.bedMesh != null)).requireValue;
     // If the printer has no bed mesh component, we don't show the card
     if (!showCard) return const SizedBox.shrink();
 
@@ -60,7 +67,7 @@ class _ControlExtruderLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var themeData = Theme.of(context);
-    return Placeholder();
+    return const Placeholder();
   }
 }
 
@@ -73,11 +80,13 @@ class _CardTitle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
 
-    return const ListTile(
-      leading: Icon(FlutterIcons.grid_mco),
-      title: Row(children: [
+    return ListTile(
+      leading: const Icon(Icons.grid_4x4),
+      // leading: const Icon(FlutterIcons.grid_mco),
+      title: const Row(children: [
         Text('Bed Mesh'),
       ]),
+      trailing: TextButton(onPressed: controller.onSettingsTap, child: const Text('Profiles')),
     );
   }
 }
@@ -90,35 +99,93 @@ class _CardBody extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // return Placeholder();
+    var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var model = ref.watch(_controllerProvider(machineUUID)).requireValue;
 
-    return IntrinsicHeight(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (model.bedMesh?.profileName?.isNotEmpty == true) ...[
-            BedMeshLegend(valueRange: model.bedMesh!.zValueRangeProbed),
-            const SizedBox(width: 8),
-          ],
-          Expanded(
-            child: BedMeshPlot(bedMesh: model.bedMesh, bedMin: model.bedMin, bedMax: model.bedMax),
+    var themeData = Theme.of(context);
+    var numberFormat = NumberFormat('0.000mm');
+
+    var meshIsActive = model.bedMesh?.profileName?.isNotEmpty == true;
+    var activeMeshName = model.bedMesh?.profileName ?? tr('general.none');
+    var valueRange = model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh;
+
+    var range = numberFormat.format((valueRange.$2 - valueRange.$1));
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (meshIsActive)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Tooltip(
+                  message: activeMeshName,
+                  child: Text(
+                    activeMeshName,
+                    style: themeData.textTheme.titleSmall,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Tooltip(
+                message: 'Range between highest and lowest point',
+                child: Chip(
+                  label: Text(range),
+                  avatar: const Icon(
+                    FlutterIcons.unfold_less_horizontal_mco,
+                    // FlutterIcons.flow_line_ent,
+                    // color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
           ),
-          // _GradientLegend(machineUUID: machineUUID),
-          // _ScaleIndicator(gradient: invertedGradient, min: zMin, max: zMax),
-        ],
-      ),
+        IntrinsicHeight(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (meshIsActive) ...[
+                BedMeshLegend(
+                    valueRange: model.showProbed ? model.bedMesh!.zValueRangeProbed : model.bedMesh!.zValueRangeMesh),
+                const SizedBox(width: 8),
+              ],
+              Expanded(
+                child: BedMeshPlot(
+                    bedMesh: model.bedMesh, bedMin: model.bedMin, bedMax: model.bedMax, isProbed: model.showProbed),
+              ),
+              // _GradientLegend(machineUUID: machineUUID),
+              // _ScaleIndicator(gradient: invertedGradient, min: zMin, max: zMax),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
 
 @riverpod
 class _Controller extends _$Controller {
+  PrinterService get _printerService => ref.read(printerServiceSelectedProvider);
+
+  SettingService get _settingService => ref.read(settingServiceProvider);
+
+  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
+
+  KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.meshViewMode, machineUUID);
+
   @override
   Stream<_Model> build(String machineUUID) async* {
     ref.keepAliveFor();
 
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
+
+    var initialProbeMode = _settingService.readBool(_settingsKey, false);
 
     var klippyCanReceiveCommands = ref.watchAsSubject(
       klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
@@ -134,19 +201,61 @@ class _Controller extends _$Controller {
       klippyCanReceiveCommands,
       bedMesh,
       configFile,
-      (a, b, c) => _Model(
-        klippyCanReceiveCommands: a,
-        bedMesh: b,
-        bedMin: (c.minX, c.minY),
-        bedMax: (c.maxX, c.maxY),
-        bedXAxisSize: c.sizeX,
-        bedYAxisSize: c.sizeY,
-        hasMeshComponent: c.hasBedMesh && b != null,
-      ),
+      (a, b, c) {
+        var mode = state.whenData((value) => value.showProbed).valueOrNull ?? initialProbeMode;
+
+        return _Model(
+          klippyCanReceiveCommands: a,
+          showProbed: mode,
+          bedMesh: b,
+          bedMin: (c.minX, c.minY),
+          bedMax: (c.maxX, c.maxY),
+        );
+      },
     );
   }
 
-  PrinterService get _printerService => ref.read(printerServiceSelectedProvider);
+  onSettingsTap() async {
+    // TODO : Make this safer and not use requireValue and !
+    state.whenData((value) async {
+      if (value.bedMesh == null) {
+        logger.w('Bed mesh is null');
+        return;
+      }
+      var result = await _bottomSheetService.show(BottomSheetConfig(
+        type: SheetType.bedMeshSettings,
+        isScrollControlled: true,
+        data: BedMeshSettingsBottomSheetArguments(value.bedMesh!.profileName, value.bedMesh!.profiles),
+      ));
+
+      if (result.confirmed) {
+        logger.i('Bed mesh settings confirmed: ${result.data}');
+
+        var args = result.data as String?;
+        // state = state.toLoading();
+        if (args == null) {
+          await _printerService.clearBedMeshProfile();
+        } else {
+          await _printerService.loadBedMeshProfile(args);
+        }
+      }
+    });
+  }
+
+  changeMode() {
+    state = state.whenData((value) {
+      _settingService.writeBool(_settingsKey, !value.showProbed);
+      return value.copyWith(showProbed: !value.showProbed);
+    });
+  }
+
+  loadProfile(String profileName) async {
+    await _printerService.loadBedMeshProfile(profileName);
+  }
+
+  clearActiveMesh() async {
+    await _printerService.clearBedMeshProfile();
+  }
 }
 
 @freezed
@@ -155,12 +264,10 @@ class _Model with _$Model {
 
   const factory _Model({
     required bool klippyCanReceiveCommands,
+    required bool showProbed,
     required BedMesh? bedMesh,
     required (double, double) bedMin, //x, y
     required (double, double) bedMax, //x,y
-    required double bedXAxisSize,
-    required double bedYAxisSize,
-    required bool hasMeshComponent,
   }) = __Model;
 
   bool get hasBedMesh => bedMesh != null;

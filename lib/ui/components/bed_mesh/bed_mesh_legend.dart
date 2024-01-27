@@ -51,6 +51,7 @@ class _BedMeshLegendState extends State<BedMeshLegend> {
         width: 30,
         decoration: BoxDecoration(
           gradient: gradient,
+          borderRadius: BorderRadius.circular(4),
         ),
       ),
     );

@@ -100,7 +100,9 @@ List<BedMeshProfile> _parseProfiles(Map raw) {
     Map<String, dynamic> value = (e.value as Map).map((key, value) => MapEntry(key as String, value));
 
     return BedMeshProfile.fromJson(name, value);
-  }).toList();
+      })
+      .sortedBy((element) => element.name)
+      .toList();
 }
 
 Map _deparseProfiles(List<BedMeshProfile> profiles) {
