@@ -5,7 +5,6 @@
 
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh_profile.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -47,13 +46,14 @@ class BedMeshSettingsBottomSheet extends HookWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text(
-                              'Load Bed Mesh Profile',
+                              'bottom_sheets.bedMesh.load_bed_mesh_profile',
                               style: themeData.textTheme.headlineSmall,
-                            ),
+                            ).tr(),
                             Text(
                               arguments.activeProfile != null
-                                  ? 'Currently active: ${arguments.activeProfile}'
-                                  : 'No profile active',
+                                  ? tr('bottom_sheets.bedMesh.currently_active',
+                                      args: [arguments.activeProfile.toString()])
+                                  : tr('bottom_sheets.bedMesh.no_profile_active'),
                               textAlign: TextAlign.center,
                               style: themeData.textTheme.bodySmall,
                             ),
@@ -66,13 +66,13 @@ class BedMeshSettingsBottomSheet extends HookWidget {
                           controller: scrollController,
                           children: [
                             ListTile(
-                              title: Text('No Mesh', maxLines: 1, overflow: TextOverflow.ellipsis),
-                              subtitle: Text('Clear loaded profile'),
+                              title: Text('bottom_sheets.bedMesh.no_mesh', maxLines: 1, overflow: TextOverflow.ellipsis)
+                                  .tr(),
+                              subtitle: Text('bottom_sheets.bedMesh.clear_loaded_profile').tr(),
                               selected: activeProfileState.value == null,
                               selectedColor: themeData.colorScheme.onSurfaceVariant,
                               selectedTileColor: themeData.colorScheme.surfaceVariant,
                               onTap: () {
-                                logger.d('Selected profile ${arguments.activeProfile}');
                                 activeProfileState.value = null;
                               },
                             ),
@@ -92,7 +92,7 @@ class BedMeshSettingsBottomSheet extends HookWidget {
                                 subtitle: Text('${profile.meshParams.xCount}x${profile.meshParams.yCount} Mesh'),
                                 // subtitle: Text('Range: ${numberFormat.format(profile.valueRange)}'),
                                 trailing: Tooltip(
-                                  message: 'Range between highest and lowest point',
+                                  message: tr('pages.dashboard.control.bed_mesh_card.range_tooltip'),
                                   child: Chip(
                                     backgroundColor: profile.name == activeProfileState.value
                                         ? themeData.colorScheme.primaryContainer
@@ -115,7 +115,6 @@ class BedMeshSettingsBottomSheet extends HookWidget {
                                   ),
                                 ),
                                 onTap: () {
-                                  logger.d('Selected profile ${profile.name}');
                                   activeProfileState.value = profile.name;
                                   // Navigator.of(context).pop(profile);
                                 },

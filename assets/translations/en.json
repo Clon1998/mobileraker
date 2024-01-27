@@ -180,6 +180,11 @@
           "retract_speed": "Retract Speed",
           "extra_unretract_length": "Extra Unretract Length",
           "unretract_speed": "Unretract Speed"
+        },
+        "bed_mesh_card": {
+          "title": "Bed Mesh",
+          "profiles": "Profiles",
+          "range_tooltip": "Range between highest and lowest point"
         }
       }
     },
@@ -782,6 +787,14 @@
         "title": "Delete Account?",
         "body": "You are about to delete your account. This action cannot be undone."
       }
+    },
+    "bedMesh": {
+      "load_bed_mesh_profile": "Load Bed Mesh Profile",
+      "currently_active": "Currently active: {}",
+      "no_profile_active": "No profile active",
+      "no_mesh": "No Mesh",
+      "clear_loaded_profile": "Clear loaded profile",
+      "range_between_highest_and_lowest_point": "Range between highest and lowest point"
     }
   },
   "klipper_state": {

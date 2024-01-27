@@ -83,10 +83,13 @@ class _CardTitle extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Icons.grid_4x4),
       // leading: const Icon(FlutterIcons.grid_mco),
-      title: const Row(children: [
-        Text('Bed Mesh'),
+      title: Row(children: [
+        const Text('pages.dashboard.control.bed_mesh_card.title').tr(),
       ]),
-      trailing: TextButton(onPressed: controller.onSettingsTap, child: const Text('Profiles')),
+      trailing: TextButton(
+        onPressed: controller.onSettingsTap,
+        child: const Text('pages.dashboard.control.bed_mesh_card.profiles').tr(),
+      ),
     );
   }
 }
@@ -132,7 +135,7 @@ class _CardBody extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Tooltip(
-                message: 'Range between highest and lowest point',
+                message: tr('pages.dashboard.control.bed_mesh_card.range_tooltip'),
                 child: Chip(
                   label: Text(range),
                   avatar: const Icon(

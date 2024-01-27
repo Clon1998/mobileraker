@@ -63,7 +63,7 @@ class _DashboardView extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var pageController = usePageController();
+    var pageController = usePageController(keys: []);
 
     return Scaffold(
       appBar: SwitchPrinterAppBar(
