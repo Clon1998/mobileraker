@@ -99,9 +99,11 @@ List<BedMeshProfile> _parseProfiles(Map raw) {
     String name = e.key;
     Map<String, dynamic> value = (e.value as Map).map((key, value) => MapEntry(key as String, value));
 
-    return BedMeshProfile.fromJson(name, value);
+        // sort the entires by name ignoring case
+        return BedMeshProfile.fromJson(name, value);
       })
-      .sortedBy((element) => element.name)
+      .sorted((a, b) => compareAsciiLowerCaseNatural(a.name, b.name))
+      // .sortedBy((element) => element.name.toLowerCase())
       .toList();
 }
 
