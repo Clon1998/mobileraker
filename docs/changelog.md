@@ -12,6 +12,8 @@
 
 - Resolved an issue that was causing the Belt Tuner display to crash if the necessary permissions were not granted.
 - [IOS] Fixed playback interruptions upon opening the app for the first time.
+- The background of toggle button cards (Power Panel, Output Pins) now show the correct background color again in
+  Material 2 themes.
 
 ## [2.6.10] - 2024-01-19
 
