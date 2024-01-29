@@ -261,7 +261,7 @@ class _TemperatureSensorTile extends HookConsumerWidget {
       spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
     var beautifiedNamed = beautifyName(temperatureSensor.name);
-
+    var numberFormat = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
     return GraphCardWithButton(
       plotSpots: spots.value,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
@@ -278,11 +278,11 @@ class _TemperatureSensorTile extends HookConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
             Text(
-              '${temperatureSensor.temperature.toStringAsFixed(1)} °C',
+              '${numberFormat.format(temperatureSensor.temperature)} °C',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             Text(
-              '${temperatureSensor.measuredMaxTemp.toStringAsFixed(1)} °C max',
+              '${numberFormat.format(temperatureSensor.measuredMaxTemp)} °C max',
             ),
           ],
         ),
@@ -319,6 +319,7 @@ class _TemperatureFanTile extends HookConsumerWidget {
     //   spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     // }
     var beautifiedNamed = beautifyName(temperatureFan.name);
+    var numberFormat = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
 
     return CardWithButton(
       buttonChild: const Text('general.set').tr(),
@@ -338,11 +339,11 @@ class _TemperatureFanTile extends HookConsumerWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(
-                  '${temperatureFan.temperature.toStringAsFixed(1)} °C',
+                  '${numberFormat.format(temperatureFan.temperature)} °C',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 Text(
-                  'pages.dashboard.general.temp_card.heater_on'.tr(args: [temperatureFan.target.toStringAsFixed(1)]),
+                  'pages.dashboard.general.temp_card.heater_on'.tr(args: [numberFormat.format(temperatureFan.target)]),
                 ),
               ],
             ),

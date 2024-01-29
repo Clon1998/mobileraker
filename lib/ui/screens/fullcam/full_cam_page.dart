@@ -95,6 +95,8 @@ class StackContent extends ConsumerWidget {
     var machine = ref.watch(fullCamMachineProvider);
     var printer = ref.watch(printerProvider(machine.uuid));
 
+    var numFormat = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
+
     return Positioned.fill(
       child: Stack(
         children: printer.maybeWhen(
@@ -104,7 +106,7 @@ class StackContent extends ConsumerWidget {
             var target = extruder.target;
 
             var nozzleText = tr('pages.dashboard.general.temp_preset_card.h_temp', args: [
-              '${extruder.temperature.toStringAsFixed(1)}${target > 0 ? '/${target.toStringAsFixed(1)}' : ''}',
+              '${numFormat.format(extruder.temperature)}${target > 0 ? '/${numFormat.format(target)}' : ''}',
             ]);
             String info = nozzleText;
 
@@ -113,7 +115,7 @@ class StackContent extends ConsumerWidget {
               var bedText = tr(
                 'pages.dashboard.general.temp_preset_card.b_temp',
                 args: [
-                  '${d.heaterBed!.temperature.toStringAsFixed(1)}${bedTarget > 0 ? '/${bedTarget.toStringAsFixed(1)}' : ''}',
+                  '${numFormat.format(d.heaterBed!.temperature)}${bedTarget > 0 ? '/${numFormat.format(bedTarget)}' : ''}',
                 ],
               );
               info = '$info\n$bedText';

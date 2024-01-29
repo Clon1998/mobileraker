@@ -29,7 +29,7 @@ class _BedMeshLegendState extends State<BedMeshLegend> {
   double? _value;
   OverlayEntry? _overlayEntry;
 
-  final NumberFormat formatter = NumberFormat('#0.000mm');
+  late final NumberFormat formatter = NumberFormat('#0.000mm', context.locale.languageCode);
 
   @override
   Widget build(BuildContext context) {

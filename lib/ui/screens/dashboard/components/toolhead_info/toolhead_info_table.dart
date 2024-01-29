@@ -50,6 +50,9 @@ class _ToolheadData extends ConsumerWidget {
         ref.watch(toolheadInfoProvider(machineUUID).selectAs((data) => data.printingOrPaused)).valueOrNull == true;
     var dateFormat = ref.watch(dateFormatServiceProvider).Hm();
 
+    var numFormatFixed1 = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
+    var numFormatFixed2 = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 2);
+
     return Table(
       border: TableBorder(
         horizontalInside: BorderSide(
@@ -70,17 +73,17 @@ class _ToolheadData extends ConsumerWidget {
             _ConsumerCell(
               label: 'X',
               consumerListenable: toolheadInfoProvider(machineUUID)
-                  .selectAs((value) => value.postion.elementAtOrNull(0)?.toStringAsFixed(2) ?? '--'),
+                  .selectAs((value) => value.postion.elementAtOrNull(0)?.let(numFormatFixed2.format) ?? '--'),
             ),
             _ConsumerCell(
               label: 'Y',
               consumerListenable: toolheadInfoProvider(machineUUID)
-                  .selectAs((value) => value.postion.elementAtOrNull(1)?.toStringAsFixed(2) ?? '--'),
+                  .selectAs((value) => value.postion.elementAtOrNull(1)?.let(numFormatFixed2.format) ?? '--'),
             ),
             _ConsumerCell(
               label: 'Z',
               consumerListenable: toolheadInfoProvider(machineUUID)
-                  .selectAs((value) => value.postion.elementAtOrNull(2)?.toStringAsFixed(2) ?? '--'),
+                  .selectAs((value) => value.postion.elementAtOrNull(2)?.let(numFormatFixed2.format) ?? '--'),
             ),
           ]),
         if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW) && isPrintingOrPaused) ...[
@@ -120,13 +123,13 @@ class _ToolheadData extends ConsumerWidget {
               _ConsumerTooltipCell(
                 label: tr('pages.dashboard.general.print_card.filament'),
                 consumerListenable: toolheadInfoProvider(machineUUID)
-                    .selectAs((value) => '${value.usedFilament?.toStringAsFixed(1) ?? 0} m'),
+                    .selectAs((value) => '${value.usedFilament?.let(numFormatFixed1.format) ?? 0} m'),
                 consumerTooltipListenable: toolheadInfoProvider(machineUUID).selectAs((value) => tr(
                       'pages.dashboard.general.print_card.filament_tooltip',
                       args: [
                         value.usedFilamentPerc.toStringAsFixed(0),
-                        value.usedFilament?.toStringAsFixed(1) ?? '0',
-                        value.totalFilament?.toStringAsFixed(1) ?? '-',
+                        value.usedFilament?.let(numFormatFixed1.format) ?? '0',
+                        value.totalFilament?.let(numFormatFixed1.format) ?? '-',
                       ],
                     )),
               ),

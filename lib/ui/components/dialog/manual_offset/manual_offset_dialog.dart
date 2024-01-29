@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -32,6 +33,8 @@ class ManualOffsetDialog extends HookConsumerWidget {
     var selectedStep = useState((offsetSteps.length - 1) ~/ 2);
 
     var controller = manualOffsetDialogControllerProvider(completer);
+
+    var numberFormat = NumberFormat('0.0##', context.locale.languageCode);
 
     return WillPopScope(
       onWillPop: ref.read(controller.notifier).onPopTriggered,
@@ -95,7 +98,7 @@ class ManualOffsetDialog extends HookConsumerWidget {
                                           border: const OutlineInputBorder(),
                                         ),
                                         child: Text(
-                                          '${manualProbe.zPositionLower?.toStringAsFixed(3)} >> ${manualProbe.zPosition?.toStringAsFixed(3)} << ${manualProbe.zPositionUpper?.toStringAsFixed(3)}',
+                                          '${manualProbe.zPositionLower?.let(numberFormat.format)} >> ${manualProbe.zPosition?.let(numberFormat.format)} << ${manualProbe.zPositionUpper?.let(numberFormat.format)}',
                                         ),
                                       ),
                                     ),
@@ -121,7 +124,7 @@ class ManualOffsetDialog extends HookConsumerWidget {
                                     ),
                                     child: RangeSelector(
                                       onSelected: (idx) => selectedStep.value = idx,
-                                      values: offsetSteps.map((e) => e.toString()),
+                                      values: offsetSteps.map((e) => numberFormat.format(e)),
                                       selectedIndex: selectedStep.value,
                                     ),
                                   ),

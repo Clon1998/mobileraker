@@ -14,7 +14,6 @@ import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
 import 'package:common/ui/components/skeletons/square_elevated_icon_button_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -121,7 +120,7 @@ class _CardTitle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var zOffset = ref.watch(_ZOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
-
+    var numberFormat = NumberFormat('#0.000mm', context.locale.languageCode);
     return ListTile(
       leading: const Icon(FlutterIcons.align_vertical_middle_ent),
       title: const Text('pages.dashboard.general.baby_step_card.title').tr(),
@@ -133,7 +132,7 @@ class _CardTitle extends ConsumerWidget {
             color: Theme.of(context).iconTheme.color,
             size: 20,
           ),
-          label: Text('${zOffset.toPrecision(3).toStringAsFixed(3)}mm'),
+          label: Text(numberFormat.format(zOffset)),
         ),
       ),
     );
@@ -154,6 +153,8 @@ class _CardBody extends ConsumerWidget {
     var selected =
         ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
     var steps = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
+
+    var numberFormat = NumberFormat('#0.0#', context.locale.languageCode);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -183,7 +184,7 @@ class _CardBody extends ConsumerWidget {
             RangeSelector(
               selectedIndex: selected,
               onSelected: klippyCanReceiveCommands ? controller.onSelectedChanged : null,
-              values: [for (var step in steps) step.toStringAsFixed(3)],
+              values: [for (var step in steps) numberFormat.format(step)],
             ),
           ],
         ),

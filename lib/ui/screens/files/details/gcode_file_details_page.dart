@@ -8,6 +8,7 @@ import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +53,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
     var dateFormatService = ref.read(dateFormatServiceProvider);
     var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
     var dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
+    var numFormat = NumberFormat.decimalPatternDigits(locale: context.locale.countryCode, decimalDigits: 2);
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(
@@ -185,8 +187,8 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                     PropertyTile(
                       title: 'pages.files.details.meta_card.layer_higher'.tr(),
                       subtitle:
-                          '${tr('pages.files.details.meta_card.first_layer')}: ${gcodeFile.firstLayerHeight?.toStringAsFixed(2) ?? '?'} mm\n'
-                          '${tr('pages.files.details.meta_card.others')}: ${gcodeFile.layerHeight?.toStringAsFixed(2) ?? '?'} mm',
+                          '${tr('pages.files.details.meta_card.first_layer')}: ${gcodeFile.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
+                          '${tr('pages.files.details.meta_card.others')}: ${gcodeFile.layerHeight?.let(numFormat.format) ?? '?'} mm',
                     ),
                     PropertyTile(
                       title: 'pages.files.details.meta_card.first_layer_temps'.tr(),

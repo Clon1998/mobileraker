@@ -19,7 +19,7 @@ class BedMeshSettingsBottomSheet extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    var numberFormat = NumberFormat('0.000mm');
+    var numberFormat = NumberFormat('0.000mm', context.locale.languageCode);
 
     var activeProfileState = useState(arguments.activeProfile);
 

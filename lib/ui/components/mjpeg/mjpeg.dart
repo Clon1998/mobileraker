@@ -197,6 +197,7 @@ class _FPSDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var numberFormat = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
     return ref.watch(provider.selectAs((data) => data.fps)).maybeWhen(
           data: (fps) {
             var themeData = Theme.of(context);
@@ -211,7 +212,7 @@ class _FPSDisplay extends ConsumerWidget {
                     borderRadius: const BorderRadius.all(Radius.circular(5)),
                   ),
                   child: Text(
-                    'FPS: ${fps.toStringAsFixed(1)}',
+                    'FPS: ${numberFormat.format(fps)}',
                     style: themeData.textTheme.bodySmall?.copyWith(
                       color: themeData.colorScheme.onSecondary,
                     ),
