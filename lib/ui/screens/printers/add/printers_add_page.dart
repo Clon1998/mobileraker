@@ -85,7 +85,8 @@ class _StepperBody extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: FormBuilder(
-        onWillPop: controller.onWillPopScope,
+        canPop: model.step == 0 || model.step == 3,
+        onPopInvoked: controller.onPopInvoked,
         key: ref.watch(formKeyProvider),
         child: AnimatedSwitcher(
           duration: kThemeAnimationDuration,
