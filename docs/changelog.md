@@ -2,6 +2,12 @@
 
 ## [2.6.11] - 2024-01-xx
 
+### Major Updates
+
+- Introduced bed mesh visualization card to the dashboard, empowering users to switch seamlessly between various mesh
+  profiles.
+  ([#196](https://github.com/Clon1998/mobileraker/issues/196))
+
 ### Changed Features
 
 - Webcam paths (URLs) now support relative paths and respect the configured HTTP address port (Printer address),
@@ -10,10 +16,10 @@
 
 ### Bug Fixes
 
-- Resolved an issue that was causing the Belt Tuner display to crash if the necessary permissions were not granted.
-- [IOS] Fixed playback interruptions upon opening the app for the first time.
-- The background of toggle button cards (Power Panel, Output Pins) now show the correct background color again in
-  Material 2 themes.
+- Fixed a Belt Tuner display crash caused by insufficient permissions.
+- [iOS] Resolved playback interruptions during the app's initial launch.
+- Corrected background color display for toggle button cards (Power Panel, Output Pins) in Material 2 themes.
+
 
 ## [2.6.10] - 2024-01-19
 
