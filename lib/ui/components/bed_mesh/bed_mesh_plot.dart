@@ -171,23 +171,6 @@ class _ZScatterSpot extends ScatterSpot {
       ];
 }
 
-// LinearGradient gradient = LinearGradient(
-//   begin: Alignment.topCenter,
-//   end: Alignment.bottomCenter,
-//   colors: const [Colors.blue, Colors.white, Colors.red],
-//   stops: [
-//     scaler.scale(zMin).toDouble(),
-//     scaler.scale(0).toDouble(),
-//     scaler.scale(zMax).toDouble(),
-//   ],
-// );
-// LinearGradient invertedGradient = LinearGradient(
-//   begin: gradient.end,
-//   end: gradient.begin,
-//   colors: gradient.colors,
-//   stops: gradient.stops,
-// );
-
 LinearGradient gradientForRange(double min, double max, [bool inverse = false, NumScaler? scaler]) {
   logger.i('Getting gradient for range $min, $max,$inverse');
   scaler ??= NumScaler(

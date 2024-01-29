@@ -10,6 +10,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -24,6 +25,7 @@ import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_plot.dart';
 import 'package:mobileraker/ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/bottom_sheet_service_impl.dart';
 
@@ -40,7 +42,7 @@ class BedMeshCard extends HookConsumerWidget {
     var showLoading =
         ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
-    if (showLoading) return const _ControlExtruderLoading();
+    if (showLoading) return const _BedMeshLoading();
 
     var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.bedMesh != null)).requireValue;
     // If the printer has no bed mesh component, we don't show the card
@@ -61,13 +63,72 @@ class BedMeshCard extends HookConsumerWidget {
   }
 }
 
-class _ControlExtruderLoading extends StatelessWidget {
-  const _ControlExtruderLoading({super.key});
+class _BedMeshLoading extends StatelessWidget {
+  const _BedMeshLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
     var themeData = Theme.of(context);
-    return const Placeholder();
+    return Card(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey,
+        highlightColor: themeData.colorScheme.background,
+        child: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CardTitleSkeleton(),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+              child: IntrinsicHeight(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      children: [
+                        Expanded(
+                          child: SizedBox(
+                            width: 30,
+                            height: double.infinity,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 15),
+          ],
+        ),
+      ),
+    );
   }
 }
 
