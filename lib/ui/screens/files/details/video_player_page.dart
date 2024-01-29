@@ -90,7 +90,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
           ],
         );
       } else if (fileDownloadProgress != null) {
-        var percent = NumberFormat.percentPattern(context.locale.languageCode).format(fileDownloadProgress);
+        var percent = NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(fileDownloadProgress);
         body = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

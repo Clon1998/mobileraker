@@ -176,7 +176,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
       spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
 
-    NumberFormat numberFormat = NumberFormat('0.0', context.locale.languageCode);
+    NumberFormat numberFormat = NumberFormat('0.0', context.locale.toStringWithSeparator());
     ThemeData themeData = Theme.of(context);
     Color colorBg = themeData.colorScheme.surfaceVariant;
     if (genericHeater.target > 0 && klippyCanReceiveCommands) {
@@ -261,7 +261,8 @@ class _TemperatureSensorTile extends HookConsumerWidget {
       spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     }
     var beautifiedNamed = beautifyName(temperatureSensor.name);
-    var numberFormat = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
+    var numberFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
     return GraphCardWithButton(
       plotSpots: spots.value,
       buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
@@ -319,7 +320,8 @@ class _TemperatureFanTile extends HookConsumerWidget {
     //   spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
     // }
     var beautifiedNamed = beautifyName(temperatureFan.name);
-    var numberFormat = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
+    var numberFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return CardWithButton(
       buttonChild: const Text('general.set').tr(),

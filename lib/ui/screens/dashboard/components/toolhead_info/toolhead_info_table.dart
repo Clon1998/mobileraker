@@ -50,8 +50,10 @@ class _ToolheadData extends ConsumerWidget {
         ref.watch(toolheadInfoProvider(machineUUID).selectAs((data) => data.printingOrPaused)).valueOrNull == true;
     var dateFormat = ref.watch(dateFormatServiceProvider).Hm();
 
-    var numFormatFixed1 = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
-    var numFormatFixed2 = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 2);
+    var numFormatFixed1 =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
+    var numFormatFixed2 =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
 
     return Table(
       border: TableBorder(

@@ -197,7 +197,8 @@ class _FPSDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var numberFormat = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
+    var numberFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
     return ref.watch(provider.selectAs((data) => data.fps)).maybeWhen(
           data: (fps) {
             var themeData = Theme.of(context);

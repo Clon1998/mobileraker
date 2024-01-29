@@ -120,7 +120,7 @@ class _CardTitle extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var zOffset = ref.watch(_ZOffsetCardControllerProvider(machineUUID).selectAs((data) => data.zOffset)).requireValue;
-    var numberFormat = NumberFormat('#0.000mm', context.locale.languageCode);
+    var numberFormat = NumberFormat('#0.000mm', context.locale.toStringWithSeparator());
     return ListTile(
       leading: const Icon(FlutterIcons.align_vertical_middle_ent),
       title: const Text('pages.dashboard.general.baby_step_card.title').tr(),
@@ -154,7 +154,7 @@ class _CardBody extends ConsumerWidget {
         ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
     var steps = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
 
-    var numberFormat = NumberFormat('#0.0#', context.locale.languageCode);
+    var numberFormat = NumberFormat('#0.0#', context.locale.toStringWithSeparator());
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

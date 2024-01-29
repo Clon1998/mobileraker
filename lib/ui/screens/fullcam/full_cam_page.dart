@@ -95,7 +95,7 @@ class StackContent extends ConsumerWidget {
     var machine = ref.watch(fullCamMachineProvider);
     var printer = ref.watch(printerProvider(machine.uuid));
 
-    var numFormat = NumberFormat.decimalPatternDigits(locale: context.locale.languageCode, decimalDigits: 1);
+    var numFormat = NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
     return Positioned.fill(
       child: Stack(

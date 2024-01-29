@@ -147,7 +147,7 @@ class PrintCard extends ConsumerWidget {
           radius: 25,
           lineWidth: 4,
           percent: progress,
-          center: Text(NumberFormat.percentPattern(context.locale.languageCode).format(progress)),
+          center: Text(NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(progress)),
           progressColor: (printState == PrintState.complete) ? Colors.green : Colors.deepOrange,
         );
       case PrintState.complete:

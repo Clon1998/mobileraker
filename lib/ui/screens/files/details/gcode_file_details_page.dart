@@ -53,7 +53,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
     var dateFormatService = ref.read(dateFormatServiceProvider);
     var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
     var dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
-    var numFormat = NumberFormat.decimalPatternDigits(locale: context.locale.countryCode, decimalDigits: 2);
+    var numFormat = NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(

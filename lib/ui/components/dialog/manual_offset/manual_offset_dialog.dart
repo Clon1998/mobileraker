@@ -34,7 +34,7 @@ class ManualOffsetDialog extends HookConsumerWidget {
 
     var controller = manualOffsetDialogControllerProvider(completer);
 
-    var numberFormat = NumberFormat('0.0##', context.locale.languageCode);
+    var numberFormat = NumberFormat('0.0##', context.locale.toStringWithSeparator());
 
     return WillPopScope(
       onWillPop: ref.read(controller.notifier).onPopTriggered,

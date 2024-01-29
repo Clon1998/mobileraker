@@ -460,7 +460,7 @@ class _InAppPurchaseProduct extends ConsumerWidget {
         ),
         Text(
           tr('pages.paywall.iap_offer', args: [
-            NumberFormat.percentPattern(context.locale.languageCode).format(offerDiscount),
+            NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(offerDiscount),
           ]),
           style: themeData.textTheme.titleMedium,
           textAlign: TextAlign.center,
@@ -540,7 +540,7 @@ class _SubscriptionProduct extends ConsumerWidget {
         Text(
           tr('pages.paywall.intro_phase', args: [
             offerDuration,
-            NumberFormat.percentPattern(context.locale.languageCode).format(offerDiscount),
+            NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(offerDiscount),
           ]),
           style: themeData.textTheme.titleMedium,
           textAlign: TextAlign.center,
@@ -658,7 +658,7 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
           (subscriptionOption.introPhase!.price.amountMicros / subscriptionOption.fullPricePhase!.price.amountMicros);
       tmp.add(tr('pages.paywall.intro_phase', args: [
         subscriptionOption.introPhaseDurationText!,
-        NumberFormat.percentPattern(context.locale.languageCode).format(discount),
+        NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(discount),
       ]));
     }
     return tmp.isEmpty ? null : tmp.join(' + ');

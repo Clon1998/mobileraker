@@ -106,7 +106,7 @@ class _CardBody extends ConsumerWidget {
     var model = ref.watch(_controllerProvider(machineUUID)).requireValue;
 
     var themeData = Theme.of(context);
-    var numberFormat = NumberFormat('0.000mm', context.locale.languageCode);
+    var numberFormat = NumberFormat('0.000mm', context.locale.toStringWithSeparator());
 
     var meshIsActive = model.bedMesh?.profileName?.isNotEmpty == true;
     var activeMeshName = model.bedMesh?.profileName ?? tr('general.none');

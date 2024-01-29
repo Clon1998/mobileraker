@@ -44,8 +44,8 @@ class BedMeshPlot extends StatelessWidget {
       targetMax: 1,
     );
 
-    NumberFormat formatterXY = NumberFormat('#0.00', context.locale.languageCode);
-    NumberFormat formatterZ = NumberFormat('#0.0000', context.locale.languageCode);
+    NumberFormat formatterXY = NumberFormat('#0.00', context.locale.toStringWithSeparator());
+    NumberFormat formatterZ = NumberFormat('#0.0000', context.locale.toStringWithSeparator());
 
     // Theme stuff
     var themeData = Theme.of(context);

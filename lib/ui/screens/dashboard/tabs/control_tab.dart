@@ -430,7 +430,7 @@ class _PinTile extends ConsumerWidget {
               Text(
                 pinValue(
                   pin.value * (pinConfig?.scale ?? 1),
-                  context.locale.languageCode,
+                  context.locale.toStringWithSeparator(),
                 ),
                 style: textTheme.headlineSmall,
               ),
@@ -557,7 +557,7 @@ class _Led extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    statusText(led, ledConfig, context.locale.languageCode),
+                    statusText(led, ledConfig, context.locale.toStringWithSeparator()),
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ],
