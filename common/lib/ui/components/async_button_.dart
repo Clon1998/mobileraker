@@ -69,7 +69,7 @@ class AsyncElevatedButton extends HookConsumerWidget {
     if (padding != null) animatedChild = Padding(padding: padding!, child: animatedChild);
 
     var onPressedWrapped =
-        onPressed != null && !actionRunning.value ? () => _onPressedWrapper(context, actionRunning) : null;
+        onPressed != null && !actionRunning.value ? () => _onPressedWrapper(context, actionRunning, onPressed) : null;
     var btn = (icon == null)
         ? ElevatedButton(
             onPressed: onPressedWrapped,
@@ -90,14 +90,6 @@ class AsyncElevatedButton extends HookConsumerWidget {
       margin: margin,
       child: btn,
     );
-  }
-
-  _onPressedWrapper(BuildContext context, ValueNotifier<bool> valueNotifier) async {
-    FutureOr<void>? ftr = onPressed!();
-    if (ftr == null) return;
-    valueNotifier.value = true;
-    await ftr;
-    if (context.mounted) valueNotifier.value = false;
   }
 }
 
@@ -129,7 +121,7 @@ class AsyncIconButton extends HookConsumerWidget {
     );
 
     var onPressedWrapped =
-        onPressed != null && !actionRunning.value ? () => _onPressedWrapper(context, actionRunning) : null;
+        onPressed != null && !actionRunning.value ? () => _onPressedWrapper(context, actionRunning, onPressed) : null;
 
     return IconButton(
       onPressed: onPressedWrapped,
@@ -137,14 +129,6 @@ class AsyncIconButton extends HookConsumerWidget {
       iconSize: iconSize,
       tooltip: tooltip,
     );
-  }
-
-  _onPressedWrapper(BuildContext context, ValueNotifier<bool> valueNotifier) async {
-    FutureOr<void>? ftr = onPressed!();
-    if (ftr == null) return;
-    valueNotifier.value = true;
-    await ftr;
-    if (context.mounted) valueNotifier.value = false;
   }
 }
 
@@ -187,7 +171,7 @@ class AsyncOutlinedButton extends HookConsumerWidget {
     );
 
     var onPressedWrapped =
-        onPressed != null && !actionRunning.value ? () => _onPressedWrapper(context, actionRunning) : null;
+        onPressed != null && !actionRunning.value ? () => _onPressedWrapper(context, actionRunning, onPressed) : null;
 
     if (icon != null) {
       return OutlinedButton.icon(
@@ -204,12 +188,75 @@ class AsyncOutlinedButton extends HookConsumerWidget {
       child: animatedWidget,
     );
   }
+}
 
-  _onPressedWrapper(BuildContext context, ValueNotifier<bool> valueNotifier) async {
-    FutureOr<void>? ftr = onPressed!();
-    if (ftr == null) return;
-    valueNotifier.value = true;
-    await ftr;
-    if (context.mounted) valueNotifier.value = false;
+class AsyncFilleddButton extends HookConsumerWidget {
+  const AsyncFilleddButton.icon({
+    super.key,
+    required Icon this.icon,
+    required Widget label,
+    required this.onPressed,
+    this.style,
+  }) : child = label;
+
+  const AsyncFilleddButton({
+    super.key,
+    required this.child,
+    required this.onPressed,
+    this.style,
+  }) : icon = null;
+
+  final Widget child;
+  final Widget? icon;
+  final FutureOr<void>? Function()? onPressed;
+  final ButtonStyle? style;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var animCtrler =
+        useAnimationController(duration: const Duration(seconds: 1), lowerBound: 0.5, upperBound: 1, initialValue: 1);
+    var actionRunning = useState(false);
+
+    if (actionRunning.value) {
+      animCtrler.repeat(reverse: true);
+    } else {
+      animCtrler.value = 1;
+    }
+
+    Widget animatedWidget = ScaleTransition(
+      scale: CurvedAnimation(parent: animCtrler, curve: Curves.elasticInOut),
+      child: icon ?? child,
+    );
+
+    var onPressedWrapped =
+        onPressed != null && !actionRunning.value ? () => _onPressedWrapper(context, actionRunning, onPressed) : null;
+
+    if (icon != null) {
+      return FilledButton.icon(
+        onPressed: onPressedWrapped,
+        icon: animatedWidget,
+        label: child,
+        style: style,
+      );
+    }
+
+    return FilledButton(
+      onPressed: onPressedWrapped,
+      style: style,
+      child: animatedWidget,
+    );
   }
+}
+
+_onPressedWrapper(
+    BuildContext context, ValueNotifier<bool> valueNotifier, FutureOr<void>? Function()? onPressed) async {
+  FutureOr<void>? ftr = onPressed!();
+  if (ftr == null) return;
+  valueNotifier.value = true;
+  try {
+    await ftr;
+  } catch (e) {
+    // Just catch the error since the button just reacts to the onPressed function
+  }
+  if (context.mounted) valueNotifier.value = false;
 }
