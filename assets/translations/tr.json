@@ -246,7 +246,7 @@
           "progress_label": "İlerleme Bildirimi",
           "progress_helper": "Yazdırma ilerleme bildirimi için güncelleme aralığı",
           "state_label": "Durum Bildirimi",
-          "state_helper": "Durum değişikliği bildirimi yayınlayan eyaletler",
+          "state_helper": "Durum değişikliği bildirimi gönderen durumlar",
           "no_permission_title": "Bildirim İzni Yok!",
           "no_permission_desc": "Bildirimler görüntülenemiyor.\n",
           "no_firebase_title": "Bildirimler görüntülenemiyor",
@@ -512,11 +512,11 @@
         },
         "title": "Dev'i destekleyin!",
         "calling_store": "İstek işleniyor...",
-        "promo_title": "Terfi",
+        "promo_title": "Promosyon",
         "free_phase": "İlk {} ücretsiz",
         "intro_phase": "{} indirimde {} keyfini çıkarın",
         "iap_offer": "Orijinal fiyattan {} indirim",
-        "tip_developer": "İpucu Geliştirici",
+        "tip_developer": "Geliştirici'ye bahşiş yap",
         "trial_disclaimer": "Ücretsiz deneme süresinin sonuna kadar sizden ücret alınmayacaktır ve deneme süresi boyunca istediğiniz zaman iptal edebilirsiniz."
       },
       "video_player": {
@@ -654,7 +654,7 @@
         },
         "job_queue_perk": {
           "title": "İş Kuyruğu",
-          "subtitle": "Moonraker'ın iş kuyruğunu Mobileraker içinden yönetin!"
+          "subtitle": "Moonraker'ın İş kuyruğunu Mobileraker içinden yönetin!"
         },
         "unlimited_printers_perk": {
           "title": "Sınırsız Yazıcı",
@@ -684,7 +684,7 @@
         "title": "Geliştiriciye bahşiş verin!",
         "body": "Bu ipucu yalnızca geliştiricinin çabalarını takdir etmek içindir ve herhangi bir ek özelliğe erişim VERMEZ.",
         "amount_label": "Bahşiş miktarı",
-        "tip": "Uç"
+        "tip": "Bahşiş"
       },
       "http_header": {
         "title": "Http-Başlığı",
