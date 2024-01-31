@@ -17,6 +17,7 @@ import 'package:mobileraker/ui/components/supporter_ad.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 import '../../../components/remote_connection_active_card.dart';
@@ -41,6 +42,9 @@ class GeneralTab extends ConsumerWidget {
                 ref.watch(generalTabViewControllerProvider.select((data) => data.value!.printerData.print.state));
             var machineId = ref.watch(generalTabViewControllerProvider.select((data) => data.value!.machine.uuid));
 
+            var hasSpoolman = ref
+                .watch(generalTabViewControllerProvider.select((data) => data.value!.klippyData.hasSpoolmanComponent));
+
             // return const TemperatureSensorPresetCard();
 
             return PullToRefreshPrinter(
@@ -59,6 +63,7 @@ class GeneralTab extends ConsumerWidget {
                   if (ref.watch(settingServiceProvider).readBool(AppSettingKeys.alwaysShowBabyStepping) ||
                       const {PrintState.printing, PrintState.paused}.contains(printState))
                     ZOffsetCard(machineUUID: machineId),
+                  if (hasSpoolman) SpoolmanCard(machineUUID: machineId),
                 ],
               ),
             );

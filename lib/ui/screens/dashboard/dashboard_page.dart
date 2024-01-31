@@ -32,6 +32,7 @@ import 'package:mobileraker/ui/components/printer_calibration_watcher.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
+import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 
@@ -152,7 +153,7 @@ class _FloatingActionBtn extends ConsumerWidget {
             label: tr('dialogs.supporter_perks.job_queue_perk.title'),
             onTap: () => ref
                 .read(bottomSheetServiceProvider)
-                .show(BottomSheetConfig(type: SheetType.jobQueueMenu, isScrollControlled: true)),
+                .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
           ),
       ],
       spacing: 5,

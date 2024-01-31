@@ -8,7 +8,9 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
+import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:mobileraker_pro/ui/components/bottomsheet/job_queue_sheet.dart';
+import 'package:mobileraker_pro/ui/components/bottomsheet/select_spoolman_sheet.dart';
 
 import '../../ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import '../../ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
@@ -18,7 +20,6 @@ import '../../ui/components/bottomsheet/user_bottom_sheet.dart';
 
 enum SheetType implements BottomSheetIdentifierMixin {
   nonPrintingMenu,
-  jobQueueMenu,
   addRemoteCon,
   manageMacroGroupMacros,
   userManagement,
@@ -36,7 +37,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
   @override
   final Map<BottomSheetIdentifierMixin, Widget Function(BuildContext, Object?)> availableSheets = {
     SheetType.nonPrintingMenu: (ctx, data) => const NonPrintingBottomSheet(),
-    SheetType.jobQueueMenu: (ctx, data) => const JobQueueBottomSheet(),
+    ProSheetType.jobQueueMenu: (ctx, data) => const JobQueueBottomSheet(),
     SheetType.addRemoteCon: (ctx, data) => AddRemoteConnectionBottomSheet(
           args: data as AddRemoteConnectionSheetArgs,
         ),
@@ -47,6 +48,7 @@ class BottomSheetServiceImpl implements BottomSheetService {
     SheetType.bedMeshSettings: (ctx, data) => BedMeshSettingsBottomSheet(
           arguments: data as BedMeshSettingsBottomSheetArguments,
         ),
+    ProSheetType.selectSpoolman: (ctx, data) => SelectSpoolmanSheet(machineUUID: data as String),
   };
 
   @override
