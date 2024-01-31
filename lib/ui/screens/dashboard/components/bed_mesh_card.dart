@@ -17,6 +17,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -33,20 +34,34 @@ part 'bed_mesh_card.freezed.dart';
 part 'bed_mesh_card.g.dart';
 
 class BedMeshCard extends HookConsumerWidget {
-  const BedMeshCard({Key? key, required this.machineUUID}) : super(key: key);
+  BedMeshCard({Key? key, required this.machineUUID}) : super(key: key);
 
   final String machineUUID;
 
+  late final CompositeKey _hadMeshKey = CompositeKey.keyWithString(UiKeys.hadMeshView, machineUUID);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var settingService = ref.watch(settingServiceProvider);
+    var hadBedMesh = settingService.readBool(_hadMeshKey);
+
+    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.bedMesh != null)).valueOrNull;
+
+    useEffect(
+      () {
+        if (showCard == null) return;
+        settingService.writeBool(_hadMeshKey, showCard);
+      },
+      [showCard],
+    );
+    if (!hadBedMesh && showCard != true || showCard == false) {
+      return const SizedBox.shrink();
+    }
+
     var showLoading =
         ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
     if (showLoading) return const _BedMeshLoading();
-
-    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.bedMesh != null)).requireValue;
-    // If the printer has no bed mesh component, we don't show the card
-    if (!showCard) return const SizedBox.shrink();
 
     return Card(
       child: Column(
@@ -283,7 +298,6 @@ class _Controller extends _$Controller {
   @override
   Stream<_Model> build(String machineUUID) async* {
     ref.keepAliveFor();
-
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
 

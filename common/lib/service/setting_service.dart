@@ -115,6 +115,17 @@ enum UtilityKeys implements KeyValueStoreKey {
   const UtilityKeys(this.key);
 }
 
+enum UiKeys implements KeyValueStoreKey {
+  hadMeshView('hMeshView'),
+  hadSpoolman('hSpoolman'),
+  ;
+
+  @override
+  final String key;
+
+  const UiKeys(this.key);
+}
+
 class CompositeKey implements KeyValueStoreKey {
   CompositeKey._(this._key);
 
