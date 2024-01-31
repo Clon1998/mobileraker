@@ -50,7 +50,6 @@ class GeneralTab extends ConsumerWidget {
                 key: const PageStorageKey('gTab'),
                 padding: const EdgeInsets.only(bottom: 20),
                 children: [
-                  SpoolmanCard(machineUUID: machineId),
                   const MachineDeletionWarning(),
                   const SupporterAd(),
                   RemoteConnectionActiveCard(machineId: machineId),
@@ -61,6 +60,7 @@ class GeneralTab extends ConsumerWidget {
                   if (ref.watch(settingServiceProvider).readBool(AppSettingKeys.alwaysShowBabyStepping) ||
                       const {PrintState.printing, PrintState.paused}.contains(printState))
                     ZOffsetCard(machineUUID: machineId),
+                  SpoolmanCard(machineUUID: machineId),
                 ],
               ),
             );
