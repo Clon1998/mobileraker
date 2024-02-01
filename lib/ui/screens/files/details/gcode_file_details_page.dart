@@ -5,55 +5,75 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/file_service.dart';
+import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/date_format_service.dart';
-import 'package:mobileraker/ui/screens/files/details/gcode_file_details_controller.dart';
+import 'package:mobileraker/ui/components/warning_card.dart';
+import 'package:mobileraker_pro/service/moonraker/spoolman_service.dart';
+import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+import '../../../../routing/app_router.dart';
+
+part 'gcode_file_details_page.freezed.dart';
+part 'gcode_file_details_page.g.dart';
 
 class GCodeFileDetailPage extends ConsumerWidget {
-  const GCodeFileDetailPage({Key? key, required this.gcodeFile}) : super(key: key);
+  const GCodeFileDetailPage({super.key, required this.gcodeFile});
+
   final GCodeFile gcodeFile;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ProviderScope(
-      overrides: [
-        gcodeProvider.overrideWithValue(gcodeFile),
-        gCodeFileDetailsControllerProvider,
-      ],
+      overrides: [gcodeProvider.overrideWithValue(gcodeFile)],
       child: const _GCodeFileDetailPage(),
     );
   }
 }
 
 class _GCodeFileDetailPage extends HookConsumerWidget {
-  const _GCodeFileDetailPage({Key? key}) : super(key: key);
+  const _GCodeFileDetailPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var animCtrler = useAnimationController(duration: const Duration(milliseconds: 400));
-    animCtrler.forward();
-    var gcodeFile = ref.watch(gcodeProvider);
+    var animCtrler = useAnimationController(duration: const Duration(milliseconds: 400))..forward();
 
-    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.requireValue!.uuid));
-    var cacheManager = ref.watch(httpCacheManagerProvider(machineUUID));
+    logger.w('Rebuilding _GCodeFileDetailPage');
+    var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    var model = ref.watch(_gCodeFileDetailsControllerProvider);
+
+    var cacheManager = ref.watch(httpCacheManagerProvider(model.machineUUID));
 
     var machineUri = ref.watch(previewImageUriProvider);
 
-    var bigImageUri = gcodeFile.constructBigImageUri(machineUri);
+    var bigImageUri = model.file.constructBigImageUri(machineUri);
 
-    var dateFormatService = ref.read(dateFormatServiceProvider);
+    var dateFormatService = ref.watch(dateFormatServiceProvider);
     var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
     var dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
     var numFormat = NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+    var numFormatInt =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 0);
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(
@@ -67,13 +87,13 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
             return SliverAppBar(
               expandedHeight: 220,
               floating: true,
-              actions: const [PreHeatBtn()],
+              actions: const [_PreHeatBtn()],
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.pin,
                 background: Stack(alignment: Alignment.center, children: [
                   Hero(
                     transitionOnUserGestures: true,
-                    tag: 'gCodeImage-${gcodeFile.hashCode}',
+                    tag: 'gCodeImage-${model.file.hashCode}',
                     child: IconTheme(
                       data: IconThemeData(
                         color: Theme.of(context).colorScheme.onPrimary,
@@ -82,7 +102,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                           ? CachedNetworkImage(
                               cacheManager: cacheManager,
                               imageUrl: bigImageUri.toString(),
-                              cacheKey: '${bigImageUri.hashCode}-${gcodeFile.hashCode}',
+                              cacheKey: '${bigImageUri.hashCode}-${model.file.hashCode}',
                               httpHeaders: ref.watch(previewImageHttpHeaderProvider),
                               imageBuilder: (context, imageProvider) => Image(
                                 image: imageProvider,
@@ -112,7 +132,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                           color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.8),
                         ),
                         child: Text(
-                          gcodeFile.name,
+                          model.file.name,
                           textAlign: TextAlign.center,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 5,
@@ -129,6 +149,27 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
           }),
           SliverToBoxAdapter(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              // if (model.materialMissmatch != null)
+              WarningCard(
+                show: model.materialMissmatch != null,
+                onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                leadingIcon: Icon(Icons.layers_clear),
+                // leadingIcon: Icon(Icons.layers_clear),
+                title: Text('Material missmatch'),
+                subtitle: Text(
+                    'The file\'s material ${model.file.filamentType} does not match the active spool\'s material ${model.materialMissmatch}.\nTap to change the active spool.'),
+              ),
+              // if (model.insufficientFilament != null)
+              WarningCard(
+                show: model.insufficientFilament != null,
+                onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+                margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                leadingIcon: Icon(Icons.scale),
+                title: Text('Insufficient filament'),
+                subtitle: Text(
+                    'The active spool only has ${model.insufficientFilament?.let((it) => it.formatGramms(numFormat))} filament left, which is not enough for this file.\nTap to change the active spool.'),
+              ),
               Card(
                 child: Column(
                   children: <Widget>[
@@ -139,18 +180,18 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                       title: const Text('pages.setting.general.title').tr(),
                     ),
                     const Divider(),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.general_card.path'.tr(),
-                      subtitle: gcodeFile.absolutPath,
+                      subtitle: model.file.absolutPath,
                     ),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.general_card.last_mod'.tr(),
-                      subtitle: dateFormatGeneral.format(gcodeFile.modifiedDate),
+                      subtitle: dateFormatGeneral.format(model.file.modifiedDate),
                     ),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.general_card.last_printed'.tr(),
-                      subtitle: (gcodeFile.printStartTime != null)
-                          ? dateFormatGeneral.format(gcodeFile.lastPrintDate!)
+                      subtitle: (model.file.printStartTime != null)
+                          ? dateFormatGeneral.format(model.file.lastPrintDate!)
                           : 'pages.files.details.general_card.no_data'.tr(),
                     ),
                   ],
@@ -165,36 +206,41 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                       title: const Text('pages.files.details.meta_card.title').tr(),
                     ),
                     const Divider(),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.meta_card.filament'.tr(),
-                      subtitle:
-                          '${tr('pages.files.details.meta_card.filament_type')}: ${gcodeFile.filamentType ?? tr('general.unknown')}\n'
-                          '${tr('pages.files.details.meta_card.filament_name')}: ${gcodeFile.filamentName ?? tr('general.unknown')}',
+                      subtitle: [
+                        '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
+                        '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
+                        if (model.file.filamentWeightTotal != null)
+                          '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                        if (model.file.filamentTotal != null)
+                          '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                      ].join('\n'),
                     ),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.meta_card.est_print_time'.tr(),
                       subtitle:
-                          '${secondsToDurationText(gcodeFile.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(gcodeFile, dateFormatEta)}',
+                          '${secondsToDurationText(model.file.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${formatPotentialEta(model.file, dateFormatEta)}',
                     ),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.meta_card.slicer'.tr(),
-                      subtitle: formatSlicerAndVersion(gcodeFile),
+                      subtitle: formatSlicerAndVersion(model.file),
                     ),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
-                      subtitle: '${gcodeFile.nozzleDiameter} mm',
+                      subtitle: '${model.file.nozzleDiameter} mm',
                     ),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.meta_card.layer_higher'.tr(),
                       subtitle:
-                          '${tr('pages.files.details.meta_card.first_layer')}: ${gcodeFile.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
-                          '${tr('pages.files.details.meta_card.others')}: ${gcodeFile.layerHeight?.let(numFormat.format) ?? '?'} mm',
+                          '${tr('pages.files.details.meta_card.first_layer')}: ${model.file.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
+                          '${tr('pages.files.details.meta_card.others')}: ${model.file.layerHeight?.let(numFormat.format) ?? '?'} mm',
                     ),
-                    PropertyTile(
+                    _PropertyTile(
                       title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
                       subtitle: 'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [
-                        gcodeFile.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
-                        gcodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                        model.file.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                        model.file.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
                       ]),
                     ),
                   ],
@@ -222,7 +268,7 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
         ],
       ),
 
-      floatingActionButton: const Fab(),
+      floatingActionButton: const _Fab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
@@ -241,42 +287,46 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
   }
 }
 
-class Fab extends ConsumerWidget {
-  const Fab({Key? key}) : super(key: key);
+class _Fab extends ConsumerWidget {
+  const _Fab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var canStartPrint = ref.watch(canStartPrintProvider);
+    var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    var canStartPrint = ref.watch(_gCodeFileDetailsControllerProvider.select((data) => data.canStartPrint));
 
+    var themeData = Theme.of(context);
     return FloatingActionButton.extended(
-      backgroundColor: (canStartPrint) ? null : Theme.of(context).disabledColor,
-      onPressed: (canStartPrint) ? ref.watch(gCodeFileDetailsControllerProvider.notifier).onStartPrintTap : null,
+      backgroundColor: (canStartPrint) ? null : themeData.disabledColor,
+      onPressed: (canStartPrint) ? controller.onStartPrintTap : null,
       icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
       label: const Text('pages.files.details.print').tr(),
     );
   }
 }
 
-class PreHeatBtn extends ConsumerWidget {
-  const PreHeatBtn({Key? key}) : super(key: key);
+class _PreHeatBtn extends ConsumerWidget {
+  const _PreHeatBtn({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    var canPreheat = ref.watch(_gCodeFileDetailsControllerProvider
+        .select((data) => data.canStartPrint && data.file.firstLayerTempBed != null));
+
     return IconButton(
-      onPressed: ref.watch(gcodeProvider).firstLayerTempBed != null && ref.watch(canStartPrintProvider)
-          ? ref.watch(gCodeFileDetailsControllerProvider.notifier).onPreHeatPrinterTap
-          : null,
+      onPressed: canPreheat ? controller.onPreHeatPrinterTap : null,
       icon: const Icon(FlutterIcons.fire_alt_faw5s),
       tooltip: 'pages.files.details.preheat'.tr(),
     );
   }
 }
 
-class PropertyTile extends StatelessWidget {
+class _PropertyTile extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  const PropertyTile({Key? key, required this.title, required this.subtitle}) : super(key: key);
+  const _PropertyTile({super.key, required this.title, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -295,4 +345,115 @@ class PropertyTile extends StatelessWidget {
       ),
     );
   }
+}
+
+@Riverpod(dependencies: [])
+GCodeFile gcode(GcodeRef ref) => throw UnimplementedError();
+
+@Riverpod(dependencies: [gcode])
+class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
+  @override
+  _Model build() {
+    logger.i('Buildign GCodeFileDetailsController');
+
+    var machineUUID = ref.watch(selectedMachineProvider.select((value) => value.requireValue!.uuid));
+    var gCodeFile = ref.watch(gcodeProvider);
+
+    var klippy = ref.watch(klipperProvider(machineUUID)).valueOrNull;
+    var canPrint = ref.watch(printerProvider(machineUUID).select((value) => const {
+          PrintState.complete,
+          PrintState.error,
+          PrintState.standby,
+          PrintState.cancelled,
+        }.contains(value.valueOrNull?.print.state)));
+
+    double? insufficientFilament;
+    String? materialMissmatch;
+    if (klippy?.hasSpoolmanComponent == true) {
+      var spool = ref.watch(activeSpoolProvider(machineUUID)).valueOrNull;
+      if (spool != null) {
+        if (spool.filament.material != null &&
+            gCodeFile.filamentType != null &&
+            spool.filament.material != gCodeFile.filamentType) {
+          materialMissmatch = spool.filament.material;
+        }
+
+        if (gCodeFile.filamentWeightTotal != null &&
+            spool.remainingWeight != null &&
+            spool.remainingWeight! < gCodeFile.filamentWeightTotal!) {
+          insufficientFilament = spool.remainingWeight!;
+        }
+      }
+    }
+
+    return _Model(
+      file: gCodeFile,
+      canStartPrint: klippy?.klippyCanReceiveCommands == true && canPrint,
+      machineUUID: machineUUID,
+      insufficientFilament: insufficientFilament,
+      materialMissmatch: materialMissmatch,
+    );
+  }
+
+  PrinterService get _printerService => ref.read(printerServiceSelectedProvider);
+
+  DialogService get _dialogService => ref.read(dialogServiceProvider);
+
+  SnackBarService get _snackBarService => ref.read(snackBarServiceProvider);
+
+  onStartPrintTap() {
+    _printerService.startPrintFile(ref.read(gcodeProvider));
+    ref.read(goRouterProvider).goNamed(AppRoute.dashBoard.name);
+  }
+
+  onPreHeatPrinterTap() {
+    var gCodeFile = ref.read(gcodeProvider);
+    var tempArgs = [
+      '170',
+      gCodeFile.firstLayerTempBed?.toStringAsFixed(0) ?? '60',
+    ];
+    _dialogService
+        .showConfirm(
+      title: 'pages.files.details.preheat_dialog.title'.tr(),
+      body: tr('pages.files.details.preheat_dialog.body', args: tempArgs),
+      confirmBtn: 'pages.files.details.preheat'.tr(),
+    )
+        .then((dialogResponse) {
+      if (dialogResponse?.confirmed ?? false) {
+        _printerService.setHeaterTemperature('extruder', 170);
+        if (ref.read(printerSelectedProvider.selectAs((data) => data.heaterBed != null)).valueOrFullNull ?? false) {
+          _printerService.setHeaterTemperature(
+            'heater_bed',
+            (gCodeFile.firstLayerTempBed ?? 60.0).toInt(),
+          );
+        }
+        _snackBarService.show(SnackBarConfig(
+          title: tr('pages.files.details.preheat_snackbar.title'),
+          message: tr(
+            'pages.files.details.preheat_snackbar.body',
+            args: tempArgs,
+          ),
+        ));
+      }
+    });
+  }
+
+  changeActiveSpool() {
+    ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(
+          type: ProSheetType.selectSpoolman,
+          isScrollControlled: true,
+          data: state.machineUUID,
+        ));
+  }
+}
+
+@freezed
+class _Model with _$Model {
+  const factory _Model({
+    required GCodeFile file,
+    required bool canStartPrint,
+    required String machineUUID,
+    required String? materialMissmatch,
+    required double? insufficientFilament,
+  }) = __Model;
 }
