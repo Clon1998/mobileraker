@@ -14,13 +14,12 @@
 
 1. [Download the app](#get-mobileraker-now)
 2. [General](#general)
-3. [Support the Dev](#support-me)
-4. [Push-Notifications](#push-notifications--remote-notification)
-5. [App Screenshots](#app-impressions)
-6. [Translations](#translations)
-7. [Dev-Setup](#environment-setup)
-8. [Changelog](#changelog)
-9. [License](#license)
+3. [Push-Notifications](#push-notifications--remote-notification)
+4. [App Screenshots](#app-impressions)
+5. [Translations](#translations)
+6. [Environment Setup for Contribution](#environment-setup-for-contribution)
+7. [Changelog](#changelog)
+8. [License](#license)
 
 ---
 
