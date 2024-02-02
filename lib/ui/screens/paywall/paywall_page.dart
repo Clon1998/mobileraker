@@ -29,7 +29,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 class PaywallPage extends HookConsumerWidget {
-  const PaywallPage({Key? key}) : super(key: key);
+  const PaywallPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -110,7 +110,7 @@ class PaywallPage extends HookConsumerWidget {
 // }
 
 class _PaywallPage extends ConsumerWidget {
-  const _PaywallPage({Key? key}) : super(key: key);
+  const _PaywallPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -212,7 +212,7 @@ class _PaywallPage extends ConsumerWidget {
 }
 
 class _PaywallOfferings extends ConsumerWidget {
-  const _PaywallOfferings({Key? key, required this.model}) : super(key: key);
+  const _PaywallOfferings({super.key, required this.model});
 
   final PaywallPageState model;
 
@@ -229,7 +229,7 @@ class _PaywallOfferings extends ConsumerWidget {
 }
 
 class _SubscribeTiers extends ConsumerWidget {
-  const _SubscribeTiers({Key? key, required this.model}) : super(key: key);
+  const _SubscribeTiers({super.key, required this.model});
 
   final PaywallPageState model;
 
@@ -274,7 +274,7 @@ class _SubscribeTiers extends ConsumerWidget {
 }
 
 class _BenefitOverview extends ConsumerWidget {
-  const _BenefitOverview({Key? key}) : super(key: key);
+  const _BenefitOverview({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -295,7 +295,7 @@ class _BenefitOverview extends ConsumerWidget {
 }
 
 class _ManageTiers extends ConsumerWidget {
-  const _ManageTiers({Key? key, required this.model}) : super(key: key);
+  const _ManageTiers({super.key, required this.model});
 
   final PaywallPageState model;
 
@@ -460,7 +460,7 @@ class _InAppPurchaseProduct extends ConsumerWidget {
         ),
         Text(
           tr('pages.paywall.iap_offer', args: [
-            NumberFormat.percentPattern(context.locale.languageCode).format(offerDiscount),
+            NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(offerDiscount),
           ]),
           style: themeData.textTheme.titleMedium,
           textAlign: TextAlign.center,
@@ -540,7 +540,7 @@ class _SubscriptionProduct extends ConsumerWidget {
         Text(
           tr('pages.paywall.intro_phase', args: [
             offerDuration,
-            NumberFormat.percentPattern(context.locale.languageCode).format(offerDiscount),
+            NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(offerDiscount),
           ]),
           style: themeData.textTheme.titleMedium,
           textAlign: TextAlign.center,
@@ -658,7 +658,7 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
           (subscriptionOption.introPhase!.price.amountMicros / subscriptionOption.fullPricePhase!.price.amountMicros);
       tmp.add(tr('pages.paywall.intro_phase', args: [
         subscriptionOption.introPhaseDurationText!,
-        NumberFormat.percentPattern(context.locale.languageCode).format(discount),
+        NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(discount),
       ]));
     }
     return tmp.isEmpty ? null : tmp.join(' + ');
@@ -667,7 +667,7 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
 
 class _ProductTile extends StatelessWidget {
   const _ProductTile({
-    Key? key,
+    super.key,
     this.offerHeader,
     this.offerFooter,
     this.purchasePackage,
@@ -679,7 +679,7 @@ class _ProductTile extends StatelessWidget {
     required this.subscriptionPriceString,
     this.subscriptionIso8601,
     this.discountedPriceString,
-  }) : super(key: key);
+  });
 
   // Header of the Card
   final Widget? offerHeader;
@@ -792,7 +792,7 @@ class _ProductTile extends StatelessWidget {
 }
 
 class _RestoreButton extends ConsumerWidget {
-  const _RestoreButton({Key? key}) : super(key: key);
+  const _RestoreButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => TextButton.icon(
@@ -804,7 +804,7 @@ class _RestoreButton extends ConsumerWidget {
 }
 
 class _TippingButton extends ConsumerWidget {
-  const _TippingButton({Key? key}) : super(key: key);
+  const _TippingButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => FilledButton.tonalIcon(

@@ -31,7 +31,7 @@ class VideoPlayerPage extends ConsumerStatefulWidget {
 }
 
 class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
-  late VideoPlayerController videoPlayerController;
+  late CachedVideoPlayerController videoPlayerController;
   late CustomVideoPlayerController _customVideoPlayerController;
   bool loading = true;
   double? fileDownloadProgress;
@@ -46,7 +46,8 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
     var fileUri = widget.file.downloadUri(Uri.tryParse(dio.options.baseUrl))!;
 
     Map<String, String> headers = dio.options.headers.cast<String, String>();
-    videoPlayerController = VideoPlayerController.networkUrl(fileUri, httpHeaders: headers)
+
+    videoPlayerController = CachedVideoPlayerController.network(fileUri.toString(), httpHeaders: headers)
       ..initialize()
           .then(
         (value) => setState(() {
@@ -89,7 +90,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
           ],
         );
       } else if (fileDownloadProgress != null) {
-        var percent = NumberFormat.percentPattern(context.locale.languageCode).format(fileDownloadProgress);
+        var percent = NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(fileDownloadProgress);
         body = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,

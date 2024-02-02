@@ -144,7 +144,7 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
                 onChange: canEdit ? controller.onEditedPressureAdvanced : null,
-                numberFormat: NumberFormat('0.##### mm/s', context.locale.languageCode),
+                numberFormat: NumberFormat('0.##### mm/s', context.locale.toStringWithSeparator()),
                 unit: 'mm/s',
               ),
               SliderOrTextInput(
@@ -153,7 +153,7 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
                 onChange: canEdit ? controller.onEditedSmoothTime : null,
-                numberFormat: NumberFormat('0.### s', context.locale.languageCode),
+                numberFormat: NumberFormat('0.### s', context.locale.toStringWithSeparator()),
                 maxValue: 0.2,
                 unit: 's',
               ),

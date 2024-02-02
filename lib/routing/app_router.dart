@@ -34,6 +34,8 @@ import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
+import 'package:mobileraker_pro/pro_routes.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/files/details/video_player_page.dart';
@@ -229,64 +231,13 @@ GoRouter goRouterImpl(GoRouterRef ref) {
             name: AppRoute.beltTuner.name,
             builder: (context, state) => const BeltTuner(),
           ),
-          //
-          // GoRoute(
-          //   path: 'belt-tuner',
-          //   name: AppRoute.beltTuner.name,
-          //   pageBuilder: (context, state) => CustomTransitionPage(
-          //       transitionDuration: kThemeAnimationDuration,
-          //       reverseTransitionDuration: kThemeAnimationDuration,
-          //       child: const BeltTuner(),
-          //       transitionsBuilder: (BuildContext context, Animation<double> animation,
-          //           Animation<double> secondaryAnimation, Widget child) {
-          //         return SlideTransition(
-          //             position: animation.drive(
-          //               Tween<Offset>(
-          //                 begin: const Offset(1, 0),
-          //                 end: Offset.zero,
-          //               ).chain(CurveTween(curve: Curves.easeInCubic)),
-          //             ),
-          //             child: child);
-          //       }),
-          // ),
         ],
       ),
-      // GoRoute(
-      //   path: '/spoolman',
-      //   name: ProRoutes.spoolman.name,
-      //   builder: (context, state) => const SpoolmanPage(),
-      // ),
-      // GoRoute(
-      //   path: 'cart',
-      //   name: AppRoute.cart.name,
-      //   pageBuilder: (context, state) => MaterialPage(
-      //     key: state.pageKey,
-      //     fullscreenDialog: true,
-      //     child: const ShoppingCartScreen(),
-      //   ),
-      //   routes: [
-      //     GoRoute(
-      //       path: 'checkout',
-      //       name: AppRoute.checkout.name,
-      //       pageBuilder: (context, state) => MaterialPage(
-      //         key: ValueKey(state.location),
-      //         fullscreenDialog: true,
-      //         child: const CheckoutScreen(),
-      //       ),
-      //     ),
-      //   ],
-      // ),
-      // GoRoute(
-      //   path: 'signIn',
-      //   name: AppRoute.signIn.name,
-      //   pageBuilder: (context, state) => MaterialPage(
-      //     key: state.pageKey,
-      //     fullscreenDialog: true,
-      //     child: const EmailPasswordSignInScreen(
-      //       formType: EmailPasswordSignInFormType.signIn,
-      //     ),
-      //   ),
-      // ),
+      GoRoute(
+        path: '/spoolman',
+        name: ProRoutes.spoolman.name,
+        builder: (context, state) => const SpoolmanPage(),
+      ),
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),
   );

@@ -220,7 +220,7 @@ class RangeEditSlider extends StatelessWidget {
       autofocus: true,
       numberFormat: NumberFormat(
         frac == 0 ? "0" : "0.${List.filled(frac, '0').join()}",
-        context.locale.languageCode,
+        context.locale.toStringWithSeparator(),
       ),
     );
   }

@@ -1,5 +1,26 @@
 # Mobileraker - Changelog
 
+## [2.6.11] - 2024-02-02
+
+### Major Updates
+
+- Introduced bed mesh visualization card to the dashboard, empowering users to switch seamlessly between various mesh
+  profiles.
+  ([#196](https://github.com/Clon1998/mobileraker/issues/196))
+- Added a spoolman card to the dashboard, enabling users to monitor their filament usage and manage their spools.
+  ([#245](https://github.com/Clon1998/mobileraker/issues/245))
+
+### Changed Features
+
+- Webcam paths (URLs) now support relative paths and respect the configured HTTP address port (Printer address),
+  addressing previous issues of ignoring it. This might require users to reconfigure their webcams.
+
+### Bug Fixes
+
+- Fixed a Belt Tuner display crash caused by insufficient permissions.
+- [iOS] Resolved playback interruptions during the app's initial launch.
+- Corrected background color display for toggle button cards (Power Panel, Output Pins) in Material 2 themes.
+
 ## [2.6.10] - 2024-01-19
 
 ### Changed Features

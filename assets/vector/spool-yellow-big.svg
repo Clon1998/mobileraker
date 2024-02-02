@@ -1,0 +1,46 @@
+<?xml version="1.0" ?><!--
+  - Copyright (c) 2024. Patrick Schmidt.
+  - All rights reserved.
+  -->
+
+<!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'
+        'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'>
+<svg enable-background="new 0 0 512 512" height="512px" version="1.1" viewBox="0 0 512 512" width="512px"
+     xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+    <g id="Layer_1">
+        <rect fill="#282828" height="87" width="418" x="54" y="129"/>
+        <rect fill="#282828" height="87" width="418" x="54" y="329"/>
+        <rect fill="#282828" height="113" width="5" x="59" y="216"/>
+        <rect fill="#282828" height="113" width="5" x="462" y="216"/>
+        <rect fill="#FFFFFF" height="113" width="5" x="54" y="216"/>
+        <rect fill="#FFFFFF" height="113" width="5" x="467" y="216"/>
+        <rect fill="#1E1E1E" height="494" width="31" x="64" y="18"/>
+        <rect fill="#1E1E1E" height="494" width="31" x="431" y="18"/>
+    </g>
+    <g id="Layer_7">
+        <rect fill="#FCEE21" height="374" width="13.5" x="95" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="109" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="123" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="137" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="151" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="165" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="179" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="193" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="207" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="221" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="235" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="249" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="263" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="277" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="291" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="305" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="319" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="333" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="347" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="361" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="375" y="81"/>
+        <rect fill="#FFCD00" height="374" width="13.5" x="389" y="81"/>
+        <rect fill="#FCEE21" height="374" width="13.5" x="403" y="81"/>
+        <rect fill="#FFCD00" height="374" width="14" x="417" y="81"/>
+        <path d="M120,81C120,4.17,237.184-58,382-58" fill="none" stroke="#FFFF00" stroke-miterlimit="10"
+              stroke-width="9"/></g></svg>

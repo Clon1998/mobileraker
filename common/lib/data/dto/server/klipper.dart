@@ -41,6 +41,8 @@ class KlipperInstance with _$KlipperInstance {
 
   bool get hasTimelapseComponent => components.contains('timelapse');
 
+  bool get hasSpoolmanComponent => components.contains('spoolman');
+
   factory KlipperInstance.fromJson(Map<String, dynamic> json) => _$KlipperInstanceFromJson(json);
 
   factory KlipperInstance.partialUpdate(

@@ -106,12 +106,24 @@ enum UtilityKeys implements KeyValueStoreKey {
   zOffsetStepIndex('zOffsetStepIndex'),
   moveStepIndex('moveStepIndex'),
   extruderStepIndex('extruderStepIndex'),
+  meshViewMode('meshViewMode'),
   ;
 
   @override
   final String key;
 
   const UtilityKeys(this.key);
+}
+
+enum UiKeys implements KeyValueStoreKey {
+  hadMeshView('hMeshView'),
+  hadSpoolman('hSpoolman'),
+  ;
+
+  @override
+  final String key;
+
+  const UiKeys(this.key);
 }
 
 class CompositeKey implements KeyValueStoreKey {

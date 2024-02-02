@@ -320,6 +320,12 @@ class JsonRpcClient {
             ...response,
             'result': <String, dynamic>{}
           }; // do some trickery here because the gcode response (Why idk) returns `result:ok` instead of an empty map/wrapped in a map..
+        } else if (response['result'] is List) {
+          // Some trickery for spoolman API
+          response = {
+            ...response,
+            'result': <String, dynamic>{'list': response['result']}
+          };
         }
         request.completer.complete(RpcResponse.fromJson(response));
       }

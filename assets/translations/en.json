@@ -46,7 +46,8 @@
     "unlink": "Unlink",
     "save": "Save",
     "apply": "Apply",
-    "completed": "Completed"
+    "completed": "Completed",
+    "activate": "Activate"
   },
   "pages": {
     "dashboard": {
@@ -94,9 +95,9 @@
         },
         "move_card": {
           "title": "Move Axis",
-          "home_xy_tooltip": "Home X and Y axis",
+          "home_xy_tooltip": "Home X and Y axes",
           "home_z_tooltip": "Home Z axis",
-          "home_all_tooltip": "Home all axis",
+          "home_all_tooltip": "Home all axes",
           "home_all_btn": "All",
           "qgl_tooltip": "Run Quad-Gantry leveling",
           "qgl_btn": "QGL",
@@ -117,10 +118,12 @@
           "bsa_btn": "Bed Screw Adjust",
           "save_tooltip": "Save calibration results",
           "save_btn": "Save Config",
-          "more_btn": "More"
+          "more_btn": "More",
+          "homed": "Homed Axes"
         },
         "baby_step_card": {
-          "title": "Micro-Step Z-Axis"
+          "title": "Micro-Step Z-Axis",
+          "z_offset": "Z-Offset"
         },
         "restart_klipper": "Restart Klipper",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -177,6 +180,16 @@
           "retract_speed": "Retract Speed",
           "extra_unretract_length": "Extra Unretract Length",
           "unretract_speed": "Unretract Speed"
+        },
+        "bed_mesh_card": {
+          "title": "Bed Mesh",
+          "profiles": "Profiles",
+          "range_tooltip": "Range between highest and lowest point",
+          "showing_matrix": {
+            "probed": "Showing probed matrix",
+            "mesh": "Showing mesh matrix"
+          }
+
         }
       }
     },
@@ -204,8 +217,10 @@
         "meta_card": {
           "title": "GCode Meta Data",
           "filament": "Filament",
-          "filament_type": "Filament Type",
-          "filament_name": "Filament Name",
+          "filament_type": "Type",
+          "filament_name": "Name",
+          "filament_weight": "Weight",
+          "filament_length": "Length",
           "est_print_time": "Estimated Print Time",
           "slicer": "Used Slicer",
           "nozzle_diameter": "Nozzle Diameter",
@@ -570,7 +585,7 @@
     "supporter_only_feature": {
       "dialog_title": "Supporter Only Feature",
       "button": "Become a Mobileraker Supporter",
-      "webcam": "Sorry, Webcams of type {} are only available to Supporters.",
+      "webcam": "Sorry, Webcams of type {} are only available to Supporters. As an alternative, Mjpeg Webcams are available to all users.",
       "printer_add": "You've reached the machine limit. Only Mobileraker Supporters can add more than {} machines.",
       "job_queue": "Sorry, the Job Queue is only available to Supporters.",
       "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
@@ -779,6 +794,14 @@
         "title": "Delete Account?",
         "body": "You are about to delete your account. This action cannot be undone."
       }
+    },
+    "bedMesh": {
+      "load_bed_mesh_profile": "Load Bed Mesh Profile",
+      "currently_active": "Currently active: {}",
+      "no_profile_active": "No profile active",
+      "no_mesh": "No Mesh",
+      "clear_loaded_profile": "Clear loaded profile",
+      "range_between_highest_and_lowest_point": "Range between highest and lowest point"
     }
   },
   "klipper_state": {

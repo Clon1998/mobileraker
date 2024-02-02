@@ -1,0 +1,40 @@
+<!--
+  - Copyright (c) 2024. Patrick Schmidt.
+  - All rights reserved.
+  -->
+
+<svg width="418" height="570" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1"
+     enable-background="new 0 0 512 512">
+
+ <g>
+  <title>Layer 1</title>
+     <g id="Layer_7">
+   <rect id="svg_6" y="139" x="41" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_7" y="139" x="55" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_8" y="139" x="69" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_9" y="139" x="83" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_10" y="139" x="97" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_11" y="139" x="111" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_12" y="139" x="125" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_13" y="139" x="139" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_14" y="139" x="153" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_15" y="139" x="167" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_16" y="139" x="181" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_17" y="139" x="195" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_18" y="139" x="209" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_19" y="139" x="223" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_20" y="139" x="237" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_21" y="139" x="251" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_22" y="139" x="265" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_23" y="139" x="279" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_24" y="139" x="293" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_25" y="139" x="307" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_26" y="139" x="321" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_27" y="139" x="335" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_28" y="139" x="349" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_29" y="139" x="363" width="14" height="374" fill="#FFCD00"/>
+         <path id="svg_30" stroke-width="9" stroke-miterlimit="10" stroke="#FFFF00" fill="none"
+               d="m66,139c0,-76.83 117.184,-139 262,-139"/>
+  </g>
+ </g>
+</svg>

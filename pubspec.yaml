@@ -77,7 +77,11 @@ dependencies:
   collection: ^1.17.0
   fftea: ^1.5.0
   #  mic_stream: ^0.7.1+2
-  flutter_audio_capture: ^1.1.6
+  flutter_audio_capture:
+    #    path: ../flutter_audio_capture
+    git:
+      url: https://github.com/Clon1998/flutter_audio_capture.git
+      ref: init-code
   worker_manager: ^6.3.1
 
 
@@ -131,7 +135,7 @@ dependencies:
   progress_indicators: ^1.0.0
   #  pull_to_refresh: ^2.0.0
   pull_to_refresh_flutter3: ^2.0.1
-  animated_bottom_navigation_bar: ^1.2.0
+  animated_bottom_navigation_bar: 1.3.3 # 1.3.2 has a bug that causes an error to be thrown
   animations: ^2.0.5
   flip_card: ^0.7.0
   flutter_breadcrumb: ^1.0.1
@@ -150,7 +154,6 @@ dependencies:
   flutter_svg: ^2.0.5
   loader_overlay: ^4.0.0
   appinio_video_player: ^1.2.2
-  flutter_echarts: ^2.5.0
   file_picker: ^6.1.1
   geekyants_flutter_gauges: ^1.0.3
   bottom_sheet: ^4.0.0

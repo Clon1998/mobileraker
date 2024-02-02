@@ -1,0 +1,37 @@
+<!--
+  - Copyright (c) 2024. Patrick Schmidt.
+  - All rights reserved.
+  -->
+
+<svg width="222" height="494" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1"
+     enable-background="new 0 0 512 512">
+
+ <g>
+  <title>Layer 1</title>
+     <g id="Layer_1">
+   <!--        182-->
+         <rect id="svg_1" y="111" x="0" width="10" height="87" fill="#282828"/>
+         <rect id="svg_2" y="311" x="0" width="10" height="87" fill="#282828"/>
+         <rect id="svg_3" y="198" x="5" width="5" height="113" fill="#282828"/>
+
+         <rect id="svg_1_1" y="111" x="212" width="10" height="87" fill="#282828"/>
+         <rect id="svg_2_1" y="311" x="212" width="10" height="87" fill="#282828"/>
+         <rect id="svg_4" y="198" x="212" width="5" height="113" fill="#282828"/>
+
+         <rect id="svg_5" y="0" x="10" width="31" height="494" fill="#1E1E1E"/>
+         <rect id="svg_6" y="0" x="181" width="31" height="494" fill="#1E1E1E"/>
+  </g>
+     <g id="Layer_7">
+         <rect id="svg_7" y="63" x="41" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_8" y="63" x="55" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_9" y="63" x="69" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_10" y="63" x="83" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_11" y="63" x="97" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_12" y="63" x="111" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_13" y="63" x="125" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_14" y="63" x="139" width="14" height="374" fill="#FFCD00"/>
+         <rect id="svg_15" y="63" x="153" width="14" height="374" fill="#FCEE21"/>
+         <rect id="svg_16" y="63" x="167" width="14" height="374" fill="#FFCD00"/>
+    </g>
+ </g>
+</svg>

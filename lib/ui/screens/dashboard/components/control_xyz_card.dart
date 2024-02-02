@@ -426,7 +426,7 @@ class _StepSelectorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var numberFormat = NumberFormat.decimalPattern(context.locale.languageCode);
+    var numberFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
 
     var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands = ref

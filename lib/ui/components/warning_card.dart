@@ -15,6 +15,7 @@ class WarningCard extends ConsumerWidget {
     this.title,
     this.subtitle,
     this.leadingIcon,
+    this.margin = const EdgeInsets.only(top: 16),
   }) : super(key: key);
 
   final bool show;
@@ -22,6 +23,8 @@ class WarningCard extends ConsumerWidget {
   final Widget? title;
   final Widget? subtitle;
   final Widget? leadingIcon;
+
+  final EdgeInsets margin;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,7 +39,7 @@ class WarningCard extends ConsumerWidget {
         duration: kThemeAnimationDuration,
         child: show
             ? Padding(
-                padding: const EdgeInsets.only(top: 16),
+                padding: margin,
                 child: ListTile(
                   tileColor: themeData.colorScheme.errorContainer,
                   textColor: themeData.colorScheme.onErrorContainer,

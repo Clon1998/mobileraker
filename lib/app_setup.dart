@@ -104,13 +104,14 @@ setupBoxes() async {
       // ToDo remove after machine migration!
       element.save();
     });
-  } catch (e) {
+  } catch (e, s) {
     if (e is TypeError) {
       logger.e('An TypeError occurred while trying to open Boxes...', e);
       logger.e('Will reset all stored data to resolve this issue!');
       throw MobilerakerStartupException(
         'An unexpected TypeError occurred while parsing the stored app data. Please report this error to the developer. To resolve this issue clear the app storage or reinstall the app.',
         parentException: e,
+        parentStack: s,
         canResetStorage: true,
       );
     } else if (e is FileSystemException) {
@@ -118,6 +119,7 @@ setupBoxes() async {
       throw MobilerakerStartupException(
         'Failed to retrieve app data from system storage. Please restart the app. If the error persists, consider clearing the storage or reinstalling the app.',
         parentException: e,
+        parentStack: s,
         canResetStorage: true,
       );
     }

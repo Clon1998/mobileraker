@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -433,8 +433,7 @@ void main() {
       });
 
       test('protocol, port and path', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ws://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ws://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -446,8 +445,7 @@ void main() {
       });
 
       test('wss', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('wss://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('wss://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -459,8 +457,7 @@ void main() {
       });
 
       test('https', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('https://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('https://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -472,8 +469,7 @@ void main() {
       });
 
       test('Other protocol', () {
-        var moonrakerUri =
-            buildMoonrakerWebSocketUri('ftp://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerWebSocketUri('ftp://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -904,8 +900,7 @@ void main() {
       });
 
       test('wss', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('wss://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('wss://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -917,8 +912,7 @@ void main() {
       });
 
       test('https', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('https://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('https://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -930,8 +924,7 @@ void main() {
       });
 
       test('Other protocol', () {
-        var moonrakerUri =
-            buildMoonrakerHttpUri('ftp://myprinter.co.com.zj.shop:123/to/moon/raker');
+        var moonrakerUri = buildMoonrakerHttpUri('ftp://myprinter.co.com.zj.shop:123/to/moon/raker');
         expect(
             moonrakerUri,
             equals(Uri(
@@ -951,90 +944,118 @@ void main() {
         expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
       });
 
-      test('machine(WS, IP, PORT) and cam(PATH)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('ws://192.1.1.0:212'), Uri(path: '/webcam/webrtc'));
-        expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
-      });
+      test(
+        'machine(WS, IP, PORT) and cam(PATH)',
+        () {
+          var moonrakerUri = buildWebCamUri(Uri.parse('ws://192.1.1.0:212'), Uri(path: '/webcam/webrtc'));
+          expect(moonrakerUri, Uri.parse('http://192.1.1.0:212/webcam/webrtc'));
+        },
+      );
+
+      test(
+        'machine(WS, IP, PORT) and cam(PATH) (legacy)',
+        () {
+          var moonrakerUri = buildWebCamUri(Uri.parse('ws://192.1.1.0:212'), Uri(path: '/webcam/webrtc'));
+          expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
+        },
+        skip: 'The test was prior to K1. Now I expect the port to be kept since I switched to the http endpoint',
+      );
 
       test('machine(WSS, IP) and cam(PATH)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('wss://192.1.1.0'), Uri(path: '/webcam/webrtc'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('wss://192.1.1.0'), Uri(path: '/webcam/webrtc'));
         expect(moonrakerUri, Uri.parse('https://192.1.1.0/webcam/webrtc'));
       });
 
       test('machine(WSS, IP, PORT) and cam(PATH)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('wss://192.1.1.0:212'), Uri(path: '/webcam/webrtc'));
-        expect(moonrakerUri, Uri.parse('https://192.1.1.0/webcam/webrtc'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('wss://192.1.1.0:212'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('https://192.1.1.0:212/webcam/webrtc'));
       });
+
+      test(
+        'machine(WSS, IP, PORT) and cam(PATH) (legacy)',
+        () {
+          var moonrakerUri = buildWebCamUri(Uri.parse('wss://192.1.1.0:212'), Uri(path: '/webcam/webrtc'));
+          expect(moonrakerUri, Uri.parse('https://192.1.1.0/webcam/webrtc'));
+        },
+        skip: 'The test was prior to K1. Now I expect the port to be kept since I switched to the http endpoint',
+      );
 
       ///
       test('machine(WS, DNS) and cam(PATH)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('ws://mobileraker.test'), Uri(path: '/webcam/webrtc'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('ws://mobileraker.test'), Uri(path: '/webcam/webrtc'));
         expect(moonrakerUri, Uri.parse('http://mobileraker.test/webcam/webrtc'));
       });
 
       test('machine(WS, DNS, PORT) and cam(PATH)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('ws://mobileraker.test:212'), Uri(path: '/webcam/webrtc'));
-        expect(moonrakerUri, Uri.parse('http://mobileraker.test/webcam/webrtc'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('ws://mobileraker.test:212'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('http://mobileraker.test:212/webcam/webrtc'));
       });
 
+      test(
+        'machine(WS, DNS, PORT) and cam(PATH) (legacy)',
+        () {
+          var moonrakerUri = buildWebCamUri(Uri.parse('ws://mobileraker.test:212'), Uri(path: '/webcam/webrtc'));
+          expect(moonrakerUri, Uri.parse('http://mobileraker.test/webcam/webrtc'));
+        },
+        skip: 'The test was prior to K1. Now I expect the port to be kept since I switched to the http endpoint',
+      );
+
       test('machine(WSS, DNS) and cam(PATH)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('wss://mobileraker.test'), Uri(path: '/webcam/webrtc'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('wss://mobileraker.test'), Uri(path: '/webcam/webrtc'));
         expect(moonrakerUri, Uri.parse('https://mobileraker.test/webcam/webrtc'));
       });
 
       test('machine(WSS, DNS, PORT) and cam(PATH)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('wss://mobileraker.test:212'), Uri(path: '/webcam/webrtc'));
-        expect(moonrakerUri, Uri.parse('https://mobileraker.test/webcam/webrtc'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('wss://mobileraker.test:212'), Uri(path: '/webcam/webrtc'));
+        expect(moonrakerUri, Uri.parse('https://mobileraker.test:212/webcam/webrtc'));
       });
+
+      test(
+        'machine(WSS, DNS, PORT) and cam(PATH) (legacy)',
+        () {
+          var moonrakerUri = buildWebCamUri(Uri.parse('wss://mobileraker.test:212'), Uri(path: '/webcam/webrtc'));
+          expect(moonrakerUri, Uri.parse('https://mobileraker.test/webcam/webrtc'));
+        },
+        skip: 'The test was prior to K1. Now I expect the port to be kept since I switched to the http endpoint',
+      );
     });
 
     group('Absolut Cam URI', () {
       test('machine(WS, IP) and cam(HTTP, IP)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('http://192.168.178.135'), Uri.parse('http://192.1.1.0'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('http://192.168.178.135'), Uri.parse('http://192.1.1.0'));
         expect(moonrakerUri, Uri.parse('http://192.1.1.0'));
       });
 
       test('machine(WS, IP, PORT) and cam(HTTP, IP, PATH)', () {
-        var moonrakerUri = buildWebCamUri(
-            Uri.parse('ws://192.1.1.0:212'), Uri.parse('http://192.1.1.0/webcam/webrtc'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('ws://192.1.1.0:212'), Uri.parse('http://192.1.1.0/webcam/webrtc'));
         expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
       });
 
       test('machine(WSS, IP) and cam(HTTP, IP, PORT)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('wss://192.1.1.0'), Uri.parse('http://192.1.1.0:212'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('wss://192.1.1.0'), Uri.parse('http://192.1.1.0:212'));
         expect(moonrakerUri, Uri.parse('http://192.1.1.0:212'));
       });
 
       test('machine(WSS, IP, PORT) and cam(HTTP, IP, PORT, Path)', () {
-        var moonrakerUri = buildWebCamUri(
-            Uri.parse('wss://192.1.1.0:212'), Uri.parse('http://192.1.1.0:212/webcam/webrtc'));
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('wss://192.1.1.0:212'), Uri.parse('http://192.1.1.0:212/webcam/webrtc'));
         expect(moonrakerUri, Uri.parse('http://192.1.1.0:212/webcam/webrtc'));
       });
 
       test('machine(WS, DNS) and cam(HTTP, IP)', () {
-        var moonrakerUri =
-            buildWebCamUri(Uri.parse('http://mobileraker.test'), Uri.parse('http://192.1.1.0'));
+        var moonrakerUri = buildWebCamUri(Uri.parse('http://mobileraker.test'), Uri.parse('http://192.1.1.0'));
         expect(moonrakerUri, Uri.parse('http://192.1.1.0'));
       });
 
       test('machine(WS, DNS, PORT) and cam(HTTP, IP, PATH)', () {
-        var moonrakerUri = buildWebCamUri(
-            Uri.parse('ws://mobileraker.test:212'), Uri.parse('http://192.1.1.0/webcam/webrtc'));
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('ws://mobileraker.test:212'), Uri.parse('http://192.1.1.0/webcam/webrtc'));
         expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
       });
 
       test('machine(WS, DNS, PORT,PATH) and cam(HTTP, IP, PATH)', () {
-        var moonrakerUri = buildWebCamUri(Uri.parse('ws://mobileraker.test:212/test'),
-            Uri.parse('http://192.1.1.0/webcam/webrtc'));
+        var moonrakerUri =
+            buildWebCamUri(Uri.parse('ws://mobileraker.test:212/test'), Uri.parse('http://192.1.1.0/webcam/webrtc'));
         expect(moonrakerUri, Uri.parse('http://192.1.1.0/webcam/webrtc'));
       });
     });
