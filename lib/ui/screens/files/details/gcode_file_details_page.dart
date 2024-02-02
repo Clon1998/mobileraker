@@ -4,6 +4,7 @@
  */
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/service/app_router.dart';
@@ -374,8 +375,8 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
       if (spool != null) {
         if (spool.filament.material != null &&
             gCodeFile.filamentType != null &&
-            spool.filament.material != gCodeFile.filamentType) {
-          materialMissmatch = spool.filament.material;
+            equalsIgnoreAsciiCase(gCodeFile.filamentType!.trim(), spool.filament.material!.trim())) {
+          materialMissmatch = spool.filament.material?.trim();
         }
 
         if (gCodeFile.filamentWeightTotal != null &&
