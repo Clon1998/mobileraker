@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.6.11] - 2024-01-xx
+## [2.6.11] - 2024-02-02
 
 ### Major Updates
 
@@ -13,15 +13,13 @@
 ### Changed Features
 
 - Webcam paths (URLs) now support relative paths and respect the configured HTTP address port (Printer address),
-  addressing
-  previous issues of ignoring it. This might require users to reconfigure their webcams.
+  addressing previous issues of ignoring it. This might require users to reconfigure their webcams.
 
 ### Bug Fixes
 
 - Fixed a Belt Tuner display crash caused by insufficient permissions.
 - [iOS] Resolved playback interruptions during the app's initial launch.
 - Corrected background color display for toggle button cards (Power Panel, Output Pins) in Material 2 themes.
-
 
 ## [2.6.10] - 2024-01-19
 
