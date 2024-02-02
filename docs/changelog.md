@@ -7,6 +7,8 @@
 - Introduced bed mesh visualization card to the dashboard, empowering users to switch seamlessly between various mesh
   profiles.
   ([#196](https://github.com/Clon1998/mobileraker/issues/196))
+- Added a spoolman card to the dashboard, enabling users to monitor their filament usage and manage their spools.
+  ([#245](https://github.com/Clon1998/mobileraker/issues/245))
 
 ### Changed Features
 
