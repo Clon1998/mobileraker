@@ -585,7 +585,7 @@
     "supporter_only_feature": {
       "dialog_title": "Supporter Only Feature",
       "button": "Become a Mobileraker Supporter",
-      "webcam": "Sorry, Webcams of type {} are only available to Supporters.",
+      "webcam": "Sorry, Webcams of type {} are only available to Supporters. As an alternative, Mjpeg Webcams are available to all users.",
       "printer_add": "You've reached the machine limit. Only Mobileraker Supporters can add more than {} machines.",
       "job_queue": "Sorry, the Job Queue is only available to Supporters.",
       "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
