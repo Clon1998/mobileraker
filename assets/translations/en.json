@@ -385,7 +385,7 @@
         },
         "body": {
           "oe": "Please confirm the unlinking of the printer {} from OctoEverywhere.",
-          "other": "Please confirm the removal of the remote connection from  printer {}."
+          "other": "Please confirm the removal of the remote connection from printer {}."
         },
         "button": {
           "oe": "@:general.unlink",
@@ -544,7 +544,7 @@
     },
     "beltTuner": {
       "title": "Belt Tuner",
-      "description": "\nEnsuring proper belt tension is essential for optimal performance in 3D printers. Incorrect tension, whether too tight or too loose, may lead to mechanical problems, premature wear, and compromised print quality. The tension values provided serve as reference points; however, it is advisable to consult the manufacturer's recommendations for specific guidelines tailored to your printer model. Adjustments should be made based on both these recommendations and individual printer requirements and conditions.",
+      "description": "Ensuring proper belt tension is essential for optimal performance in 3D printers. Incorrect tension, whether too tight or too loose, may lead to mechanical problems, premature wear, and compromised print quality. The tension values provided serve as reference points; however, it is advisable to consult the manufacturer's recommendations for specific guidelines tailored to your printer model. Adjustments should be made based on both these recommendations and individual printer requirements and conditions.",
       "beltType": "Select your belt type:",
       "target": "Target: {} Hz over {} mm",
       "permissionWarning": {
@@ -719,7 +719,7 @@
     "http_header": {
       "title": "Http-Header",
       "header": "Header",
-      "header_hint": "The HTTP-Header nam",
+      "header_hint": "The HTTP-Header name",
       "value": "Header-Value",
       "value_hint": "The value of the header"
     },
@@ -758,7 +758,7 @@
         "tab_name": "Manual",
         "description": "If you are an advanced user, you can choose to manually add an alternative connection. The alternative connection comes into play when attempts to connect to the primary address are unsuccessful. This can be useful if you have a reverse proxy connection to your printer, or if you have a secondary IP address that you can use to connect to your printer.",
         "address_label": "Alternative Address",
-        "address_hint": "The base adress of the remove connection to be used"
+        "address_hint": "The base adress of the remote connection to be used"
       },
       "obico": {
         "service_name": "Obico",
