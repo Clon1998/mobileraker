@@ -521,13 +521,14 @@
       "manage_view": {
         "title": "Vielen Dank für die Unterstützung!",
         "list_title": "Ändere die Supporter-Stufe:",
-        "store_btn": "Abonnement kündigen in {}",
+        "store_btn": "Abonnement via {} kündigen",
         "sub_warning": "Bitte beachten Sie, dass der Kauf der lebenslangen Supporter-Stufe nicht automatisch alle anderen aktiven Abonnements kündigt. Bitte kündigen Sie alle aktiven Abonnements manuell. Allerdings haben Sie die Möglichkeit, die Entwicklung von Mobileraker auf regelmäßiger Basis weiter zu unterstützen, auch wenn Sie die lebenslange Mitgliedschaft erworben haben."
       },
       "subscribe_view": {
         "title": "Werden Sie ein Mobileraker-Unterstützer!",
         "info": "Mobileraker zielt darauf ab, eine schnelle und zuverlässige mobile Benutzeroberfläche für Klipper bereitzustellen, getreu dem RepRap-Gedanken, dass Open-Source-Software und -Hardware einen positiven Einfluss haben können.\nDa Mobileraker von einem einzigen Entwickler entwickelt und kostenlos angeboten wird, ist es auf die Finanzierung durch die Community angewiesen, um sowohl die Betriebs- als auch die Entwicklungskosten zu decken.",
-        "list_title": "Wählen Sie die Supporter-Stufe:"
+        "list_title": "Wählen Sie die Supporter-Stufe:",
+        "subscription_info": "Sie haben die Möglichkeit, das Abonnement jederzeit zu beenden. Falls Sie es nicht vor Ende des aktuellen Zeitraums kündigen, wird es automatisch verlängert. Über den {} können Sie das Abonnement verwalten und kündigen."
       },
       "supporter_tier_list": {
         "error_title": "Fehler beim Laden von Supporter Tiers!",
