@@ -5,7 +5,7 @@
     "connected": "Verbunden",
     "off": "Aus",
     "on": "An",
-    "none": "Keiner",
+    "none": "Keine",
     "add": "Hinzufügen",
     "create": "Erstellen",
     "rename": "Umbenennen",
@@ -57,7 +57,7 @@
         "unavailable": "Kein Server verfügbar",
         "available": "Serverstatus ist {} und Klippy ist {}"
       },
-      "fetching_printer": "@:general.fetching Drucker ...",
+      "fetching_printer": "@:general.fetching Drucker…",
       "general": {
         "print_card": {
           "reset": "Zurücksetzen",
@@ -101,7 +101,7 @@
           "home_all_btn": "Alle",
           "qgl_tooltip": "Führe Quad-Gantry-Leveling aus",
           "qgl_btn": "QGL",
-          "mesh_tooltip": "Führe eine Bed-Mesh-Kalibrierung aus",
+          "mesh_tooltip": "Führe eine Bettnetz-Kalibrierung aus",
           "mesh_btn": "Mesh",
           "m84_tooltip": "Motoren deaktivieren",
           "m84_btn": "M84",
@@ -110,7 +110,7 @@
           "stc_btn": "STC",
           "ztilt_tooltip": "Führe die Z-Tilt-Kalibrierung aus",
           "ztilt_btn": "zTilt",
-          "poff_tooltip": "Führe Probe Offset Kalibrierung aus",
+          "poff_tooltip": "Führe Probe Versatzkalibrierung aus",
           "poff_btn": "Probe Kalibrierung",
           "zoff_tooltip": "Führe Z-Endstop Versatzkalibrierung aus",
           "zoff_btn": "Z-Endstop Kalibrierung",
@@ -182,13 +182,19 @@
           "unretract_speed": "Wiedereinzugsgeschwindigkeit"
         },
         "bed_mesh_card": {
-          "title": "Bed Mesh",
+          "title": "Bettnetz",
           "profiles": "Profile",
           "range_tooltip": "Versatz zwischen Min- und Max-Punkt",
           "showing_matrix": {
-            "probed": "Zeige geprobte-Matrix",
-            "mesh": "Zeige Mesh-Matrix"
+            "probed": "Zeige abgetasteten-Matrix",
+            "mesh": "Zeige Bettnetz-Matrix"
           }
+        },
+        "spoolman_card": {
+          "title": "Spoolman",
+          "no_spool": "Keine Spule ausgewählt.\nFilamentverbrauch wird nicht nachverfolgt.",
+          "select_spool": "Spule auswählen",
+          "used": "Benutzt: {}"
         }
       }
     },
@@ -200,7 +206,7 @@
       "last_mod": "Zuletzt bearbeitet",
       "last_printed": "Zuletzt gedruckt",
       "not_printed": "Nicht gedruckt",
-      "fetching_files": "@:general.fetching Dateien ...",
+      "fetching_files": "@:general.fetching Dateien…",
       "no_files_found": "Keine Datei gefunden!",
       "no_matches_file_pattern": "Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!",
       "file_name_in_use": "Der Dateiname wird bereits verwendet!",
@@ -246,15 +252,15 @@
       "title": "App - Einstellungen",
       "general": {
         "title": "Allgemein",
-        "ems_confirm": "Notfall-Stop Bestätigung",
-        "always_baby": "Zeige immer Z-Offset Kachel",
+        "ems_confirm": "Bestätigung für Notaus",
+        "always_baby": "Z-Versatz Karte immer anzeigen",
         "num_edit": "Tastatur für Zahleneingabe",
-        "start_with_overview": "@:pages.overview.title als Start-Ansicht",
+        "start_with_overview": "Übersichtsseite beim Start öffnen",
         "use_offset_pos": "Zeige Koordinaten mit Offset.",
         "lcFullCam": "Vollbild-Webcam im Querformat",
         "language": "Sprache",
         "companion": "Möchten Sie Remote-Benachrichtigung erhalten?\n Dann erfahren Sie, wie Sie Mobileraker-Companion auf ihrem System instalieren auf seiner ",
-        "sliders_grouping": "Gruppe Schieberegler Karten"
+        "sliders_grouping": "Gruppiere Schieberegler Karten"
       },
       "notification": {
         "title": "Benachrichtigung",
@@ -283,7 +289,7 @@
       "import_settings": "Importeinstellungen",
       "remove_printer": "Drucker entfernen",
       "no_values_found": "Keine Werte gefunden!",
-      "fetching_additional_settings": "@:general.fetching zusätzliche Einstellungen aus dem Netzwerk ...",
+      "fetching_additional_settings": "@:general.fetching zusätzliche Einstellungen aus dem Netzwerk…",
       "could_not_fetch_additional": "Konnte keine zusätzlichen Einstellungen holen!",
       "fetch_error_hint": "Stellen Sie sicher, dass die Maschine erreichbar ist und Mobileraker damit verbunden ist.",
       "reset_notification_registry": "Setzte Geräte für Push-Mitteilungen zurück",
@@ -483,19 +489,19 @@
     "console": {
       "title": "Konsole",
       "no_entries": "Keine zwischengespeicherten Befehle gefunden",
-      "fetching_console": "@:general.fetching Konsoleneinträge ...",
+      "fetching_console": "@:general.fetching Konsoleneinträge…",
       "command_input": {
         "hint": "Geben Sie einen Befehl ein"
       }
     },
     "overview": {
       "title": "Übersicht",
-      "fetching_machines": "@:general.fetching Maschinen ...",
+      "fetching_machines": "@:general.fetching Maschinen…",
       "no_entries": "Keine Maschine gefunden",
       "add_machine": "Maschine hinzufügen"
     },
     "markdown": {
-      "loading": "@:general.loading {}...",
+      "loading": "@:general.loading {}…",
       "error": "Beim Abrufen von {} ist ein Fehler aufgetreten;",
       "open_in_browser": "@:pages.faq.title im Browser öffnen"
     },
@@ -526,7 +532,7 @@
         "body": "Mail: {}\nDiscord: {}"
       },
       "title": "Unterstützen Sie den Dev!",
-      "calling_store": "Anfrage wird bearbeitet...",
+      "calling_store": "Anfrage wird bearbeitet…",
       "promo_title": "Werbung",
       "free_phase": "Erste {} kostenlos",
       "intro_phase": "Genießen Sie {} zu {} Rabatt",
@@ -536,7 +542,7 @@
       "restore_sign_in": "Wiederherstellen / Anmelden"
     },
     "video_player": {
-      "downloading_for_sharing": "Lade das Video zum Teilen herunter... ({})"
+      "downloading_for_sharing": "Lade das Video zum Teilen herunter… ({})"
     },
     "tool": {
       "title": "Tools"
@@ -563,14 +569,14 @@
     "nav_drawer": {
       "printer_settings": "Druckereinstellungen",
       "manage_printers": "Drucker verwalten",
-      "fetching_printers": "@:general.fetching Drucker ...",
+      "fetching_printers": "@:general.fetching Drucker…",
       "footer": "Mit ❤️ erstellt von Patrick Schmidt\nBesuchen Sie die Projektseite"
     },
     "connection_watcher": {
       "reconnect": "Neu verbinden",
-      "trying_connect": "Versuche zu verbinden ...",
-      "trying_connect_remote": "Versuche zu verbinden, nutze remote Client ...",
-      "server_starting": "Der Server startet ...",
+      "trying_connect": "Verbindung wird aufgebaut…",
+      "trying_connect_remote": "Fernzugriffs-Verbindung wird aufgebaut…",
+      "server_starting": "Der Server startet…",
       "more_details": "Mehr Details",
       "add_printer": "Hallo du!\nIch freue mich, dich hier zu sehen!\nUm mit Mobileraker loszulegen, fügen Sie bitte einen Drucker hinzu. Danach wirst du in der Lage sein, deinen Drucker direkt von Mobileraker aus zu steuern."
     },
@@ -614,7 +620,7 @@
       "message": "Wenn Sie Mobileraker mögen und die Open-Source Entwicklung unterstützen möchten, können Sie Mobileraker bewerten!"
     },
     "import_setting": {
-      "fetching": "Hole Kandidaten...",
+      "fetching": "Hole Kandidaten…",
       "fetching_error_title": "Einstellungen können nicht abgerufen werden!",
       "fetching_error_sub": "Stellen Sie sicher, dass andere Maschinen verbunden sind.",
       "select_source": "Kandidat auswählen"
@@ -795,12 +801,26 @@
       }
     },
     "bedMesh": {
-      "load_bed_mesh_profile": "Bed-Mesh Profil laden",
+      "no_mesh_loaded": "Es wurde noch kein Bettnetz geladen.",
+      "load_bed_mesh_profile": "Bettnetz Profil laden",
       "currently_active": "Derzeit aktiv: {}",
       "no_profile_active": "Kein aktives Profil",
-      "no_mesh": "Kein Mesh",
+      "no_mesh": "Kein Netz",
       "clear_loaded_profile": "Geladenes Profil zurücksetzen",
       "range_between_highest_and_lowest_point": "Abstand zwischen höchstem und tiefstem Punkt"
+    },
+    "select_spool": {
+      "header": {
+        "spools": "Spulen",
+        "qr": "QR-Code"
+      },
+      "no_spools": "Es wurden keine Spulen gefunden. Bitte fügen Sie Spulen zu Spoolman hinzu",
+      "error": "Beim laden der Spulen ist ein Fehler aufgetreten: {}",
+      "qr_loading": "QR-Scanner wird geladen...",
+      "qr_error": "Fehler beim Laden des QR-Scanners: {}",
+      "scan_again": "Erneut scannen",
+      "set_active": "Aktivieren",
+      "spool_id_not_found": "Es konnte leider kein Spool mit der angegebenen ID #{} gefunden werden."
     }
   },
   "klipper_state": {
