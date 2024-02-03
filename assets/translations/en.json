@@ -57,7 +57,7 @@
         "unavailable": "No Server available",
         "available": "Server State is {} and Klippy is {}"
       },
-      "fetching_printer": "@:general.fetching printer...",
+      "fetching_printer": "@:general.fetching printer…",
       "general": {
         "print_card": {
           "reset": "Reset",
@@ -201,7 +201,7 @@
       "last_mod": "Last modified",
       "last_printed": "Last printed",
       "not_printed": "Not printed",
-      "fetching_files": "@:general.fetching Files...",
+      "fetching_files": "@:general.fetching Files…",
       "no_files_found": "No files found!",
       "no_matches_file_pattern": "Only letters, numbers, underscores, dashes and dots are allowed!",
       "file_name_in_use": "File name already in use!",
@@ -284,7 +284,7 @@
       "import_settings": "Import Settings",
       "remove_printer": "Remove Printer",
       "no_values_found": "No values Found!",
-      "fetching_additional_settings": "@:general.fetching additional settings from network...",
+      "fetching_additional_settings": "@:general.fetching additional settings from network…",
       "could_not_fetch_additional": "Could not fetch additional settings!",
       "fetch_error_hint": "Ensure the machine is reachable, and Mobileraker is connected to it.",
       "reset_notification_registry": "Clear Notification Device Registry",
@@ -484,19 +484,19 @@
     "console": {
       "title": "Console",
       "no_entries": "No cached commands found",
-      "fetching_console": "@:general.fetching console entries...",
+      "fetching_console": "@:general.fetching console entries…",
       "command_input": {
         "hint": "Enter console command"
       }
     },
     "overview": {
       "title": "Overview",
-      "fetching_machines": "@:general.fetching machines...",
+      "fetching_machines": "@:general.fetching machines…",
       "no_entries": "No machines found",
       "add_machine": "Add Machine"
     },
     "markdown": {
-      "loading": "@:general.loading {}...",
+      "loading": "@:general.loading {}…",
       "error": "An error occurred while trying to fetch {};",
       "open_in_browser": "Open @:pages.faq.title in Browser"
     },
@@ -527,7 +527,7 @@
         "body": "Mail: {}\nDiscord: {}"
       },
       "title": "Support the Dev!",
-      "calling_store": "Processing request...",
+      "calling_store": "Processing request…",
       "promo_title": "Promotion",
       "free_phase": "First {} free",
       "intro_phase": "Enjoy {} at {} off",
@@ -537,7 +537,7 @@
       "restore_sign_in": "Restore / Sign in"
     },
     "video_player": {
-      "downloading_for_sharing": "Downloading video for sharing... ({})"
+      "downloading_for_sharing": "Downloading video for sharing… ({})"
     },
     "tool": {
       "title": "Tools"
@@ -564,14 +564,14 @@
     "nav_drawer": {
       "printer_settings": "Printer Settings",
       "manage_printers": "Manage Printers",
-      "fetching_printers": "@:general.fetching printers...",
+      "fetching_printers": "@:general.fetching printers…",
       "footer": "Made with ❤️ by Patrick Schmidt\nCheckout the project's"
     },
     "connection_watcher": {
       "reconnect": "Reconnect",
-      "trying_connect": "Trying to connect...",
-      "trying_connect_remote": "Trying to connect using remote client...",
-      "server_starting": "Server is starting...",
+      "trying_connect": "Trying to connect…",
+      "trying_connect_remote": "Trying to connect using remote client…",
+      "server_starting": "Server is starting…",
       "more_details": "More Details",
       "add_printer": "Hey there,\nI am excited to see you here!\nTo kickstart your experience, kindly add a printer to Mobileraker. Once you've completed this step, you'll be able to take direct control of your printer right from within Mobileraker."
     },
@@ -615,7 +615,7 @@
       "message": "If you like Mobileraker and want to support the development, please consider rating Mobileraker!"
     },
     "import_setting": {
-      "fetching": "Fetching sources...",
+      "fetching": "Fetching sources…",
       "fetching_error_title": "Unable to fetch settings!",
       "fetching_error_sub": "Ensure other machines are connected.",
       "select_source": "Select Source"
