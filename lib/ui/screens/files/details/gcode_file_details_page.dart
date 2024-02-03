@@ -375,7 +375,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
       if (spool != null) {
         if (spool.filament.material != null &&
             gCodeFile.filamentType != null &&
-            equalsIgnoreAsciiCase(gCodeFile.filamentType!.trim(), spool.filament.material!.trim())) {
+            !equalsIgnoreAsciiCase(gCodeFile.filamentType!.trim(), spool.filament.material!.trim())) {
           materialMissmatch = spool.filament.material?.trim();
         }
 
