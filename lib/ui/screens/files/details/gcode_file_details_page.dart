@@ -155,21 +155,21 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
                 show: model.materialMissmatch != null,
                 onTap: model.canStartPrint ? controller.changeActiveSpool : null,
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                leadingIcon: Icon(Icons.layers_clear),
+                leadingIcon: const Icon(Icons.layers_clear),
                 // leadingIcon: Icon(Icons.layers_clear),
-                title: Text('Material missmatch'),
-                subtitle: Text(
-                    'The file\'s material ${model.file.filamentType} does not match the active spool\'s material ${model.materialMissmatch}.\nTap to change the active spool.'),
+                title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
+                subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
+                    .tr(args: [model.file.filamentType ?? '--', model.materialMissmatch ?? '--']),
               ),
               // if (model.insufficientFilament != null)
               WarningCard(
                 show: model.insufficientFilament != null,
                 onTap: model.canStartPrint ? controller.changeActiveSpool : null,
                 margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                leadingIcon: Icon(Icons.scale),
-                title: Text('Insufficient filament'),
-                subtitle: Text(
-                    'The active spool only has ${model.insufficientFilament?.let((it) => it.formatGramms(numFormat))} filament left, which is not enough for this file.\nTap to change the active spool.'),
+                leadingIcon: const Icon(Icons.scale),
+                title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
+                subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
+                    .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
               ),
               Card(
                 child: Column(

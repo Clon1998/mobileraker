@@ -245,6 +245,12 @@
         "preheat_snackbar": {
           "title": "Starte Vorheizen",
           "body": "Extruder: {}°C\nBett: {}°C"
+        },
+        "spoolman_warnings": {
+          "insufficient_filament_title": "Unzureichendes Filament",
+          "insufficient_filament_body": "Auf der aktiven Spule ist nur noch {} Filament vorhanden, was nicht für diese Datei ausreicht.\nTippen Sie, um die aktive Spule zu wechseln.",
+          "material_mismatch_title": "Materialwarnung",
+          "material_mismatch_body": "Das Material der Datei {} stimmt nicht mit dem Material der aktiven Spule {} überein.\nTippen Sie, um die aktive Spule zu ändern."
         }
       }
     },

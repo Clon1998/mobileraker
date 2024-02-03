@@ -245,6 +245,12 @@
         "preheat_snackbar": {
           "title": "Started Preheating",
           "body": "Extruder: {}°C\nBed: {}°C"
+        },
+        "spoolman_warnings": {
+          "insufficient_filament_title": "Insufficient filament",
+          "insufficient_filament_body": "The active spool only has {} filament left, which is not enough for this file.\nTap to change the active spool.",
+          "material_mismatch_title": "Material Mismatch",
+          "material_mismatch_body": "The file's material {} does not match the active spool's material {}.\nTap to change the active spool."
         }
       }
     },
