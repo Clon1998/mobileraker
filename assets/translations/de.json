@@ -79,7 +79,7 @@
           "fullscreen": "Vollbild"
         },
         "temp_card": {
-          "title": "Temperaturkontrolle",
+          "title": "Thermik",
           "presets_btn": "Voreinstellungen",
           "hotend": "Hotend",
           "bed": "Bett",
