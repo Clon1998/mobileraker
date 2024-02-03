@@ -189,7 +189,12 @@
             "probed": "Showing probed matrix",
             "mesh": "Showing mesh matrix"
           }
-
+        },
+        "spoolman_card": {
+          "title": "Spoolman",
+          "no_spool": "No spool selected.\nFilament usage will not be tracked.",
+          "select_spool": "Select Spool",
+          "used": "Used: {}"
         }
       }
     },
@@ -796,12 +801,26 @@
       }
     },
     "bedMesh": {
+      "no_mesh_loaded": "No bed mesh has been loaded yet.",
       "load_bed_mesh_profile": "Load Bed Mesh Profile",
       "currently_active": "Currently active: {}",
       "no_profile_active": "No profile active",
       "no_mesh": "No Mesh",
       "clear_loaded_profile": "Clear loaded profile",
       "range_between_highest_and_lowest_point": "Range between highest and lowest point"
+    },
+    "select_spool": {
+      "header": {
+        "spools": "Spools",
+        "qr": "QR-Code"
+      },
+      "no_spools": "No spools found. Please add a spools to Spoolman",
+      "error": "An error occured while trying to load spools: {}",
+      "qr_loading": "Loading QR Scanner…",
+      "qr_error": "Error while trying to load QR Scanner: {}",
+      "scan_again": "Scan Again",
+      "set_active": "Set Active",
+      "spool_id_not_found": "Sorry, no spool was found with the specified ID #{}."
     }
   },
   "klipper_state": {

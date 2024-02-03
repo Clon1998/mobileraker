@@ -31,7 +31,7 @@ class BedMeshPlot extends StatelessWidget {
     logger.i('Building _MeshPlot $bedMin, $bedMax');
 
     if (bedMesh?.profileName?.isNotEmpty != true) {
-      return const Center(child: Text('No bed mesh has been loaded yet.'));
+      return Center(child: const Text('bottom_sheets.bedMesh.no_mesh_loaded').tr());
     }
 
     var meshCords = (isProbed) ? bedMesh!.probedCoordinates : bedMesh!.meshCoordinates;
