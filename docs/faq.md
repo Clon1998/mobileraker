@@ -15,6 +15,25 @@ section, where you can add or edit webcams. Don't forget to save your changes af
 
 > Starting with Mobileraker version 2.3.0, webcam configs are synced with Mainsail/Fluidd
 
+## 🎥 My Webcam Is Not Showing Up in Mobileraker but Works in Mainsail/Fluidd
+
+If you're experiencing an issue where your webcam isn't displaying in Mobileraker while it works in Mainsail or Fluidd, the problem may be related to Mobileraker's auto-resolving of URLs. Typically, webcams are added using a relative path (e.g., `/webcam?action=stream`), and Mobileraker attempts to convert it to an absolute path using the 'Printer - Address' you provided during printer setup. Alternatively, you can directly add a webcam using its absolute path (e.g., `http://192.0.0.1:8080/webcam/action=stream`), bypassing Mobileraker's auto-resolving process.
+
+### Why Auto-Resolving?
+
+Mobileraker was initially designed for a simple setup with one printer and one Raspberry Pi running FluiddPi or MainsailOS. In this scenario, resolving a relative webcam URL to an absolute one was straightforward, as everything operated on a single host. However, in more complex setups, such as running multiple printers on a single Pi or using custom images like CrealityOS or Klipper, correctly resolving the webcam URL can become challenging. If you encounter any webcam-related issues, we recommend opening Mainsail or Fluidd, copying the stream/image URL directly as an absolute webcam URL into Mobileraker, and checking Mobileraker's error message for the attempted URL.
+
+### Auto-Resolve Process
+
+Here's a breakdown of how the auto-resolve process works:
+
+**Given:**
+- Printer Address: `http://192.6.2.1:8080`
+- Websocket Address: `http://192.6.2.1:8080/websocket`
+- Cam-URI: `/webcam1/action=stream`
+
+The auto-resolve process will take the 'Printer Address' (`http://192.6.2.1:8080`) and append the relative path, resulting in `http://192.6.2.1:8080/webcam1/action=stream`. If you encounter issues, Mobileraker's error message will provide the attempted URL for debugging purposes.
+
 ## 🛰️ Remote printer access?
 
 There are several options available for remote printer access:
