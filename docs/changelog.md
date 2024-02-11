@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.12] - 2024-03-xx
+
+### Changed Features
+
+- Updated 🇫🇷 translation, thanks to Arnaud Petetin
+
 ## [2.6.11] - 2024-02-02
 
 ### Major Updates
