@@ -28,7 +28,14 @@ class SpoolWidget extends StatelessWidget {
             width: width,
           );
         } else {
-          return const SizedBox.shrink();
+          // Return ConstraintedBox to avoid layout issues
+          return ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: height,
+              maxWidth: width,
+            ),
+            child: const SizedBox.expand(),
+          );
         }
       },
     );

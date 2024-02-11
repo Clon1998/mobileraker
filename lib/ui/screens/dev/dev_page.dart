@@ -21,6 +21,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/bed_mesh_card.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_card.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DevPage extends HookConsumerWidget {
@@ -41,7 +42,9 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
+          SpoolmanCard(machineUUID: selMachine!.uuid),
           BedMeshCard(machineUUID: selMachine!.uuid),
+          // SpoolmanCardLoading(),
           // _MeshView(machineUUID: selMachine!.uuid),
           // ControlExtruderLoading(),
           // HeaterSensorCard(machineUUID: selMachine!.uuid),
