@@ -21,7 +21,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../dashboard_controller.dart';
 import 'slider_or_text_input.dart';
 
 part 'multipliers_card.freezed.dart';
@@ -124,23 +123,23 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: machinePrinterKlippySettingsProvider.select(
-                  (data) => data.requireValue.printerData.gCodeMove.speedFactor,
+                provider: _controllerProvider(machineUUID).select(
+                  (data) => data.requireValue.speedFactor,
                 ),
                 prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
                 onChange: canEdit ? controller.onEditedSpeedMultiplier : null,
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: machinePrinterKlippySettingsProvider.select(
-                  (data) => data.requireValue.printerData.gCodeMove.extrudeFactor,
+                provider: _controllerProvider(machineUUID).select(
+                  (data) => data.requireValue.extrudeFactor,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.flow'.tr(),
                 onChange: canEdit ? controller.onEditedFlowMultiplier : null,
               ),
               SliderOrTextInput(
-                provider: machinePrinterKlippySettingsProvider.select(
-                  (data) => data.requireValue.printerData.extruder.pressureAdvance,
+                provider: _controllerProvider(machineUUID).select(
+                  (data) => data.requireValue.pressureAdvance,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
                 onChange: canEdit ? controller.onEditedPressureAdvanced : null,
@@ -148,8 +147,8 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
                 unit: 'mm/s',
               ),
               SliderOrTextInput(
-                provider: machinePrinterKlippySettingsProvider.select(
-                  (data) => data.requireValue.printerData.extruder.smoothTime,
+                provider: _controllerProvider(machineUUID).select(
+                  (data) => data.requireValue.smoothTime,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
                 onChange: canEdit ? controller.onEditedSmoothTime : null,
