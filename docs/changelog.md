@@ -14,6 +14,8 @@
 
 - Webcam paths (URLs) now support relative paths and respect the configured HTTP address port (Printer address),
   addressing previous issues of ignoring it. This might require users to reconfigure their webcams.
+- Updated 🇩🇪 translation, thanks to [@Clon1998](https://github.com/clon1998)
+- Updated 🇹🇷 translation, thanks to [@larinspub](https://github.com/larinspub)
 
 ### Bug Fixes
 

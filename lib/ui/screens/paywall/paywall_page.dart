@@ -265,7 +265,13 @@ class _SubscribeTiers extends ConsumerWidget {
           packets: model.paywallOfferings,
           iapPromos: model.iapPromos,
         ),
+        Text(
+          'pages.paywall.subscribe_view.subscription_info',
+          style: textTheme.bodySmall,
+          textAlign: TextAlign.justify,
+        ).tr(args: [storeName()]),
         if (model.tipAvailable) const _TippingButton(),
+
         const _RestoreButton(),
         // const _TippingButton(),
       ],

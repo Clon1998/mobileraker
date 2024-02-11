@@ -1,8 +1,8 @@
 # Mobileraker - A free mobile app for klipper
+[![GitHub Tag](https://img.shields.io/github/v/tag/clon1998/mobileraker?filter=android*&style=for-the-badge&logo=android&label=Version&color=%2334A853)](https://play.google.com/store/apps/details?id=com.mobileraker.android)
+[![GitHub Tag](https://img.shields.io/github/v/tag/clon1998/mobileraker?filter=ios*&style=for-the-badge&logo=apple&label=Version&color=%23000000)](https://apps.apple.com/us/app/mobileraker/id1581451248)
 
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/clon1998/mobileraker?style=for-the-badge)
 ![GitHub issues](https://img.shields.io/github/issues/Clon1998/mobileraker?style=for-the-badge)
-
 ![GitHub Repo stars](https://img.shields.io/github/stars/Clon1998/mobileraker?style=for-the-badge)
 ![GitHub all releases](https://img.shields.io/github/downloads/clon1998/mobileraker/total?style=for-the-badge)
 
@@ -14,13 +14,12 @@
 
 1. [Download the app](#get-mobileraker-now)
 2. [General](#general)
-3. [Support the Dev](#support-me)
-4. [Push-Notifications](#push-notifications--remote-notification)
-5. [App Screenshots](#app-impressions)
-6. [Translations](#translations)
-7. [Dev-Setup](#environment-setup)
-8. [Changelog](#changelog)
-9. [License](#license)
+3. [Push-Notifications](#push-notifications--remote-notification)
+4. [App Screenshots](#app-impressions)
+5. [Translations](#translations)
+6. [Environment Setup for Contribution](#environment-setup-for-contribution)
+7. [Changelog](#changelog)
+8. [License](#license)
 
 ---
 
