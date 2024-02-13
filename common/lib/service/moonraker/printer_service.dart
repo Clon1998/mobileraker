@@ -326,8 +326,8 @@ class PrinterService {
     return gCode('SAVE_CONFIG');
   }
 
-  m117([String? msg]) {
-    gCode('M117 ${msg ?? ''}');
+  Future<bool> m117([String? msg]) {
+    return gCode('M117 ${msg ?? ''}');
   }
 
   partCoolingFan(double perc) {

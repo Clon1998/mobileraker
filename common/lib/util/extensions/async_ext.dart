@@ -10,7 +10,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 ///   In that situation, [when] will try to invoke either [error]/[data]
 ///   with the previous state.
 extension AlwaysAliveAsyncDataSelector<Input> on ProviderListenable<AsyncValue<Input>> {
-  ProviderListenable<AsyncValue<Output>> selectAs<Output>(Output Function(Input data) selector, {
+  ProviderListenable<AsyncValue<Output>> selectAs<Output>(
+    Output Function(Input data) selector, {
     bool skipLoadingOnReload = false,
   }) {
     return select((AsyncValue<Input> value) {
@@ -37,6 +38,13 @@ extension AlwaysAliveAsyncDataSelector<Input> on ProviderListenable<AsyncValue<I
         },
       );
     });
+  }
+
+  /// Short
+  ProviderListenable<Input> requireValue() => select((d) => d.requireValue);
+
+  ProviderListenable<Output> selectRequireValue<Output>(Output Function(Input data) selector) {
+    return select((AsyncValue<Input> value) => selector(value.requireValue));
   }
 }
 

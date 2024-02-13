@@ -15,13 +15,13 @@ import 'package:mobileraker/ui/components/machine_deletion_warning.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/supporter_ad.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/machine_status_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
 import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 import '../../../components/remote_connection_active_card.dart';
-import '../components/printer_info_card.dart';
 import '../components/temperature_card/temperature_sensor_preset_card.dart';
 import '../components/z_offset_card.dart';
 
@@ -53,7 +53,7 @@ class GeneralTab extends ConsumerWidget {
                   const MachineDeletionWarning(),
                   const SupporterAd(),
                   RemoteConnectionActiveCard(machineId: machineId),
-                  const PrintCard(),
+                  MachineStatusCard(machineUUID: machineId),
                   TemperatureSensorPresetCard(machineUUID: machineId),
                   const CamCard(),
                   if (printState != PrintState.printing) ControlXYZCard(machineUUID: machineId),
