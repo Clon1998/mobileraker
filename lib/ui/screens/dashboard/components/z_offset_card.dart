@@ -154,7 +154,7 @@ class _CardBody extends ConsumerWidget {
         ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
     var steps = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
 
-    var numberFormat = NumberFormat('#0.0#', context.locale.toStringWithSeparator());
+    var numberFormat = NumberFormat('#0.0##', context.locale.toStringWithSeparator());
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
