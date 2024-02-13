@@ -35,7 +35,7 @@ import '../../../components/dialog/edit_form/num_edit_form_controller.dart';
 part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';
 
-class ControlExtruderCard extends HookConsumerWidget {
+class ControlExtruderCard extends ConsumerWidget {
   const ControlExtruderCard({Key? key, required this.machineUUID}) : super(key: key);
 
   final String machineUUID;
@@ -147,7 +147,7 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID)).requireValue;
+    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.requireValue));
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
     return ListTile(
@@ -198,7 +198,7 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID)).requireValue;
+    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.requireValue));
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
     var canExtrude = model.minExtrudeTempReached && model.klippyCanReceiveCommands;
