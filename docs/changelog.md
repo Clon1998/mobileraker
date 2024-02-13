@@ -5,6 +5,12 @@
 ### Changed Features
 
 - Updated 🇫🇷 translation, thanks to Arnaud Petetin
+- Refactored the PrintInfo/MachineStatus card into its own component with some more animations, improving the overall
+  user experience and performance.
+
+### Bug Fixes
+
+- The Step Selector in the Z-Offset card now shows up to three decimal places again.
 
 ## [2.6.11] - 2024-02-02
 
