@@ -77,7 +77,7 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_ControllerProvider(machineUUID, onPresetApplied)).requireValue;
+    var model = ref.watch(_ControllerProvider(machineUUID, onPresetApplied).requireValue());
     var controller = ref.watch(_ControllerProvider(machineUUID, onPresetApplied).notifier);
 
     var coolOf = _PresetTile(
