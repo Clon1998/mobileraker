@@ -281,7 +281,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
       printer,
       steps,
       (a, b, c) {
-        var idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex;
+        var idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
         var velocity = state.whenData((value) => value.extruderVelocity).valueOrNull ?? initialVelocity;
 
         var minExtrudeTemp = b.configFile.extruderForIndex(activeExtruder)?.minExtrudeTemp ?? 170;

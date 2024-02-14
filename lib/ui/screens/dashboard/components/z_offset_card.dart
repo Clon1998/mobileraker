@@ -220,7 +220,7 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
       zOffset,
       steps,
       (a, b, c) {
-        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex;
+        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
 
         return _Model(
           klippyCanReceiveCommands: a,
