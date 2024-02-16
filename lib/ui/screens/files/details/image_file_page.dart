@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -29,7 +29,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
 
   @override
   Widget build(BuildContext context) {
-    var machine = ref.watch(selectedMachineProvider).value!;
+    var machine = ref.watch(selectedMachineProvider).requireValue!;
     var dio = ref.watch(dioClientProvider(machine.uuid));
     var imageUri = widget.file.downloadUri(Uri.tryParse(dio.options.baseUrl))!;
     var imageHeaders = dio.options.headers.cast<String, String>();

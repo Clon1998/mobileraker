@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>AwnAppGroupName</key>
+	<string>group.mobileraker.awn</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
@@ -37,6 +39,8 @@
 	<string>Required to access WiFi SSID to enable faster switching to remote connection.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Required to access WiFi SSID to enable faster switching to remote connection.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>To enable the functionality of the belt tuner, kindly grant permission for microphone access.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

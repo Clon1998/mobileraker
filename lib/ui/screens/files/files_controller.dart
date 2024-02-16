@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -30,12 +30,12 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
-import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/dialog/text_input/text_input_dialog.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_controller.dart';
 import 'package:mobileraker/util/path_utils.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
+import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'files_controller.freezed.dart';
@@ -135,7 +135,7 @@ class FilesPageController extends _$FilesPageController {
   GoRouter get _goRouter => ref.read(goRouterProvider);
 
   List<String> get _usedFileNames {
-    var folderContentWrapper = ref.read(_fileApiResponseProvider(state.pathAsString)).value!;
+    var folderContentWrapper = ref.read(_fileApiResponseProvider(state.pathAsString)).requireValue;
     return [...folderContentWrapper.folders, ...folderContentWrapper.files].map((e) => e.name).toList();
   }
 
@@ -167,7 +167,9 @@ class FilesPageController extends _$FilesPageController {
   }
 
   jobQueueBottomSheet() {
-    ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu));
+    ref
+        .read(bottomSheetServiceProvider)
+        .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true));
   }
 
   goToPath(List<String> path) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 enum ConfigFileObjectIdentifiers {
@@ -22,6 +22,7 @@ enum ConfigFileObjectIdentifiers {
   bed_screws(null),
   heater_bed(null),
   printer(null),
+  bed_mesh(null),
   ;
 
   /// IF it is possible to check a object with a == (null) or startsWith (true)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -19,6 +19,7 @@ import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -27,9 +28,11 @@ import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
+import 'package:mobileraker/ui/components/printer_calibration_watcher.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
+import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 
@@ -56,11 +59,13 @@ class DashboardPage extends StatelessWidget {
   }
 }
 
-class _DashboardView extends ConsumerWidget {
+class _DashboardView extends HookConsumerWidget {
   const _DashboardView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var pageController = usePageController(keys: []);
+
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: tr('pages.dashboard.title'),
@@ -69,10 +74,10 @@ class _DashboardView extends ConsumerWidget {
           const EmergencyStopBtn(),
         ],
       ),
-      body: const ConnectionStateView(onConnected: _DashboardBody()),
+      body: ConnectionStateView(onConnected: _DashboardBody(controller: pageController)),
       floatingActionButton: const _FloatingActionBtn(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: const _BottomNavigationBar(),
+      bottomNavigationBar: _BottomNavigationBar(pageController: pageController),
       drawer: const NavigationDrawerWidget(),
     );
   }
@@ -146,7 +151,9 @@ class _FloatingActionBtn extends ConsumerWidget {
             backgroundColor: themeData.colorScheme.primary,
             foregroundColor: themeData.colorScheme.onPrimary,
             label: tr('dialogs.supporter_perks.job_queue_perk.title'),
-            onTap: () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu)),
+            onTap: () => ref
+                .read(bottomSheetServiceProvider)
+                .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
           ),
       ],
       spacing: 5,
@@ -155,17 +162,22 @@ class _FloatingActionBtn extends ConsumerWidget {
   }
 }
 
-class _BottomNavigationBar extends ConsumerWidget {
-  const _BottomNavigationBar({Key? key}) : super(key: key);
+class _BottomNavigationBar extends HookConsumerWidget {
+  const _BottomNavigationBar({super.key, required this.pageController});
+
+  final PageController pageController;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
-    if (ref.watch(machinePrinterKlippySettingsProvider.select((value) => value.isReloading || value.hasError))) {
+    if (ref.watch(machinePrinterKlippySettingsProvider.select((value) => value.isLoading && !value.isReloading))) {
       return const SizedBox.shrink();
     }
+
+    int activeIndex =
+        useListenableSelector(pageController, () => pageController.hasClients ? pageController.page?.round() ?? 0 : 0);
 
     return AnimatedBottomNavigationBar(
       icons: const [FlutterIcons.tachometer_faw, FlutterIcons.settings_oct],
@@ -174,27 +186,36 @@ class _BottomNavigationBar extends ConsumerWidget {
       gapLocation: GapLocation.end,
       backgroundColor: themeData.bottomNavigationBarTheme.backgroundColor ?? colorScheme.primary,
       notchSmoothness: NotchSmoothness.softEdge,
-      activeIndex: ref.watch(dashBoardViewControllerProvider),
-      onTap: ref.watch(dashBoardViewControllerProvider.notifier).onBottomNavTapped,
+      activeIndex: activeIndex,
+      splashSpeedInMilliseconds: kThemeAnimationDuration.inMilliseconds,
+      onTap: (index) {
+        if (pageController.hasClients) {
+          pageController.animateToPage(index, duration: kThemeChangeDuration, curve: Curves.easeOutCubic);
+        }
+      },
     );
   }
 }
 
-class _DashboardBody extends ConsumerWidget {
-  const _DashboardBody({Key? key}) : super(key: key);
+class _DashboardBody extends HookConsumerWidget {
+  const _DashboardBody({super.key, required this.controller});
+
+  final PageController controller;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return ref
         // We use selectAs null since we want to prevent rebuilding this widget to often!
-        .watch(machinePrinterKlippySettingsProvider.selectAs((data) => true))
+        .watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid))
         .when<Widget>(
-          data: (d) => PageView(
-            key: const PageStorageKey<String>('dashboardPages'),
-            controller: ref.watch(pageControllerProvider),
-            onPageChanged: ref.watch(dashBoardViewControllerProvider.notifier).onPageChanged,
-            children: const [GeneralTab(), ControlTab()],
-            // children: [const GeneralTab(), const ControlTab()],
+          data: (d) => PrinterCalibrationWatcher(
+            machineUUID: d,
+            child: PageView(
+              key: const PageStorageKey<String>('dashboardPages'),
+              controller: controller,
+              children: const [GeneralTab(), ControlTab()],
+              // children: [const GeneralTab(), const ControlTab()],
+            ),
           ),
           error: (e, s) {
             //TODO Error catching wont work..... does not work .....

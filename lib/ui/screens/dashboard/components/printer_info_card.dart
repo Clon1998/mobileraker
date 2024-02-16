@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -7,6 +7,7 @@ import 'package:common/data/dto/machine/exclude_object.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -49,7 +50,7 @@ class PrintCard extends ConsumerWidget {
                   ? ref.watch(generalTabViewControllerProvider.select(
                       (data) => data.value!.printerData.print.stateName,
                     ))
-                  : klippyInstance.klippyStateMessage ?? 'Klipper: ${tr(klippyInstance.klippyState.name)}',
+                  : klippyInstance.statusMessage,
               style: TextStyle(
                 color: !klippyCanReceiveCommands ? themeData.colorScheme.error : null,
               ),
@@ -57,28 +58,7 @@ class PrintCard extends ConsumerWidget {
             subtitle: _subTitle(ref),
             trailing: _trailing(context, ref, themeData, klippyCanReceiveCommands),
           ),
-          if (const {KlipperState.shutdown, KlipperState.error}.contains(klippyInstance.klippyState))
-            ElevatedButtonTheme(
-              data: ElevatedButtonThemeData(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: themeData.colorScheme.error,
-                  foregroundColor: themeData.colorScheme.onError,
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: ref.read(generalTabViewControllerProvider.notifier).onRestartKlipperPressed,
-                    child: const Text('pages.dashboard.general.restart_klipper').tr(),
-                  ),
-                  ElevatedButton(
-                    onPressed: ref.read(generalTabViewControllerProvider.notifier).onRestartMCUPressed,
-                    child: const Text('pages.dashboard.general.restart_mcu').tr(),
-                  ),
-                ],
-              ),
-            ),
+          const _KlippyStateActionButtons(),
           const _M117Message(),
           if (klippyCanReceiveCommands && isPrintingOrPaused && excludeObject != null && excludeObject.available) ...[
             const Divider(thickness: 1, height: 0),
@@ -167,7 +147,7 @@ class PrintCard extends ConsumerWidget {
           radius: 25,
           lineWidth: 4,
           percent: progress,
-          center: Text(NumberFormat.percentPattern(context.locale.languageCode).format(progress)),
+          center: Text(NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(progress)),
           progressColor: (printState == PrintState.complete) ? Colors.green : Colors.deepOrange,
         );
       case PrintState.complete:
@@ -242,6 +222,46 @@ class PrintCard extends ConsumerWidget {
       default:
         return null;
     }
+  }
+}
+
+class _KlippyStateActionButtons extends ConsumerWidget {
+  const _KlippyStateActionButtons({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(generalTabViewControllerProvider.notifier);
+    var model =
+        ref.watch(generalTabViewControllerProvider.selectAs((data) => data.klippyData.klippyState)).requireValue;
+
+    var buttons = <Widget>[
+      if ((const {KlipperState.shutdown, KlipperState.error, KlipperState.disconnected}.contains(model)))
+        ElevatedButton(
+          onPressed: controller.onRestartKlipperPressed,
+          child: const Text('pages.dashboard.general.restart_klipper').tr(),
+        ),
+      if ((const {KlipperState.shutdown, KlipperState.error}.contains(model)))
+        ElevatedButton(
+          onPressed: controller.onRestartMCUPressed,
+          child: const Text('pages.dashboard.general.restart_mcu').tr(),
+        ),
+    ];
+
+    if (buttons.isEmpty) return const SizedBox.shrink();
+    var themeData = Theme.of(context);
+
+    return ElevatedButtonTheme(
+      data: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: themeData.colorScheme.error,
+          foregroundColor: themeData.colorScheme.onError,
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: buttons,
+      ),
+    );
   }
 }
 

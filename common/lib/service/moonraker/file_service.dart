@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -100,7 +100,7 @@ Stream<FileActionResponse> fileNotifications(FileNotificationsRef ref, String ma
 
 @riverpod
 FileService fileServiceSelected(FileServiceSelectedRef ref) {
-  return ref.watch(fileServiceProvider(ref.watch(selectedMachineProvider).valueOrNull!.uuid));
+  return ref.watch(fileServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
 
 @riverpod
@@ -274,7 +274,7 @@ class FileService {
       _dio.download(
         '/server/files/$filePath',
         file.path,
-        options: Options(receiveTimeout: Duration(seconds: 300)), // This is requried because of a bug in dio
+        // options: Options(receiveTimeout: Duration(seconds: 300)), // This is requried because of a bug in dio
         onReceiveProgress: (received, total) {
           if (total <= 0) return;
           logger.i('Progress for $filePath: ${received / total * 100}');
@@ -327,7 +327,7 @@ class FileService {
       _fileActionStreamCtrler.addError(next.error!, next.stackTrace);
       return;
     }
-    var rawMessage = next.value!;
+    var rawMessage = next.requireValue;
     Map<String, dynamic> params = rawMessage['params'][0];
     FileAction? fileAction = FileAction.tryFromJson(params['action']);
 

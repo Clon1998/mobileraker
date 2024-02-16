@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -40,6 +40,8 @@ class KlipperInstance with _$KlipperInstance {
       @JsonKey(name: 'state_message') String? klippyStateMessage}) = _KlipperInstance;
 
   bool get hasTimelapseComponent => components.contains('timelapse');
+
+  bool get hasSpoolmanComponent => components.contains('spoolman');
 
   factory KlipperInstance.fromJson(Map<String, dynamic> json) => _$KlipperInstanceFromJson(json);
 

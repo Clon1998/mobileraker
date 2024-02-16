@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -11,8 +11,8 @@ import 'dart:ui';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:awesome_notifications_fcm/awesome_notifications_fcm.dart';
 import 'package:common/data/dto/server/klipper.dart';
-import 'package:common/data/model/ModelEvent.dart';
 import 'package:common/data/model/hive/machine.dart';
+import 'package:common/data/model/model_event.dart';
 import 'package:common/service/live_activity_service.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -238,7 +238,6 @@ class NotificationService {
       List<String> licenseKeys, List<Machine> allMachines, List<Machine> hiddenMachines) async {
     logger.i('Initializing remote messaging');
     hiddenMachines.forEach(_wipeFCMOnPrinterOnceConnected);
-
     if (await isFirebaseAvailable()) {
       await _notifyFCM.initialize(
           onFcmTokenHandle: _awesomeNotificationFCMTokenHandler,
@@ -266,19 +265,21 @@ class NotificationService {
   static Future<void> _onActionReceivedMethod(ReceivedAction receivedAction) async {
     SendPort? port = IsolateNameServer.lookupPortByName(_notificationTappedPortName);
     if (port != null) {
-      port.send(receivedAction);
+      port.send(receivedAction.toMap());
     } else {
       logger.e('Received an action from the onActionReceivedMethod Port but the port is null!');
     }
   }
 
   Future<void> _onNotificationTapPortMessage(dynamic data) async {
-    if (data is! ReceivedAction) {
+    if (data is! Map<String, dynamic>) {
       logger.w(
-          'Received object from the onNotificationTap Port is not of type: ReceivedAction it is type:${data.runtimeType}');
+          'Received object from the onNotificationTap Port is not of type: Map<String, dynamic> it is type:${data.runtimeType}');
       return;
     }
-    var payload = data.payload;
+
+    final receivedAction = ReceivedAction().fromMap(data);
+    var payload = receivedAction.payload;
     logger.i('Received payload from notification port: $payload');
 
     if (payload?.containsKey('printerId') == true) {

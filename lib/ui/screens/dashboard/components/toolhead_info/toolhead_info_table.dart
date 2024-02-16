@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -50,6 +50,11 @@ class _ToolheadData extends ConsumerWidget {
         ref.watch(toolheadInfoProvider(machineUUID).selectAs((data) => data.printingOrPaused)).valueOrNull == true;
     var dateFormat = ref.watch(dateFormatServiceProvider).Hm();
 
+    var numFormatFixed1 =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
+    var numFormatFixed2 =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+
     return Table(
       border: TableBorder(
         horizontalInside: BorderSide(
@@ -70,17 +75,17 @@ class _ToolheadData extends ConsumerWidget {
             _ConsumerCell(
               label: 'X',
               consumerListenable: toolheadInfoProvider(machineUUID)
-                  .selectAs((value) => value.postion.elementAtOrNull(0)?.toStringAsFixed(2) ?? '--'),
+                  .selectAs((value) => value.postion.elementAtOrNull(0)?.let(numFormatFixed2.format) ?? '--'),
             ),
             _ConsumerCell(
               label: 'Y',
               consumerListenable: toolheadInfoProvider(machineUUID)
-                  .selectAs((value) => value.postion.elementAtOrNull(1)?.toStringAsFixed(2) ?? '--'),
+                  .selectAs((value) => value.postion.elementAtOrNull(1)?.let(numFormatFixed2.format) ?? '--'),
             ),
             _ConsumerCell(
               label: 'Z',
               consumerListenable: toolheadInfoProvider(machineUUID)
-                  .selectAs((value) => value.postion.elementAtOrNull(2)?.toStringAsFixed(2) ?? '--'),
+                  .selectAs((value) => value.postion.elementAtOrNull(2)?.let(numFormatFixed2.format) ?? '--'),
             ),
           ]),
         if (rowsToShow.contains(ToolheadInfoTable.MOV_ROW) && isPrintingOrPaused) ...[
@@ -120,13 +125,13 @@ class _ToolheadData extends ConsumerWidget {
               _ConsumerTooltipCell(
                 label: tr('pages.dashboard.general.print_card.filament'),
                 consumerListenable: toolheadInfoProvider(machineUUID)
-                    .selectAs((value) => '${value.usedFilament?.toStringAsFixed(1) ?? 0} m'),
+                    .selectAs((value) => '${value.usedFilament?.let(numFormatFixed1.format) ?? 0} m'),
                 consumerTooltipListenable: toolheadInfoProvider(machineUUID).selectAs((value) => tr(
                       'pages.dashboard.general.print_card.filament_tooltip',
                       args: [
                         value.usedFilamentPerc.toStringAsFixed(0),
-                        value.usedFilament?.toStringAsFixed(1) ?? '0',
-                        value.totalFilament?.toStringAsFixed(1) ?? '-',
+                        value.usedFilament?.let(numFormatFixed1.format) ?? '0',
+                        value.totalFilament?.let(numFormatFixed1.format) ?? '-',
                       ],
                     )),
               ),
@@ -171,7 +176,7 @@ class _ConsumerCell extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [child!, Text(asyncValue.value!)],
+              children: [child!, Text(asyncValue.requireValue)],
             ),
           );
         },
@@ -238,7 +243,7 @@ class _ConsumerTooltipCell extends StatelessWidget {
           return Tooltip(
             margin: const EdgeInsets.all(8.0),
             textAlign: TextAlign.center,
-            message: asyncTooltipValue.value!,
+            message: asyncTooltipValue.requireValue,
             child: child!,
           );
         },

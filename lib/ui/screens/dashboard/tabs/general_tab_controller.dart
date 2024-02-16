@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -9,9 +9,6 @@ import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
 import 'package:common/data/dto/machine/heaters/heater_bed.dart';
 import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
-import 'package:common/data/dto/machine/printer_axis_enum.dart';
-import 'package:common/data/model/moonraker_db/machine_settings.dart';
-import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
@@ -149,39 +146,5 @@ class GeneralTabViewController
 
   onClearM117() {
     ref.read(printerServiceSelectedProvider).m117();
-  }
-}
-
-final babyStepControllerProvider =
-    StateNotifierProvider.autoDispose<BabyStepCardController, int>((ref) {
-  ref.keepAlive();
-  return BabyStepCardController(ref);
-});
-
-class BabyStepCardController extends StateNotifier<int> {
-  BabyStepCardController(this.ref) : super(0);
-
-  final Ref ref;
-
-  onBabyStepping([bool positive = true]) {
-    MachineSettings machineSettings = ref.read(selectedMachineSettingsProvider).value!;
-    var printerService = ref.read(printerServiceSelectedProvider);
-
-    double step = machineSettings.babySteps[state].toDouble();
-    double dirStep = (positive) ? step : -1 * step;
-    int? m = (ref
-            .read(machinePrinterKlippySettingsProvider)
-            .valueOrNull!
-            .printerData
-            .toolhead
-            .homedAxes
-            .containsAll({PrinterAxis.X, PrinterAxis.Y, PrinterAxis.Z}))
-        ? 1
-        : null;
-    printerService.setGcodeOffset(z: dirStep, move: m);
-  }
-
-  onSelectedBabySteppingSizeChanged(int index) {
-    state = index;
   }
 }

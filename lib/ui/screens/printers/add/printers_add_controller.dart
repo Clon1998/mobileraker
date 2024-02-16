@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -164,13 +164,8 @@ class PrinterAddViewController extends _$PrinterAddViewController {
     }
   }
 
-  Future<bool> onWillPopScope() async {
-    var stepperIndex = ref.read(printerAddViewControllerProvider.select((value) => value.step));
-
-    if (stepperIndex == 0 || stepperIndex == 3) return true;
-
-    ref.watch(printerAddViewControllerProvider.notifier).previousStep();
-    return false;
+  void onPopInvoked(bool isPop) {
+    if (!isPop) ref.watch(printerAddViewControllerProvider.notifier).previousStep();
   }
 
   selectMode(bool isExpert) {

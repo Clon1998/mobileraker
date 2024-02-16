@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -9,8 +9,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-
-import '../../../service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 
 class NonPrintingBottomSheet extends ConsumerWidget {
   const NonPrintingBottomSheet({Key? key}) : super(key: key);
@@ -86,7 +85,9 @@ class NonPrintingBottomSheet extends ConsumerWidget {
           FullWidthButton(
             onPressed: _btnAction(
               context,
-              () => ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.jobQueueMenu)),
+              () => ref
+                  .read(bottomSheetServiceProvider)
+                  .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
             ),
             buttonStyle: buttonStyle,
             child: const Text('dialogs.supporter_perks.job_queue_perk.title').tr(),

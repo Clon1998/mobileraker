@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -138,9 +138,9 @@ class ConfigFile {
 
   double get minY => stepperY?.positionMin ?? 0;
 
-  double get sizeX => maxX + minX.abs();
+  double get sizeX => maxX - minX;
 
-  double get sizeY => maxY + minY.abs();
+  double get sizeY => maxY - minY;
 
   @override
   bool operator ==(Object other) =>

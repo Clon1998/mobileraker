@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -29,7 +29,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 class PaywallPage extends HookConsumerWidget {
-  const PaywallPage({Key? key}) : super(key: key);
+  const PaywallPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +37,7 @@ class PaywallPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: LoaderOverlay(
         useDefaultLoading: false,
-        overlayWidget: Center(
+        overlayWidgetBuilder: (_) => Center(
           child: Column(
             key: UniqueKey(),
             mainAxisAlignment: MainAxisAlignment.center,
@@ -110,7 +110,7 @@ class PaywallPage extends HookConsumerWidget {
 // }
 
 class _PaywallPage extends ConsumerWidget {
-  const _PaywallPage({Key? key}) : super(key: key);
+  const _PaywallPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -212,7 +212,7 @@ class _PaywallPage extends ConsumerWidget {
 }
 
 class _PaywallOfferings extends ConsumerWidget {
-  const _PaywallOfferings({Key? key, required this.model}) : super(key: key);
+  const _PaywallOfferings({super.key, required this.model});
 
   final PaywallPageState model;
 
@@ -222,16 +222,14 @@ class _PaywallOfferings extends ConsumerWidget {
       top: false,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ref.watch(isSupporterProvider)
-            ? _ManageTiers(model: model)
-            : _SubscribeTiers(model: model),
+        child: ref.watch(isSupporterProvider) ? _ManageTiers(model: model) : _SubscribeTiers(model: model),
       ),
     );
   }
 }
 
 class _SubscribeTiers extends ConsumerWidget {
-  const _SubscribeTiers({Key? key, required this.model}) : super(key: key);
+  const _SubscribeTiers({super.key, required this.model});
 
   final PaywallPageState model;
 
@@ -267,7 +265,13 @@ class _SubscribeTiers extends ConsumerWidget {
           packets: model.paywallOfferings,
           iapPromos: model.iapPromos,
         ),
+        Text(
+          'pages.paywall.subscribe_view.subscription_info',
+          style: textTheme.bodySmall,
+          textAlign: TextAlign.justify,
+        ).tr(args: [storeName()]),
         if (model.tipAvailable) const _TippingButton(),
+
         const _RestoreButton(),
         // const _TippingButton(),
       ],
@@ -276,7 +280,7 @@ class _SubscribeTiers extends ConsumerWidget {
 }
 
 class _BenefitOverview extends ConsumerWidget {
-  const _BenefitOverview({Key? key}) : super(key: key);
+  const _BenefitOverview({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -285,10 +289,7 @@ class _BenefitOverview extends ConsumerWidget {
       children: [
         Text(
           'Learn about Supporter Perks',
-          style: Theme.of(context)
-              .textTheme
-              .displaySmall
-              ?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
+          style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         IconButton(
           onPressed: ref.read(paywallPageControllerProvider.notifier).openPerksInfo,
@@ -300,7 +301,7 @@ class _BenefitOverview extends ConsumerWidget {
 }
 
 class _ManageTiers extends ConsumerWidget {
-  const _ManageTiers({Key? key, required this.model}) : super(key: key);
+  const _ManageTiers({super.key, required this.model});
 
   final PaywallPageState model;
 
@@ -349,6 +350,7 @@ class _ManageTiers extends ConsumerWidget {
                   ? () => ref.read(paywallPageControllerProvider.notifier).openManagement()
                   : null,
         ),
+        const _RestoreButton(),
       ],
     );
   }
@@ -385,17 +387,17 @@ class _OfferedProductList extends ConsumerWidget {
                       );
 
                       return _InAppPurchaseProduct(
-                    iapPackage: package,
-                    promoPackage: promoPackage,
-                  );
-                }
-                // Android Subscriptions since they might have options (E.g. offers/promos)
-                if (package.storeProduct.defaultOption != null) {
-                  return _SubscriptionOptionProduct(package: package);
-                }
-                return _SubscriptionProduct(package: package);
-              }),
-            ))
+                        iapPackage: package,
+                        promoPackage: promoPackage,
+                      );
+                    }
+                    // Android Subscriptions since they might have options (E.g. offers/promos)
+                    if (package.storeProduct.defaultOption != null) {
+                      return _SubscriptionOptionProduct(package: package);
+                    }
+                    return _SubscriptionProduct(package: package);
+                  }),
+                ))
             .toList(),
       ),
     );
@@ -444,9 +446,11 @@ class _InAppPurchaseProduct extends ConsumerWidget {
     );
   }
 
-  Widget? _constructHeader(BuildContext context,
-      StoreProduct storeProduct,
-      StoreProduct? promoStoreProduct,) {
+  Widget? _constructHeader(
+    BuildContext context,
+    StoreProduct storeProduct,
+    StoreProduct? promoStoreProduct,
+  ) {
     final themeData = Theme.of(context);
 
     if (promoStoreProduct == null) return null;
@@ -462,7 +466,7 @@ class _InAppPurchaseProduct extends ConsumerWidget {
         ),
         Text(
           tr('pages.paywall.iap_offer', args: [
-            NumberFormat.percentPattern(context.locale.languageCode).format(offerDiscount),
+            NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(offerDiscount),
           ]),
           style: themeData.textTheme.titleMedium,
           textAlign: TextAlign.center,
@@ -542,7 +546,7 @@ class _SubscriptionProduct extends ConsumerWidget {
         Text(
           tr('pages.paywall.intro_phase', args: [
             offerDuration,
-            NumberFormat.percentPattern(context.locale.languageCode).format(offerDiscount),
+            NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(offerDiscount),
           ]),
           style: themeData.textTheme.titleMedium,
           textAlign: TextAlign.center,
@@ -657,11 +661,10 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
     }
     if (subscriptionOption.introPhase != null) {
       var discount = 1 -
-          (subscriptionOption.introPhase!.price.amountMicros /
-              subscriptionOption.fullPricePhase!.price.amountMicros);
+          (subscriptionOption.introPhase!.price.amountMicros / subscriptionOption.fullPricePhase!.price.amountMicros);
       tmp.add(tr('pages.paywall.intro_phase', args: [
         subscriptionOption.introPhaseDurationText!,
-        NumberFormat.percentPattern(context.locale.languageCode).format(discount),
+        NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(discount),
       ]));
     }
     return tmp.isEmpty ? null : tmp.join(' + ');
@@ -670,7 +673,7 @@ class _SubscriptionOptionProduct extends ConsumerWidget {
 
 class _ProductTile extends StatelessWidget {
   const _ProductTile({
-    Key? key,
+    super.key,
     this.offerHeader,
     this.offerFooter,
     this.purchasePackage,
@@ -682,7 +685,7 @@ class _ProductTile extends StatelessWidget {
     required this.subscriptionPriceString,
     this.subscriptionIso8601,
     this.discountedPriceString,
-  }) : super(key: key);
+  });
 
   // Header of the Card
   final Widget? offerHeader;
@@ -707,9 +710,7 @@ class _ProductTile extends StatelessWidget {
     var themeData = Theme.of(context);
     var borderRadius = BorderRadius.circular(16);
     var defaultTextStyle = themeData.textTheme.labelLarge!.copyWith(
-      color: isActiveSubscription
-          ? themeData.colorScheme.onPrimary
-          : themeData.colorScheme.onPrimaryContainer,
+      color: isActiveSubscription ? themeData.colorScheme.onPrimary : themeData.colorScheme.onPrimaryContainer,
     );
 
     return DefaultTextStyle(
@@ -720,8 +721,7 @@ class _ProductTile extends StatelessWidget {
           color: isActiveSubscription ? themeData.colorScheme.primary : themeData.colorScheme.primaryContainer,
         ),
         child: InkWell(
-          onTap: isActiveSubscription && (isRenewingSubscription || isLifetimeSubscription) ? null
-              : purchasePackage,
+          onTap: isActiveSubscription && (isRenewingSubscription || isLifetimeSubscription) ? null : purchasePackage,
           borderRadius: borderRadius,
           child: Padding(
             padding: const EdgeInsets.all(12.0),
@@ -798,19 +798,19 @@ class _ProductTile extends StatelessWidget {
 }
 
 class _RestoreButton extends ConsumerWidget {
-  const _RestoreButton({Key? key}) : super(key: key);
+  const _RestoreButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => TextButton.icon(
-        onPressed: ref.read(paywallPageControllerProvider.notifier).restore,
+        onPressed: ref.read(paywallPageControllerProvider.notifier).userSignIn,
         onLongPress: ref.read(paywallPageControllerProvider.notifier).copyRCatIdToClipboard,
         icon: const Icon(Icons.restore, size: 18),
-        label: const Text('general.restore', style: TextStyle(fontSize: 12)).tr(),
+        label: const Text('pages.paywall.restore_sign_in', style: TextStyle(fontSize: 12)).tr(),
       );
 }
 
 class _TippingButton extends ConsumerWidget {
-  const _TippingButton({Key? key}) : super(key: key);
+  const _TippingButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => FilledButton.tonalIcon(

@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
 // ignore_for_file: prefer-match-file-name
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:common/data/adapters/uri_adapter.dart';
 import 'package:common/data/model/hive/gcode_macro.dart';
@@ -16,7 +17,9 @@ import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
 import 'package:common/data/model/hive/temperature_preset.dart';
+import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/firebase/analytics.dart';
+import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/notification_service.dart';
@@ -28,6 +31,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -100,14 +104,27 @@ setupBoxes() async {
       // ToDo remove after machine migration!
       element.save();
     });
-  } catch (e) {
-    logger.e(
-      'There was an error while trying to init Hive. Resetting all Hive data...',
-    );
-    await Hive.deleteBoxFromDisk('printers');
-    await Hive.deleteBoxFromDisk('uuidbox');
-    await Hive.deleteBoxFromDisk('settingsbox');
-    await openBoxes(keyMaterial);
+  } catch (e, s) {
+    if (e is TypeError) {
+      logger.e('An TypeError occurred while trying to open Boxes...', e);
+      logger.e('Will reset all stored data to resolve this issue!');
+      throw MobilerakerStartupException(
+        'An unexpected TypeError occurred while parsing the stored app data. Please report this error to the developer. To resolve this issue clear the app storage or reinstall the app.',
+        parentException: e,
+        parentStack: s,
+        canResetStorage: true,
+      );
+    } else if (e is FileSystemException) {
+      logger.e('An FileSystemException(${e.runtimeType}) occured while trying to open Boxes...', e);
+      throw MobilerakerStartupException(
+        'Failed to retrieve app data from system storage. Please restart the app. If the error persists, consider clearing the storage or reinstalling the app.',
+        parentException: e,
+        parentStack: s,
+        canResetStorage: true,
+      );
+    }
+    logger.e('An unexpected error occurred while trying to open Boxes...', e);
+    rethrow;
   }
   logger.i('Completed Hive init');
 }
@@ -154,6 +171,17 @@ Future<List<Box>> openBoxes(Uint8List _) {
     Hive.openBox('settingsbox'),
     Hive.openBox<Notification>('notifications'),
     // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
+  ]);
+}
+
+Future<void> deleteBoxes() {
+  logger.i('Deleting all boxes');
+  return Future.wait([
+    Hive.deleteBoxFromDisk('printers'),
+    Hive.deleteBoxFromDisk('uuidbox'),
+    Hive.deleteBoxFromDisk('settingsbox'),
+    Hive.deleteBoxFromDisk('notifications'),
+    // Hive.deleteBoxFromDisk('octo')
   ]);
 }
 
@@ -224,6 +252,16 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
   yield StartUpStep.firebaseAnalytics;
   ref.read(analyticsProvider).logAppOpen().ignore();
 
+  yield StartUpStep.firebaseAuthUi;
+  // Just make sure it is created!
+  ref.read(firebaseUserProvider);
+
+  FirebaseUIAuth.configureProviders([
+    EmailAuthProvider(),
+    // GoogleProvider(clientId: GOOGLE_CLIENT_ID),
+    // fui_apple.AppleProvider(),
+  ]);
+
   setupLicenseRegistry();
 
   // Prepare "Database"
@@ -260,6 +298,7 @@ enum StartUpStep {
   firebaseAppCheck('🔎'),
   firebaseRemoteConfig('🌐'),
   firebaseAnalytics('📈'),
+  firebaseAuthUi('🔑'),
   hiveBoxes('📂'),
   easyLocalization('🌍'),
   paymentService('💸'),

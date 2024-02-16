@@ -16,3 +16,9 @@ extension View {
         }
     }
 }
+
+
+extension UIColor {
+    var dark: UIColor  { resolvedColor(with: .init(userInterfaceStyle: .dark))  }
+    var light: UIColor { resolvedColor(with: .init(userInterfaceStyle: .light)) }
+}

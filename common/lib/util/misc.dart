@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -40,7 +40,9 @@ Uri? buildMoonrakerHttpUri(String? enteredURL) {
 ///Returns a URI that is either based from the machineURI or the camURI if it is absolute.
 Uri buildWebCamUri(Uri machineUri, Uri camUri) {
   if (camUri.isAbsolute) return camUri;
-  return machineUri.toHttpUri().removePort().resolveUri(camUri);
+  // For K1 its a bad user experience to remove the port. I now switched to the http port so I expect a correct port here.
+  return machineUri.toHttpUri().resolveUri(camUri);
+  // return machineUri.toHttpUri().removePort().resolveUri(camUri);
 }
 
 Uri buildRemoteWebCamUri(Uri remoteUri, Uri machineUri, Uri camUri) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -251,7 +251,7 @@ class _XYMotionWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref
         .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .value!;
+        .requireValue;
     var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
 
     return Column(
@@ -306,7 +306,7 @@ class _ZMotionWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref
         .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .value!;
+        .requireValue;
     var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
 
     return Column(
@@ -343,9 +343,9 @@ class _QuickActionsWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyCanReceiveCommands = ref
         .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .value!;
+        .requireValue;
     var directActions =
-        ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.directActions)).value!;
+        ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.directActions)).requireValue;
 
     return Wrap(
       runSpacing: 4,
@@ -379,9 +379,9 @@ class _MoreActionsPopup extends ConsumerWidget {
     var themeData = Theme.of(context);
     var klippyCanReceiveCommands = ref
         .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .value!;
+        .requireValue;
     var moreActions =
-        ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.moreActions)).value!;
+        ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.moreActions)).requireValue;
 
     bool enabled = klippyCanReceiveCommands && moreActions.any((e) => e.callback != null);
 
@@ -426,14 +426,15 @@ class _StepSelectorWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var numberFormat = NumberFormat.decimalPattern(context.locale.languageCode);
+    var numberFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
 
     var controller = ref.watch(_controlXYZCardControllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands = ref
         .watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands))
-        .value!;
-    var selected = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.selected)).value!;
-    var steps = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.steps)).value!;
+        .requireValue;
+    var selected =
+        ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
+    var steps = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

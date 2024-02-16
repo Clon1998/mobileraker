@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -32,7 +32,8 @@ import 'package:mobileraker/ui/components/card_with_button.dart';
 import 'package:mobileraker/ui/components/card_with_switch.dart';
 import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
-import 'package:mobileraker/ui/components/range_selector.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/bed_mesh_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/control_extruder_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab_controller.dart';
@@ -57,7 +58,7 @@ class ControlTab extends ConsumerWidget {
             return PullToRefreshPrinter(
               child: ListView(
                 key: const PageStorageKey<String>('cTab'),
-                padding: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(bottom: 30),
                 children: [
                   if (ref
                           .watch(machinePrinterKlippySettingsProvider
@@ -70,7 +71,7 @@ class ControlTab extends ConsumerWidget {
                               .selectAs((value) => value.printerData.print.state != PrintState.printing))
                           .valueOrNull ??
                       false)
-                    const ExtruderControlCard(),
+                    ControlExtruderCard(machineUUID: data),
                   const FansCard(),
                   if (ref
                           .watch(machinePrinterKlippySettingsProvider.selectAs(
@@ -95,6 +96,7 @@ class ControlTab extends ConsumerWidget {
                         true)
                       FirmwareRetractionCard(machineUUID: data),
                   ],
+                  BedMeshCard(machineUUID: data),
                 ],
               ),
             );
@@ -303,153 +305,6 @@ class SpinningFan extends HookWidget {
   }
 }
 
-class ExtruderControlCard extends HookConsumerWidget {
-  const ExtruderControlCard({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var activeExtruderIdx = ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) {
-      String activeIdx = value.printerData.toolhead.activeExtruder.substring(8);
-      return int.tryParse(activeIdx) ?? 0;
-    })).valueOrNull!;
-
-    var minExtrudeTemp = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs(
-            (value) => value.printerData.configFile.extruderForIndex(activeExtruderIdx)?.minExtrudeTemp ?? 170))
-        .valueOrNull!;
-
-    var canExtrude = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.printerData.extruders[activeExtruderIdx].temperature >= minExtrudeTemp))
-        .valueOrNull!;
-
-    var klippyCanReceiveCommands = ref
-        .watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.klippyData.klippyCanReceiveCommands))
-        .valueOrNull!;
-
-    var extruderSteps =
-        ref.watch(machinePrinterKlippySettingsProvider.selectAs((value) => value.settings.extrudeSteps)).valueOrNull!;
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          ListTile(
-            leading: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
-            title: Row(
-              children: [
-                const Text('pages.dashboard.control.extrude_card.title').tr(),
-                AnimatedOpacity(
-                  opacity: canExtrude ? 0 : 1,
-                  duration: kThemeAnimationDuration,
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 5),
-                    child: Tooltip(
-                      message: tr(
-                        'pages.dashboard.control.extrude_card.cold_extrude_error',
-                        args: [minExtrudeTemp.toStringAsFixed(0)],
-                      ),
-                      child: Icon(
-                        Icons.severe_cold,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            trailing: (ref
-                    .watch(machinePrinterKlippySettingsProvider.selectAs(
-                      (value) => value.printerData.extruderCount > 1,
-                    ))
-                    .valueOrNull!)
-                ? DropdownButton(
-                    value: activeExtruderIdx,
-                    onChanged: klippyCanReceiveCommands
-                        ? ref.watch(controlTabControllerProvider.notifier).onExtruderSelected
-                        : null,
-                    items: List.generate(
-                      ref
-                          .watch(
-                            machinePrinterKlippySettingsProvider.selectAs(
-                              (value) => value.printerData.extruderCount,
-                            ),
-                          )
-                          .valueOrNull!,
-                      (index) {
-                        String name = tr('pages.dashboard.control.extrude_card.title');
-                        if (index > 0) name += ' $index';
-                        return DropdownMenuItem(
-                          value: index,
-                          child: Text(name),
-                        );
-                      },
-                    ),
-                  )
-                : null,
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 15),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.all(5),
-                      child: ElevatedButton.icon(
-                        onPressed: klippyCanReceiveCommands && canExtrude
-                            ? ref.watch(extruderControlCardControllerProvider.notifier).onRetractBtn
-                            : null,
-                        icon: const Icon(FlutterIcons.minus_ant),
-                        label: const Text(
-                          'pages.dashboard.control.extrude_card.retract',
-                        ).tr(),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.all(5),
-                      child: ElevatedButton.icon(
-                        onPressed: klippyCanReceiveCommands && canExtrude
-                            ? ref.watch(extruderControlCardControllerProvider.notifier).onExtrudeBtn
-                            : null,
-                        icon: const Icon(FlutterIcons.plus_ant),
-                        label: const Text(
-                          'pages.dashboard.control.extrude_card.extrude',
-                        ).tr(),
-                      ),
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        '${tr('pages.dashboard.control.extrude_card.extrude_len')} [mm]',
-                      ),
-                    ),
-                    RangeSelector(
-                      selectedIndex: ref.watch(extruderControlCardControllerProvider),
-                      onSelected: ref
-                          .watch(
-                            extruderControlCardControllerProvider.notifier,
-                          )
-                          .stepChanged,
-                      values: extruderSteps.map((e) => e.toString()).toList(),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class PinsCard extends ConsumerWidget {
   const PinsCard({Key? key}) : super(key: key);
 
@@ -575,7 +430,7 @@ class _PinTile extends ConsumerWidget {
               Text(
                 pinValue(
                   pin.value * (pinConfig?.scale ?? 1),
-                  context.locale.languageCode,
+                  context.locale.toStringWithSeparator(),
                 ),
                 style: textTheme.headlineSmall,
               ),
@@ -702,7 +557,7 @@ class _Led extends ConsumerWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    statusText(led, ledConfig, context.locale.languageCode),
+                    statusText(led, ledConfig, context.locale.toStringWithSeparator()),
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ],

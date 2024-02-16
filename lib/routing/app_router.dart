@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 // ignore_for_file: prefer-match-file-name
@@ -33,9 +33,13 @@ import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
+import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
+import 'package:mobileraker_pro/pro_routes.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/files/details/video_player_page.dart';
+import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
 
@@ -57,7 +61,9 @@ enum AppRoute {
   faq,
   changelog,
   supportDev,
-  videoPlayer
+  videoPlayer,
+  tool,
+  beltTuner,
 }
 
 @riverpod
@@ -78,7 +84,7 @@ Future<String> initialRoute(InitialRouteRef ref) async {
 
 GoRouter goRouterImpl(GoRouterRef ref) {
   return GoRouter(
-    initialLocation: ref.watch(initialRouteProvider).valueOrNull!,
+    initialLocation: ref.watch(initialRouteProvider).requireValue,
     debugLogDiagnostics: false,
     observers: [
       FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
@@ -215,42 +221,23 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         name: AppRoute.dev.name,
         builder: (context, state) => DevPage(),
       ),
-      // GoRoute(
-      //   path: '/spoolman',
-      //   name: ProRoutes.spoolman.name,
-      //   builder: (context, state) => const SpoolmanPage(),
-      // ),
-      // GoRoute(
-      //   path: 'cart',
-      //   name: AppRoute.cart.name,
-      //   pageBuilder: (context, state) => MaterialPage(
-      //     key: state.pageKey,
-      //     fullscreenDialog: true,
-      //     child: const ShoppingCartScreen(),
-      //   ),
-      //   routes: [
-      //     GoRoute(
-      //       path: 'checkout',
-      //       name: AppRoute.checkout.name,
-      //       pageBuilder: (context, state) => MaterialPage(
-      //         key: ValueKey(state.location),
-      //         fullscreenDialog: true,
-      //         child: const CheckoutScreen(),
-      //       ),
-      //     ),
-      //   ],
-      // ),
-      // GoRoute(
-      //   path: 'signIn',
-      //   name: AppRoute.signIn.name,
-      //   pageBuilder: (context, state) => MaterialPage(
-      //     key: state.pageKey,
-      //     fullscreenDialog: true,
-      //     child: const EmailPasswordSignInScreen(
-      //       formType: EmailPasswordSignInFormType.signIn,
-      //     ),
-      //   ),
-      // ),
+      GoRoute(
+        path: '/tool',
+        name: AppRoute.tool.name,
+        builder: (context, state) => ToolPage(),
+        routes: [
+          GoRoute(
+            path: 'belt-tuner',
+            name: AppRoute.beltTuner.name,
+            builder: (context, state) => const BeltTuner(),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/spoolman',
+        name: ProRoutes.spoolman.name,
+        builder: (context, state) => const SpoolmanPage(),
+      ),
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),
   );

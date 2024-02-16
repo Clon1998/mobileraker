@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -14,9 +14,10 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/machine_deletion_warning.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/supporter_ad.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/control_xyz/control_xyz_card.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 import '../../../components/remote_connection_active_card.dart';
@@ -45,6 +46,7 @@ class GeneralTab extends ConsumerWidget {
 
             return PullToRefreshPrinter(
               child: ListView(
+                physics: const BouncingScrollPhysics(), // Reproduces the iOS bounce effect and cam jumping scroll
                 key: const PageStorageKey('gTab'),
                 padding: const EdgeInsets.only(bottom: 20),
                 children: [
@@ -57,9 +59,8 @@ class GeneralTab extends ConsumerWidget {
                   if (printState != PrintState.printing) ControlXYZCard(machineUUID: machineId),
                   if (ref.watch(settingServiceProvider).readBool(AppSettingKeys.alwaysShowBabyStepping) ||
                       const {PrintState.printing, PrintState.paused}.contains(printState))
-                    ZOffsetCard(
-                      machineUUID: machineId,
-                    ),
+                    ZOffsetCard(machineUUID: machineId),
+                  SpoolmanCard(machineUUID: machineId),
                 ],
               ),
             );

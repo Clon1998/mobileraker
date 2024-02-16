@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -9,9 +9,9 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
-import 'package:common/data/model/ModelEvent.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:common/data/model/model_event.dart';
 import 'package:common/data/model/moonraker_db/fcm/apns.dart';
 import 'package:common/data/repository/fcm/apns_repository_impl.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
@@ -46,6 +46,7 @@ import '../network/jrpc_client_provider.dart';
 import '../network/moonraker_database_client.dart';
 import 'firebase/analytics.dart';
 import 'firebase/remote_config.dart';
+import 'misc_providers.dart';
 import 'moonraker/announcement_service.dart';
 import 'moonraker/file_service.dart';
 import 'moonraker/klippy_service.dart';
@@ -287,6 +288,7 @@ class MachineService {
             "fcmToken":"<FCM-TOKEN>",
             "machineName": "V2.1111",
             "language": "en",
+            "version": "0.9.9-android", // or -ios
             "settings": {
               "progressConfig": 0.25,
               "stateConfig": ["error","printing","paused"]
@@ -330,8 +332,17 @@ class MachineService {
           .split(',')
           .toSet();
 
+      String? version;
+      try {
+        var packageInfo = await ref.watch(versionInfoProvider.future);
+
+        version = '${packageInfo.version}-${Platform.operatingSystem}';
+      } catch (e) {
+        logger.w('Was unable to fetch version info', e);
+      }
+
       if (fcmSettings == null) {
-        fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name);
+        fcmSettings = DeviceFcmSettings.fallback(deviceFcmToken, machine.name, version);
         fcmSettings.settings = NotificationSettings(progress: progressMode.value, states: states);
         logger.i(
             '${machine.logTagExtended} Did not find DeviceFcmSettings in MoonrakerDB, trying to add it: $fcmSettings');
@@ -340,7 +351,9 @@ class MachineService {
       } else if (fcmSettings.machineName != machine.name ||
           fcmSettings.fcmToken != deviceFcmToken ||
           fcmSettings.settings.progress != progressMode.value ||
-          !setEquals(fcmSettings.settings.states, states)) {
+          !setEquals(fcmSettings.settings.states, states) ||
+          fcmSettings.version != version) {
+        fcmSettings.version = version;
         fcmSettings.machineName = machine.name;
         fcmSettings.fcmToken = deviceFcmToken;
         fcmSettings.settings = fcmSettings.settings.copyWith(progress: progressMode.value, states: states);

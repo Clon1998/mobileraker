@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -591,7 +591,7 @@ class MoveStepSegmentInput extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var numberFormat = NumberFormat.decimalPattern(context.locale.languageCode);
+    var numberFormat = NumberFormat.decimalPattern(context.locale.toStringWithSeparator());
     var isSaving = ref.watch(printerEditControllerProvider);
     return Segments(
       decoration: InputDecoration(

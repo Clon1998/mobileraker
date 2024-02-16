@@ -27,7 +27,7 @@ String values can take several forms:
 
 - Text with Arguments: For example, `"translation_key": "I am a text to translate in language {}."`
 
-- Text with L[inked Translations](https://github.com/aissat/easy_localization#-linked-translations): For
+- Text with [Linked Translations](https://github.com/aissat/easy_localization#-linked-translations): For
   example, `"translation_key": "@:example.hello User! How are you?"`. This means an already defined key is used within
   this new translation. In the example, `example.hello` refers to another translation.
 
@@ -92,5 +92,6 @@ To edit an existing language file, follow these steps:
 - 🇧🇷 Portuguese Brasil, [@opastorello](https://github.com/opastorello)
 - 🇷🇴 Romanian, [@vaxxi](https://github.com/vaxxi)
 - 🇷🇺 Russian, [@teuchezh](https://github.com/teuchezh)
+- 🇹🇷 Turkish, [@larinspub ](https://github.com/larinspub)
 - 🇺🇦 Ukrainian, [@iZonex](https://github.com/iZonex)
 

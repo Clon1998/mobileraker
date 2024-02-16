@@ -1,0 +1,811 @@
+{
+    "general": {
+      "pause": "Duraklat",
+      "resume": "Sürdür",
+      "connected": "Bağlı",
+      "off": "Kapalı",
+      "on": "Açık",
+      "none": "Hiçbiri",
+      "add": "Ekle",
+      "create": "Yarat",
+      "rename": "Yeniden adlandır",
+      "remove": "Kaldır",
+      "set": "Ayarla",
+      "use": "Kullan",
+      "restart": "Yeniden başlat",
+      "shutdown": "Kapat",
+      "firmware": "Firmware",
+      "fetching": "Getiriliyor",
+      "loading": "Yükleniyor",
+      "unknown": "Bilinmeyen",
+      "disabled": "Kapalı",
+      "confirm": "Onay",
+      "cancel": "İptal et",
+      "close": "Kapalı",
+      "edit": "Düzenlemek",
+      "preview": "Ön izleme",
+      "retry": "Yeniden dene",
+      "supported": "Destekleniyor",
+      "unsupported": "Desteklenmiyor",
+      "details": "Detaylar",
+      "google_play": "Google Play",
+      "ios_store": "App Store",
+      "active": "Aktif",
+      "canceled": "İptal edildi",
+      "monthly": "Aylık",
+      "restore": "Geri yükle",
+      "accept": "Kabul ediyorum",
+      "abort": "İptal et",
+      "offset": "offset",
+      "valid": "Geçerli",
+      "invalid": "Geçersiz",
+      "free": "Bedava",
+      "one_time": "Bir kere",
+      "delete": "Sil",
+      "clear": "Temizle",
+      "unlink": "Bağlantıyı kaldır",
+      "save": "Kaydet",
+      "apply": "Uygula"
+    },
+    "pages": {
+      "dashboard": {
+        "title": "Gösterge Paneli",
+        "ems_btn": "Acil durdurma",
+        "server_status": {
+          "unavailable": "Sunucu mevcut değil",
+          "available": "Sunucu Durumu {} ve Klippy {}"
+        },
+        "fetching_printer": "@:general.yazıcı getiriliyor...",
+        "general": {
+          "print_card": {
+            "reset": "Sıfırla",
+            "reprint": "Yeniden yazdır",
+            "printing_for": "Yazdırma: {}",
+            "speed": "Hız",
+            "layer": "Katman",
+            "eta": "ETA",
+            "current_object": "Geçerli Nesne",
+            "elapsed": "Geçen",
+            "flow": "Akış",
+            "filament": "filaman",
+            "filament_tooltip": "Filamentin %{} tanesi kullanıldı, yani tahmin edilen {} m'nin {} m'si.",
+            "eta_tooltip": "Kalan süre:\n",
+            "remaining": "Geriye kalan"
+          },
+          "cam_card": {
+            "webcam": "Web kamerası",
+            "fullscreen": "Tam ekran"
+          },
+          "temp_card": {
+            "title": "Sıcaklık Kontrolleri",
+            "presets_btn": "Ön ayarlar",
+            "hotend": "Hotend",
+            "bed": "Yatak",
+            "temp_presets": "Sıcaklık ön ayarları",
+            "sensors": "Sensörler",
+            "heater_on": "{} °C hedefi",
+            "btn_thermistor": "Sensör"
+          },
+          "temp_preset_card": {
+            "cooloff": "Soğutucu",
+            "h_temp": "@:pages.dashboard.general.temp_card.hotend {}°C",
+            "b_temp": "@:pages.dashboard.general.temp_card.bed {}°C"
+          },
+          "move_card": {
+            "title": "Ekseni Taşı",
+            "home_xy_tooltip": "Ana Sayfa X ve Y ekseni",
+            "home_z_tooltip": "Ana Sayfa Z ekseni",
+            "home_all_tooltip": "Ana sayfa tüm eksen",
+            "home_all_btn": "Tüm",
+            "qgl_tooltip": "Dörtlü Portal tesviyesini çalıştırın",
+            "qgl_btn": "QGL",
+            "mesh_tooltip": "Med-Mesh kalibrasyonunu çalıştırın",
+            "mesh_btn": "ağ",
+            "m84_tooltip": "Motorları Devre Dışı Bırak",
+            "m84_btn": "M84",
+            "step_size": "Adım boyutu",
+            "stc_tooltip": "Vida-Eğim hesaplamasını çalıştırın",
+            "stc_btn": "STC",
+            "ztilt_tooltip": "Z-Tilt kalibrasyonunu çalıştırın",
+            "ztilt_btn": "zEğim",
+            "poff_tooltip": "Prob Ofseti kalibrasyonunu çalıştırın",
+            "poff_btn": "Prob Kalibrasyonu",
+            "zoff_tooltip": "Z Endstop Ofset kalibrasyonunu çalıştırın",
+            "zoff_btn": "Z-Uç Durdurucu Kalibrasyonu",
+            "bsa_tooltip": "Yatak Vidasını Çalıştırın Kalibrasyonu Ayarlayın",
+            "bsa_btn": "Yatak Vidası Ayarı",
+            "save_tooltip": "Kalibrasyon sonuçlarını kaydet",
+            "save_btn": "Yapılandırmayı Kaydet",
+            "more_btn": "Daha"
+          },
+          "baby_step_card": {
+            "title": "Mikro Adımlı Z Ekseni"
+          },
+          "restart_klipper": "Klipper'ı yeniden başlat",
+          "restart_mcu": "@:general.restart @:general.firmware"
+        },
+        "control": {
+          "fan_card": {
+            "title": {
+              "zero": "Fan",
+              "one": "Fan",
+              "other": "Diğer"
+            },
+            "part_fan": "Part Fan",
+            "static_fan_btn": "Fan"
+          },
+          "extrude_card": {
+            "title": "Ekstruder",
+            "extrude": "Çıkarmak",
+            "retract": "Geri çek",
+            "extrude_len": "@:pages.dashboard.control.extrude_card.extrude uzunluğu",
+            "cold_extrude_error": "Ekstruder henüz {}°C'lik min_extrude_temp'e ulaşmadı!"
+          },
+          "macro_card": {
+            "title": "Gcode - Makrolar"
+          },
+          "pin_card": {
+            "title": {
+              "zero": "Çıkış Pimi",
+              "one": "Çıkış Pimi",
+              "two": "Çıkış Pimleri",
+              "other": "Çıkış Pimleri"
+            },
+            "pin_btn": "Sabitle"
+          },
+          "power_card": {
+            "title": "Güç paneli",
+            "pin_btn": "Sabitle"
+          },
+          "multipl_card": {
+            "title": "Çarpanlar",
+            "flow": "Akış",
+            "press_adv": "Basınç İlerlemesi",
+            "smooth_time": "Sorunsuz Zaman"
+          },
+          "limit_card": {
+            "title": "Sınırlar",
+            "velocity": "Hız",
+            "accel": "Hızlanma",
+            "sq_corn_vel": "Kare Köşe Hızı",
+            "accel_to_decel": "Hızlanma - Yavaşlama"
+          },
+          "fw_retraction_card": {
+            "title": "Firmware Geri Çekme",
+            "retract_length": "Geri Çekme Uzunluğu",
+            "retract_speed": "Geri Çekme Hızı",
+            "extra_unretract_length": "Ekstra Geri Çekme Uzunluğu",
+            "unretract_speed": "Geri Çekme Hızı"
+          }
+        }
+      },
+      "files": {
+        "title": "Dosyalar",
+        "search_files": "Dosyaları ara",
+        "clear_search": "Aramayı Temizle",
+        "name": "İsim",
+        "last_mod": "Son düzenleme",
+        "last_printed": "Son basım",
+        "not_printed": "Basılı değil",
+        "fetching_files": "@:general.Dosyalar getiriliyor...",
+        "no_files_found": "Hiçbir dosya bulunamadı!",
+        "no_matches_file_pattern": "Yalnızca harflere, sayılara, alt çizgilere, tirelere ve noktalara izin verilir!",
+        "file_name_in_use": "Dosya adı zaten kullanılıyor!",
+        "details": {
+          "preheat": "Ön ısıtma",
+          "print": "Yazdır",
+          "general_card": {
+            "path": "Yol",
+            "last_mod": "Son düzenleme",
+            "last_printed": "Son Basım",
+            "no_data": "Veri yok"
+          },
+          "meta_card": {
+            "title": "GCode Meta Verileri",
+            "filament": "filaman",
+            "filament_type": "Filament Türü",
+            "filament_name": "Filament Adı",
+            "est_print_time": "Tahmini Yazdırma Süresi",
+            "slicer": "İkinci El Dilimleyici",
+            "nozzle_diameter": "Meme Çapı",
+            "layer_higher": "Katman Yüksekliği",
+            "first_layer": "Birinci tabaka",
+            "others": "Diğerleri",
+            "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Sıcaklıklar",
+            "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n"
+          },
+          "stat_card": {
+            "title": "İstatistik"
+          },
+          "preheat_dialog": {
+            "title": "@:pages.files.details.preheat ?",
+            "body": "Hedef Sıcaklıklar\n"
+          },
+          "preheat_snackbar": {
+            "title": "Ön Isıtma Başlatıldı",
+            "body": "Ekstruder: {}°C\n"
+          }
+        }
+      },
+      "setting": {
+        "title": "Uygulama ayarları",
+        "general": {
+          "title": "Genel",
+          "ems_confirm": "Acil Durdurmayı Onaylayın",
+          "always_baby": "Her zaman Z-Ofset Kartını göster",
+          "num_edit": "Sayı girişi için klavyeyi kullanın",
+          "start_with_overview": "Varsayılan olarak @:pages.overview.title'ı göster",
+          "use_offset_pos": "Koordinatları ofset uygulanmış halde göster.",
+          "lcFullCam": "Yatay Görünümde Tam Ekran Web Kamerası",
+          "language": "Dil",
+          "companion": "Uzaktan bildirim almak ister misiniz?\n ",
+          "sliders_grouping": "Grup Kaydırma Kartları"
+        },
+        "notification": {
+          "title": "Bildiri",
+          "progress_label": "İlerleme Bildirimi",
+          "progress_helper": "Yazdırma ilerleme bildirimi için güncelleme aralığı",
+          "state_label": "Durum Bildirimi",
+          "state_helper": "Durum değişikliği bildirimi gönderen durumlar",
+          "no_permission_title": "Bildirim İzni Yok!",
+          "no_permission_desc": "Bildirimler görüntülenemiyor.\n",
+          "no_firebase_title": "Bildirimler görüntülenemiyor",
+          "no_firebase_desc": "Mobileraker cihaza herhangi bir bildirim gönderemez.\n",
+          "ios_notifications_title": "IOS Bildirim Gönderimi",
+          "ios_notifications_desc": "Bildirimler mobileraker'ın en az bir kez açılmasını ve arka planda olmasını gerektirir.\n",
+          "missing_companion_title": "Arkadaş bulunamadı!",
+          "missing_companion_body": "Tamamlayıcının yüklü olmadığı anlaşılıyor ve bu nedenle aşağıdaki makineler bildirim gönderemiyor: {}\n\n",
+          "enable_live_activity": "Canlı Etkinliği Etkinleştir"
+        },
+        "developer": {
+          "title": "Geliştirici",
+          "crashlytics": "Crashlytics raporlamasını etkinleştir"
+        },
+        "imprint": "Gizlilik/Künye"
+      },
+      "printer_edit": {
+        "title": "Düzenlemek {}",
+        "import_settings": "Ayarları İçe Aktarma",
+        "remove_printer": "Yazıcıyı Kaldır",
+        "no_values_found": "Değer Bulunamadı!",
+        "fetching_additional_settings": "@:general.ağdan ek ayarlar getiriliyor...",
+        "could_not_fetch_additional": "Ek ayarlar getirilemedi!",
+        "fetch_error_hint": "Makinenin erişilebilir olduğundan ve Mobileraker'ın makineye bağlı olduğundan emin olun.",
+        "reset_notification_registry": "Bildirim Cihazı Kaydını Temizle",
+        "configure_remote_connection": "Uzaktan Bağlantıyı Yapılandır",
+        "store_error": {
+          "title": "Kaydetme başarısız oldu!",
+          "message": "Bazı alanlar geçersiz değerler içeriyor!\n",
+          "unexpected_error": "Makine verileri kaydedilmeye çalışılırken beklenmeyen bir hata oluştu!"
+        },
+        "confirm_deletion": {
+          "title": "Silmek {}?",
+          "body": "'{}' konumuna bağlı '{}' yazıcısını kaldırmak üzeresiniz.\n\n"
+        },
+        "general": {
+          "displayname": "Ekran adı",
+          "printer_addr": "Yazıcı - Adres",
+          "ws_addr": "Websocket - Adres",
+          "moonraker_api_key": "Moonraker - API Anahtarı",
+          "moonraker_api_desc": "Yalnızca güvenilir istemciler kullanıyorsanız gereklidir. ",
+          "full_url": "Tam URL",
+          "timeout_label": "İstemci zaman aşımı",
+          "timeout_helper": "İstemci bağlantısı için saniye cinsinden zaman aşımı",
+          "theme": "UI-Teması",
+          "theme_helper": "Yazıcı için kullanıcı arayüzü teması",
+          "theme_unavailable": "Yazıcı için kullanıcı arayüzü teması, yalnızca Destekçiler için geçerlidir"
+        },
+        "ssl": {
+          "title": "SSL - Ayarlar",
+          "pin_certificate_label": "Sertifika Parmak İzi Sabitleme",
+          "pin_certificate_helper": "SSL Sabitleme için PEM formatında bir sertifika dosyası seçin",
+          "self_signed": "Kendinden İmzalı Sertifikalara Güvenin"
+        },
+        "motion_system": {
+          "title": "Hareket Sistemi",
+          "invert_x": "X - Eksenini Ters Çevir",
+          "invert_x_short": "X'i Ters Çevir",
+          "invert_y": "Y eksenini tersine çevir",
+          "invert_y_short": "Y'yi Ters Çevir",
+          "invert_z": "Z Eksenini Ters Çevir",
+          "invert_z_short": "Z'yi Ters Çevir",
+          "speed_xy": "Hız X/Y - Eksen",
+          "speed_xy_short": "Hız X/Y",
+          "speed_z": "Hız Z - Ekseni",
+          "speed_z_short": "Hız Z",
+          "steps_move": "Adımları taşı",
+          "steps_move_short": "@:pages.printer_edit.motion_system.steps_move",
+          "steps_baby": "Z-Ofset adımları",
+          "steps_baby_short": "Z-Adımları"
+        },
+        "extruders": {
+          "title": "Ekstruder(ler)",
+          "feedrate": "Ekstruder besleme hızı",
+          "feedrate_short": "İlerleme hızı",
+          "steps_extrude": "Ekstrüzyon adımları",
+          "steps_extrude_short": "@:pages.printer_edit.extruders.steps_extrude"
+        },
+        "cams": {
+          "target_fps": "Hedef FPS",
+          "new_cam": "Yeni Web Kamerası",
+          "no_webcams": "Web kamerası eklenmedi!",
+          "stream_url": "Akış URL'si",
+          "snapshot_url": "Anlık görüntü URL'si",
+          "default_url": "Varsayılan URL",
+          "flip_vertical": "Dikey Çevir",
+          "flip_horizontal": "Yatay çevirmek",
+          "cam_mode": "Kamera Modu",
+          "cam_rotate": "Döndürme",
+          "read_only": "Web kamerası salt okunurdur"
+        },
+        "macros": {
+          "new_macro_grp": "Yeni Makro - Grup",
+          "no_macros_available": "Kullanılabilir Makro yok!",
+          "no_macros_found": "Makro bulunamadı!",
+          "no_macros_in_grp": "Grupta makro yok!",
+          "deleted_grp": "{} grubu silindi",
+          "macros": "Makrolar",
+          "default_name": "Yeni Makro",
+          "macros_to_default": {
+            "one": "Bir makro varsayılan gruba taşındı!",
+            "two": "İki makro varsayılan gruba taşındı!",
+            "other": "{} makro varsayılan gruba taşındı!"
+          }
+        },
+        "presets": {
+          "no_presets": "Hiçbir Ön Ayar eklenmedi!",
+          "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Sıcaklık",
+          "bed_temp": "@:pages.dashboard.general.temp_card.bed Sıcaklık",
+          "new_preset": "Yeni Ön Ayar"
+        },
+        "confirm_fcm_reset": {
+          "title": "Bildirim Cihazı Kaydı Temizlensin mi?",
+          "body": "Arkadaşın bildirim gönderdiği cihazları belirlemek için kullanılan cihaz kaydını sıfırlamak üzeresiniz.\n"
+        },
+        "confirm_remote_interface_removal": {
+          "title": {
+            "oe": "{} bağlantısı kaldırılsın mı?",
+            "other": "Bağlantı Kaldırılsın mı?"
+          },
+          "body": {
+            "oe": "Lütfen {} yazıcısının OctoEverywhere ile bağlantısının kaldırılmasını onaylayın.",
+            "other": "Lütfen {} yazıcısından uzak bağlantının kaldırılmasını onaylayın."
+          },
+          "button": {
+            "oe": "@:general.bağlantıyı kaldır",
+            "other": "@:general.remove"
+          }
+        },
+        "remote_interface_exists": {
+          "title": "Uzak Bağlantı Bulundu",
+          "body": {
+            "oe": "Bu yazıcı, uzaktan erişim için OctoEverywhere'e zaten bağlı. ",
+            "obico": "Bu yazıcı zaten uzaktan erişim için Obico ile kaplanmıştır. ",
+            "other": "Bu yazıcı için zaten bir uzak bağlantı kuruldu. "
+          }
+        },
+        "remote_interface_removed": {
+          "title": "Uzaktan bağlantı kaldırıldı!",
+          "body": "Değişiklikleri uygulamak için yazıcıyı kaydettiğinizden emin olun."
+        },
+        "remote_interface_added": {
+          "title": {
+            "oe": "OctoEverywhere'e bağlı.",
+            "obico": "Obico'ya bağlı.",
+            "other": "Uzaktan bağlantı eklendi."
+          },
+          "body": "Değişiklikleri uygulamak için yazıcıyı kaydettiğinizden emin olun."
+        },
+        "wifi_access_warning": {
+          "title": "WiFi Bilgisi Mevcut Değil",
+          "subtitle": "Mobileraker'ın uzak bağlantıyı kullanıp kullanmayacağını belirlemek için konum erişimine izin verin. "
+        },
+        "local_ssid": {
+          "section_header": "Akıllı Anahtarlama",
+          "no_ssids": "WiFi adı eklenmedi!",
+          "helper": "Akıllı geçiş, uygulamanın mevcut WiFi ağına göre yerel ve uzak bağlantı arasında otomatik olarak geçiş yapmasını sağlar. ",
+          "dialog": {
+            "title_add": "Listeye WiFi Adını Ekle",
+            "title_edit": "WiFi Adını Düzenle",
+            "label": "Wi-Fi Adı (SSID)",
+            "quick_add_hint": "İpucu: Geçerli WiFi adını hızlı bir şekilde eklemek için bu iletişim kutusunu açan düğmeye uzun basın."
+          },
+          "error_fetching_snackbar": {
+            "title": "WiFi adı alınırken hata oluştu!",
+            "body": "Lütfen uygulamanın, cihazın WiFi durumuna erişmek için gerekli izinlere sahip olduğundan emin olun."
+          }
+        }
+      },
+      "printer_add": {
+        "steps": {
+          "mode": "Mod",
+          "input": "Giriş",
+          "test": "Ölçek",
+          "done": "Tamamlamak"
+        },
+        "title": "Yeni Yazıcı Ekle",
+        "initial_name": "Yazıcım",
+        "select_mode": {
+          "title": "Bir giriş modu seçin:",
+          "body": "Bu konuda yeniyseniz, basit moda bağlı kalmak en iyisidir. ",
+          "simple": "Basit",
+          "advanced": "Gelişmiş",
+          "add_via_oe": "Tek tıkla OctoEverywhere kurulumu",
+          "add_via_obico": "Tek tıkla Obico kurulumu"
+        },
+        "simple_form": {
+          "hint_title": "İpucu - Basit Mod",
+          "hint_body": "Basit mod, ana bilgisayara ve bağlantı noktasına girmenizi sağlar. ",
+          "url_hint": "Yazıcının IP'si veya Ana Bilgisayar Adı"
+        },
+        "advanced_form": {
+          "hint_title": "İpucu - Gelişmiş Mod",
+          "hint_body": "Gelişmiş modda doğrulamanın çoğunlukla devre dışı bırakıldığını lütfen unutmayın. ",
+          "http_helper": "Lütfen Moonraker'ın HTTP uç noktasını girin",
+          "ws_helper": "Moonraker'ın isteğe bağlı WebSocket uç noktası",
+          "section_security": "Güvenlik",
+          "section_headers": "HTTP Başlıkları",
+          "empty_headers": "Başlık eklenmedi!"
+        },
+        "test_connection": {
+          "section_connection": "Bağlantı Verileri",
+          "ws_url_label": "Ortaya çıkan WebSocket-URL'si",
+          "http_url_label": "Ortaya çıkan HTTP-URL'si",
+          "section_test": "Bağlantı Testleri",
+          "http_label": "Http Uç Noktası - Test",
+          "ws_label": "Websocket Uç Noktası - Test",
+          "awaiting": "Sonuç bekleniyor…",
+          "continue": "Devam etmek",
+          "continue_anyway": "Her halükarda devam et",
+          "proceed_warning": "Uygulamanın makineye bağlanmada sorun yaşadığı anlaşılıyor. ",
+          "button": "Test bağlantısı"
+        },
+        "confirmed": {
+          "title": "Yazıcı {} eklendi!",
+          "to_dashboard": "Kontrol Paneline"
+        }
+      },
+      "console": {
+        "title": "Konsol",
+        "no_entries": "Önbelleğe alınmış komut bulunamadı",
+        "fetching_console": "@:general.konsol girişleri getiriliyor...",
+        "command_input": {
+          "hint": "Konsol komutunu girin"
+        }
+      },
+      "overview": {
+        "title": "Genel Bakış",
+        "fetching_machines": "@:general.makineler getiriliyor...",
+        "no_entries": "Hiçbir makine bulunamadı",
+        "add_machine": "Makine Ekle"
+      },
+      "markdown": {
+        "loading": "@:general.yükleniyor {}...",
+        "error": "{} getirilmeye çalışılırken bir hata oluştu;",
+        "open_in_browser": "Tarayıcıda @:pages.faq.title'ı açın"
+      },
+      "faq": {
+        "title": "SSS"
+      },
+      "changelog": {
+        "title": "Değişiklik günlüğü"
+      },
+      "paywall": {
+        "manage_view": {
+          "title": "Desteğin için teşekkürler!",
+          "list_title": "Destekçi Seviyesini Değiştir:",
+          "store_btn": "{} Bölgesinde Aboneliği İptal Et",
+          "sub_warning": "Ömür boyu destekçi kademesini satın almanın diğer aktif abonelikleri otomatik olarak iptal etmediğini lütfen unutmayın. "
+        },
+        "subscribe_view": {
+          "title": "Mobileraker Destekçisi Olun!",
+          "info": "Mobileraker, Klipper için RepRap ruhuyla hareket eden, açık kaynaklı yazılım ve donanımın olumlu bir etki yaratabileceği hızlı ve güvenilir bir mobil kullanıcı arayüzü sağlamayı hedefliyor.\n",
+          "list_title": "Destekçi Seviyesini Seçin:"
+        },
+        "supporter_tier_list": {
+          "error_title": "Destekçi Seviyeleri yüklenirken hata oluştu!",
+          "error_body": "Üzgünüz, beklenmedik bir hata oluştu. "
+        },
+        "contact_dialog": {
+          "title": "Geliştirici İletişimi",
+          "body": "Posta: {}\n"
+        },
+        "title": "Dev'i destekleyin!",
+        "calling_store": "İstek işleniyor...",
+        "promo_title": "Promosyon",
+        "free_phase": "İlk {} ücretsiz",
+        "intro_phase": "{} indirimde {} keyfini çıkarın",
+        "iap_offer": "Orijinal fiyattan {} indirim",
+        "tip_developer": "Geliştirici'ye bahşiş yap",
+        "trial_disclaimer": "Ücretsiz deneme süresinin sonuna kadar sizden ücret alınmayacaktır ve deneme süresi boyunca istediğiniz zaman iptal edebilirsiniz."
+      },
+      "video_player": {
+        "downloading_for_sharing": "Video paylaşım için indiriliyor... ({})"
+      }
+    },
+    "components": {
+      "app_version_display": {
+        "version": "Sürüm:",
+        "installed_version": "Kurulu Sürüm:"
+      },
+      "pull_to_refresh": {
+        "pull_up_idle": "Yenilemek için yukarı çekin"
+      },
+      "nav_drawer": {
+        "printer_settings": "Yazıcı Ayarları",
+        "manage_printers": "Yazıcıları Yönet",
+        "fetching_printers": "@:general.yazıcılar getiriliyor...",
+        "footer": "Patrick Schmidt tarafından ❤️ ile yapılmıştır\n"
+      },
+      "connection_watcher": {
+        "reconnect": "Yeniden bağlan",
+        "trying_connect": "Bağlanmaya çalışılıyor...",
+        "trying_connect_remote": "Uzak istemciyi kullanarak bağlanmaya çalışılıyor...",
+        "server_starting": "Sunucu başlıyor...",
+        "more_details": "Daha fazla detay",
+        "add_printer": "Selam,\n"
+      },
+      "octo_indicator": {
+        "tooltip": "OctoEverywhere'i kullanma!"
+      },
+      "supporter_add": {
+        "title": "Mobileraker'ı beğendiniz mi?",
+        "subtitle": "Bana dokun! "
+      },
+      "supporter_only_feature": {
+        "dialog_title": "Yalnızca Destekçi Özelliği",
+        "button": "Mobileraker Destekçisi Olun",
+        "webcam": "Üzgünüz, {} türündeki web kameraları yalnızca Destekçiler tarafından kullanılabilir.",
+        "printer_add": "Makine sınırına ulaştınız. ",
+        "job_queue": "Üzgünüz, İş Kuyruğu yalnızca Destekçiler tarafından kullanılabilir.",
+        "timelaps_share": "Üzgünüz, hızlandırılmış görüntüleri paylaşmak yalnızca Destekçiler tarafından kullanılabilir.",
+        "printer_theme": "Üzgünüz, yazıcıya özel temalar yalnızca Destekçiler tarafından kullanılabilir."
+      },
+      "machine_deletion_warning": {
+        "title": "Makine Silme",
+        "subtitle": "Bir Destekçi olmadığınız anlaşılıyor. "
+      },
+      "remote_connection_indicator": {
+        "title": "Uzaktan bağlantı kullanılıyor!"
+      },
+      "web_rtc": {
+        "renderer_missing": "WebRtc videosu mevcut değil!",
+        "oe_warning": "OctoEverywhere aracılığıyla WebRtc henüz desteklenmiyor!"
+      },
+      "ri_indicator": {
+        "tooltip": "Uzaktan Bağlantıyı Kullanma!"
+      },
+      "obico_indicator": {
+        "tooltip": "Obico Tüneli'ni kullanma!"
+      }
+    },
+    "dialogs": {
+      "rate_my_app": {
+        "title": "Mobileraker'ı değerlendirin mi?",
+        "message": "Mobileraker'ı beğeniyorsanız ve gelişimi desteklemek istiyorsanız lütfen Mobileraker'ı derecelendirmeyi düşünün!"
+      },
+      "import_setting": {
+        "fetching": "Kaynaklar getiriliyor...",
+        "fetching_error_title": "Ayarlar getirilemiyor!",
+        "fetching_error_sub": "Diğer makinelerin bağlı olduğundan emin olun.",
+        "select_source": "Kaynak Seç"
+      },
+      "create_folder": {
+        "title": "Klasör oluşturun",
+        "label": "Klasör adı"
+      },
+      "delete_folder": {
+        "title": "Emin misin?",
+        "description": "Klasörün içerdiği tüm dosyalar da kaldırılacak!\n\n"
+      },
+      "rename_folder": {
+        "title": "Dosyayı yeniden adlandır",
+        "label": "Klasör adı"
+      },
+      "delete_file": {
+        "description": "'{}' dosyasının silinmesini onaylayın."
+      },
+      "rename_file": {
+        "title": "Dosyayı yeniden adlandır",
+        "label": "Dosya adı"
+      },
+      "exclude_object": {
+        "title": "Nesneyi Yazdırmanın Dışında Tut",
+        "label": "Hariç tutulacak nesne",
+        "confirm_tile_title": "Emin misin?",
+        "confirm_tile_subtitle": "Bu işlem geri alınamaz!",
+        "exclude": "Hariç tutmak",
+        "no_visualization": "Görselleştirme verisi yok!"
+      },
+      "ws_input_help": {
+        "title": "URL Girişi Yardımı",
+        "body": "Web arayüzünüze veya doğrudan moonraker tarafından sağlanan websocket örneğine bir IP, URL veya tam URI girebilirsiniz.\n\n"
+      },
+      "gcode_params": {
+        "hint": "İpucu: Makroyu varsayılan değerlerle göndermek isterseniz uzun basabilirsiniz!"
+      },
+      "rgbw": {
+        "recent_colors": "Son Renkler"
+      },
+      "select_machine": {
+        "title": "Makineyi Seçin",
+        "active_machine": "Etkin Makine: {}",
+        "hint": "Etkin olarak ayarlamak için bir makineye dokunun."
+      },
+      "supporter_perks": {
+        "title": "Destekçi Avantajları",
+        "body": "Mobileraker'ı destekleyerek uygulamanın topluluk için ücretsiz kalmasını sağlarsınız. ",
+        "hint": "İpucu: Şu an itibariyle ayrıcalıklar cihaza dayalıdır. ",
+        "theme_perk": {
+          "title": "Destekçi Teması",
+          "subtitle": "Material 3'ü kullanan özel tema"
+        },
+        "contact_perk": {
+          "title": "Geliştirici İletişimi",
+          "subtitle": "Geliştiriciyle kolay iletişim!"
+        },
+        "notification_perk": {
+          "title": "Anlık Görüntü Bildirimleri",
+          "subtitle": "Durum bildirimi Web Kamerası Anlık Görüntüsünü içerir"
+        },
+        "webrtc_perk": {
+          "title": "WebRtc Desteği",
+          "subtitle": "WebRtc web kameralarının kullanımına izin verir!"
+        },
+        "job_queue_perk": {
+          "title": "İş Kuyruğu",
+          "subtitle": "Moonraker'ın İş kuyruğunu Mobileraker içinden yönetin!"
+        },
+        "unlimited_printers_perk": {
+          "title": "Sınırsız Yazıcı",
+          "subtitle": "Mobileraker'ı kullanarak istediğiniz kadar yazıcıyı kontrol edin!"
+        },
+        "printer_theme_perk": {
+          "title": "Yazıcı tabanlı Temalar",
+          "subtitle": "Her yazıcı için farklı bir tema seçin!"
+        }
+      },
+      "bed_screw_adjust": {
+        "title": "Yatak Vidası Ayarı",
+        "xy_plane": "Yazıcı X/Y Düzlemi:",
+        "active_screw_title": "Aktif Vida:",
+        "accept_screw_title": "Kabul Edilen Vidalar:",
+        "accept_screw_value": "{} ile ilgili {}",
+        "hint": "Mevcut vidada önemli bir ayarlama yapılması gerekiyorsa Ayarlanmış'a tıklayın; ",
+        "adjusted_btn": "Düzeltildi"
+      },
+      "manual_offset": {
+        "title": "@:general.offset Kalibrasyon",
+        "hint_tooltip": "Klipper'ın Kağıt Testi Dokümantasyonu",
+        "snackbar_title": "Kalibrasyon tamamlandı",
+        "snackbar_message": "Yapılandırmayı Kaydet eylemiyle ofseti sürdürdüğünüzden emin olun."
+      },
+      "tipping": {
+        "title": "Geliştiriciye bahşiş verin!",
+        "body": "Bu ipucu yalnızca geliştiricinin çabalarını takdir etmek içindir ve herhangi bir ek özelliğe erişim VERMEZ.",
+        "amount_label": "Bahşiş miktarı",
+        "tip": "Bahşiş"
+      },
+      "http_header": {
+        "title": "Http-Başlığı",
+        "header": "Başlık",
+        "header_hint": "HTTP Başlığı adı",
+        "value": "Başlık Değeri",
+        "value_hint": "Başlığın değeri"
+      },
+      "macro_settings": {
+        "show_while_printing": "Yazdırırken göster",
+        "visible": "Görünür"
+      }
+    },
+    "bottom_sheets": {
+      "job_queue_sheet": {
+        "next": "Sonraki yazdırma işi",
+        "empty": "İş kuyruğu boş. ",
+        "start_queue": "Kuyruğu Başlat",
+        "pause_queue": "Sırayı Duraklat",
+        "remove_all": "Kuyruğu Temizle",
+        "remove_all_confirm": "Bu işlem kuyruktaki tüm işleri kaldıracaktır."
+      },
+      "add_remote_con": {
+        "disclosure": "{service} Mobileraker'a bağlı değildir. ",
+        "active_service_info": {
+          "title": "Mevcut yapılandırma bulundu!",
+          "body": "Şu anda uzaktan bağlantı hizmetiniz olarak {} kullanıyorsunuz. "
+        },
+        "octoeverywehre": {
+          "service_name": "OctoHer Yerde",
+          "tab_name": "@:bottom_sheets.add_remote_con.octoeverywehre.service_name",
+          "link": "OctoEverywhere'i bağlayın",
+          "unlink": "OctoEverywhere'in bağlantısını kaldır",
+          "description": "OctoEverywhere.com, yazıcınıza her yerden güvenli bir şekilde bağlanmanıza olanak tanıyan bir topluluk projesidir. "
+        },
+        "manual": {
+          "service_name": "Manuel Uzaktan Bağlantı",
+          "tab_name": "Manuel",
+          "description": "İleri düzey bir kullanıcıysanız alternatif bir bağlantıyı manuel olarak eklemeyi seçebilirsiniz. ",
+          "address_label": "Alternatif Adres",
+          "address_hint": "Kullanılacak kaldırma bağlantısının temel adresi"
+        },
+        "obico": {
+          "service_name": "Obiko",
+          "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
+          "link": "Obico'yu bağla",
+          "unlink": "Obico'nun bağlantısını kaldır",
+          "description": "Obico, topluluk odaklı, tamamen açık kaynaklı bir 3D baskı yazılımıdır. "
+        }
+      },
+      "manage_macros_in_grp": {
+        "title": "Makro Ekle",
+        "hint": "{} grubu için makroları seçin"
+      }
+    },
+    "klipper_state": {
+      "ready": "Hazır",
+      "shutdown": "Kapat",
+      "starting": "Başlangıç",
+      "disconnected": "Bağlantı kesildi",
+      "error": "Hata",
+      "unauthorized": "Yetkisiz",
+      "initializing": "Başlatılıyor"
+    },
+    "notifications": {
+      "channel_printer_grp": "Yazıcı {}",
+      "channels": {
+        "status": {
+          "name": "Yazdırma Durumu Güncellemeleri - {}",
+          "desc": "Yazdırma durumuna ilişkin bildirimler.",
+          "title": "{}'ın yazdırma durumu değişti!",
+          "body_printing": "Dosyayı yazdırmaya başlandı: \"{}\"",
+          "body_paused": "Yazdırma dosyası duraklatıldı: \"{}\"",
+          "body_complete": "Yazdırma işlemi tamamlandı: \"{}\"",
+          "body_error": "Dosya yazdırılırken hata oluştu: \"{}\""
+        },
+        "progress": {
+          "name": "İlerleme Durumu Güncellemelerini Yazdır - {}",
+          "desc": "Yazdırma ilerlemesine ilişkin bildirimler.",
+          "title": "{} işleminin yazdırılma durumu"
+        }
+      }
+    },
+    "form_validators": {
+      "simple_url": "Giriş yalnızca URL bileşenlerine izin verir: Ana Bilgisayar Adı ve Bağlantı Noktası",
+      "disallow_mdns": "mDNS (.local) adresleri desteklenmez"
+    },
+    "date": {
+      "year": {
+        "one": "Yıl",
+        "other": "Yıllar"
+      },
+      "month": {
+        "one": "Ay",
+        "other": "Aylar"
+      },
+      "week": {
+        "one": "Hafta",
+        "other": "Haftalar"
+      },
+      "day": {
+        "one": "Gün",
+        "other": "Günler"
+      }
+    },
+    "date_periods": {
+      "year": {
+        "one": "Yıllık",
+        "other": "Yıllar"
+      },
+      "month": {
+        "one": "Aylık",
+        "other": "Aylar"
+      },
+      "week": {
+        "one": "Haftalık",
+        "other": "Haftalar"
+      },
+      "day": {
+        "one": "Günlük",
+        "other": "Günler"
+      }
+    }
+  }

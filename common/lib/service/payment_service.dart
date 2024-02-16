@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
 import 'dart:async';
 import 'dart:io';
 
+import 'package:common/service/firebase/auth.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/foundation.dart';
@@ -22,9 +23,6 @@ import 'ui/snackbar_service_interface.dart';
 
 part 'payment_service.g.dart';
 
-// GP: $RCAnonymousID:0b43a2b24a9c4cdb9edb57198a077e5f
-// BLA: $RCAnonymousID:f78797ad228f4a718864dd8b7baf911c
-// NOW-BLA: $RCAnonymousID:b21163a05e7642ac928b7c028c9125a6
 @Riverpod(keepAlive: true)
 Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
   try {
@@ -36,9 +34,8 @@ Future<CustomerInfo> customerInfo(CustomerInfoRef ref) async {
       var v = ref.state;
       var now = DateTime.now();
       if (v.hasValue) {
-        var hasExpired = v.value!.entitlements.active.values.any((ent) =>
-            ent.expirationDate != null &&
-            DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
+        var hasExpired = v.requireValue.entitlements.active.values
+            .any((ent) => ent.expirationDate != null && DateTime.tryParse(ent.expirationDate!)?.isBefore(now) == true);
         if (hasExpired) {
           logger.i('Found expired Entitlement, force refresh!');
           ref.state = await AsyncValue.guard(() async {
@@ -105,20 +102,17 @@ class PaymentService {
     return Purchases.getOfferings();
   }
 
-  Future<void> purchasePackage(Package packageToBuy,
-      [GoogleProductChangeInfo? googleProductChangeInfo]) async {
+  Future<void> purchasePackage(Package packageToBuy, [GoogleProductChangeInfo? googleProductChangeInfo]) async {
     try {
       var storeProduct = packageToBuy.storeProduct;
       if (Platform.isIOS && storeProduct.discounts?.isNotEmpty == true) {
         logger.i('Trying to buy ${storeProduct.identifier} at discounted rate ');
-        var promotionalOffer =
-            await Purchases.getPromotionalOffer(storeProduct, storeProduct.discounts!.first);
+        var promotionalOffer = await Purchases.getPromotionalOffer(storeProduct, storeProduct.discounts!.first);
 
         await Purchases.purchaseDiscountedPackage(packageToBuy, promotionalOffer);
       } else {
         logger.i('Trying to buy ${storeProduct.identifier}');
-        await Purchases.purchasePackage(packageToBuy,
-            googleProductChangeInfo: googleProductChangeInfo);
+        await Purchases.purchasePackage(packageToBuy, googleProductChangeInfo: googleProductChangeInfo);
       }
 
       var customerInfo = await _ref.refresh(customerInfoProvider.future);
@@ -130,10 +124,8 @@ class PaymentService {
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
       if (errorCode != PurchasesErrorCode.purchaseCancelledError) {
         logger.e('Error while trying to purchase; $e');
-        _ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.error,
-            title: 'Unexpected Error',
-            message: errorCode.name.capitalize()));
+        _ref.read(snackBarServiceProvider).show(
+            SnackBarConfig(type: SnackbarType.error, title: 'Unexpected Error', message: errorCode.name.capitalize()));
       } else {
         logger.w('User canceled purchase!');
         // ref.read(snackBarServiceProvider).show(SnackBarConfig(
@@ -144,26 +136,33 @@ class PaymentService {
     }
   }
 
-  restorePurchases() async {
+  Future<void> restorePurchases({bool passErrors = false, bool showSnacks = true}) async {
     try {
       var customerInfo = await Purchases.restorePurchases();
       var length = customerInfo.entitlements.active.length;
+      logger.i('Found $length entitlements');
       logger.i(
-          'Restored Subs: ${customerInfo.activeSubscriptions}, nonSubs: ${customerInfo.nonSubscriptionTransactions}');
+          'Restored Subs: ${customerInfo.activeSubscriptions}, nonSubs: ${customerInfo.nonSubscriptionTransactions} ');
+
+      _ref.invalidate(customerInfoProvider);
+      if (!showSnacks) return;
+
       if (length > 0) {
         _ref.read(snackBarServiceProvider).show(SnackBarConfig(
-            type: SnackbarType.info,
-            title: 'Purchases restored',
-            message: 'Managed to restore Supporter-Status!'));
+            type: SnackbarType.info, title: 'Purchases restored', message: 'Managed to restore Supporter-Status!'));
+      } else {
+        _ref
+            .read(snackBarServiceProvider)
+            .show(SnackBarConfig(type: SnackbarType.warning, title: 'No purchases found'));
       }
-      _ref.invalidate(customerInfoProvider);
     } on PlatformException catch (e) {
+      if (passErrors) rethrow;
+
       var errorCode = PurchasesErrorHelper.getErrorCode(e);
+
       logger.e('Error while trying to restore purchases; $e');
       _ref.read(snackBarServiceProvider).show(SnackBarConfig(
-          type: SnackbarType.error,
-          title: 'Error during restore',
-          message: errorCode.name.capitalize()));
+          type: SnackbarType.error, title: 'Error during restore', message: errorCode.name.capitalize()));
     }
   }
 
@@ -180,8 +179,8 @@ class PaymentService {
             if (token.isEmpty || customerInfo.originalAppUserId.isEmpty) return;
 
             var supporterEntitlement = customerInfo.entitlements.active['Supporter']!;
-            final settingKey = CompositeKey.keyWithString(
-                UtilityKeys.supporterTokenDate, customerInfo.originalAppUserId);
+            final settingKey =
+                CompositeKey.keyWithString(UtilityKeys.supporterTokenDate, customerInfo.originalAppUserId);
 
             if (_settingService.containsKey(settingKey)) {
               Map<dynamic, dynamic> name = _settingService.read(settingKey, {});
@@ -214,10 +213,38 @@ class PaymentService {
               logger.w('Error while trying to register FCM token with firebase:', e);
             }
           } catch (e, s) {
-            logger.e(
-                'Error while trying to register supporter status/fcm token in firebase:', e, s);
+            logger.e('Error while trying to register supporter status/fcm token in firebase:', e, s);
           }
         }
+      },
+      fireImmediately: true,
+    );
+
+    _ref.listen(
+      firebaseUserProvider,
+      (previous, next) async {
+        var isLogin = previous?.valueOrNull == null && next.valueOrNull != null;
+        var isLogout = previous?.valueOrNull != null && next.valueOrNull == null;
+
+        if (isLogin) {
+          try {
+            LogInResult logInResult = await Purchases.logIn(next.requireValue!.uid);
+            logger.i('Logged user into rCat: created: ${logInResult.created} - ${logInResult.customerInfo}}');
+          } on PlatformException catch (e) {
+            var errorCode = PurchasesErrorHelper.getErrorCode(e);
+
+            logger.e('Error while trying to log in to Purchases: $errorCode');
+          }
+        } else if (isLogout) {
+          try {
+            var customerInfo = await Purchases.logOut();
+            logger.i('Logged user out of rCat - new Anonym ID: ${customerInfo.originalAppUserId}');
+          } on PlatformException catch (e) {
+            var errorCode = PurchasesErrorHelper.getErrorCode(e);
+            logger.e('Error while logging out of rCat: $errorCode');
+          }
+        }
+        _ref.invalidate(customerInfoProvider);
       },
       fireImmediately: true,
     );

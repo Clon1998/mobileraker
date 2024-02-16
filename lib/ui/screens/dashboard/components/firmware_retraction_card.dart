@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -93,7 +93,7 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
 
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).value!;
+        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).requireValue;
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
 
@@ -125,45 +125,45 @@ class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.retractLength),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.retractLength),
                 prefixText: tr(
                   'pages.dashboard.control.fw_retraction_card.retract_length',
                 ),
                 onChange: canEdit ? controller.onEditRetractLength : null,
-                numberFormat: NumberFormat('0.0# mm', context.locale.languageCode),
+                numberFormat: NumberFormat('0.0# mm', context.locale.toStringWithSeparator()),
                 unit: 'mm',
                 maxValue: 1,
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.unretractExtraLength),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.unretractExtraLength),
                 prefixText: tr(
                   'pages.dashboard.control.fw_retraction_card.extra_unretract_length',
                 ),
                 onChange: canEdit ? controller.onEditUnretractLength : null,
-                numberFormat: NumberFormat('0.0# mm', context.locale.languageCode),
+                numberFormat: NumberFormat('0.0# mm', context.locale.toStringWithSeparator()),
                 unit: 'mm',
                 maxValue: 1,
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.retractSpeed),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.retractSpeed),
                 prefixText: tr(
                   'pages.dashboard.control.fw_retraction_card.retract_speed',
                 ),
                 onChange: canEdit ? controller.onEditRetractSpeed : null,
-                numberFormat: NumberFormat('0 mm/s', context.locale.languageCode),
+                numberFormat: NumberFormat('0 mm/s', context.locale.toStringWithSeparator()),
                 unit: 'mm/s',
                 maxValue: 70,
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select((data) => data.value!.unretractSpeed),
+                provider: _controllerProvider(machineUUID).select((data) => data.requireValue.unretractSpeed),
                 prefixText: tr(
                   'pages.dashboard.control.fw_retraction_card.unretract_speed',
                 ),
                 onChange: canEdit ? controller.onEditUnretractSpeed : null,
-                numberFormat: NumberFormat('0 mm/s', context.locale.languageCode),
+                numberFormat: NumberFormat('0 mm/s', context.locale.toStringWithSeparator()),
                 unit: 'mm/s',
                 maxValue: 70,
                 addToMax: true,

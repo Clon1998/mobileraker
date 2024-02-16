@@ -1,5 +1,75 @@
 # Mobileraker - Changelog
 
+## [2.6.11] - 2024-02-02
+
+### Major Updates
+
+- Introduced bed mesh visualization card to the dashboard, empowering users to switch seamlessly between various mesh
+  profiles.
+  ([#196](https://github.com/Clon1998/mobileraker/issues/196))
+- Added a spoolman card to the dashboard, enabling users to monitor their filament usage and manage their spools.
+  ([#245](https://github.com/Clon1998/mobileraker/issues/245))
+
+### Changed Features
+
+- Webcam paths (URLs) now support relative paths and respect the configured HTTP address port (Printer address),
+  addressing previous issues of ignoring it. This might require users to reconfigure their webcams.
+- Updated 🇩🇪 translation, thanks to [@Clon1998](https://github.com/clon1998)
+- Updated 🇹🇷 translation, thanks to [@larinspub](https://github.com/larinspub)
+
+### Bug Fixes
+
+- Fixed a Belt Tuner display crash caused by insufficient permissions.
+- [iOS] Resolved playback interruptions during the app's initial launch.
+- Corrected background color display for toggle button cards (Power Panel, Output Pins) in Material 2 themes.
+
+## [2.6.10] - 2024-01-19
+
+### Changed Features
+
+- The printer overview page now displays the webcams corresponding to the selected camera for each printer.
+
+### Bug Fixes
+
+- [IOS] Fixed live activities foreground color on IOS 16.4 [#315](https://github.com/Clon1998/mobileraker/issues/315)
+- [IOS] Fixed an issue with the live activities that would reset the entire local storage of the
+  app [#315](https://github.com/Clon1998/mobileraker/issues/321)
+- Fixed typo on profile page's 'Send Verification Mail' button
+
+## [2.6.9] - 2024-01-10
+
+### Major Updates
+
+- Introduced a new tool page featuring a list of tools and helpful links for 3D printing.
+- Added the Belt Tuner tool to enhance user control over belt tension.
+- Enabled support for cross-platform and multi-device purchases, ensuring accessibility of purchases across all devices.
+  Users need to create a Mobileraker account and log in on all devices for synchronization. Note: An account is only
+  required to synchronize purchases. The app and supporter status can still be used without an account.
+- [Supporters] Implemented support for go2Rtc-based WebRtc
+  webcams. [#304](https://github.com/Clon1998/mobileraker/issues/304)
+
+### Changed Features
+
+- Enhanced the Extruder card, elevating it to a separate, more refined component that empowers users to modify extruder
+  velocity. [#268](https://github.com/Clon1998/mobileraker/issues/268)
+- [IOS] Revamped the design of live activities, adopting a more compact form with a black theme to align with the system
+  UI.
+
+### Bug Fixes
+
+- Resolved the issue with the bed mesh button not entering the correct loading state after being pressed.
+- Corrected the ETA Cell, now displaying the ETA label instead of the Filament
+  label. [#300](https://github.com/Clon1998/mobileraker/issues/300) [#305](https://github.com/Clon1998/mobileraker/issues/305)
+- Resolved a critical issue where the app displayed an error when Moonraker encountered difficulties connecting to the
+  Klipper domain. [#308](https://github.com/Clon1998/mobileraker/issues/308)
+
+### Localization
+
+- Added a Turkish translation, courtesy
+  of [@larinspub](https://github.com/larinspub). [#297](https://github.com/Clon1998/mobileraker/issues/297)
+- Updated the Hungarian translation, thanks
+  to [@AntoszHUN](https://github.com/AntoszHUN). [#302](https://github.com/Clon1998/mobileraker/issues/302)
+
 ## [2.6.8] - 2023-12-8
 
 ### Major Updates

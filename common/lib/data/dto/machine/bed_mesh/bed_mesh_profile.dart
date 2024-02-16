@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -12,7 +12,9 @@ part 'bed_mesh_profile.g.dart';
 
 @freezed
 class BedMeshProfile with _$BedMeshProfile {
-  @JsonSerializable(fieldRename: FieldRename.snake)
+  const BedMeshProfile._();
+
+  @JsonSerializable(fieldRename: FieldRename.snake, explicitToJson: true)
   const factory BedMeshProfile({
     required String name,
 
@@ -27,6 +29,20 @@ class BedMeshProfile with _$BedMeshProfile {
 
   factory BedMeshProfile.fromJson(String name, Map<String, dynamic> json) =>
       _$BedMeshProfileFromJson({'name': name, ...json});
+
+  double get valueRange {
+    double min = double.infinity;
+    double max = double.negativeInfinity;
+    for (var z in points.flattened) {
+      if (z < min) min = z;
+      if (z > max) max = z;
+    }
+
+    if (min.isFinite && max.isFinite) {
+      return max - min;
+    }
+    return 0;
+  }
 }
 
 // "mesh_params": {

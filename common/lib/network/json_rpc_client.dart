@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -156,7 +156,7 @@ class JsonRpcClient {
 
   /// Closes the WebSocket communication
   _resetChannel() {
-    _channel?.sink.close(WebSocketStatus.goingAway);
+    _channel?.sink.close(WebSocketStatus.goingAway).ignore();
   }
 
   /// Ensures that the ws is still connected.
@@ -320,6 +320,12 @@ class JsonRpcClient {
             ...response,
             'result': <String, dynamic>{}
           }; // do some trickery here because the gcode response (Why idk) returns `result:ok` instead of an empty map/wrapped in a map..
+        } else if (response['result'] is List) {
+          // Some trickery for spoolman API
+          response = {
+            ...response,
+            'result': <String, dynamic>{'list': response['result']}
+          };
         }
         request.completer.complete(RpcResponse.fromJson(response));
       }
@@ -432,7 +438,8 @@ class JsonRpcClient {
     }
 
     _pendingRequests.forEach((key, value) => value.completer.completeError(
-        StateError('Websocket is closing, request id=$key, method ${value.method} never got an response!')));
+        StateError('Websocket is closing, request id=$key, method ${value.method} never got an response!'),
+        StackTrace.current));
     _methodListeners.clear();
     _channelSub?.cancel();
 

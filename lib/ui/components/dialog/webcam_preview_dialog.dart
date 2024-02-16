@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -35,6 +35,7 @@ class WebcamPreviewDialog extends HookWidget {
     WebcamPreviewDialogArguments arg = request.data;
 
     return Dialog(
+      clipBehavior: Clip.antiAlias,
       child: Padding(
         padding: const EdgeInsets.all(4.0),
         child: ConstrainedBox(
