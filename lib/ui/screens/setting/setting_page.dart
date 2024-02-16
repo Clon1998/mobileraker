@@ -57,7 +57,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.confirmEmergencyStop,
                   b ?? false,
                 ),
-                initialValue: ref.watch(boolSettingProvider(
+                initialValue: ref.read(boolSettingProvider(
                   AppSettingKeys.confirmEmergencyStop,
                   true,
                 )),
@@ -74,7 +74,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.alwaysShowBabyStepping,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping),
                 ),
                 decoration: const InputDecoration(
@@ -90,7 +90,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.defaultNumEditMode,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.defaultNumEditMode),
                 ),
                 decoration: const InputDecoration(
@@ -106,7 +106,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.overviewIsHomescreen,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.overviewIsHomescreen),
                 ),
                 decoration: const InputDecoration(
@@ -122,7 +122,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.applyOffsetsToPostion,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.applyOffsetsToPostion),
                 ),
                 decoration: const InputDecoration(
@@ -138,7 +138,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.fullscreenCamOrientation,
                   b ?? false,
                 ),
-                initialValue: ref.watch(boolSettingProvider(
+                initialValue: ref.read(boolSettingProvider(
                   AppSettingKeys.fullscreenCamOrientation,
                 )),
                 decoration: const InputDecoration(
@@ -154,7 +154,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.groupSliders,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.groupSliders, true),
                 ),
                 decoration: const InputDecoration(
@@ -274,7 +274,7 @@ class _NotificationSection extends ConsumerWidget {
               AppSettingKeys.useLiveActivity,
               b ?? false,
             ),
-            initialValue: ref.watch(boolSettingProvider(AppSettingKeys.useLiveActivity, true)),
+            initialValue: ref.read(boolSettingProvider(AppSettingKeys.useLiveActivity, true)),
             decoration: const InputDecoration(
               border: InputBorder.none,
               isCollapsed: true,
@@ -414,7 +414,7 @@ class _TimeFormatSelector extends ConsumerWidget {
     var now = DateTime.now();
 
     return FormBuilderDropdown(
-      initialValue: ref.watch(boolSettingProvider(AppSettingKeys.timeFormat)),
+      initialValue: ref.read(boolSettingProvider(AppSettingKeys.timeFormat)),
       name: 'timeMode',
       items: [
         DropdownMenuItem(
