@@ -130,6 +130,7 @@ enum UtilityKeys implements KeyValueStoreKey {
 enum UiKeys implements KeyValueStoreKey {
   hadMeshView('hMeshView'),
   hadSpoolman('hSpoolman'),
+  hadWebcam('hWebcam'),
   ;
 
   @override
