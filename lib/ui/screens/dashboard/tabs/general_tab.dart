@@ -16,8 +16,7 @@ import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/components/supporter_ad.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/machine_status_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/webcams/cam_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab_controller.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/webcam_card.dart';
 import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
