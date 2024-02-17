@@ -4,23 +4,23 @@
  */
 
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
+import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:enum_to_string/enum_to_string.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 
 class HomedAxisChip extends ConsumerWidget {
-  const HomedAxisChip({Key? key}) : super(key: key);
+  const HomedAxisChip({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    int homedAxisCnt = ref
-        .watch(machinePrinterKlippySettingsProvider
-            .selectAs((value) => value.printerData.toolhead.homedAxes.length))
-        .requireValue;
+    var provider = printerProvider(machineUUID);
+    int homedAxisCnt = ref.watch(provider.selectAs((value) => value.toolhead.homedAxes.length)).requireValue;
 
     return Tooltip(
       message: 'pages.dashboard.general.move_card.homed'.tr(),
@@ -36,8 +36,7 @@ class HomedAxisChip extends ConsumerWidget {
           width: 3,
         ),
         // shape: ContinuousRectangleBorder(side: BorderSide(width: 1),),
-        label: Text(_homedChipTitle(
-            ref.read(machinePrinterKlippySettingsProvider).requireValue.printerData.toolhead.homedAxes)),
+        label: Text(_homedChipTitle(ref.read(provider).requireValue.toolhead.homedAxes)),
         // backgroundColor:
         //     (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
       ),

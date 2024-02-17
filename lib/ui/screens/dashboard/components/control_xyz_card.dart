@@ -40,7 +40,7 @@ part 'control_xyz_card.g.dart';
 const _marginForBtns = EdgeInsets.all(10);
 
 class ControlXYZCard extends HookConsumerWidget {
-  const ControlXYZCard({Key? key, required this.machineUUID}) : super(key: key);
+  const ControlXYZCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -55,7 +55,7 @@ class ControlXYZCard extends HookConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const _CardTitle(),
+          _CardTitle(machineUUID: machineUUID),
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
             child: _CardBody(machineUUID: machineUUID),
@@ -200,14 +200,16 @@ class _ControlXYZLoading extends StatelessWidget {
 }
 
 class _CardTitle extends StatelessWidget {
-  const _CardTitle({super.key});
+  const _CardTitle({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: const Icon(FlutterIcons.axis_arrow_mco),
       title: const Text('pages.dashboard.general.move_card.title').tr(),
-      trailing: const HomedAxisChip(),
+      trailing: HomedAxisChip(machineUUID: machineUUID),
     );
   }
 }
