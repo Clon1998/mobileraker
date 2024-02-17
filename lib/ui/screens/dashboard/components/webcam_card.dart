@@ -7,7 +7,6 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
-import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
@@ -17,7 +16,6 @@ import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -40,48 +38,75 @@ class WebcamCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var settingService = ref.watch(settingServiceProvider);
-    var hadWebcam = settingService.readBool(_hadWebcamKey);
+    var controller = ref.watch(_webcamCardControllerProvider(machineUUID).notifier);
+    var hadWebcam = ref.read(boolSettingProvider(_hadWebcamKey));
 
-    logger.i('Rebuilding WebcamCard for $machineUUID');
     // Only show card if there is a webcam
     var model = ref.watch(_webcamCardControllerProvider(machineUUID).selectAs((data) => data.allCams.isNotEmpty));
-    var showCard = model.valueOrNull;
-    var showLoading = model.isLoading && !model.isReloading;
-//TODO: We need to properly handle all states! The controller might still throw an error, as the all webcams is its own provider. It is not guaranteed that it is already loaded and that it is valid!!!
 
-    useEffect(() {
-      if (showCard == null) return;
-      settingService.writeBool(_hadWebcamKey, showCard);
-    }, [showCard]);
-
-    logger.w('showCard: $showCard, hadWebcam: $hadWebcam');
-
-    final Widget widget;
-
-    if (!hadWebcam && showCard != true || showCard == false) {
-      return const SizedBox.shrink(key: Key('wcN'));
-    } else if (showLoading) {
-      widget = const _WebcamCardLoading(key: Key('wcL'));
-    } else {
-      widget = Card(
-        key: const Key('wcD'),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            _CardTitle(machineUUID: machineUUID),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-              child: _CardBody(machineUUID: machineUUID),
-            ),
-          ],
+    Widget widget = switch (model) {
+      // We have a value and the model (allCams != empty) is true
+      AsyncValue(hasValue: true, value: true) => Card(
+          key: const Key('wcD'),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _CardTitle(machineUUID: machineUUID),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+                child: _CardBody(machineUUID: machineUUID),
+              ),
+            ],
+          ),
         ),
-      );
-    }
+      // The model returned an error
+      AsyncError(:final error) => _Card(
+          key: const Key('wcE'),
+          machineUUID: machineUUID,
+          child: Center(
+            child: Column(
+              key: UniqueKey(),
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline),
+                const SizedBox(height: 30),
+                Text(
+                  error.toString(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: controller.onRetry,
+                  icon: const Icon(
+                    Icons.restart_alt_outlined,
+                  ),
+                  label: const Text('general.retry').tr(),
+                ),
+              ],
+            ),
+          ),
+        ),
+      // The model is loading for the first time and we previously had a webcam -> show loading
+      AsyncLoading() when hadWebcam => const _WebcamCardLoading(key: Key('wcL')),
+      // Default do not show anything. E.g. if we never had a webcam or we have a model with empty webcam
+      _ => const SizedBox.shrink(key: Key('wcN')),
+    };
 
     return AnimatedSwitcher(
       duration: kThemeAnimationDuration,
-      transitionBuilder: (child, anim) => SizeAndFadeTransition(sizeAndFadeFactor: anim, child: child),
+      // reverseDuration: Duration(seconds: 3),
+      switchInCurve: Curves.easeInOut,
+      switchOutCurve: Curves.easeInOut,
+      // duration: kThemeAnimationDuration,
+      transitionBuilder: (child, anim) => SizeAndFadeTransition(
+        sizeAndFadeFactor: anim,
+        sizeAxisAlignment: -1,
+        child: child,
+      ),
+      // transitionBuilder: (child, anim) => SizeAndFadeTransition(sizeAndFadeFactor: anim, child: child),
       child: widget,
     );
   }
@@ -121,6 +146,29 @@ class _WebcamCardLoading extends StatelessWidget {
   }
 }
 
+class _Card extends ConsumerWidget {
+  const _Card({super.key, required this.machineUUID, required this.child});
+
+  final String machineUUID;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Card(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          _CardTitle(machineUUID: machineUUID),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+            child: child,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _CardTitle extends ConsumerWidget {
   const _CardTitle({super.key, required this.machineUUID});
 
@@ -144,9 +192,9 @@ class _Trailing extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_webcamCardControllerProvider(machineUUID).notifier);
-    var model = ref.watch(_webcamCardControllerProvider(machineUUID).requireValue());
+    var model = ref.watch(_webcamCardControllerProvider(machineUUID)).valueOrNull;
 
-    if (model.allCams.length <= 1) {
+    if (model == null || model.allCams.length <= 1) {
       return const SizedBox.shrink();
     }
 
@@ -206,9 +254,9 @@ class _CardBody extends ConsumerWidget {
 
 @riverpod
 class _WebcamCardController extends _$WebcamCardController {
-  SettingService get _settingService => ref.read(settingServiceProvider);
+  CompositeKey get _hadWebcamKey => CompositeKey.keyWithString(UiKeys.hadWebcam, machineUUID);
 
-  PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
+  SettingService get _settingService => ref.read(settingServiceProvider);
 
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.webcamIndex, machineUUID);
 
@@ -217,16 +265,15 @@ class _WebcamCardController extends _$WebcamCardController {
     ref.keepAliveFor();
 
     logger.i('Rebuilding WebcamCardController for $machineUUID');
+
     var machine = await ref.watch(machineProvider(machineUUID).future);
 
     var allWebcams = await ref.watch(allWebcamInfosProvider(machineUUID).future);
 
     var readInt = _settingService.readInt(_settingsKey, 0);
-    logger.i('Read webcam index: ${readInt}');
     var idx = (state.whenData((value) => value.selected).valueOrNull ?? readInt).clamp(0, allWebcams.length - 1);
 
-    // await Future.delayed(const Duration(seconds: 5));
-    // throw Exception('Test Error');
+    _settingService.writeBool(_hadWebcamKey, allWebcams.isNotEmpty);
 
     return _Model(machine: machine!, selected: idx, allCams: allWebcams);
   }
@@ -244,6 +291,12 @@ class _WebcamCardController extends _$WebcamCardController {
       AppRoute.fullCam.name,
       extra: {'machine': value.machine, 'selectedCam': value.activeCam},
     );
+  }
+
+  void onRetry() {
+    // this is just to make sure we recall the webcam API if that was the reason
+    ref.invalidate(allWebcamInfosProvider(machineUUID));
+    // ref.invalidateSelf();
   }
 }
 
