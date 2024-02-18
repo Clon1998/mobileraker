@@ -16,6 +16,8 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
+import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -29,6 +31,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/util/extensions/pixel_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
 import '../../../components/adaptive_horizontal_scroll.dart';
@@ -51,7 +54,7 @@ class PinsCard extends ConsumerWidget {
         ref.watch(_pinsCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
     if (showLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const _PinsCardLoading();
     }
     var showCard = ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.showCard));
 
@@ -69,6 +72,67 @@ class PinsCard extends ConsumerWidget {
           _CardBody(machineUUID: machineUUID),
           const SizedBox(height: 8),
         ],
+      ),
+    );
+  }
+}
+
+class _PinsCardLoading extends StatelessWidget {
+  const _PinsCardLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    var themeData = Theme.of(context);
+    return Card(
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey,
+        highlightColor: themeData.colorScheme.background,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const CardTitleSkeleton(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Flexible(
+                        child: CardWithSkeleton(
+                          contentTextStyles: [
+                            themeData.textTheme.bodySmall,
+                            themeData.textTheme.headlineSmall,
+                          ],
+                        ),
+                      ),
+                      Flexible(
+                        child: CardWithSkeleton(
+                          contentTextStyles: [
+                            themeData.textTheme.bodySmall,
+                            themeData.textTheme.headlineSmall,
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 5),
+                    child: SizedBox(
+                      width: 30,
+                      height: 11,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
