@@ -3,7 +3,6 @@
  * All rights reserved.
  */
 
-import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -18,7 +17,6 @@ import 'package:mobileraker/ui/components/power_api_panel.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/bed_mesh_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_extruder_card.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/macro_group_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
@@ -44,13 +42,7 @@ class ControlTab extends ConsumerWidget {
                 key: const PageStorageKey<String>('cTab'),
                 padding: const EdgeInsets.only(bottom: 30),
                 children: [
-                  MacroGroupCard(machineUUID: data),
-                  if (ref
-                          .watch(machinePrinterKlippySettingsProvider
-                              .selectAs((value) => value.printerData.print.state != PrintState.printing))
-                          .valueOrNull ??
-                      false)
-                    ControlExtruderCard(machineUUID: data),
+                  ControlExtruderCard(machineUUID: data),
                   FansCard(machineUUID: data),
                   PinsCard(machineUUID: data),
                   if (ref

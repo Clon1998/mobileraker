@@ -45,7 +45,7 @@ class MacroGroupCard extends ConsumerWidget {
     var showLoading = showCard.isLoading && !showCard.isReloading;
 
     if (showLoading) return const _MacroGroupLoading();
-    if (showCard.valueOrNull == false) return const SizedBox.shrink();
+    if (showCard.valueOrNull != true) return const SizedBox.shrink();
 
     return Card(
       child: Column(
