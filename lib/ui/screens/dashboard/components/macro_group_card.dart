@@ -180,8 +180,7 @@ class _MacroChip extends ConsumerWidget {
 
     // Test if the macro is available on the printer
     ConfigGcodeMacro? configMacro = ref
-        .watch(_macroGroupCardControllerProvider(machineUUID)
-            .selectAs((data) => data.configMacros[macro.name.toLowerCase()]))
+        .watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.configMacros[macro.configName]))
         .valueOrNull;
 
     var klippyCanReceiveCommands = ref
