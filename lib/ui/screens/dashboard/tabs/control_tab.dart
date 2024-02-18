@@ -44,12 +44,7 @@ class ControlTab extends ConsumerWidget {
                 key: const PageStorageKey<String>('cTab'),
                 padding: const EdgeInsets.only(bottom: 30),
                 children: [
-                  if (ref
-                          .watch(machinePrinterKlippySettingsProvider
-                              .selectAs((value) => value.settings.macroGroups.isNotEmpty))
-                          .valueOrNull ??
-                      false)
-                    MacroGroupCard(machineUUID: data),
+                  MacroGroupCard(machineUUID: data),
                   if (ref
                           .watch(machinePrinterKlippySettingsProvider
                               .selectAs((value) => value.printerData.print.state != PrintState.printing))

@@ -41,10 +41,11 @@ class MacroGroupCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading = ref
-        .watch(_macroGroupCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showCard = ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
+    var showLoading = showCard.isLoading && !showCard.isReloading;
 
     if (showLoading) return const _MacroGroupLoading();
+    if (showCard.valueOrNull == false) return const SizedBox.shrink();
 
     return Card(
       child: Column(
@@ -307,6 +308,8 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
 @freezed
 class _Model with _$Model {
+  const _Model._();
+
   const factory _Model({
     required bool klippyCanReceiveCommands,
     required bool isPrinting,
@@ -314,4 +317,6 @@ class _Model with _$Model {
     required List<MacroGroup> groups,
     required Map<String, ConfigGcodeMacro> configMacros, // Raw Macros available on the printer
   }) = __Model;
+
+  bool get showCard => groups.isNotEmpty;
 }
