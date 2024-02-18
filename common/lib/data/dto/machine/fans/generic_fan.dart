@@ -12,6 +12,7 @@ part 'generic_fan.g.dart';
 
 @freezed
 class GenericFan extends NamedFan with _$GenericFan {
+  const GenericFan._();
   const factory GenericFan({
     required String name,
     @Default(0) double speed,

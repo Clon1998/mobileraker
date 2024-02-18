@@ -446,7 +446,7 @@ class _Controller extends _$Controller {
 
   editTemperatureFan(TemperatureFan temperatureFan) {
     var configFan = ref
-        .read(printerProvider(machineUUID).selectAs((value) => value.configFile.fans[temperatureFan.name]))
+        .read(printerProvider(machineUUID).selectAs((value) => value.configFile.fans[temperatureFan.configName]))
         .requireValue;
 
     ref
