@@ -26,11 +26,11 @@ part 'temperature_preset_card.g.dart';
 
 class TemperaturePresetCard extends ConsumerWidget {
   const TemperaturePresetCard({
-    Key? key,
+    super.key,
     required this.machineUUID,
     this.trailing,
     this.onPresetApplied,
-  }) : super(key: key);
+  });
 
   final String machineUUID;
   final Widget? trailing;
@@ -68,10 +68,10 @@ class TemperaturePresetCard extends ConsumerWidget {
 
 class _CardBody extends ConsumerWidget {
   const _CardBody({
-    Key? key,
+    super.key,
     required this.machineUUID,
     this.onPresetApplied,
-  }) : super(key: key);
+  });
   final String machineUUID;
   final VoidCallback? onPresetApplied;
 
@@ -113,12 +113,12 @@ class _CardBody extends ConsumerWidget {
 
 class _PresetTile extends StatelessWidget {
   const _PresetTile({
-    Key? key,
+    super.key,
     required this.name,
     required this.extruderTemp,
     required this.bedTemp,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   final String name;
   final int extruderTemp;

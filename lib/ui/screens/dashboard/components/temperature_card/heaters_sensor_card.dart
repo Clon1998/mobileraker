@@ -36,7 +36,7 @@ import '../../../../components/adaptive_horizontal_scroll.dart';
 import '../../../../components/card_with_button.dart';
 import '../../../../components/dialog/edit_form/num_edit_form_controller.dart';
 import '../../../../components/graph_card_with_button.dart';
-import '../../tabs/control_tab.dart';
+import '../../../../components/spinning_fan.dart';
 import 'temperature_sensor_preset_card.dart';
 
 part 'heaters_sensor_card.freezed.dart';

@@ -741,6 +741,9 @@
     },
     "extruder_feedrate": {
       "title": "Extruder Velocity [mm/s]"
+    },
+    "fan_speed": {
+      "title": "Edit {} %"
     }
   },
   "bottom_sheets": {
