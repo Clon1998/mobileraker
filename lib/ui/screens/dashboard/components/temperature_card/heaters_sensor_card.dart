@@ -419,7 +419,7 @@ class _Controller extends _$Controller {
     } else if (heater is HeaterBed) {
       maxValue = configFile.configHeaterBed?.maxTemp;
     } else if (heater is GenericHeater) {
-      maxValue = configFile.genericHeaters[heater.name.toLowerCase()]?.maxTemp;
+      maxValue = configFile.genericHeaters[heater.configName]?.maxTemp;
     }
 
     _dialogService
