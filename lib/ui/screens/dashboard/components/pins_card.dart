@@ -17,6 +17,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -27,6 +28,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/util/extensions/pixel_extension.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
 import '../../../components/adaptive_horizontal_scroll.dart';
@@ -353,23 +355,31 @@ class _PinsCardController extends _$PinsCardController {
   Stream<_Model> build(String machineUUID) async* {
     logger.i('Rebuilding pinsCardController for $machineUUID');
 
+    // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
+    // This means that if the value is the same, the widget will not rebuild.
+    // Otherwise Riverpod will check the same for us in the SelectAsync/SelectAs method. So we can directly get the RAW provider anyway!
     var klippyCanReceiveCommands =
-        ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
-    var leds = ref.watch(printerProvider(machineUUID).selectAsync(
+        ref.watchAsSubject(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
+    var leds = ref.watchAsSubject(printerProvider(machineUUID).selectAs(
         (data) => data.leds.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
-    var ledConfig = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.configFile.leds));
-    var pins = ref.watch(printerProvider(machineUUID).selectAsync(
+    var ledConfig = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile.leds));
+    var pins = ref.watchAsSubject(printerProvider(machineUUID).selectAs(
         (data) => data.outputPins.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
-    var pinConfig = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.configFile.outputs));
+    var pinConfig = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile.outputs));
 
-    var futures = await Future.wait([klippyCanReceiveCommands, leds, ledConfig, pins, pinConfig]);
-
-    yield _Model(
-      klippyCanReceiveCommands: futures[0] as bool,
-      leds: futures[1] as List<Led>,
-      ledConfig: futures[2] as Map<String, ConfigLed>,
-      pins: futures[3] as List<OutputPin>,
-      pinConfig: futures[4] as Map<String, ConfigOutput>,
+    yield* Rx.combineLatest5(
+      klippyCanReceiveCommands,
+      leds,
+      ledConfig,
+      pins,
+      pinConfig,
+      (a, b, c, d, e) => _Model(
+        klippyCanReceiveCommands: a,
+        leds: b,
+        ledConfig: c,
+        pins: d,
+        pinConfig: e,
+      ),
     );
   }
 

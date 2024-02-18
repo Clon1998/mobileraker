@@ -12,6 +12,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -21,6 +22,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../../../components/adaptive_horizontal_scroll.dart';
 import '../../../components/card_with_button.dart';
@@ -213,18 +215,20 @@ class _FansCardController extends _$FansCardController {
   Stream<_Model> build(String machineUUID) async* {
     logger.i('Rebuilding fansCardController for $machineUUID');
 
-    var printFan = ref.watch(printerProvider(machineUUID).selectAsync((data) => data.printFan));
-    var fans = ref.watch(printerProvider(machineUUID).selectAsync(
+    // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
+    // This means that if the value is the same, the widget will not rebuild.
+    // Otherwise Riverpod will check the same for us in the SelectAsync/SelectAs method. So we can directly get the RAW provider anyway!
+    var printFan = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.printFan));
+    var fans = ref.watchAsSubject(printerProvider(machineUUID).selectAs(
         (data) => data.fans.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
     var klippyCanReceiveCommands =
-        ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
+        ref.watchAsSubject(klipperProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands));
 
-    List<Object?> res = await Future.wait([printFan, fans, klippyCanReceiveCommands]);
-
-    yield _Model(
-      klippyCanReceiveCommands: res[2] as bool,
-      printFan: res[0] as PrintFan?,
-      fans: res[1] as List<NamedFan>,
+    yield* Rx.combineLatest3(
+      printFan,
+      fans,
+      klippyCanReceiveCommands,
+      (a, b, c) => _Model(printFan: a, fans: b, klippyCanReceiveCommands: c),
     );
   }
 
