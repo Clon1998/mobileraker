@@ -146,7 +146,8 @@
           "cold_extrude_error": "Extruder did not reach min_extrude_temp of {}°C yet!"
         },
         "macro_card": {
-          "title": "Gcode - Macros"
+          "title": "Gcode - Macros",
+          "no_macros": "No macros are currently visible in this group"
         },
         "pin_card": {
           "title": {

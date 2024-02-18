@@ -135,6 +135,9 @@ class _SelectedGroup extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var isPrinting =
+        ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.isPrinting)).valueOrNull ==
+            true;
     var groupProvider = _macroGroupCardControllerProvider(machineUUID)
         .selectAs((value) => value.groups.elementAtOrNull(value.selected));
     var group = ref.watch(groupProvider).valueOrNull;
@@ -151,19 +154,32 @@ class _SelectedGroup extends ConsumerWidget {
         sizeAndFadeFactor: anim,
         child: child,
       ),
-      child: Column(
-        key: ValueKey(group.uuid),
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            spacing: 5,
-            children: [
-              for (var macro in group.macros) _MacroChip(machineUUID: machineUUID, macro: macro),
-            ],
-          ),
-        ],
-      ),
+      // The column is required to make it stretch
+      child: group.hasMacros(isPrinting)
+          ? Column(
+              key: ValueKey(group.uuid),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Wrap(
+                  alignment: WrapAlignment.spaceEvenly,
+                  spacing: 5,
+                  children: [
+                    for (var macro in group.macros) _MacroChip(machineUUID: machineUUID, macro: macro),
+                  ],
+                ),
+              ],
+            )
+          : Center(
+              key: ValueKey(group.uuid),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Text(
+                  'pages.dashboard.control.macro_card.no_macros',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ).tr(),
+              ),
+            ),
     );
   }
 }
