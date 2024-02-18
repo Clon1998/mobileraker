@@ -48,4 +48,12 @@ class MacroGroup with _$MacroGroup {
   factory MacroGroup.fromJson(Map<String, dynamic> json) => _$MacroGroupFromJson(json);
 
   bool get isDefaultGroup => uuid == 'default';
+
+  bool hasMacros(bool isPrinting) {
+    return macros.any((element) => element.visible && (!isPrinting || element.showWhilePrinting));
+  }
+
+  List<GCodeMacro> filtered(bool isPrinting) {
+    return macros.where((element) => element.visible && (!isPrinting || element.showWhilePrinting)).toList();
+  }
 }
