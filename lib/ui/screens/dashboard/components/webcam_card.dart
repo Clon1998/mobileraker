@@ -30,11 +30,11 @@ part 'webcam_card.freezed.dart';
 part 'webcam_card.g.dart';
 
 class WebcamCard extends HookConsumerWidget {
-  WebcamCard({super.key, required this.machineUUID});
+  const WebcamCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
-  late final CompositeKey _hadWebcamKey = CompositeKey.keyWithString(UiKeys.hadWebcam, machineUUID);
+  CompositeKey get _hadWebcamKey => CompositeKey.keyWithString(UiKeys.hadWebcam, machineUUID);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
