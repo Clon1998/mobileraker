@@ -43,6 +43,8 @@ class KlipperInstance with _$KlipperInstance {
 
   bool get hasSpoolmanComponent => components.contains('spoolman');
 
+  bool get hasPowerAPI => components.contains('power');
+
   factory KlipperInstance.fromJson(Map<String, dynamic> json) => _$KlipperInstanceFromJson(json);
 
   factory KlipperInstance.partialUpdate(

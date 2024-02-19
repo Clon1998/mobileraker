@@ -13,7 +13,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/power_api_panel.dart';
+import 'package:mobileraker/ui/components/power_api_card.dart';
 import 'package:mobileraker/ui/components/pull_to_refresh_printer.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/bed_mesh_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_extruder_card.dart';
@@ -45,12 +45,7 @@ class ControlTab extends ConsumerWidget {
                   ControlExtruderCard(machineUUID: data),
                   FansCard(machineUUID: data),
                   PinsCard(machineUUID: data),
-                  if (ref
-                          .watch(machinePrinterKlippySettingsProvider
-                              .selectAs((value) => value.klippyData.components.contains('power')))
-                          .valueOrNull ??
-                      false)
-                    const PowerApiCard(),
+                  PowerApiCard(machineUUID: data),
                   if (groupSliders) const _MiscCard(),
                   if (!groupSliders) ...[
                     MultipliersCard(machineUUID: data),

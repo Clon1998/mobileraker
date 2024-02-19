@@ -131,6 +131,7 @@ enum UiKeys implements KeyValueStoreKey {
   hadMeshView('hMeshView'),
   hadSpoolman('hSpoolman'),
   hadWebcam('hWebcam'),
+  hadPowerAPI('hPower'),
   ;
 
   @override
