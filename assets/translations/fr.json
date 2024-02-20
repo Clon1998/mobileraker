@@ -83,7 +83,7 @@
           "presets_btn": "Préréglages",
           "hotend": "Hotend",
           "bed": "Plateau",
-          "temp_presets": "Températures prérégler",
+          "temp_presets": "Températures préréglées",
           "sensors": "Capteurs",
           "heater_on": "{} °C cible",
           "btn_thermistor": "Capteur"
@@ -105,7 +105,7 @@
           "mesh_btn": "Mesh",
           "m84_tooltip": "Désactiver les moteurs",
           "m84_btn": "M84",
-          "step_size": "Taille des steps",
+          "step_size": "Distance de déplacement",
           "stc_tooltip": "Lancer calcul de l'ajustement des vis",
           "stc_btn": "STC",
           "ztilt_tooltip": "Lancer calibration Z-Tilt",
@@ -142,23 +142,23 @@
           "title": "Extrudeur",
           "extrude": "Extruder",
           "retract": "Rétracter",
-          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude length",
-          "cold_extrude_error": "L'extrudeur n'a pas atteit la temperature minimal d'extrusion de {}°C!"
+          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude longueur",
+          "cold_extrude_error": "L'extrudeur n'a pas atteint la temperature minimal d'extrusion de {}°C!"
         },
         "macro_card": {
           "title": "Gcode - Macros"
         },
         "pin_card": {
           "title": {
-            "zero": "Output Pin",
-            "one": "Output Pin",
-            "two": "Output Pins",
-            "other": "Output Pins"
+            "zero": "Sortie",
+            "one": "Sortie",
+            "two": "Sorties",
+            "other": "Sorties"
           },
           "pin_btn": "Pin"
         },
         "power_card": {
-          "title": "Power Panel",
+          "title": "Tableau de commande",
           "pin_btn": "Pin"
         },
         "multipl_card": {
@@ -199,7 +199,7 @@
       }
     },
     "files": {
-      "title": "Files",
+      "title": "Fichiers",
       "search_files": "Chercher fichier",
       "clear_search": "Supprimer la recherche",
       "name": "Nom",
@@ -266,7 +266,7 @@
         "lcFullCam": "Webcam plein écran en paysage",
         "language": "Langue",
         "companion": "Vous voulez recevoir une notification à distance ? Apprenez à configurer Mobileraker's Companion sur son site Web. ",
-        "sliders_grouping": "Group Slider Cards"
+        "sliders_grouping": "Présenter les réglages par curseur sous forme d'onglets"
       },
       "notification": {
         "title": "Notification",
