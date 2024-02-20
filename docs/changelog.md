@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.12] - 2024-02-20
+
+### Bug Fixes
+
+- Fixed an issue that prevented the app from starting on some android devices.
+
 ## [2.6.11] - 2024-02-02
 
 ### Major Updates
