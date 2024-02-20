@@ -137,14 +137,22 @@ Future<Uint8List> _hiveKey() async {
   var secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
-  const nonEncSharedPrefSecureStorage = FlutterSecureStorage();
+  const nonEncSharedPrefSecureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: false),
+  );
 
   Uint8List? encryptionKey;
   try {
     encryptionKey = await secureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
   } on PlatformException catch (e) {
     logger.e('Error while reading hive_key from secure storage', e);
-    encryptionKey = await nonEncSharedPrefSecureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
+    encryptionKey = await nonEncSharedPrefSecureStorage
+        .read(key: keyName)
+        .then((value) => value?.let(base64Decode))
+        .onError((error, stackTrace) {
+      logger.e('Error while reading hive_key from non-encryptedSharedPreferences', error, stackTrace);
+      return null;
+    });
     await nonEncSharedPrefSecureStorage.delete(key: keyName);
     await secureStorage.write(
       key: keyName,
