@@ -157,18 +157,4 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
       ),
     );
   }
-
-  Widget _tile(double height) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Colors.white,
-        ),
-        width: double.infinity,
-        height: height,
-      ),
-    );
-  }
 }
