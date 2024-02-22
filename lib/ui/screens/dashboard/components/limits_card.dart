@@ -75,6 +75,8 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var inputLocked = useState(true);
+
     var showLoading =
         ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
@@ -82,7 +84,6 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
       return const _LimitsSlidersOrTextsLoading();
     }
 
-    var inputLocked = useState(true);
 
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
