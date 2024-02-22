@@ -23,6 +23,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 import '../../../components/horizontal_scroll_indicator.dart';
 import '../components/fans_card.dart';
 import '../components/firmware_retraction_card.dart';
+import '../components/grouped_sliders_card.dart';
 import '../components/limits_card.dart';
 import '../components/multipliers_card.dart';
 import '../components/pins_card.dart';
@@ -32,11 +33,10 @@ class ControlTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var settingService = ref.watch(settingServiceProvider);
+    var groupSliders = ref.watch(boolSettingProvider(AppSettingKeys.groupSliders, true));
 
     return ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid)).when(
           data: (data) {
-            var groupSliders = settingService.readBool(AppSettingKeys.groupSliders, true);
             return PullToRefreshPrinter(
               child: ListView(
                 key: const PageStorageKey<String>('cTab'),
@@ -46,7 +46,7 @@ class ControlTab extends ConsumerWidget {
                   FansCard(machineUUID: data),
                   PinsCard(machineUUID: data),
                   PowerApiCard(machineUUID: data),
-                  if (groupSliders) const _MiscCard(),
+                  if (groupSliders) GroupedSlidersCard(machineUUID: data),
                   if (!groupSliders) ...[
                     MultipliersCard(machineUUID: data),
                     LimitsCard(machineUUID: data),
@@ -104,47 +104,5 @@ class ControlTab extends ConsumerWidget {
             ),
           ),
         );
-  }
-}
-
-class _MiscCard extends HookConsumerWidget {
-  const _MiscCard({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var pageController = usePageController();
-
-    var macineUUID = ref.watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid)).value!;
-    var childs = [
-      MultipliersSlidersOrTexts(machineUUID: macineUUID),
-      LimitsSlidersOrTexts(machineUUID: macineUUID),
-      if (ref
-              .watch(machinePrinterKlippySettingsProvider.selectAs(
-                (data) => data.printerData.firmwareRetraction != null,
-              ))
-              .valueOrNull ==
-          true)
-        FirmwareRetractionSlidersOrTexts(machineUUID: macineUUID),
-    ];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 15),
-        child: Column(
-          children: [
-            ExpandablePageView(
-              key: const PageStorageKey<String>('sliders_and_text'),
-              estimatedPageSize: 250,
-              controller: pageController,
-              children: childs,
-            ),
-            HorizontalScrollIndicator(
-              steps: childs.length,
-              controller: pageController,
-              childsPerScreen: 1,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
