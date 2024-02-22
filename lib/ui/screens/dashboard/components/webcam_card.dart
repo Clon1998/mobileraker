@@ -146,14 +146,14 @@ class _WebcamCardLoading extends StatelessWidget {
   }
 }
 
-class _Card extends ConsumerWidget {
+class _Card extends StatelessWidget {
   const _Card({super.key, required this.machineUUID, required this.child});
 
   final String machineUUID;
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
