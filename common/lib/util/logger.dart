@@ -88,7 +88,7 @@ class RiverPodLogger extends ProviderObserver {
 
   @override
   void providerDidFail(ProviderBase provider, Object error, StackTrace stackTrace, ProviderContainer container) {
-    logger.e(' ${provider.toIdentityString()} failed with', error, stackTrace);
+    logger.e('[RiverPodLogger]::FAILED ${provider.toIdentityString()} failed with', error, stackTrace);
   }
 
   @override
@@ -96,7 +96,7 @@ class RiverPodLogger extends ProviderObserver {
     if (['toolheadInfoProvider'].contains(provider.name)) return;
 
     var familiy = provider.from?.toString() ?? '';
-    logger.wtf('RiverPod::DISPOSED: ${provider.toIdentityString()} $familiy');
+    logger.wtf('[RiverPodLogger]::DISPOSED: ${provider.toIdentityString()} $familiy');
     //
     // if (provider.name == 'klipperServiceProvider') {
     //   logger.wtf('RiverPod::klipperServiceProvider:  ${container}');
@@ -105,7 +105,7 @@ class RiverPodLogger extends ProviderObserver {
 
   @override
   void didAddProvider(ProviderBase provider, Object? value, ProviderContainer container) {
-    logger.wtf('RiverPod::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth}');
+    logger.wtf('[RiverPodLogger]::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth}');
   }
 
   @override
@@ -129,8 +129,9 @@ class RiverPodLogger extends ProviderObserver {
     var providerStr = '${provider.name ?? provider.runtimeType}#${identityHashCode(provider)}$familiy';
 
     logger.wtf(
-        'RiverPod::UPDATE-old-> $providerStr ${identityHashCode(previousValue)}:${previousValue.toString().truncate(200)}');
-    logger.wtf('RiverPod::UPDATE-new->$providerStr ${identityHashCode(newValue)}:${newValue.toString().truncate(200)}');
+        '[RiverPodLogger]::UPDATE-old-> $providerStr ${identityHashCode(previousValue)}:${previousValue.toString().truncate(200)}');
+    logger.wtf(
+        '[RiverPodLogger]::UPDATE-new->$providerStr ${identityHashCode(newValue)}:${newValue.toString().truncate(200)}');
   }
 }
 
