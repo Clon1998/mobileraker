@@ -208,7 +208,7 @@ class _FirmwareRetractionCardController extends _$FirmwareRetractionCardControll
   @override
   Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
-    await Future.delayed(const Duration(milliseconds: 5000));
+    // await Future.delayed(const Duration(milliseconds: 5000));
 
     var klippyCanReceiveF =
         ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
