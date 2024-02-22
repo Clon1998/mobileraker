@@ -74,7 +74,7 @@ class _MultipliersSlidersOrTextsLoading extends StatelessWidget {
 }
 
 class MultipliersSlidersOrTexts extends HookConsumerWidget {
-  const MultipliersSlidersOrTexts({Key? key, required this.machineUUID}) : super(key: key);
+  const MultipliersSlidersOrTexts({super.key, required this.machineUUID});
 
   final String machineUUID;
 
