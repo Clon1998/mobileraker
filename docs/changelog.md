@@ -12,6 +12,12 @@
 
 - The Step Selector in the Z-Offset card now shows up to three decimal places again.
 
+## [2.6.11-hotfix1] - 2024-02-20
+### ANDROID ONLY
+### Bug Fixes
+
+- Fixed an issue that prevented the app from starting on some android devices.
+
 ## [2.6.11] - 2024-02-02
 
 ### Major Updates
