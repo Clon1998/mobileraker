@@ -203,7 +203,7 @@ class _PowerApiCardController extends _$PowerApiCardController {
 
     logger.i('Rebuilding PowerApiCardController for $machineUUID');
 
-    var hasPowerAPI = await ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.hasPowerAPI));
+    var hasPowerAPI = await ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.hasPowerComponent));
 
     List<PowerDevice> devices = [];
     bool isPrinting = false;

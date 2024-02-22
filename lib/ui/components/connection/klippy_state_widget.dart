@@ -121,7 +121,7 @@ class _StateError extends ConsumerWidget {
             ),
           ),
         ),
-        if (data.hasPowerAPI) PowerApiCard(machineUUID: machineUUID),
+        if (data.hasPowerComponent) PowerApiCard(machineUUID: machineUUID),
       ],
     );
   }
