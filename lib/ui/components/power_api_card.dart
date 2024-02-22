@@ -195,6 +195,8 @@ class _PowerApiCardController extends _$PowerApiCardController {
 
   CompositeKey get _hadPowerApi => CompositeKey.keyWithString(UiKeys.hadPowerAPI, machineUUID);
 
+  bool? _wroteValue;
+
   @override
   Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
@@ -219,7 +221,12 @@ class _PowerApiCardController extends _$PowerApiCardController {
 
     // await Future.delayed(const Duration(milliseconds: 2000));
 
-    _settingService.writeBool(_hadPowerApi, hasPowerAPI && devices.isNotEmpty);
+    // Reduce the amount of writes to the setting service
+    var tmp = hasPowerAPI && devices.isNotEmpty;
+    if (_wroteValue != tmp) {
+      _wroteValue = tmp;
+      _settingService.writeBool(_hadPowerApi, tmp);
+    }
     return _Model(devices: devices, isPrinting: isPrinting);
   }
 

@@ -260,6 +260,8 @@ class _WebcamCardController extends _$WebcamCardController {
 
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.webcamIndex, machineUUID);
 
+  bool? _wroteValue;
+
   @override
   Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
@@ -273,8 +275,10 @@ class _WebcamCardController extends _$WebcamCardController {
     var readInt = _settingService.readInt(_settingsKey, 0);
     var idx = (state.whenData((value) => value.selected).valueOrNull ?? readInt).clamp(0, allWebcams.length - 1);
 
-    _settingService.writeBool(_hadWebcamKey, allWebcams.isNotEmpty);
-
+    if (_wroteValue != allWebcams.isNotEmpty) {
+      _wroteValue = allWebcams.isNotEmpty;
+      _settingService.writeBool(_hadWebcamKey, allWebcams.isNotEmpty);
+    }
     return _Model(machine: machine!, selected: idx, allCams: allWebcams);
   }
 
