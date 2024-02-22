@@ -45,13 +45,13 @@ class FilesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Scaffold(
-      appBar: _AppBar(),
-      drawer: NavigationDrawerWidget(),
-      bottomNavigationBar: _BottomNav(),
-      floatingActionButton: _Fab(),
+    return Scaffold(
+      appBar: const _AppBar(),
+      drawer: const NavigationDrawerWidget(),
+      bottomNavigationBar: const _BottomNav(),
+      floatingActionButton: const _Fab(),
       body: ConnectionStateView(
-        onConnected: _FilesBody(),
+        onConnected: (_, __) => const _FilesBody(),
         skipKlipperReady: true,
       ),
     );

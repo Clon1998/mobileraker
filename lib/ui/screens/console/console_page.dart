@@ -40,7 +40,7 @@ class ConsolePage extends ConsumerWidget {
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: const ConnectionStateView(onConnected: _ConsoleBody()),
+      body: ConnectionStateView(onConnected: (_, __) => const _ConsoleBody()),
     );
   }
 }
@@ -104,9 +104,7 @@ class _ConsoleBody extends HookConsumerWidget {
                 onKey: klippyCanReceiveCommands
                     ? (event) {
                         if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                          ref
-                              .read(consoleListControllerProvider.notifier)
-                              .onCommandSubmit(consoleTextEditor.text);
+                          ref.read(consoleListControllerProvider.notifier).onCommandSubmit(consoleTextEditor.text);
                           consoleTextEditor.clear();
                         }
                       }
@@ -161,9 +159,11 @@ class GCodeSuggestionBar extends StatefulHookConsumerWidget {
 }
 
 class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
-  List<String> calculateSuggestedMacros(String currentInput,
-      List<String> history,
-      List<Command> available,) {
+  List<String> calculateSuggestedMacros(
+    String currentInput,
+    List<String> history,
+    List<Command> available,
+  ) {
     List<String> potential = [];
     potential.addAll(history);
 

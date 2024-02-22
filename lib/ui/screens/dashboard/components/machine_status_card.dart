@@ -14,6 +14,7 @@ import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -38,7 +39,7 @@ class MachineStatusCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // logger.i('Rebuilding MachineStatusCard for $machineUUID');
+    logger.i('Rebuilding MachineStatusCard for $machineUUID');
 
     var showLoading =
         ref.watch(_machineStatusCardProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
