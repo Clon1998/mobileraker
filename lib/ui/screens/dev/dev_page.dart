@@ -20,9 +20,10 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/ui/screens/dashboard/components/firmware_retraction_card.dart';
 import 'package:path_provider/path_provider.dart';
 
-import '../dashboard/components/machine_status_card.dart';
+import '../dashboard/components/grouped_sliders_card.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
@@ -42,7 +43,10 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
-          MachineStatusCard(machineUUID: selMachine!.uuid),
+          // PowerApiCardLoading(),
+
+          GroupedSlidersCard(machineUUID: selMachine!.uuid),
+          FirmwareRetractionCard(machineUUID: selMachine!.uuid),
           // MachineStatusCardLoading(),
           // BedMeshCard(machineUUID: selMachine!.uuid),
           // SpoolmanCardLoading(),

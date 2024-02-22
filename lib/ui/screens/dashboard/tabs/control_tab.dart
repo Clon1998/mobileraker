@@ -7,9 +7,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
-import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,7 +18,6 @@ import 'package:mobileraker/ui/screens/dashboard/components/control_extruder_car
 import 'package:mobileraker/ui/screens/dashboard/dashboard_controller.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
-import '../../../components/horizontal_scroll_indicator.dart';
 import '../components/fans_card.dart';
 import '../components/firmware_retraction_card.dart';
 import '../components/grouped_sliders_card.dart';
@@ -50,12 +47,7 @@ class ControlTab extends ConsumerWidget {
                   if (!groupSliders) ...[
                     MultipliersCard(machineUUID: data),
                     LimitsCard(machineUUID: data),
-                    if (ref
-                            .watch(machinePrinterKlippySettingsProvider
-                                .selectAs((data) => data.printerData.firmwareRetraction != null))
-                            .valueOrNull ==
-                        true)
-                      FirmwareRetractionCard(machineUUID: data),
+                    FirmwareRetractionCard(machineUUID: data),
                   ],
                   BedMeshCard(machineUUID: data),
                 ],

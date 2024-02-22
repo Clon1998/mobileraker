@@ -132,6 +132,7 @@ enum UiKeys implements KeyValueStoreKey {
   hadSpoolman('hSpoolman'),
   hadWebcam('hWebcam'),
   hadPowerAPI('hPower'),
+  hadFirmwareRetraction('hFwRetr'),
   ;
 
   @override
