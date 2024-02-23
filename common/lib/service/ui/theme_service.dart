@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../ui/theme/theme_pack.dart';
+import '../payment_service.dart';
 
 part 'theme_service.g.dart';
 
@@ -21,23 +23,40 @@ List<ThemePack> themePack(ThemePackRef ref) {
   throw UnimplementedError();
 }
 
-@Riverpod(keepAlive: true)
+@Riverpod()
 ThemeService themeService(ThemeServiceRef ref) => ThemeService(ref);
 
 @riverpod
-Stream<ThemeModel> activeTheme(ActiveThemeRef ref) =>
-    ref.watch(themeServiceProvider).themesStream;
+Stream<ThemeModel> activeTheme(ActiveThemeRef ref) => ref.watch(themeServiceProvider).themesStream;
 
 class ThemeService {
   ThemeService(ThemeServiceRef ref)
       : themePacks = ref.watch(themePackProvider),
         _settingService = ref.watch(settingServiceProvider) {
     assert(themePacks.isNotEmpty, 'No ThemePacks provided!');
-    _init();
+    _init(ref);
   }
 
-  _init() {
+  _init(ThemeServiceRef ref) {
+    ref.keepAlive();
     selectSystemThemePack();
+    // Listen to changes in the selected machine and update the active theme accordingly
+    ref.listen(
+      selectedMachineProvider,
+      (previous, next) {
+        next.whenData((value) {
+          if (value == null || value.printerThemePack == -1) {
+            selectSystemThemePack();
+            return;
+          }
+
+          if (ref.read(isSupporterProvider)) {
+            selectThemeIndex(value.printerThemePack);
+          }
+        });
+      },
+      fireImmediately: true,
+    );
   }
 
   final List<ThemePack> themePacks;
@@ -90,8 +109,7 @@ class ThemeService {
 
   void selectThemeMode(ThemeMode mode) {
     activeTheme = activeTheme.copyWith(themeMode: mode);
-    _settingService.writeInt(
-        AppSettingKeys.themeMode, ThemeMode.values.indexOf(mode));
+    _settingService.writeInt(AppSettingKeys.themeMode, ThemeMode.values.indexOf(mode));
   }
 }
 
