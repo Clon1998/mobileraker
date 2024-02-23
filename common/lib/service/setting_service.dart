@@ -25,6 +25,26 @@ bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key, [bool fallback = fals
   return ref.watch(settingServiceProvider).readBool(key, fallback);
 }
 
+@riverpod
+int intSetting(IntSettingRef ref, KeyValueStoreKey key, [int fallback = 0]) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).readInt(key, fallback);
+}
+
+@riverpod
+Type objectSetting<Type>(ObjectSettingRef ref, KeyValueStoreKey key, Type fallback) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).read(key, fallback);
+}
+
 /// Actually this class turned more into a KeyValue store than just storing app setings
 /// Settings related to the App!
 class SettingService {
