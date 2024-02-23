@@ -18,12 +18,14 @@ class SpoolWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorVariant = _getColorVariant();
 
+    var brightness = Theme.of(context).brightness;
+
     return FutureBuilder<String>(
       future: rootBundle.loadString('assets/vector/spool-yellow-small.svg'),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           return SvgPicture.string(
-            _getSvgString(snapshot.data!, colorVariant),
+            _getSvgString(snapshot.data!, colorVariant, brightness),
             height: height,
             width: width,
           );
@@ -51,8 +53,13 @@ class SpoolWidget extends StatelessWidget {
     return hsl.withLightness((hsl.lightness + lightnessAdjustment).clamp(0, 1)).toColor().value.toRadixString(16);
   }
 
-  String _getSvgString(String svg, String? colorVariant) {
+  String _getSvgString(String svg, String? colorVariant, Brightness brightness) {
     if (colorVariant == null) return svg;
+
+    if (brightness == Brightness.dark) {
+      // Change the spool color to a lighter color for dark mode
+      svg = svg.replaceAll('fill="#282828"', 'fill="#5B5B5B"').replaceAll('fill="#1E1E1E"', 'fill="#4E4E4E"');
+    }
 
     return svg.replaceAll('fill="#FCEE21"', 'fill="#$color"').replaceAll('fill="#FFCD00"', 'fill="#$colorVariant"');
   }
