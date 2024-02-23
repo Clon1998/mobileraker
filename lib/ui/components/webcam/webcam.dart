@@ -13,6 +13,7 @@ import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
@@ -22,7 +23,7 @@ import 'package:stringr/stringr.dart';
 
 typedef ImageBuilder = Widget Function(BuildContext context, Widget image);
 
-class Webcam extends ConsumerWidget {
+class Webcam extends HookConsumerWidget {
   const Webcam({
     Key? key,
     required this.machine,
@@ -41,6 +42,7 @@ class Webcam extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     var clientType = ref.watch(jrpcClientTypeProvider(machine.uuid));
 
     if (clientType == ClientType.obico) {
