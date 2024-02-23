@@ -15,6 +15,7 @@ import '../components/fans_card.dart';
 import '../components/firmware_retraction_card.dart';
 import '../components/grouped_sliders_card.dart';
 import '../components/limits_card.dart';
+import '../components/macro_group_card.dart';
 import '../components/multipliers_card.dart';
 import '../components/pins_card.dart';
 
@@ -32,6 +33,7 @@ class ControlTab extends ConsumerWidget {
         key: const PageStorageKey<String>('cTab'),
         padding: const EdgeInsets.only(bottom: 30),
         children: [
+          MacroGroupCard(machineUUID: machineUUID),
           ControlExtruderCard(machineUUID: machineUUID),
           FansCard(machineUUID: machineUUID),
           PinsCard(machineUUID: machineUUID),
