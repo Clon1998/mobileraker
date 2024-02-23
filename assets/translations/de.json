@@ -267,7 +267,11 @@
         "lcFullCam": "Vollbild-Webcam im Querformat",
         "language": "Sprache",
         "companion": "Möchten Sie Remote-Benachrichtigung erhalten?\n Dann erfahren Sie, wie Sie Mobileraker-Companion auf ihrem System instalieren auf seiner ",
-        "sliders_grouping": "Gruppiere Schieberegler Karten"
+        "sliders_grouping": "Gruppiere Schieberegler Karten",
+        "time_format": "Zeitformat",
+        "system_theme": "UI-Design",
+        "system_theme_mode": "Design-Helligkeit",
+        "printer_theme_warning": "Sie verwenden derzeit ein druckerspezifisches Design. Um dies zu ändern, gehen Sie zu den Druckereinstellungen."
       },
       "notification": {
         "title": "Benachrichtigung",
@@ -843,6 +847,11 @@
     "unauthorized": "Unberechtigt",
     "initializing": "Initialisierung",
     "not_connected": "Moonraker kann keine Verbindung mit Klipper herstellen. Bitte überprüfen Sie, ob Klipper auf Ihrem System läuft."
+  },
+  "theme_mode": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
   },
   "notifications": {
     "channel_printer_grp": "Drucker {}",

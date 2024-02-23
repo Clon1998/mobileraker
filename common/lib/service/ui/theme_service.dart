@@ -107,6 +107,10 @@ class ThemeService {
     }
   }
 
+  void updateSystemThemePack(ThemePack themePack) {
+    _settingService.writeInt(AppSettingKeys.themePack, themePacks.indexOf(themePack));
+  }
+
   void selectThemeMode(ThemeMode mode) {
     activeTheme = activeTheme.copyWith(themeMode: mode);
     _settingService.writeInt(AppSettingKeys.themeMode, ThemeMode.values.indexOf(mode));

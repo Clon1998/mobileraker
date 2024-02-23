@@ -267,7 +267,11 @@
         "lcFullCam": "Fullscreen Webcam in Landscape",
         "language": "Language",
         "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its ",
-        "sliders_grouping": "Group Slider Cards"
+        "sliders_grouping": "Group Slider Cards",
+        "time_format": "Time Format",
+        "system_theme": "UI Theme",
+        "system_theme_mode": "Theme Brightness",
+        "printer_theme_warning": "You are currently using a printer-specific theme. To modify it, go to the printer's settings."
       },
       "notification": {
         "title": "Notification",
@@ -319,7 +323,7 @@
         "full_url": "Full URL",
         "timeout_label": "Client timeout",
         "timeout_helper": "The timeout for the client connection in seconds",
-        "theme": "UI-Theme",
+        "theme": "UI Theme",
         "theme_helper": "UI theme for printer",
         "theme_unavailable": "UI theme for printer, only available for Supporters"
       },
@@ -843,6 +847,11 @@
     "unauthorized": "Unauthorized",
     "initializing": "Initializing",
     "not_connected": "Moonraker cannot establish a connection with Klipper. Please verify that Klipper is running on your system."
+  },
+  "theme_mode": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",
