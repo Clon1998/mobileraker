@@ -62,64 +62,68 @@ class BedMeshSettingsBottomSheet extends HookWidget {
                       ),
                       const SizedBox(height: 8),
                       Expanded(
-                        child: ListView(
-                          controller: scrollController,
-                          children: [
-                            ListTile(
-                              title: Text('bottom_sheets.bedMesh.no_mesh', maxLines: 1, overflow: TextOverflow.ellipsis)
-                                  .tr(),
-                              subtitle: Text('bottom_sheets.bedMesh.clear_loaded_profile').tr(),
-                              selected: activeProfileState.value == null,
-                              selectedColor: themeData.colorScheme.onSurfaceVariant,
-                              selectedTileColor: themeData.colorScheme.surfaceVariant,
-                              onTap: () {
-                                activeProfileState.value = null;
-                              },
-                            ),
-                            for (var profile in arguments.profiles)
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: ListView(
+                            controller: scrollController,
+                            children: [
                               ListTile(
-                                // leading: profile.name == arguments.activeProfile? const Icon(Icons.chevron_right_outlined) : null,
-                                selected: profile.name == activeProfileState.value,
+                                title: const Text('bottom_sheets.bedMesh.no_mesh',
+                                        maxLines: 1, overflow: TextOverflow.ellipsis)
+                                    .tr(),
+                                subtitle: const Text('bottom_sheets.bedMesh.clear_loaded_profile').tr(),
+                                selected: activeProfileState.value == null,
                                 selectedColor: themeData.colorScheme.onSurfaceVariant,
                                 selectedTileColor: themeData.colorScheme.surfaceVariant,
-                                // dense: true,
-                                visualDensity: VisualDensity.compact,
-                                title: Text(
-                                  profile.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                subtitle: Text('${profile.meshParams.xCount}x${profile.meshParams.yCount} Mesh'),
-                                // subtitle: Text('Range: ${numberFormat.format(profile.valueRange)}'),
-                                trailing: Tooltip(
-                                  message: tr('pages.dashboard.control.bed_mesh_card.range_tooltip'),
-                                  child: Chip(
-                                    backgroundColor: profile.name == activeProfileState.value
-                                        ? themeData.colorScheme.primaryContainer
-                                        : null,
-                                    visualDensity: VisualDensity.compact,
-                                    label: Text(
-                                      numberFormat.format(profile.valueRange),
-                                      style: TextStyle(
-                                        color: profile.name == activeProfileState.value
-                                            ? themeData.colorScheme.onPrimaryContainer
-                                            : null,
-                                      ),
-                                    ),
-                                    avatar: const Icon(
-                                      FlutterIcons.unfold_less_horizontal_mco,
-                                      // FlutterIcons.flow_line_ent,
-                                      // color: Colors.white,
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
                                 onTap: () {
-                                  activeProfileState.value = profile.name;
-                                  // Navigator.of(context).pop(profile);
+                                  activeProfileState.value = null;
                                 },
                               ),
-                          ],
+                              for (var profile in arguments.profiles)
+                                ListTile(
+                                  // leading: profile.name == arguments.activeProfile? const Icon(Icons.chevron_right_outlined) : null,
+                                  selected: profile.name == activeProfileState.value,
+                                  selectedColor: themeData.colorScheme.onSurfaceVariant,
+                                  selectedTileColor: themeData.colorScheme.surfaceVariant,
+                                  // dense: true,
+                                  visualDensity: VisualDensity.compact,
+                                  title: Text(
+                                    profile.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  subtitle: Text('${profile.meshParams.xCount}x${profile.meshParams.yCount} Mesh'),
+                                  // subtitle: Text('Range: ${numberFormat.format(profile.valueRange)}'),
+                                  trailing: Tooltip(
+                                    message: tr('pages.dashboard.control.bed_mesh_card.range_tooltip'),
+                                    child: Chip(
+                                      backgroundColor: profile.name == activeProfileState.value
+                                          ? themeData.colorScheme.primaryContainer
+                                          : null,
+                                      visualDensity: VisualDensity.compact,
+                                      label: Text(
+                                        numberFormat.format(profile.valueRange),
+                                        style: TextStyle(
+                                          color: profile.name == activeProfileState.value
+                                              ? themeData.colorScheme.onPrimaryContainer
+                                              : null,
+                                        ),
+                                      ),
+                                      avatar: const Icon(
+                                        FlutterIcons.unfold_less_horizontal_mco,
+                                        // FlutterIcons.flow_line_ent,
+                                        // color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    activeProfileState.value = profile.name;
+                                    // Navigator.of(context).pop(profile);
+                                  },
+                                ),
+                            ],
+                          ),
                         ),
                       ),
 
