@@ -5,6 +5,7 @@
 
 import 'dart:async';
 
+import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -17,7 +18,6 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,7 +25,6 @@ import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_legend.dart';
 import 'package:mobileraker/ui/components/bed_mesh/bed_mesh_plot.dart';
 import 'package:mobileraker/ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/bottom_sheet_service_impl.dart';
@@ -34,26 +33,18 @@ part 'bed_mesh_card.freezed.dart';
 part 'bed_mesh_card.g.dart';
 
 class BedMeshCard extends HookConsumerWidget {
-  BedMeshCard({Key? key, required this.machineUUID}) : super(key: key);
+  const BedMeshCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
-  late final CompositeKey _hadMeshKey = CompositeKey.keyWithString(UiKeys.hadMeshView, machineUUID);
+  CompositeKey get _hadMeshKey => CompositeKey.keyWithString(UiKeys.hadMeshView, machineUUID);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var settingService = ref.watch(settingServiceProvider);
-    var hadBedMesh = settingService.readBool(_hadMeshKey);
+    var hadBedMesh = ref.read(boolSettingProvider(_hadMeshKey));
 
-    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.bedMesh != null)).valueOrNull;
+    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.hasBedMesh)).valueOrNull;
 
-    useEffect(
-      () {
-        if (showCard == null) return;
-        settingService.writeBool(_hadMeshKey, showCard);
-      },
-      [showCard],
-    );
     if (!hadBedMesh && showCard != true || showCard == false) {
       return const SizedBox.shrink();
     }
@@ -93,7 +84,7 @@ class _BedMeshLoading extends StatelessWidget {
           children: [
             CardTitleSkeleton(),
             Padding(
-              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+              padding: EdgeInsets.only(left: 8, right: 8, bottom: 8),
               child: IntrinsicHeight(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -106,32 +97,26 @@ class _BedMeshLoading extends StatelessWidget {
                             width: 30,
                             height: double.infinity,
                             child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                              ),
+                              decoration: BoxDecoration(color: Colors.white),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         SizedBox(
                           width: 30,
                           height: 30,
                           child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                            ),
+                            decoration: BoxDecoration(color: Colors.white),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8),
                     Expanded(
                       child: AspectRatio(
                         aspectRatio: 1,
                         child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                          ),
+                          decoration: BoxDecoration(color: Colors.white),
                         ),
                       ),
                     ),
@@ -295,39 +280,45 @@ class _Controller extends _$Controller {
 
   KeyValueStoreKey get _settingsKey => CompositeKey.keyWithString(UtilityKeys.meshViewMode, machineUUID);
 
+  CompositeKey get _hadMeshKey => CompositeKey.keyWithString(UiKeys.hadMeshView, machineUUID);
+
+  bool? _wroteValue;
+
   @override
-  Stream<_Model> build(String machineUUID) async* {
+  Future<_Model> build(String machineUUID) async {
     ref.keepAliveFor();
-    var printerProviderr = printerProvider(machineUUID);
-    var klipperProviderr = klipperProvider(machineUUID);
 
-    var initialProbeMode = _settingService.readBool(_settingsKey, false);
+    // await Future.delayed(const Duration(milliseconds: 2000));
 
-    var klippyCanReceiveCommands = ref.watchAsSubject(
-      klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
+    var showProbed = ref.watch(boolSettingProvider(_settingsKey));
+
+    var klippyCanReceiveCommandsF = ref.watch(
+      klipperProvider(machineUUID).selectAsync((value) => value.klippyCanReceiveCommands),
     );
-    var bedMesh = ref.watchAsSubject(
-      printerProviderr.selectAs((value) => value.bedMesh),
+    var bedMeshF = ref.watch(
+      printerProvider(machineUUID).selectAsync((value) => value.bedMesh),
     );
-    var configFile = ref.watchAsSubject(
-      printerProviderr.selectAs((value) => value.configFile),
+    var configFileF = ref.watch(
+      printerProvider(machineUUID).selectAsync((value) => value.configFile),
     );
 
-    yield* Rx.combineLatest3(
-      klippyCanReceiveCommands,
-      bedMesh,
-      configFile,
-      (a, b, c) {
-        var mode = state.whenData((value) => value.showProbed).valueOrNull ?? initialProbeMode;
+    var results = await Future.wait([klippyCanReceiveCommandsF, bedMeshF, configFileF]);
 
-        return _Model(
-          klippyCanReceiveCommands: a,
-          showProbed: mode,
-          bedMesh: b,
-          bedMin: (c.minX, c.minY),
-          bedMax: (c.maxX, c.maxY),
-        );
-      },
+    var mesh = results[1] as BedMesh?;
+    ConfigFile configFile = results[2] as ConfigFile;
+    var showCard = mesh != null;
+
+    if (_wroteValue != showCard) {
+      _settingService.writeBool(_hadMeshKey, showCard);
+      _wroteValue = showCard;
+    }
+
+    return _Model(
+      klippyCanReceiveCommands: results[0] as bool,
+      showProbed: showProbed,
+      bedMesh: mesh,
+      bedMin: (configFile.minX, configFile.minY),
+      bedMax: (configFile.maxX, configFile.maxY),
     );
   }
 
@@ -359,10 +350,12 @@ class _Controller extends _$Controller {
   }
 
   changeMode() {
-    state = state.whenData((value) {
-      _settingService.writeBool(_settingsKey, !value.showProbed);
-      return value.copyWith(showProbed: !value.showProbed);
-    });
+    if (state case AsyncValue(hasValue: true, :final value?)) {
+      var mode = !value.showProbed;
+      _settingService.writeBool(_settingsKey, mode);
+
+      state = AsyncData(value.copyWith(showProbed: mode));
+    }
   }
 
   loadProfile(String profileName) async {
