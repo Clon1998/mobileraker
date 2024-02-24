@@ -196,7 +196,8 @@
           "title": "Spoolman",
           "no_spool": "Keine Spule ausgewählt.\nFilamentverbrauch wird nicht nachverfolgt.",
           "select_spool": "Spule auswählen",
-          "used": "Benutzt: {}"
+          "used": "Benutzt: {}",
+          "provider_error_title": "Fehler beim Laden der Spoolman Daten"
         }
       }
     },

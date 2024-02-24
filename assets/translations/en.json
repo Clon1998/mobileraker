@@ -196,7 +196,8 @@
           "title": "Spoolman",
           "no_spool": "No spool selected.\nFilament usage will not be tracked.",
           "select_spool": "Select Spool",
-          "used": "Used: {}"
+          "used": "Used: {}",
+          "provider_error_title": "Error fetching Spoolman data"
         }
       }
     },

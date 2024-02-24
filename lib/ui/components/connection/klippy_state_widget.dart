@@ -6,6 +6,7 @@
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -15,7 +16,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
-import 'package:mobileraker/ui/components/simple_error_widget.dart';
 
 import 'connection_state_view.dart';
 

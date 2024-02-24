@@ -15,6 +15,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
@@ -38,7 +39,6 @@ import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../components/simple_error_widget.dart';
 
 class FilesPage extends ConsumerWidget {
   const FilesPage({Key? key}) : super(key: key);

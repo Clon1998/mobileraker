@@ -5,11 +5,11 @@
 
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/simple_error_widget.dart';
 
 /// This widget watches the ASYNCVALUE (AsyncError) of the printerProvider and handles the error state of the provider to prevent any issues down the widget tree
 class PrinterProviderGuard extends HookConsumerWidget {
