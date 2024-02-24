@@ -160,7 +160,8 @@
         },
         "power_card": {
           "title": "Power Panel",
-          "pin_btn": "Pin"
+          "pin_btn": "Pin",
+          "provider_error_title": "Error fetching Power Api Devices"
         },
         "multipl_card": {
           "title": "Multipliers",

@@ -160,7 +160,8 @@
         },
         "power_card": {
           "title": "Schalttafel",
-          "pin_btn": "Pin"
+          "pin_btn": "Pin",
+          "provider_error_title": "Fehler beim ladern der Schalttafel"
         },
         "multipl_card": {
           "title": "Multiplikatoren",

@@ -6,6 +6,7 @@
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/power/power_device.dart';
 import 'package:common/data/enums/power_state_enum.dart';
+import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/power_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -23,6 +24,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/adaptive_horizontal_scroll.dart';
 import 'package:mobileraker/ui/components/card_with_switch.dart';
+import 'package:mobileraker/ui/components/simple_error_widget.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -73,6 +75,7 @@ class PowerApiCard extends ConsumerWidget {
       // AsyncError(:final error) => Text('A'),
       // The model is loading for the first time and we previously had a power api card
       AsyncLoading() when hadPowerApi => const _PowerApiCardLoading(key: Key('powLoading')),
+      AsyncError(:final error) => _ProviderError(key: const Key('powErr'), machineUUID: machineUUID, error: error),
       // Default do not show anything. E.g. the model is loading for the first time and we never had a power api card
       _ => const SizedBox.shrink(
           key: Key('powNone'),
@@ -183,6 +186,52 @@ class _PowerDeviceCard extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+class _ProviderError extends ConsumerWidget {
+  const _ProviderError({super.key, required this.machineUUID, required this.error});
+
+  final String machineUUID;
+  final Object error;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    String message = error.toString();
+    var e = error;
+    if (e is MobilerakerException) {
+      // title = e.message;
+      if (e.parentException != null) {
+        message = e.parentException.toString();
+      }
+    }
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(FlutterIcons.power_fea),
+              title: const Text('pages.dashboard.control.power_card.title').tr(),
+            ),
+            SimpleErrorWidget(
+              title: const Text('pages.dashboard.control.power_card.provider_error_title').tr(),
+              body: Text(message),
+              action: TextButton.icon(
+                onPressed: () {
+                  logger.i('Invalidating power service for $machineUUID');
+                  ref.invalidate(powerServiceProvider(machineUUID));
+                },
+                icon: const Icon(Icons.restart_alt_outlined),
+                label: const Text('general.retry').tr(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
