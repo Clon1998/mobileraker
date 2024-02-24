@@ -5,7 +5,6 @@
 
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/printer_service.dart';
-import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +29,7 @@ class PrinterProviderGuard extends HookConsumerWidget {
     // logger.i('Rebuilding PrinterProviderGuard ');
 
     return switch (printer) {
-      AsyncError(:final error) => _ProviderError(key: const Key('ppErr'), error: error),
+      AsyncError(:final error) => _ProviderError(key: const Key('ppErr'), machineUUID: machineUUID, error: error),
       _ => child,
     };
 
@@ -46,8 +45,9 @@ class PrinterProviderGuard extends HookConsumerWidget {
 }
 
 class _ProviderError extends ConsumerWidget {
-  const _ProviderError({super.key, required this.error});
+  const _ProviderError({super.key, required this.machineUUID, required this.error});
 
+  final String machineUUID;
   final Object error;
 
   @override
@@ -69,10 +69,8 @@ class _ProviderError extends ConsumerWidget {
         body: Text(message),
         action: TextButton.icon(
           onPressed: () {
-            var machine = ref.read(selectedMachineProvider).valueOrNull;
-            if (machine == null) return;
             logger.i('Invalidating printer service provider, to retry printer fetching');
-            ref.invalidate(printerServiceProvider(machine.uuid));
+            ref.invalidate(printerServiceProvider(machineUUID));
           },
           icon: const Icon(Icons.restart_alt_outlined),
           label: const Text('general.retry').tr(),

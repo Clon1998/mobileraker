@@ -6,7 +6,6 @@
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
-import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -59,7 +58,7 @@ class KlippyStateWidget extends HookConsumerWidget {
             when !skipKlipperReady && !wasFetched =>
           _StateError(data: kInstance, machineUUID: machineUUID),
         AsyncData(value: KlipperInstance(klippyState: KlipperState.unauthorized)) => const _StateUnauthorized(),
-        AsyncError(:final error) => _ProviderError(error: error),
+        AsyncError(:final error) => _ProviderError(machineUUID: machineUUID, error: error),
         _ => onConnected(context, machineUUID),
       },
     );
@@ -151,8 +150,9 @@ class _StateUnauthorized extends ConsumerWidget {
 }
 
 class _ProviderError extends ConsumerWidget {
-  const _ProviderError({super.key, required this.error});
+  const _ProviderError({super.key, required this.machineUUID, required this.error});
 
+  final String machineUUID;
   final Object error;
 
   @override
@@ -174,10 +174,8 @@ class _ProviderError extends ConsumerWidget {
         body: Text(message),
         action: TextButton.icon(
           onPressed: () {
-            var machine = ref.read(selectedMachineProvider).valueOrNull;
-            if (machine == null) return;
             logger.i('Invalidating klipper service provider, to retry klippy fetching');
-            ref.invalidate(klipperServiceProvider(machine.uuid));
+            ref.invalidate(klipperServiceProvider(machineUUID));
           },
           icon: const Icon(Icons.restart_alt_outlined),
           label: const Text('general.retry').tr(),
