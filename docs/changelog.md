@@ -8,7 +8,8 @@
 - Refactored the PrintInfo/MachineStatus card into its own component with some more animations, improving the overall
   user experience and performance.
 - The UI theme on the app settings page now shows a hint if the current theme is printer-specific.
-- Temperature fan cards now also show a graph to match the other temperature card elements.
+- Temperature fan cards now also show a graph to match the other temperature card
+  elements. ([#118](https://github.com/Clon1998/mobileraker/issues/118))
 
 ### Bug Fixes
 
