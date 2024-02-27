@@ -14,7 +14,6 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
-import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -51,15 +50,17 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
   Widget build(BuildContext context) {
     var page = useState(0);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
-      child: AnimatedSize(
-        duration: kThemeAnimationDuration,
-        curve: Curves.easeInOut,
-        alignment: Alignment.bottomCenter,
-        child: (page.value == 0)
-            ? _Home(key: _homeKey, pageController: page)
-            : _ManageServices(key: const Key('npMs'), defaultHeight: _sheetHeight, pageController: page),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(25, 15, 25, 10),
+        child: AnimatedSize(
+          duration: kThemeAnimationDuration,
+          curve: Curves.easeInOut,
+          alignment: Alignment.bottomCenter,
+          child: (page.value == 0)
+              ? _Home(key: _homeKey, pageController: page)
+              : _ManageServices(key: const Key('npMs'), defaultHeight: _sheetHeight, pageController: page),
+        ),
       ),
     );
   }
