@@ -246,6 +246,7 @@ class _Profile extends ConsumerWidget {
             height: 100,
           ),
           const Align(child: EditableUserDisplayName()),
+          Align(child: Text(model.user?.email ?? '', style: themeData.textTheme.bodySmall)),
           const _EmailVerification(),
           const SizedBox(height: 8),
           Text(
