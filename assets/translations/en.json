@@ -47,7 +47,9 @@
     "save": "Save",
     "apply": "Apply",
     "completed": "Completed",
-    "activate": "Activate"
+    "activate": "Activate",
+    "stop": "Stop",
+    "start": "Start"
   },
   "pages": {
     "dashboard": {
@@ -838,6 +840,13 @@
       "scan_again": "Scan Again",
       "set_active": "Set Active",
       "spool_id_not_found": "Sorry, no spool was found with the specified ID #{}."
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "Manage Services",
+        "no_services": "No services found!",
+        "provider_error": "Error while fetching services"
+      }
     }
   },
   "klipper_state": {

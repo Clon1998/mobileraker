@@ -47,7 +47,9 @@
     "save": "Speichern",
     "apply": "Anwenden",
     "completed": "Abgeschlossen",
-    "activate": "Activ"
+    "activate": "Activ",
+    "stop": "Stoppen",
+    "start": "Starten"
   },
   "pages": {
     "dashboard": {
@@ -838,6 +840,13 @@
       "scan_again": "Erneut scannen",
       "set_active": "Aktivieren",
       "spool_id_not_found": "Es konnte leider kein Spool mit der angegebenen ID #{} gefunden werden."
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "Dienste verwalten",
+        "no_services": "Keine Dienste gefunden!",
+        "provider_error": "Fehler beim Laden der Dienste!"
+      }
     }
   },
   "klipper_state": {

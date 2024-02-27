@@ -26,29 +26,45 @@ class ThemePack {
 @immutable
 class CustomColors extends ThemeExtension<CustomColors> {
   const CustomColors({
-    required this.success,
-    required this.info,
-    required this.warning,
-    required this.danger,
+    this.success,
+    this.onSuccess,
+    this.info,
+    this.onInfo,
+    this.warning,
+    this.onWarning,
+    this.danger,
+    this.onDanger,
   });
 
   final Color? success;
+  final Color? onSuccess;
   final Color? info;
+  final Color? onInfo;
   final Color? warning;
+  final Color? onWarning;
   final Color? danger;
+  final Color? onDanger;
 
   @override
   CustomColors copyWith({
     Color? success,
+    Color? onSuccess,
     Color? info,
+    Color? onInfo,
     Color? warning,
+    Color? onWarning,
     Color? danger,
+    Color? onDanger,
   }) {
     return CustomColors(
       success: success ?? this.success,
+      onSuccess: onSuccess ?? this.onSuccess,
       info: info ?? this.info,
+      onInfo: onInfo ?? this.onInfo,
       warning: warning ?? this.warning,
+      onWarning: onWarning ?? this.onWarning,
       danger: danger ?? this.danger,
+      onDanger: onDanger ?? this.onDanger,
     );
   }
 
@@ -73,19 +89,41 @@ class CustomColors extends ThemeExtension<CustomColors> {
       'success: $success, info: $info, warning: $info, danger: $danger'
       ')';
 
-  // the light theme
+// the light theme
   static const light = CustomColors(
-    success: Color(0xff28a745),
-    info: Color(0xff17a2b8),
-    warning: Color(0xffffc107),
-    danger: Color(0xffdc3545),
+    success: Color(0xff4caf50),
+    // vibrant green
+    onSuccess: Color(0xffffffff),
+    // white
+    info: Color(0xff2196f3),
+    // vibrant blue
+    onInfo: Color(0xffffffff),
+    // white
+    warning: Color(0xffe68309),
+    // orange
+    onWarning: Color(0xffffffff),
+    // white
+    danger: Color(0xffd83327),
+    // vibrant red
+    onDanger: Color(0xffffffff), // white
   );
 
-  // the dark theme
+// the dark theme
   static const dark = CustomColors(
-    success: Color(0xff00bc8c),
-    info: Color(0xff17a2b8),
-    warning: Color(0xfff39c12),
-    danger: Color(0xffe74c3c),
+    success: Color(0xff008040),
+    // darker green
+    onSuccess: Color(0xff000000),
+    // black
+    info: Color(0xff0080ff),
+    // darker blue
+    onInfo: Color(0xffffffff),
+    // white
+    warning: Color(0xffa5a508),
+    // darker yellow
+    onWarning: Color(0xffffffff),
+    // black
+    danger: Color(0xffb30000),
+    // darker red
+    onDanger: Color(0xffffffff), // white
   );
 }
