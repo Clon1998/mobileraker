@@ -136,7 +136,7 @@ class _UserBottomSheetState extends State<UserBottomSheet> {
                   ),
                 ),
                 const AnimatedSize(duration: kThemeAnimationDuration, child: _InfoText()),
-                ElevatedButton.icon(
+                FilledButton.icon(
                   label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
                   icon: const Icon(Icons.keyboard_arrow_down),
                   onPressed: () => Navigator.of(context).pop(),
