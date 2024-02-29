@@ -6,6 +6,7 @@
 import 'package:common/data/dto/console/command.dart';
 import 'package:common/data/dto/console/console_entry.dart';
 import 'package:common/data/enums/console_entry_type_enum.dart';
+import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
@@ -16,7 +17,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
