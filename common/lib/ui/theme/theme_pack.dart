@@ -118,7 +118,7 @@ class CustomColors extends ThemeExtension<CustomColors> {
     // darker blue
     onInfo: Color(0xffffffff),
     // white
-    warning: Color(0xffa5a508),
+    warning: Color(0xffff8c00),
     // darker yellow
     onWarning: Color(0xffffffff),
     // black
