@@ -40,8 +40,13 @@ Uri? buildMoonrakerHttpUri(String? enteredURL) {
 ///Returns a URI that is either based from the machineURI or the camURI if it is absolute.
 Uri buildWebCamUri(Uri machineUri, Uri camUri) {
   if (camUri.isAbsolute) return camUri;
-  // For K1 its a bad user experience to remove the port. I now switched to the http port so I expect a correct port here.
-  return machineUri.toHttpUri().resolveUri(camUri);
+
+  return machineUri
+      .toHttpUri()
+      // For K1 its a bad user experience to remove the printer port.
+      // But if the printer port equals a default moonraker instance replace it with default http(s) port.
+      .let((it) => it.hasPort && it.port == 7125 ? it.replace(port: it.isScheme('https') ? 443 : 80) : it)
+      .resolveUri(camUri);
   // return machineUri.toHttpUri().removePort().resolveUri(camUri);
 }
 
