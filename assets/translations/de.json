@@ -755,7 +755,7 @@
     },
     "filament_sensor_triggered": {
       "title": "Filament Sensor Ausgelöst",
-      "body": "Sensor '{}' wurde ausgelöst.\n\nBitte überprüfen Sie sowohl den Drucker als auch den Sensor, um sicherzustellen, dass genügend Filament vorhanden ist."
+      "body": "Sensor '{}' wurde ausgelöst.\n\nBitte überprüfen Sie sowohl den Drucker als auch den Sensor, um sicherzustellen, dass genügend Filament vorhanden ist oder deaktivieren Sie den Sensor, wenn er nicht benötigt wird."
     }
   },
   "bottom_sheets": {

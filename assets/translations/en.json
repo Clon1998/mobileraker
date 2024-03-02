@@ -755,7 +755,7 @@
     },
     "filament_sensor_triggered": {
       "title": "Filament Sensor Triggered",
-      "body": "Sensor '{}' has been triggered.\n\nPlease check the printer and the sensor to ensure filament is available."
+      "body": "Sensor '{}' has been triggered.\n\nPlease check the printer and the sensor to ensure filament is available or disable the sensor."
     }
   },
   "bottom_sheets": {
