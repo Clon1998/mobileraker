@@ -8,6 +8,7 @@ import 'dart:math';
 import 'package:common/data/dto/config/config_output.dart';
 import 'package:common/data/dto/config/led/config_dumb_led.dart';
 import 'package:common/data/dto/config/led/config_led.dart';
+import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/leds/addressable_led.dart';
 import 'package:common/data/dto/machine/leds/dumb_led.dart';
 import 'package:common/data/dto/machine/leds/led.dart';
@@ -151,7 +152,7 @@ class _CardTitle extends ConsumerWidget {
 
     return ListTile(
       leading: const Icon(FlutterIcons.led_outline_mco),
-      title: const Text('pages.dashboard.control.pin_card.title').plural(model),
+      title: const Text('pages.dashboard.control.pin_card.title_misc').tr(),
     );
   }
 }
@@ -167,6 +168,8 @@ class _CardBody extends ConsumerWidget {
 
     var pinsCount = ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.pins.length));
     var ledsCount = ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.leds.length));
+    var filamentSensorsCount =
+        ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.filamentSensors.length));
 
     return AdaptiveHorizontalScroll(
       pageStorageKey: "pins",
@@ -181,6 +184,13 @@ class _CardBody extends ConsumerWidget {
           _Led(
             // ignore: avoid-unsafe-collection-methods
             ledProvider: _pinsCardControllerProvider(machineUUID).selectRequireValue((value) => value.leds[i]),
+            machineUUID: machineUUID,
+          ),
+        for (var i = 0; i < filamentSensorsCount; i++)
+          _FilamentSensor(
+            // ignore: avoid-unsafe-collection-methods
+            sensorProvider:
+                _pinsCardControllerProvider(machineUUID).selectRequireValue((value) => value.filamentSensors[i]),
             machineUUID: machineUUID,
           ),
       ],
@@ -405,6 +415,69 @@ class _Led extends ConsumerWidget {
   }
 }
 
+class _FilamentSensor extends ConsumerWidget {
+  static const double _iconSize = 30;
+
+  const _FilamentSensor({super.key, required this.sensorProvider, required this.machineUUID});
+
+  final ProviderListenable<FilamentSensor> sensorProvider;
+  final String machineUUID;
+
+  @override
+  Widget build(_, WidgetRef ref) {
+    var sensor = ref.watch(sensorProvider);
+    var klippyCanReceiveCommands =
+        ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+
+    var controller = ref.watch(_pinsCardControllerProvider(machineUUID).notifier);
+
+    logger.i('Rebuilding filament sensor card for ${sensor.name}');
+
+    return CardWithSwitch(
+      value: sensor.enabled,
+      onChanged: klippyCanReceiveCommands ? (v) => controller.onUpdateFilamentSensor(sensor, v) : null,
+      builder: (context) {
+        var textTheme = Theme.of(context).textTheme;
+        var beautifiedName = beautifyName(sensor.name);
+        return Tooltip(
+          message: beautifiedName,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    beautifiedName,
+                    style: textTheme.bodySmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    switch (sensor) {
+                      FilamentSensor(enabled: true, filamentDetected: true) =>
+                        'pages.dashboard.control.pin_card.filament_sensor.detected'.tr(),
+                      FilamentSensor(enabled: true, filamentDetected: false) =>
+                        'pages.dashboard.control.pin_card.filament_sensor.not_detected'.tr(),
+                      _ => 'general.disabled'.tr(),
+                    },
+                    style: textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+              Icon(
+                sensor.enabled ? Icons.sensors : Icons.sensors_off,
+                size: _iconSize,
+                // color: sensor.enabled ? Colors.green : Colors.white,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 @riverpod
 class _PinsCardController extends _$PinsCardController {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
@@ -431,18 +504,23 @@ class _PinsCardController extends _$PinsCardController {
         (data) => data.outputPins.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
     var pinConfig = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.configFile.outputs));
 
-    yield* Rx.combineLatest5(
+    var filamentSensors = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) =>
+        data.filamentSensors.values.where((element) => !element.name.startsWith('_')).toList(growable: false)));
+
+    yield* Rx.combineLatest6(
       klippyCanReceiveCommands,
       leds,
       ledConfig,
       pins,
       pinConfig,
-      (a, b, c, d, e) => _Model(
+      filamentSensors,
+      (a, b, c, d, e, f) => _Model(
         klippyCanReceiveCommands: a,
         leds: b,
         ledConfig: c,
         pins: d,
         pinConfig: e,
+        filamentSensors: f,
       ),
     );
   }
@@ -472,6 +550,10 @@ class _PinsCardController extends _$PinsCardController {
 
   void onUpdateBinaryPin(OutputPin pin, bool value) {
     _printerService.outputPin(pin.name, value ? 1 : 0);
+  }
+
+  Future<void> onUpdateFilamentSensor(FilamentSensor sensor, bool value) async {
+    _printerService.filamentSensor(sensor.name, value);
   }
 
   Future<void> onEditLed(Led led) async {
@@ -544,9 +626,10 @@ class _Model with _$Model {
     required Map<String, ConfigLed> ledConfig,
     required List<OutputPin> pins,
     required Map<String, ConfigOutput> pinConfig,
+    required List<FilamentSensor> filamentSensors,
   }) = __Model;
 
-  bool get showCard => leds.isNotEmpty || pins.isNotEmpty;
+  bool get showCard => leds.isNotEmpty || pins.isNotEmpty || filamentSensors.isNotEmpty;
 
-  int get total => leds.length + pins.length;
+  int get total => leds.length + pins.length + filamentSensors.length;
 }

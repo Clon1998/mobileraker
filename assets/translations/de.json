@@ -152,13 +152,12 @@
           "no_macros": "In dieser Gruppe sind derzeit keine Makros sichtbar"
         },
         "pin_card": {
-          "title": {
-            "zero": "Ausgang",
-            "one": "Ausgang",
-            "two": "Ausgänge",
-            "other": "Ausgänge"
-          },
-          "pin_btn": "Pin"
+          "title_misc": "Verschiedenes",
+          "pin_btn": "Pin",
+          "filament_sensor": {
+            "detected": "Erkannt",
+            "not_detected": "Leer"
+          }
         },
         "power_card": {
           "title": "Schalttafel",
@@ -753,6 +752,10 @@
     },
     "fan_speed": {
       "title": "Bearbeite {} %"
+    },
+    "filament_sensor_triggered": {
+      "title": "Filament Sensor Ausgelöst",
+      "body": "Sensor '{}' wurde ausgelöst.\n\nBitte überprüfen Sie sowohl den Drucker als auch den Sensor, um sicherzustellen, dass genügend Filament vorhanden ist."
     }
   },
   "bottom_sheets": {

@@ -24,6 +24,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
+import 'package:mobileraker/ui/components/filament_sensor_watcher.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/printer_calibration_watcher.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
@@ -213,10 +214,13 @@ class _DashboardBody extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return PrinterCalibrationWatcher(
       machineUUID: machineUUID,
-      child: PageView(
-        key: const PageStorageKey<String>('dashboardPages'),
-        controller: controller,
-        children: [GeneralTab(machineUUID), ControlTab(machineUUID)],
+      child: FilamentSensorWatcher(
+        machineUUID: machineUUID,
+        child: PageView(
+          key: const PageStorageKey<String>('dashboardPages'),
+          controller: controller,
+          children: [GeneralTab(machineUUID), ControlTab(machineUUID)],
+        ),
       ),
     );
   }

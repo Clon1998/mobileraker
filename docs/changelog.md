@@ -2,6 +2,11 @@
 
 ## [2.6.12] - 2024-03-xx
 
+### Major Updates
+
+- Added support for filament runout and motion sensors. Users can now monitor the status of these sensors and customize
+  their behavior through dashboard.
+
 ### Changed Features
 
 - Updated 🇫🇷 translation, thanks to Arnaud Petetin
@@ -10,6 +15,7 @@
 - The UI theme on the app settings page now shows a hint if the current theme is printer-specific.
 - Temperature fan cards now also show a graph to match the other temperature card
   elements. ([#118](https://github.com/Clon1998/mobileraker/issues/118))
+- Updated the title of outputs to "Miscellaneous," reflecting the inclusion of filament sensors alongside other outputs.
 
 ### Bug Fixes
 

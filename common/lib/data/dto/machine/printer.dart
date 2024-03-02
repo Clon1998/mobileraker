@@ -4,6 +4,7 @@
  */
 
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
+import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -56,6 +57,7 @@ class PrinterBuilder {
         displayStatus = printer.displayStatus,
         leds = printer.leds,
         genericHeaters = printer.genericHeaters,
+        filamentSensors = printer.filamentSensors,
         currentFile = printer.currentFile;
 
   Toolhead? toolhead;
@@ -81,6 +83,7 @@ class PrinterBuilder {
   List<String> gcodeMacros = [];
   Map<String, Led> leds = {};
   Map<String, GenericHeater> genericHeaters = {};
+  Map<String, FilamentSensor> filamentSensors = {};
 
   Printer build() {
     if (toolhead == null) {
@@ -127,6 +130,7 @@ class PrinterBuilder {
       gcodeMacros: gcodeMacros,
       leds: Map.unmodifiable(leds),
       genericHeaters: Map.unmodifiable(genericHeaters),
+      filamentSensors: Map.unmodifiable(filamentSensors),
     );
     return printer;
   }
@@ -160,6 +164,7 @@ class Printer with _$Printer {
     @Default([]) List<String> gcodeMacros,
     @Default({}) Map<String, Led> leds,
     @Default({}) Map<String, GenericHeater> genericHeaters,
+    @Default({}) Map<String, FilamentSensor> filamentSensors,
   }) = _Printer;
 
   Extruder get extruder => extruders[0]; // Fast way for first extruder -> always present!

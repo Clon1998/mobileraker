@@ -152,13 +152,12 @@
           "no_macros": "No macros are currently visible in this group"
         },
         "pin_card": {
-          "title": {
-            "zero": "Output Pin",
-            "one": "Output Pin",
-            "two": "Output Pins",
-            "other": "Output Pins"
-          },
-          "pin_btn": "Pin"
+          "title_misc": "Miscellaneous",
+          "pin_btn": "Pin",
+          "filament_sensor": {
+            "detected": "Detected",
+            "not_detected": "Empty"
+          }
         },
         "power_card": {
           "title": "Power Panel",
@@ -753,6 +752,10 @@
     },
     "fan_speed": {
       "title": "Edit {} %"
+    },
+    "filament_sensor_triggered": {
+      "title": "Filament Sensor Triggered",
+      "body": "Sensor '{}' has been triggered.\n\nPlease check the printer and the sensor to ensure filament is available."
     }
   },
   "bottom_sheets": {
