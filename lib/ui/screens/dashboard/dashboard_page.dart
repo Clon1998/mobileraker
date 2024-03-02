@@ -35,7 +35,7 @@ import 'package:rate_my_app/rate_my_app.dart';
 import '../../components/connection/printer_provider_guard.dart';
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +56,7 @@ class DashboardPage extends StatelessWidget {
 }
 
 class _DashboardView extends HookConsumerWidget {
-  const _DashboardView({Key? key}) : super(key: key);
+  const _DashboardView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,7 +88,7 @@ class _DashboardView extends HookConsumerWidget {
 }
 
 class _FloatingActionBtn extends ConsumerWidget {
-  const _FloatingActionBtn({Key? key}) : super(key: key);
+  const _FloatingActionBtn({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
