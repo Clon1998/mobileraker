@@ -6,7 +6,6 @@
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -38,7 +37,6 @@ class _PrinterCalibrationWatcherState extends ConsumerState<FilamentSensorWatche
   @override
   void initState() {
     super.initState();
-    logger.e('Filament Sensor Watcher Init');
     // We dont need to handle any error state here!
     ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.filamentSensors),
