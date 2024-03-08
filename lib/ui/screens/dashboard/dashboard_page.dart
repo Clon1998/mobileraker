@@ -62,12 +62,20 @@ class _DashboardView extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var pageController = usePageController(keys: []);
+    ref.listen(selectedMachineProvider, (previous, next) {
+      if (previous == null) return;
+      if (previous.valueOrNull?.uuid != next.valueOrNull?.uuid) {
+        pageController.jumpToPage(0);
+      }
+    });
+
+    var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
 
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: tr('pages.dashboard.title'),
         actions: <Widget>[
-          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrNull),
+          MachineStateIndicator(activeMachine),
           const EmergencyStopBtn(),
         ],
       ),
@@ -181,9 +189,14 @@ class _BottomNavigationBar extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
+    var lastIndex = useRef(0);
 
-    int activeIndex =
-        useListenableSelector(pageController, () => pageController.hasClients ? pageController.page?.round() ?? 0 : 0);
+    int activeIndex = useListenableSelector(pageController, () {
+      if (pageController.positions.length == 1) {
+        lastIndex.value = pageController.page?.round() ?? 0;
+      }
+      return lastIndex.value;
+    });
 
     return AnimatedBottomNavigationBar(
       icons: const [FlutterIcons.tachometer_faw, FlutterIcons.settings_oct],
