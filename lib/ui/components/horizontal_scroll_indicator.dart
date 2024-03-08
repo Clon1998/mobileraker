@@ -26,7 +26,7 @@ class HorizontalScrollIndicator extends StatefulWidget {
 }
 
 class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
-  late final int steps;
+  late int steps;
 
   double _curIndex = 0;
 
@@ -37,7 +37,21 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   @override
   initState() {
     super.initState();
+    _init();
+  }
+
+  @override
+  void didUpdateWidget(_) {
+    super.didUpdateWidget(_);
+    _init();
+  }
+
+  _init() {
     steps = (widget.childsPerScreen == null) ? widget.steps : (widget.steps / widget.childsPerScreen!).ceil();
+
+    // Ensure that only one listener is attached
+    controller.removeListener(_updateIndexFromOffset);
+    controller.removeListener(_updateIndexFromPage);
 
     if (controller is PageController?) {
       logger.d(
