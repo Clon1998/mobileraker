@@ -15,12 +15,11 @@ class HorizontalScrollIndicator extends StatefulWidget {
   final int? childsPerScreen;
 
   const HorizontalScrollIndicator({
-    Key? key,
+    super.key,
     required this.steps,
     required this.controller,
     this.childsPerScreen,
-  })  : assert(steps > 0),
-        super(key: key);
+  }) : assert(steps > 0);
 
   @override
   State<HorizontalScrollIndicator> createState() => _HorizontalScrollIndicatorState();
@@ -59,9 +58,15 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
     double maxScrollExtent = controller.position.maxScrollExtent;
     if (maxScrollExtent == 0) return;
 
+    // Width of a single step, we need to subtract 1 because the maxScrollExtent is at the start of the last step
+    double wPerStep = maxScrollExtent / (steps - 1);
+    // Current offset
     double offset = controller.offset;
-    double newIndex = min(steps - 1, max(0, steps * offset / maxScrollExtent - 1));
-    if ((_curIndex - newIndex).abs() < 0.2) return;
+
+    // Calculate index
+    double newIndex = (offset / wPerStep).clamp(0, steps - 1);
+    logger.d('newIndex: $newIndex, offset: $offset, maxScrollExtent: $maxScrollExtent');
+    if ((_curIndex - newIndex).abs() < 0.1) return;
     setState(() {
       _curIndex = newIndex;
     });
@@ -72,7 +77,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
       return;
     }
 
-    var newIndex = pageController.page ?? 0;
+    var newIndex = (pageController.page ?? 0) * pageController.viewportFraction;
     if ((_curIndex - newIndex).abs() < 0.2) return;
     setState(() {
       _curIndex = newIndex;
@@ -90,8 +95,8 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
 
   @override
   dispose() {
-    widget.controller.removeListener(_updateIndexFromOffset);
-    widget.controller.removeListener(_updateIndexFromPage);
+    controller.removeListener(_updateIndexFromOffset);
+    controller.removeListener(_updateIndexFromPage);
     super.dispose();
   }
 }
