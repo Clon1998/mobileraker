@@ -13,6 +13,7 @@ import 'package:mobileraker/ui/screens/dashboard/components/machine_status_card.
 import 'package:mobileraker/ui/screens/dashboard/components/webcam_card.dart';
 import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_card.dart';
 
+import '../../../components/remote_announcements.dart';
 import '../../../components/remote_connection_active_card.dart';
 import '../components/temperature_card/temperature_sensor_preset_card.dart';
 import '../components/z_offset_card.dart';
@@ -29,7 +30,9 @@ class GeneralTab extends ConsumerWidget {
         // physics: const BouncingScrollPhysics(), // Reproduces the iOS bounce effect and cam jumping scroll
         key: const PageStorageKey('gTab'),
         padding: const EdgeInsets.only(bottom: 20),
+        shrinkWrap: true,
         children: [
+          const RemoteAnnouncements(),
           const MachineDeletionWarning(),
           const SupporterAd(),
           RemoteConnectionActiveCard(machineId: machineUUID),

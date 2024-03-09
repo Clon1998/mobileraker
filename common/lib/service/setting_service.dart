@@ -139,6 +139,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   moveStepIndex('moveStepIndex'),
   extruderStepIndex('extruderStepIndex'),
   meshViewMode('meshViewMode'),
+  devAnnouncementDismiss('devAnnouncementDismiss'),
   ;
 
   @override
