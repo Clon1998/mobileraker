@@ -100,7 +100,7 @@ dependencies:
   #theme
   cupertino_icons: ^1.0.2
   flex_color_scheme: ^7.0.4
-  google_fonts: 6.1.0 # 6.2.0 preventing the app from building
+  google_fonts: ^6.2.0 # 6.2.0 preventing the app from building
 
 
   #notification
