@@ -2,7 +2,7 @@
   "general": {
     "resume": "Reprendre",
     "connected": "Connecté",
-    "off": "Eteint",
+    "off": "Éteint",
     "on": "Allumer",
     "none": "Aucune",
     "add": "Ajouter",
@@ -14,7 +14,7 @@
     "restart": "Redémarrer",
     "shutdown": "Eteindre",
     "firmware": "Firmware",
-    "fetching": "A la recherche",
+    "fetching": "À la recherche",
     "unknown": "Inconnu",
     "disabled": "Désactiver",
     "confirm": "Confirmer"
@@ -51,7 +51,7 @@
           "presets_btn": "Préréglages",
           "hotend": "Hotend",
           "bed": "Plateau",
-          "temp_presets": "Températures prérégler",
+          "temp_presets": "Températures préréglées",
           "sensors": "Capteurs",
           "heater_on": "{} °C cible",
           "btn_thermistor": "Capteur"
@@ -100,7 +100,7 @@
           "extrude": "Extruder",
           "retract": "Rétracter",
           "extrude_len": "@:pages.dashboard.control.extrude_card.extrude length",
-          "cold_extrude_error": "L'extrudeur n'a pas atteit la temperature minimal d'extrusion de {}°C!"
+          "cold_extrude_error": "L'extrudeur n'a pas atteint la température minimale d'extrusion de {}°C!"
         },
         "macro_card": {
           "title": "Gcode - Macros"
@@ -129,21 +129,21 @@
           "velocity": "Vitesse",
           "accel": "Accélération",
           "sq_corn_vel": "Vitesse d'angle droit",
-          "accel_to_decel": "Accélération à Décélération"
+          "accel_to_decel": "Accélération à décélération"
         }
       }
     },
     "files": {
-      "title": "Files",
-      "search_files": "Chercher fichier",
+      "title": "Fichiers",
+      "search_files": "Chercher un fichier",
       "clear_search": "Supprimer la recherche",
       "name": "Nom",
       "last_mod": "Dernière modification",
       "last_printed": "Dernière impression",
-      "fetching_files": "@:general.fetching Files...",
-      "no_files_found": "Aucun fichier trouver!",
+      "fetching_files": "@:general.fetching de fichiers...",
+      "no_files_found": "Aucun fichier trouvé!",
       "details": {
-        "preheat": "Prechauffer",
+        "preheat": "Préchauffer",
         "print": "Imprimer",
         "general_card": {
           "path": "Chemin",
@@ -162,7 +162,7 @@
           "layer_higher": "Hauteur de la couche",
           "first_layer": "Première couche",
           "others": "Autres",
-          "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperatures",
+          "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Températures",
           "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
         },
         "stat_card": {
@@ -182,41 +182,70 @@
       "title": "Paramètres de l'application",
       "general": {
         "title": "Général",
-        "ems_confirm": "Confirmation de l'Arrêt d'urgence",
+        "ems_confirm": "Confirmation de l'arrêt d'urgence",
         "always_baby": "Toujours afficher le micro stepping",
         "num_edit": "Utiliser le clavier pour la saisie des chiffres",
         "start_with_overview": "Show @:pages.overview.title by default",
-        "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué.",
+        "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué",
         "language": "Langue",
-        "companion": "Vous voulez recevoir une notification à distance ? Apprenez à configurer Mobileraker's Companion sur son site Web. "
+        "lcFullCam": "Orientation paysage lors de l'affichage de la webcam en plein écran",
+        "language": "Language",
+        "companion": "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web. "
       },
       "notification": {
         "title": "Notification",
-        "progress_label": "Notification d'avancement",
+        "progress_label": "Notifications d'avancement",
         "progress_helper": "Intervalle de mise à jour pour la notification de la progression de l'impression",
+        "state_label": "Notifications de changement d'état",
+        "state_helper": "États qui déclenchent une notification.",
         "no_permission_title": "Pas de permission de notification !",
         "no_permission_desc": "Impossible d'afficher les notifications.Demandez la permission en cliquant !",
-        "ios_notifications_title": "Transmission des notifications IOS",
+        "no_firebase_title": "Impossible d'afficher les notifications",
+        "no_firebase_desc": "Mobileraker ne peut pas envoyer de notification à cet appareil.\nIl semble que votre appareil n'a pas les services Google Play installés ou bloque la connection de Firebase!",
+        "ios_notifications_title": "Transmission des notifications iOS",
         "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !"
+        "missing_companion_title": "Companion introuvable!",
+        "missing_companion_body": "Il semble que le companion ne soit pas installé, les machines suivantes ne peuvent donc pas envoyer de notification: {}\n\nCliquez pour en apprendre davantage!",
+        "enable_live_activity": "Activer Live Activity"
+      },
+      "developer": {
+        "title": "Développeur",
+        "crashlytics": "Activer la collecte via Crashlytics pour aider à améliorer l'application"
       },
       "imprint": "Privacy/Impressum"
     },
     "printer_edit": {
       "title": "Edit {}",
       "import_settings": "Importer réglages",
-      "remove_printer": "Supprimer imprimante",
+      "remove_printer": "Supprimer l'imprimante",
       "no_values_found": "Aucune valeur trouvée!",
-      "fetching_additional_settings": "@:general.fetching additional settings from network...",
-      "could_not_fetch_additional": "Impossible de récupérer des paramètres supplémentaires !",
-      "fetch_error_hint": "Assurez-vous que la machine est joignable, et que Mobileraker y est connecté.",
+      "fetching_additional_settings": "@:general.fetching paramètres additionnels depuis le réseau...",
+      "could_not_fetch_additional": "Impossible de récupérer des paramètres additionnels !",
+      "fetch_error_hint": "Assurez-vous que la machine soit joignable, et que Mobileraker y est connecté.",
+      "reset_notification_registry": "Réinitialiser le registre des notification de l'imprimante",
+      "configure_remote_connection": "Configurer la connexion à distance",
+      "store_error": {
+        "title": "Sauvegarde échouée!",
+        "message": "Certains champs contiennent des valeurs manquantes ou invalides!\nAssurez-vous que tous les champs sont valides.",
+        "unexpected_error": "Une erreur innatendue s'est produite lors de la sauvegarde des données de l'imprimante!"
+      },
+      "confirm_deletion": {
+        "title": "Supprimer {}?",
+        "body": "Vous êtes sur le point de supprimer l'imprimante '{}' connectée à '{}'. \n\nConfirmez l'action."
+      },
       "general": {
         "displayname": "Nom d'affichage",
         "printer_addr": "Imprimante - Adresse",
         "ws_addr": "Websocket - Adresse",
         "moonraker_api_key": "Moonraker - Clé API",
         "moonraker_api_desc": "Seulement nécessaire si vous utilisez des clients de confiance. FluiddPI applique cette règle !",
-        "full_url": "URL complet",
+        "full_url": "URL complète",
         "self_signed": "Faire confiance aux certificats auto-signés"
+        "timeout_label": "Expiration du délai du client (timeout)",
+        "timeout_helper": "Délai de connection pour le client en secondes (timeout delay)",
+        "theme": "Thème de l'interface",
+        "theme_helper": "Thème de l'interface de l'imprimante",
+        "theme_unavailable": "Thème de l'interface pour l'imprimante, seulement disponible en soutenant l'application."
       },
       "motion_system": {
         "title": "Système de mouvement",
