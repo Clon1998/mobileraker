@@ -16,6 +16,8 @@
 - Temperature fan cards now also show a graph to match the other temperature card
   elements. ([#118](https://github.com/Clon1998/mobileraker/issues/118))
 - Updated the title of outputs to "Miscellaneous," reflecting the inclusion of filament sensors alongside other outputs.
+- The horizontal scrollable cards now snap to the nearest card when scrolling, providing a more intuitive user
+  experience.
 
 ### Bug Fixes
 
