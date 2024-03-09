@@ -61,7 +61,7 @@ class PowerApiCard extends ConsumerWidget {
                   ).tr(),
                 ),
                 AdaptiveHorizontalScroll(
-                  pageStorageKey: 'powers',
+                  pageStorageKey: 'powers$machineUUID',
                   children: [
                     for (var device in devices)
                       _PowerDeviceCard(machineUUID: machineUUID, powerDevice: device, isPrinting: isPrinting),

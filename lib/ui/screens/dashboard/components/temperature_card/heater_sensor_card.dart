@@ -18,6 +18,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -89,9 +90,10 @@ class _CardBody extends ConsumerWidget {
     var genericHeatersCount = ref.watch(provider.selectAs((value) => value.genericHeaters.length)).requireValue;
     var temperatureSensorCount = ref.watch(provider.selectAs((value) => value.temperatureSensors.length)).requireValue;
     var temperatureFanCount = ref.watch(provider.selectAs((value) => value.temperatureFans.length)).requireValue;
-
+    logger.w('Rebuilding HeaterSensorCard');
     return AdaptiveHorizontalScroll(
-      pageStorageKey: "temps",
+      snap: true,
+      pageStorageKey: "temps$machineUUID",
       children: [
         ..._extruderTiles(extruderCount),
         if (hasPrintBed)

@@ -10,6 +10,7 @@ import 'package:common/util/logger.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mobileraker/ui/components/horizontal_scroll_indicator.dart';
+import 'package:snap_scroll_physics/snap_scroll_physics.dart';
 
 /// A widget that adapts to the available horizontal space and allows scrolling.
 /// It takes a list of child widgets and displays them in a horizontal scroll view.
@@ -20,10 +21,14 @@ class AdaptiveHorizontalScroll extends HookWidget {
     super.key,
     required this.pageStorageKey,
     this.children = const [],
+    this.snap = true,
     this.minWidth = 150,
     this.maxWidth = 200,
     this.padding,
   });
+
+  // snap to the nearest child widget
+  final bool snap;
 
   // List of child widgets to be displayed in the scroll view
   final List<Widget> children;
@@ -47,6 +52,7 @@ class AdaptiveHorizontalScroll extends HookWidget {
       padding: padding ?? const EdgeInsets.only(left: 8, right: 8),
       child: LayoutBuilder(
         builder: (BuildContext ctx, BoxConstraints constraints) => _Scrollview(
+          snap: snap,
           constraints: constraints,
           pageStorageKey: pageStorageKey,
           minWidth: minWidth,
@@ -63,12 +69,15 @@ class _Scrollview extends HookWidget {
   // Constructor for the _Scrollview widget
   const _Scrollview({
     super.key,
+    required this.snap,
     required this.constraints,
     required this.children,
     required this.pageStorageKey,
     required this.minWidth,
     required this.maxWidth,
   });
+
+  final bool snap;
 
   // Key used for saving the scroll position
   final String pageStorageKey;
@@ -92,8 +101,8 @@ class _Scrollview extends HookWidget {
     final int visibleCnt = max(1, (constraints.maxWidth / minWidth).floor());
     final double width = constraints.maxWidth / visibleCnt;
 
-    // Create a page controller for the scroll view
-    final scrollCtrler = usePageController(viewportFraction: 1 / visibleCnt);
+    // Create a scroll controller
+    final scrollCtrler = useScrollController();
 
     // Log some information
     logger.i(
@@ -107,7 +116,12 @@ class _Scrollview extends HookWidget {
           key: PageStorageKey<String>('${pageStorageKey}M'),
           controller: scrollCtrler,
           scrollDirection: Axis.horizontal,
-          physics: const PageScrollPhysics(),
+          physics: SnapScrollPhysics(
+            parent: const ClampingScrollPhysics(),
+            snaps: [
+              for (int i = 0; i < children.length; i++) Snap(i * width, distance: width / 2),
+            ],
+          ),
           child: SizedBox(
             width: max(width * children.length, constraints.maxWidth),
             child: Row(

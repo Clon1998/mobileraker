@@ -105,7 +105,7 @@ class _CardBody extends ConsumerWidget {
     presetWidgets.insert(0, coolOf);
 
     return AdaptiveHorizontalScroll(
-      pageStorageKey: "presets",
+      pageStorageKey: "presets$machineUUID",
       children: presetWidgets,
     );
   }

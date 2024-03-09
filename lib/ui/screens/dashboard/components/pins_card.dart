@@ -172,7 +172,7 @@ class _CardBody extends ConsumerWidget {
         ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.filamentSensors.length));
 
     return AdaptiveHorizontalScroll(
-      pageStorageKey: "pins",
+      pageStorageKey: "pins$machineUUID",
       children: [
         for (var i = 0; i < pinsCount; i++)
           _Output(

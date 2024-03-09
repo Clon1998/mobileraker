@@ -155,7 +155,7 @@ class _CardBody extends ConsumerWidget {
         ref.watch(_fansCardControllerProvider(machineUUID).selectRequireValue((data) => data.hasPrintFan));
 
     return AdaptiveHorizontalScroll(
-      pageStorageKey: "fans",
+      pageStorageKey: "fans$machineUUID",
       children: [
         // PrintFan
         if (hasPrintFan)
