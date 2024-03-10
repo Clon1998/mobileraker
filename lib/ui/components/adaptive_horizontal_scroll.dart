@@ -105,7 +105,7 @@ class _Scrollview extends HookWidget {
     final scrollCtrler = useScrollController();
 
     // Log some information
-    logger.i(
+    logger.d(
       '$pageStorageKey - visibleCnt: $visibleCnt, width: $width, $constraints',
     );
 

@@ -39,7 +39,7 @@ class AdaptiveHorizontalPage extends HookWidget {
   Widget build(BuildContext context) {
     // Create a scroll controller for the scroll view
     final scrollCtrler = useScrollController();
-    logger.e('AdaptiveHorizontalPage - build()-- child len ${children.length}');
+
     return Padding(
       padding: padding ?? const EdgeInsets.only(left: 8, right: 8),
       child: LayoutBuilder(
@@ -48,7 +48,7 @@ class AdaptiveHorizontalPage extends HookWidget {
           final double width = constraints.maxWidth;
 
           // Log some information
-          logger.i(
+          logger.d(
             '$pageStorageKey (PageView) - visibleCnt:, width: $width, $constraints',
           );
 
@@ -59,7 +59,7 @@ class AdaptiveHorizontalPage extends HookWidget {
                 key: pageStorageKey?.let((it) => PageStorageKey<String>('${it}M')),
                 controller: scrollCtrler,
                 scrollDirection: Axis.horizontal,
-                physics: PageScrollPhysics(),
+                physics: const PageScrollPhysics(parent: ClampingScrollPhysics()),
                 child: SizedBox(
                   width: max(width * children.length, constraints.maxWidth),
                   child: Row(
