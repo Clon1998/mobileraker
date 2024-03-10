@@ -47,7 +47,9 @@
     "save": "Speichern",
     "apply": "Anwenden",
     "completed": "Abgeschlossen",
-    "activate": "Activ"
+    "activate": "Activ",
+    "stop": "Stoppen",
+    "start": "Starten"
   },
   "pages": {
     "dashboard": {
@@ -146,20 +148,21 @@
           "cold_extrude_error": "Extruder zu kalt.  min_extrode_temp von {}°C noch nicht erreicht!"
         },
         "macro_card": {
-          "title": "Gcode - Macros"
+          "title": "Gcode - Macros",
+          "no_macros": "In dieser Gruppe sind derzeit keine Makros sichtbar"
         },
         "pin_card": {
-          "title": {
-            "zero": "Ausgang",
-            "one": "Ausgang",
-            "two": "Ausgänge",
-            "other": "Ausgänge"
-          },
-          "pin_btn": "Pin"
+          "title_misc": "Verschiedenes",
+          "pin_btn": "Pin",
+          "filament_sensor": {
+            "detected": "Erkannt",
+            "not_detected": "Leer"
+          }
         },
         "power_card": {
           "title": "Schalttafel",
-          "pin_btn": "Pin"
+          "pin_btn": "Pin",
+          "provider_error_title": "Fehler beim ladern der Schalttafel"
         },
         "multipl_card": {
           "title": "Multiplikatoren",
@@ -194,7 +197,8 @@
           "title": "Spoolman",
           "no_spool": "Keine Spule ausgewählt.\nFilamentverbrauch wird nicht nachverfolgt.",
           "select_spool": "Spule auswählen",
-          "used": "Benutzt: {}"
+          "used": "Benutzt: {}",
+          "provider_error_title": "Fehler beim Laden der Spoolman Daten"
         }
       }
     },
@@ -266,7 +270,11 @@
         "lcFullCam": "Vollbild-Webcam im Querformat",
         "language": "Sprache",
         "companion": "Möchten Sie Remote-Benachrichtigung erhalten?\n Dann erfahren Sie, wie Sie Mobileraker-Companion auf ihrem System instalieren auf seiner ",
-        "sliders_grouping": "Gruppiere Schieberegler Karten"
+        "sliders_grouping": "Gruppiere Schieberegler Karten",
+        "time_format": "Zeitformat",
+        "system_theme": "UI-Design",
+        "system_theme_mode": "Design-Helligkeit",
+        "printer_theme_warning": "Sie verwenden derzeit ein druckerspezifisches Design. Um dies zu ändern, gehen Sie zu den Druckereinstellungen."
       },
       "notification": {
         "title": "Benachrichtigung",
@@ -741,6 +749,13 @@
     },
     "extruder_feedrate": {
       "title": "Extruder-Geschwindigkeit [mm/s]"
+    },
+    "fan_speed": {
+      "title": "Bearbeite {} %"
+    },
+    "filament_sensor_triggered": {
+      "title": "Filament Sensor Ausgelöst",
+      "body": "Sensor '{}' wurde ausgelöst.\n\nBitte überprüfen Sie sowohl den Drucker als auch den Sensor, um sicherzustellen, dass genügend Filament vorhanden ist oder deaktivieren Sie den Sensor, wenn er nicht benötigt wird."
     }
   },
   "bottom_sheets": {
@@ -828,6 +843,13 @@
       "scan_again": "Erneut scannen",
       "set_active": "Aktivieren",
       "spool_id_not_found": "Es konnte leider kein Spool mit der angegebenen ID #{} gefunden werden."
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "Dienste verwalten",
+        "no_services": "Keine Dienste gefunden!",
+        "provider_error": "Fehler beim Laden der Dienste!"
+      }
     }
   },
   "klipper_state": {
@@ -839,6 +861,11 @@
     "unauthorized": "Unberechtigt",
     "initializing": "Initialisierung",
     "not_connected": "Moonraker kann keine Verbindung mit Klipper herstellen. Bitte überprüfen Sie, ob Klipper auf Ihrem System läuft."
+  },
+  "theme_mode": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
   },
   "notifications": {
     "channel_printer_grp": "Drucker {}",

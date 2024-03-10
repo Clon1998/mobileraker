@@ -10,6 +10,7 @@ part 'output_pin.g.dart';
 
 @freezed
 class OutputPin with _$OutputPin {
+  const OutputPin._();
   const factory OutputPin({
     required String name,
     @Default(0.0) double value,
@@ -23,4 +24,6 @@ class OutputPin with _$OutputPin {
     var mergedJson = {...current.toJson(), ...partialJson};
     return OutputPin.fromJson(mergedJson);
   }
+
+  String get configName => name.toLowerCase();
 }

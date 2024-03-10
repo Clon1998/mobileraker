@@ -36,4 +36,6 @@ class GCodeMacro with _$GCodeMacro {
   factory GCodeMacro.fromJson(Map<String, dynamic> json) => _$GCodeMacroFromJson(json);
 
   String get beautifiedName => name.replaceAll("_", " ");
+
+  String get configName => name.toLowerCase();
 }

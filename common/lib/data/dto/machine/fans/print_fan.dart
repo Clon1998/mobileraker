@@ -12,6 +12,7 @@ part 'print_fan.g.dart';
 
 @freezed
 class PrintFan with _$PrintFan implements Fan {
+  const PrintFan._();
   const factory PrintFan({
     @Default(0) double speed,
   }) = _PrintFan;

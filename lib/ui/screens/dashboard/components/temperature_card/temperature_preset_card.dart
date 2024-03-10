@@ -26,11 +26,11 @@ part 'temperature_preset_card.g.dart';
 
 class TemperaturePresetCard extends ConsumerWidget {
   const TemperaturePresetCard({
-    Key? key,
+    super.key,
     required this.machineUUID,
     this.trailing,
     this.onPresetApplied,
-  }) : super(key: key);
+  });
 
   final String machineUUID;
   final Widget? trailing;
@@ -68,16 +68,16 @@ class TemperaturePresetCard extends ConsumerWidget {
 
 class _CardBody extends ConsumerWidget {
   const _CardBody({
-    Key? key,
+    super.key,
     required this.machineUUID,
     this.onPresetApplied,
-  }) : super(key: key);
+  });
   final String machineUUID;
   final VoidCallback? onPresetApplied;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_ControllerProvider(machineUUID, onPresetApplied)).requireValue;
+    var model = ref.watch(_ControllerProvider(machineUUID, onPresetApplied).requireValue());
     var controller = ref.watch(_ControllerProvider(machineUUID, onPresetApplied).notifier);
 
     var coolOf = _PresetTile(
@@ -105,7 +105,7 @@ class _CardBody extends ConsumerWidget {
     presetWidgets.insert(0, coolOf);
 
     return AdaptiveHorizontalScroll(
-      pageStorageKey: "presets",
+      pageStorageKey: "presets$machineUUID",
       children: presetWidgets,
     );
   }
@@ -113,12 +113,12 @@ class _CardBody extends ConsumerWidget {
 
 class _PresetTile extends StatelessWidget {
   const _PresetTile({
-    Key? key,
+    super.key,
     required this.name,
     required this.extruderTemp,
     required this.bedTemp,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   final String name;
   final int extruderTemp;

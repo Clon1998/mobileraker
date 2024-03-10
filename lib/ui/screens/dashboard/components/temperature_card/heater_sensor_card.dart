@@ -18,6 +18,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -33,17 +34,16 @@ import 'package:stringr/stringr.dart';
 
 import '../../../../../service/ui/dialog_service_impl.dart';
 import '../../../../components/adaptive_horizontal_scroll.dart';
-import '../../../../components/card_with_button.dart';
 import '../../../../components/dialog/edit_form/num_edit_form_controller.dart';
 import '../../../../components/graph_card_with_button.dart';
-import '../../tabs/control_tab.dart';
+import '../../../../components/spinning_fan.dart';
 import 'temperature_sensor_preset_card.dart';
 
-part 'heaters_sensor_card.freezed.dart';
-part 'heaters_sensor_card.g.dart';
+part 'heater_sensor_card.freezed.dart';
+part 'heater_sensor_card.g.dart';
 
 class HeaterSensorCard extends ConsumerWidget {
-  const HeaterSensorCard({Key? key, required this.machineUUID, this.trailing}) : super(key: key);
+  const HeaterSensorCard({super.key, required this.machineUUID, this.trailing});
 
   final String machineUUID;
 
@@ -76,7 +76,7 @@ class HeaterSensorCard extends ConsumerWidget {
 }
 
 class _CardBody extends ConsumerWidget {
-  const _CardBody({Key? key, required this.machineUUID}) : super(key: key);
+  const _CardBody({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -90,9 +90,10 @@ class _CardBody extends ConsumerWidget {
     var genericHeatersCount = ref.watch(provider.selectAs((value) => value.genericHeaters.length)).requireValue;
     var temperatureSensorCount = ref.watch(provider.selectAs((value) => value.temperatureSensors.length)).requireValue;
     var temperatureFanCount = ref.watch(provider.selectAs((value) => value.temperatureFans.length)).requireValue;
-
+    logger.w('Rebuilding HeaterSensorCard');
     return AdaptiveHorizontalScroll(
-      pageStorageKey: "temps",
+      snap: true,
+      pageStorageKey: "temps$machineUUID",
       children: [
         ..._extruderTiles(extruderCount),
         if (hasPrintBed)
@@ -152,10 +153,10 @@ class _HeaterMixinTile extends HookConsumerWidget {
   static const int _stillHotTemp = 50;
 
   const _HeaterMixinTile({
-    Key? key,
+    super.key,
     required this.machineUUID,
     required this.heaterProvider,
-  }) : super(key: key);
+  });
   final String machineUUID;
   final ProviderListenable<HeaterMixin> heaterProvider;
 
@@ -167,7 +168,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
 
     var genericHeater = ref.watch(heaterProvider);
 
-    var spots = useState(<FlSpot>[]);
+    var spots = useRef(<FlSpot>[]);
 
     var temperatureHistory = genericHeater.temperatureHistory;
     if (temperatureHistory != null) {
@@ -245,14 +246,14 @@ class _HeaterMixinTile extends HookConsumerWidget {
 }
 
 class _TemperatureSensorTile extends HookConsumerWidget {
-  const _TemperatureSensorTile({Key? key, required this.sensorProvider}) : super(key: key);
+  const _TemperatureSensorTile({super.key, required this.sensorProvider});
   final ProviderListenable<TemperatureSensor> sensorProvider;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     TemperatureSensor temperatureSensor = ref.watch(sensorProvider);
 
-    var spots = useState(<FlSpot>[]);
+    var spots = useRef(<FlSpot>[]);
     var temperatureHistory = temperatureSensor.temperatureHistory;
 
     if (temperatureHistory != null) {
@@ -296,10 +297,10 @@ class _TemperatureFanTile extends HookConsumerWidget {
   static const double icoSize = 30;
 
   const _TemperatureFanTile({
-    Key? key,
+    super.key,
     required this.tempFanProvider,
     required this.machineUUID,
-  }) : super(key: key);
+  });
   final ProviderListenable<TemperatureFan> tempFanProvider;
   final String machineUUID;
 
@@ -310,20 +311,20 @@ class _TemperatureFanTile extends HookConsumerWidget {
     var klippyCanReceiveCommands =
         ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands)).requireValue;
 
-    // var spots = useState(<FlSpot>[]);
-    // var temperatureHistory = temperatureSensor.temperatureHistory;
+    var spots = useRef(<FlSpot>[]);
+    var temperatureHistory = temperatureFan.temperatureHistory;
     //
-    // if (temperatureHistory != null) {
-    //   List<double> sublist =
-    //   temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
-    //   spots.value.clear();
-    //   spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
-    // }
+    if (temperatureHistory != null) {
+      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
+      spots.value.clear();
+      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
+    }
     var beautifiedNamed = beautifyName(temperatureFan.name);
     var numberFormat =
         NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
 
-    return CardWithButton(
+    return GraphCardWithButton(
+      plotSpots: spots.value,
       buttonChild: const Text('general.set').tr(),
       onTap: klippyCanReceiveCommands ? () => controller.editTemperatureFan(temperatureFan) : null,
       builder: (context) => Tooltip(
@@ -419,7 +420,7 @@ class _Controller extends _$Controller {
     } else if (heater is HeaterBed) {
       maxValue = configFile.configHeaterBed?.maxTemp;
     } else if (heater is GenericHeater) {
-      maxValue = configFile.genericHeaters[heater.name.toLowerCase()]?.maxTemp;
+      maxValue = configFile.genericHeaters[heater.configName]?.maxTemp;
     }
 
     _dialogService
@@ -446,7 +447,7 @@ class _Controller extends _$Controller {
 
   editTemperatureFan(TemperatureFan temperatureFan) {
     var configFan = ref
-        .read(printerProvider(machineUUID).selectAs((value) => value.configFile.fans[temperatureFan.name]))
+        .read(printerProvider(machineUUID).selectAs((value) => value.configFile.fans[temperatureFan.configName]))
         .requireValue;
 
     ref

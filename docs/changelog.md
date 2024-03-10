@@ -1,7 +1,33 @@
 # Mobileraker - Changelog
 
+## [2.6.12] - 2024-03-xx
+
+### Major Updates
+
+- Added support for filament runout and motion sensors. Users can now monitor the status of these sensors and customize
+  their behavior through dashboard.
+
+### Changed Features
+
+- Updated 🇫🇷 translation, thanks to Arnaud Petetin
+- Refactored the PrintInfo/MachineStatus card into its own component with some more animations, improving the overall
+  user experience and performance.
+- The UI theme on the app settings page now shows a hint if the current theme is printer-specific.
+- Temperature fan cards now also show a graph to match the other temperature card
+  elements. ([#118](https://github.com/Clon1998/mobileraker/issues/118))
+- Updated the title of outputs to "Miscellaneous," reflecting the inclusion of filament sensors alongside other outputs.
+- The horizontal scrollable cards now snap to the nearest card when scrolling, providing a more intuitive user
+  experience.
+
+### Bug Fixes
+
+- The Step Selector in the Z-Offset card now shows up to three decimal places again.
+- Printer specific themes are now correctly applied on app start.
+
 ## [2.6.11-hotfix1] - 2024-02-20
+
 ### ANDROID ONLY
+
 ### Bug Fixes
 
 - Fixed an issue that prevented the app from starting on some android devices.

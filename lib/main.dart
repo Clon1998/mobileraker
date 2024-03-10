@@ -12,6 +12,7 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/locale_spy.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
@@ -92,34 +93,36 @@ class MyApp extends ConsumerWidget {
           ),
         );
       },
-      child: ThemeBuilder(
-        builder: (
-          BuildContext context,
-          ThemeData? regularTheme,
-          ThemeData? darkTheme,
-          ThemeMode? themeMode,
-        ) {
-          return MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            routerDelegate: goRouter.routerDelegate,
-            routeInformationProvider: goRouter.routeInformationProvider,
-            routeInformationParser: goRouter.routeInformationParser,
-            title: 'Mobileraker',
-            theme: regularTheme,
-            darkTheme: darkTheme,
-            themeMode: themeMode,
-            localizationsDelegates: [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              FormBuilderLocalizations.delegate,
-              ...context.localizationDelegates,
-              RefreshLocalizations.delegate,
-            ],
-            supportedLocales: context.supportedLocales,
-            locale: context.locale,
-          );
-        },
+      child: LocaleSpy(
+        child: ThemeBuilder(
+          builder: (
+            BuildContext context,
+            ThemeData? regularTheme,
+            ThemeData? darkTheme,
+            ThemeMode? themeMode,
+          ) {
+            return MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              routerDelegate: goRouter.routerDelegate,
+              routeInformationProvider: goRouter.routeInformationProvider,
+              routeInformationParser: goRouter.routeInformationParser,
+              title: 'Mobileraker',
+              theme: regularTheme,
+              darkTheme: darkTheme,
+              themeMode: themeMode,
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+                FormBuilderLocalizations.delegate,
+                ...context.localizationDelegates,
+                RefreshLocalizations.delegate,
+              ],
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
+            );
+          },
+        ),
       ),
     );
   }

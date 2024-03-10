@@ -1018,6 +1018,22 @@ void main() {
         },
         skip: 'The test was prior to K1. Now I expect the port to be kept since I switched to the http endpoint',
       );
+
+      test(
+        'Moonraker WS port changes to default http port',
+        () {
+          var moonrakerUri = buildWebCamUri(Uri.parse('ws://mobileraker.test:7125'), Uri(path: '/webcam/webrtc'));
+          expect(moonrakerUri, Uri.parse('http://mobileraker.test:80/webcam/webrtc'));
+        },
+      );
+
+      test(
+        'Moonraker WSS port changes to default http port',
+        () {
+          var moonrakerUri = buildWebCamUri(Uri.parse('wss://mobileraker.test:7125'), Uri(path: '/webcam/webrtc'));
+          expect(moonrakerUri, Uri.parse('https://mobileraker.test:443/webcam/webrtc'));
+        },
+      );
     });
 
     group('Absolut Cam URI', () {

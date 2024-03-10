@@ -136,7 +136,7 @@ class _UserBottomSheetState extends State<UserBottomSheet> {
                   ),
                 ),
                 const AnimatedSize(duration: kThemeAnimationDuration, child: _InfoText()),
-                ElevatedButton.icon(
+                FilledButton.icon(
                   label: Text(MaterialLocalizations.of(context).closeButtonTooltip),
                   icon: const Icon(Icons.keyboard_arrow_down),
                   onPressed: () => Navigator.of(context).pop(),
@@ -246,6 +246,7 @@ class _Profile extends ConsumerWidget {
             height: 100,
           ),
           const Align(child: EditableUserDisplayName()),
+          Align(child: Text(model.user?.email ?? '', style: themeData.textTheme.bodySmall)),
           const _EmailVerification(),
           const SizedBox(height: 8),
           Text(

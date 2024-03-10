@@ -8,6 +8,7 @@
 import 'dart:io';
 
 import 'package:common/service/live_activity_service.dart';
+import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -20,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:live_activities/live_activities.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/screens/dashboard/components/bed_mesh_card.dart';
+import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DevPage extends HookConsumerWidget {
@@ -34,6 +35,9 @@ class DevPage extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     logger.i('REBUILIDNG DEV PAGE!');
     var selMachine = ref.watch(selectedMachineProvider).value;
+
+    var systemInfo = ref.watch(klipperSystemInfoProvider(selMachine!.uuid));
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dev'),
@@ -41,7 +45,13 @@ class DevPage extends HookConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       body: ListView(
         children: [
-          BedMeshCard(machineUUID: selMachine!.uuid),
+          // PowerApiCardLoading(),
+
+          // BedMeshCard(machineUUID: selMachine!.uuid),
+          // FirmwareRetractionCard(machineUUID: selMachine!.uuid),
+          // MachineStatusCardLoading(),
+          // BedMeshCard(machineUUID: selMachine!.uuid),
+          // SpoolmanCardLoading(),
           // _MeshView(machineUUID: selMachine!.uuid),
           // ControlExtruderLoading(),
           // HeaterSensorCard(machineUUID: selMachine!.uuid),
@@ -50,10 +60,34 @@ class DevPage extends HookConsumerWidget {
           // const ControlXYZLoading(),
           // const ZOffsetLoading(),
           // const Text('One'),
-          // ElevatedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
-          ElevatedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
-          ElevatedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
-          ElevatedButton(
+          // OutlinedButton(onPressed: () => stateActivity(), child: const Text('STATE of Activity')),
+
+          AsyncValueWidget(
+            value: systemInfo,
+            data: (data) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var entry in data.serviceState.entries)
+                    Row(
+                      children: [
+                        Expanded(child: Text(entry.value.name, style: Theme.of(context).textTheme.labelLarge)),
+                        IconButton(onPressed: () => null, icon: Icon(Icons.restart_alt)),
+                        IconButton(onPressed: () => null, icon: Icon(Icons.stop)),
+                      ],
+                    ),
+
+                  // ListTile(
+                  //   subtitle: Text('State: ${entry.value.activeState}, SubState: ${entry.value.subState}'),
+                  // ),
+                ],
+              );
+            },
+          ),
+
+          OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
+          OutlinedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
+          OutlinedButton(
               onPressed: () => ref
                   .read(bottomSheetServiceProvider)
                   .show(BottomSheetConfig(type: SheetType.userManagement, isScrollControlled: true)),
@@ -68,7 +102,7 @@ class DevPage extends HookConsumerWidget {
               child: const Text('SNACKBAR')),
 
           // TextButton(onPressed: () => test(ref), child: const Text('Copy Chart OPTIONS')),
-          // ElevatedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
+          // OutlinedButton(onPressed: () => dummyDownload(), child: const Text('Download file!')),
           // // Expanded(child: WebRtcCam()),
           // AsyncValueWidget(
           //   value: ref.watch(printerSelectedProvider.selectAs((p) => p.bedMesh)),

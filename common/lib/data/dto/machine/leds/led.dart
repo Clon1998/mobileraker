@@ -52,6 +52,8 @@ abstract class Led {
 
   abstract final String name;
 
+  String get configName => name.toLowerCase();
+
   factory Led.partialUpdate(Led current, Map<String, dynamic> partialJson) {
     if (current is DumbLed) {
       return DumbLed.partialUpdate(current, partialJson);

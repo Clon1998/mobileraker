@@ -15,7 +15,6 @@ import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +28,7 @@ import 'package:mobileraker/ui/screens/setting/setting_controller.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SettingPage extends ConsumerWidget {
-  const SettingPage({Key? key}) : super(key: key);
+  const SettingPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,7 +56,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.confirmEmergencyStop,
                   b ?? false,
                 ),
-                initialValue: ref.watch(boolSettingProvider(
+                initialValue: ref.read(boolSettingProvider(
                   AppSettingKeys.confirmEmergencyStop,
                   true,
                 )),
@@ -74,7 +73,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.alwaysShowBabyStepping,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping),
                 ),
                 decoration: const InputDecoration(
@@ -90,7 +89,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.defaultNumEditMode,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.defaultNumEditMode),
                 ),
                 decoration: const InputDecoration(
@@ -106,7 +105,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.overviewIsHomescreen,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.overviewIsHomescreen),
                 ),
                 decoration: const InputDecoration(
@@ -122,7 +121,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.applyOffsetsToPostion,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.applyOffsetsToPostion),
                 ),
                 decoration: const InputDecoration(
@@ -138,7 +137,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.fullscreenCamOrientation,
                   b ?? false,
                 ),
-                initialValue: ref.watch(boolSettingProvider(
+                initialValue: ref.read(boolSettingProvider(
                   AppSettingKeys.fullscreenCamOrientation,
                 )),
                 decoration: const InputDecoration(
@@ -154,7 +153,7 @@ class SettingPage extends ConsumerWidget {
                   AppSettingKeys.groupSliders,
                   b ?? false,
                 ),
-                initialValue: ref.watch(
+                initialValue: ref.read(
                   boolSettingProvider(AppSettingKeys.groupSliders, true),
                 ),
                 decoration: const InputDecoration(
@@ -253,7 +252,7 @@ class SettingPage extends ConsumerWidget {
 }
 
 class _NotificationSection extends ConsumerWidget {
-  const _NotificationSection({Key? key}) : super(key: key);
+  const _NotificationSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -274,7 +273,7 @@ class _NotificationSection extends ConsumerWidget {
               AppSettingKeys.useLiveActivity,
               b ?? false,
             ),
-            initialValue: ref.watch(boolSettingProvider(AppSettingKeys.useLiveActivity, true)),
+            initialValue: ref.read(boolSettingProvider(AppSettingKeys.useLiveActivity, true)),
             decoration: const InputDecoration(
               border: InputBorder.none,
               isCollapsed: true,
@@ -310,7 +309,7 @@ class _NotificationSection extends ConsumerWidget {
 }
 
 class _DeveloperSection extends ConsumerWidget {
-  const _DeveloperSection({Key? key}) : super(key: key);
+  const _DeveloperSection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -350,7 +349,7 @@ class _DeveloperSection extends ConsumerWidget {
 class _SectionHeader extends StatelessWidget {
   final String title;
 
-  const _SectionHeader({Key? key, required this.title}) : super(key: key);
+  const _SectionHeader({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -369,7 +368,7 @@ class _SectionHeader extends StatelessWidget {
 }
 
 class _LanguageSelector extends ConsumerWidget {
-  const _LanguageSelector({Key? key}) : super(key: key);
+  const _LanguageSelector({super.key});
 
   String constructLanguageText(Locale local) {
     String out = 'languages.languageCode.${local.languageCode}.nativeName'.tr();
@@ -404,7 +403,7 @@ class _LanguageSelector extends ConsumerWidget {
 }
 
 class _TimeFormatSelector extends ConsumerWidget {
-  const _TimeFormatSelector({Key? key}) : super(key: key);
+  const _TimeFormatSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -414,7 +413,7 @@ class _TimeFormatSelector extends ConsumerWidget {
     var now = DateTime.now();
 
     return FormBuilderDropdown(
-      initialValue: ref.watch(boolSettingProvider(AppSettingKeys.timeFormat)),
+      initialValue: ref.read(boolSettingProvider(AppSettingKeys.timeFormat)),
       name: 'timeMode',
       items: [
         DropdownMenuItem(
@@ -428,7 +427,7 @@ class _TimeFormatSelector extends ConsumerWidget {
       ],
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
-        labelText: 'Time Format',
+        labelText: tr('pages.setting.general.time_format'),
       ),
       onChanged: (bool? b) => ref.read(settingServiceProvider).writeBool(AppSettingKeys.timeFormat, b ?? false),
     );
@@ -436,18 +435,25 @@ class _TimeFormatSelector extends ConsumerWidget {
 }
 
 class _ThemeSelector extends ConsumerWidget {
-  const _ThemeSelector({Key? key}) : super(key: key);
+  const _ThemeSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeService = ref.watch(themeServiceProvider);
+    var themePackList = themeService.themePacks;
 
-    List<ThemePack> themeList = themeService.themePacks;
+    var systemThemeIdx = ref.read(intSettingProvider(AppSettingKeys.themePack)).clamp(0, themePackList.length - 1);
+    var currentSystemThemePack = themePackList[systemThemeIdx];
+
+    var activeTheme = ref.read(activeThemeProvider).valueOrNull!;
+
+    var usesSystemTheme = currentSystemThemePack == activeTheme.themePack;
+
     var themeData = Theme.of(context);
     return FormBuilderDropdown(
-      initialValue: ref.watch(activeThemeProvider.selectAs((value) => value.themePack)).valueOrFullNull!,
+      initialValue: currentSystemThemePack,
       name: 'theme',
-      items: themeList.map((theme) {
+      items: themePackList.map((theme) {
         var brandingIcon = (themeData.brightness == Brightness.light) ? theme.brandingIcon : theme.brandingIconDark;
         return DropdownMenuItem(
           value: theme,
@@ -467,17 +473,25 @@ class _ThemeSelector extends ConsumerWidget {
         );
       }).toList(),
       decoration: InputDecoration(
-        labelStyle: Theme.of(context).textTheme.labelLarge,
-        labelText: 'Theme',
+        labelStyle: themeData.textTheme.labelLarge,
+        labelText: tr('pages.setting.general.system_theme'),
+        helperText: usesSystemTheme ? null : tr('pages.setting.general.printer_theme_warning'),
+        helperMaxLines: 3,
       ),
-      onChanged: (ThemePack? themePack) => themeService.selectThemePack(themePack!),
+      onChanged: (ThemePack? themePack) {
+        if (usesSystemTheme) {
+          themeService.selectThemePack(themePack!);
+        } else {
+          themeService.updateSystemThemePack(themePack!);
+        }
+      },
       // themeService.selectThemePack(themeData!),
     );
   }
 }
 
 class _ThemeModeSelector extends ConsumerWidget {
-  const _ThemeModeSelector({Key? key}) : super(key: key);
+  const _ThemeModeSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -488,15 +502,16 @@ class _ThemeModeSelector extends ConsumerWidget {
         activeThemeProvider.select((d) => d.valueOrFullNull!.themeMode),
       ),
       name: 'themeMode',
-      items: ThemeMode.values
-          .map((themeMode) => DropdownMenuItem(
-                value: themeMode,
-                child: Text(themeMode.name.capitalize),
-              ))
-          .toList(),
+      items: [
+        for (var mode in ThemeMode.values)
+          DropdownMenuItem(
+            value: mode,
+            child: const Text('theme_mode').tr(gender: mode.name),
+          ),
+      ],
       decoration: InputDecoration(
         labelStyle: Theme.of(context).textTheme.labelLarge,
-        labelText: 'Theme Mode',
+        labelText: tr('pages.setting.general.system_theme_mode'),
       ),
       onChanged: (ThemeMode? themeMode) => themeService.selectThemeMode(themeMode ?? ThemeMode.system),
     );
@@ -504,7 +519,7 @@ class _ThemeModeSelector extends ConsumerWidget {
 }
 
 class _ProgressNotificationSettingField extends ConsumerWidget {
-  const _ProgressNotificationSettingField({Key? key}) : super(key: key);
+  const _ProgressNotificationSettingField({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -532,7 +547,7 @@ class _ProgressNotificationSettingField extends ConsumerWidget {
 }
 
 class _StateNotificationSettingField extends ConsumerWidget {
-  const _StateNotificationSettingField({Key? key}) : super(key: key);
+  const _StateNotificationSettingField({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -586,7 +601,7 @@ class _StateNotificationSettingField extends ConsumerWidget {
 }
 
 class NotificationPermissionWarning extends ConsumerWidget {
-  const NotificationPermissionWarning({Key? key}) : super(key: key);
+  const NotificationPermissionWarning({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -629,7 +644,7 @@ class NotificationPermissionWarning extends ConsumerWidget {
 }
 
 class NotificationFirebaseWarning extends ConsumerWidget {
-  const NotificationFirebaseWarning({Key? key}) : super(key: key);
+  const NotificationFirebaseWarning({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -671,7 +686,7 @@ class NotificationFirebaseWarning extends ConsumerWidget {
 }
 
 class CompanionMissingWarning extends ConsumerWidget {
-  const CompanionMissingWarning({Key? key}) : super(key: key);
+  const CompanionMissingWarning({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

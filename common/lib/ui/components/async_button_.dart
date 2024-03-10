@@ -95,13 +95,14 @@ class AsyncElevatedButton extends HookConsumerWidget {
 
 class AsyncIconButton extends HookConsumerWidget {
   const AsyncIconButton(
-      {super.key, required this.icon, required this.onPressed, this.style, this.iconSize, this.tooltip});
+      {super.key, required this.icon, required this.onPressed, this.style, this.iconSize, this.tooltip, this.color});
 
   final Icon icon;
   final FutureOr<void>? Function()? onPressed;
   final ButtonStyle? style;
   final double? iconSize;
   final String? tooltip;
+  final Color? color;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -126,6 +127,7 @@ class AsyncIconButton extends HookConsumerWidget {
     return IconButton(
       onPressed: onPressedWrapped,
       icon: ico,
+      color: color,
       iconSize: iconSize,
       tooltip: tooltip,
     );

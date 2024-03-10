@@ -2,6 +2,9 @@
  * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
+import 'dart:convert';
+
+import 'package:common/data/dto/remote_config/developer_announcements.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -14,6 +17,13 @@ part 'remote_config.g.dart';
 FirebaseRemoteConfig remoteConfig(RemoteConfigRef ref) {
   var instance = FirebaseRemoteConfig.instance;
   return instance;
+}
+
+@Riverpod(keepAlive: true)
+DeveloperAnnouncement developerAnnouncement(DeveloperAnnouncementRef ref) {
+  return DeveloperAnnouncement.fromJson(
+    json.decode(ref.watch(remoteConfigProvider).getString('developer_announcements')),
+  );
 }
 
 extension MobilerakerFF on FirebaseRemoteConfig {
@@ -34,6 +44,12 @@ extension MobilerakerFF on FirebaseRemoteConfig {
         'non_suporters_max_printers': -1,
         'oe_webrtc_warning': true,
         'obico_remote_connection': true,
+        /*
+        
+        {"enabled":false,"messages":[{"show":false,"type":"info","title":"","body":""}]}
+        
+         */
+        'developer_announcements': json.encode({'enabled': false, 'messages': []}),
       });
       fetchAndActivate().then((value) {
         logger.i('FirebaseRemote values are fetched and activated!');

@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 
 class SimpleErrorWidget extends StatelessWidget {
   const SimpleErrorWidget({
-    Key? key,
+    super.key,
     required this.title,
     required this.body,
     this.action,
-  }) : super(key: key);
+  });
   final Widget title;
   final Widget body;
   final Widget? action;

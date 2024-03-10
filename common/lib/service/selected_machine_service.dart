@@ -6,8 +6,6 @@
 import 'dart:async';
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/service/payment_service.dart';
-import 'package:common/service/ui/theme_service.dart';
 import 'package:common/util/logger.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -47,8 +45,6 @@ class SelectedMachineService {
 
   Stream<Machine?> get selectedMachine => _selectedMachineCtrler.stream;
 
-  ThemeService get _themeService => ref.read(themeServiceProvider);
-
   _init() {
     String? selectedUUID = _boxUuid.get('selectedPrinter');
     if (selectedUUID == null) {
@@ -69,7 +65,6 @@ class SelectedMachineService {
         _selectedMachineCtrler.add(null);
         _selected = null;
       }
-      _themeService.selectSystemThemePack();
       logger.i("Selecting no printer as active Printer. Stream is closed?: ${_selectedMachineCtrler.isClosed}");
       return;
     }
@@ -80,12 +75,6 @@ class SelectedMachineService {
     if (!_selectedMachineCtrler.isClosed) {
       _selectedMachineCtrler.add(machine);
       _selected = machine;
-
-      if (ref.read(isSupporterProvider) && machine.printerThemePack != -1) {
-        _themeService.selectThemeIndex(machine.printerThemePack);
-      } else {
-        _themeService.selectSystemThemePack();
-      }
     }
   }
 

@@ -9,12 +9,14 @@ import 'package:common/data/dto/files/folder.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
 import 'package:common/data/dto/files/remote_file_mixin.dart';
 import 'package:common/exceptions/file_fetch_exception.dart';
+import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
@@ -28,7 +30,6 @@ import 'package:flutter_cache_manager/src/cache_manager.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
@@ -38,20 +39,19 @@ import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../components/simple_error_widget.dart';
 
 class FilesPage extends ConsumerWidget {
-  const FilesPage({Key? key}) : super(key: key);
+  const FilesPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const Scaffold(
-      appBar: _AppBar(),
-      drawer: NavigationDrawerWidget(),
-      bottomNavigationBar: _BottomNav(),
-      floatingActionButton: _Fab(),
+    return Scaffold(
+      appBar: const _AppBar(),
+      drawer: const NavigationDrawerWidget(),
+      bottomNavigationBar: const _BottomNav(),
+      floatingActionButton: const _Fab(),
       body: ConnectionStateView(
-        onConnected: _FilesBody(),
+        onConnected: (_, __) => const _FilesBody(),
         skipKlipperReady: true,
       ),
     );
@@ -59,7 +59,7 @@ class FilesPage extends ConsumerWidget {
 }
 
 class _Fab extends ConsumerWidget {
-  const _Fab({Key? key}) : super(key: key);
+  const _Fab({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -94,7 +94,7 @@ class _Fab extends ConsumerWidget {
 }
 
 class _BottomNav extends ConsumerWidget {
-  const _BottomNav({Key? key}) : super(key: key);
+  const _BottomNav({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -129,7 +129,7 @@ class _BottomNav extends ConsumerWidget {
 }
 
 class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
-  const _AppBar({Key? key}) : super(key: key);
+  const _AppBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -197,7 +197,7 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 }
 
 class _FilesBody extends ConsumerWidget {
-  const _FilesBody({Key? key}) : super(key: key);
+  const _FilesBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -441,7 +441,7 @@ class _FilesData extends ConsumerWidget {
 }
 
 class _BreadCrumb extends ConsumerWidget {
-  const _BreadCrumb({Key? key}) : super(key: key);
+  const _BreadCrumb({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -503,7 +503,7 @@ class _BreadCrumb extends ConsumerWidget {
 class _FolderItem extends ConsumerWidget {
   final Folder folder;
 
-  const _FolderItem({Key? key, required this.folder}) : super(key: key);
+  const _FolderItem({super.key, required this.folder});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -524,7 +524,7 @@ class _FolderItem extends ConsumerWidget {
 class _FileItem extends ConsumerWidget {
   final RemoteFile file;
 
-  const _FileItem({Key? key, required this.file}) : super(key: key);
+  const _FileItem({super.key, required this.file});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -554,7 +554,7 @@ class _FileItem extends ConsumerWidget {
 class _ImageFileItem extends ConsumerWidget {
   final RemoteFile file;
 
-  const _ImageFileItem({Key? key, required this.file}) : super(key: key);
+  const _ImageFileItem({super.key, required this.file});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -625,7 +625,7 @@ class _ImageFileItem extends ConsumerWidget {
 class _GCodeFileItem extends ConsumerWidget {
   final GCodeFile gCode;
 
-  const _GCodeFileItem({Key? key, required this.gCode}) : super(key: key);
+  const _GCodeFileItem({super.key, required this.gCode});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

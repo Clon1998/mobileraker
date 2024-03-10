@@ -47,7 +47,9 @@
     "save": "Save",
     "apply": "Apply",
     "completed": "Completed",
-    "activate": "Activate"
+    "activate": "Activate",
+    "stop": "Stop",
+    "start": "Start"
   },
   "pages": {
     "dashboard": {
@@ -146,20 +148,21 @@
           "cold_extrude_error": "Extruder did not reach min_extrude_temp of {}°C yet!"
         },
         "macro_card": {
-          "title": "Gcode - Macros"
+          "title": "Gcode - Macros",
+          "no_macros": "No macros are currently visible in this group"
         },
         "pin_card": {
-          "title": {
-            "zero": "Output Pin",
-            "one": "Output Pin",
-            "two": "Output Pins",
-            "other": "Output Pins"
-          },
-          "pin_btn": "Pin"
+          "title_misc": "Miscellaneous",
+          "pin_btn": "Pin",
+          "filament_sensor": {
+            "detected": "Detected",
+            "not_detected": "Empty"
+          }
         },
         "power_card": {
           "title": "Power Panel",
-          "pin_btn": "Pin"
+          "pin_btn": "Pin",
+          "provider_error_title": "Error fetching Power Api Devices"
         },
         "multipl_card": {
           "title": "Multipliers",
@@ -194,7 +197,8 @@
           "title": "Spoolman",
           "no_spool": "No spool selected.\nFilament usage will not be tracked.",
           "select_spool": "Select Spool",
-          "used": "Used: {}"
+          "used": "Used: {}",
+          "provider_error_title": "Error fetching Spoolman data"
         }
       }
     },
@@ -266,7 +270,11 @@
         "lcFullCam": "Fullscreen Webcam in Landscape",
         "language": "Language",
         "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its ",
-        "sliders_grouping": "Group Slider Cards"
+        "sliders_grouping": "Group Slider Cards",
+        "time_format": "Time Format",
+        "system_theme": "UI Theme",
+        "system_theme_mode": "Theme Brightness",
+        "printer_theme_warning": "You are currently using a printer-specific theme. To modify it, go to the printer's settings."
       },
       "notification": {
         "title": "Notification",
@@ -318,7 +326,7 @@
         "full_url": "Full URL",
         "timeout_label": "Client timeout",
         "timeout_helper": "The timeout for the client connection in seconds",
-        "theme": "UI-Theme",
+        "theme": "UI Theme",
         "theme_helper": "UI theme for printer",
         "theme_unavailable": "UI theme for printer, only available for Supporters"
       },
@@ -741,6 +749,13 @@
     },
     "extruder_feedrate": {
       "title": "Extruder Velocity [mm/s]"
+    },
+    "fan_speed": {
+      "title": "Edit {} %"
+    },
+    "filament_sensor_triggered": {
+      "title": "Filament Sensor Triggered",
+      "body": "Sensor '{}' has been triggered.\n\nPlease check the printer and the sensor to ensure filament is available or disable the sensor."
     }
   },
   "bottom_sheets": {
@@ -828,6 +843,13 @@
       "scan_again": "Scan Again",
       "set_active": "Set Active",
       "spool_id_not_found": "Sorry, no spool was found with the specified ID #{}."
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "Manage Services",
+        "no_services": "No services found!",
+        "provider_error": "Error while fetching services"
+      }
     }
   },
   "klipper_state": {
@@ -839,6 +861,11 @@
     "unauthorized": "Unauthorized",
     "initializing": "Initializing",
     "not_connected": "Moonraker cannot establish a connection with Klipper. Please verify that Klipper is running on your system."
+  },
+  "theme_mode": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",

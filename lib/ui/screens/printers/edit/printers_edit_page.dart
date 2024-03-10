@@ -562,6 +562,7 @@ class _RemoteSettings extends ConsumerWidget {
                     icon: const Icon(Icons.notifications_off_outlined),
                     label: const Text(
                       'pages.printer_edit.reset_notification_registry',
+                      textAlign: TextAlign.center,
                     ).tr(),
                   ),
                 ),

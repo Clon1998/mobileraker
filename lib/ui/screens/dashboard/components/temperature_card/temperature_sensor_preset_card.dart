@@ -17,11 +17,11 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:shimmer/shimmer.dart';
 
-import 'heaters_sensor_card.dart';
+import 'heater_sensor_card.dart';
 import 'temperature_preset_card.dart';
 
 class TemperatureSensorPresetCard extends HookConsumerWidget {
-  const TemperatureSensorPresetCard({Key? key, required this.machineUUID}) : super(key: key);
+  const TemperatureSensorPresetCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -154,20 +154,6 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _tile(double height) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
-          color: Colors.white,
-        ),
-        width: double.infinity,
-        height: height,
       ),
     );
   }

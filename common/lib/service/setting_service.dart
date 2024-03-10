@@ -3,6 +3,8 @@
  * All rights reserved.
  */
 
+import 'dart:async';
+
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -11,6 +13,36 @@ part 'setting_service.g.dart';
 @Riverpod(keepAlive: true)
 SettingService settingService(SettingServiceRef ref) {
   return SettingService();
+}
+
+@riverpod
+bool boolSetting(BoolSettingRef ref, KeyValueStoreKey key, [bool fallback = false]) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).readBool(key, fallback);
+}
+
+@riverpod
+int intSetting(IntSettingRef ref, KeyValueStoreKey key, [int fallback = 0]) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).readInt(key, fallback);
+}
+
+@riverpod
+Type objectSetting<Type>(ObjectSettingRef ref, KeyValueStoreKey key, Type fallback) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).read(key, fallback);
 }
 
 /// Actually this class turned more into a KeyValue store than just storing app setings
@@ -107,6 +139,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   moveStepIndex('moveStepIndex'),
   extruderStepIndex('extruderStepIndex'),
   meshViewMode('meshViewMode'),
+  devAnnouncementDismiss('devAnnouncementDismiss'),
   ;
 
   @override
@@ -118,6 +151,9 @@ enum UtilityKeys implements KeyValueStoreKey {
 enum UiKeys implements KeyValueStoreKey {
   hadMeshView('hMeshView'),
   hadSpoolman('hSpoolman'),
+  hadWebcam('hWebcam'),
+  hadPowerAPI('hPower'),
+  hadFirmwareRetraction('hFwRetr'),
   ;
 
   @override

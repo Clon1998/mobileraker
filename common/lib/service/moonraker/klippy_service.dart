@@ -109,12 +109,20 @@ class KlippyService {
     _jRpcClient.sendJRpcMethod("machine.shutdown").ignore();
   }
 
-  restartKlipper() {
-    _jRpcClient.sendJRpcMethod("machine.services.restart", params: {'service': 'klipper'}).ignore();
+  Future<void> restartKlipper() {
+    return restartService("klipper");
   }
 
-  restartMoonraker() {
-    _jRpcClient.sendJRpcMethod("machine.services.restart", params: {'service': 'moonraker'}).ignore();
+  Future<void> restartService(String service) async {
+    await _jRpcClient.sendJRpcMethod("machine.services.restart", params: {'service': service});
+  }
+
+  Future<void> stopService(String service) async {
+    await _jRpcClient.sendJRpcMethod("machine.services.stop", params: {'service': service});
+  }
+
+  Future<void> startService(String service) async {
+    await _jRpcClient.sendJRpcMethod("machine.services.start", params: {'service': service});
   }
 
   emergencyStop() {

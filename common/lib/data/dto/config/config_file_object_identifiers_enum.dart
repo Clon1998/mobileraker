@@ -23,6 +23,8 @@ enum ConfigFileObjectIdentifiers {
   heater_bed(null),
   printer(null),
   bed_mesh(null),
+  filament_switch_sensor(null),
+  filament_motion_sensor(null),
   ;
 
   /// IF it is possible to check a object with a == (null) or startsWith (true)

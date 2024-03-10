@@ -255,7 +255,7 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack);
+    FirebaseCrashlytics.instance.recordError(error, stack).ignore();
     return true;
   };
   yield StartUpStep.firebaseAnalytics;
