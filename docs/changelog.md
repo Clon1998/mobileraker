@@ -9,7 +9,7 @@
 
 ### Changed Features
 
-- Updated 🇫🇷 translation, thanks to Arnaud Petetin
+- Updated 🇫🇷 translation, thanks to Arnaud Petetin and [@dtourde](https://github.com/dtourde).
 - Refactored the PrintInfo/MachineStatus card into its own component with some more animations, improving the overall
   user experience and performance.
 - The UI theme on the app settings page now shows a hint if the current theme is printer-specific.

@@ -85,7 +85,7 @@ To edit an existing language file, follow these steps:
 - 🇨🇳 Chinese Mainland, [@emo64](https://github.com/emo64), [@ptsa](https://github.com/ptsa)
 - 🇳🇱 Dutch, [@JSMPI](https://github.com/JSMPI)
 - 🇬🇧 English, [@Clon1998](https://github.com/Clon1998)
-- 🇫🇷 French, [@Jothoreptile](https://github.com/Jothoreptile), Arnaud Petetin
+- 🇫🇷 French, [@Jothoreptile](https://github.com/Jothoreptile), Arnaud Petetin, [@dtourde](https://github.com/dtourde)
 - 🇩🇪 German, [@Clon1998](https://github.com/Clon1998)
 - 🇭🇺 Hungarian, [@AntoszHUN](https://github.com/AntoszHUN)
 - 🇮🇹 Italian, [@Livex97](https://github.com/Livex97)
