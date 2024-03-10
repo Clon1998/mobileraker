@@ -3,7 +3,7 @@
     "pause": "Pause",
     "resume": "Reprendre",
     "connected": "Connecté",
-    "off": "Eteindre",
+    "off": "Éteint",
     "on": "Allumer",
     "none": "Aucune",
     "add": "Ajouter",
@@ -15,7 +15,7 @@
     "restart": "Redémarrer",
     "shutdown": "Eteindre",
     "firmware": "Firmware",
-    "fetching": "A la recherche",
+    "fetching": "Recherche",
     "loading": "Chargement",
     "unknown": "Inconnu",
     "disabled": "Désactiver",
@@ -172,12 +172,12 @@
           "velocity": "Vitesse",
           "accel": "Accélération",
           "sq_corn_vel": "Vitesse d'angle droit",
-          "accel_to_decel": "Accélération à Décélération"
+          "accel_to_decel": "Accélération à décélération"
         },
         "fw_retraction_card": {
-          "title": "Retraction du firmware",
-          "retract_length": "Longueur de rétraction",
-          "retract_speed": "Vitesse de rétraction",
+          "title": "Rétractation du firmware",
+          "retract_length": "Longueur de rétractation",
+          "retract_speed": "Vitesse de rétractation",
           "extra_unretract_length": "Longueur de réinsertion",
           "unretract_speed": "Vitesse de réinsertion"
         },
@@ -200,18 +200,18 @@
     },
     "files": {
       "title": "Fichiers",
-      "search_files": "Chercher fichier",
+      "search_files": "Chercher un fichier",
       "clear_search": "Supprimer la recherche",
       "name": "Nom",
       "last_mod": "Dernière modification",
       "last_printed": "Dernière impression",
       "not_printed": "Non imprimé",
-      "fetching_files": "@:general.fetching Files...",
-      "no_files_found": "Aucun fichier trouver!",
-      "no_matches_file_pattern": "Seulement des lettres, nombres, tiret du bas, tiret et point sont autorisés!",
-      "file_name_in_use": "Le nom du fihcier est déja utilisé!",
+      "fetching_files": "@:general.fetching de fichiers...",
+      "no_files_found": "Aucun fichier trouvé!",
+      "no_matches_file_pattern": "Seules les lettres, chiffres, tiret (-), souligné (_) et point sont autorisés!",
+      "file_name_in_use": "Le nom du fihcier est déjà utilisé!",
       "details": {
-        "preheat": "Prechauffer",
+        "preheat": "Préchauffer",
         "print": "Imprimer",
         "general_card": {
           "path": "Chemin",
@@ -232,7 +232,7 @@
           "layer_higher": "Hauteur de la couche",
           "first_layer": "Première couche",
           "others": "Autres",
-          "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperatures",
+          "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Températures",
           "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
         },
         "stat_card": {
@@ -258,56 +258,56 @@
       "title": "Paramètres de l'application",
       "general": {
         "title": "Général",
-        "ems_confirm": "Confirmation de l'Arrêt d'urgence",
+        "ems_confirm": "Confirmation de l'arrêt d'urgence",
         "always_baby": "Toujours afficher le micro stepping",
         "num_edit": "Utiliser le clavier pour la saisie des chiffres",
-        "start_with_overview": "Afficher @:pages.overview.title par défaut",
-        "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué.",
-        "lcFullCam": "Webcam plein écran en paysage",
+        "start_with_overview": "Show @:pages.overview.title by default",
+        "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué",
+        "lcFullCam": "Orientation paysage lors de l'affichage de la webcam en plein écran",
         "language": "Langue",
-        "companion": "Vous voulez recevoir une notification à distance ? Apprenez à configurer Mobileraker's Companion sur son site Web. ",
+        "companion": "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web. "
         "sliders_grouping": "Présenter les réglages par curseur sous forme d'onglets"
       },
       "notification": {
         "title": "Notification",
-        "progress_label": "Notification d'avancement",
+        "progress_label": "Notifications d'avancement",
         "progress_helper": "Intervalle de mise à jour pour la notification de la progression de l'impression",
-        "state_label": "Etat de notification",
-        "state_helper": "États qui émettent une notification de changement d'état",
+        "state_label": "Notifications de changement d'état",
+        "state_helper": "États qui déclenchent une notification.",
         "no_permission_title": "Pas de permission de notification !",
         "no_permission_desc": "Impossible d'afficher les notifications.Demandez la permission en cliquant !",
         "no_firebase_title": "Impossible d'afficher les notifications",
-        "no_firebase_desc": "Mobileraker ne peut pas envoyer de notifications à l'appareil.\nIl semble que votre appareil ne dispose pas des services Google Play ou qu'il bloque la connexion Firebase !",
-        "ios_notifications_title": "Transmission des notifications IOS",
-        "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !",
-        "missing_companion_title": "Companion non trouvé!",
-        "missing_companion_body": "l semble que le compagnon ne soit pas installé, et par conséquent les machines suivantes ne peuvent pas envoyer de notifications : {}\n\nTouchez pour en savoir plus !",
-        "enable_live_activity": "Activer l'activité en direct"
+        "no_firebase_desc": "Mobileraker ne peut pas envoyer de notification à cet appareil.\nIl semble que votre appareil n'a pas les services Google Play installés ou bloque la connection de Firebase!",
+        "ios_notifications_title": "Transmission des notifications iOS",
+        "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !"
+        "missing_companion_title": "Companion introuvable!",
+        "missing_companion_body": "Il semble que le companion ne soit pas installé, les machines suivantes ne peuvent donc pas envoyer de notification: {}\n\nCliquez pour en apprendre davantage!",
+        "enable_live_activity": "Activer Live Activity"
       },
       "developer": {
-        "title": "Developeur",
-        "crashlytics": "Activer les rapports Crashlytics"
+        "title": "Développeur",
+        "crashlytics": "Activer la collecte via Crashlytics pour aider à améliorer l'application"
       },
       "imprint": "Vie privée/Impression"
     },
     "printer_edit": {
       "title": "Editer {}",
       "import_settings": "Importer réglages",
-      "remove_printer": "Supprimer imprimante",
+      "remove_printer": "Supprimer l'imprimante",
       "no_values_found": "Aucune valeur trouvée!",
-      "fetching_additional_settings": "@:general.fetching additional settings from network...",
-      "could_not_fetch_additional": "Impossible de récupérer des paramètres supplémentaires !",
-      "fetch_error_hint": "Assurez-vous que la machine est joignable, et que Mobileraker y est connecté.",
-      "reset_notification_registry": "Effacer le registre du dispositif de notification",
-      "configure_remote_connection": "Configuration de la connexion à distance",
+      "fetching_additional_settings": "@:general.fetching paramètres additionnels depuis le réseau...",
+      "could_not_fetch_additional": "Impossible de récupérer des paramètres additionnels !",
+      "fetch_error_hint": "Assurez-vous que la machine soit joignable, et que Mobileraker y est connecté.",
+      "reset_notification_registry": "Réinitialiser le registre des notification de l'imprimante",
+      "configure_remote_connection": "Configurer la connexion à distance",
       "store_error": {
-        "title": "La sauvegarde a échoué !",
-        "message": "Certains champs contiennent des valeurs non valides !\nVeuillez vous assurer que tous les champs sont valides.",
-        "unexpected_error": "Une erreur inattendue s'est produite lors de l'enregistrement des données de la machine !"
+        "title": "La sauvegarde à échoué !",
+        "message": "Certains champs contiennent des valeurs manquantes ou invalides !\nAssurez-vous que tous les champs sont valides.",
+        "unexpected_error": "Une erreur innatendue s'est produite lors de la sauvegarde des données de l'imprimante !"
       },
       "confirm_deletion": {
         "title": "Supprimer {}?",
-        "body": "Vous êtes sur le point de retirer l'imprimante '{}' connectée à '{}'. \n\nConfirmez votre action."
+        "body": "Vous êtes sur le point de supprimer l'imprimante '{}' connectée à '{}'. \n\nConfirmez l'action."
       },
       "general": {
         "displayname": "Nom d'affichage",
@@ -315,18 +315,19 @@
         "ws_addr": "Websocket - Adresse",
         "moonraker_api_key": "Moonraker - Clé API",
         "moonraker_api_desc": "Seulement nécessaire si vous utilisez des clients de confiance. FluiddPI applique cette règle !",
-        "full_url": "URL complet",
-        "timeout_label": "Délai d'attente du client",
-        "timeout_helper": "Le délai d'attente pour la connexion du client en secondes",
-        "theme": "Thème de l'interface utilisateur",
-        "theme_helper": "Thème d'interface utilisateur pour imprimante",
-        "theme_unavailable": "Thème d'interface utilisateur pour l'imprimante, disponible uniquement pour les Supporters"
+        "full_url": "URL complète",
+        "timeout_label": "Expiration du délai du client (timeout)",
+        "timeout_helper": "Délai de connection pour le client en secondes (timeout delay)",
+        "theme": "Thème de l'interface",
+        "theme_helper": "Thème de l'interface de l'imprimante",
+        "theme_unavailable": "Thème de l'interface pour l'imprimante, seulement disponible en soutenant l'application."
       },
       "ssl": {
         "title": "SSL - Paramètres",
         "pin_certificate_label": "Épinglage des empreintes digitales des certificats",
         "pin_certificate_helper": "Sélectionner un fichier de certificat au format PEM pour l'épinglage SSL",
         "self_signed": "Faire confiance aux certificats auto-signés"
+
       },
       "motion_system": {
         "title": "Système de mouvement",
