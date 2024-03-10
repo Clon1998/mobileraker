@@ -10,7 +10,6 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/logger.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -26,25 +25,31 @@ part 'remote_announcements.g.dart';
 class _RemoteAnnouncementsController extends _$RemoteAnnouncementsController {
   SettingService get _settingService => ref.read(settingServiceProvider);
 
+  Map<String, int> get _dismissedHashes =>
+      _settingService.read(UtilityKeys.devAnnouncementDismiss, <dynamic, dynamic>{}).cast<String, int>();
+
   @override
   List<DeveloperAnnouncementEntry> build() {
     var isSupporter = ref.watch(isSupporterProvider);
     var announcement = ref.watch(developerAnnouncementProvider);
     logger.i('Developer announcements are enabled: ${announcement.enabled}');
     if (!announcement.enabled) return [];
-    var dismissedHashes = _settingService.read(UtilityKeys.devAnnouncementDismiss, <String>[]);
+
+    // logger.i('Dismissed hashes: $_dismissedHashes');
 
     return announcement.messages
         .where((element) =>
             element.show &&
-            !dismissedHashes.contains(element.hash) &&
+            (_dismissedHashes[element.hash] ?? 0) < element.showCount &&
             (!isSupporter || element.type != DeveloperAnnouncementEntryType.advertisement))
         .toList();
   }
 
   dismiss(DeveloperAnnouncementEntry entry) {
-    var dismissedHashes = _settingService.read(UtilityKeys.devAnnouncementDismiss, <String>[]);
-    // _settingService.write(UtilityKeys.devAnnouncementDismiss, [...dismissedHashes, entry.hash]);
+    _settingService.write(UtilityKeys.devAnnouncementDismiss, {
+      ..._dismissedHashes,
+      entry.hash: (_dismissedHashes[entry.hash] ?? 0) + 1,
+    });
     state = state.toList()..remove(entry);
   }
 
@@ -88,29 +93,6 @@ class _MessageBoard extends HookWidget {
         ),
       ),
     );
-
-    // return Column(
-    //   mainAxisSize: MainAxisSize.min,
-    //   children: [
-    //     SingleChildScrollView(
-    //       key: const PageStorageKey<String>('remoteAnnouncementsM'),
-    //       controller: scrollCtrler,
-    //       scrollDirection: Axis.horizontal,
-    //       // physics: const BouncingScrollPhysics(),
-    //       child: Row(
-    //         mainAxisSize: MainAxisSize.min,
-    //         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-    //         children: [
-    //           for (var message in messages) _MessageCard(message: message),
-    //         ],
-    //       ),
-    //     ),
-    //     HorizontalScrollIndicator(
-    //       controller: scrollCtrler,
-    //       steps: messages.length,
-    //     ),
-    //   ],
-    // );
   }
 }
 
@@ -123,31 +105,28 @@ class _MessageCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ListTile(
-          dense: true,
-          contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
-          title: Text(message.title),
-          trailing: IconButton(
-            onPressed: () => ref.read(_remoteAnnouncementsControllerProvider.notifier).dismiss(message),
-            icon: const Icon(Icons.close),
-          ),
+    var isAd = message.type == DeveloperAnnouncementEntryType.advertisement;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: InkWell(
+        onTap: isAd ? ref.read(_remoteAnnouncementsControllerProvider.notifier).navigateToSupporterPage : null,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(message.title, style: themeData.textTheme.labelLarge),
+                IconButton(
+                  onPressed: () => ref.read(_remoteAnnouncementsControllerProvider.notifier).dismiss(message),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            Text(message.body, style: _bodyColor(themeData), textAlign: TextAlign.justify),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(message.body, style: _bodyColor(themeData)),
-        ),
-        if (message.type == DeveloperAnnouncementEntryType.advertisement)
-          TextButton(
-            onPressed: ref.read(_remoteAnnouncementsControllerProvider.notifier).navigateToSupporterPage,
-            child: const Text(
-              'components.supporter_only_feature.button',
-              style: TextStyle(fontSize: 11),
-            ).tr(),
-          ),
-      ],
+      ),
     );
   }
 

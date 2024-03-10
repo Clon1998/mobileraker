@@ -5,6 +5,7 @@
 
 import 'package:flutter/foundation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hashlib/hashlib.dart';
 
 import 'developer_announcement_entry_type.dart';
 
@@ -19,9 +20,11 @@ class DeveloperAnnouncementEntry with _$DeveloperAnnouncementEntry {
       {required bool show,
       required DeveloperAnnouncementEntryType type,
       required String title,
-      required String body}) = _DeveloperAnnouncementEntry;
+    required String body,
+    @Default(1) int showCount,
+  }) = _DeveloperAnnouncementEntry;
 
-  String get hash => hashCode.toRadixString(16);
+  String get hash => '$title$body'.sha256digest().base64();
 
   factory DeveloperAnnouncementEntry.fromJson(Map<String, dynamic> json) => _$DeveloperAnnouncementEntryFromJson(json);
 }
