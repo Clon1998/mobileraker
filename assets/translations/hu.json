@@ -45,7 +45,9 @@
     "clear": "Egyértelmű",
     "unlink": "Leválasztás",
     "save": "Mentés",
-    "apply": "Alkalmaz"
+    "apply": "Alkalmaz",
+    "completed": "Befejezve",
+    "activate": "Aktivál"
   },
   "pages": {
     "dashboard": {
@@ -116,10 +118,12 @@
           "bsa_btn": "Ágy csavarjainak beállítása",
           "save_tooltip": "Mentse a kalibrálási eredményeket",
           "save_btn": "Konfiguráció mentése",
-          "more_btn": "Több"
+          "more_btn": "Több",
+          "homed": "Kezdőponti tengelyek"
         },
         "baby_step_card": {
-          "title": "Mikrolépés Z tengely"
+          "title": "Mikrolépés Z tengely",
+          "z_offset": "Z-Eltolás"
         },
         "restart_klipper": "Klipper újraindítása",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -176,6 +180,21 @@
           "retract_speed": "Visszahúzási sebesség",
           "extra_unretract_length": "Extra kihúzási hossz",
           "unretract_speed": "Kihúzási sebesség"
+        },
+        "bed_mesh_card": {
+          "title": "Ágy háló",
+          "profiles": "Profilok",
+          "range_tooltip": "A legmagasabb és legalacsonyabb pont közötti tartomány",
+          "showing_matrix": {
+            "probed": "Megmutatja a mért mátrixot",
+            "mesh": "Hálómátrix megjelenítése"
+          }
+        },
+        "spoolman_card": {
+          "title": "Spoolman",
+          "no_spool": "Nincs orsó kiválasztva.\nA nyomtatószál-használatot nem követi nyomon.",
+          "select_spool": "Válassz orsót",
+          "used": "Használt: {}"
         }
       }
     },
@@ -205,6 +224,8 @@
           "filament": "Nyomtatószál",
           "filament_type": "Nyomtatószál típusa",
           "filament_name": "Nyomtatószál neve",
+          "filament_weight": "Súly",
+          "filament_length": "Hossz",
           "est_print_time": "Becsült nyomtatási idő",
           "slicer": "Használt szeletelő",
           "nozzle_diameter": "Fúvóka átmérője",
@@ -224,6 +245,12 @@
         "preheat_snackbar": {
           "title": "Előmelegítés elkezdődött",
           "body": "Fúvóka: {}°C\nÁgy: {}°C"
+        },
+        "spoolman_warnings": {
+          "insufficient_filament_title": "Elégtelen nyomtatószál",
+          "insufficient_filament_body": "Az aktív orsón már csak {} szál maradt, ami nem elég ehhez a fájlhoz.\nÉrintsd meg az aktív orsó módosításához.",
+          "material_mismatch_title": "Eltérő anyag",
+          "material_mismatch_body": "A fájl {} anyaga nem egyezik az aktív orsó {} anyagával.\nÉrintsd meg az aktív orsó módosításához."
         }
       }
     },
@@ -500,7 +527,8 @@
       "subscribe_view": {
         "title": "Legyél Mobileraker támogató!",
         "info": "A Mobileraker célja, hogy gyors és megbízható mobil felhasználói felületet adjon a Klipper számára, amelyet a RepRap szellemisége vezérel, és a nyílt forráskódú szoftverek és hardverek pozitív hatást gyakorolhatnak.\nMivel a Mobileraker-t egyetlen fejlesztő fejleszti és ingyenesen kínálja, közösségi finanszírozásra támaszkodik mind a működési, mind a fejlesztési költségek fedezésére.",
-        "list_title": "Válassz támogatói szintet:"
+        "list_title": "Válassz támogatói szintet:",
+        "subscription_info": "Ha előfizetést kötsz, azt bármikor lemondhatod. Az előfizetés automatikusan megújul, hacsak nem mondod le a jelenlegi időszak vége előtt. A lemondáshoz lép a {} oldalra, és onnan mond le az előfizetést."
       },
       "supporter_tier_list": {
         "error_title": "Hiba a támogatói szintek betöltésekor!",
@@ -517,10 +545,24 @@
       "intro_phase": "Élvezd {} kedvezményes {} áron",
       "iap_offer": "{} eredeti árból",
       "tip_developer": "Borravaló a fejlesztőnek",
-      "trial_disclaimer": "Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és a próbaidőszak alatt bármikor lemondhatod az előfizetést."
+      "trial_disclaimer": "Az ingyenes próbaidőszak végéig nem számítunk fel díjat, és a próbaidőszak alatt bármikor lemondhatod az előfizetést.",
+      "restore_sign_in": "Visszaállítás / Bejelentkezés"
     },
     "video_player": {
       "downloading_for_sharing": "Videó letöltése megosztáshoz... ({})"
+    },
+    "tool": {
+      "title": "Eszközök"
+    },
+    "beltTuner": {
+      "title": "Szíjhangoló",
+      "description": "A megfelelő szíjfeszítés biztosítása elengedhetetlen a 3D nyomtatók optimális teljesítményéhez. A nem megfelelő feszesség, akár túl szoros, akár túl laza, mechanikai problémákhoz, idő előtti kopáshoz és a nyomtatás minőségének romlásához vezethet. A megadott feszítési értékek referenciapontként szolgálnak, azonban a nyomtatómodellre szabott egyedi irányelvekért célszerű a gyártó ajánlásait is figyelembe venni. A beállításokat mind ezen ajánlások, mind pedig az egyedi nyomtatási követelmények és feltételek alapján kell elvégezni.",
+      "beltType": "Válaszd ki a szíjtípust:",
+      "target": "Cél: {} Hz a {} mm fölött",
+      "permissionWarning": {
+        "title": "Mikrofonengedély szükséges",
+        "subtitle": "A szíjhangoló a telefon mikrofonját használja a szíjak frekvenciájának elemzésére.\n\nKoppints az engedély megadásához."
+      }
     }
   },
   "components": {
@@ -696,6 +738,9 @@
     "macro_settings": {
       "show_while_printing": "Megjelenítés nyomtatáskor",
       "visible": "Látható"
+    },
+    "extruder_feedrate": {
+      "title": "Adagoló sebessége [mm/s]"
     }
   },
   "bottom_sheets": {
@@ -738,6 +783,51 @@
     "manage_macros_in_grp": {
       "title": "Makrók hozzáadása",
       "hint": "Makrók kiválasztása a csoporthoz {}"
+    },
+    "signIn": {
+      "subtitle": "Bár a fiók létrehozása nem kötelező, a más eszközön vagy platformon végzett vásárlások visszaállításához szükséges."
+    },
+    "profile": {
+      "title": "Bejelentkeztél.",
+      "description": "Üdvözölünk újra itt! A felhasználói fiókod a kulcsa a mobileszközökön való fokozott felhasználói élménynek. Oszd meg zökkenőmentesen támogatói státuszod, hogy könnyedén élvezhesd a kiváltságokat, bárhová is mész telefonoddal, táblagépeddel vagy más eszközöddel.",
+      "restore_purchases": "Vásárlások visszaállítása",
+      "restore_success": "Vásárlások sikeresen visszaállítva!",
+      "sign_out": "Kijelentkezés",
+      "delete_account": "Fiók törlése",
+      "email_verification": {
+        "title": {
+          "pending": "Ellenörző e-mail elküldve",
+          "not_verified": "Az e-mail nem ellenőrzött"
+        },
+        "description": "Kérjük, ellenőrizd e-mail címed, hogy mindig hozzáférj fiókodhoz.",
+        "send": "Ellenőrzés küldése"
+      },
+      "delete_account_dialog": {
+        "title": "Törlöd a fiókot?",
+        "body": "Most készülsz törölni a fiókod. Ez a művelet nem vonható vissza."
+      }
+    },
+    "bedMesh": {
+      "no_mesh_loaded": "Még nincs ágyháló betöltve.",
+      "load_bed_mesh_profile": "Ágyháló profil betöltése",
+      "currently_active": "Jelenleg aktív: {}",
+      "no_profile_active": "Nincs aktív profil",
+      "no_mesh": "Nincs háló",
+      "clear_loaded_profile": "Törölje a betöltött profilt",
+      "range_between_highest_and_lowest_point": "A legmagasabb és legalacsonyabb pont közötti tartomány"
+    },
+    "select_spool": {
+      "header": {
+        "spools": "Orsók",
+        "qr": "QR-Kód"
+      },
+      "no_spools": "Nem találtam orsót. Kérjük, adj hozzá egy orsót a Spoolmanhoz",
+      "error": "Hiba lépett fel az orsók betöltése közben: {}",
+      "qr_loading": "QR szkenner betöltése...",
+      "qr_error": "Hiba a QR szkenner betöltése közben: {}",
+      "scan_again": "Újabb szkennelés",
+      "set_active": "Beállítás aktívnak",
+      "spool_id_not_found": "Sajnálom, a megadott azonosítóval #{} nem találtam orsót."
     }
   },
   "klipper_state": {
@@ -747,7 +837,8 @@
     "disconnected": "Szétkapcsolt",
     "error": "Hiba",
     "unauthorized": "Jogosulatlan",
-    "initializing": "Inicializálás"
+    "initializing": "Inicializálás",
+    "not_connected": "Moonraker nem tud kapcsolatba lépni a Klipperrel. Kérjük, ellenőrizd, hogy a Klipper fut-e a rendszereden."
   },
   "notifications": {
     "channel_printer_grp": "Nyomtató {}",
