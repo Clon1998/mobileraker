@@ -117,6 +117,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   timeFormat('tMode'),
   useLiveActivity('useLiveActivity'),
   groupSliders('groupSliders'),
+  filamentSensorDialog('filamentSensorDialog'),
   ;
 
   @override

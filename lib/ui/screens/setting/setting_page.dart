@@ -47,11 +47,10 @@ class SettingPage extends ConsumerWidget {
               _SectionHeader(title: 'pages.setting.general.title'.tr()),
               const _LanguageSelector(),
               const _TimeFormatSelector(),
-              const _ThemeSelector(),
-              const _ThemeModeSelector(),
               FormBuilderSwitch(
                 name: 'emsConfirmation',
                 title: const Text('pages.setting.general.ems_confirm').tr(),
+                subtitle: const Text('pages.setting.general.ems_confirm_hint').tr(),
                 onChanged: (b) => settingService.writeBool(
                   AppSettingKeys.confirmEmergencyStop,
                   b ?? false,
@@ -67,24 +66,9 @@ class SettingPage extends ConsumerWidget {
                 activeColor: themeData.colorScheme.primary,
               ),
               FormBuilderSwitch(
-                name: 'alwaysShowBaby',
-                title: const Text('pages.setting.general.always_baby').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.alwaysShowBabyStepping,
-                  b ?? false,
-                ),
-                initialValue: ref.read(
-                  boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping),
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
-              ),
-              FormBuilderSwitch(
                 name: 'useTextInputForNum',
                 title: const Text('pages.setting.general.num_edit').tr(),
+                subtitle: const Text('pages.setting.general.num_edit_hint').tr(),
                 onChanged: (b) => settingService.writeBool(
                   AppSettingKeys.defaultNumEditMode,
                   b ?? false,
@@ -101,6 +85,7 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'startWithOverview',
                 title: const Text('pages.setting.general.start_with_overview').tr(),
+                subtitle: const Text('pages.setting.general.start_with_overview_hint').tr(),
                 onChanged: (b) => settingService.writeBool(
                   AppSettingKeys.overviewIsHomescreen,
                   b ?? false,
@@ -117,6 +102,7 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'useLivePos',
                 title: const Text('pages.setting.general.use_offset_pos').tr(),
+                subtitle: const Text('pages.setting.general.use_offset_pos_hint').tr(),
                 onChanged: (b) => settingService.writeBool(
                   AppSettingKeys.applyOffsetsToPostion,
                   b ?? false,
@@ -130,9 +116,47 @@ class SettingPage extends ConsumerWidget {
                 ),
                 activeColor: themeData.colorScheme.primary,
               ),
+              _SectionHeader(title: 'UI'),
+              const _ThemeSelector(),
+              const _ThemeModeSelector(),
+              FormBuilderSwitch(
+                name: 'alwaysShowBaby',
+                title: const Text('pages.setting.general.always_baby').tr(),
+                subtitle: const Text('pages.setting.general.always_baby_hint').tr(),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.alwaysShowBabyStepping,
+                  b ?? false,
+                ),
+                initialValue: ref.read(
+                  boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
+                activeColor: themeData.colorScheme.primary,
+              ),
+              FormBuilderSwitch(
+                name: 'sliders_grouping',
+                title: const Text('pages.setting.general.sliders_grouping').tr(),
+                subtitle: Text('pages.setting.general.sliders_grouping_hint').tr(),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.groupSliders,
+                  b ?? false,
+                ),
+                initialValue: ref.read(
+                  boolSettingProvider(AppSettingKeys.groupSliders, true),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
+                activeColor: themeData.colorScheme.primary,
+              ),
               FormBuilderSwitch(
                 name: 'lcFullCam',
                 title: const Text('pages.setting.general.lcFullCam').tr(),
+                subtitle: const Text('pages.setting.general.lcFullCam_hint').tr(),
                 onChanged: (b) => settingService.writeBool(
                   AppSettingKeys.fullscreenCamOrientation,
                   b ?? false,
@@ -147,15 +171,14 @@ class SettingPage extends ConsumerWidget {
                 activeColor: themeData.colorScheme.primary,
               ),
               FormBuilderSwitch(
-                name: 'sliders_grouping',
-                title: const Text('pages.setting.general.sliders_grouping').tr(),
+                name: 'fSensorDialog',
+                title: const Text('pages.setting.general.filament_sensor_dialog').tr(),
+                subtitle: const Text('pages.setting.general.filament_sensor_dialog_hint').tr(),
                 onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.groupSliders,
-                  b ?? false,
+                  AppSettingKeys.filamentSensorDialog,
+                  b ?? true,
                 ),
-                initialValue: ref.read(
-                  boolSettingProvider(AppSettingKeys.groupSliders, true),
-                ),
+                initialValue: ref.read(boolSettingProvider(AppSettingKeys.filamentSensorDialog, true)),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   isCollapsed: true,

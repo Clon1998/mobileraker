@@ -34,7 +34,7 @@ import '../../components/section_header.dart';
 part 'macro_group_list.g.dart';
 
 class MacroGroupList extends ConsumerWidget {
-  const MacroGroupList({Key? key, required this.machineUUID, this.enabled = true}) : super(key: key);
+  const MacroGroupList({super.key, required this.machineUUID, this.enabled = true});
 
   final String machineUUID;
   final bool enabled;
@@ -115,8 +115,7 @@ class MacroGroupList extends ConsumerWidget {
 
 //ToDo: The textField uses and validator but this validator is not checked. It would require a form key ....
 class _MacroGroup extends HookConsumerWidget {
-  const _MacroGroup({Key? key, required this.machineUUID, required this.groupUUID, this.enabled = true})
-      : super(key: key);
+  const _MacroGroup({super.key, required this.machineUUID, required this.groupUUID, this.enabled = true});
 
   final String machineUUID;
   final String groupUUID;

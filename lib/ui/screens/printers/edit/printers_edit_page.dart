@@ -43,7 +43,7 @@ import 'components/macro_group_list.dart';
 import 'printers_edit_controller.dart';
 
 class PrinterEditPage extends ConsumerWidget {
-  const PrinterEditPage({Key? key, required this.machine}) : super(key: key);
+  const PrinterEditPage({super.key, required this.machine});
   final Machine machine;
 
   @override
@@ -103,7 +103,7 @@ class _PrinterEdit extends ConsumerWidget {
 }
 
 class _Body extends ConsumerWidget {
-  const _Body({Key? key}) : super(key: key);
+  const _Body({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -261,7 +261,7 @@ class _Body extends ConsumerWidget {
 }
 
 class WebcamList extends ConsumerWidget {
-  const WebcamList({Key? key}) : super(key: key);
+  const WebcamList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -308,7 +308,7 @@ class _WebCamItem extends HookConsumerWidget {
   final WebcamInfo cam;
   final int idx;
 
-  const _WebCamItem({Key? key, required this.cam, required this.idx}) : super(key: key);
+  const _WebCamItem({super.key, required this.cam, required this.idx});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -462,7 +462,7 @@ class _WebCamItem extends HookConsumerWidget {
 }
 
 class _RemoteSettings extends ConsumerWidget {
-  const _RemoteSettings({Key? key}) : super(key: key);
+  const _RemoteSettings({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -588,7 +588,7 @@ class _RemoteSettings extends ConsumerWidget {
 }
 
 class MoveStepSegmentInput extends ConsumerWidget {
-  const MoveStepSegmentInput({Key? key}) : super(key: key);
+  const MoveStepSegmentInput({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -620,7 +620,7 @@ class MoveStepSegmentInput extends ConsumerWidget {
 }
 
 class BabyStepSegmentInput extends ConsumerWidget {
-  const BabyStepSegmentInput({Key? key}) : super(key: key);
+  const BabyStepSegmentInput({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -648,7 +648,7 @@ class BabyStepSegmentInput extends ConsumerWidget {
 }
 
 class ExtruderStepSegmentInput extends ConsumerWidget {
-  const ExtruderStepSegmentInput({Key? key}) : super(key: key);
+  const ExtruderStepSegmentInput({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -677,7 +677,7 @@ class ExtruderStepSegmentInput extends ConsumerWidget {
 }
 
 class TemperaturePresetList extends ConsumerWidget {
-  const TemperaturePresetList({Key? key}) : super(key: key);
+  const TemperaturePresetList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -711,11 +711,11 @@ class TemperaturePresetList extends ConsumerWidget {
 
 class _TempPresetItem extends HookConsumerWidget {
   const _TempPresetItem({
-    Key? key,
+    super.key,
     required this.preset,
     required this.idx,
     required this.machine,
-  }) : super(key: key);
+  });
   final TemperaturePreset preset;
   final int idx;
   final Machine machine; // We cant use the provider here since the reordable cant use the provider while dragging!
@@ -812,7 +812,7 @@ class _TempPresetItem extends HookConsumerWidget {
 // //ToDo: Better name for this widget
 class Segments<T> extends StatefulWidget {
   const Segments({
-    Key? key,
+    super.key,
     this.decoration = const InputDecoration(),
     this.maxOptions = 5,
     required this.options,
@@ -820,7 +820,7 @@ class Segments<T> extends StatefulWidget {
     this.onAdd,
     this.validator,
     this.inputType,
-  }) : super(key: key);
+  });
 
   final InputDecoration decoration;
 
@@ -969,7 +969,7 @@ class _SegmentsState<T> extends State<Segments<T>> {
 }
 
 class _ThemeSelector extends ConsumerWidget {
-  const _ThemeSelector({Key? key}) : super(key: key);
+  const _ThemeSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

@@ -86,6 +86,8 @@
   velocity. [#268](https://github.com/Clon1998/mobileraker/issues/268)
 - [IOS] Revamped the design of live activities, adopting a more compact form with a black theme to align with the system
   UI.
+- Improved the app's settings page by introducing hints, providing users with clearer insights into the functionality
+  and implications of each setting.
 
 ### Bug Fixes
 

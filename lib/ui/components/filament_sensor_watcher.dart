@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/misc.dart';
@@ -43,6 +44,9 @@ class _PrinterCalibrationWatcherState extends ConsumerState<FilamentSensorWatche
       (previous, next) {
         if (!next.hasValue) return;
         if (_dialogService.isDialogOpen) return;
+        var enabled = ref.read(boolSettingProvider(AppSettingKeys.filamentSensorDialog, true));
+        if (!enabled) return;
+
         var filamentSensors = next.value!;
 
         var model = ref.read(_triggeredProvider);
