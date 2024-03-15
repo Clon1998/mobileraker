@@ -7,6 +7,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,8 @@ class FilamentSensorWatcher extends StatefulHookConsumerWidget {
 class _PrinterCalibrationWatcherState extends ConsumerState<FilamentSensorWatcher> {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
+  bool _enabled = true;
+
   @override
   Widget build(BuildContext context) {
     return widget.child;
@@ -44,8 +47,7 @@ class _PrinterCalibrationWatcherState extends ConsumerState<FilamentSensorWatche
       (previous, next) {
         if (!next.hasValue) return;
         if (_dialogService.isDialogOpen) return;
-        var enabled = ref.read(boolSettingProvider(AppSettingKeys.filamentSensorDialog, true));
-        if (!enabled) return;
+        if (!_enabled) return;
 
         var filamentSensors = next.value!;
 
@@ -67,6 +69,17 @@ class _PrinterCalibrationWatcherState extends ConsumerState<FilamentSensorWatche
           } else if (sensor.enabled && sensor.filamentDetected) {
             model[entry.key] = false;
           }
+        }
+      },
+      fireImmediately: true,
+    );
+
+    ref.listenManual(
+      boolSettingProvider(AppSettingKeys.filamentSensorDialog, true),
+      (previous, next) {
+        logger.w('FilamentSensorWatcher: filamentSensorDialog setting changed from $previous to $next');
+        if (next != _enabled) {
+          _enabled = next;
         }
       },
       fireImmediately: true,
