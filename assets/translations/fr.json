@@ -265,7 +265,7 @@
         "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué",
         "lcFullCam": "Orientation paysage lors de l'affichage de la webcam en plein écran",
         "language": "Langue",
-        "companion": "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web. "
+        "companion": "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web.",
         "sliders_grouping": "Présenter les réglages par curseur sous forme d'onglets"
       },
       "notification": {
@@ -279,7 +279,7 @@
         "no_firebase_title": "Impossible d'afficher les notifications",
         "no_firebase_desc": "Mobileraker ne peut pas envoyer de notification à cet appareil.\nIl semble que votre appareil n'a pas les services Google Play installés ou bloque la connection de Firebase!",
         "ios_notifications_title": "Transmission des notifications iOS",
-        "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !"
+        "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !",
         "missing_companion_title": "Companion introuvable!",
         "missing_companion_body": "Il semble que le companion ne soit pas installé, les machines suivantes ne peuvent donc pas envoyer de notification: {}\n\nCliquez pour en apprendre davantage!",
         "enable_live_activity": "Activer Live Activity"
