@@ -9,6 +9,7 @@ environment:
 
 dependency_overrides:
   intl: ^0.18.1 # required due to awesome notifications and formbuilder
+  web: ^0.5.1
 
 
 dependencies:
@@ -16,30 +17,30 @@ dependencies:
     sdk: flutter
 
   #network
-  web_socket_channel: ^2.4.0
+  web_socket_channel: ^2.4.4
   dio: ^5.3.3
   dio_smart_retry: ^6.0.0
   flutter_web_auth: ^0.5.0
-  http: ^1.0.0
+  http: ^1.2.1
 
   #firebase
   firebase_core_platform_interface: ^5.0.0
-  firebase_core: ^2.24.2
-  firebase_analytics: ^10.7.4
-  firebase_app_check: ^0.2.1+8
-  firebase_crashlytics: ^3.4.8
-  firebase_remote_config: ^4.3.8
-  firebase_auth: ^4.15.3
-  cloud_firestore: ^4.13.6
+  firebase_core: ^2.27.1
+  firebase_analytics: ^10.8.10
+  firebase_app_check: ^0.2.1+18
+  firebase_crashlytics: ^3.4.19
+  firebase_remote_config: ^4.3.18
+  cloud_firestore: ^4.15.9
 
+  firebase_auth: ^4.17.9
 
   #purchases
   purchases_flutter: ^6.5.1
 
   #notification
-  awesome_notifications_core: ^0.9.0
-  awesome_notifications: ^0.9.0
-  awesome_notifications_fcm: ^0.9.1
+  awesome_notifications_core: ^0.9.3
+  awesome_notifications: ^0.9.3
+  awesome_notifications_fcm: ^0.9.3
   live_activities: ^1.9.0
 
 
@@ -74,7 +75,7 @@ dependencies:
   rxdart: ^0.27.3
   stringr: ^1.0.0
   collection: ^1.17.0
-  uuid: ^3.0.7
+  uuid: ^4.3.3
   network_info_plus: ^4.0.2
   permission_handler: ^11.0.0
   url_launcher: ^6.1.6
@@ -91,7 +92,7 @@ dev_dependencies:
   mockito: ^5.3.2
   flutter_lints: ^3.0.1
   riverpod_lint: ^2.3.10
-  custom_lint: ^0.5.3
+  custom_lint: ^0.6.4
   build_runner: ^2.4.7
   freezed: ^2.4.1
   json_serializable: ^6.4.1
