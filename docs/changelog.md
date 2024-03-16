@@ -1,7 +1,10 @@
 # Mobileraker - Changelog
 
-## [2.6.13] - 2024-04-xx
+## [2.6.14] - 2024-03-2x
 
+## [2.6.13] - 2024-03-15
+- Hotfixing issue with the French translation preventing the app from starting for users with active French translation.
+- 
 ## [2.6.12] - 2024-03-13
 
 ### Major Updates
