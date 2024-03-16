@@ -300,7 +300,9 @@
         "missing_companion_title": "Companion wurde nicht gefunden!",
         "missing_companion_body": "Es scheint, dass der Companion nicht installiert ist und daher die folgenden Maschinen keine Benachrichtigungen senden können: {}",
         "enable_live_activity": "Aktiviere Live Activity",
-        "enable_live_activity_helper": "Aktiviert Live-Aktivitäten in Ergänzung zu den standardmäßigen Druckfortschritt Benachrichtigungen"
+        "enable_live_activity_helper": "Aktiviert Live-Aktivitäten in Ergänzung zu den standardmäßigen Druckfortschritt Benachrichtigungen",
+        "opt_out_marketing": "Marketing Benachrichtigungen",
+        "opt_out_marketing_helper": "Erhalten Sie aktuelle Informationen über Verkaufsaktionen und Sonderangebote"
       },
       "developer": {
         "title": "Entwickler",

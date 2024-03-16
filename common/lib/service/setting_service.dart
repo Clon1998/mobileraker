@@ -118,6 +118,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   useLiveActivity('useLiveActivity'),
   groupSliders('groupSliders'),
   filamentSensorDialog('filamentSensorDialog'),
+  receiveMarketingNotifications('receiveMarketingNotifications'),
   ;
 
   @override

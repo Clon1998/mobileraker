@@ -6,13 +6,16 @@ import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:common/service/firebase/analytics.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -306,6 +309,7 @@ class _NotificationSection extends ConsumerWidget {
           ),
         const _ProgressNotificationSettingField(),
         const _StateNotificationSettingField(),
+        const _OptOutOfAdPush(),
         const Divider(),
         RichText(
           text: TextSpan(
@@ -752,6 +756,34 @@ class CompanionMissingWarning extends ConsumerWidget {
                 ),
               ),
       ),
+    );
+  }
+}
+
+class _OptOutOfAdPush extends ConsumerWidget {
+  const _OptOutOfAdPush({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FormBuilderSwitch(
+      name: 'adOptOut',
+      title: const Text('pages.setting.notification.opt_out_marketing').tr(),
+      subtitle: const Text('pages.setting.notification.opt_out_marketing_helper').tr(),
+      onChanged: (b) {
+        var val = b ?? true;
+        logger.i('User opted out of marketing notifications: ${!val}');
+        ref.read(analyticsProvider).updatedAdOptOut(!val);
+        ref.read(settingServiceProvider).writeBool(
+              AppSettingKeys.receiveMarketingNotifications,
+              val,
+            );
+      },
+      initialValue: ref.read(boolSettingProvider(AppSettingKeys.receiveMarketingNotifications, true)),
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        isCollapsed: true,
+      ),
+      activeColor: Theme.of(context).colorScheme.primary,
     );
   }
 }

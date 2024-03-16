@@ -300,7 +300,9 @@
         "missing_companion_title": "Companion not found!",
         "missing_companion_body": "It seems like the companion is not installed, and therefore the following machines can not send notifications: {}\n\nTap to learn more!",
         "enable_live_activity": "Enable Live Activity",
-        "enable_live_activity_helper": "Enables the usage of live activity in addition to the default progress notifications"
+        "enable_live_activity_helper": "Enables the usage of live activity in addition to the default progress notifications",
+        "opt_out_marketing": "Marketing Notifications",
+        "opt_out_marketing_helper": "Receive updates on sales and promotions"
       },
       "developer": {
         "title": "Developer",
