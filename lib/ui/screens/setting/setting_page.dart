@@ -292,6 +292,7 @@ class _NotificationSection extends ConsumerWidget {
           FormBuilderSwitch(
             name: 'liveActivity',
             title: const Text('pages.setting.notification.enable_live_activity').tr(),
+            subtitle: const Text('pages.setting.notification.enable_live_activity_helper').tr(),
             onChanged: (b) => settingService.writeBool(
               AppSettingKeys.useLiveActivity,
               b ?? false,
