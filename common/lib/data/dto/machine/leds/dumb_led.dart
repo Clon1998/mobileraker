@@ -13,6 +13,8 @@ part 'dumb_led.g.dart';
 
 @freezed
 class DumbLed extends Led with _$DumbLed {
+  const DumbLed._();
+
   const factory DumbLed({
     required String name,
     @PixelConverter()

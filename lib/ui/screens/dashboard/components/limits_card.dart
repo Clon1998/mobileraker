@@ -2,6 +2,9 @@
  * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
+
+// ignore_for_file: prefer-single-widget-per-file
+
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
@@ -24,7 +27,7 @@ part 'limits_card.freezed.dart';
 part 'limits_card.g.dart';
 
 class LimitsCard extends StatelessWidget {
-  const LimitsCard({Key? key, required this.machineUUID}) : super(key: key);
+  const LimitsCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -75,14 +78,14 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var inputLocked = useState(true);
+
     var showLoading =
         ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
     if (showLoading) {
       return const _LimitsSlidersOrTextsLoading();
     }
-
-    var inputLocked = useState(true);
 
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =

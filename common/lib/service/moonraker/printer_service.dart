@@ -20,6 +20,7 @@ import 'package:common/data/dto/machine/fans/generic_fan.dart';
 import 'package:common/data/dto/machine/fans/heater_fan.dart';
 import 'package:common/data/dto/machine/fans/print_fan.dart';
 import 'package:common/data/dto/machine/fans/temperature_fan.dart';
+import 'package:common/data/dto/machine/filament_sensors/filament_motion_sensor.dart';
 import 'package:common/data/dto/machine/gcode_move.dart';
 import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
@@ -50,6 +51,7 @@ import 'package:stringr/stringr.dart';
 
 import '../../data/dto/console/command.dart';
 import '../../data/dto/console/console_entry.dart';
+import '../../data/dto/machine/filament_sensors/filament_sensor.dart';
 import '../../data/dto/machine/firmware_retraction.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
@@ -176,6 +178,8 @@ class PrinterService {
     'heater_generic': _updateGenericHeater,
     'firmware_retraction': _updateFirmwareRetraction,
     'bed_mesh': _updateBedMesh,
+    'filament_switch_sensor': _updateFilamentSensor,
+    'filament_motion_sensor': _updateFilamentSensor,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
@@ -186,14 +190,23 @@ class PrinterService {
 
   Printer? _current;
 
+  bool _flag = false;
+
   set current(Printer nI) {
     if (disposed) {
       logger.w(
           'Tried to set current Printer on an old printerService? ${identityHashCode(this)}', null, StackTrace.current);
       return;
     }
+    if (_flag) return;
     _current = nI;
     _printerStreamCtler.add(nI);
+
+    // Future.delayed(Duration(seconds: 5), () {
+    //   _flag = true;
+    //   logger.i('Delayed log');
+    //   _printerStreamCtler.addError(Exception('Delayed Error'));
+    // });
   }
 
   Printer get current => _current!;
@@ -204,6 +217,7 @@ class PrinterService {
 
   Future<void> refreshPrinter() async {
     try {
+      // await Future.delayed(Duration(seconds:15));
       // Remove Handerls to prevent updates
       _removeJrpcHandlers();
       logger.i('Refreshing printer for uuid: $ownerUUID');
@@ -326,8 +340,8 @@ class PrinterService {
     return gCode('SAVE_CONFIG');
   }
 
-  m117([String? msg]) {
-    gCode('M117 ${msg ?? ''}');
+  Future<bool> m117([String? msg]) {
+    return gCode('M117 ${msg ?? ''}');
   }
 
   partCoolingFan(double perc) {
@@ -340,6 +354,11 @@ class PrinterService {
 
   outputPin(String pinName, double value) {
     gCode('SET_PIN PIN=$pinName VALUE=${value.toStringAsFixed(2)}');
+  }
+
+  Future<void> filamentSensor(String sensorName, bool enable) async {
+    // SET_FILAMENT_SENSOR SENSOR=<sensor_name> ENABLE=[0|1]
+    await gCode('SET_FILAMENT_SENSOR SENSOR=$sensorName ENABLE=${enable ? 1 : 0}');
   }
 
   Future<bool> gCode(String script, {bool throwOnError = false, bool showSnackOnErr = true}) async {
@@ -653,6 +672,10 @@ class PrinterService {
         );
       } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.bed_mesh)) {
         printerBuilder.bedMesh = const BedMesh();
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.filament_switch_sensor)) {
+        printerBuilder.filamentSensors[objectName] = FilamentMotionSensor(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.filament_motion_sensor)) {
+        printerBuilder.filamentSensors[objectName] = FilamentMotionSensor(name: objectName);
       }
     }
     printerBuilder.extruders =
@@ -800,6 +823,13 @@ class PrinterService {
 
   _updateBedMesh(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
     printer.bedMesh = BedMesh.partialUpdate(printer.bedMesh, jsonResponse);
+  }
+
+  _updateFilamentSensor(String sensor, Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
+    printer.filamentSensors = {
+      ...printer.filamentSensors,
+      sensor: FilamentSensor.partialUpdate(printer.filamentSensors[sensor]!, jsonResponse)
+    };
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {

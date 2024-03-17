@@ -44,10 +44,14 @@ import 'package:worker_manager/worker_manager.dart';
 
 part 'app_setup.g.dart';
 
+const _hiveKeyName = 'hive_key';
+
 setupBoxes() async {
   await Hive.initFlutter();
 
-  Uint8List keyMaterial = await _hiveKey();
+  // For the key is not needed. It can be used to encrypt the data in the box. But this is not a high security app with sensitive data.
+  // Caused problems on some devices and the key is not used for hive encryption.
+  // Uint8List keyMaterial = await _hiveKey();
 
   // Ignore old/deperecates types!
   // 2 - WebcamSetting
@@ -98,7 +102,8 @@ setupBoxes() async {
   // Hive.deleteBoxFromDisk('printers');
 
   try {
-    await openBoxes(keyMaterial);
+    // await openBoxes(keyMaterial);
+    await openBoxes();
     Hive.box<Machine>("printers").values.forEach((element) {
       logger.i('Machine in box is ${element.logName}#${element.hashCode}');
       // ToDo remove after machine migration!
@@ -130,41 +135,45 @@ setupBoxes() async {
 }
 
 Future<Uint8List> _hiveKey() async {
-  const keyName = 'hive_key';
 
   /// due to the move to encSharedPref it could be that the hive_key is still in the normmal shared pref
   /// Therfore first try to load it from the secureShared pref else try the normal one else generate a new one
   var secureStorage = const FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
   );
-  const nonEncSharedPrefSecureStorage = FlutterSecureStorage();
+  const nonEncSharedPrefSecureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: false),
+  );
 
-  Uint8List? encryptionKey;
-  try {
-    encryptionKey = await secureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
-  } on PlatformException catch (e) {
-    logger.e('Error while reading hive_key from secure storage', e);
-    encryptionKey = await nonEncSharedPrefSecureStorage.read(key: keyName).then((value) => value?.let(base64Decode));
-    await nonEncSharedPrefSecureStorage.delete(key: keyName);
-    await secureStorage.write(
-      key: keyName,
-      value: encryptionKey?.let(base64Encode),
-    );
-    logger.e(
-      'Transfered hive_key from non-encryptedSharedPreferences to secureStorage using encryptedSharedPreferences',
-    );
-  }
-
+  Uint8List? encryptionKey = await _readStorage(secureStorage);
   if (encryptionKey != null) {
     return encryptionKey;
   }
 
+  encryptionKey ??= await _readStorage(nonEncSharedPrefSecureStorage);
+  if (encryptionKey != null) {
+    await secureStorage.write(key: _hiveKeyName, value: encryptionKey.let(base64Encode));
+    await nonEncSharedPrefSecureStorage.delete(key: _hiveKeyName);
+    return encryptionKey;
+  }
+
   final key = Hive.generateSecureKey();
-  await secureStorage.write(key: keyName, value: base64UrlEncode(key));
+  await secureStorage.write(key: _hiveKeyName, value: base64UrlEncode(key));
   return Uint8List.fromList(key);
 }
 
-Future<List<Box>> openBoxes(Uint8List _) {
+Future<Uint8List?> _readStorage(FlutterSecureStorage storage) async {
+  try {
+    String? value = await storage.read(key: _hiveKeyName);
+    return value?.let(base64Decode);
+  } catch (e) {
+    logger.e('Error while reading $_hiveKeyName from storage', e);
+    return null;
+  }
+}
+
+// Future<List<Box>> openBoxes(Uint8List _) {
+Future<List<Box>> openBoxes() {
   return Future.wait([
     Hive.openBox<Machine>('printers').then(_migrateMachine),
     Hive.openBox<String>('uuidbox'),
@@ -246,7 +255,7 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
 
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
   PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack);
+    FirebaseCrashlytics.instance.recordError(error, stack).ignore();
     return true;
   };
   yield StartUpStep.firebaseAnalytics;

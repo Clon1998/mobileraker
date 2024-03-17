@@ -7,6 +7,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:common/data/dto/config/config_file.dart';
+import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -19,6 +20,7 @@ import 'package:common/ui/components/skeletons/square_elevated_icon_button_skele
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -39,22 +41,25 @@ part 'control_xyz_card.g.dart';
 const _marginForBtns = EdgeInsets.all(10);
 
 class ControlXYZCard extends HookConsumerWidget {
-  const ControlXYZCard({Key? key, required this.machineUUID}) : super(key: key);
+  const ControlXYZCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading = ref
-        .watch(_controlXYZCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showCard = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
 
+    logger.i('ControlXYZCard: showCard: ${showCard}');
+
+    var showLoading = showCard.isLoading && !showCard.isReloading;
     if (showLoading) return const _ControlXYZLoading();
+    if (showCard.valueOrNull != true) return const SizedBox();
 
     return Card(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          const _CardTitle(),
+          _CardTitle(machineUUID: machineUUID),
           Padding(
             padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
             child: _CardBody(machineUUID: machineUUID),
@@ -199,14 +204,16 @@ class _ControlXYZLoading extends StatelessWidget {
 }
 
 class _CardTitle extends StatelessWidget {
-  const _CardTitle({super.key});
+  const _CardTitle({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       leading: const Icon(FlutterIcons.axis_arrow_mco),
       title: const Text('pages.dashboard.general.move_card.title').tr(),
-      trailing: const HomedAxisChip(),
+      trailing: HomedAxisChip(machineUUID: machineUUID),
     );
   }
 }
@@ -472,6 +479,9 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
       klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
     );
 
+    var showCard =
+        ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.print.state != PrintState.printing));
+
     var steps = ref.watchAsSubject(machineSettingsProvider(machineUUID).selectAs((data) => data.moveSteps));
 
     // Using a combination of select and map here to avoid excessive calls to _quickActions when the printer changes
@@ -481,19 +491,21 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
 
     var initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    yield* Rx.combineLatest3(
+    yield* Rx.combineLatest4(
+      showCard,
       klippyCanReceiveCommands,
       actions,
       steps,
-      (a, b, c) {
-        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex;
+      (a, b, c, d) {
+        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex.clamp(0, d.length - 1);
 
         return _Model(
-          klippyCanReceiveCommands: a,
-          directActions: b.$1,
-          moreActions: b.$2,
-          steps: c,
-          selected: min(max(0, idx), c.length - 1),
+          showCard: a,
+          klippyCanReceiveCommands: b,
+          directActions: c.$1,
+          moreActions: c.$2,
+          steps: d,
+          selected: min(max(0, idx), d.length - 1),
         );
       },
     );
@@ -649,6 +661,7 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
 @freezed
 class _Model with _$Model {
   const factory _Model({
+    required bool showCard,
     required bool klippyCanReceiveCommands,
     required int selected,
     required List<double> steps,

@@ -78,24 +78,17 @@ class PowerService {
 
   /// https://moonraker.readthedocs.io/en/latest/web_api/#get-device-list
   Future<List<PowerDevice>> getDeviceList() async {
-    try {
-      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('machine.device_power.devices');
-      logger.i('Fetching [power] devices!');
-      List<Map<String, dynamic>> devices =
-          rpcResponse.result['devices'].cast<Map<String, dynamic>>();
-      return List.generate(devices.length, (index) => PowerDevice.fromJson(devices[index]),
-          growable: false);
-    } on JRpcError catch (e, s) {
-      logger.e('Error while trying to fetch [power] devices!', e, s);
-      return List.empty();
-    }
+    logger.i('Fetching [power] devices!');
+    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('machine.device_power.devices');
+    List<Map<String, dynamic>> devices = rpcResponse.result['devices'].cast<Map<String, dynamic>>();
+    return List.generate(devices.length, (index) => PowerDevice.fromJson(devices[index]), growable: false);
   }
 
   /// https://moonraker.readthedocs.io/en/latest/web_api/#set-device-state
   Future<PowerState> setDeviceStatus(String deviceName, PowerState state) async {
     try {
-      RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('machine.device_power.post_device',
-          params: {'device': deviceName, 'action': state.name});
+      RpcResponse rpcResponse = await _jRpcClient
+          .sendJRpcMethod('machine.device_power.post_device', params: {'device': deviceName, 'action': state.name});
       logger.i('Setting [power] device "$deviceName" -> $state!');
 
       Map<String, dynamic> result = rpcResponse.result;
@@ -109,8 +102,8 @@ class PowerService {
   /// https://moonraker.readthedocs.io/en/latest/web_api/#get-device-status
   Future<PowerState> getDeviceStatus(String deviceName) async {
     try {
-      RpcResponse rpcResponse = await _jRpcClient
-          .sendJRpcMethod('machine.device_power.get_device', params: {'device': deviceName});
+      RpcResponse rpcResponse =
+          await _jRpcClient.sendJRpcMethod('machine.device_power.get_device', params: {'device': deviceName});
       logger.i('Fetching [power] device state of "$deviceName" !');
 
       Map<String, dynamic> result = rpcResponse.result;
@@ -122,16 +115,22 @@ class PowerService {
   }
 
   _init() async {
-    var devices = await getDeviceList();
-    _current = devices;
+    try {
+      var devices = await getDeviceList();
+      _current = devices;
+    } on JRpcError catch (e, s) {
+      logger.e('Error while trying to fetch [power] devices!', e);
+      if (!_devicesStreamCtler.isClosed) {
+        _devicesStreamCtler.addError(e, s);
+      }
+    }
   }
 
   _onPowerChanged(Map<String, dynamic> rawMessage) {
     List<Map<String, dynamic>> devices = rawMessage['params'].cast<Map<String, dynamic>>();
 
-    List<PowerDevice> parsed = List.generate(
-        devices.length, (index) => PowerDevice.fromJson(devices[index]),
-        growable: false);
+    List<PowerDevice> parsed =
+        List.generate(devices.length, (index) => PowerDevice.fromJson(devices[index]), growable: false);
     if (__current == null || __current!.isEmpty) return;
 
     var result = __current!.map((e) {

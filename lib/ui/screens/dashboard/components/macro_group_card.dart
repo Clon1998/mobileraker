@@ -41,10 +41,11 @@ class MacroGroupCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading = ref
-        .watch(_macroGroupCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showCard = ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
+    var showLoading = showCard.isLoading && !showCard.isReloading;
 
     if (showLoading) return const _MacroGroupLoading();
+    if (showCard.valueOrNull != true) return const SizedBox.shrink();
 
     return Card(
       child: Column(
@@ -135,6 +136,9 @@ class _SelectedGroup extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var isPrinting =
+        ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.isPrinting)).valueOrNull ==
+            true;
     var groupProvider = _macroGroupCardControllerProvider(machineUUID)
         .selectAs((value) => value.groups.elementAtOrNull(value.selected));
     var group = ref.watch(groupProvider).valueOrNull;
@@ -151,19 +155,32 @@ class _SelectedGroup extends ConsumerWidget {
         sizeAndFadeFactor: anim,
         child: child,
       ),
-      child: Column(
-        key: ValueKey(group.uuid),
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            spacing: 5,
-            children: [
-              for (var macro in group.macros) _MacroChip(machineUUID: machineUUID, macro: macro),
-            ],
-          ),
-        ],
-      ),
+      // The column is required to make it stretch
+      child: group.hasMacros(isPrinting)
+          ? Column(
+              key: ValueKey(group.uuid),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Wrap(
+                  alignment: WrapAlignment.spaceEvenly,
+                  spacing: 5,
+                  children: [
+                    for (var macro in group.macros) _MacroChip(machineUUID: machineUUID, macro: macro),
+                  ],
+                ),
+              ],
+            )
+          : Center(
+              key: ValueKey(group.uuid),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: Text(
+                  'pages.dashboard.control.macro_card.no_macros',
+                  style: Theme.of(context).textTheme.bodySmall,
+                  textAlign: TextAlign.center,
+                ).tr(),
+              ),
+            ),
     );
   }
 }
@@ -180,8 +197,7 @@ class _MacroChip extends ConsumerWidget {
 
     // Test if the macro is available on the printer
     ConfigGcodeMacro? configMacro = ref
-        .watch(_macroGroupCardControllerProvider(machineUUID)
-            .selectAs((data) => data.configMacros[macro.name.toLowerCase()]))
+        .watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.configMacros[macro.configName]))
         .valueOrNull;
 
     var klippyCanReceiveCommands = ref
@@ -292,6 +308,8 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
 
 @freezed
 class _Model with _$Model {
+  const _Model._();
+
   const factory _Model({
     required bool klippyCanReceiveCommands,
     required bool isPrinting,
@@ -299,4 +317,6 @@ class _Model with _$Model {
     required List<MacroGroup> groups,
     required Map<String, ConfigGcodeMacro> configMacros, // Raw Macros available on the printer
   }) = __Model;
+
+  bool get showCard => groups.isNotEmpty;
 }

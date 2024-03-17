@@ -17,4 +17,6 @@ mixin HeaterMixin {
   List<double>? get powerHistory;
 
   String get name;
+
+  String get configName => name.toLowerCase();
 }

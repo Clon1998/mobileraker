@@ -22,14 +22,6 @@ part 'setting_controller.g.dart';
 GlobalKey<FormBuilderState> settingPageFormKey(SettingPageFormKeyRef _) => GlobalKey<FormBuilderState>();
 
 @riverpod
-bool boolSetting(
-  BoolSettingRef ref,
-  KeyValueStoreKey key, [
-  bool fallback = false,
-]) =>
-    ref.watch(settingServiceProvider).readBool(key, fallback);
-
-@riverpod
 Future<List<Machine>> machinesWithoutCompanion(
   MachinesWithoutCompanionRef ref,
 ) {

@@ -16,6 +16,14 @@ class ErrorCard extends StatelessWidget {
         assert(child == null || (title == null && body == null),
             'Only define the child or the title and body!'),
         super(key: key);
+
+  factory ErrorCard.fromError(Object error, StackTrace stackTrace) {
+    return ErrorCard(
+      title: Text('Error'),
+      body: Text('An error occured: $error\n$stackTrace'),
+    );
+  }
+
   final Widget? child;
   final Widget? title;
   final Widget? titleLeading;

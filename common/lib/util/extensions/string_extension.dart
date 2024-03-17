@@ -14,10 +14,11 @@ extension MobilerakerString on String {
   /// Note that it returns (ObjectIdentifier, ObjectName),
   /// The ObjectIdentifier is always lowercase and
   (String, String?) toKlipperObjectIdentifier() {
-    var parts = trim().split(RegExp(r'\s+'));
+    final trimmed = trim();
+    final parts = trimmed.split(RegExp(r'\s+'));
     if (parts.length == 1) return (parts[0].toLowerCase(), null);
 
-    return (parts[0].toLowerCase(), parts.skip(1).join(" ").trim());
+    return (parts[0].toLowerCase(), trimmed.substring(parts[0].length).trim());
   }
 
   bool isKlipperObject(ConfigFileObjectIdentifiers objectIdentifier) {

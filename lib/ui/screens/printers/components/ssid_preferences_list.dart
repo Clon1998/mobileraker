@@ -96,7 +96,7 @@ class SsidPreferenceListController extends _$SsidPreferenceListController {
 }
 
 class SsidPreferenceList extends ConsumerWidget {
-  const SsidPreferenceList({Key? key, this.initialValue = const []}) : super(key: key);
+  const SsidPreferenceList({super.key, this.initialValue = const []});
 
   final List<String> initialValue;
 
@@ -108,7 +108,7 @@ class SsidPreferenceList extends ConsumerWidget {
 
     return InputDecorator(
       decoration: InputDecoration(
-        contentPadding: EdgeInsets.symmetric(vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(vertical: 4),
         helperText: tr('pages.printer_edit.local_ssid.helper'),
         helperMaxLines: 10,
       ),
@@ -146,7 +146,7 @@ class SsidPreferenceList extends ConsumerWidget {
 }
 
 class _SSID extends StatelessWidget {
-  const _SSID({Key? key, required this.value, this.onTap, this.onDelete}) : super(key: key);
+  const _SSID({super.key, required this.value, this.onTap, this.onDelete});
 
   final String value;
   final VoidCallback? onDelete;
@@ -162,8 +162,8 @@ class _SSID extends StatelessWidget {
         children: [
           Flexible(
             child: Row(children: [
-              Icon(Icons.wifi),
-              SizedBox(width: 8),
+              const Icon(Icons.wifi),
+              const SizedBox(width: 8),
               Flexible(
                 child: Text(
                   value,

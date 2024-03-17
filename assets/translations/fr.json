@@ -1,8 +1,9 @@
 {
   "general": {
+    "pause": "Pause",
     "resume": "Reprendre",
     "connected": "Connecté",
-    "off": "Eteint",
+    "off": "Éteint",
     "on": "Allumer",
     "none": "Aucune",
     "add": "Ajouter",
@@ -14,10 +15,39 @@
     "restart": "Redémarrer",
     "shutdown": "Eteindre",
     "firmware": "Firmware",
-    "fetching": "A la recherche",
+    "fetching": "Recherche",
+    "loading": "Chargement",
     "unknown": "Inconnu",
     "disabled": "Désactiver",
-    "confirm": "Confirmer"
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "close": "Fermer",
+    "edit": "Editer",
+    "preview": "Aperçu",
+    "retry": "Réessayer",
+    "supported": "Pris en charge",
+    "unsupported": "Non pris en charge",
+    "details": "Details",
+    "google_play": "GooglePlay",
+    "ios_store": "AppStore",
+    "active": "Active",
+    "canceled": "Annulé",
+    "monthly": "Mensuel",
+    "restore": "Restaurer",
+    "accept": "Accepter",
+    "abort": "Annuler",
+    "offset": "Compensation",
+    "valid": "Valide",
+    "invalid": "Invalide",
+    "free": "Gratuit",
+    "one_time": "Une seule fois",
+    "delete": "Effacer",
+    "clear": "Precis",
+    "unlink": "Dissocier",
+    "save": "Sauvegarder",
+    "apply": "Appliquer",
+    "completed": "Achevé",
+    "activate": "Activer"
   },
   "pages": {
     "dashboard": {
@@ -31,6 +61,7 @@
       "general": {
         "print_card": {
           "reset": "Réinitialiser",
+          "reprint": "Réimprimer",
           "printing_for": "Impression: {}",
           "speed": "Vitesse",
           "layer": "Couche",
@@ -39,8 +70,9 @@
           "elapsed": "Temps écoulé",
           "flow": "Débit",
           "filament": "Filament",
-          "filament_tooltip": "{} % de filament utilisé, correspond à {} m sur les {} m prédit."
-
+          "filament_tooltip": "{} % de filament utilisé, correspond à {} m sur les {} m prédit.",
+          "eta_tooltip": "Temp restant:\nMoyenne: {avg}\nSlicer: {slicer}\nFichier: {file}\nFilament: {filament}",
+          "remaining": "Restant"
         },
         "cam_card": {
           "webcam": "Caméra",
@@ -51,7 +83,7 @@
           "presets_btn": "Préréglages",
           "hotend": "Hotend",
           "bed": "Plateau",
-          "temp_presets": "Températures prérégler",
+          "temp_presets": "Températures préréglées",
           "sensors": "Capteurs",
           "heater_on": "{} °C cible",
           "btn_thermistor": "Capteur"
@@ -73,14 +105,25 @@
           "mesh_btn": "Mesh",
           "m84_tooltip": "Désactiver les moteurs",
           "m84_btn": "M84",
-          "step_size": "Taille des steps",
+          "step_size": "Distance de déplacement",
           "stc_tooltip": "Lancer calcul de l'ajustement des vis",
           "stc_btn": "STC",
           "ztilt_tooltip": "Lancer calibration Z-Tilt",
-          "ztilt_btn": "zTilt"
+          "ztilt_btn": "zTilt",
+          "poff_tooltip": "Exécuter la calibration de l'offset de la buse",
+          "poff_btn": "Calibration de la buse",
+          "zoff_tooltip": "Calibration de l'offset de l'axe Z",
+          "zoff_btn": "Calibration de l'axe Z",
+          "bsa_tooltip": "Démarrer l'ajustement des vis du plateau",
+          "bsa_btn": "Ajustement des vis du plateau",
+          "save_tooltip": "Sauvegarder les résultats de la calibration",
+          "save_btn": "Sauvegarder la calibration",
+          "more_btn": "Plus",
+          "homed": "Home des Axes"
         },
         "baby_step_card": {
-          "title": "Micro-step de l'axe Z"
+          "title": "Micro-step de l'axe Z",
+          "z_offset": "Z-Offset"
         },
         "restart_klipper": "Redémarrer Klipper",
         "restart_mcu": "@:general.restart @:general.firmware"
@@ -99,23 +142,23 @@
           "title": "Extrudeur",
           "extrude": "Extruder",
           "retract": "Rétracter",
-          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude length",
-          "cold_extrude_error": "L'extrudeur n'a pas atteit la temperature minimal d'extrusion de {}°C!"
+          "extrude_len": "@:pages.dashboard.control.extrude_card.extrude longueur",
+          "cold_extrude_error": "L'extrudeur n'a pas atteint la temperature minimal d'extrusion de {}°C!"
         },
         "macro_card": {
           "title": "Gcode - Macros"
         },
         "pin_card": {
           "title": {
-            "zero": "Output Pin",
-            "one": "Output Pin",
-            "two": "Output Pins",
-            "other": "Output Pins"
+            "zero": "Sortie",
+            "one": "Sortie",
+            "two": "Sorties",
+            "other": "Sorties"
           },
           "pin_btn": "Pin"
         },
         "power_card": {
-          "title": "Power Panel",
+          "title": "Tableau de commande",
           "pin_btn": "Pin"
         },
         "multipl_card": {
@@ -129,21 +172,46 @@
           "velocity": "Vitesse",
           "accel": "Accélération",
           "sq_corn_vel": "Vitesse d'angle droit",
-          "accel_to_decel": "Accélération à Décélération"
+          "accel_to_decel": "Accélération à décélération"
+        },
+        "fw_retraction_card": {
+          "title": "Rétractation du firmware",
+          "retract_length": "Longueur de rétractation",
+          "retract_speed": "Vitesse de rétractation",
+          "extra_unretract_length": "Longueur de réinsertion",
+          "unretract_speed": "Vitesse de réinsertion"
+        },
+        "bed_mesh_card": {
+          "title": "Maillage du plateau",
+          "profiles": "Profiles",
+          "range_tooltip": "Distance entre le point la plus bas et le plus haut",
+          "showing_matrix": {
+            "probed": "Afficher la matrice",
+            "mesh": "Afficher le maillage de la matrice"
+          }
+        },
+        "spoolman_card": {
+          "title": "Gestionnaire de bobine",
+          "no_spool": "Aucune bobine selectionnée\nL'utilisation du filament ne sera pas suivi.",
+          "select_spool": "Sélectionner la bobine",
+          "used": "Utilisé: {}"
         }
       }
     },
     "files": {
-      "title": "Files",
-      "search_files": "Chercher fichier",
+      "title": "Fichiers",
+      "search_files": "Chercher un fichier",
       "clear_search": "Supprimer la recherche",
       "name": "Nom",
       "last_mod": "Dernière modification",
       "last_printed": "Dernière impression",
-      "fetching_files": "@:general.fetching Files...",
-      "no_files_found": "Aucun fichier trouver!",
+      "not_printed": "Non imprimé",
+      "fetching_files": "@:general.fetching de fichiers...",
+      "no_files_found": "Aucun fichier trouvé!",
+      "no_matches_file_pattern": "Seules les lettres, chiffres, tiret (-), souligné (_) et point sont autorisés!",
+      "file_name_in_use": "Le nom du fihcier est déjà utilisé!",
       "details": {
-        "preheat": "Prechauffer",
+        "preheat": "Préchauffer",
         "print": "Imprimer",
         "general_card": {
           "path": "Chemin",
@@ -156,13 +224,15 @@
           "filament": "Filament",
           "filament_type": "Type de filament",
           "filament_name": "Nom du Filament",
+          "filament_weight": "Poids",
+          "filament_length": "Longueur",
           "est_print_time": "Estimation du temps d'impression",
           "slicer": "Slicer utilisé",
           "nozzle_diameter": "Diamètre de la buse",
           "layer_higher": "Hauteur de la couche",
           "first_layer": "Première couche",
           "others": "Autres",
-          "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Temperatures",
+          "first_layer_temps": "@:pages.files.details.meta_card.first_layer - Températures",
           "first_layer_temps_value": "@:pages.dashboard.general.temp_card.hotend: {}°C\n@:pages.dashboard.general.temp_card.bed: {}°C"
         },
         "stat_card": {
@@ -175,6 +245,12 @@
         "preheat_snackbar": {
           "title": "Started Preheating",
           "body": "Extruder: {}°C\nBed: {}°C"
+        },
+        "spoolman_warnings": {
+          "insufficient_filament_title": "Filament insuffisant",
+          "insufficient_filament_body": "La bobine active n'a plus que {} filament, ce qui n'est pas suffisant pour ce fichier.\nCliquer pour changer de bobine",
+          "material_mismatch_title": "Incompatibilité des matériaux",
+          "material_mismatch_body": "Le fichier des matériaux {} ne correspond pas au matériel de la bobine {}.\nCliquer pour changer la bobine active."
         }
       }
     },
@@ -182,41 +258,76 @@
       "title": "Paramètres de l'application",
       "general": {
         "title": "Général",
-        "ems_confirm": "Confirmation de l'Arrêt d'urgence",
+        "ems_confirm": "Confirmation de l'arrêt d'urgence",
         "always_baby": "Toujours afficher le micro stepping",
         "num_edit": "Utiliser le clavier pour la saisie des chiffres",
         "start_with_overview": "Show @:pages.overview.title by default",
-        "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué.",
+        "use_offset_pos": "Afficher les coordonnées avec le décalage appliqué",
+        "lcFullCam": "Orientation paysage lors de l'affichage de la webcam en plein écran",
         "language": "Langue",
-        "companion": "Vous voulez recevoir une notification à distance ? Apprenez à configurer Mobileraker's Companion sur son site Web. "
+        "companion": "Voulez-vous recevoir des notifications à distance ? Apprenez à configurer Mobileraker's Companion sur son site web.",
+        "sliders_grouping": "Présenter les réglages par curseur sous forme d'onglets"
       },
       "notification": {
         "title": "Notification",
-        "progress_label": "Notification d'avancement",
+        "progress_label": "Notifications d'avancement",
         "progress_helper": "Intervalle de mise à jour pour la notification de la progression de l'impression",
+        "state_label": "Notifications de changement d'état",
+        "state_helper": "États qui déclenchent une notification.",
         "no_permission_title": "Pas de permission de notification !",
         "no_permission_desc": "Impossible d'afficher les notifications.Demandez la permission en cliquant !",
-        "ios_notifications_title": "Transmission des notifications IOS",
-        "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !"
+        "no_firebase_title": "Impossible d'afficher les notifications",
+        "no_firebase_desc": "Mobileraker ne peut pas envoyer de notification à cet appareil.\nIl semble que votre appareil n'a pas les services Google Play installés ou bloque la connection de Firebase!",
+        "ios_notifications_title": "Transmission des notifications iOS",
+        "ios_notifications_desc": "Les notifications exigent que mobileraker soit ouvert au moins une fois et soit en arrière-plan. Pourtant, certaines notifications peuvent être bloquées par le système d'exploitation !",
+        "missing_companion_title": "Companion introuvable!",
+        "missing_companion_body": "Il semble que le companion ne soit pas installé, les machines suivantes ne peuvent donc pas envoyer de notification: {}\n\nCliquez pour en apprendre davantage!",
+        "enable_live_activity": "Activer Live Activity"
       },
-      "imprint": "Privacy/Impressum"
+      "developer": {
+        "title": "Développeur",
+        "crashlytics": "Activer la collecte via Crashlytics pour aider à améliorer l'application"
+      },
+      "imprint": "Vie privée/Impression"
     },
     "printer_edit": {
-      "title": "Edit {}",
+      "title": "Editer {}",
       "import_settings": "Importer réglages",
-      "remove_printer": "Supprimer imprimante",
+      "remove_printer": "Supprimer l'imprimante",
       "no_values_found": "Aucune valeur trouvée!",
-      "fetching_additional_settings": "@:general.fetching additional settings from network...",
-      "could_not_fetch_additional": "Impossible de récupérer des paramètres supplémentaires !",
-      "fetch_error_hint": "Assurez-vous que la machine est joignable, et que Mobileraker y est connecté.",
+      "fetching_additional_settings": "@:general.fetching paramètres additionnels depuis le réseau...",
+      "could_not_fetch_additional": "Impossible de récupérer des paramètres additionnels !",
+      "fetch_error_hint": "Assurez-vous que la machine soit joignable, et que Mobileraker y est connecté.",
+      "reset_notification_registry": "Réinitialiser le registre des notification de l'imprimante",
+      "configure_remote_connection": "Configurer la connexion à distance",
+      "store_error": {
+        "title": "La sauvegarde à échoué !",
+        "message": "Certains champs contiennent des valeurs manquantes ou invalides !\nAssurez-vous que tous les champs sont valides.",
+        "unexpected_error": "Une erreur innatendue s'est produite lors de la sauvegarde des données de l'imprimante !"
+      },
+      "confirm_deletion": {
+        "title": "Supprimer {}?",
+        "body": "Vous êtes sur le point de supprimer l'imprimante '{}' connectée à '{}'. \n\nConfirmez l'action."
+      },
       "general": {
         "displayname": "Nom d'affichage",
         "printer_addr": "Imprimante - Adresse",
         "ws_addr": "Websocket - Adresse",
         "moonraker_api_key": "Moonraker - Clé API",
         "moonraker_api_desc": "Seulement nécessaire si vous utilisez des clients de confiance. FluiddPI applique cette règle !",
-        "full_url": "URL complet",
+        "full_url": "URL complète",
+        "timeout_label": "Expiration du délai du client (timeout)",
+        "timeout_helper": "Délai de connection pour le client en secondes (timeout delay)",
+        "theme": "Thème de l'interface",
+        "theme_helper": "Thème de l'interface de l'imprimante",
+        "theme_unavailable": "Thème de l'interface pour l'imprimante, seulement disponible en soutenant l'application."
+      },
+      "ssl": {
+        "title": "SSL - Paramètres",
+        "pin_certificate_label": "Épinglage des empreintes digitales des certificats",
+        "pin_certificate_helper": "Sélectionner un fichier de certificat au format PEM pour l'épinglage SSL",
         "self_signed": "Faire confiance aux certificats auto-signés"
+
       },
       "motion_system": {
         "title": "Système de mouvement",
@@ -246,16 +357,23 @@
         "target_fps": "Nombre d'image par seconde",
         "new_cam": "Nouvelle caméra",
         "no_webcams": "Aucune caméra ajoutée!",
-        "webcam_addr": "Adresse de la caméra",
-        "default_addr": "Adresse par default",
+        "stream_url": "URL du stream",
+        "snapshot_url": "URL de la copie d'écran",
+        "default_url": "URL par défaut",
         "flip_vertical": "Retournement vertical",
         "flip_horizontal": "Retournement horizontal",
-        "cam_mode": "Mode caméra"
+        "cam_mode": "Mode caméra",
+        "cam_rotate": "Rotation",
+        "read_only": "La Webcam est en lecture seul"
       },
       "macros": {
         "new_macro_grp": "Nouveau groupe de macro",
         "no_macros_available": "Aucune macro disponible!",
         "no_macros_found": "Aucune macro trouvée!",
+        "no_macros_in_grp": "Aucune macro dans le groupe!",
+        "deleted_grp": "Effacer le groupe {}",
+        "macros": "Macros",
+        "default_name": "Nouvelle Macro",
         "macros_to_default": {
           "one": "Déplacement d'une macro vers le groupe par défaut !",
           "two": "Déplacement de deux macros vers le groupe par défaut !",
@@ -267,16 +385,113 @@
         "hotend_temp": "@:pages.dashboard.general.temp_card.hotend Temperature",
         "bed_temp": "@:pages.dashboard.general.temp_card.bed Temperature",
         "new_preset": "Nouveau préréglage"
+      },
+      "confirm_fcm_reset": {
+        "title": "Effacer le registre du dispositif de notification ?",
+        "body": "Vous êtes sur le point de réinitialiser le registre des appareils, qui est utilisé pour déterminer les appareils auxquels le compagnon envoie des notifications.\nPour rétablir les notifications push, vous devrez redémarrer l'application sur tous les appareils et les connecter à nouveau à la machine. \n\nConfirmez votre action."
+      },
+      "confirm_remote_interface_removal": {
+        "title": {
+          "oe": "Déconnecter {}?",
+          "other": "Supprimer la connection"
+        },
+        "body": {
+          "oe": "Veuillez confirmer la déconnexion de l'imprimante {} d'OctoEverywhere.",
+          "other": "Veuillez confirmer la suppression de la connexion à distance de l'imprimante {}."
+        },
+        "button": {
+          "oe": "@:general.unlink",
+          "other": "@:general.remove"
+        }
+      },
+      "remote_interface_exists": {
+        "title": "Connexion à distance trouvée",
+        "body": {
+          "oe": "Cette imprimante est déjà liée à OctoEverywhere pour l'accès à distance. Veuillez la déconnecter avant de continuer.",
+          "obico": "Cette imprimante est déjà liée à Obico pour l'accès à distance. Veuillez la déconnecter avant de continuer.",
+          "other": "Une connexion à distance est déjà établie pour cette imprimante. Veuillez la supprimer avant de continuer."
+        }
+      },
+      "remote_interface_removed": {
+        "title": "La connexion à distance a été supprimée !",
+        "body": "Veillez à enregistrer l'imprimante pour appliquer les modifications."
+      },
+      "remote_interface_added": {
+        "title": {
+          "oe": "Linked to OctoEverywhere.",
+          "obico": "Linked to Obico.",
+          "other": "Remote connection Added."
+        },
+        "body": "Veillez à enregistrer l'imprimante pour appliquer les modifications."
+      },
+      "wifi_access_warning": {
+        "title": "Informations sur le WiFi non disponibles",
+        "subtitle": "Pour déterminer si Mobileraker doit utiliser la connexion à distance, accordez l'accès à la localisation. Cela permet à l'application d'obtenir le nom du réseau WiFi actuel.\n\nTapez sur pour accorder la permission."
+      },
+      "local_ssid": {
+        "section_header": "Commutation intelligente",
+        "no_ssids": "Aucun nom WiFi n'a été ajouté !",
+        "helper": "La commutation intelligente permet à l'application de basculer automatiquement entre la connexion locale et la connexion à distance en fonction du réseau WiFi actuel. Pour activer cette fonction, ajoutez le nom du réseau WiFi de votre domicile à la liste.",
+        "dialog": {
+          "title_add": "Ajouter le nom du WiFi à la liste",
+          "title_edit": "Modifier le nom du WiFi",
+          "label": "Nom du Wifi (SSID)",
+          "quick_add_hint": "Conseil : pour ajouter rapidement le nom du réseau WiFi actuel, appuyez longuement sur le bouton qui a ouvert cette boîte de dialogue."
+        },
+        "error_fetching_snackbar": {
+          "title": "Erreur lors de la recherche du nom du WiFi !",
+          "body": "Assurez-vous que l'application dispose des autorisations nécessaires pour accéder à l'état WiFi de l'appareil."
+        }
       }
     },
     "printer_add": {
+      "steps": {
+        "mode": "Mode",
+        "input": "Entrée",
+        "test": "Test",
+        "done": "Terminé"
+      },
       "title": "Ajouter une nouvelle imprimante",
-      "printer_add_helper": "Hôte, IP, ou URL complète",
-      "resulting_ws_url": "URL WebSocket résultante : {}",
-      "misc": "Divers",
-      "test_ws": "Tester la connexion websocket",
-      "result_ws_test": "Résultat: {}",
-      "run_test_btn": "Test"
+      "initial_name": "Mon imprimante",
+      "select_mode": {
+        "title": "Choisissez un mode d'entrée :",
+        "body": "Si vous êtes novice en la matière, il est préférable de vous en tenir au mode simple. En revanche, si vous êtes expérimenté et que vous avez besoin d'utiliser des en-têtes, des certificats, etc. personnalisés, le mode expert est fait pour vous. Gardez à l'esprit que le mode que vous choisissez n'affecte pas l'application elle-même, mais qu'il détermine la manière dont les données sont validées et affichées, ainsi que les options disponibles lors de l'ajout d'une machine.",
+        "simple": "Simple",
+        "advanced": "Avancé",
+        "add_via_oe": "Installation d'OctoEverywhere en un clic",
+        "add_via_obico": "Configuration d'Obico en un clic"
+      },
+      "simple_form": {
+        "hint_title": "Conseil - Mode simple",
+        "hint_body": "Le mode simple vous permet de saisir l'hôte et le port. Toutefois, si vous devez personnaliser le chemin d'accès, les en-têtes, les certificats ou d'autres paramètres, passez au mode avancé.",
+        "url_hint": "IP ou nom d'hôte de l'imprimante"
+      },
+      "advanced_form": {
+        "hint_title": "Conseil - Mode avancé",
+        "hint_body": "Veuillez noter qu'en mode avancé, la validation est en grande partie désactivée. Il est important que vous preniez l'entière responsabilité de vous assurer que l'URL que vous saisissez est valide.",
+        "http_helper": "Veuillez saisir le point de terminaison HTTP de Moonraker",
+        "ws_helper": "Facultatif, point d'arrivée WebSocket de Moonraker",
+        "section_security": "Sécurité",
+        "section_headers": "En-têtes HTTP",
+        "empty_headers": "Pas d'en-tête ajouté !"
+      },
+      "test_connection": {
+        "section_connection": "Données de connexion",
+        "ws_url_label": "WebSocket-URL résultant",
+        "http_url_label": "HTTP-URL résultant",
+        "section_test": "Tests de connexion",
+        "http_label": "Http Endpoint - Test",
+        "ws_label": "Websocket Endpoint - Test",
+        "awaiting": "En attente du résultat...",
+        "continue": "Continuer",
+        "continue_anyway": "Continuer quoi qu'il en soit",
+        "proceed_warning": "Il semble que l'application ait des difficultés à se connecter à l'ordinateur. Cela peut être dû au fait que vous ne vous trouvez pas sur le même réseau que la machine ou que vous ne disposez pas des autorisations nécessaires pour y accéder. Bien que vous puissiez choisir d'ajouter la machine malgré le problème, sachez qu'il n'y a aucune garantie qu'elle se connectera correctement. Procédez avec prudence.",
+        "button": "Test de Connection"
+      },
+      "confirmed": {
+        "title": "Imprimante {} ajoutée !",
+        "to_dashboard": "Vers le tableau de bord"
+      }
     },
     "console": {
       "title": "Console",
@@ -291,11 +506,73 @@
       "fetching_machines": "@:general.fetching machines...",
       "no_entries": "Aucune machine trouvée",
       "add_machine": "Ajouter une machine"
+    },
+    "markdown": {
+      "loading": "@:general.loading {}…",
+      "error": "Une erreur s'est produite lors de la recherche de {} ;",
+      "open_in_browser": "Ouvrir @:pages.faq.title dans le navigateur"
+    },
+    "faq": {
+      "title": "FAQ"
+    },
+    "changelog": {
+      "title": "Changelog"
+    },
+    "paywall": {
+      "manage_view": {
+        "title": "Merci pour votre soutien !",
+        "list_title": "hanger le niveau du supporteur :",
+        "store_btn": "Annuler l'abonnement dans {}",
+        "sub_warning": "Veuillez noter que l'achat d'un niveau de soutien à vie n'annule pas automatiquement les autres abonnements actifs. Vous devrez annuler manuellement tous les abonnements actifs. Cependant, vous avez la possibilité de continuer à soutenir le développement de Mobileraker sur une base récurrente même après avoir acheté le niveau de soutien à vie."
+      },
+      "subscribe_view": {
+        "title": "Devenez un supporter de Mobileraker !",
+        "info": "Mobileraker vise à fournir une interface mobile rapide et fiable pour Klipper, en s'inspirant de l'esprit de RepRap, selon lequel les logiciels et le matériel open-source peuvent avoir un impact positif.\nMobileraker est développé par un seul développeur et offert gratuitement, il dépend du financement de la communauté pour couvrir les coûts opérationnels et de développement.",
+        "list_title": "Choisissez le niveau de soutien :",
+        "subscription_info": "Si vous optez pour un abonnement, vous pouvez le résilier à tout moment. L'abonnement sera automatiquement renouvelé si vous ne le résiliez pas avant la fin de la période en cours. Pour résilier l'abonnement, rendez-vous sur la page {} et annulez l'abonnement à partir de là."
+      },
+      "supporter_tier_list": {
+        "error_title": "Erreur lors du chargement de Supporter Tiers !",
+        "error_body": "Désolé, une erreur inattendue s'est produite. Impossible de charger le SupporterTiers. Veuillez réessayer plus tard !"
+      },
+      "contact_dialog": {
+        "title": "Contact développeur",
+        "body": "Mail: {}\nDiscord: {}"
+      },
+      "title": "Soutenez le développeur !",
+      "calling_store": "Traitement de la demande...",
+      "promo_title": "Promotion",
+      "free_phase": "Premier {} gratuit",
+      "intro_phase": "Profitez de {} à {} de réduction",
+      "iap_offer": "{} sur le prix d'origine",
+      "tip_developer": "Conseil du développeur",
+      "trial_disclaimer": "Vous ne serez pas facturé avant la fin de la période d'essai gratuite et vous pouvez annuler à tout moment pendant cette période.",
+      "restore_sign_in": "Restauration / Connexion"
+    },
+    "video_player": {
+      "downloading_for_sharing": "Télécharger la vidéo pour la partager... ({})"
+    },
+    "tool": {
+      "title": "Outils"
+    },
+    "beltTuner": {
+      "title": "Réglage des courroies",
+      "description": "Il est essentiel de veiller à ce que la tension de la courroie soit correcte pour obtenir des performances optimales dans les imprimantes 3D. Une tension incorrecte, qu'elle soit trop serrée ou trop lâche, peut entraîner des problèmes mécaniques, une usure prématurée et une qualité d'impression compromise. Les valeurs de tension fournies servent de points de référence ; toutefois, il est conseillé de consulter les recommandations du fabricant pour obtenir des directives spécifiques adaptées à votre modèle d'imprimante. Les ajustements doivent être effectués en fonction de ces recommandations et des exigences et conditions propres à chaque imprimante.",
+      "beltType": "Sélectionnez votre type de courroi :",
+      "target": "Objectif : {} Hz sur {} mm",
+      "permissionWarning": {
+        "title": "Autorisation du micro requise",
+        "subtitle": "L'accordeur de ceinture utilise le microphone de votre téléphone pour analyser la fréquence de vos ceintures.\n\nAppuyez pour accorder la permission."
+      }
     }
   },
   "components": {
+    "app_version_display": {
+      "version": "Version:",
+      "installed_version": "Installed Version:"
+    },
     "pull_to_refresh": {
-      "pull_up_idle" : "Tirez vers le haut pour rafraîchir"
+      "pull_up_idle": "Tirez vers le haut pour rafraîchir"
     },
     "nav_drawer": {
       "printer_settings": "Paramètres de l'imprimante",
@@ -306,7 +583,43 @@
     "connection_watcher": {
       "reconnect": "Reconnexion",
       "trying_connect": "Essayer de se connecter ...",
-      "server_starting": "Le serveur démarre..."
+      "trying_connect_remote": "Essayer de se connecter à l'aide d'un client distant...",
+      "server_starting": "Le serveur démarre...",
+      "more_details": "Plus de détails",
+      "add_printer": "Bonjour à tous,\nJe suis ravi de vous voir ici !\nPour commencer votre expérience, veuillez ajouter une imprimante à Mobileraker. Une fois cette étape franchie, vous pourrez prendre le contrôle direct de votre imprimante depuis Mobileraker."
+    },
+    "octo_indicator": {
+      "tooltip": "Utiliser OctoEveryWhere !"
+    },
+    "supporter_add": {
+      "title": "Vous aimez Mobileraker ?",
+      "subtitle": "Tapotez-moi ! Pour savoir comment vous pouvez soutenir le développement !"
+    },
+    "supporter_only_feature": {
+      "dialog_title": "Fonctionnalité réservée aux supporters",
+      "button": "Devenir un supporter de Mobileraker",
+      "webcam": "Désolé, les webcams de type {} ne sont disponibles que pour les supporters. En revanche, les webcams Mjpeg sont accessibles à tous les utilisateurs.",
+      "printer_add": "Vous avez atteint la limite de machines. Seuls les supporteurs de Mobileraker peuvent ajouter plus de {} machines.",
+      "job_queue": "Désolé, la file d'attente n'est accessible qu'aux supporters.",
+      "timelaps_share": "Désolé, le partage de timelapses n'est disponible que pour les supporters.",
+      "printer_theme": "Désolé, les thèmes spécifiques aux imprimantes ne sont disponibles que pour les supporters."
+    },
+    "machine_deletion_warning": {
+      "title": "Suppression de la machine",
+      "subtitle": "Il semble que vous ne soyez pas un Supporter. Seuls les supporters peuvent avoir plus de {} machine(s). Vous disposez de {} jours avant que les machines excédentaires ne soient retirées."
+    },
+    "remote_connection_indicator": {
+      "title": "Utiliser la connexion à distance !"
+    },
+    "web_rtc": {
+      "renderer_missing": "La vidéo WebRtc n'est pas disponible !",
+      "oe_warning": "WebRtc via OctoEverywhere n'est pas encore supporté !"
+    },
+    "ri_indicator": {
+      "tooltip": "Utiliser la connexion à distance !"
+    },
+    "obico_indicator": {
+      "tooltip": "Utiliser le tunnel Obico!"
     }
   },
   "dialogs": {
@@ -350,6 +663,172 @@
     "ws_input_help": {
       "title": "Aide à la saisie de l'URL",
       "body": "Vous pouvez entrer une IP, une URL ou une URI complète vers votre interface web ou directement vers l'instance websocket fournie par moonraker.\n\nExamples valides:"
+    },
+    "gcode_params": {
+      "hint": "Conseil : vous pouvez également appuyer sur la touche longue si vous souhaitez soumettre la macro avec les valeurs par défaut !"
+    },
+    "rgbw": {
+      "recent_colors": "Couleurs récentes"
+    },
+    "select_machine": {
+      "title": "Sélectionner une machine",
+      "active_machine": "Machine active : {}",
+      "hint": "Tapez sur une machine pour la rendre active."
+    },
+    "supporter_perks": {
+      "title": "Avantages pour les supporters",
+      "body": "En soutenant Mobileraker, vous vous assurez que l'application reste gratuite pour la communauté. En outre, les supporters bénéficient des avantages suivants.",
+      "hint": "Conseil : pour l'instant, les avantages sont liés à l'appareil. Cela pourrait changer à l'avenir.",
+      "theme_perk": {
+        "title": "Thème des supporters",
+        "subtitle": "Thème exclusif utilisant Material 3"
+      },
+      "contact_perk": {
+        "title": "Contacter le développeur",
+        "subtitle": "Contact facile avec le développeur !"
+      },
+      "notification_perk": {
+        "title": "Notifications avec copie d'écran",
+        "subtitle": "Les notifications d'état incluent l'instantané de la webcam"
+      },
+      "webrtc_perk": {
+        "title": "Support WebRtc",
+        "subtitle": "Permet l'utilisation des webcams WebRtc !"
+      },
+      "job_queue_perk": {
+        "title": "File d'attente",
+        "subtitle": "Gérez la file d'attente de Moonraker depuis Mobileraker !"
+      },
+      "unlimited_printers_perk": {
+        "title": "mprimantes illimitées",
+        "subtitle": "Contrôlez autant d'imprimantes que vous le souhaitez avec Mobileraker !"
+      },
+      "printer_theme_perk": {
+        "title": "Thèmes basés sur l'imprimante",
+        "subtitle": "Choisissez un thème différent pour chaque imprimante !"
+      }
+    },
+    "bed_screw_adjust": {
+      "title": "Ajustement des vis du plateau",
+      "xy_plane": "Plan X/Y de l'imprimante :",
+      "active_screw_title": "Vis active :",
+      "accept_screw_title": "is acceptées :",
+      "accept_screw_value": "{} de {}",
+      "hint": "Cliquez sur Ajusté si un ajustement significatif est nécessaire pour la vis actuelle ; sinon, cliquez sur Accepter pour continuer.",
+      "adjusted_btn": "Ajusté"
+    },
+    "manual_offset": {
+      "title": "@:general.offset Calibration",
+      "hint_tooltip": "Documentation du test avec le papier",
+      "snackbar_title": "Étalonnage effectué",
+      "snackbar_message": "Veillez à conserver le décalage via l'action Save Config."
+    },
+    "tipping": {
+      "title": "Donnez un pourboire au développeur !",
+      "body": "Ce pourboire est uniquement destiné à apprécier les efforts du développeur et ne donne pas accès à des fonctionnalités supplémentaires.",
+      "amount_label": "Montant du pourboire",
+      "tip": "Pourboire"
+    },
+    "http_header": {
+      "title": "En-Tête HTTP",
+      "header": "En-tête",
+      "header_hint": "Le nom de l'en-tête HTTP",
+      "value": "Valeur de l'en-tête",
+      "value_hint": "La valeur de l'en-tête"
+    },
+    "macro_settings": {
+      "show_while_printing": "Afficher lors de l'impression",
+      "visible": "Visible"
+    },
+    "extruder_feedrate": {
+      "title": "Vitesse de l'extrudeur [mm/s]"
+    }
+  },
+  "bottom_sheets": {
+    "job_queue_sheet": {
+      "next": "Prochain travail d'impression",
+      "empty": "La file d'attente des travaux est vide. Vous pouvez ajouter des travaux via l'explorateur de fichiers.",
+      "start_queue": "Démarrer la file d'attente",
+      "pause_queue": "Mettre en pause la file d'attente",
+      "remove_all": "Vider la file d'attente",
+      "remove_all_confirm": "Cette opération va enlever tous les travaux en file d'attente."
+    },
+    "add_remote_con": {
+      "disclosure": "{service} n'est pas affilié à Mobileraker. Il peut nécessiter un abonnement supplémentaire. Veuillez consulter le site web de {service} pour plus d'informations.",
+      "active_service_info": {
+        "title": "Configuration existante trouvée !",
+        "body": "Vous utilisez actuellement {} comme service de connexion à distance. Supprimez-le avant d'en ajouter un nouveau."
+      },
+      "octoeverywehre": {
+        "service_name": "OctoEverywhere",
+        "tab_name": "@:bottom_sheets.add_remote_con.octoeverywehre.service_name",
+        "link": "Lier OctoEverywhere",
+        "unlink": "Délier OctoEverywhere",
+        "description": "OctoEverywhere.com est un projet communautaire qui vous permet de vous connecter en toute sécurité à votre imprimante depuis n'importe où. OctoEverywhere fournit également à la communauté une détection gratuite des pannes d'impression par IA, des notifications, une diffusion en direct, et bien plus encore. L'installation ne prend que 20 secondes !"
+      },
+      "manual": {
+        "service_name": "Connexion manuelle à distance",
+        "tab_name": "Manuelle",
+        "description": "Si vous êtes un utilisateur avancé, vous pouvez choisir d'ajouter manuellement une connexion alternative. La connexion alternative entre en jeu lorsque les tentatives de connexion à l'adresse principale échouent. Cela peut être utile si vous disposez d'une connexion proxy inverse à votre imprimante, ou si vous avez une adresse IP secondaire que vous pouvez utiliser pour vous connecter à votre imprimante.",
+        "address_label": "Adresse alternative",
+        "address_hint": "Adresse de base de la connexion à distance à utiliser"
+      },
+      "obico": {
+        "service_name": "Obico",
+        "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
+        "link": "Lier Obico",
+        "unlink": "Délier Obico",
+        "description": "Obico est un logiciel d'impression 3D communautaire et entièrement libre. Il vous permet de contrôler et de surveiller votre imprimante Klipper depuis n'importe où, et ce gratuitement. Il s'agit de l'une des solutions pionnières en matière de détection des pannes basée sur l'IA, qui utilise uniquement la webcam de votre imprimante."
+      }
+    },
+    "manage_macros_in_grp": {
+      "title": "Ajouter des Macros",
+      "hint": "Sélectionner les macros pour le groupe {}"
+    },
+    "signIn": {
+      "subtitle": "Bien que la création d'un compte soit facultative, elle est nécessaire pour restaurer les achats effectués sur un autre appareil ou une autre plateforme."
+    },
+    "profile": {
+      "title": "Vous êtes inscrit.",
+      "description": "Bienvenue ! Votre compte d'utilisateur est la clé d'une expérience améliorée sur tous vos appareils mobiles. Partagez en toute transparence votre statut de supporteur pour bénéficier de privilèges sans effort, où que vous alliez avec votre téléphone, votre tablette ou d'autres appareils.",
+      "restore_purchases": "Restaurer les achats",
+      "restore_success": "Les achats ont été restaurés avec succès !",
+      "sign_out": "S'inscrire",
+      "delete_account": "Supprimer le compte",
+      "email_verification": {
+        "title": {
+          "pending": "Envoi d'un courriel de vérification",
+          "not_verified": "L'email n'est pas vérifié"
+        },
+        "description": "Veuillez vérifier votre adresse électronique pour vous assurer que vous pouvez toujours accéder à votre compte.",
+        "send": "Envoyer la vérification"
+      },
+      "delete_account_dialog": {
+        "title": "Supprimer le compte ?",
+        "body": "Vous êtes sur le point de supprimer votre compte. Cette action ne peut être annulée."
+      }
+    },
+    "bedMesh": {
+      "no_mesh_loaded": "Aucun maillage du plateau n'a encore été chargé.",
+      "load_bed_mesh_profile": "Charge le profil du maillage",
+      "currently_active": "Actuellement actif: {}",
+      "no_profile_active": "Pas de profil actif",
+      "no_mesh": "Aucun maillage",
+      "clear_loaded_profile": "Effacer le profil chargé",
+      "range_between_highest_and_lowest_point": "Gamme entre le point le plus haut et le point le plus bas"
+    },
+    "select_spool": {
+      "header": {
+        "spools": "Bobines",
+        "qr": "QR-Code"
+      },
+      "no_spools": "Aucune bobine n'a été trouvé. Veuillez ajouter une bobine au gestionnaire de bobines",
+      "error": "Une erreur s'est produite lors du chargement des bobines.: {}",
+      "qr_loading": "Chargement du scanner des QR…",
+      "qr_error": "Erreur lors du chargement du scanner QR: {}",
+      "scan_again": "Encore un Scan",
+      "set_active": "Actif",
+      "spool_id_not_found": "Désolé, aucune bobine n'a été trouvé avec l'ID spécifié. #{}."
     }
   },
   "klipper_state": {
@@ -357,7 +836,10 @@
     "shutdown": "Arrêt",
     "starting": "Démarrage",
     "disconnected": "Déconnecté",
-    "error": "Erreur"
+    "error": "Erreur",
+    "unauthorized": "Non autorisé",
+    "initializing": "Initialisation",
+    "not_connected": "Moonraker ne peut pas établir de connexion avec Klipper. Veuillez vérifier que Klipper fonctionne sur votre système."
   },
   "notifications": {
     "channel_printer_grp": "Imprimante {}",
@@ -378,746 +860,44 @@
       }
     }
   },
-  "languages": {
-    "languageCode": {
-      "ab": {
-        "name": "Abkhaz",
-        "nativeName": "аҧсуа"
-      },
-      "aa": {
-        "name": "Afar",
-        "nativeName": "Afaraf"
-      },
-      "af": {
-        "name": "Afrikaans",
-        "nativeName": "Afrikaans"
-      },
-      "ak": {
-        "name": "Akan",
-        "nativeName": "Akan"
-      },
-      "sq": {
-        "name": "Albanian",
-        "nativeName": "Shqip"
-      },
-      "am": {
-        "name": "Amharic",
-        "nativeName": "አማርኛ"
-      },
-      "ar": {
-        "name": "Arabic",
-        "nativeName": "العربية"
-      },
-      "an": {
-        "name": "Aragonese",
-        "nativeName": "Aragonés"
-      },
-      "hy": {
-        "name": "Armenian",
-        "nativeName": "Հայերեն"
-      },
-      "as": {
-        "name": "Assamese",
-        "nativeName": "অসমীয়া"
-      },
-      "av": {
-        "name": "Avaric",
-        "nativeName": "авар мацӀ, магӀарул мацӀ"
-      },
-      "ae": {
-        "name": "Avestan",
-        "nativeName": "avesta"
-      },
-      "ay": {
-        "name": "Aymara",
-        "nativeName": "aymar aru"
-      },
-      "az": {
-        "name": "Azerbaijani",
-        "nativeName": "azərbaycan dili"
-      },
-      "bm": {
-        "name": "Bambara",
-        "nativeName": "bamanankan"
-      },
-      "ba": {
-        "name": "Bashkir",
-        "nativeName": "башҡорт теле"
-      },
-      "eu": {
-        "name": "Basque",
-        "nativeName": "euskara, euskera"
-      },
-      "be": {
-        "name": "Belarusian",
-        "nativeName": "Беларуская"
-      },
-      "bn": {
-        "name": "Bengali",
-        "nativeName": "বাংলা"
-      },
-      "bh": {
-        "name": "Bihari",
-        "nativeName": "भोजपुरी"
-      },
-      "bi": {
-        "name": "Bislama",
-        "nativeName": "Bislama"
-      },
-      "bs": {
-        "name": "Bosnian",
-        "nativeName": "bosanski jezik"
-      },
-      "br": {
-        "name": "Breton",
-        "nativeName": "brezhoneg"
-      },
-      "bg": {
-        "name": "Bulgarian",
-        "nativeName": "български език"
-      },
-      "my": {
-        "name": "Burmese",
-        "nativeName": "ဗမာစာ"
-      },
-      "ca": {
-        "name": "Catalan; Valencian",
-        "nativeName": "Català"
-      },
-      "ch": {
-        "name": "Chamorro",
-        "nativeName": "Chamoru"
-      },
-      "ce": {
-        "name": "Chechen",
-        "nativeName": "нохчийн мотт"
-      },
-      "ny": {
-        "name": "Chichewa; Chewa; Nyanja",
-        "nativeName": "chiCheŵa, chinyanja"
-      },
-      "zh": {
-        "name": "Chinese",
-        "nativeName": "中文"
-      },
-      "cv": {
-        "name": "Chuvash",
-        "nativeName": "чӑваш чӗлхи"
-      },
-      "kw": {
-        "name": "Cornish",
-        "nativeName": "Kernewek"
-      },
-      "co": {
-        "name": "Corsican",
-        "nativeName": "corsu, lingua corsa"
-      },
-      "cr": {
-        "name": "Cree",
-        "nativeName": "ᓀᐦᐃᔭᐍᐏᐣ"
-      },
-      "hr": {
-        "name": "Croatian",
-        "nativeName": "hrvatski"
-      },
-      "cs": {
-        "name": "Czech",
-        "nativeName": "česky, čeština"
-      },
-      "da": {
-        "name": "Danish",
-        "nativeName": "dansk"
-      },
-      "dv": {
-        "name": "Divehi; Dhivehi; Maldivian;",
-        "nativeName": "ދިވެހި"
-      },
-      "nl": {
-        "name": "Dutch",
-        "nativeName": "Nederlands, Vlaams"
-      },
-      "en": {
-        "name": "English",
-        "nativeName": "English"
-      },
-      "eo": {
-        "name": "Esperanto",
-        "nativeName": "Esperanto"
-      },
-      "et": {
-        "name": "Estonian",
-        "nativeName": "eesti, eesti keel"
-      },
-      "ee": {
-        "name": "Ewe",
-        "nativeName": "Eʋegbe"
-      },
-      "fo": {
-        "name": "Faroese",
-        "nativeName": "føroyskt"
-      },
-      "fj": {
-        "name": "Fijian",
-        "nativeName": "vosa Vakaviti"
-      },
-      "fi": {
-        "name": "Finnish",
-        "nativeName": "suomi, suomen kieli"
-      },
-      "fr": {
-        "name": "French",
-        "nativeName": "français, langue française"
-      },
-      "ff": {
-        "name": "Fula; Fulah; Pulaar; Pular",
-        "nativeName": "Fulfulde, Pulaar, Pular"
-      },
-      "gl": {
-        "name": "Galician",
-        "nativeName": "Galego"
-      },
-      "ka": {
-        "name": "Georgian",
-        "nativeName": "ქართული"
-      },
-      "de": {
-        "name": "German",
-        "nativeName": "Deutsch"
-      },
-      "el": {
-        "name": "Greek, Modern",
-        "nativeName": "Ελληνικά"
-      },
-      "gn": {
-        "name": "Guaraní",
-        "nativeName": "Avañeẽ"
-      },
-      "gu": {
-        "name": "Gujarati",
-        "nativeName": "ગુજરાતી"
-      },
-      "ht": {
-        "name": "Haitian; Haitian Creole",
-        "nativeName": "Kreyòl ayisyen"
-      },
-      "ha": {
-        "name": "Hausa",
-        "nativeName": "Hausa, هَوُسَ"
-      },
-      "he": {
-        "name": "Hebrew (modern)",
-        "nativeName": "עברית"
-      },
-      "hz": {
-        "name": "Herero",
-        "nativeName": "Otjiherero"
-      },
-      "hi": {
-        "name": "Hindi",
-        "nativeName": "हिन्दी, हिंदी"
-      },
-      "ho": {
-        "name": "Hiri Motu",
-        "nativeName": "Hiri Motu"
-      },
-      "hu": {
-        "name": "Hungarian",
-        "nativeName": "Magyar"
-      },
-      "ia": {
-        "name": "Interlingua",
-        "nativeName": "Interlingua"
-      },
-      "id": {
-        "name": "Indonesian",
-        "nativeName": "Bahasa Indonesia"
-      },
-      "ie": {
-        "name": "Interlingue",
-        "nativeName": "Originally called Occidental; then Interlingue after WWII"
-      },
-      "ga": {
-        "name": "Irish",
-        "nativeName": "Gaeilge"
-      },
-      "ig": {
-        "name": "Igbo",
-        "nativeName": "Asụsụ Igbo"
-      },
-      "ik": {
-        "name": "Inupiaq",
-        "nativeName": "Iñupiaq, Iñupiatun"
-      },
-      "io": {
-        "name": "Ido",
-        "nativeName": "Ido"
-      },
-      "is": {
-        "name": "Icelandic",
-        "nativeName": "Íslenska"
-      },
-      "it": {
-        "name": "Italian",
-        "nativeName": "Italiano"
-      },
-      "iu": {
-        "name": "Inuktitut",
-        "nativeName": "ᐃᓄᒃᑎᑐᑦ"
-      },
-      "ja": {
-        "name": "Japanese",
-        "nativeName": "日本語 (にほんご／にっぽんご)"
-      },
-      "jv": {
-        "name": "Javanese",
-        "nativeName": "basa Jawa"
-      },
-      "kl": {
-        "name": "Kalaallisut, Greenlandic",
-        "nativeName": "kalaallisut, kalaallit oqaasii"
-      },
-      "kn": {
-        "name": "Kannada",
-        "nativeName": "ಕನ್ನಡ"
-      },
-      "kr": {
-        "name": "Kanuri",
-        "nativeName": "Kanuri"
-      },
-      "ks": {
-        "name": "Kashmiri",
-        "nativeName": "कश्मीरी, كشميري‎"
-      },
-      "kk": {
-        "name": "Kazakh",
-        "nativeName": "Қазақ тілі"
-      },
-      "km": {
-        "name": "Khmer",
-        "nativeName": "ភាសាខ្មែរ"
-      },
-      "ki": {
-        "name": "Kikuyu, Gikuyu",
-        "nativeName": "Gĩkũyũ"
-      },
-      "rw": {
-        "name": "Kinyarwanda",
-        "nativeName": "Ikinyarwanda"
-      },
-      "ky": {
-        "name": "Kirghiz, Kyrgyz",
-        "nativeName": "кыргыз тили"
-      },
-      "kv": {
-        "name": "Komi",
-        "nativeName": "коми кыв"
-      },
-      "kg": {
-        "name": "Kongo",
-        "nativeName": "KiKongo"
-      },
-      "ko": {
-        "name": "Korean",
-        "nativeName": "한국어 (韓國語), 조선말 (朝鮮語)"
-      },
-      "ku": {
-        "name": "Kurdish",
-        "nativeName": "Kurdî, كوردی‎"
-      },
-      "kj": {
-        "name": "Kwanyama, Kuanyama",
-        "nativeName": "Kuanyama"
-      },
-      "la": {
-        "name": "Latin",
-        "nativeName": "latine, lingua latina"
-      },
-      "lb": {
-        "name": "Luxembourgish, Letzeburgesch",
-        "nativeName": "Lëtzebuergesch"
-      },
-      "lg": {
-        "name": "Luganda",
-        "nativeName": "Luganda"
-      },
-      "li": {
-        "name": "Limburgish, Limburgan, Limburger",
-        "nativeName": "Limburgs"
-      },
-      "ln": {
-        "name": "Lingala",
-        "nativeName": "Lingála"
-      },
-      "lo": {
-        "name": "Lao",
-        "nativeName": "ພາສາລາວ"
-      },
-      "lt": {
-        "name": "Lithuanian",
-        "nativeName": "lietuvių kalba"
-      },
-      "lu": {
-        "name": "Luba-Katanga",
-        "nativeName": ""
-      },
-      "lv": {
-        "name": "Latvian",
-        "nativeName": "latviešu valoda"
-      },
-      "gv": {
-        "name": "Manx",
-        "nativeName": "Gaelg, Gailck"
-      },
-      "mk": {
-        "name": "Macedonian",
-        "nativeName": "македонски јазик"
-      },
-      "mg": {
-        "name": "Malagasy",
-        "nativeName": "Malagasy fiteny"
-      },
-      "ms": {
-        "name": "Malay",
-        "nativeName": "bahasa Melayu, بهاس ملايو‎"
-      },
-      "ml": {
-        "name": "Malayalam",
-        "nativeName": "മലയാളം"
-      },
-      "mt": {
-        "name": "Maltese",
-        "nativeName": "Malti"
-      },
-      "mi": {
-        "name": "Māori",
-        "nativeName": "te reo Māori"
-      },
-      "mr": {
-        "name": "Marathi (Marāṭhī)",
-        "nativeName": "मराठी"
-      },
-      "mh": {
-        "name": "Marshallese",
-        "nativeName": "Kajin M̧ajeļ"
-      },
-      "mn": {
-        "name": "Mongolian",
-        "nativeName": "монгол"
-      },
-      "na": {
-        "name": "Nauru",
-        "nativeName": "Ekakairũ Naoero"
-      },
-      "nv": {
-        "name": "Navajo, Navaho",
-        "nativeName": "Diné bizaad, Dinékʼehǰí"
-      },
-      "nb": {
-        "name": "Norwegian Bokmål",
-        "nativeName": "Norsk bokmål"
-      },
-      "nd": {
-        "name": "North Ndebele",
-        "nativeName": "isiNdebele"
-      },
-      "ne": {
-        "name": "Nepali",
-        "nativeName": "नेपाली"
-      },
-      "ng": {
-        "name": "Ndonga",
-        "nativeName": "Owambo"
-      },
-      "nn": {
-        "name": "Norwegian Nynorsk",
-        "nativeName": "Norsk nynorsk"
-      },
-      "no": {
-        "name": "Norwegian",
-        "nativeName": "Norsk"
-      },
-      "ii": {
-        "name": "Nuosu",
-        "nativeName": "ꆈꌠ꒿ Nuosuhxop"
-      },
-      "nr": {
-        "name": "South Ndebele",
-        "nativeName": "isiNdebele"
-      },
-      "oc": {
-        "name": "Occitan",
-        "nativeName": "Occitan"
-      },
-      "oj": {
-        "name": "Ojibwe, Ojibwa",
-        "nativeName": "ᐊᓂᔑᓈᐯᒧᐎᓐ"
-      },
-      "cu": {
-        "name": "Old Church Slavonic, Church Slavic, Church Slavonic, Old Bulgarian, Old Slavonic",
-        "nativeName": "ѩзыкъ словѣньскъ"
-      },
-      "om": {
-        "name": "Oromo",
-        "nativeName": "Afaan Oromoo"
-      },
-      "or": {
-        "name": "Oriya",
-        "nativeName": "ଓଡ଼ିଆ"
-      },
-      "os": {
-        "name": "Ossetian, Ossetic",
-        "nativeName": "ирон æвзаг"
-      },
-      "pa": {
-        "name": "Panjabi, Punjabi",
-        "nativeName": "ਪੰਜਾਬੀ, پنجابی‎"
-      },
-      "pi": {
-        "name": "Pāli",
-        "nativeName": "पाऴि"
-      },
-      "fa": {
-        "name": "Persian",
-        "nativeName": "فارسی"
-      },
-      "pl": {
-        "name": "Polish",
-        "nativeName": "polski"
-      },
-      "ps": {
-        "name": "Pashto, Pushto",
-        "nativeName": "پښتو"
-      },
-      "pt": {
-        "name": "Portuguese",
-        "nativeName": "Português"
-      },
-      "qu": {
-        "name": "Quechua",
-        "nativeName": "Runa Simi, Kichwa"
-      },
-      "rm": {
-        "name": "Romansh",
-        "nativeName": "rumantsch grischun"
-      },
-      "rn": {
-        "name": "Kirundi",
-        "nativeName": "kiRundi"
-      },
-      "ro": {
-        "name": "Romanian, Moldavian, Moldovan",
-        "nativeName": "română"
-      },
-      "ru": {
-        "name": "Russian",
-        "nativeName": "русский язык"
-      },
-      "sa": {
-        "name": "Sanskrit (Saṁskṛta)",
-        "nativeName": "संस्कृतम्"
-      },
-      "sc": {
-        "name": "Sardinian",
-        "nativeName": "sardu"
-      },
-      "sd": {
-        "name": "Sindhi",
-        "nativeName": "सिन्धी, سنڌي، سندھی‎"
-      },
-      "se": {
-        "name": "Northern Sami",
-        "nativeName": "Davvisámegiella"
-      },
-      "sm": {
-        "name": "Samoan",
-        "nativeName": "gagana faa Samoa"
-      },
-      "sg": {
-        "name": "Sango",
-        "nativeName": "yângâ tî sängö"
-      },
-      "sr": {
-        "name": "Serbian",
-        "nativeName": "српски језик"
-      },
-      "gd": {
-        "name": "Scottish Gaelic; Gaelic",
-        "nativeName": "Gàidhlig"
-      },
-      "sn": {
-        "name": "Shona",
-        "nativeName": "chiShona"
-      },
-      "si": {
-        "name": "Sinhala, Sinhalese",
-        "nativeName": "සිංහල"
-      },
-      "sk": {
-        "name": "Slovak",
-        "nativeName": "slovenčina"
-      },
-      "sl": {
-        "name": "Slovene",
-        "nativeName": "slovenščina"
-      },
-      "so": {
-        "name": "Somali",
-        "nativeName": "Soomaaliga, af Soomaali"
-      },
-      "st": {
-        "name": "Southern Sotho",
-        "nativeName": "Sesotho"
-      },
-      "es": {
-        "name": "Spanish; Castilian",
-        "nativeName": "español, castellano"
-      },
-      "su": {
-        "name": "Sundanese",
-        "nativeName": "Basa Sunda"
-      },
-      "sw": {
-        "name": "Swahili",
-        "nativeName": "Kiswahili"
-      },
-      "ss": {
-        "name": "Swati",
-        "nativeName": "SiSwati"
-      },
-      "sv": {
-        "name": "Swedish",
-        "nativeName": "svenska"
-      },
-      "ta": {
-        "name": "Tamil",
-        "nativeName": "தமிழ்"
-      },
-      "te": {
-        "name": "Telugu",
-        "nativeName": "తెలుగు"
-      },
-      "tg": {
-        "name": "Tajik",
-        "nativeName": "тоҷикӣ, toğikī, تاجیکی‎"
-      },
-      "th": {
-        "name": "Thai",
-        "nativeName": "ไทย"
-      },
-      "ti": {
-        "name": "Tigrinya",
-        "nativeName": "ትግርኛ"
-      },
-      "bo": {
-        "name": "Tibetan Standard, Tibetan, Central",
-        "nativeName": "བོད་ཡིག"
-      },
-      "tk": {
-        "name": "Turkmen",
-        "nativeName": "Türkmen, Түркмен"
-      },
-      "tl": {
-        "name": "Tagalog",
-        "nativeName": "Wikang Tagalog, ᜏᜒᜃᜅ᜔ ᜆᜄᜎᜓᜄ᜔"
-      },
-      "tn": {
-        "name": "Tswana",
-        "nativeName": "Setswana"
-      },
-      "to": {
-        "name": "Tonga (Tonga Islands)",
-        "nativeName": "faka Tonga"
-      },
-      "tr": {
-        "name": "Turkish",
-        "nativeName": "Türkçe"
-      },
-      "ts": {
-        "name": "Tsonga",
-        "nativeName": "Xitsonga"
-      },
-      "tt": {
-        "name": "Tatar",
-        "nativeName": "татарча, tatarça, تاتارچا‎"
-      },
-      "tw": {
-        "name": "Twi",
-        "nativeName": "Twi"
-      },
-      "ty": {
-        "name": "Tahitian",
-        "nativeName": "Reo Tahiti"
-      },
-      "ug": {
-        "name": "Uighur, Uyghur",
-        "nativeName": "Uyƣurqə, ئۇيغۇرچە‎"
-      },
-      "uk": {
-        "name": "Ukrainian",
-        "nativeName": "українська"
-      },
-      "ur": {
-        "name": "Urdu",
-        "nativeName": "اردو"
-      },
-      "uz": {
-        "name": "Uzbek",
-        "nativeName": "zbek, Ўзбек, أۇزبېك‎"
-      },
-      "ve": {
-        "name": "Venda",
-        "nativeName": "Tshivenḓa"
-      },
-      "vi": {
-        "name": "Vietnamese",
-        "nativeName": "Tiếng Việt"
-      },
-      "vo": {
-        "name": "Volapük",
-        "nativeName": "Volapük"
-      },
-      "wa": {
-        "name": "Walloon",
-        "nativeName": "Walon"
-      },
-      "cy": {
-        "name": "Welsh",
-        "nativeName": "Cymraeg"
-      },
-      "wo": {
-        "name": "Wolof",
-        "nativeName": "Wollof"
-      },
-      "fy": {
-        "name": "Western Frisian",
-        "nativeName": "Frysk"
-      },
-      "xh": {
-        "name": "Xhosa",
-        "nativeName": "isiXhosa"
-      },
-      "yi": {
-        "name": "Yiddish",
-        "nativeName": "ייִדיש"
-      },
-      "yo": {
-        "name": "Yoruba",
-        "nativeName": "Yorùbá"
-      },
-      "za": {
-        "name": "Zhuang, Chuang",
-        "nativeName": "Saɯ cueŋƅ, Saw cuengh"
-      }
+  "form_validators": {
+    "simple_url": "La saisie n'autorise que les composants URL : Nom d'hôte et Port",
+    "disallow_mdns": "Les adresses mDNS (.local) ne sont pas prises en charge."
+  },
+  "date": {
+    "year": {
+      "one": "Année",
+      "other": "Années"
     },
-    "countryCode": {
-      "CN": {
-        "name": "Simplified",
-        "nativeName": "简体"
-      },
-      "HK": {
-        "name": "Traditional",
-        "nativeName": "繁體"
-      }
+    "month": {
+      "one": "Mois",
+      "other": "Mois"
+    },
+    "week": {
+      "one": "Semaine",
+      "other": "Semaines"
+    },
+    "day": {
+      "one": "Jour",
+      "other": "Jours"
+    }
+  },
+  "date_periods": {
+    "year": {
+      "one": "Annuel",
+      "other": "Années"
+    },
+    "month": {
+      "one": "Mensuel",
+      "other": "Mois"
+    },
+    "week": {
+      "one": "Hebdomadaire",
+      "other": "Semaines"
+    },
+    "day": {
+      "one": "Quotidiennement",
+      "other": "Jours"
     }
   }
 }

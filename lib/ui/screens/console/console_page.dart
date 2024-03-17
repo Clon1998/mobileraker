@@ -6,6 +6,7 @@
 import 'package:common/data/dto/console/command.dart';
 import 'package:common/data/dto/console/console_entry.dart';
 import 'package:common/data/enums/console_entry_type_enum.dart';
+import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
@@ -16,7 +17,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/service/date_format_service.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
@@ -40,7 +40,7 @@ class ConsolePage extends ConsumerWidget {
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: const ConnectionStateView(onConnected: _ConsoleBody()),
+      body: ConnectionStateView(onConnected: (_, __) => const _ConsoleBody()),
     );
   }
 }
@@ -104,9 +104,7 @@ class _ConsoleBody extends HookConsumerWidget {
                 onKey: klippyCanReceiveCommands
                     ? (event) {
                         if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                          ref
-                              .read(consoleListControllerProvider.notifier)
-                              .onCommandSubmit(consoleTextEditor.text);
+                          ref.read(consoleListControllerProvider.notifier).onCommandSubmit(consoleTextEditor.text);
                           consoleTextEditor.clear();
                         }
                       }
@@ -161,9 +159,11 @@ class GCodeSuggestionBar extends StatefulHookConsumerWidget {
 }
 
 class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
-  List<String> calculateSuggestedMacros(String currentInput,
-      List<String> history,
-      List<Command> available,) {
+  List<String> calculateSuggestedMacros(
+    String currentInput,
+    List<String> history,
+    List<Command> available,
+  ) {
     List<String> potential = [];
     potential.addAll(history);
 

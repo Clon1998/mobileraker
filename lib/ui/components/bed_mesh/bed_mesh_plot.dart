@@ -82,13 +82,9 @@ class BedMeshPlot extends StatelessWidget {
           gridData: FlGridData(
             show: true,
             drawHorizontalLine: true,
-            getDrawingHorizontalLine: (value) => FlLine(
-              color: gridColor,
-            ),
+            getDrawingHorizontalLine: (value) => FlLine(color: gridColor),
             drawVerticalLine: true,
-            getDrawingVerticalLine: (value) => FlLine(
-              color: gridColor,
-            ),
+            getDrawingVerticalLine: (value) => FlLine(color: gridColor),
             horizontalInterval: 50,
             verticalInterval: 50,
           ),

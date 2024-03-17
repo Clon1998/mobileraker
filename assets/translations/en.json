@@ -47,7 +47,9 @@
     "save": "Save",
     "apply": "Apply",
     "completed": "Completed",
-    "activate": "Activate"
+    "activate": "Activate",
+    "stop": "Stop",
+    "start": "Start"
   },
   "pages": {
     "dashboard": {
@@ -146,20 +148,21 @@
           "cold_extrude_error": "Extruder did not reach min_extrude_temp of {}°C yet!"
         },
         "macro_card": {
-          "title": "Gcode - Macros"
+          "title": "Gcode - Macros",
+          "no_macros": "No macros are currently visible in this group"
         },
         "pin_card": {
-          "title": {
-            "zero": "Output Pin",
-            "one": "Output Pin",
-            "two": "Output Pins",
-            "other": "Output Pins"
-          },
-          "pin_btn": "Pin"
+          "title_misc": "Miscellaneous",
+          "pin_btn": "Pin",
+          "filament_sensor": {
+            "detected": "Detected",
+            "not_detected": "Empty"
+          }
         },
         "power_card": {
           "title": "Power Panel",
-          "pin_btn": "Pin"
+          "pin_btn": "Pin",
+          "provider_error_title": "Error fetching Power Api Devices"
         },
         "multipl_card": {
           "title": "Multipliers",
@@ -194,7 +197,8 @@
           "title": "Spoolman",
           "no_spool": "No spool selected.\nFilament usage will not be tracked.",
           "select_spool": "Select Spool",
-          "used": "Used: {}"
+          "used": "Used: {}",
+          "provider_error_title": "Error fetching Spoolman data"
         }
       }
     },
@@ -259,14 +263,27 @@
       "general": {
         "title": "General",
         "ems_confirm": "Confirm Emergency-Stop",
-        "always_baby": "Always show Z-Offset Card",
-        "num_edit": "Use keyboard for number input",
-        "start_with_overview": "Show @:pages.overview.title by default",
-        "use_offset_pos": "Show coordinates with offset applied.",
-        "lcFullCam": "Fullscreen Webcam in Landscape",
+        "ems_confirm_hint": "Show a confirmation dialog before sending an emergency-stop command",
+        "always_baby": "Z-Offset Card Mode",
+        "always_baby_hint": "Always show the Z-Offset card on the dashboard",
+        "num_edit": "Number Entry Mode",
+        "num_edit_hint": "Use a number keyboard for number inputs instead of sliders",
+        "start_with_overview": "Set @:pages.overview.title as Startup Page",
+        "start_with_overview_hint": "Start the app with the overview page instead of the active printer's dashboard",
+        "use_offset_pos": "Position Offset",
+        "use_offset_pos_hint": "Add the offset to the displayed coordinates",
+        "lcFullCam": "Fullscreen Camera Orientation",
+        "lcFullCam_hint": "Switch camera to landscape in fullscreen mode",
         "language": "Language",
         "companion": "Want to receive remote notification?\nLearn how to setup Mobileraker's Companion on its ",
-        "sliders_grouping": "Group Slider Cards"
+        "sliders_grouping": "Group Slider Cards",
+        "sliders_grouping_hint": "Group all sliders into one card",
+        "time_format": "Time Format",
+        "system_theme": "UI Theme",
+        "system_theme_mode": "Theme Brightness",
+        "printer_theme_warning": "You are currently using a printer-specific theme. To modify it, go to the printer's settings.",
+        "filament_sensor_dialog": "Show Filament Sensor Alerts",
+        "filament_sensor_dialog_hint": "Show a dialog when a filament sensor is triggered"
       },
       "notification": {
         "title": "Notification",
@@ -318,7 +335,7 @@
         "full_url": "Full URL",
         "timeout_label": "Client timeout",
         "timeout_helper": "The timeout for the client connection in seconds",
-        "theme": "UI-Theme",
+        "theme": "UI Theme",
         "theme_helper": "UI theme for printer",
         "theme_unavailable": "UI theme for printer, only available for Supporters"
       },
@@ -741,6 +758,13 @@
     },
     "extruder_feedrate": {
       "title": "Extruder Velocity [mm/s]"
+    },
+    "fan_speed": {
+      "title": "Edit {} %"
+    },
+    "filament_sensor_triggered": {
+      "title": "Filament Sensor Triggered",
+      "body": "Sensor '{}' has been triggered.\n\nPlease check the printer and the sensor to ensure filament is available or disable the sensor."
     }
   },
   "bottom_sheets": {
@@ -828,6 +852,13 @@
       "scan_again": "Scan Again",
       "set_active": "Set Active",
       "spool_id_not_found": "Sorry, no spool was found with the specified ID #{}."
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "Manage Services",
+        "no_services": "No services found!",
+        "provider_error": "Error while fetching services"
+      }
     }
   },
   "klipper_state": {
@@ -839,6 +870,11 @@
     "unauthorized": "Unauthorized",
     "initializing": "Initializing",
     "not_connected": "Moonraker cannot establish a connection with Klipper. Please verify that Klipper is running on your system."
+  },
+  "theme_mode": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
   },
   "notifications": {
     "channel_printer_grp": "Printer {}",

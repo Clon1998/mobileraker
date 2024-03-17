@@ -33,6 +33,7 @@ class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWa
   @override
   void initState() {
     super.initState();
+    // We dont need to handle any error state here!
     ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.manualProbe?.isActive),
       (previous, next) {
@@ -47,6 +48,7 @@ class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWa
       fireImmediately: true,
     );
 
+    // We dont need to handle any error state here!
     ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.bedScrew?.isActive),
       (previous, next) {

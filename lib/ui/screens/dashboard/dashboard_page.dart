@@ -12,34 +12,31 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
+import 'package:mobileraker/ui/components/filament_sensor_watcher.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/printer_calibration_watcher.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/control_tab.dart';
 import 'package:mobileraker/ui/screens/dashboard/tabs/general_tab.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
-import 'package:progress_indicators/progress_indicators.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 
-import 'dashboard_controller.dart';
+import '../../components/connection/printer_provider_guard.dart';
 
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -60,21 +57,37 @@ class DashboardPage extends StatelessWidget {
 }
 
 class _DashboardView extends HookConsumerWidget {
-  const _DashboardView({Key? key}) : super(key: key);
+  const _DashboardView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var pageController = usePageController(keys: []);
+    ref.listen(selectedMachineProvider, (previous, next) {
+      if (previous == null) return;
+      if (previous.valueOrNull?.uuid != next.valueOrNull?.uuid) {
+        pageController.jumpToPage(0);
+      }
+    });
+
+    var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
 
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: tr('pages.dashboard.title'),
         actions: <Widget>[
-          MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrNull),
+          MachineStateIndicator(activeMachine),
           const EmergencyStopBtn(),
         ],
       ),
-      body: ConnectionStateView(onConnected: _DashboardBody(controller: pageController)),
+      body: ConnectionStateView(
+        onConnected: (ctx, machineUUID) => PrinterProviderGuard(
+          machineUUID: machineUUID,
+          child: _DashboardBody(
+            controller: pageController,
+            machineUUID: machineUUID,
+          ),
+        ),
+      ),
       floatingActionButton: const _FloatingActionBtn(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: _BottomNavigationBar(pageController: pageController),
@@ -84,7 +97,7 @@ class _DashboardView extends HookConsumerWidget {
 }
 
 class _FloatingActionBtn extends ConsumerWidget {
-  const _FloatingActionBtn({Key? key}) : super(key: key);
+  const _FloatingActionBtn({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -93,7 +106,12 @@ class _FloatingActionBtn extends ConsumerWidget {
 
     AsyncValue<JobQueueStatus> jobQueueState = ref.watch(jobQueueSelectedProvider);
 
-    if (!klippyState.hasValue || !printState.hasValue || klippyState.isLoading || printState.isLoading) {
+    if (!klippyState.hasValue ||
+        !printState.hasValue ||
+        klippyState.isLoading ||
+        printState.isLoading ||
+        klippyState.hasError ||
+        printState.hasError) {
       return const SizedBox.shrink();
     }
 
@@ -171,13 +189,14 @@ class _BottomNavigationBar extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
+    var lastIndex = useRef(0);
 
-    if (ref.watch(machinePrinterKlippySettingsProvider.select((value) => value.isLoading && !value.isReloading))) {
-      return const SizedBox.shrink();
-    }
-
-    int activeIndex =
-        useListenableSelector(pageController, () => pageController.hasClients ? pageController.page?.round() ?? 0 : 0);
+    int activeIndex = useListenableSelector(pageController, () {
+      if (pageController.positions.length == 1) {
+        lastIndex.value = pageController.page?.round() ?? 0;
+      }
+      return lastIndex.value;
+    });
 
     return AnimatedBottomNavigationBar(
       icons: const [FlutterIcons.tachometer_faw, FlutterIcons.settings_oct],
@@ -198,72 +217,30 @@ class _BottomNavigationBar extends HookConsumerWidget {
 }
 
 class _DashboardBody extends HookConsumerWidget {
-  const _DashboardBody({super.key, required this.controller});
+  const _DashboardBody({super.key, required this.controller, required this.machineUUID});
 
   final PageController controller;
 
+  final String machineUUID;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref
-        // We use selectAs null since we want to prevent rebuilding this widget to often!
-        .watch(machinePrinterKlippySettingsProvider.selectAs((data) => data.machine.uuid))
-        .when<Widget>(
-          data: (d) => PrinterCalibrationWatcher(
-            machineUUID: d,
-            child: PageView(
-              key: const PageStorageKey<String>('dashboardPages'),
-              controller: controller,
-              children: const [GeneralTab(), ControlTab()],
-              // children: [const GeneralTab(), const ControlTab()],
-            ),
-          ),
-          error: (e, s) {
-            //TODO Error catching wont work..... does not work .....
-            logger.e('Error in Dash', e, s);
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(FlutterIcons.sad_cry_faw5s, size: 99),
-                  const SizedBox(height: 22),
-                  const Text(
-                    'Error while trying to fetch printer...\nPlease provide the error to the project owner\nvia GitHub!',
-                    textAlign: TextAlign.center,
-                  ),
-                  TextButton(
-                    onPressed: () => ref.read(dialogServiceProvider).show(
-                          DialogRequest(
-                            type: CommonDialogs.stacktrace,
-                            title: e.runtimeType.toString(),
-                            body: 'Exception:\n $e\n\n$s',
-                          ),
-                        ),
-                    child: const Text('Show Error'),
-                  ),
-                ],
-              ),
-            );
-          },
-          loading: () => Center(
-            child: Column(
-              key: UniqueKey(),
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SpinKitFadingCube(
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-                const SizedBox(height: 30),
-                FadingText(tr('pages.dashboard.fetching_printer')),
-                // Text("Fetching printer ...")
-              ],
-            ),
-          ),
-        );
+    return PrinterCalibrationWatcher(
+      machineUUID: machineUUID,
+      child: FilamentSensorWatcher(
+        machineUUID: machineUUID,
+        child: PageView(
+          key: const PageStorageKey<String>('dashboardPages'),
+          controller: controller,
+          children: [GeneralTab(machineUUID), ControlTab(machineUUID)],
+        ),
+      ),
+    );
   }
 }
 
 class _IdleFAB extends ConsumerWidget {
-  const _IdleFAB({Key? key}) : super(key: key);
+  const _IdleFAB({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => FloatingActionButton(

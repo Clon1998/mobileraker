@@ -6,6 +6,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
@@ -35,17 +36,17 @@ import '../../../components/dialog/edit_form/num_edit_form_controller.dart';
 part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';
 
-class ControlExtruderCard extends HookConsumerWidget {
+class ControlExtruderCard extends ConsumerWidget {
   const ControlExtruderCard({Key? key, required this.machineUUID}) : super(key: key);
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading = ref.watch(
-        _controlExtruderCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
-
+    var showCard = ref.watch(_controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard));
+    var showLoading = showCard.isLoading && !showCard.isReloading;
     if (showLoading) return const _ControlExtruderLoading();
+    if (showCard.valueOrNull != true) return const SizedBox.shrink();
 
     return Card(
       child: Column(
@@ -147,7 +148,7 @@ class _CardTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID)).requireValue;
+    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.requireValue));
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
     return ListTile(
@@ -198,7 +199,7 @@ class _CardBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID)).requireValue;
+    var model = ref.watch(_controlExtruderCardControllerProvider(machineUUID).select((value) => value.requireValue));
     var controller = ref.watch(_controlExtruderCardControllerProvider(machineUUID).notifier);
 
     var canExtrude = model.minExtrudeTempReached && model.klippyCanReceiveCommands;
@@ -265,6 +266,9 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     var activeExtruder =
         await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.toolhead.activeExtruderIndex));
 
+    var showCard =
+        ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.print.state != PrintState.printing));
+
     // Below is stream code to prevent to many controller rebuilds
     var klippyCanReceiveCommands = ref.watchAsSubject(
       klipperProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands),
@@ -276,16 +280,18 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
     var initialVelocity =
         await ref.watch(machineSettingsProvider(machineUUID).selectAsync((data) => data.extrudeFeedrate.toDouble()));
 
-    yield* Rx.combineLatest3(
+    yield* Rx.combineLatest4(
       klippyCanReceiveCommands,
       printer,
       steps,
-      (a, b, c) {
-        var idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex;
+      showCard,
+      (a, b, c, d) {
+        var idx = state.whenData((value) => value.stepIndex).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
         var velocity = state.whenData((value) => value.extruderVelocity).valueOrNull ?? initialVelocity;
 
         var minExtrudeTemp = b.configFile.extruderForIndex(activeExtruder)?.minExtrudeTemp ?? 170;
         return _Model(
+          showCard: d,
           klippyCanReceiveCommands: a,
           extruderCount: b.extruderCount,
           extruderIndex: activeExtruder,
@@ -360,6 +366,7 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
 @freezed
 class _Model with _$Model {
   const factory _Model({
+    required bool showCard,
     required bool klippyCanReceiveCommands,
     @Default(1) int extruderCount,
     required int extruderIndex,

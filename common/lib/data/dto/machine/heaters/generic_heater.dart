@@ -47,6 +47,4 @@ class GenericHeater with _$GenericHeater, HeaterMixin {
 
     return GenericHeater.fromJson(mergedJson);
   }
-
-  String get configName => 'heater_generic ${name.toLowerCase()}';
 }

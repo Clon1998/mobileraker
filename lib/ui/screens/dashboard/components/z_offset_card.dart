@@ -5,6 +5,7 @@
 
 import 'dart:math';
 
+import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -38,10 +39,12 @@ class ZOffsetCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_zOffsetCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showCard = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
+    var showLoading = showCard.isLoading && !showCard.isReloading;
 
     if (showLoading) return const _ZOffsetLoading();
+
+    if (showCard.valueOrNull != true) return const SizedBox.shrink();
 
     return Card(
       child: Column(
@@ -154,7 +157,7 @@ class _CardBody extends ConsumerWidget {
         ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.selected)).requireValue;
     var steps = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.steps)).requireValue;
 
-    var numberFormat = NumberFormat('#0.0#', context.locale.toStringWithSeparator());
+    var numberFormat = NumberFormat('#0.0##', context.locale.toStringWithSeparator());
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -211,18 +214,25 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
 
     var zOffset = ref.watchAsSubject(printerProvider(machineUUID).selectAs((data) => data.zOffset));
 
+    var isPrintingOrPaused = ref.watchAsSubject(printerProvider(machineUUID)
+        .selectAs((data) => const {PrintState.printing, PrintState.paused}.contains(data.print.state)));
+
+    var alwaysShowSetting = ref.watch(boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping));
+
     var steps = ref.watchAsSubject(machineSettingsProvider(machineUUID).selectAs((data) => data.babySteps));
 
     var initialIndex = _settingService.readInt(_settingsKey, 0);
 
-    yield* Rx.combineLatest3(
+    yield* Rx.combineLatest4(
       klippyCanReceiveCommands,
       zOffset,
       steps,
-      (a, b, c) {
-        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex;
+      isPrintingOrPaused,
+      (a, b, c, d) {
+        var idx = state.whenData((value) => value.selected).valueOrNull ?? initialIndex.clamp(0, c.length - 1);
 
         return _Model(
+          showCard: d || alwaysShowSetting,
           klippyCanReceiveCommands: a,
           zOffset: b,
           steps: c,
@@ -251,6 +261,7 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
 @freezed
 class _Model with _$Model {
   const factory _Model({
+    required bool showCard,
     required bool klippyCanReceiveCommands,
     required double zOffset,
     required List<double> steps,
