@@ -2,6 +2,11 @@
 
 ## [2.6.14] - 2024-03-2x
 
+### Changed Features
+
+- Added support for self hosted Obico instances. Users can now add their own Obico instance to the app and use it to
+  connect to their printers. [#294](https://github.com/Clon1998/mobileraker/issues/294)
+
 ### Bug Fixes
 
 - Fixed an issue that prevented the Power API card from being displayed if klipper is in shutdown state.
