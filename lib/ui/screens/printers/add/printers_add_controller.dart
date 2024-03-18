@@ -132,7 +132,7 @@ class PrinterAddViewController extends _$PrinterAddViewController {
   addFromObico() async {
     if (state.nonSupporterError != null) return;
     state = state.copyWith(step: 3);
-    var tunnelService = ref.read(obicoTunnelServiceProvider);
+    var tunnelService = ref.read(obicoTunnelServiceProvider());
 
     try {
       var tunnel = await tunnelService.linkApp();

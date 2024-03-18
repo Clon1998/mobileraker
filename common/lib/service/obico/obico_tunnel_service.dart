@@ -19,19 +19,23 @@ import '../../util/logger.dart';
 part 'obico_tunnel_service.g.dart';
 
 @riverpod
-ObicoTunnelService obicoTunnelService(ObicoTunnelServiceRef ref) {
-  return ObicoTunnelService(ref);
-}
-
-class ObicoTunnelService {
-  ObicoTunnelService(AutoDisposeRef ref) : _dio = ref.watch(obicoApiClientProvider);
-
-  final Dio _dio;
-
-  final Uri _obicoUri = Uri(
+ObicoTunnelService obicoTunnelService(ObicoTunnelServiceRef ref, [Uri? uri]) {
+  uri ??= Uri(
     scheme: 'https',
     host: 'app.obico.io',
   );
+
+  return ObicoTunnelService(ref, uri);
+}
+
+class ObicoTunnelService {
+  ObicoTunnelService(AutoDisposeRef ref, Uri uri)
+      : _obicoUri = uri,
+        _dio = ref.read(obicoApiClientProvider(uri.toString()));
+
+  final Dio _dio;
+
+  final Uri _obicoUri;
 
   Future<Uri> linkApp({String? printerId}) async {
     var uri = _obicoUri.replace(path: 'tunnels/new', queryParameters: {

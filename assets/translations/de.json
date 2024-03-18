@@ -804,7 +804,13 @@
         "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
         "link": "Link Obico",
         "unlink": "Unlink Obico",
-        "description": "Obico ist eine von der Community betriebene, Open-Source 3D-Drucksoftware. Sie ermöglicht es Ihnen, Ihren Drucker von überall aus kostenlos zu steuern und zu überwachen. Sie gehört zu den ersten Lösungen im Bereich der KI-basierten Druckfehlererkennung."
+        "description": "Obico ist eine von der Community betriebene, Open-Source 3D-Drucksoftware. Sie ermöglicht es Ihnen, Ihren Drucker von überall aus kostenlos zu steuern und zu überwachen. Sie gehört zu den ersten Lösungen im Bereich der KI-basierten Druckfehlererkennung.",
+        "self_hosted": {
+          "title": "Selbstgehostete Obico-Instanz",
+          "description": "Standardmäßig wird Mobileraker die offizielle Obico-Instanz verwenden. Wenn Sie jedoch Ihre eigene Instanz verwalten, können Sie hier die URL dafür angeben.",
+          "url_label": "URL",
+          "url_hint": "Die Basis-URL der selbst gehosteten Obico-Instanz"
+        }
       }
     },
     "manage_macros_in_grp": {

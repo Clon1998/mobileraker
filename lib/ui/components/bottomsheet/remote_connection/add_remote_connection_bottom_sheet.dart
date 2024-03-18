@@ -332,6 +332,28 @@ class _ObicoTab extends ConsumerWidget {
                         'bottom_sheets.add_remote_con.obico.description',
                         textAlign: TextAlign.center,
                       ).tr(),
+                      if (model.activeClientType == null) ...[
+                        SectionHeader(title: tr('bottom_sheets.add_remote_con.obico.self_hosted.title')),
+                        Text(
+                          'bottom_sheets.add_remote_con.obico.self_hosted.description',
+                          textAlign: TextAlign.justify,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ).tr(),
+                        FormBuilderTextField(
+                          name: 'obico.uri',
+                          decoration: InputDecoration(
+                            labelText: tr('bottom_sheets.add_remote_con.obico.self_hosted.url_label'),
+                            helperText: tr('bottom_sheets.add_remote_con.obico.self_hosted.url_hint'),
+                            hintText: 'https://app.obico.io',
+                            hintMaxLines: null,
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            // FormBuilderValidators.required(),
+                            FormBuilderValidators.url(requireTld: false),
+                          ]),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -360,6 +382,12 @@ class _ObicoTab extends ConsumerWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ).tr(namedArgs: {'service': 'Obico'}),
+          // if (model.activeClientType == null)
+          //   TextButton(
+          //     style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: VisualDensity.compact),
+          //     onPressed: controller.linkObico,
+          //     child: Text('Link self hosted Obico'),
+          //   ),
         ],
       ),
     );

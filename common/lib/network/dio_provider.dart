@@ -136,9 +136,9 @@ Dio octoApiClient(OctoApiClientRef ref) {
 }
 
 @riverpod
-Dio obicoApiClient(ObicoApiClientRef ref) {
+Dio obicoApiClient(ObicoApiClientRef ref, String baseUri) {
   var dio = Dio(BaseOptions(
-    baseUrl: 'https://app.obico.io',
+    baseUrl: baseUri,
     connectTimeout: const Duration(seconds: 10),
     receiveTimeout: const Duration(seconds: 10),
   )..clientType = ClientType.obico);

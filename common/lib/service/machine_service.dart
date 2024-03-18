@@ -166,8 +166,7 @@ class MachineService {
       : _machineRepo = ref.watch(machineRepositoryProvider),
         _selectedMachineService = ref.watch(selectedMachineServiceProvider),
         _settingService = ref.watch(settingServiceProvider),
-        _appConnectionService = ref.watch(appConnectionServiceProvider),
-        _obicoTunnelService = ref.watch(obicoTunnelServiceProvider) {
+        _appConnectionService = ref.watch(appConnectionServiceProvider) {
     ref.onDispose(dispose);
   }
 
@@ -176,7 +175,6 @@ class MachineService {
   final SelectedMachineService _selectedMachineService;
   final SettingService _settingService;
   final AppConnectionService _appConnectionService;
-  final ObicoTunnelService _obicoTunnelService;
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
@@ -580,7 +578,7 @@ class MachineService {
     return _appConnectionService.linkAppWithOcto(printerId: octoPrinterId);
   }
 
-  Future<Uri> linkObico(Machine machineToLink) async {
+  Future<Uri> linkObico(Machine machineToLink, Uri? baseUrl) async {
     MoonrakerDatabaseClient moonrakerDatabaseClient = ref.read(moonrakerDatabaseClientProvider(machineToLink.uuid));
     String? obicoPrinterId;
     try {
@@ -589,7 +587,7 @@ class MachineService {
       logger.w('Rpc Client was not connected, could not fetch obico.printer_id. User can select by himself!');
     }
 
-    return _obicoTunnelService.linkApp(printerId: obicoPrinterId);
+    return ref.watch(obicoTunnelServiceProvider(baseUrl)).linkApp(printerId: obicoPrinterId);
   }
 
   Future<void> dispose() async {

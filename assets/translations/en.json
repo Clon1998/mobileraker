@@ -804,7 +804,13 @@
         "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
         "link": "Link Obico",
         "unlink": "Unlink Obico",
-        "description": "Obico is a community-driven, fully open-source 3D printing software. It enables you to control and monitor your Klipper printer from anywhere, all at no cost. It stands as one of the pioneering solutions for AI-based failure detection, utilizing only your printer's webcam."
+        "description": "Obico is a community-driven, fully open-source 3D printing software. It enables you to control and monitor your Klipper printer from anywhere, all at no cost. It stands as one of the pioneering solutions for AI-based failure detection, utilizing only your printer's webcam.",
+        "self_hosted": {
+          "title": "Self-Hosted",
+          "description": "By default Mobileraker will use the official Obico instance. However, if you are managing your own instance, you can specify the URL for it here.",
+          "url_label": "Self-Hosted URL",
+          "url_hint": "The base URL of the self-hosted Obico instance"
+        }
       }
     },
     "manage_macros_in_grp": {

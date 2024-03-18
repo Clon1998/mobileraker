@@ -13,6 +13,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -45,6 +46,8 @@ AddRemoteConnectionSheetArgs sheetArgs(SheetArgsRef _) {
 ])
 class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBottomSheetController {
   FormBuilderState get _formState => ref.read(formKeyProvider).currentState!;
+
+  FormBuilderFieldState get _obicoUri => _formState.fields['obico.uri']!;
 
   FormBuilderFieldState get _uri => _formState.fields['alt.uri']!;
 
@@ -89,19 +92,23 @@ class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBott
   }
 
   linkObico() async {
+    if (!_formState.saveAndValidate()) return;
+
+    var obicoUri = (_obicoUri.transformedValue as String?)?.let((uri) => Uri.parse(uri));
+
     try {
-      var result = await _machineService.linkObico(_machine);
+      var result = await _machineService.linkObico(_machine, obicoUri);
 
       ref.read(goRouterProvider).pop(BottomSheetResult.confirmed(result));
     } on OctoEverywhereException catch (e, s) {
       logger.e(
-        'Error while trying to Link machine with UUID ${_machine.uuid} to Octo',
+        'Error while trying to Link machine with UUID ${_machine.uuid} to Obico',
         e,
         s,
       );
       _snackBarService.show(SnackBarConfig(
         type: SnackbarType.error,
-        title: 'OctoEverywhere-Error:',
+        title: 'Obico-Error:',
         message: e.message,
       ));
     }
