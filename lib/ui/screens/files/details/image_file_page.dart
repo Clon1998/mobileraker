@@ -93,7 +93,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
 
       Share.shareXFiles(
         [XFile(downloadFile.file.path, mimeType: mimeType)],
-        subject: "Image ${widget.file.name}",
+        subject: 'Image ${widget.file.name}',
       ).ignore();
     } catch (e) {
       ref.read(snackBarServiceProvider).show(SnackBarConfig(

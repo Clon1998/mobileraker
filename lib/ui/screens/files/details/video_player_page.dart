@@ -78,7 +78,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SupporterOnlyFeature(
-              text: Text("components.supporter_only_feature.timelaps_share").tr(),
+              text: Text('components.supporter_only_feature.timelaps_share').tr(),
             ),
             ElevatedButton(
               onPressed: () => setState(() {
@@ -164,7 +164,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
 
         await Share.shareXFiles(
           [XFile(downloadFile.file.path, mimeType: 'video/mp4')],
-          subject: "Video ${widget.file.name}",
+          subject: 'Video ${widget.file.name}',
         );
         logger.i('Done with sharing');
         setState(() {

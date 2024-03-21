@@ -659,7 +659,7 @@ class TemperaturePresetListController extends StateNotifier<List<TemperaturePres
   }
 
   addNewTemperaturePreset() {
-    TemperaturePreset preset = TemperaturePreset(name: "New Preset");
+    TemperaturePreset preset = TemperaturePreset(name: 'New Preset');
 
     state = List.unmodifiable([...state, preset]);
   }

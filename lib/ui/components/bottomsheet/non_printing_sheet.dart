@@ -273,14 +273,14 @@ class _ServiceList extends ConsumerWidget {
                         onPressed: () => klippyService.startService(entry.value.name),
                         icon: const Icon(Icons.play_arrow),
                         color: themeData.extension<CustomColors>()?.success ?? Colors.green,
-                        tooltip: tr("general.start"),
+                        tooltip: tr('general.start'),
                       ),
                     if (entry.value.activeState != ServiceState.inactive)
                       AsyncIconButton(
                         onPressed: () => klippyService.restartService(entry.value.name),
                         icon: const Icon(Icons.restart_alt),
                         color: themeData.colorScheme.primary,
-                        tooltip: tr("general.restart"),
+                        tooltip: tr('general.restart'),
                       ),
                     AsyncIconButton(
                       onPressed: (entry.value.activeState != ServiceState.active)
@@ -288,7 +288,7 @@ class _ServiceList extends ConsumerWidget {
                           : () => klippyService.stopService(entry.value.name),
                       icon: const Icon(Icons.stop),
                       color: themeData.extension<CustomColors>()?.danger ?? Colors.red,
-                      tooltip: tr("general.stop"),
+                      tooltip: tr('general.stop'),
                     ),
                   ],
                 ),

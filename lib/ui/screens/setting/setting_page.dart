@@ -403,7 +403,7 @@ class _LanguageSelector extends ConsumerWidget {
 
     if (local.countryCode != null) {
       String country = 'languages.countryCode.${local.countryCode}.nativeName'.tr();
-      out += " ($country)";
+      out += ' ($country)';
     }
     return out;
   }

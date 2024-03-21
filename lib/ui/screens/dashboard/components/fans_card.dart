@@ -155,7 +155,7 @@ class _CardBody extends ConsumerWidget {
         ref.watch(_fansCardControllerProvider(machineUUID).selectRequireValue((data) => data.hasPrintFan));
 
     return AdaptiveHorizontalScroll(
-      pageStorageKey: "fans$machineUUID",
+      pageStorageKey: 'fans$machineUUID',
       children: [
         // PrintFan
         if (hasPrintFan)
@@ -199,7 +199,7 @@ class _Fan extends ConsumerWidget {
       NamedFan(name: final n) => beautifyName(n),
       PrintFan() => 'pages.dashboard.control.fan_card.part_fan'.tr(),
       // This should never happen since either its a PrintFan or a NamedFan
-      _ => "Fan",
+      _ => 'Fan',
     };
 
     VoidCallback? onTap = switch (fan) {

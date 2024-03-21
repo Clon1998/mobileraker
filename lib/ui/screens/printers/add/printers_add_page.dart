@@ -429,7 +429,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             suffixText: 's',
           ),
           name: 'advanced.localTimeout',
-          initialValue: "5",
+          initialValue: '5',
           valueTransformer: (String? text) => text?.let(int.tryParse) ?? 3,
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),

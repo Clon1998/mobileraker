@@ -291,7 +291,7 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
         var paramStr = paramsMap.keys
             .where((e) => paramsMap[e]!.trim().isNotEmpty)
             .map((e) => '${e.toUpperCase()}=${paramsMap[e]}')
-            .join(" ");
+            .join(' ');
         _printerService.gCode('${macro.macroName} $paramStr');
       }
     } else {

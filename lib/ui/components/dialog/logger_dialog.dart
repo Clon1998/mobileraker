@@ -48,8 +48,8 @@ class LoggerDialog extends StatelessWidget {
 
                     Share.shareXFiles(
                       logFiles,
-                      subject: "Debug-Logs",
-                      text: "Most recent Mobileraker logs",
+                      subject: 'Debug-Logs',
+                      text: 'Most recent Mobileraker logs',
                     );
                   },
                   icon: const Icon(Icons.download),

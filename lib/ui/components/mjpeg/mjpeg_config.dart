@@ -64,13 +64,13 @@ class MjpegConfigBuilder {
 
   MjpegConfig build() {
     if (streamUri == null) {
-      throw ArgumentError("StreamURI is null");
+      throw ArgumentError('StreamURI is null');
     }
     if (snapshotUri == null) {
-      throw ArgumentError("snapshotUri is null");
+      throw ArgumentError('snapshotUri is null');
     }
     if (mode == null) {
-      throw ArgumentError("mode is null");
+      throw ArgumentError('mode is null');
     }
 
     return MjpegConfig(

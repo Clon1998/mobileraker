@@ -16,15 +16,15 @@ class TranslationsMock extends Mock implements Translations {}
 void main() {
   setUpAll(() {
     final translations = TranslationsMock();
-    when(translations.get("date_periods.year.one")).thenReturn("Yearly");
-    when(translations.get("date_periods.month.one")).thenReturn("Monthly");
-    when(translations.get("date_periods.week.one")).thenReturn("Weekly");
-    when(translations.get("date_periods.day.one")).thenReturn("Daily");
+    when(translations.get('date_periods.year.one')).thenReturn('Yearly');
+    when(translations.get('date_periods.month.one')).thenReturn('Monthly');
+    when(translations.get('date_periods.week.one')).thenReturn('Weekly');
+    when(translations.get('date_periods.day.one')).thenReturn('Daily');
 
-    when(translations.get("date_periods.year.other")).thenReturn("Years");
-    when(translations.get("date_periods.month.other")).thenReturn("Months");
-    when(translations.get("date_periods.week.other")).thenReturn("Weeks");
-    when(translations.get("date_periods.day.other")).thenReturn("Days");
+    when(translations.get('date_periods.year.other')).thenReturn('Years');
+    when(translations.get('date_periods.month.other')).thenReturn('Months');
+    when(translations.get('date_periods.week.other')).thenReturn('Weeks');
+    when(translations.get('date_periods.day.other')).thenReturn('Days');
     Localization.load(const Locale('en'), translations: translations);
   });
 

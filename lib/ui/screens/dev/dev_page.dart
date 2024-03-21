@@ -116,7 +116,7 @@ class DevPage extends HookConsumerWidget {
   stateActivity() async {
     final _liveActivitiesPlugin = LiveActivities();
     logger.i('#1');
-    await _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
+    await _liveActivitiesPlugin.init(appGroupId: 'group.mobileraker.liveactivity');
     logger.i('#2');
     var activityState = await _liveActivitiesPlugin.getActivityState('123123');
     logger.i('Got state message: $activityState');
@@ -217,7 +217,7 @@ void dummyDownload() async {
   ));
 
   // Some file that is rather "large" and takes longer to download
-  var uri = "https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip";
+  var uri = 'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip';
 
   var response = await dio.download(
     uri,

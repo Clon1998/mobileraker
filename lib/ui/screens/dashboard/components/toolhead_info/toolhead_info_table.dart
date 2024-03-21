@@ -15,8 +15,8 @@ import 'package:mobileraker/ui/screens/dashboard/components/toolhead_info/toolhe
 import 'package:shimmer/shimmer.dart';
 
 class ToolheadInfoTable extends ConsumerWidget {
-  static const String POS_ROW = "p";
-  static const String MOV_ROW = "m";
+  static const String POS_ROW = 'p';
+  static const String MOV_ROW = 'm';
 
   final List<String> rowsToShow;
 
