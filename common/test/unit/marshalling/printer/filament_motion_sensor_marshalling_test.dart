@@ -13,7 +13,7 @@ void main() {
     FilamentMotionSensor obj = fromRequest();
 
     expect(obj, isNotNull);
-    expect(obj.name, "motion Sensor");
+    expect(obj.name, 'motion Sensor');
     expect(obj.enabled, false);
     expect(obj.filamentDetected, true);
   });
@@ -21,12 +21,12 @@ void main() {
   test('FilamentMotionSensor partialUpdate - value', () {
     FilamentMotionSensor old = fromRequest();
 
-    var updateJson = {"enabled": true, "filament_detected": false};
+    var updateJson = {'enabled': true, 'filament_detected': false};
 
     var updatedObj = FilamentMotionSensor.partialUpdate(old, updateJson);
 
     expect(updatedObj, isNotNull);
-    expect(updatedObj.name, "motion Sensor");
+    expect(updatedObj.name, 'motion Sensor');
     expect(updatedObj.enabled, true);
     expect(updatedObj.filamentDetected, false);
   });
@@ -47,7 +47,7 @@ FilamentMotionSensor fromRequest() {
 }
       ''';
 
-  var jsonRaw = objectFromHttpApiResult(input, "filament_motion_sensor motion Sensor");
+  var jsonRaw = objectFromHttpApiResult(input, 'filament_motion_sensor motion Sensor');
 
-  return FilamentMotionSensor.fromJson(jsonRaw, "motion Sensor");
+  return FilamentMotionSensor.fromJson(jsonRaw, 'motion Sensor');
 }

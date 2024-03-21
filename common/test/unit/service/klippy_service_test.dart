@@ -19,7 +19,7 @@ import 'klippy_service_test.mocks.dart';
 
 @GenerateMocks([JsonRpcClient])
 void main() {
-  String uuid = "test";
+  String uuid = 'test';
 
   test('Test klippyService init', () {
     setupTestLogger();

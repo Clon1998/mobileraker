@@ -24,7 +24,7 @@ void main() {
   setUpAll(() => setupTestLogger());
 
   test('get Power API device List', () async {
-    String uuid = "test";
+    String uuid = 'test';
     var mockRpc = MockJsonRpcClient();
 
     when(mockRpc.addMethodListener(any, 'notify_power_changed')).thenReturn(null);
@@ -63,7 +63,7 @@ void main() {
   });
 
   test('Get Power API Device Status', () async {
-    String uuid = "test";
+    String uuid = 'test';
     var mockRpc = MockJsonRpcClient();
 
     when(mockRpc.addMethodListener(any, 'notify_power_changed')).thenReturn(null);
@@ -87,7 +87,7 @@ void main() {
   });
 
   test('Change Power API Device State', () async {
-    String uuid = "test";
+    String uuid = 'test';
     var mockRpc = MockJsonRpcClient();
 
     when(mockRpc.addMethodListener(any, 'notify_power_changed')).thenReturn(null);
@@ -112,7 +112,7 @@ void main() {
   });
 
   test('Notify Power method listener', () async {
-    String uuid = "test";
+    String uuid = 'test';
     var mockRpc = MockJsonRpcClient();
 
     ///TODO!!

@@ -173,6 +173,6 @@ class CompositeKey implements KeyValueStoreKey {
   String get key => _key;
 
   factory CompositeKey.keyWithString(KeyValueStoreKey key, String str) {
-    return CompositeKey._("${key.key}_$str");
+    return CompositeKey._('${key.key}_$str');
   }
 }

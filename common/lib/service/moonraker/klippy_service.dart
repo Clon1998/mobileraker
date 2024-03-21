@@ -57,9 +57,9 @@ class KlippyService {
   KlippyService(this.ref, this.ownerUUID) : _jRpcClient = ref.watch(jrpcClientProvider(ownerUUID)) {
     ref.onDispose(dispose);
 
-    _jRpcClient.addMethodListener(_onNotifyKlippyReady, "notify_klippy_ready");
-    _jRpcClient.addMethodListener(_onNotifyKlippyShutdown, "notify_klippy_shutdown");
-    _jRpcClient.addMethodListener(_onNotifyKlippyDisconnected, "notify_klippy_disconnected");
+    _jRpcClient.addMethodListener(_onNotifyKlippyReady, 'notify_klippy_ready');
+    _jRpcClient.addMethodListener(_onNotifyKlippyShutdown, 'notify_klippy_shutdown');
+    _jRpcClient.addMethodListener(_onNotifyKlippyDisconnected, 'notify_klippy_disconnected');
 
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
       switch (next.valueOrFullNull) {
@@ -98,35 +98,35 @@ class KlippyService {
   bool get isKlippyConnected => _current.klippyConnected;
 
   restartMCUs() {
-    _jRpcClient.sendJRpcMethod("printer.firmware_restart").ignore();
+    _jRpcClient.sendJRpcMethod('printer.firmware_restart').ignore();
   }
 
   rebootHost() {
-    _jRpcClient.sendJRpcMethod("machine.reboot").ignore();
+    _jRpcClient.sendJRpcMethod('machine.reboot').ignore();
   }
 
   shutdownHost() {
-    _jRpcClient.sendJRpcMethod("machine.shutdown").ignore();
+    _jRpcClient.sendJRpcMethod('machine.shutdown').ignore();
   }
 
   Future<void> restartKlipper() {
-    return restartService("klipper");
+    return restartService('klipper');
   }
 
   Future<void> restartService(String service) async {
-    await _jRpcClient.sendJRpcMethod("machine.services.restart", params: {'service': service});
+    await _jRpcClient.sendJRpcMethod('machine.services.restart', params: {'service': service});
   }
 
   Future<void> stopService(String service) async {
-    await _jRpcClient.sendJRpcMethod("machine.services.stop", params: {'service': service});
+    await _jRpcClient.sendJRpcMethod('machine.services.stop', params: {'service': service});
   }
 
   Future<void> startService(String service) async {
-    await _jRpcClient.sendJRpcMethod("machine.services.start", params: {'service': service});
+    await _jRpcClient.sendJRpcMethod('machine.services.start', params: {'service': service});
   }
 
   emergencyStop() {
-    _jRpcClient.sendJRpcMethod("printer.emergency_stop").ignore();
+    _jRpcClient.sendJRpcMethod('printer.emergency_stop').ignore();
   }
 
   Future<void> refreshKlippy() async {
@@ -161,7 +161,7 @@ class KlippyService {
   /// returns the Klippy server connection status.
   Future<bool> _fetchServerInfo() async {
     logger.i('>>>Fetching Server.Info');
-    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod("server.info");
+    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('server.info');
     logger.i('<<<Received Server.Info');
     logger.v('ServerInfo: ${const JsonEncoder.withIndent('  ').convert(rpcResponse.result)}');
 
@@ -172,8 +172,8 @@ class KlippyService {
   }
 
   Future<void> _fetchPrinterInfo() async {
-    logger.i(">>>rpcResponse Printer.Info");
-    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod("printer.info");
+    logger.i('>>>rpcResponse Printer.Info');
+    RpcResponse rpcResponse = await _jRpcClient.sendJRpcMethod('printer.info');
     logger.i('<<<Received Printer.Info');
     logger.v('PrinterInfo: ${const JsonEncoder.withIndent('  ').convert(rpcResponse.result)}');
 
@@ -210,9 +210,9 @@ class KlippyService {
   }
 
   dispose() {
-    _jRpcClient.removeMethodListener(_onNotifyKlippyReady, "notify_klippy_ready");
-    _jRpcClient.removeMethodListener(_onNotifyKlippyShutdown, "notify_klippy_shutdown");
-    _jRpcClient.removeMethodListener(_onNotifyKlippyDisconnected, "notify_klippy_disconnected");
+    _jRpcClient.removeMethodListener(_onNotifyKlippyReady, 'notify_klippy_ready');
+    _jRpcClient.removeMethodListener(_onNotifyKlippyShutdown, 'notify_klippy_shutdown');
+    _jRpcClient.removeMethodListener(_onNotifyKlippyDisconnected, 'notify_klippy_disconnected');
 
     _klipperStreamCtler.close();
   }

@@ -129,14 +129,14 @@ class NotificationService {
     // }
     _setupMachineFcmUpdater(machine);
     _registerLocalMessageHandlingForMachine(machine);
-    logger.i("Added stream-listener for ${machine.logName}");
+    logger.i('Added stream-listener for ${machine.logName}');
   }
 
   void onMachineRemoved(String uuid) {
     _notifyAPI.removeChannel('$uuid-statusUpdates');
     _notifyAPI.removeChannel('$uuid-progressUpdates');
     _fcmUpdateListeners.remove(uuid)?.close();
-    logger.i("Removed notifications channels and stream-listener for UUID=$uuid");
+    logger.i('Removed notifications channels and stream-listener for UUID=$uuid');
   }
 
   Future<bool> isFirebaseAvailable() async => _notifyFCM.isFirebaseAvailable.onError((e, _) {
@@ -186,7 +186,7 @@ class NotificationService {
   void _initializeMachineRepoListener() {
     logger.i('Initializing machineRepoListener');
     _machineRepoUpdateListener = _machineService.machineModelEvents.listen((event) {
-      logger.i("Received machineModelEvents: ${event.runtimeType}(${event.key}:${event.data}");
+      logger.i('Received machineModelEvents: ${event.runtimeType}(${event.key}:${event.data}');
 
       switch (event) {
         case ModelEventInsert<Machine> event:
@@ -261,7 +261,7 @@ class NotificationService {
     logger.i('Successfully initialized ports!');
   }
 
-  @pragma("vm:entry-point")
+  @pragma('vm:entry-point')
   static Future<void> _onActionReceivedMethod(ReceivedAction receivedAction) async {
     SendPort? port = IsolateNameServer.lookupPortByName(_notificationTappedPortName);
     if (port != null) {
@@ -298,7 +298,7 @@ class NotificationService {
     logger.e('Received an error from the onNotificationTap Port', e);
   }
 
-  @pragma("vm:entry-point")
+  @pragma('vm:entry-point')
   static Future<void> _awesomeNotificationFCMTokenHandler(String firebaseToken) async {
     SendPort? port = IsolateNameServer.lookupPortByName(_fcmTokenUpdatedPortName);
     if (port != null) {
@@ -322,7 +322,7 @@ class NotificationService {
     logger.e('Received an error from the onNotificationTap Port', e);
   }
 
-  @pragma("vm:entry-point")
+  @pragma('vm:entry-point')
   static Future<void> _awesomeNotificationFCMBackgroundHandler(FcmSilentData message) async {}
 
   List<NotificationChannel> _channelsForMachine(Machine machine) {

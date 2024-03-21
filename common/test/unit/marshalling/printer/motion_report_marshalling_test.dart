@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:common/data/dto/machine/motion_report.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import '../../../test_utils.dart';
 
@@ -22,7 +22,7 @@ void main() {
     MotionReport motionReport = motionReportObject();
 
     var motionReportJson = {
-      "live_position": [0.0, 4, 4, 22]
+      'live_position': [0.0, 4, 4, 22]
     };
 
     var motionReportUpdated = MotionReport.partialUpdate(motionReport, motionReportJson);
@@ -39,7 +39,7 @@ void main() {
     String update =
         '{"result": {"status": {"motion_report": {"live_position": [0.0,1,2,3], "steppers": ["extruder", "stepper_x", "stepper_y", "stepper_z", "stepper_z1", "stepper_z2", "stepper_z3"], "live_velocity": 44.4, "live_extruder_velocity": 0, "trapq": ["extruder", "toolhead"]}}, "eventtime": 3790039.864765516}}';
 
-    var motionReportJson = objectFromHttpApiResult(update, "motion_report");
+    var motionReportJson = objectFromHttpApiResult(update, 'motion_report');
 
     var motionReportUpdated = MotionReport.partialUpdate(motionReport, motionReportJson);
 
@@ -54,7 +54,7 @@ MotionReport motionReportObject() {
   String input =
       '{"result": {"status": {"motion_report": {"live_position": [1.1, 2.2, 3.3, 4.4], "steppers": ["extruder", "stepper_x", "stepper_y", "stepper_z", "stepper_z1", "stepper_z2", "stepper_z3"], "live_velocity": 11.4, "live_extruder_velocity": 5.2, "trapq": ["extruder", "toolhead"]}}, "eventtime": 3790039.864765516}}';
 
-  var motionReportJson = objectFromHttpApiResult(input, "motion_report");
+  var motionReportJson = objectFromHttpApiResult(input, 'motion_report');
 
   var motionReport = MotionReport.fromJson(motionReportJson);
   return motionReport;

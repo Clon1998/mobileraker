@@ -34,9 +34,9 @@ class AnnouncementService {
   AnnouncementService(AutoDisposeRef ref, String machineUUID)
       : _jRpcClient = ref.watch(jrpcClientProvider(machineUUID)) {
     ref.onDispose(dispose);
-    _jRpcClient.addMethodListener(_onNotifyAnnouncementUpdate, "notify_announcement_update");
-    _jRpcClient.addMethodListener(_onNotifyAnnouncementDismissed, "notify_announcement_dismissed");
-    _jRpcClient.addMethodListener(_onNotifyAnnouncementWake, "notify_announcement_wake");
+    _jRpcClient.addMethodListener(_onNotifyAnnouncementUpdate, 'notify_announcement_update');
+    _jRpcClient.addMethodListener(_onNotifyAnnouncementDismissed, 'notify_announcement_dismissed');
+    _jRpcClient.addMethodListener(_onNotifyAnnouncementWake, 'notify_announcement_wake');
   }
 
   final StreamController<List<AnnouncementEntry>> _announcementsStreamCtrler = StreamController();
@@ -96,10 +96,9 @@ class AnnouncementService {
   }
 
   dispose() {
-    _jRpcClient.removeMethodListener(_onNotifyAnnouncementUpdate, "notify_announcement_update");
-    _jRpcClient.removeMethodListener(
-        _onNotifyAnnouncementDismissed, "notify_announcement_dismissed");
-    _jRpcClient.removeMethodListener(_onNotifyAnnouncementWake, "notify_announcement_wake");
+    _jRpcClient.removeMethodListener(_onNotifyAnnouncementUpdate, 'notify_announcement_update');
+    _jRpcClient.removeMethodListener(_onNotifyAnnouncementDismissed, 'notify_announcement_dismissed');
+    _jRpcClient.removeMethodListener(_onNotifyAnnouncementWake, 'notify_announcement_wake');
 
     _announcementsStreamCtrler.close();
   }

@@ -21,7 +21,7 @@ void main() {
     DumbLed old = dumbLedObject();
 
     var updateJson = {
-      "color_data": [
+      'color_data': [
         [0.88, 0.2, 0.55, 0.12]
       ]
     };
@@ -37,7 +37,7 @@ void main() {
     DumbLed old = dumbLedObject();
 
     var updateJson = {
-      "color_data": [
+      'color_data': [
         [0.88, 0.2, 0.55, 0.12]
       ]
     };
@@ -54,7 +54,7 @@ DumbLed dumbLedObject() {
   String input =
       '{"result": {"status": {"led caselight": {"color_data": [[1.0, 1.0, 0.11, 0.44]]}}, "eventtime": 4328671.506395617}}';
 
-  var jsonRaw = objectFromHttpApiResult(input, "led caselight");
+  var jsonRaw = objectFromHttpApiResult(input, 'led caselight');
 
-  return DumbLed.fromJson(jsonRaw, "caselight");
+  return DumbLed.fromJson(jsonRaw, 'caselight');
 }

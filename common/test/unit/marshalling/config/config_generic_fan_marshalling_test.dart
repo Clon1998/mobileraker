@@ -69,9 +69,9 @@ void main() {
     expect(configGenericFan.hardwarePwm, false);
     expect(configGenericFan.shutdownSpeed, 0);
     expect(configGenericFan.pin, 'PD14');
-    expect(configGenericFan.tachometerPin, "PA2");
+    expect(configGenericFan.tachometerPin, 'PA2');
     expect(configGenericFan.tachometerPpr, 4);
     expect(configGenericFan.tachometerPollInterval, 0.3);
-    expect(configGenericFan.enablePin, "PA1");
+    expect(configGenericFan.enablePin, 'PA1');
   });
 }

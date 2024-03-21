@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -27,7 +27,7 @@ import 'printer_service_test.mocks.dart';
 
 @GenerateMocks([JsonRpcClient, MachineService, SnackBarService, DialogService])
 void main() {
-  String uuid = "test";
+  String uuid = 'test';
   setUpAll(() => setupLogger());
   test('Test without exclude object', () {
     var mockRpc = MockJsonRpcClient();
@@ -42,20 +42,20 @@ void main() {
     final respQuery = File('test_resources/query_resp.json');
     var queryAbleObjects = {
       'objects': {
-        "configfile": null,
-        "temperature_sensor Octopus": null,
-        "temperature_sensor raspberry_pi": null,
-        "gcode_move": null,
-        "print_stats": null,
-        "virtual_sdcard": null,
-        "display_status": null,
-        "heater_bed": null,
-        "fan": null,
-        "heater_fan toolhead_cooling_fan": null,
-        "controller_fan controller_fan": null,
-        "motion_report": null,
-        "toolhead": null,
-        "extruder": null
+        'configfile': null,
+        'temperature_sensor Octopus': null,
+        'temperature_sensor raspberry_pi': null,
+        'gcode_move': null,
+        'print_stats': null,
+        'virtual_sdcard': null,
+        'display_status': null,
+        'heater_bed': null,
+        'fan': null,
+        'heater_fan toolhead_cooling_fan': null,
+        'controller_fan controller_fan': null,
+        'motion_report': null,
+        'toolhead': null,
+        'extruder': null
       }
     };
     when(mockRpc.sendJRpcMethod('printer.objects.query', params: queryAbleObjects)).thenAnswer(
@@ -69,29 +69,29 @@ void main() {
     var mockMachineService = MockMachineService();
 
     when(mockMachineService.updateMacrosInSettings(uuid, [
-      "ECHO_RATOS_VARS",
-      "RatOS",
-      "MAYBE_HOME",
-      "PRIME_LINE",
-      "PRIME_BLOB",
-      "_PARK",
-      "M600",
-      "UNLOAD_FILAMENT",
-      "LOAD_FILAMENT",
-      "SET_CENTER_KINEMATIC_POSITION",
-      "START_PRINT",
-      "_START_PRINT_AFTER_HEATING_BED",
-      "_START_PRINT_BED_MESH",
-      "_START_PRINT_PARK",
-      "_START_PRINT_AFTER_HEATING_EXTRUDER",
-      "END_PRINT",
-      "_END_PRINT_BEFORE_HEATERS_OFF",
-      "_END_PRINT_AFTER_HEATERS_OFF",
-      "_END_PRINT_PARK",
-      "GENERATE_SHAPER_GRAPHS",
-      "MEASURE_COREXY_BELT_TENSION",
-      "COMPILE_FIRMWARE",
-      "CHANGE_HOSTNAME"
+      'ECHO_RATOS_VARS',
+      'RatOS',
+      'MAYBE_HOME',
+      'PRIME_LINE',
+      'PRIME_BLOB',
+      '_PARK',
+      'M600',
+      'UNLOAD_FILAMENT',
+      'LOAD_FILAMENT',
+      'SET_CENTER_KINEMATIC_POSITION',
+      'START_PRINT',
+      '_START_PRINT_AFTER_HEATING_BED',
+      '_START_PRINT_BED_MESH',
+      '_START_PRINT_PARK',
+      '_START_PRINT_AFTER_HEATING_EXTRUDER',
+      'END_PRINT',
+      '_END_PRINT_BEFORE_HEATERS_OFF',
+      '_END_PRINT_AFTER_HEATERS_OFF',
+      '_END_PRINT_PARK',
+      'GENERATE_SHAPER_GRAPHS',
+      'MEASURE_COREXY_BELT_TENSION',
+      'COMPILE_FIRMWARE',
+      'CHANGE_HOSTNAME'
     ])).thenAnswer((_) async {});
 
     var mockSnackBarService = MockSnackBarService();
@@ -128,28 +128,27 @@ void main() {
         'test_resources/service/printer_service/exclude_object_query_response.json');
     var queryAbleObjects = {
       'objects': {
-        "exclude_object": null,
-        "configfile": null,
-        "temperature_sensor Octopus": null,
-        "temperature_sensor raspberry_pi": null,
-        "gcode_move": null,
-        "print_stats": null,
-        "virtual_sdcard": null,
-        "display_status": null,
-        "heater_bed": null,
-        "fan": null,
-        "heater_fan toolhead_cooling_fan": null,
-        "controller_fan controller_fan": null,
-        "motion_report": null,
-        "toolhead": null,
-        "extruder": null
+        'exclude_object': null,
+        'configfile': null,
+        'temperature_sensor Octopus': null,
+        'temperature_sensor raspberry_pi': null,
+        'gcode_move': null,
+        'print_stats': null,
+        'virtual_sdcard': null,
+        'display_status': null,
+        'heater_bed': null,
+        'fan': null,
+        'heater_fan toolhead_cooling_fan': null,
+        'controller_fan controller_fan': null,
+        'motion_report': null,
+        'toolhead': null,
+        'extruder': null
       }
     };
 
     when(mockRpc.sendJRpcMethod('printer.objects.query', params: queryAbleObjects)).thenAnswer(
         (realInvocation) async => RpcResponse.fromJson(jsonDecode(respQuery.readAsStringSync())));
-    when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer(
-        (realInvocation) async => const RpcResponse(jsonrpc: "2.0", id: 212, result: {}));
+    when(mockRpc.sendJRpcMethod('server.temperature_store')).thenAnswer((realInvocation) async => const RpcResponse(jsonrpc: '2.0', id: 212, result: {}));
 
     // when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe', params: queryAbleObjects))
     //     .thenReturn(null);
@@ -157,29 +156,29 @@ void main() {
     var mockMachineService = MockMachineService();
 
     when(mockMachineService.updateMacrosInSettings(uuid, [
-      "ECHO_RATOS_VARS",
-      "RatOS",
-      "MAYBE_HOME",
-      "PRIME_LINE",
-      "PRIME_BLOB",
-      "_PARK",
-      "M600",
-      "UNLOAD_FILAMENT",
-      "LOAD_FILAMENT",
-      "SET_CENTER_KINEMATIC_POSITION",
-      "START_PRINT",
-      "_START_PRINT_AFTER_HEATING_BED",
-      "_START_PRINT_BED_MESH",
-      "_START_PRINT_PARK",
-      "_START_PRINT_AFTER_HEATING_EXTRUDER",
-      "END_PRINT",
-      "_END_PRINT_BEFORE_HEATERS_OFF",
-      "_END_PRINT_AFTER_HEATERS_OFF",
-      "_END_PRINT_PARK",
-      "GENERATE_SHAPER_GRAPHS",
-      "MEASURE_COREXY_BELT_TENSION",
-      "COMPILE_FIRMWARE",
-      "CHANGE_HOSTNAME"
+      'ECHO_RATOS_VARS',
+      'RatOS',
+      'MAYBE_HOME',
+      'PRIME_LINE',
+      'PRIME_BLOB',
+      '_PARK',
+      'M600',
+      'UNLOAD_FILAMENT',
+      'LOAD_FILAMENT',
+      'SET_CENTER_KINEMATIC_POSITION',
+      'START_PRINT',
+      '_START_PRINT_AFTER_HEATING_BED',
+      '_START_PRINT_BED_MESH',
+      '_START_PRINT_PARK',
+      '_START_PRINT_AFTER_HEATING_EXTRUDER',
+      'END_PRINT',
+      '_END_PRINT_BEFORE_HEATERS_OFF',
+      '_END_PRINT_AFTER_HEATERS_OFF',
+      '_END_PRINT_PARK',
+      'GENERATE_SHAPER_GRAPHS',
+      'MEASURE_COREXY_BELT_TENSION',
+      'COMPILE_FIRMWARE',
+      'CHANGE_HOSTNAME'
     ])).thenAnswer((_) async {});
 
     var mockSnackBarService = MockSnackBarService();
@@ -253,9 +252,9 @@ void main() {
       'objects': {'toolhead': null}
     })).thenAnswer((_) async => const RpcResponse(jsonrpc: '2.0', id: 1, result: {
           'status': {
-            "toolhead": {
-              "position": [0, 0, 0, 0],
-              "status": "Ready"
+            'toolhead': {
+              'position': [0, 0, 0, 0],
+              'status': 'Ready'
             }
           }
         }));

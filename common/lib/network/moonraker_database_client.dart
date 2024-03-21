@@ -32,7 +32,7 @@ class MoonrakerDatabaseClient {
   Future<List<String>> listNamespaces() async {
     _validateClientConnection();
     try {
-      RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod("server.database.list");
+      RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod('server.database.list');
 
       List<String> nameSpaces = List.from(blockingResponse.result['namespaces']);
       return nameSpaces;
@@ -47,13 +47,13 @@ class MoonrakerDatabaseClient {
   Future<dynamic> getDatabaseItem(String namespace, {String? key}) async {
     _validateClientConnection();
     logger.i('Getting $key');
-    var params = {"namespace": namespace};
-    if (key != null) params["key"] = key;
+    var params = {'namespace': namespace};
+    if (key != null) params['key'] = key;
     try {
-      RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod("server.database.get_item", params: params);
+      RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod('server.database.get_item', params: params);
       return blockingResponse.result['value'];
     } on JRpcError catch (e, s) {
-      logger.w("Could not retrieve key: $key", e, StackTrace.current);
+      logger.w('Could not retrieve key: $key', e, StackTrace.current);
     }
     return null;
   }
@@ -64,7 +64,7 @@ class MoonrakerDatabaseClient {
     logger.d('Adding $key => $value');
     try {
       RpcResponse blockingResponse = await _jsonRpcClient
-          .sendJRpcMethod("server.database.post_item", params: {"namespace": namespace, "key": key, "value": value});
+          .sendJRpcMethod('server.database.post_item', params: {'namespace': namespace, 'key': key, 'value': value});
 
       dynamic resultValue = blockingResponse.result['value'];
       if (resultValue is List) return resultValue.cast<T>();
@@ -85,7 +85,7 @@ class MoonrakerDatabaseClient {
     try {
       _validateClientConnection();
       RpcResponse blockingResponse = await _jsonRpcClient
-          .sendJRpcMethod("server.database.delete_item", params: {"namespace": namespace, "key": key});
+          .sendJRpcMethod('server.database.delete_item', params: {'namespace': namespace, 'key': key});
 
       return blockingResponse.result['value'];
     } on JRpcError catch (e) {

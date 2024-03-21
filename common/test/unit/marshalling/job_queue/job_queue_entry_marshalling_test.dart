@@ -16,8 +16,8 @@ void main() {
     JobQueueEntry obj = JobQueueEntry.fromJson(jsonDecode(jsonRaw));
 
     expect(obj, isNotNull);
-    expect(obj.filename, equals("job1.gcode"));
-    expect(obj.jobId, equals("0000000066D99C90"));
+    expect(obj.filename, equals('job1.gcode'));
+    expect(obj.jobId, equals('0000000066D99C90'));
 
     DateTime expectedDateTime =
         DateTime.fromMillisecondsSinceEpoch((1636151050.7666452 * 1000).toInt());

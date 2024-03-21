@@ -21,9 +21,8 @@ class Supporter with _$Supporter {
 
   Map<String, dynamic> toFirebase() {
     return {
-      "fcmToken": fcmToken,
-      "expirationDate":
-          expirationDate != null ? Timestamp.fromDate(expirationDate!) : null
+      'fcmToken': fcmToken,
+      'expirationDate': expirationDate != null ? Timestamp.fromDate(expirationDate!) : null
     };
   }
 }

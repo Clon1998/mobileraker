@@ -23,11 +23,11 @@ void main() {
     ''';
     var neopixelJson = jsonDecode(neopixelStr);
 
-    var configDotstars = ConfigDotstar.fromJson("case_dotstars", neopixelJson);
+    var configDotstars = ConfigDotstar.fromJson('case_dotstars', neopixelJson);
 
     expect(configDotstars, isNotNull);
-    expect(configDotstars.name, "case_dotstars");
-    expect(configDotstars.dataPin, "PD15");
+    expect(configDotstars.name, 'case_dotstars');
+    expect(configDotstars.dataPin, 'PD15');
     expect(configDotstars.chainCount, 1);
     expect(configDotstars.initialRed, 0.2);
     expect(configDotstars.initialGreen, 0);
@@ -44,11 +44,11 @@ void main() {
     ''';
     var neopixelJson = jsonDecode(neopixelStr);
 
-    var configDotstars = ConfigDotstar.fromJson("case_dotstars", neopixelJson);
+    var configDotstars = ConfigDotstar.fromJson('case_dotstars', neopixelJson);
 
     expect(configDotstars, isNotNull);
-    expect(configDotstars.name, "case_dotstars");
-    expect(configDotstars.dataPin, "PD15");
+    expect(configDotstars.name, 'case_dotstars');
+    expect(configDotstars.dataPin, 'PD15');
     expect(configDotstars.chainCount, 1);
     expect(configDotstars.initialRed, 0);
     expect(configDotstars.initialGreen, 0);

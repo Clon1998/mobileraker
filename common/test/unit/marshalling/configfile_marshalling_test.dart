@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -66,7 +66,7 @@ void main() {
     // Verify extruder config
     expect(config.extruders, hasLength(1));
     expect(config.extruderForIndex(0), isNotNull);
-    expect(config.extruderForIndex(0)?.name, "extruder");
+    expect(config.extruderForIndex(0)?.name, 'extruder');
     expect(config.extruderForIndex(0)?.nozzleDiameter, 0.4);
     expect(config.extruderForIndex(0)?.maxExtrudeOnlyDistance, 200);
     expect(config.extruderForIndex(0)?.minTemp, 10);
@@ -165,7 +165,7 @@ void main() {
     expect(config.configPrintCoolingFan?.cycleTime, 0.01);
     expect(config.configPrintCoolingFan?.hardwarePwm, false);
     expect(config.configPrintCoolingFan?.shutdownSpeed, 0);
-    expect(config.configPrintCoolingFan?.pin, "PA8");
+    expect(config.configPrintCoolingFan?.pin, 'PA8');
     expect(config.configPrintCoolingFan?.tachometerPin, isNull);
     expect(config.configPrintCoolingFan?.tachometerPpr, 2);
     expect(config.configPrintCoolingFan?.tachometerPollInterval, 0.0015);

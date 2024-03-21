@@ -91,9 +91,9 @@ void main() {
     expect(configControllerFan.idleTimeout, 30);
     expect(configControllerFan.heater, ['heater_bed']);
     expect(configControllerFan.stepper, []);
-    expect(configControllerFan.tachometerPin, "PA2");
+    expect(configControllerFan.tachometerPin, 'PA2');
     expect(configControllerFan.tachometerPpr, 4);
     expect(configControllerFan.tachometerPollInterval, 0.3);
-    expect(configControllerFan.enablePin, "PA1");
+    expect(configControllerFan.enablePin, 'PA1');
   });
 }

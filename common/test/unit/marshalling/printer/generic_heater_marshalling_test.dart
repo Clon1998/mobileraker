@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
@@ -28,7 +28,7 @@ void main() {
     test('power', () {
       var old = genericHeaterObject();
       var parsedJson = {
-        "power": 1.0,
+        'power': 1.0,
       };
 
       var updated = GenericHeater.partialUpdate(old, parsedJson);
@@ -46,7 +46,7 @@ void main() {
     test('temperature', () {
       var old = genericHeaterObject();
       var parsedJson = {
-        "temperature": 224.5,
+        'temperature': 224.5,
       };
 
       var updated = GenericHeater.partialUpdate(old, parsedJson);
@@ -64,7 +64,7 @@ void main() {
     test('target', () {
       var old = genericHeaterObject();
       var parsedJson = {
-        "target": 114.5,
+        'target': 114.5,
       };
 
       var updated = GenericHeater.partialUpdate(old, parsedJson);
@@ -83,9 +83,9 @@ void main() {
       var old = genericHeaterObject();
 
       var parsedJson = {
-        "powers": [0, 0, 0, 0, 0.5, 0.9, 1.0],
-        "temperatures": [30, 30, 31, 31, 32.5, 44, 45, 45, 9],
-        "targets": [0, 0, 0, 1.4, 2, 3, 4, 5, 6, 7, 8, 8, 9],
+        'powers': [0, 0, 0, 0, 0.5, 0.9, 1.0],
+        'temperatures': [30, 30, 31, 31, 32.5, 44, 45, 45, 9],
+        'targets': [0, 0, 0, 1.4, 2, 3, 4, 5, 6, 7, 8, 8, 9],
       };
 
       var genericHeater = GenericHeater.partialUpdate(old, parsedJson);
@@ -108,8 +108,7 @@ GenericHeater genericHeaterObject() {
   String input =
       '{"result": {"status": {"heater_generic Loool_Heater": {"temperature": 23.14, "power": 0.0, "target": 11.5}}, "eventtime": 4682073.267428618}}';
 
-  var parsedJson = objectFromHttpApiResult(input, "heater_generic Loool_Heater");
+  var parsedJson = objectFromHttpApiResult(input, 'heater_generic Loool_Heater');
 
-  return GenericHeater.fromJson(
-      {...parsedJson, "name": "TEST", "lastHistory": NOW.toIso8601String()});
+  return GenericHeater.fromJson({...parsedJson, 'name': 'TEST', 'lastHistory': NOW.toIso8601String()});
 }

@@ -25,12 +25,12 @@ void main() {
     ''';
     var neopixelJson = jsonDecode(neopixelStr);
 
-    var configNeopixel = ConfigNeopixel.fromJson("fysetc_mini12864", neopixelJson);
+    var configNeopixel = ConfigNeopixel.fromJson('fysetc_mini12864', neopixelJson);
 
     expect(configNeopixel, isNotNull);
-    expect(configNeopixel.name, "fysetc_mini12864");
-    expect(configNeopixel.pin, "EXP1_6");
-    expect(configNeopixel.colorOrder, "RGB");
+    expect(configNeopixel.name, 'fysetc_mini12864');
+    expect(configNeopixel.pin, 'EXP1_6');
+    expect(configNeopixel.colorOrder, 'RGB');
     expect(configNeopixel.chainCount, 3);
     expect(configNeopixel.initialRed, 1.0);
     expect(configNeopixel.initialGreen, 1.0);
@@ -50,11 +50,11 @@ void main() {
     ''';
     var neopixelJson = jsonDecode(neopixelStr);
 
-    var configNeopixel = ConfigNeopixel.fromJson("fysetc_mini12864", neopixelJson);
+    var configNeopixel = ConfigNeopixel.fromJson('fysetc_mini12864', neopixelJson);
 
     expect(configNeopixel, isNotNull);
-    expect(configNeopixel.pin, "EXP1_6");
-    expect(configNeopixel.colorOrder, "RGB");
+    expect(configNeopixel.pin, 'EXP1_6');
+    expect(configNeopixel.colorOrder, 'RGB');
     expect(configNeopixel.chainCount, 3);
     expect(configNeopixel.initialRed, 0);
     expect(configNeopixel.initialGreen, 0);
@@ -76,12 +76,12 @@ void main() {
     ''';
     var neopixelJson = jsonDecode(neopixelStr);
 
-    var configNeopixel = ConfigNeopixel.fromJson("fysetc_mini12864", neopixelJson);
+    var configNeopixel = ConfigNeopixel.fromJson('fysetc_mini12864', neopixelJson);
 
     expect(configNeopixel, isNotNull);
-    expect(configNeopixel.name, "fysetc_mini12864");
-    expect(configNeopixel.pin, "EXP1_6");
-    expect(configNeopixel.colorOrder, "RGB");
+    expect(configNeopixel.name, 'fysetc_mini12864');
+    expect(configNeopixel.pin, 'EXP1_6');
+    expect(configNeopixel.colorOrder, 'RGB');
     expect(configNeopixel.chainCount, 3);
     expect(configNeopixel.initialRed, 1.0);
     expect(configNeopixel.initialGreen, 1.0);

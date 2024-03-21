@@ -65,7 +65,7 @@ class SelectedMachineService {
         _selectedMachineCtrler.add(null);
         _selected = null;
       }
-      logger.i("Selecting no printer as active Printer. Stream is closed?: ${_selectedMachineCtrler.isClosed}");
+      logger.i('Selecting no printer as active Printer. Stream is closed?: ${_selectedMachineCtrler.isClosed}');
       return;
     }
 

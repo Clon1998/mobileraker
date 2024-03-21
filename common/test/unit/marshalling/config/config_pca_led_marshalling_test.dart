@@ -20,10 +20,10 @@ void main() {
     ''';
     var strToJson = jsonDecode(str);
 
-    var configDumpLed = ConfigPcaLed.fromJson("caselight", strToJson);
+    var configDumpLed = ConfigPcaLed.fromJson('caselight', strToJson);
 
     expect(configDumpLed, isNotNull);
-    expect(configDumpLed.name, "caselight");
+    expect(configDumpLed.name, 'caselight');
     expect(configDumpLed.initialRed, 0);
     expect(configDumpLed.initialGreen, 0.2);
     expect(configDumpLed.initialBlue, 0);
@@ -38,10 +38,10 @@ void main() {
     ''';
     var strToJson = jsonDecode(str);
 
-    var configDumpLed = ConfigPcaLed.fromJson("caselight", strToJson);
+    var configDumpLed = ConfigPcaLed.fromJson('caselight', strToJson);
 
     expect(configDumpLed, isNotNull);
-    expect(configDumpLed.name, "caselight");
+    expect(configDumpLed.name, 'caselight');
     expect(configDumpLed.initialRed, 0);
     expect(configDumpLed.initialGreen, 0);
     expect(configDumpLed.initialBlue, 0);
