@@ -21,7 +21,7 @@ import 'package:mobileraker/ui/screens/files/details/config_file_details_control
 import 'package:progress_indicators/progress_indicators.dart';
 
 class ConfigFileDetailPage extends ConsumerWidget {
-  const ConfigFileDetailPage({Key? key, required this.file}) : super(key: key);
+  const ConfigFileDetailPage({super.key, required this.file});
   final GenericFile file;
 
   @override
@@ -37,7 +37,7 @@ class ConfigFileDetailPage extends ConsumerWidget {
 }
 
 class _ConfigFileDetail extends HookConsumerWidget {
-  const _ConfigFileDetail({Key? key}) : super(key: key);
+  const _ConfigFileDetail({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,7 +74,7 @@ class _ConfigFileDetail extends HookConsumerWidget {
 }
 
 class _Editor extends ConsumerWidget {
-  const _Editor({Key? key, required this.codeController}) : super(key: key);
+  const _Editor({super.key, required this.codeController});
 
   final ValueNotifier<CodeController> codeController;
 
@@ -132,7 +132,7 @@ class _Editor extends ConsumerWidget {
 }
 
 class _Fab extends ConsumerWidget {
-  const _Fab({Key? key, required this.codeController}) : super(key: key);
+  const _Fab({super.key, required this.codeController});
 
   final ValueNotifier<CodeController> codeController;
 
@@ -178,7 +178,7 @@ class _Fab extends ConsumerWidget {
 }
 
 class _FileReadyBody extends ConsumerWidget {
-  const _FileReadyBody({Key? key, required this.codeController}) : super(key: key);
+  const _FileReadyBody({super.key, required this.codeController});
 
   final CodeController codeController;
 

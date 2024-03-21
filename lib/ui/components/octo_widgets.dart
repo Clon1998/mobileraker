@@ -11,7 +11,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class OctoEveryWhereBtn extends StatelessWidget {
-  const OctoEveryWhereBtn({Key? key, this.onPressed, required this.title}) : super(key: key);
+  const OctoEveryWhereBtn({super.key, this.onPressed, required this.title});
 
   final VoidCallback? onPressed;
   final String title;
@@ -45,7 +45,7 @@ class OctoEveryWhereBtn extends StatelessWidget {
 }
 
 class OctoIndicator extends StatelessWidget {
-  const OctoIndicator({Key? key, this.size}) : super(key: key);
+  const OctoIndicator({super.key, this.size});
 
   final Size? size;
 

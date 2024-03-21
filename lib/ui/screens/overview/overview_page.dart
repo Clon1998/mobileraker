@@ -16,7 +16,7 @@ import 'package:mobileraker/ui/screens/overview/components/printer_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class OverviewPage extends StatelessWidget {
-  const OverviewPage({Key? key}) : super(key: key);
+  const OverviewPage({super.key});
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -32,7 +32,7 @@ class OverviewPage extends StatelessWidget {
 }
 
 class _OverviewBody extends ConsumerWidget {
-  const _OverviewBody({Key? key}) : super(key: key);
+  const _OverviewBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

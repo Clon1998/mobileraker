@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class ObicoIndicator extends StatelessWidget {
-  const ObicoIndicator({Key? key, this.size}) : super(key: key);
+  const ObicoIndicator({super.key, this.size});
 
   final Size? size;
 
@@ -26,7 +26,7 @@ class ObicoIndicator extends StatelessWidget {
 }
 
 class ObicoButton extends StatelessWidget {
-  const ObicoButton({Key? key, this.onPressed, required this.title}) : super(key: key);
+  const ObicoButton({super.key, this.onPressed, required this.title});
 
   final VoidCallback? onPressed;
   final String title;

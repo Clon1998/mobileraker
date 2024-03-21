@@ -20,10 +20,10 @@ class NumEditFormDialog extends ConsumerWidget {
   final DialogCompleter completer;
 
   const NumEditFormDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,10 +43,10 @@ class NumEditFormDialog extends ConsumerWidget {
 
 class _FormEditDialog extends HookConsumerWidget {
   const _FormEditDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.data,
-  }) : super(key: key);
+  });
 
   final DialogRequest request;
   final NumberEditDialogArguments data;
@@ -152,13 +152,13 @@ class _NumField extends StatelessWidget {
   final String? description;
 
   const _NumField({
-    Key? key,
+    super.key,
     required this.initialValue,
     required this.lowerBorder,
     this.upperBorder,
     required this.frac,
     this.description,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -195,13 +195,13 @@ class _NumField extends StatelessWidget {
 
 class RangeEditSlider extends StatelessWidget {
   const RangeEditSlider({
-    Key? key,
+    super.key,
     required this.initialValue,
     required this.lowerBorder,
     this.upperBorder,
     required this.frac,
     this.description,
-  }) : super(key: key);
+  });
 
   final num initialValue;
   final num lowerBorder;

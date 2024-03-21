@@ -18,12 +18,12 @@ import 'package:mobileraker_pro/mobileraker_pro.dart';
 
 class WebcamWebRtc extends ConsumerWidget {
   const WebcamWebRtc({
-    Key? key,
+    super.key,
     required this.webcamInfo,
     required this.machine,
     this.stackContent = const [],
     this.imageBuilder,
-  }) : super(key: key);
+  });
 
   final WebcamInfo webcamInfo;
 

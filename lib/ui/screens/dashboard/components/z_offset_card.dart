@@ -33,7 +33,7 @@ part 'z_offset_card.freezed.dart';
 part 'z_offset_card.g.dart';
 
 class ZOffsetCard extends ConsumerWidget {
-  const ZOffsetCard({Key? key, required this.machineUUID}) : super(key: key);
+  const ZOffsetCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 

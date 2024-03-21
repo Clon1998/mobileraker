@@ -21,10 +21,10 @@ class ToolheadInfoTable extends ConsumerWidget {
   final List<String> rowsToShow;
 
   const ToolheadInfoTable({
-    Key? key,
+    super.key,
     required this.machineUUID,
     this.rowsToShow = const [POS_ROW, MOV_ROW],
-  }) : super(key: key);
+  });
 
   final String machineUUID;
 
@@ -36,10 +36,10 @@ class ToolheadInfoTable extends ConsumerWidget {
 
 class _ToolheadData extends ConsumerWidget {
   const _ToolheadData({
-    Key? key,
+    super.key,
     required this.machineUUID,
     required this.rowsToShow,
-  }) : super(key: key);
+  });
 
   final String machineUUID;
   final List<String> rowsToShow;

@@ -24,9 +24,9 @@ part 'manage_macro_group_macros_bottom_sheet.g.dart';
 
 class ManageMacroGroupMacrosBottomSheet extends ConsumerWidget {
   const ManageMacroGroupMacrosBottomSheet({
-    Key? key,
+    super.key,
     required this.arguments,
-  }) : super(key: key);
+  });
 
   final ManageMacroGroupMacrosBottomSheetArguments arguments;
 

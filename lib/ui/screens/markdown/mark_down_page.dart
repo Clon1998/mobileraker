@@ -32,12 +32,12 @@ Future<String> _markdownData(_MarkdownDataRef _, Uri mdRoot) async {
 
 class MarkDownPage extends StatelessWidget {
   const MarkDownPage({
-    Key? key,
+    super.key,
     required this.title,
     required this.mdRoot,
     required this.mdHuman,
     this.topWidget,
-  }) : super(key: key);
+  });
 
   final String title;
   final Uri mdRoot;
@@ -78,11 +78,11 @@ class MarkDownPage extends StatelessWidget {
 
 class _MarkDownBody extends ConsumerWidget {
   const _MarkDownBody({
-    Key? key,
+    super.key,
     required this.mdRoot,
     required this.mdHuman,
     required this.title,
-  }) : super(key: key);
+  });
   final Uri mdRoot;
   final Uri mdHuman;
   final String title;
@@ -102,11 +102,11 @@ class _MarkDownBody extends ConsumerWidget {
 
 class _ErrorWidget extends StatelessWidget {
   const _ErrorWidget({
-    Key? key,
+    super.key,
     this.error,
     required this.mdHuman,
     required this.title,
-  }) : super(key: key);
+  });
 
   final Object? error;
   final Uri mdHuman;
@@ -156,7 +156,7 @@ class _ErrorWidget extends StatelessWidget {
 }
 
 class _LoadingMarkdownWidget extends StatelessWidget {
-  const _LoadingMarkdownWidget({Key? key}) : super(key: key);
+  const _LoadingMarkdownWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +174,7 @@ class _LoadingMarkdownWidget extends StatelessWidget {
 }
 
 class _MakrdownViewer extends StatelessWidget {
-  const _MakrdownViewer({Key? key, required this.data}) : super(key: key);
+  const _MakrdownViewer({super.key, required this.data});
 
   final String data;
 

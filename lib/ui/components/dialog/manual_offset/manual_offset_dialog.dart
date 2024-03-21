@@ -22,10 +22,10 @@ class ManualOffsetDialog extends HookConsumerWidget {
   final DialogCompleter completer;
 
   const ManualOffsetDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -160,7 +160,7 @@ class ManualOffsetDialog extends HookConsumerWidget {
 }
 
 class _Footer extends ConsumerWidget {
-  const _Footer({Key? key, required this.dialogCompleter}) : super(key: key);
+  const _Footer({super.key, required this.dialogCompleter});
   final DialogCompleter dialogCompleter;
 
   @override

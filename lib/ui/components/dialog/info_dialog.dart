@@ -9,10 +9,10 @@ import 'package:flutter/material.dart';
 
 class InfoDialog extends StatelessWidget {
   const InfoDialog({
-    Key? key,
+    super.key,
     required this.dialogRequest,
     required this.completer,
-  }) : super(key: key);
+  });
   final DialogRequest dialogRequest;
   final Function(DialogResponse) completer;
 

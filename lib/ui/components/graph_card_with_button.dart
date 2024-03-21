@@ -11,14 +11,14 @@ class GraphCardWithButton extends StatelessWidget {
   static const double radius = 15;
 
   const GraphCardWithButton({
-    Key? key,
+    super.key,
     this.backgroundColor,
     this.graphColor,
     required this.plotSpots,
     required this.builder,
     required this.buttonChild,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   final Color? backgroundColor;
   final Color? graphColor;
@@ -111,10 +111,10 @@ class GraphCardWithButton extends StatelessWidget {
 
 class _Chart extends StatelessWidget {
   const _Chart({
-    Key? key,
+    super.key,
     required this.graphColor,
     required this.plotSpots,
-  }) : super(key: key);
+  });
 
   final Color graphColor;
 

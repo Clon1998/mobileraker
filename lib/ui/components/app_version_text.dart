@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AppVersionText extends ConsumerWidget {
-  const AppVersionText({Key? key, this.prefix, this.textStyle}) : super(key: key);
+  const AppVersionText({super.key, this.prefix, this.textStyle});
 
   final String? prefix;
   final TextStyle? textStyle;

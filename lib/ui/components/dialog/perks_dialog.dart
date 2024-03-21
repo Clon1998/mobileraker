@@ -13,7 +13,7 @@ class PerksDialog extends ConsumerWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const PerksDialog({Key? key, required this.request, required this.completer}) : super(key: key);
+  const PerksDialog({super.key, required this.request, required this.completer});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

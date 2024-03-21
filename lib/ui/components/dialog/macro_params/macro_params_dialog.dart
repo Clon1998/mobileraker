@@ -29,10 +29,10 @@ class MacroParamsDialog extends ConsumerWidget {
   final DialogCompleter completer;
 
   const MacroParamsDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -47,7 +47,7 @@ class MacroParamsDialog extends ConsumerWidget {
 }
 
 class _MacroParamsDialog extends ConsumerWidget {
-  const _MacroParamsDialog({Key? key}) : super(key: key);
+  const _MacroParamsDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

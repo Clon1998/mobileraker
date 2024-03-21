@@ -10,12 +10,12 @@ class CardWithButton extends StatelessWidget {
   static const double radius = 15;
 
   const CardWithButton({
-    Key? key,
+    super.key,
     this.backgroundColor,
     required this.builder,
     required this.buttonChild,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   final Color? backgroundColor;
   final WidgetBuilder builder;

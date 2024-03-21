@@ -10,7 +10,7 @@ import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector_
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
 
 class FileSortModeSelector extends ConsumerWidget {
-  const FileSortModeSelector({Key? key}) : super(key: key);
+  const FileSortModeSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

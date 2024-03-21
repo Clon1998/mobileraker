@@ -72,7 +72,7 @@ class PullToRefreshPrinterConsumer extends _$PullToRefreshPrinterConsumer {
 }
 
 class PullToRefreshPrinter extends ConsumerStatefulWidget {
-  const PullToRefreshPrinter({Key? key, this.child}) : super(key: key);
+  const PullToRefreshPrinter({super.key, this.child});
 
   final Widget? child;
 

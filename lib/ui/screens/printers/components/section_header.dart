@@ -7,11 +7,11 @@ import 'package:flutter/material.dart';
 
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
-    Key? key,
+    super.key,
     required this.title,
     this.trailing,
     this.padding = const EdgeInsets.only(top: 16.0),
-  }) : super(key: key);
+  });
 
   final String title;
   final Widget? trailing;

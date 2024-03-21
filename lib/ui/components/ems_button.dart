@@ -14,7 +14,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class EmergencyStopBtn extends ConsumerWidget {
-  const EmergencyStopBtn({Key? key}) : super(key: key);
+  const EmergencyStopBtn({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

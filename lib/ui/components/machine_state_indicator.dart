@@ -15,7 +15,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
 
 class MachineStateIndicator extends ConsumerWidget {
-  const MachineStateIndicator(this.machine, {Key? key}) : super(key: key);
+  const MachineStateIndicator(this.machine, {super.key});
   final Machine? machine;
 
   @override

@@ -22,7 +22,7 @@ class SliderOrTextInput extends ConsumerStatefulWidget {
   final bool addToMax;
 
   SliderOrTextInput({
-    Key? key,
+    super.key,
     required this.provider,
     required this.prefixText,
     required this.onChange,
@@ -31,8 +31,7 @@ class SliderOrTextInput extends ConsumerStatefulWidget {
     this.minValue = 0,
     this.addToMax = false,
     this.unit,
-  })  : numberFormat = numberFormat ?? NumberFormat('0%'),
-        super(key: key);
+  }) : numberFormat = numberFormat ?? NumberFormat('0%');
 
   @override
   SliderOrTextInputState createState() => SliderOrTextInputState();

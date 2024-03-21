@@ -56,7 +56,7 @@ Future<void> main() async {
 }
 
 class MyApp extends ConsumerWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
@@ -129,7 +129,7 @@ class MyApp extends ConsumerWidget {
 }
 
 class _WarmUp extends HookConsumerWidget {
-  const _WarmUp({Key? key}) : super(key: key);
+  const _WarmUp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -232,7 +232,7 @@ class _WarmUpError extends StatelessWidget {
 }
 
 class _LoadingSplashScreen extends HookWidget {
-  const _LoadingSplashScreen({Key? key}) : super(key: key);
+  const _LoadingSplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +282,7 @@ class _LoadingSplashScreen extends HookWidget {
 }
 
 class _EmojiIndicator extends ConsumerWidget {
-  const _EmojiIndicator({Key? key}) : super(key: key);
+  const _EmojiIndicator({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

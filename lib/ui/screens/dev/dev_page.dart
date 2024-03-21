@@ -26,8 +26,8 @@ import 'package:path_provider/path_provider.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   String? _bla;
 

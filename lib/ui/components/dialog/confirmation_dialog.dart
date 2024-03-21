@@ -9,10 +9,10 @@ import 'package:flutter/material.dart';
 
 class ConfirmationDialog extends StatelessWidget {
   const ConfirmationDialog({
-    Key? key,
+    super.key,
     required this.dialogRequest,
     required this.completer,
-  }) : super(key: key);
+  });
   final DialogRequest dialogRequest;
   final Function(DialogResponse) completer;
 

@@ -46,7 +46,7 @@ class _SupporterAdController extends _$SupporterAdController {
 }
 
 class SupporterAd extends ConsumerWidget {
-  const SupporterAd({Key? key}) : super(key: key);
+  const SupporterAd({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

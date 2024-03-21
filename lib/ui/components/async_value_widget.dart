@@ -11,13 +11,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AsyncValueWidget<T> extends StatelessWidget {
   const AsyncValueWidget({
-    Key? key,
+    super.key,
     required this.value,
     required this.data,
     this.loading,
     this.skipLoadingOnRefresh = false,
     this.skipLoadingOnReload = false,
-  }) : super(key: key);
+  });
 
   // input async value
   final AsyncValue<T> value;

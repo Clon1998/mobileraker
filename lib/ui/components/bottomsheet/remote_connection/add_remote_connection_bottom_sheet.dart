@@ -24,7 +24,7 @@ import '../../../screens/printers/components/section_header.dart';
 import '../../obico_widgets.dart';
 
 class AddRemoteConnectionBottomSheet extends ConsumerWidget {
-  const AddRemoteConnectionBottomSheet({Key? key, required this.args}) : super(key: key);
+  const AddRemoteConnectionBottomSheet({super.key, required this.args});
 
   final AddRemoteConnectionSheetArgs args;
 
@@ -45,7 +45,7 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
 }
 
 class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
-  const _AddRemoteConnectionBottomSheet({Key? key, required this.scrollController}) : super(key: key);
+  const _AddRemoteConnectionBottomSheet({super.key, required this.scrollController});
 
   final ScrollController scrollController;
 
@@ -142,7 +142,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
 }
 
 class _OctoTab extends ConsumerWidget {
-  const _OctoTab({Key? key, required this.scrollController}) : super(key: key);
+  const _OctoTab({super.key, required this.scrollController});
   final ScrollController scrollController;
 
   @override
@@ -210,7 +210,7 @@ class _OctoTab extends ConsumerWidget {
 }
 
 class _ManualTab extends ConsumerWidget {
-  const _ManualTab({Key? key, required this.scrollController}) : super(key: key);
+  const _ManualTab({super.key, required this.scrollController});
 
   final ScrollController scrollController;
 
@@ -301,7 +301,7 @@ class _ManualTab extends ConsumerWidget {
 }
 
 class _ObicoTab extends ConsumerWidget {
-  const _ObicoTab({Key? key, required this.scrollController}) : super(key: key);
+  const _ObicoTab({super.key, required this.scrollController});
   final ScrollController scrollController;
 
   @override

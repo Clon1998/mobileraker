@@ -10,10 +10,10 @@ import 'package:flutter/material.dart';
 
 class SupporterOnlyDialog extends StatelessWidget {
   const SupporterOnlyDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
   final DialogRequest request;
   final Function(DialogResponse) completer;
 

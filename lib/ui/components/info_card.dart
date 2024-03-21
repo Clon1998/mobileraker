@@ -7,12 +7,10 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
-  const InfoCard({Key? key, this.child, this.title, this.leading, this.body})
+  const InfoCard({super.key, this.child, this.title, this.leading, this.body})
       : assert(child != null || (title != null && body != null),
             'Either provide the child or the title'),
-        assert(child == null || (title == null && body == null),
-            'Only define the child or the title and body!'),
-        super(key: key);
+        assert(child == null || (title == null && body == null), 'Only define the child or the title and body!');
   final Widget? child;
   final Widget? title;
   final Widget? leading;

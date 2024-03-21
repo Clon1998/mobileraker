@@ -20,7 +20,7 @@ import 'package:mobileraker/ui/screens/overview/components/printer_card_controll
 import 'package:progress_indicators/progress_indicators.dart';
 
 class SinglePrinterCard extends ConsumerWidget {
-  const SinglePrinterCard(this._machine, {Key? key}) : super(key: key);
+  const SinglePrinterCard(this._machine, {super.key});
 
   final Machine _machine;
 
@@ -37,7 +37,7 @@ class SinglePrinterCard extends ConsumerWidget {
 }
 
 class _PrinterCard extends ConsumerWidget {
-  const _PrinterCard({Key? key}) : super(key: key);
+  const _PrinterCard({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -61,7 +61,7 @@ class _PrinterCard extends ConsumerWidget {
 }
 
 class _Trailing extends ConsumerWidget {
-  const _Trailing({Key? key}) : super(key: key);
+  const _Trailing({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -92,7 +92,7 @@ class _Trailing extends ConsumerWidget {
 }
 
 class _PrintProgressBar extends ConsumerWidget {
-  const _PrintProgressBar({Key? key}) : super(key: key);
+  const _PrintProgressBar({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -110,7 +110,7 @@ class _PrintProgressBar extends ConsumerWidget {
 }
 
 class _Cam extends ConsumerWidget {
-  const _Cam({Key? key}) : super(key: key);
+  const _Cam({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

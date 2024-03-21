@@ -19,13 +19,13 @@ import '../mjpeg/mjpeg_mode.dart';
 
 class WebcamMjpeg extends ConsumerWidget {
   const WebcamMjpeg({
-    Key? key,
+    super.key,
     required this.webcamInfo,
     required this.machine,
     this.imageBuilder,
     this.stackChild = const [],
     this.showFps = false,
-  }) : super(key: key);
+  });
 
   final WebcamInfo webcamInfo;
 

@@ -10,7 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class QrScannerPage extends StatefulHookConsumerWidget {
-  const QrScannerPage({Key? key}) : super(key: key);
+  const QrScannerPage({super.key});
 
   @override
   ConsumerState createState() => _QrScannerPageState();
