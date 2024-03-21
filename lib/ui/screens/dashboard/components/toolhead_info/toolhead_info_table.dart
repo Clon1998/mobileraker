@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
@@ -170,17 +171,33 @@ class _ConsumerCell extends StatelessWidget {
         builder: (context, ref, child) {
           var asyncValue = ref.watch(consumerListenable);
 
-          if (asyncValue.isLoading && !asyncValue.isReloading) return const _LoadingCell();
-
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [child!, Text(asyncValue.requireValue)],
-            ),
-          );
+          return switch (asyncValue) {
+            AsyncValue(isLoading: true, isReloading: false) => const _LoadingCell(),
+            AsyncData(value: var data) => Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    child!,
+                    AutoSizeText(
+                      data,
+                      maxLines: 1,
+                      stepGranularity: 0.1,
+                      minFontSize: 10,
+                    ),
+                    // Text(asyncValue.requireValue),
+                  ],
+                ),
+              ),
+            _ => const Text('ERR'),
+          };
         },
-        child: Text(label),
+        child: AutoSizeText(
+          label,
+          maxLines: 1,
+          stepGranularity: 0.1,
+          minFontSize: 10,
+        ),
       );
 }
 
