@@ -146,7 +146,6 @@ class PrinterEditController extends _$PrinterEditController {
                   ));
             },
           ));
-      ;
     } finally {
       jrpcStateKeppAliveLink.close();
 
