@@ -19,15 +19,15 @@ sealed class ModelEvent<T> {
 
 class ModelEventInsert<T> extends ModelEvent<T> {
   // Data represents the new data
-  ModelEventInsert(T data, String key) : super(data, key);
+  ModelEventInsert(super.data, super.key);
 }
 
 class ModelEventUpdate<T> extends ModelEvent<T> {
   // Data represents the object with updates
-  ModelEventUpdate(T data, String key) : super(data, key);
+  ModelEventUpdate(super.data, super.key);
 }
 
 class ModelEventDelete<T> extends ModelEvent<T> {
   // Data represents the deleted object
-  ModelEventDelete(T data, String key) : super(data, key);
+  ModelEventDelete(super.data, super.key);
 }

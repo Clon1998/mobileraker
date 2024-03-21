@@ -9,9 +9,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 
 class SupporterOnlyFeature extends StatelessWidget {
-  const SupporterOnlyFeature({
-    Key? key,
-    required this.text, this.header}) : super(key: key);
+  const SupporterOnlyFeature({super.key, required this.text, this.header});
 
   final Widget text;
   final Widget? header;
