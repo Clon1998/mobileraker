@@ -49,7 +49,7 @@ class ControlXYZCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var showCard = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
 
-    logger.i('ControlXYZCard: showCard: ${showCard}');
+    logger.i('ControlXYZCard: showCard: $showCard');
 
     var showLoading = showCard.isLoading && !showCard.isReloading;
     if (showLoading) return const _ControlXYZLoading();

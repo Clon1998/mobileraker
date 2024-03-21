@@ -69,7 +69,7 @@ class _UserBottomSheetState extends State<UserBottomSheet> {
               } else {
                 size = _controller.pixelsToSize(keyboardHeight) + _controller.size;
                 _originalSize ??= _controller.size;
-                logger.i('Bottom insets: ${keyboardHeight} => $size');
+                logger.i('Bottom insets: $keyboardHeight => $size');
               }
 
               _controller.animateTo(

@@ -178,7 +178,7 @@ class _WarmUpError extends StatelessWidget {
               child: ErrorCard(
                 title: const Text('Error while starting Mobileraker!'),
                 body: isStartupErr
-                    ? Text('${e.message}\n\nStackTrace:\n${stackTrace}')
+                    ? Text('${e.message}\n\nStackTrace:\n$stackTrace')
                     : Text(
                         'I am sorry...\nSomething unexpected happened.\nPlease report this bug to the developer!\n\n$e\n$stackTrace',
                       ),
