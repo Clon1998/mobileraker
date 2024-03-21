@@ -542,8 +542,9 @@ class MachineService {
     // If there's no legacy group and no new macros to add, return early
     if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty) return;
 
-    if (hasUnavailableMacro)
+    if (hasUnavailableMacro) {
       logger.i('Found some unavailable macros, will update all groups without the unavailable macros!');
+    }
 
     // Log the number of new macros being added to the default group
     logger.i('Adding ${filteredRawMacros.length} new macros to the default group!');
