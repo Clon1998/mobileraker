@@ -119,7 +119,7 @@ class SettingPage extends ConsumerWidget {
                 ),
                 activeColor: themeData.colorScheme.primary,
               ),
-              _SectionHeader(title: 'UI'),
+              const _SectionHeader(title: 'UI'),
               const _ThemeSelector(),
               const _ThemeModeSelector(),
               FormBuilderSwitch(
@@ -142,7 +142,7 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'sliders_grouping',
                 title: const Text('pages.setting.general.sliders_grouping').tr(),
-                subtitle: Text('pages.setting.general.sliders_grouping_hint').tr(),
+                subtitle: const Text('pages.setting.general.sliders_grouping_hint').tr(),
                 onChanged: (b) => settingService.writeBool(
                   AppSettingKeys.groupSliders,
                   b ?? false,

@@ -224,7 +224,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       GoRoute(
         path: '/tool',
         name: AppRoute.tool.name,
-        builder: (context, state) => ToolPage(),
+        builder: (context, state) => const ToolPage(),
         routes: [
           GoRoute(
             path: 'belt-tuner',

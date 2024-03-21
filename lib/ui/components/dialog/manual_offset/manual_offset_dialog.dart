@@ -115,7 +115,7 @@ class ManualOffsetDialog extends HookConsumerWidget {
                                 IntrinsicWidth(
                                   child: InputDecorator(
                                     decoration: InputDecoration(
-                                      contentPadding: EdgeInsets.only(top: 16),
+                                      contentPadding: const EdgeInsets.only(top: 16),
                                       floatingLabelBehavior: FloatingLabelBehavior.always,
                                       label: Text(
                                         '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',

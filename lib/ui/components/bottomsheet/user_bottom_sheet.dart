@@ -474,7 +474,7 @@ class _InfoText extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var model = ref.watch(_userBottomSheetControllerProvider.selectAs((d) => d.infoText)).valueOrNull;
-    if (model == null) return SizedBox.shrink();
+    if (model == null) return const SizedBox.shrink();
 
     var themeData = Theme.of(context);
 

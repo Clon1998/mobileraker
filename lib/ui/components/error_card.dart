@@ -19,7 +19,7 @@ class ErrorCard extends StatelessWidget {
 
   factory ErrorCard.fromError(Object error, StackTrace stackTrace) {
     return ErrorCard(
-      title: Text('Error'),
+      title: const Text('Error'),
       body: Text('An error occured: $error\n$stackTrace'),
     );
   }

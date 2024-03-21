@@ -44,7 +44,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
         actions: [
           IconButton(
             onPressed: downloading ? null : shareFile,
-            icon: Icon(Icons.share),
+            icon: const Icon(Icons.share),
           ),
         ],
       ),

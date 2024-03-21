@@ -78,7 +78,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             SupporterOnlyFeature(
-              text: Text('components.supporter_only_feature.timelaps_share').tr(),
+              text: const Text('components.supporter_only_feature.timelaps_share').tr(),
             ),
             ElevatedButton(
               onPressed: () => setState(() {
@@ -109,7 +109,7 @@ class _VideoPlayerPageState extends ConsumerState<VideoPlayerPage> {
       }
     } else if (error != null) {
       body = ErrorCard(
-        title: Text('Could not load video File...'),
+        title: const Text('Could not load video File...'),
         body: Text('Error while loading file: $error'),
       );
     } else {

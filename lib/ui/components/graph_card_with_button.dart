@@ -124,11 +124,11 @@ class _Chart extends StatelessWidget {
   Widget build(BuildContext context) {
     return LineChart(
       LineChartData(
-        gridData: FlGridData(show: false),
-        titlesData: FlTitlesData(show: false),
+        gridData: const FlGridData(show: false),
+        titlesData: const FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
         minY: 0,
-        lineTouchData: LineTouchData(enabled: false),
+        lineTouchData: const LineTouchData(enabled: false),
         lineBarsData: [
           LineChartBarData(
             spots: plotSpots,
@@ -136,7 +136,7 @@ class _Chart extends StatelessWidget {
             isCurved: true,
             barWidth: 0,
             isStrokeCapRound: true,
-            dotData: FlDotData(show: false),
+            dotData: const FlDotData(show: false),
             belowBarData: BarAreaData(
               show: true,
               color: graphColor,

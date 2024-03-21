@@ -136,9 +136,9 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      child: const SizedBox(
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 5),
+                      child: SizedBox(
                         width: 30,
                         height: 11,
                         child: DecoratedBox(
