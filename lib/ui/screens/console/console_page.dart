@@ -234,7 +234,7 @@ class _Console extends ConsumerWidget {
     final TextStyle textStyle;
     switch (tileTheme.style ?? theme.listTileTheme.style ?? ListTileStyle.list) {
       case ListTileStyle.drawer:
-        textStyle = theme.textTheme.bodyText1!;
+        textStyle = theme.textTheme.bodyLarge!;
         break;
       case ListTileStyle.list:
         textStyle = theme.textTheme.titleMedium!;

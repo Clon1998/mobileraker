@@ -83,7 +83,7 @@ class _Trailing extends ConsumerWidget {
             child: Icon(
               FlutterIcons.disconnect_ant,
               size: 20,
-              color: Theme.of(context).errorColor,
+              color: Theme.of(context).colorScheme.error,
             ),
           ),
           loading: () => FadingText('...'),
