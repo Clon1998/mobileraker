@@ -72,8 +72,8 @@ class DevPage extends HookConsumerWidget {
                     Row(
                       children: [
                         Expanded(child: Text(entry.value.name, style: Theme.of(context).textTheme.labelLarge)),
-                        IconButton(onPressed: () => null, icon: Icon(Icons.restart_alt)),
-                        IconButton(onPressed: () => null, icon: Icon(Icons.stop)),
+                        IconButton(onPressed: () {}, icon: Icon(Icons.restart_alt)),
+                        IconButton(onPressed: () {}, icon: Icon(Icons.stop)),
                       ],
                     ),
 
