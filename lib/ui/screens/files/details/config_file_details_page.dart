@@ -53,7 +53,7 @@ class _ConfigFileDetail extends HookConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(file.name, overflow: TextOverflow.fade),
-        actions: [
+        actions: const [
           // IconButton(onPressed: null, icon: Icon(Icons.live_help_outlined)),
           // IconButton(onPressed: null, icon: Icon(Icons.search))
         ],
