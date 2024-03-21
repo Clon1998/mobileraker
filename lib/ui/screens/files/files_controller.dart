@@ -320,7 +320,7 @@ class FilesPageController extends _$FilesPageController {
 
       try {
         await _fileService.createDir('${state.pathAsString}/$newName');
-      } on JRpcError catch (e) {
+      } on JRpcError {
         // _snackBarService.showCustomSnackBar(
         //     variant: SnackbarType.error,
         //     duration: const Duration(seconds: 5),
