@@ -49,5 +49,6 @@ class HeaterBed with _$HeaterBed, HeaterMixin {
     return HeaterBed.fromJson(mergedJson);
   }
 
+  @override
   String get name => 'heater_bed';
 }
