@@ -71,7 +71,7 @@ class ObicoTunnelService {
       return PlatformInfo.fromJson(response.data);
     } catch (e, s) {
       logger.i('Error while parsing PlatformInfo response from obico tunnel: ${response.data}', e, s);
-      throw ObicoException('Error while parsing response from Obico');
+      throw const ObicoException('Error while parsing response from Obico');
     }
   }
 

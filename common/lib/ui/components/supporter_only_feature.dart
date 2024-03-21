@@ -21,9 +21,9 @@ class SupporterOnlyFeature extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         header ??
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: const Icon(
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Icon(
                 FlutterIcons.hand_holding_heart_faw5s,
                 size: 32,
               ),

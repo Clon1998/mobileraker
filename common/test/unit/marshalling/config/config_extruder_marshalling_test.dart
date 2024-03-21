@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('ConfigExtruder.fromJson() creates ConfigExtruder instance from JSON', () {
-    final jsonString = '''
+    const jsonString = '''
         {
             "microsteps": 64,
             "sensor_type": "ATC Semitec 104GT-2",
@@ -62,7 +62,7 @@ void main() {
   });
 
   test('ConfigExtruder.fromJson() creates ConfigExtruder instance from JSON with combined sensor', () {
-    final jsonString = '''
+    const jsonString = '''
         {
             "microsteps": 64,
             "sensor_type": "ATC Semitec 104GT-2",

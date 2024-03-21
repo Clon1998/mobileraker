@@ -190,7 +190,7 @@ class PrinterService {
 
   Printer? _current;
 
-  bool _flag = false;
+  final bool _flag = false;
 
   set current(Printer nI) {
     if (disposed) {

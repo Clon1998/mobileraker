@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('ConfigOutput.fromJson() creates ConfigOutput instance from JSON', () {
-    final jsonString = '''
+    const jsonString = '''
         {
           "pwm": false,
           "pin": "EXP1_1",
