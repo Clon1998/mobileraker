@@ -96,7 +96,7 @@ class GadgetIndicator extends ConsumerWidget {
 
 extension _SvgSource on GadgetStatus {
   String get statusSvg {
-    return switch (this.statusColor) {
+    return switch (statusColor) {
       'g' => 'assets/vector/gadget/gadget_green.svg',
       'y' => 'assets/vector/gadget/gadget_yellow.svg',
       'r' => 'assets/vector/gadget/gadget_red.svg',
