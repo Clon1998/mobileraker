@@ -572,7 +572,7 @@ class MachineService {
     String? octoPrinterId;
     try {
       octoPrinterId = await moonrakerDatabaseClient.getDatabaseItem('octoeverywhere', key: 'public.printerId');
-    } on WebSocketException catch (e, s) {
+    } on WebSocketException catch (e) {
       logger.w('Rpc Client was not connected, could not fetch octo.printerId. User can select by himself!');
     }
 
@@ -584,7 +584,7 @@ class MachineService {
     String? obicoPrinterId;
     try {
       obicoPrinterId = await moonrakerDatabaseClient.getDatabaseItem('obico', key: 'printer_id');
-    } on WebSocketException catch (e, s) {
+    } on WebSocketException catch (e) {
       logger.w('Rpc Client was not connected, could not fetch obico.printer_id. User can select by himself!');
     }
 

@@ -52,7 +52,7 @@ class MoonrakerDatabaseClient {
     try {
       RpcResponse blockingResponse = await _jsonRpcClient.sendJRpcMethod('server.database.get_item', params: params);
       return blockingResponse.result['value'];
-    } on JRpcError catch (e, s) {
+    } on JRpcError catch (e) {
       logger.w('Could not retrieve key: $key', e, StackTrace.current);
     }
     return null;
