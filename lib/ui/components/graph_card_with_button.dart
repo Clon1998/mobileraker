@@ -30,15 +30,10 @@ class GraphCardWithButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var themeData = Theme.of(context);
-    var _backgroundColor =
-        backgroundColor ?? themeData.colorScheme.surfaceVariant;
-    var _graphColor = graphColor ??
-        ((Theme.of(context).brightness == Brightness.dark)
-            ? _backgroundColor.brighten(15)
-            : _backgroundColor.darken(15));
-    var _onBackgroundColor =
-        (ThemeData.estimateBrightnessForColor(_backgroundColor) ==
-                Brightness.dark
+    var bgColor = backgroundColor ?? themeData.colorScheme.surfaceVariant;
+    var gcColor =
+        graphColor ?? ((Theme.of(context).brightness == Brightness.dark) ? bgColor.brighten(15) : bgColor.darken(15));
+    var onBackgroundColor = (ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
             ? Colors.white
                 .blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
             : Colors.black
@@ -52,7 +47,7 @@ class GraphCardWithButton extends StatelessWidget {
           Container(
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-              color: _backgroundColor,
+              color: bgColor,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(radius)),
             ),
             child: Stack(
@@ -63,7 +58,7 @@ class GraphCardWithButton extends StatelessWidget {
                 Positioned.fill(
                   top: radius,
                   child: _Chart(
-                    graphColor: _graphColor,
+                    graphColor: gcColor,
                     plotSpots: plotSpots,
                   ),
                 ),
@@ -72,13 +67,13 @@ class GraphCardWithButton extends StatelessWidget {
                   child: Theme(
                     data: themeData.copyWith(
                       textTheme: themeData.textTheme.apply(
-                        bodyColor: _onBackgroundColor,
-                        displayColor: _onBackgroundColor,
+                        bodyColor: onBackgroundColor,
+                        displayColor: onBackgroundColor,
                       ),
-                      iconTheme: themeData.iconTheme.copyWith(color: _onBackgroundColor),
+                      iconTheme: themeData.iconTheme.copyWith(color: onBackgroundColor),
                     ),
                     child: DefaultTextStyle(
-                      style: TextStyle(color: _onBackgroundColor),
+                      style: TextStyle(color: onBackgroundColor),
                       child: Builder(builder: builder),
                     ),
                   ),

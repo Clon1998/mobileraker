@@ -27,8 +27,8 @@ class CardWithSwitch extends HookWidget {
   @override
   Widget build(BuildContext context) {
     var themeData = Theme.of(context);
-    var _backgroundColor = backgroundColor ?? themeData.colorScheme.surfaceVariant;
-    var _onBackgroundColor = (ThemeData.estimateBrightnessForColor(_backgroundColor) == Brightness.dark
+    var bgColor = backgroundColor ?? themeData.colorScheme.surfaceVariant;
+    var onBackgroundColor = (ThemeData.estimateBrightnessForColor(bgColor) == Brightness.dark
         ? Colors.white.blendAlpha(themeData.colorScheme.primary.brighten(20), 0)
         : Colors.black.blendAlpha(themeData.colorScheme.primary.brighten(20), 0));
 
@@ -95,7 +95,7 @@ class CardWithSwitch extends HookWidget {
           Container(
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-              color: _backgroundColor,
+              color: bgColor,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(radius)),
             ),
             child: Padding(
@@ -103,13 +103,13 @@ class CardWithSwitch extends HookWidget {
               child: Theme(
                 data: themeData.copyWith(
                   textTheme: themeData.textTheme.apply(
-                    bodyColor: _onBackgroundColor,
-                    displayColor: _onBackgroundColor,
+                    bodyColor: onBackgroundColor,
+                    displayColor: onBackgroundColor,
                   ),
-                  iconTheme: themeData.iconTheme.copyWith(color: _onBackgroundColor),
+                  iconTheme: themeData.iconTheme.copyWith(color: onBackgroundColor),
                 ),
                 child: DefaultTextStyle(
-                  style: TextStyle(color: _onBackgroundColor),
+                  style: TextStyle(color: onBackgroundColor),
                   child: Builder(builder: builder),
                 ),
               ),
