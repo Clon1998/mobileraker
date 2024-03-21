@@ -103,6 +103,7 @@ class _UserBottomSheetState extends State<UserBottomSheet> {
                   curve: Curves.ease,
                 );
               }
+              return null;
             },
             [_viewInsets.bottom],
           );
