@@ -266,7 +266,7 @@
         "ems_confirm_hint": "Show a confirmation dialog before sending an emergency-stop command",
         "always_baby": "Z-Offset Card Mode",
         "always_baby_hint": "Always show the Z-Offset card on the dashboard",
-        "num_edit": "Number Entry Mode",
+        "num_edit": "Number Input Mode",
         "num_edit_hint": "Use a number keyboard for number inputs instead of sliders",
         "start_with_overview": "Set @:pages.overview.title as Startup Page",
         "start_with_overview_hint": "Start the app with the overview page instead of the active printer's dashboard",
@@ -283,7 +283,9 @@
         "system_theme_mode": "Theme Brightness",
         "printer_theme_warning": "You are currently using a printer-specific theme. To modify it, go to the printer's settings.",
         "filament_sensor_dialog": "Show Filament Sensor Alerts",
-        "filament_sensor_dialog_hint": "Show a dialog when a filament sensor is triggered"
+        "filament_sensor_dialog_hint": "Show a dialog when a filament sensor is triggered",
+        "confirm_gcode": "Confirm Macro Execution",
+        "confirm_gcode_hint": "Always show a confirmation dialog before executing a GCode-Macro on the dashboard"
       },
       "notification": {
         "title": "Notification",
@@ -684,7 +686,9 @@
       "body": "You can either enter an IP, URL or full URI to your webinterface or directly to the websocket instance provided by moonraker.\n\nValid Examples:"
     },
     "gcode_params": {
-      "hint": "Hint: You can also long press if you want to submit the macro with default values!"
+      "hint": "Hint: You can also long press if you want to submit the macro with default values!",
+      "confirm_title": "Execute {}?",
+      "confirm_body": "You are about to execute the macro '{}'.\n\nConfirm your action."
     },
     "rgbw": {
       "recent_colors": "Recent Colors"

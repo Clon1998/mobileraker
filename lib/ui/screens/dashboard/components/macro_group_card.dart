@@ -280,7 +280,9 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
   }
 
   onMacroPressed(ConfigGcodeMacro macro) async {
-    if (macro.params.isNotEmpty) {
+    var alwaysConfirm = _settingService.readBool(AppSettingKeys.confirmMacroExecution, false);
+
+    if (macro.params.isNotEmpty || alwaysConfirm) {
       DialogResponse? response = await _dialogService.show(
         DialogRequest(type: DialogType.gcodeParams, data: macro),
       );

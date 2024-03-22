@@ -119,6 +119,23 @@ class SettingPage extends ConsumerWidget {
                 ),
                 activeColor: themeData.colorScheme.primary,
               ),
+              FormBuilderSwitch(
+                name: 'confirmGCode',
+                title: const Text('pages.setting.general.confirm_gcode').tr(),
+                subtitle: const Text('pages.setting.general.confirm_gcode_hint').tr(),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.confirmMacroExecution,
+                  b ?? false,
+                ),
+                initialValue: ref.read(
+                  boolSettingProvider(AppSettingKeys.confirmMacroExecution),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
+                activeColor: themeData.colorScheme.primary,
+              ),
               const _SectionHeader(title: 'UI'),
               const _ThemeSelector(),
               const _ThemeModeSelector(),

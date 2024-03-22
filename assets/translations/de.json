@@ -283,7 +283,9 @@
         "system_theme_mode": "Design-Helligkeit",
         "printer_theme_warning": "Sie verwenden derzeit ein druckerspezifisches Design. Um dies zu ändern, gehen Sie zu den Druckereinstellungen.",
         "filament_sensor_dialog": "Filamentsensor Dialog",
-        "filament_sensor_dialog_hint": "Zeige einen Dialog, wenn ein Filamentsensor ausgelöst wird"
+        "filament_sensor_dialog_hint": "Zeige einen Dialog, wenn ein Filamentsensor ausgelöst wird",
+        "confirm_gcode": "Bestätige Makro-Ausführung",
+        "confirm_gcode_hint": "Zeige immer einen Bestätigungsdialog, bevor ein Makro auf dem Dashboard ausgeführt wird"
       },
       "notification": {
         "title": "Benachrichtigung",
@@ -684,7 +686,9 @@
       "body": "Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer  Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz Adresse eingeben. \n\nGültige Beispiele:"
     },
     "gcode_params": {
-      "hint": "Tipp: Sie können auch lange drücken, um das Makro mit Standardwerten zu senden!"
+      "hint": "Tipp: Sie können auch lange drücken, um das Makro mit Standardwerten zu senden!",
+      "confirm_title": "{} ausführen?",
+      "confirm_body": "Sie sind im Begriff, das Makro '{}' auszuführen.\n\nBestätigen Sie Ihre Aktion."
     },
     "rgbw": {
       "recent_colors": "Letzte Farben"

@@ -119,6 +119,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   groupSliders('groupSliders'),
   filamentSensorDialog('filamentSensorDialog'),
   receiveMarketingNotifications('receiveMarketingNotifications'),
+  confirmMacroExecution('confirmMacroExecution'),
   ;
 
   @override
