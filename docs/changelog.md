@@ -6,6 +6,8 @@
 
 - Added support for self hosted Obico instances. Users can now add their own Obico instance to the app and use it to
   connect to their printers. [#294](https://github.com/Clon1998/mobileraker/issues/294)
+- Added a setting that allows users to configure if the macro execution should be confirmed. If enabled, the app will
+  show a confirmation dialog before executing a macro via the dashboard.
 
 ### Bug Fixes
 
