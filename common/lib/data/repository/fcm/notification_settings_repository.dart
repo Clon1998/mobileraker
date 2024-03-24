@@ -14,5 +14,7 @@ abstract class NotificationSettingsRepository {
 
   Future<void> updateStateSettings(String machineId, Set<PrintState> state);
 
+  Future<void> updateAndroidProgressbarSettings(String machineId, bool enabled);
+
   Future<NotificationSettings?> get(String machineId);
 }

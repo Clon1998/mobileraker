@@ -324,6 +324,20 @@ class _NotificationSection extends ConsumerWidget {
             ),
             activeColor: themeData.colorScheme.primary,
           ),
+        if (Platform.isAndroid)
+          FormBuilderSwitch(
+            name: 'progressbarNoti',
+            title: const Text('pages.setting.notification.use_progressbar_notification').tr(),
+            subtitle: const Text('pages.setting.notification.use_progressbar_notification_helper').tr(),
+            onChanged: (b) =>
+                ref.read(notificationProgressSettingControllerProvider.notifier).onProgressbarChanged(b ?? false),
+            initialValue: ref.read(boolSettingProvider(AppSettingKeys.useProgressbarNotifications, true)),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              isCollapsed: true,
+            ),
+            activeColor: themeData.colorScheme.primary,
+          ),
         const _ProgressNotificationSettingField(),
         const _StateNotificationSettingField(),
         const _OptOutOfAdPush(),

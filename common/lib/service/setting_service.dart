@@ -120,6 +120,7 @@ enum AppSettingKeys implements KeyValueStoreKey {
   filamentSensorDialog('filamentSensorDialog'),
   receiveMarketingNotifications('receiveMarketingNotifications'),
   confirmMacroExecution('confirmMacroExecution'),
+  useProgressbarNotifications('useProgressNotifications'),
   ;
 
   @override

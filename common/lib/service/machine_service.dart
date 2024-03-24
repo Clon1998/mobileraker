@@ -371,10 +371,11 @@ class MachineService {
     required Machine machine,
     ProgressNotificationMode? mode,
     Set<PrintState>? printStates,
+    bool? progressbar,
   }) async {
     var keepAliveExternally = ref.keepAliveExternally(notificationSettingsRepositoryProvider(machine.uuid));
     try {
-      var notificationSettingsRepository = ref.read(notificationSettingsRepositoryProvider(machine.uuid));
+      var notificationSettingsRepository = keepAliveExternally.read();
 
       logger.i('Updating FCM Config for machine ${machine.name} (${machine.uuid})');
 
@@ -393,6 +394,10 @@ class MachineService {
       }
       if (printStates != null) {
         var future = notificationSettingsRepository.updateStateSettings(machine.uuid, printStates);
+        updateReq.add(future);
+      }
+      if (progressbar != null) {
+        var future = notificationSettingsRepository.updateAndroidProgressbarSettings(machine.uuid, progressbar);
         updateReq.add(future);
       }
       if (updateReq.isNotEmpty) await Future.wait(updateReq);

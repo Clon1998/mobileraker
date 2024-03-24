@@ -304,7 +304,9 @@
         "enable_live_activity": "Enable Live Activity",
         "enable_live_activity_helper": "Enables the usage of live activity in addition to the default progress notifications",
         "opt_out_marketing": "Marketing Notifications",
-        "opt_out_marketing_helper": "Receive updates on sales and promotions"
+        "opt_out_marketing_helper": "Receive updates on sales and promotions",
+        "use_progressbar_notification": "Enable Progressbar Notification",
+        "use_progressbar_notification_helper": "Enables the usage of a progressbar notification in addition to the default text-based progress notifications"
       },
       "developer": {
         "title": "Developer",
