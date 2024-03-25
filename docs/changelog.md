@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.6.14] - 2024-03-2x
+## [2.6.14] - 2024-03-25
 
 ### Changed Features
 
