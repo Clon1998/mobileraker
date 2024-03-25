@@ -8,6 +8,7 @@
   connect to their printers. [#294](https://github.com/Clon1998/mobileraker/issues/294)
 - Added a setting that allows users to configure if the macro execution should be confirmed. If enabled, the app will
   show a confirmation dialog before executing a macro via the dashboard.
+- [Android] Added a setting to enable/disable the progressbar notification for print progress on Android.
 
 ### Bug Fixes
 
