@@ -54,7 +54,7 @@ final importSources = FutureProvider.autoDispose<List<ImportMachineSettingsResul
         return null;
       }
 
-      MachineSettings machineSettings = await ref.watch(machineServiceProvider).fetchSettings(e);
+      MachineSettings machineSettings = await ref.watch(machineServiceProvider).fetchSettings(machine: e);
       return ImportMachineSettingsResult(e, machineSettings);
     } catch (er) {
       logger.w('Error while trying to fetch settings for ${e.logNameExtended} !', er);

@@ -196,10 +196,12 @@ class MachineService {
     return;
   }
 
-  Future<MachineSettings> fetchSettings(Machine machine) async {
+  Future<MachineSettings> fetchSettings({Machine? machine, String? machineUUID}) async {
+    assert(machine != null || machineUUID != null, 'Either machine or machineUUID must be provided!');
     // await _tryMigrateSettings(machine);
     MachineSettings machineSettings =
-        await ref.read(machineSettingsRepositoryProvider(machine.uuid)).get() ?? MachineSettings.fallback();
+        await ref.read(machineSettingsRepositoryProvider(machineUUID ?? machine!.uuid)).get() ??
+            MachineSettings.fallback();
 
     return machineSettings;
   }

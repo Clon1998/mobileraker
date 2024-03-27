@@ -62,7 +62,7 @@ Future<MachineSettings> machineRemoteSettings(
   MachineRemoteSettingsRef ref,
 ) {
   var machine = ref.watch(currentlyEditingProvider);
-  return ref.watch(machineServiceProvider).fetchSettings(machine);
+  return ref.watch(machineServiceProvider).fetchSettings(machine: machine);
 }
 
 @riverpod
