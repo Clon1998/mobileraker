@@ -3,8 +3,7 @@
  * All rights reserved.
  */
 
-import 'package:common/util/extensions/iterable_extension.dart';
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import 'macro_group.dart';
@@ -29,8 +28,7 @@ class MachineSettings extends StampedEntity {
       this.macroGroups = const []})
       : super(created, lastModified ?? DateTime.now());
 
-  MachineSettings.fallback()
-      : this(created: DateTime.now(), lastModified: DateTime.now());
+  MachineSettings.fallback() : this(created: DateTime.now(), lastModified: DateTime.now());
 
   List<bool> inverts; // [X,Y,Z]
   int speedXY;
@@ -42,8 +40,7 @@ class MachineSettings extends StampedEntity {
   List<MacroGroup> macroGroups;
   List<TemperaturePreset> temperaturePresets;
 
-  factory MachineSettings.fromJson(Map<String, dynamic> json) =>
-      _$MachineSettingsFromJson(json);
+  factory MachineSettings.fromJson(Map<String, dynamic> json) => _$MachineSettingsFromJson(json);
 
   Map<String, dynamic> toJson() => _$MachineSettingsToJson(this);
 
@@ -53,28 +50,30 @@ class MachineSettings extends StampedEntity {
       super == other &&
           other is MachineSettings &&
           runtimeType == other.runtimeType &&
-          listEquals(inverts, other.inverts) &&
-          speedXY == other.speedXY &&
-          speedZ == other.speedZ &&
-          extrudeFeedrate == other.extrudeFeedrate &&
-          listEquals(moveSteps, other.moveSteps) &&
-          listEquals(babySteps, other.babySteps) &&
-          listEquals(extrudeSteps, other.extrudeSteps) &&
-          listEquals(macroGroups, other.macroGroups) &&
-          listEquals(temperaturePresets, other.temperaturePresets);
+          (identical(other.speedXY, speedXY) || speedXY == other.speedXY) &&
+          (identical(other.speedZ, speedZ) || speedZ == other.speedZ) &&
+          (identical(other.extrudeFeedrate, extrudeFeedrate) || extrudeFeedrate == other.extrudeFeedrate) &&
+          const DeepCollectionEquality().equals(other.inverts, inverts) &&
+          const DeepCollectionEquality().equals(other.moveSteps, moveSteps) &&
+          const DeepCollectionEquality().equals(other.babySteps, babySteps) &&
+          const DeepCollectionEquality().equals(other.extrudeSteps, extrudeSteps) &&
+          const DeepCollectionEquality().equals(other.macroGroups, macroGroups) &&
+          const DeepCollectionEquality().equals(other.temperaturePresets, temperaturePresets);
 
   @override
-  int get hashCode =>
-      super.hashCode ^
-      inverts.hashIterable ^
-      speedXY.hashCode ^
-      speedZ.hashCode ^
-      extrudeFeedrate.hashCode ^
-      moveSteps.hashIterable ^
-      babySteps.hashIterable ^
-      extrudeSteps.hashIterable ^
-      macroGroups.hashIterable ^
-      temperaturePresets.hashIterable;
+  int get hashCode => Object.hash(
+        super.hashCode,
+        runtimeType,
+        speedXY,
+        speedZ,
+        extrudeFeedrate,
+        const DeepCollectionEquality().hash(inverts),
+        const DeepCollectionEquality().hash(moveSteps),
+        const DeepCollectionEquality().hash(babySteps),
+        const DeepCollectionEquality().hash(extrudeSteps),
+        const DeepCollectionEquality().hash(macroGroups),
+        const DeepCollectionEquality().hash(temperaturePresets),
+      );
 
   @override
   String toString() {
