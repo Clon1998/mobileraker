@@ -19,5 +19,5 @@ class StampedEntity {
           lastModified == other.lastModified;
 
   @override
-  int get hashCode => created.hashCode ^ lastModified.hashCode;
+  int get hashCode => Object.hash(created, lastModified);
 }
