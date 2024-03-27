@@ -65,7 +65,11 @@ class _DashboardView extends HookConsumerWidget {
     ref.listen(selectedMachineProvider, (previous, next) {
       if (previous == null) return;
       if (previous.valueOrNull?.uuid != next.valueOrNull?.uuid) {
-        pageController.jumpToPage(0);
+        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+          if (pageController.positions.length == 1) {
+            pageController.jumpToPage(0);
+          }
+        });
       }
     });
 
