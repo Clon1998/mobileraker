@@ -69,4 +69,7 @@ extension AsyncValueX<T> on AsyncValue<T> {
   AsyncValue<T> toError(Object error, StackTrace stackTrace) {
     return AsyncValue<T>.error(error, stackTrace).copyWithPrevious(this);
   }
+
+  // Wir laden und es ist kein reload (.watch forces refresh)
+  bool get isLoadingOrRefreshWithError => (isLoading && !isReloading) || (hasError && isLoading);
 }
