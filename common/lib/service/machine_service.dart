@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/octoeverywhere/app_portal_result.dart';
+import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
 import 'package:common/data/model/model_event.dart';
@@ -31,7 +32,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../data/dto/fcm/companion_meta.dart';
-import '../data/dto/server/klipper.dart';
 import '../data/model/moonraker_db/fcm/device_fcm_settings.dart';
 import '../data/model/moonraker_db/fcm/notification_settings.dart';
 import '../data/model/moonraker_db/gcode_macro.dart';
@@ -134,18 +134,50 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 }
 
 @riverpod
-Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) async* {
+Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) {
   ref.keepAliveFor();
 
-  var machine = await ref.watch(machineProvider(machineUUID).future);
-  if (machine == null) return;
+  ref.listenSelf((previous, next) {
+    logger.wtf('machineSettings updated to isLoading: ${next.isLoading}, $next');
+  });
 
-  var klippyState = await ref.watch(klipperSelectedProvider.selectAsync((data) => data.klippyState));
-  if (klippyState != KlipperState.ready) return;
+  StreamController<MachineSettings> streamController = StreamController();
+  ref.onDispose(() {
+    streamController.close();
+  });
 
-  // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
-  var fetchSettings = await ref.read(machineServiceProvider).fetchSettings(machine);
-  yield fetchSettings;
+  ref.listen(
+    klipperProvider(machineUUID),
+    (previous, next) async {
+      switch (next) {
+        // Normal data
+        case AsyncValue(
+            hasValue: true,
+            hasError: false,
+            isLoading: false,
+            value: KlipperInstance(klippyState: KlipperState.ready)
+          ):
+          try {
+            var fetchSettings = await ref.read(machineServiceProvider).fetchSettings(machineUUID: machineUUID);
+            streamController.add(fetchSettings);
+          } catch (e) {
+            logger.e('Error while fetching settings', e);
+            streamController.addError(e);
+          }
+          break;
+        // We have an error
+        case AsyncValue(hasError: true, isLoading: false, error: var err, stackTrace: var trace):
+          if (err != null) {
+            streamController.addError(err, trace);
+          }
+
+        case AsyncValue(isLoading: true) when previous != null:
+          ref.invalidateSelf();
+      }
+    },
+    fireImmediately: true,
+  );
+  return streamController.stream.distinct();
 }
 
 @riverpod
@@ -512,7 +544,7 @@ class MachineService {
     logger.i('Updating Default Macros for "${machine.name}(${machine.wsUri.obfuscate()})"!');
 
     // Fetch the machine settings
-    final machineSettings = await fetchSettings(machine);
+    final machineSettings = await fetchSettings(machineUUID: machineUUID);
 
     // Filter out macros that start with '_'
     final filteredRawMacros = macros.where((element) => !element.startsWith('_')).toList();

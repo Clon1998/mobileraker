@@ -39,10 +39,13 @@ class TemperaturePresetCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var showLoading = ref.watch(
-      _controllerProvider(machineUUID, onPresetApplied).select((value) => value.isLoading && !value.isReloading),
+      _temperaturePresetControllerProvider(machineUUID, onPresetApplied),
     );
-    if (showLoading) {
+    if (showLoading.isLoadingOrRefreshWithError) {
       return const HeaterSensorPresetCardLoading();
+    }
+    if (showLoading.valueOrNull == null) {
+      return const SizedBox.shrink();
     }
 
     return Card(
@@ -72,13 +75,14 @@ class _CardBody extends ConsumerWidget {
     required this.machineUUID,
     this.onPresetApplied,
   });
+
   final String machineUUID;
   final VoidCallback? onPresetApplied;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_ControllerProvider(machineUUID, onPresetApplied).requireValue());
-    var controller = ref.watch(_ControllerProvider(machineUUID, onPresetApplied).notifier);
+    var model = ref.watch(_temperaturePresetControllerProvider(machineUUID, onPresetApplied).requireValue());
+    var controller = ref.watch(_temperaturePresetControllerProvider(machineUUID, onPresetApplied).notifier);
 
     var coolOf = _PresetTile(
       name: 'pages.dashboard.general.temp_preset_card.cooloff'.tr(),
@@ -157,7 +161,7 @@ class _PresetTile extends StatelessWidget {
 }
 
 @riverpod
-class _Controller extends _$Controller {
+class _TemperaturePresetController extends _$TemperaturePresetController {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   @override
@@ -165,21 +169,18 @@ class _Controller extends _$Controller {
     String machineUUID,
     VoidCallback? onPresetApplied,
   ) async* {
+    ref.keepAliveFor();
+
     var printerProviderr = printerProvider(machineUUID);
     var klipperProviderr = klipperProvider(machineUUID);
     var machineSettingsProviderr = machineSettingsProvider(machineUUID);
-    var klippyCanReceiveCommand = ref.watchAsSubject(
-      klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands),
-    );
+    var klippyCanReceiveCommand =
+        ref.watchAsSubject(klipperProviderr.selectAs((value) => value.klippyCanReceiveCommands));
     var isPrintingOrPaused = ref.watchAsSubject(printerProviderr.selectAs(
       (value) => {PrintState.printing, PrintState.paused}.contains(value.print.state),
     ));
-    var hasPrintBed = ref.watchAsSubject(
-      printerProviderr.selectAs((value) => value.heaterBed != null),
-    );
-    var temperaturePresets = ref.watchAsSubject(
-      machineSettingsProviderr.selectAs((data) => data.temperaturePresets),
-    );
+    var hasPrintBed = ref.watchAsSubject(printerProviderr.selectAs((value) => value.heaterBed != null));
+    var temperaturePresets = ref.watchAsSubject(machineSettingsProviderr.selectAs((data) => data.temperaturePresets));
 
     yield* Rx.combineLatest4(
       klippyCanReceiveCommand,
