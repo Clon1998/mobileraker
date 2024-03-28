@@ -22,9 +22,6 @@
 		CDCC28042AAB9A0A00116FFF /* MobilrakerLiveActivityExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CDCC280C2AAB9F2400116FFF /* PrintingLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCC280A2AAB9E0100116FFF /* PrintingLiveActivity.swift */; };
 		CDCC280F2AABA70000116FFF /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDCC280E2AABA70000116FFF /* CircularProgressView.swift */; };
-		CDD3CCE42BB57BFC00DE9A0C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CDD3CCE22BB57AD700DE9A0C /* PrivacyInfo.xcprivacy */; };
-		CDD3CCE62BB57BFF00DE9A0C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CDD3CCE22BB57AD700DE9A0C /* PrivacyInfo.xcprivacy */; };
-		CDD3CCE72BB57C0000DE9A0C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = CDD3CCE22BB57AD700DE9A0C /* PrivacyInfo.xcprivacy */; };
 		CDF5F8F72B4858120007F060 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF5F8F62B4858120007F060 /* NotificationService.swift */; };
 		CDF5F8FB2B4858120007F060 /* MobilerakerNotificationExtention.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CDF5F8F42B4858120007F060 /* MobilerakerNotificationExtention.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CDF967FC2AB5E2A900D7FF15 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDF967FB2AB5E2A900D7FF15 /* Utils.swift */; };
@@ -375,7 +372,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDD3CCE42BB57BFC00DE9A0C /* PrivacyInfo.xcprivacy in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
@@ -388,7 +384,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDD3CCE72BB57C0000DE9A0C /* PrivacyInfo.xcprivacy in Resources */,
 				CDCC28002AAB9A0A00116FFF /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -397,7 +392,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CDD3CCE62BB57BFF00DE9A0C /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
