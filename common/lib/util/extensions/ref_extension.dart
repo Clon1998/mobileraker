@@ -217,3 +217,11 @@ extension MobilerakerAutoDispose on AutoDisposeRef {
     return link;
   }
 }
+
+extension MobilerakerWidgetRef on WidgetRef {
+  /// Helper method to externally keep a provider alive without the need to watch it!
+  ProviderSubscription<T> keepAliveExternally<T>(ProviderListenable<T> provider) {
+    var providerSubscription = listenManual(provider, (_, __) {});
+    return providerSubscription;
+  }
+}
