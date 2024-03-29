@@ -55,6 +55,7 @@ dependencies:
   firebase_remote_config: ^4.3.18
   cloud_firestore: ^4.15.9
 
+
   firebase_auth: ^4.17.9
   firebase_ui_auth: ^1.11.0
   firebase_ui_oauth_google: ^1.2.15

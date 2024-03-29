@@ -70,10 +70,6 @@ class LiveActivityService {
   StreamSubscription<ModelEvent<Machine>>? _machineUpdatesListener;
   StreamSubscription<ActivityUpdate>? _activityUpdateStreamSubscription;
 
-  final Completer<bool> _initialized = Completer<bool>();
-
-  Future<bool> get initialized => _initialized.future;
-
   bool _disableClearing = false;
 
   Future<void> initialize() async {
@@ -87,8 +83,6 @@ class LiveActivityService {
         reason: 'Error while setting up the LiveActivityService',
       );
       logger.w('Error encountered while trying to setup the LiveActivityService.', e, s);
-    } finally {
-      _initialized.complete(true);
     }
   }
 
@@ -293,35 +287,33 @@ class LiveActivityService {
   Future<void> _clearUnknownLiveActivities() async {
     logger.i('Ending all unknown LiveActivities');
 
-    // Create a map of locally tracked live activities by swapping value and key activityId -> machineUuid
-    var activityIdMachine = _machineLiveActivityMap.map((key, value) => MapEntry(value.id, key));
+    // Get all activities, if not provided
+    var allActivities = await _liveActivityAPI.getAllActivities();
+    logger.i('LiveactivityAPI reported ${allActivities.length} running activities');
+
+    // Create a map that maps the activity id to the machine uuid (reverse of the local machine activity map)
+    var activityIdMachine = {for (var entry in _machineLiveActivityMap.entries) entry.value.id: entry.key};
 
     logger.i('Found ${activityIdMachine.length} locally tracked LiveActivities');
-    // logger.i('activityIdMachine: $activityIdMachine');
 
-    // Get all activities
-    var allActivities = await _liveActivityAPI.getAllActivitiesIds();
-    logger.i('Found ${allActivities.length} LiveActivities');
-    // Get the state of all activities
-    var activityAndStateList =
-        await Future.wait(allActivities.map((e) => _liveActivityAPI.getActivityState(e).then((state) => (e, state))));
-    // logger.i('activityAndStateList: $activityAndStateList');
 
     // Filter out all activities not known to the app -> The api/app can not address anymore
-    var unaddressableActivities = activityAndStateList.whereNot((e) => activityIdMachine.containsKey(e.$1));
 
     // End them and remove them from the local machine activity map
     List<Future> endActivities = [];
-    for (var activityData in unaddressableActivities) {
-      endActivities.add(_liveActivityAPI.endActivity(activityData.$1));
+    for (var activity in allActivities.entries) {
+      var canBeAddressed = activity.value == LiveActivityState.active || activity.value == LiveActivityState.stale;
+      if (canBeAddressed && activityIdMachine.containsKey(activity.key)) continue;
 
-      var machineId = activityIdMachine[activityData.$1];
+      endActivities.add(_liveActivityAPI.endActivity(activity.key));
+
+      var machineId = activityIdMachine[activity.key];
       if (machineId != null) _machineLiveActivityMap.remove(machineId);
     }
 
     // Ensure we wait for all activities to be ended
     await Future.wait(endActivities);
-    logger.i('Cleared unknown LiveActivities, total ended: ${unaddressableActivities.length}');
+    logger.i('Cleared unknown LiveActivities, total ended: ${endActivities.length}');
     _backupLiveActivityMap();
   }
 
@@ -352,6 +344,11 @@ class LiveActivityService {
       return null;
     }
 
+    if (_machineLiveActivityMap.length >= 5) {
+      logger.i('Not allowed to create a new LiveActivity for ${machine.name} since we are at the limit of 5');
+      return null;
+    }
+
     // Okay I guess we need to create a new activity for this machine
     var activityId = await _liveActivityAPI.createActivity(activityData, removeWhenAppIsKilled: true);
     if (activityId != null) {
@@ -373,11 +370,27 @@ class LiveActivityService {
         UtilityKeys.liveActivityStore, _machineLiveActivityMap.map((key, value) => MapEntry(key, value.id)));
   }
 
-  _restoreActivityMap() {
-    // This is not required any more since the live activities are now killed if the app is killed
-    var restored = _settingsService.readMap<String, String>(UtilityKeys.liveActivityStore);
-    _machineLiveActivityMap.addAll(restored.map((key, value) => MapEntry(key, _ActivityEntry(value))));
-    logger.i('Restored ${restored.length} LiveActivities from storage: $restored');
+  _restoreActivityMap() async {
+    _machineLiveActivityMap.clear();
+    // Get all current activity ids
+    Map<String, LiveActivityState> createdActivities = await _liveActivityAPI.getAllActivities();
+
+    // Get the last known mapping of machine uuid to activity id
+    var lastMappings = _settingsService.readMap<String, String>(UtilityKeys.liveActivityStore);
+
+    // Filter out all mappings that are not in the current activity ids and are not active or stale
+    var updatedMappings = {
+      for (var entry in lastMappings.entries)
+        if (createdActivities[entry.value] case (LiveActivityState.active || LiveActivityState.stale))
+          entry.key: _ActivityEntry(entry.value)
+    };
+
+    _machineLiveActivityMap.addAll(updatedMappings);
+    logger.i('Restored ${updatedMappings.length} LiveActivities from storage: $lastMappings');
+    _backupLiveActivityMap();
+
+    // Close all activities for which we could not find a mapping
+    _clearUnknownLiveActivities();
   }
 
   dispose() {
@@ -387,7 +400,6 @@ class LiveActivityService {
     for (var element in _printerListeners.values) {
       element.close();
     }
-    _initialized.completeError(StateError('Disposed notification service before it was initialized!'));
   }
 
   disableClearing() {
