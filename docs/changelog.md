@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.6.15] - 2024-04-xx
+
+### Bug Fixes
+
+- Fixed an issue that, in some cases, prevented the app from refreshing a printer during a pull-to-refresh action.
+- The webcam card no longer displays an error if no webcams were found.
+
 ## [2.6.14] - 2024-03-25
 
 ### Changed Features

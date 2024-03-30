@@ -273,7 +273,13 @@ class _WebcamCardController extends _$WebcamCardController {
     var allWebcams = await ref.watch(allWebcamInfosProvider(machineUUID).future);
 
     var readInt = _settingService.readInt(_settingsKey, 0);
-    var idx = (state.whenData((value) => value.selected).valueOrNull ?? readInt).clamp(0, allWebcams.length - 1);
+    var idx = (state.whenData((value) => value.selected).valueOrNull ?? readInt);
+
+    if (allWebcams.isEmpty) {
+      idx = 0;
+    } else {
+      idx = idx.clamp(0, allWebcams.length - 1);
+    }
 
     if (_wroteValue != allWebcams.isNotEmpty) {
       _wroteValue = allWebcams.isNotEmpty;
