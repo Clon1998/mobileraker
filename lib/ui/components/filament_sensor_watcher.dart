@@ -25,10 +25,10 @@ class FilamentSensorWatcher extends StatefulHookConsumerWidget {
   final String machineUUID;
 
   @override
-  ConsumerState<FilamentSensorWatcher> createState() => _PrinterCalibrationWatcherState();
+  ConsumerState<FilamentSensorWatcher> createState() => _FilamentSensorWatcherState();
 }
 
-class _PrinterCalibrationWatcherState extends ConsumerState<FilamentSensorWatcher> {
+class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
   bool _enabled = true;
