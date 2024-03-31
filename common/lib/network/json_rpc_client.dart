@@ -252,6 +252,7 @@ class JsonRpcClient {
 
     if (_disposed) {
       logger.i('$logPrefix Client is already disposed, aborting opening of websocket');
+      curState = ClientState.disconnected;
       return false;
     }
 
