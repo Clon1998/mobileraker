@@ -250,6 +250,11 @@ class JsonRpcClient {
       }
     }
 
+    if (_disposed) {
+      logger.i('$logPrefix Client is already disposed, aborting opening of websocket');
+      return false;
+    }
+
     final ioChannel = IOWebSocketChannel.connect(
       uri,
       headers: headers,
