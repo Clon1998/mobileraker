@@ -59,14 +59,10 @@ class LiveActivityService {
   final SettingService _settingsService;
   final LiveActivities _liveActivityAPI;
   final NotificationsRepository _notificationsRepository;
-
   final Map<String, ProviderSubscription<AsyncValue<Printer>>> _printerListeners = {};
-
   final Map<String, _ActivityEntry> _machineLiveActivityMap = {};
-
   final Map<String, Completer?> _updateLiveActivityLocks = {};
   final Map<String, Completer?> _handlePrinterDataLocks = {};
-
   StreamSubscription<ModelEvent<Machine>>? _machineUpdatesListener;
   StreamSubscription<ActivityUpdate>? _activityUpdateStreamSubscription;
 
@@ -145,8 +141,11 @@ class LiveActivityService {
         }
 
         for (var machine in listenersToOpen) {
-          _printerListeners[machine.uuid] = ref.listen(printerProvider(machine.uuid),
-              (_, nextP) => nextP.whenData((value) => _handlePrinterData(machine.uuid, value)));
+          _printerListeners[machine.uuid] = ref.listen(
+            printerProvider(machine.uuid),
+            (_, nextP) => nextP.whenData((value) => _handlePrinterData(machine.uuid, value)),
+            fireImmediately: true,
+          );
         }
 
         logger.i(
@@ -189,13 +188,16 @@ class LiveActivityService {
       var printState = printer.print.state;
       var isPrinting = {PrintState.printing, PrintState.paused}.contains(printState);
       final hasProgressChange = isPrinting &&
-          notification.progress != null &&
+          notification.progress != null && // Not sure if not.progress == null || would be better..
           ((notification.progress! - printer.printProgress) * 100).abs() > 2;
       final hasStateChange = notification.printState != printState;
       final hasFileChange =
           isPrinting && printer.currentFile?.name != null && notification.file != printer.currentFile?.name;
+
+      final clearLiveActivity = !isPrinting && _machineLiveActivityMap.containsKey(machineUUID);
+
       // final hasEtaChange = isPrinting && printer.eta != null && notification.eta != printer.eta;
-      if (!hasProgressChange && !hasStateChange && !hasFileChange) return;
+      if (!hasProgressChange && !hasStateChange && !hasFileChange && !clearLiveActivity) return;
       logger.i('LiveActivity Passed state and progress check. $printState, ${printer.printProgress}');
       await _notificationsRepository.save(
         Notification(machineUuid: machineUUID)
@@ -252,7 +254,7 @@ class LiveActivityService {
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
         'state': printer.print.state.name,
-        'file': printer.currentFile?.name ?? 'Unknown',
+        'file': printer.currentFile?.name ?? tr('general.unknown'),
         'eta': printer.eta?.secondsSinceEpoch ?? -1,
 
         // Not sure yet if I want to use this
@@ -295,7 +297,6 @@ class LiveActivityService {
     var activityIdMachine = {for (var entry in _machineLiveActivityMap.entries) entry.value.id: entry.key};
 
     logger.i('Found ${activityIdMachine.length} locally tracked LiveActivities');
-
 
     // Filter out all activities not known to the app -> The api/app can not address anymore
 
