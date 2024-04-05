@@ -26,14 +26,14 @@ void main() {
     ''';
     var strToJson = jsonDecode(str);
 
-    var configDumpLed = ConfigDumbLed.fromJson("caselight", strToJson);
+    var configDumpLed = ConfigDumbLed.fromJson('caselight', strToJson);
 
     expect(configDumpLed, isNotNull);
-    expect(configDumpLed.name, "caselight");
-    expect(configDumpLed.redPin, "PA1");
-    expect(configDumpLed.greenPin, "PA2");
-    expect(configDumpLed.bluePin, "PA5");
-    expect(configDumpLed.whitePin, "PA3");
+    expect(configDumpLed.name, 'caselight');
+    expect(configDumpLed.redPin, 'PA1');
+    expect(configDumpLed.greenPin, 'PA2');
+    expect(configDumpLed.bluePin, 'PA5');
+    expect(configDumpLed.whitePin, 'PA3');
     expect(configDumpLed.initialRed, 0);
     expect(configDumpLed.initialGreen, 0.2);
     expect(configDumpLed.initialBlue, 0);
@@ -54,14 +54,14 @@ void main() {
     ''';
     var strToJson = jsonDecode(str);
 
-    var configDumpLed = ConfigDumbLed.fromJson("caselight", strToJson);
+    var configDumpLed = ConfigDumbLed.fromJson('caselight', strToJson);
 
     expect(configDumpLed, isNotNull);
-    expect(configDumpLed.name, "caselight");
+    expect(configDumpLed.name, 'caselight');
     expect(configDumpLed.redPin, isNull);
     expect(configDumpLed.greenPin, isNull);
     expect(configDumpLed.bluePin, isNull);
-    expect(configDumpLed.whitePin, "PA3");
+    expect(configDumpLed.whitePin, 'PA3');
     expect(configDumpLed.initialRed, 0);
     expect(configDumpLed.initialGreen, 0.2);
     expect(configDumpLed.initialBlue, 0);
@@ -78,14 +78,14 @@ void main() {
     ''';
     var strToJson = jsonDecode(str);
 
-    var configDumpLed = ConfigDumbLed.fromJson("caselight", strToJson);
+    var configDumpLed = ConfigDumbLed.fromJson('caselight', strToJson);
 
     expect(configDumpLed, isNotNull);
-    expect(configDumpLed.name, "caselight");
+    expect(configDumpLed.name, 'caselight');
     expect(configDumpLed.redPin, isNull);
     expect(configDumpLed.greenPin, isNull);
     expect(configDumpLed.bluePin, isNull);
-    expect(configDumpLed.whitePin, "PA3");
+    expect(configDumpLed.whitePin, 'PA3');
     expect(configDumpLed.initialRed, 0);
     expect(configDumpLed.initialGreen, 0);
     expect(configDumpLed.initialBlue, 0);

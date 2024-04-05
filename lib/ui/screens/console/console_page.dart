@@ -27,7 +27,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
 class ConsolePage extends ConsumerWidget {
-  const ConsolePage({Key? key}) : super(key: key);
+  const ConsolePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,7 +46,7 @@ class ConsolePage extends ConsumerWidget {
 }
 
 class _ConsoleBody extends HookConsumerWidget {
-  const _ConsoleBody({Key? key}) : super(key: key);
+  const _ConsoleBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -145,10 +145,10 @@ class _ConsoleBody extends HookConsumerWidget {
 
 class GCodeSuggestionBar extends StatefulHookConsumerWidget {
   const GCodeSuggestionBar({
-    Key? key,
+    super.key,
     required this.onMacroTap,
     required this.consoleInputNotifier,
-  }) : super(key: key);
+  });
 
   final ValueChanged<String> onMacroTap;
 
@@ -226,7 +226,7 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
 }
 
 class _Console extends ConsumerWidget {
-  const _Console({Key? key, required this.onCommandTap}) : super(key: key);
+  const _Console({super.key, required this.onCommandTap});
 
   final ValueChanged<String> onCommandTap;
 
@@ -234,7 +234,7 @@ class _Console extends ConsumerWidget {
     final TextStyle textStyle;
     switch (tileTheme.style ?? theme.listTileTheme.style ?? ListTileStyle.list) {
       case ListTileStyle.drawer:
-        textStyle = theme.textTheme.bodyText1!;
+        textStyle = theme.textTheme.bodyLarge!;
         break;
       case ListTileStyle.list:
         textStyle = theme.textTheme.titleMedium!;

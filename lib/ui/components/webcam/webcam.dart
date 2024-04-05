@@ -25,14 +25,14 @@ typedef ImageBuilder = Widget Function(BuildContext context, Widget image);
 
 class Webcam extends HookConsumerWidget {
   const Webcam({
-    Key? key,
+    super.key,
     required this.machine,
     required this.webcamInfo,
     this.stackContent = const [],
     this.imageBuilder,
     this.showFpsIfAvailable = false,
     this.showRemoteIndicator = true,
-  }) : super(key: key);
+  });
   final Machine machine;
   final WebcamInfo webcamInfo;
   final List<Widget> stackContent;

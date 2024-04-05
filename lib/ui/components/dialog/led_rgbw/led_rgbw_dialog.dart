@@ -18,10 +18,10 @@ class LedRGBWDialog extends ConsumerWidget {
   final DialogCompleter completer;
 
   const LedRGBWDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,7 +38,7 @@ class LedRGBWDialog extends ConsumerWidget {
 }
 
 class _LedRGBWDialog extends HookConsumerWidget {
-  const _LedRGBWDialog({Key? key}) : super(key: key);
+  const _LedRGBWDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -119,10 +119,10 @@ class _LedRGBWDialog extends HookConsumerWidget {
 
 class _ColorIndicator extends StatelessWidget {
   const _ColorIndicator({
-    Key? key,
+    super.key,
     required this.color,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   final Color color;
   final Function(Color) onTap;

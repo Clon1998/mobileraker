@@ -21,7 +21,7 @@ class FullCamPage extends ConsumerWidget {
   final Machine machine;
   final WebcamInfo initialCam;
 
-  const FullCamPage(this.machine, this.initialCam, {Key? key}) : super(key: key);
+  const FullCamPage(this.machine, this.initialCam, {super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,7 +37,7 @@ class FullCamPage extends ConsumerWidget {
 }
 
 class _FullCamView extends ConsumerWidget {
-  const _FullCamView({Key? key}) : super(key: key);
+  const _FullCamView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,7 +88,7 @@ class _FullCamView extends ConsumerWidget {
 }
 
 class StackContent extends ConsumerWidget {
-  const StackContent({Key? key}) : super(key: key);
+  const StackContent({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -152,7 +152,7 @@ class StackContent extends ConsumerWidget {
 }
 
 class _CamSelector extends ConsumerWidget {
-  const _CamSelector({Key? key}) : super(key: key);
+  const _CamSelector({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

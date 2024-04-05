@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('ConfigHeaterBed.fromJson() ', () {
-    final jsonString = '''
+    const jsonString = '''
  {
     "sensor_type": "NTC 100K MGB18-104F39050L32",
     "pullup_resistor": 4700,
@@ -42,7 +42,7 @@ void main() {
   });
 
   test('ConfigHeaterBed.fromJson() with combined sensor', () {
-    final jsonString = '''
+    const jsonString = '''
  {
     "sensor_type": "temperature_combined",
     "sensor_list": "one two three",

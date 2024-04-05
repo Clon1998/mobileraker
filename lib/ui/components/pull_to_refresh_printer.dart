@@ -62,7 +62,7 @@ class PullToRefreshPrinterConsumer extends _$PullToRefreshPrinterConsumer {
 
       refreshController.refreshCompleted();
     } catch (e) {
-      logger.w("Error while trying to refresh printer", e);
+      logger.w('Error while trying to refresh printer', e);
       refreshController.refreshFailed();
     } finally {
       printerServiceKeepAlive?.close();
@@ -72,7 +72,7 @@ class PullToRefreshPrinterConsumer extends _$PullToRefreshPrinterConsumer {
 }
 
 class PullToRefreshPrinter extends ConsumerStatefulWidget {
-  const PullToRefreshPrinter({Key? key, this.child}) : super(key: key);
+  const PullToRefreshPrinter({super.key, this.child});
 
   final Widget? child;
 

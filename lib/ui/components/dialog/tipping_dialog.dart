@@ -16,10 +16,10 @@ class TippingDialog extends HookWidget {
   final DialogCompleter completer;
 
   const TippingDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   List<Package> get tipPackages => request.data;
 

@@ -27,7 +27,7 @@ void main() {
     AddressableLed old = addressableLedObject();
 
     var updateJson = {
-      "color_data": [
+      'color_data': [
         [0.88, 0.2, 0.55, 0.12],
         [0.42, 0.0, 0.69, 0.2],
       ]
@@ -50,7 +50,7 @@ void main() {
     AddressableLed old = addressableLedObject();
 
     var updateJson = {
-      "color_data": [
+      'color_data': [
         [0.88, 0.2, 0.55, 0.12],
         [0.42, 0.0, 0.69, 0.2],
       ]
@@ -88,16 +88,16 @@ AddressableLed addressableLedObject() {
   String input =
       '{"result": {"status": {"neopixel sb_leds": {"color_data": [[0.44, 0.0, 0.10, 0.20], [0.0, 0.42, 0.69, 0.0], [0.0, 0.88, 0.0, 0.11]]}}, "eventtime": 4327798.835161627}}';
 
-  var jsonRaw = objectFromHttpApiResult(input, "neopixel sb_leds");
+  var jsonRaw = objectFromHttpApiResult(input, 'neopixel sb_leds');
 
-  return AddressableLed.fromJson(jsonRaw, "sb_leds");
+  return AddressableLed.fromJson(jsonRaw, 'sb_leds');
 }
 
 AddressableLed legacyAddressableLedObject() {
   String input =
       '{"result": {"status": {"neopixel sb_leds": {"color_data": [{"R":0.44,"G":0.0,"B":0.10,"W": 0.20},{"R":0.0,"G":0.42,"B":0.69},{"R":0.0,"G":0.88,"B":0.0,"W": 0.11}]}}, "eventtime": 4327798.835161627}}';
 
-  var jsonRaw = objectFromHttpApiResult(input, "neopixel sb_leds");
+  var jsonRaw = objectFromHttpApiResult(input, 'neopixel sb_leds');
 
-  return AddressableLed.fromJson(jsonRaw, "sb_leds");
+  return AddressableLed.fromJson(jsonRaw, 'sb_leds');
 }

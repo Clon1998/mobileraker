@@ -165,7 +165,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
 }
 
 class _NavHeader extends ConsumerWidget {
-  const _NavHeader({Key? key}) : super(key: key);
+  const _NavHeader({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -299,7 +299,7 @@ class _DrawerItem extends ConsumerWidget {
 }
 
 class _PrinterSelection extends ConsumerWidget {
-  const _PrinterSelection({Key? key}) : super(key: key);
+  const _PrinterSelection({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -356,10 +356,10 @@ class _PrinterSelection extends ConsumerWidget {
 
 class _MachineTile extends ConsumerWidget {
   const _MachineTile({
-    Key? key,
+    super.key,
     required this.machine,
     this.isSelected = false,
-  }) : super(key: key);
+  });
 
   final Machine machine;
   final bool isSelected;

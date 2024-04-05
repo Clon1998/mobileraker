@@ -37,7 +37,7 @@ void main() {
     test('speed', () {
       TemperatureFan old = temperatureFanObjectWithRpm();
 
-      var updateJson = {"speed": 0.99};
+      var updateJson = {'speed': 0.99};
 
       var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
 
@@ -52,7 +52,7 @@ void main() {
     test('rpm', () {
       TemperatureFan old = temperatureFanObjectWithRpm();
 
-      var updateJson = {"rpm": 1099};
+      var updateJson = {'rpm': 1099};
 
       var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
 
@@ -67,7 +67,7 @@ void main() {
     test('temperature', () {
       TemperatureFan old = temperatureFanObjectWithRpm();
 
-      var updateJson = {"temperature": 99};
+      var updateJson = {'temperature': 99};
 
       var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
 
@@ -82,7 +82,7 @@ void main() {
     test('target', () {
       TemperatureFan old = temperatureFanObjectWithRpm();
 
-      var updateJson = {"target": 85.22};
+      var updateJson = {'target': 85.22};
 
       var updatedObj = TemperatureFan.partialUpdate(old, updateJson);
 
@@ -100,16 +100,16 @@ TemperatureFan temperatureFanObjectWithRpm() {
   String input =
       '{"result": {"status": {"fan": {"speed": 0.55, "rpm": 500, "temperature":11.1, "target": 44.95}}, "eventtime": 3801252.15548827}}';
 
-  var jsonRaw = objectFromHttpApiResult(input, "fan");
+  var jsonRaw = objectFromHttpApiResult(input, 'fan');
 
-  return TemperatureFan.fromJson({...jsonRaw, 'lastHistory': NOW.toIso8601String()}, "testFan");
+  return TemperatureFan.fromJson({...jsonRaw, 'lastHistory': NOW.toIso8601String()}, 'testFan');
 }
 
 TemperatureFan temperatureFanObjectWithoutRpm() {
   String input =
       '{"result": {"status": {"fan": {"speed": 0.55, "rpm": null, "temperature":11.1, "target": 44.95}}, "eventtime": 3801252.15548827}}';
 
-  var jsonRaw = objectFromHttpApiResult(input, "fan");
+  var jsonRaw = objectFromHttpApiResult(input, 'fan');
 
-  return TemperatureFan.fromJson({...jsonRaw, 'lastHistory': NOW.toIso8601String()}, "testFan");
+  return TemperatureFan.fromJson({...jsonRaw, 'lastHistory': NOW.toIso8601String()}, 'testFan');
 }

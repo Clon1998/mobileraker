@@ -9,9 +9,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 
 class SupporterOnlyFeature extends StatelessWidget {
-  const SupporterOnlyFeature({
-    Key? key,
-    required this.text, this.header}) : super(key: key);
+  const SupporterOnlyFeature({super.key, required this.text, this.header});
 
   final Widget text;
   final Widget? header;
@@ -23,9 +21,9 @@ class SupporterOnlyFeature extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         header ??
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: const Icon(
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8.0),
+              child: Icon(
                 FlutterIcons.hand_holding_heart_faw5s,
                 size: 32,
               ),

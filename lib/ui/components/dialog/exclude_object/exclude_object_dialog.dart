@@ -25,10 +25,10 @@ class ExcludeObjectDialog extends ConsumerWidget {
   final DialogCompleter completer;
 
   const ExcludeObjectDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,7 +43,7 @@ class ExcludeObjectDialog extends ConsumerWidget {
 }
 
 class _ExcludeObjectDialog extends ConsumerWidget {
-  const _ExcludeObjectDialog({Key? key}) : super(key: key);
+  const _ExcludeObjectDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -135,7 +135,7 @@ class _ExcludeObjectDialog extends ConsumerWidget {
 }
 
 class DefaultBtnRow extends ConsumerWidget {
-  const DefaultBtnRow({Key? key}) : super(key: key);
+  const DefaultBtnRow({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -162,7 +162,7 @@ class DefaultBtnRow extends ConsumerWidget {
 }
 
 class ExcludeBtnRow extends ConsumerWidget {
-  const ExcludeBtnRow({Key? key}) : super(key: key);
+  const ExcludeBtnRow({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -189,11 +189,11 @@ class ExcludeBtnRow extends ConsumerWidget {
 }
 
 class ExcludeObjectMap extends ConsumerWidget {
-  const ExcludeObjectMap({Key? key}) : super(key: key);
+  const ExcludeObjectMap({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ConfigFile config = ref.watch(printerSelectedProvider.selectAs((data) => data.configFile)).requireValue!;
+    ConfigFile config = ref.watch(printerSelectedProvider.selectAs((data) => data.configFile)).requireValue;
 
     return IntrinsicHeight(
       child: Center(

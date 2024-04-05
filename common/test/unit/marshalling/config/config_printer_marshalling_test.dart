@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('ConfigPrinter.fromJson()', () {
-    final jsonString = '''
+    const jsonString = '''
 {
     "max_velocity": 500,
     "max_accel": 7000,

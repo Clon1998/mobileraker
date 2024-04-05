@@ -21,7 +21,7 @@ void main() {
     test('progress', () {
       DisplayStatus old = DisplayStatusObject();
 
-      var updateJson = {"progress": 0.52};
+      var updateJson = {'progress': 0.52};
 
       var updatedObj = DisplayStatus.partialUpdate(old, updateJson);
 
@@ -33,7 +33,7 @@ void main() {
     test('message', () {
       DisplayStatus old = DisplayStatusObject();
 
-      var updateJson = {"message": 'Lorem'};
+      var updateJson = {'message': 'Lorem'};
 
       var updatedObj = DisplayStatus.partialUpdate(old, updateJson);
 
@@ -45,7 +45,7 @@ void main() {
     test('message set to null', () {
       DisplayStatus old = DisplayStatusObject();
 
-      var updateJson = {"message": null};
+      var updateJson = {'message': null};
 
       var updatedObj = DisplayStatus.partialUpdate(old, updateJson);
 
@@ -59,7 +59,7 @@ void main() {
       String input =
           '{"result": {"status": {"display_status": {"progress": 0.69, "message": "FuFU"}}, "eventtime": 3796193.028154784}}';
 
-      var updateJson = objectFromHttpApiResult(input, "display_status");
+      var updateJson = objectFromHttpApiResult(input, 'display_status');
 
       var updatedObj = DisplayStatus.partialUpdate(old, updateJson);
 
@@ -74,7 +74,7 @@ DisplayStatus DisplayStatusObject() {
   String input =
       '{"result": {"status": {"display_status": {"progress": 0.0, "message": "Lala 123"}}, "eventtime": 3796193.028154784}}';
 
-  var jsonRaw = objectFromHttpApiResult(input, "display_status");
+  var jsonRaw = objectFromHttpApiResult(input, 'display_status');
 
   return DisplayStatus.fromJson(jsonRaw);
 }

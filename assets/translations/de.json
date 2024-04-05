@@ -283,7 +283,9 @@
         "system_theme_mode": "Design-Helligkeit",
         "printer_theme_warning": "Sie verwenden derzeit ein druckerspezifisches Design. Um dies zu ändern, gehen Sie zu den Druckereinstellungen.",
         "filament_sensor_dialog": "Filamentsensor Dialog",
-        "filament_sensor_dialog_hint": "Zeige einen Dialog, wenn ein Filamentsensor ausgelöst wird"
+        "filament_sensor_dialog_hint": "Zeige einen Dialog, wenn ein Filamentsensor ausgelöst wird",
+        "confirm_gcode": "Bestätige Makro-Ausführung",
+        "confirm_gcode_hint": "Zeige immer einen Bestätigungsdialog, bevor ein Makro auf dem Dashboard ausgeführt wird"
       },
       "notification": {
         "title": "Benachrichtigung",
@@ -299,7 +301,12 @@
         "ios_notifications_desc": "Benachrichtigungen erfordern, dass Mobileraker mindestens einmal geöffnet werden und im Hintergrund offen bleibt.\nTrotzdem können einige Benachrichtigungen vom Betriebssystem blockiert werden!",
         "missing_companion_title": "Companion wurde nicht gefunden!",
         "missing_companion_body": "Es scheint, dass der Companion nicht installiert ist und daher die folgenden Maschinen keine Benachrichtigungen senden können: {}",
-        "enable_live_activity": "Aktiviere Live Activity"
+        "enable_live_activity": "Aktiviere Live Activity",
+        "enable_live_activity_helper": "Aktiviert Live-Aktivitäten in Ergänzung zu den standardmäßigen Druckfortschritt Benachrichtigungen",
+        "opt_out_marketing": "Marketing Benachrichtigungen",
+        "opt_out_marketing_helper": "Erhalten Sie aktuelle Informationen über Verkaufsaktionen und Sonderangebote",
+        "use_progressbar_notification": "Aktiviere Fortschrittsbalken Benachrichtigung",
+        "use_progressbar_notification_helper": "Aktiviert die Anzeige eines Fortschrittsbalkens zusätzlich zu den Standard-Fortschrittsmeldungen"
       },
       "developer": {
         "title": "Entwickler",
@@ -681,7 +688,9 @@
       "body": "Sie können entweder eine IP, eine URL oder eine vollständige URI ihrer  Weboberfläche eingeben oder direkt die von Moonraker bereitgestellte WebSocket-Instanz Adresse eingeben. \n\nGültige Beispiele:"
     },
     "gcode_params": {
-      "hint": "Tipp: Sie können auch lange drücken, um das Makro mit Standardwerten zu senden!"
+      "hint": "Tipp: Sie können auch lange drücken, um das Makro mit Standardwerten zu senden!",
+      "confirm_title": "{} ausführen?",
+      "confirm_body": "Sie sind im Begriff, das Makro '{}' auszuführen.\n\nBestätigen Sie Ihre Aktion."
     },
     "rgbw": {
       "recent_colors": "Letzte Farben"
@@ -801,7 +810,13 @@
         "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
         "link": "Link Obico",
         "unlink": "Unlink Obico",
-        "description": "Obico ist eine von der Community betriebene, Open-Source 3D-Drucksoftware. Sie ermöglicht es Ihnen, Ihren Drucker von überall aus kostenlos zu steuern und zu überwachen. Sie gehört zu den ersten Lösungen im Bereich der KI-basierten Druckfehlererkennung."
+        "description": "Obico ist eine von der Community betriebene, Open-Source 3D-Drucksoftware. Sie ermöglicht es Ihnen, Ihren Drucker von überall aus kostenlos zu steuern und zu überwachen. Sie gehört zu den ersten Lösungen im Bereich der KI-basierten Druckfehlererkennung.",
+        "self_hosted": {
+          "title": "Selbstgehostete Obico-Instanz",
+          "description": "Standardmäßig wird Mobileraker die offizielle Obico-Instanz verwenden. Wenn Sie jedoch Ihre eigene Instanz verwalten, können Sie hier die URL dafür angeben.",
+          "url_label": "URL",
+          "url_hint": "Die Basis-URL der selbst gehosteten Obico-Instanz"
+        }
       }
     },
     "manage_macros_in_grp": {

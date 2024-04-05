@@ -14,7 +14,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class EmergencyStopBtn extends ConsumerWidget {
-  const EmergencyStopBtn({Key? key}) : super(key: key);
+  const EmergencyStopBtn({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -32,9 +32,9 @@ class EmergencyStopBtn extends ConsumerWidget {
                   .read(settingServiceProvider)
                   .readBool(AppSettingKeys.confirmEmergencyStop, true)) {
                 var result = await ref.read(dialogServiceProvider).showConfirm(
-                      title: "Emergency Stop - Confirmation",
-                      body: "Are you sure?",
-                      confirmBtn: "STOP!",
+                      title: 'Emergency Stop - Confirmation',
+                      body: 'Are you sure?',
+                      confirmBtn: 'STOP!',
                       confirmBtnColor: Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,
                     );
                 if (!(result?.confirmed ?? false)) return;

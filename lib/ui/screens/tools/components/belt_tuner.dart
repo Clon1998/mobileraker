@@ -151,6 +151,7 @@ class _PeakFrequency extends HookConsumerWidget {
         } else {
           animController.stop();
         }
+        return null;
       },
       [controller, showLoading],
     );

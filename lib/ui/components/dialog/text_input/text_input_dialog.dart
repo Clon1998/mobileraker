@@ -30,10 +30,10 @@ class TextInputDialog extends HookWidget {
   final DialogCompleter completer;
 
   const TextInputDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

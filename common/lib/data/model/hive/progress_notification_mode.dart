@@ -33,15 +33,15 @@ enum ProgressNotificationMode {
       case ProgressNotificationMode.DISABLED:
         return 'general.disabled'.tr();
       case ProgressNotificationMode.FIVE:
-        return "5%";
+        return '5%';
       case ProgressNotificationMode.TEN:
-        return "10%";
+        return '10%';
       case ProgressNotificationMode.TWENTY:
-        return "20%";
+        return '20%';
       case ProgressNotificationMode.TWENTY_FIVE:
-        return "25%";
+        return '25%';
       case ProgressNotificationMode.FIFTY:
-        return "50%";
+        return '50%';
     }
   }
 

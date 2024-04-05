@@ -13,7 +13,7 @@ void main() {
     FilamentSwitchSensor obj = fromRequest();
 
     expect(obj, isNotNull);
-    expect(obj.name, "filament_sensor");
+    expect(obj.name, 'filament_sensor');
     expect(obj.enabled, false);
     expect(obj.filamentDetected, true);
   });
@@ -21,12 +21,12 @@ void main() {
   test('FilamentSwitchSensor partialUpdate - value', () {
     FilamentSwitchSensor old = fromRequest();
 
-    var updateJson = {"enabled": true, "filament_detected": false};
+    var updateJson = {'enabled': true, 'filament_detected': false};
 
     var updatedObj = FilamentSwitchSensor.partialUpdate(old, updateJson);
 
     expect(updatedObj, isNotNull);
-    expect(updatedObj.name, "filament_sensor");
+    expect(updatedObj.name, 'filament_sensor');
     expect(updatedObj.enabled, true);
     expect(updatedObj.filamentDetected, false);
   });
@@ -47,7 +47,7 @@ FilamentSwitchSensor fromRequest() {
 }
       ''';
 
-  var jsonRaw = objectFromHttpApiResult(input, "filament_switch_sensor filament_sensor");
+  var jsonRaw = objectFromHttpApiResult(input, 'filament_switch_sensor filament_sensor');
 
-  return FilamentSwitchSensor.fromJson(jsonRaw, "filament_sensor");
+  return FilamentSwitchSensor.fromJson(jsonRaw, 'filament_sensor');
 }

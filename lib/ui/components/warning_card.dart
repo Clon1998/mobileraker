@@ -9,14 +9,14 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class WarningCard extends ConsumerWidget {
   const WarningCard({
-    Key? key,
+    super.key,
     this.show = true,
     this.onTap,
     this.title,
     this.subtitle,
     this.leadingIcon,
     this.margin = const EdgeInsets.only(top: 16),
-  }) : super(key: key);
+  });
 
   final bool show;
   final VoidCallback? onTap;

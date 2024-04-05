@@ -42,7 +42,7 @@ String? _getColorVariant(String color) {
 }
 
 class SpoolWidget extends ConsumerWidget {
-  const SpoolWidget({super.key, String? color, this.height = 55, this.width = 55}) : this.color = color ?? '333333';
+  const SpoolWidget({super.key, String? color, this.height = 55, this.width = 55}) : color = color ?? '333333';
 
   final String color;
   final double height;

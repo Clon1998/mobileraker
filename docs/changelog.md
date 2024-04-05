@@ -1,7 +1,23 @@
 # Mobileraker - Changelog
 
+## [2.6.14] - 2024-03-25
+
+### Changed Features
+
+- Added support for self hosted Obico instances. Users can now add their own Obico instance to the app and use it to
+  connect to their printers. [#294](https://github.com/Clon1998/mobileraker/issues/294)
+- Added a setting that allows users to configure if the macro execution should be confirmed. If enabled, the app will
+  show a confirmation dialog before executing a macro via the dashboard.
+- [Android] Added a setting to enable/disable the progressbar notification for print progress on Android.
+
+### Bug Fixes
+
+- Fixed an issue that prevented the Power API card from being displayed if klipper is in shutdown state.
+
 ## [2.6.13] - 2024-03-15
+
 - Hotfixing issue with the French translation preventing the app from starting for users with active French translation.
+
 ## [2.6.12] - 2024-03-13
 
 ### Major Updates

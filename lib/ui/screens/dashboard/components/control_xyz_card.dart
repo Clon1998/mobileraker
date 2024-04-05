@@ -49,7 +49,7 @@ class ControlXYZCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var showCard = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
 
-    logger.i('ControlXYZCard: showCard: ${showCard}');
+    logger.i('ControlXYZCard: showCard: $showCard');
 
     var showLoading = showCard.isLoading && !showCard.isReloading;
     if (showLoading) return const _ControlXYZLoading();
@@ -342,7 +342,7 @@ class _ZMotionWidget extends ConsumerWidget {
 }
 
 class _QuickActionsWidget extends ConsumerWidget {
-  const _QuickActionsWidget({Key? key, required this.machineUUID}) : super(key: key);
+  const _QuickActionsWidget({super.key, required this.machineUUID});
 
   final String machineUUID;
 
@@ -377,7 +377,7 @@ class _QuickActionsWidget extends ConsumerWidget {
 }
 
 class _MoreActionsPopup extends ConsumerWidget {
-  const _MoreActionsPopup({Key? key, required this.machineUUID}) : super(key: key);
+  const _MoreActionsPopup({super.key, required this.machineUUID});
 
   final String machineUUID;
 

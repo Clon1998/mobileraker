@@ -166,8 +166,7 @@ class MachineService {
       : _machineRepo = ref.watch(machineRepositoryProvider),
         _selectedMachineService = ref.watch(selectedMachineServiceProvider),
         _settingService = ref.watch(settingServiceProvider),
-        _appConnectionService = ref.watch(appConnectionServiceProvider),
-        _obicoTunnelService = ref.watch(obicoTunnelServiceProvider) {
+        _appConnectionService = ref.watch(appConnectionServiceProvider) {
     ref.onDispose(dispose);
   }
 
@@ -176,7 +175,6 @@ class MachineService {
   final SelectedMachineService _selectedMachineService;
   final SettingService _settingService;
   final AppConnectionService _appConnectionService;
-  final ObicoTunnelService _obicoTunnelService;
 
   // final MachineSettingsMoonrakerRepository _machineSettingsRepository;
 
@@ -373,10 +371,11 @@ class MachineService {
     required Machine machine,
     ProgressNotificationMode? mode,
     Set<PrintState>? printStates,
+    bool? progressbar,
   }) async {
     var keepAliveExternally = ref.keepAliveExternally(notificationSettingsRepositoryProvider(machine.uuid));
     try {
-      var notificationSettingsRepository = ref.read(notificationSettingsRepositoryProvider(machine.uuid));
+      var notificationSettingsRepository = keepAliveExternally.read();
 
       logger.i('Updating FCM Config for machine ${machine.name} (${machine.uuid})');
 
@@ -395,6 +394,10 @@ class MachineService {
       }
       if (printStates != null) {
         var future = notificationSettingsRepository.updateStateSettings(machine.uuid, printStates);
+        updateReq.add(future);
+      }
+      if (progressbar != null) {
+        var future = notificationSettingsRepository.updateAndroidProgressbarSettings(machine.uuid, progressbar);
         updateReq.add(future);
       }
       if (updateReq.isNotEmpty) await Future.wait(updateReq);
@@ -544,8 +547,9 @@ class MachineService {
     // If there's no legacy group and no new macros to add, return early
     if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty) return;
 
-    if (hasUnavailableMacro)
+    if (hasUnavailableMacro) {
       logger.i('Found some unavailable macros, will update all groups without the unavailable macros!');
+    }
 
     // Log the number of new macros being added to the default group
     logger.i('Adding ${filteredRawMacros.length} new macros to the default group!');
@@ -573,23 +577,23 @@ class MachineService {
     String? octoPrinterId;
     try {
       octoPrinterId = await moonrakerDatabaseClient.getDatabaseItem('octoeverywhere', key: 'public.printerId');
-    } on WebSocketException catch (e, s) {
+    } on WebSocketException {
       logger.w('Rpc Client was not connected, could not fetch octo.printerId. User can select by himself!');
     }
 
     return _appConnectionService.linkAppWithOcto(printerId: octoPrinterId);
   }
 
-  Future<Uri> linkObico(Machine machineToLink) async {
+  Future<Uri> linkObico(Machine machineToLink, Uri? baseUrl) async {
     MoonrakerDatabaseClient moonrakerDatabaseClient = ref.read(moonrakerDatabaseClientProvider(machineToLink.uuid));
     String? obicoPrinterId;
     try {
       obicoPrinterId = await moonrakerDatabaseClient.getDatabaseItem('obico', key: 'printer_id');
-    } on WebSocketException catch (e, s) {
+    } on WebSocketException {
       logger.w('Rpc Client was not connected, could not fetch obico.printer_id. User can select by himself!');
     }
 
-    return _obicoTunnelService.linkApp(printerId: obicoPrinterId);
+    return ref.watch(obicoTunnelServiceProvider(baseUrl)).linkApp(printerId: obicoPrinterId);
   }
 
   Future<void> dispose() async {

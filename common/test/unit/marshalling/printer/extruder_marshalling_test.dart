@@ -32,8 +32,8 @@ void main() {
     var old = extruderObject();
 
     var parsedJson = {
-      "power": 1.0,
-      "smooth_time": .99,
+      'power': 1.0,
+      'smooth_time': .99,
     };
 
     var extruder = Extruder.partialUpdate(old, parsedJson);
@@ -54,9 +54,9 @@ void main() {
     var old = extruderObject();
 
     var parsedJson = {
-      "powers": [0, 0, 0, 0, 0.5, 0.9, 1.0],
-      "temperatures": [30, 30, 31, 31, 32.5, 44, 45, 45, 9],
-      "targets": [0, 0, 0, 1.4, 2, 3, 4, 5, 6, 7, 8, 8, 9],
+      'powers': [0, 0, 0, 0, 0.5, 0.9, 1.0],
+      'temperatures': [30, 30, 31, 31, 32.5, 44, 45, 45, 9],
+      'targets': [0, 0, 0, 1.4, 2, 3, 4, 5, 6, 7, 8, 8, 9],
     };
 
     var extruder = Extruder.partialUpdate(old, parsedJson);
@@ -84,7 +84,7 @@ Extruder extruderObject() {
   String input =
       '{"result": {"status": {"extruder": {"motion_queue": null, "pressure_advance": 0.055, "temperature": 22.56, "power": 0.0, "can_extrude": false, "smooth_time": 0.04, "target": 0.0}}, "eventtime": 3792148.053680181}}';
 
-  var parsedJson = objectFromHttpApiResult(input, "extruder");
+  var parsedJson = objectFromHttpApiResult(input, 'extruder');
 
-  return Extruder.fromJson({...parsedJson, "num": 0, "lastHistory": NOW.toIso8601String()});
+  return Extruder.fromJson({...parsedJson, 'num': 0, 'lastHistory': NOW.toIso8601String()});
 }

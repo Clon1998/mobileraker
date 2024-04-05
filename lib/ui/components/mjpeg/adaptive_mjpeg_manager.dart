@@ -40,7 +40,7 @@ class AdaptiveMjpegManager implements MjpegManager {
 
   Timer? _timer;
 
-  int _retryCount = 0;
+  final int _retryCount = 0;
 
   @override
   Stream<MemoryImage> get jpegStream => _mjpegStreamController.stream;

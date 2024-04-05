@@ -25,7 +25,7 @@ import 'package:mobileraker/util/validator/custom_form_builder_validators.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
 class PrinterAddPage extends HookConsumerWidget {
-  const PrinterAddPage({Key? key}) : super(key: key);
+  const PrinterAddPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -76,7 +76,7 @@ class PrinterAddPage extends HookConsumerWidget {
 }
 
 class _StepperBody extends ConsumerWidget {
-  const _StepperBody({Key? key}) : super(key: key);
+  const _StepperBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -111,7 +111,7 @@ class _StepperBody extends ConsumerWidget {
 }
 
 class _StepperFooter extends ConsumerWidget {
-  const _StepperFooter({Key? key}) : super(key: key);
+  const _StepperFooter({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -138,7 +138,7 @@ class _StepperFooter extends ConsumerWidget {
 }
 
 class _AddPrinterStepperFlow extends HookConsumerWidget {
-  const _AddPrinterStepperFlow({Key? key}) : super(key: key);
+  const _AddPrinterStepperFlow({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -175,7 +175,7 @@ class _AddPrinterStepperFlow extends HookConsumerWidget {
 }
 
 class _InputModeStepScreen extends ConsumerWidget {
-  const _InputModeStepScreen({Key? key}) : super(key: key);
+  const _InputModeStepScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -256,7 +256,7 @@ class _InputModeStepScreen extends ConsumerWidget {
 }
 
 class _SimpleUrlInputStepScreen extends HookConsumerWidget {
-  const _SimpleUrlInputStepScreen({Key? key}) : super(key: key);
+  const _SimpleUrlInputStepScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -333,7 +333,7 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
 }
 
 class _UrlInputStepFooter extends ConsumerWidget {
-  const _UrlInputStepFooter({Key? key}) : super(key: key);
+  const _UrlInputStepFooter({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -354,7 +354,7 @@ class _UrlInputStepFooter extends ConsumerWidget {
 }
 
 class _AdvancedInputStepScreen extends HookConsumerWidget {
-  const _AdvancedInputStepScreen({Key? key}) : super(key: key);
+  const _AdvancedInputStepScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -429,7 +429,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             suffixText: 's',
           ),
           name: 'advanced.localTimeout',
-          initialValue: "5",
+          initialValue: '5',
           valueTransformer: (String? text) => text?.let(int.tryParse) ?? 3,
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
@@ -474,7 +474,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
 }
 
 class _TestConnectionStepScreen extends HookConsumerWidget {
-  const _TestConnectionStepScreen({Key? key}) : super(key: key);
+  const _TestConnectionStepScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -542,7 +542,7 @@ class _TestConnectionStepScreen extends HookConsumerWidget {
 }
 
 class _TestConnectionStepFooter extends ConsumerWidget {
-  const _TestConnectionStepFooter({Key? key}) : super(key: key);
+  const _TestConnectionStepFooter({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -577,7 +577,7 @@ class _TestConnectionStepFooter extends ConsumerWidget {
 }
 
 class _ConfirmationStepScreen extends ConsumerWidget {
-  const _ConfirmationStepScreen({Key? key}) : super(key: key);
+  const _ConfirmationStepScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -622,12 +622,12 @@ class _ConfirmationStepScreen extends ConsumerWidget {
 
 class _FlowControlButtons extends ConsumerWidget {
   const _FlowControlButtons({
-    Key? key,
+    super.key,
     this.proceed,
     this.proceedIcon,
     required this.proceedLabel,
     this.proceedStyle,
-  }) : super(key: key);
+  });
 
   final VoidCallback? proceed;
   final Widget? proceedIcon;

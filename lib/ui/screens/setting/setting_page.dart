@@ -6,13 +6,16 @@ import 'dart:io';
 
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/progress_notification_mode.dart';
+import 'package:common/service/firebase/analytics.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
@@ -116,7 +119,24 @@ class SettingPage extends ConsumerWidget {
                 ),
                 activeColor: themeData.colorScheme.primary,
               ),
-              _SectionHeader(title: 'UI'),
+              FormBuilderSwitch(
+                name: 'confirmGCode',
+                title: const Text('pages.setting.general.confirm_gcode').tr(),
+                subtitle: const Text('pages.setting.general.confirm_gcode_hint').tr(),
+                onChanged: (b) => settingService.writeBool(
+                  AppSettingKeys.confirmMacroExecution,
+                  b ?? false,
+                ),
+                initialValue: ref.read(
+                  boolSettingProvider(AppSettingKeys.confirmMacroExecution),
+                ),
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                ),
+                activeColor: themeData.colorScheme.primary,
+              ),
+              const _SectionHeader(title: 'UI'),
               const _ThemeSelector(),
               const _ThemeModeSelector(),
               FormBuilderSwitch(
@@ -139,7 +159,7 @@ class SettingPage extends ConsumerWidget {
               FormBuilderSwitch(
                 name: 'sliders_grouping',
                 title: const Text('pages.setting.general.sliders_grouping').tr(),
-                subtitle: Text('pages.setting.general.sliders_grouping_hint').tr(),
+                subtitle: const Text('pages.setting.general.sliders_grouping_hint').tr(),
                 onChanged: (b) => settingService.writeBool(
                   AppSettingKeys.groupSliders,
                   b ?? false,
@@ -292,6 +312,7 @@ class _NotificationSection extends ConsumerWidget {
           FormBuilderSwitch(
             name: 'liveActivity',
             title: const Text('pages.setting.notification.enable_live_activity').tr(),
+            subtitle: const Text('pages.setting.notification.enable_live_activity_helper').tr(),
             onChanged: (b) => settingService.writeBool(
               AppSettingKeys.useLiveActivity,
               b ?? false,
@@ -303,8 +324,23 @@ class _NotificationSection extends ConsumerWidget {
             ),
             activeColor: themeData.colorScheme.primary,
           ),
+        if (Platform.isAndroid)
+          FormBuilderSwitch(
+            name: 'progressbarNoti',
+            title: const Text('pages.setting.notification.use_progressbar_notification').tr(),
+            subtitle: const Text('pages.setting.notification.use_progressbar_notification_helper').tr(),
+            onChanged: (b) =>
+                ref.read(notificationProgressSettingControllerProvider.notifier).onProgressbarChanged(b ?? false),
+            initialValue: ref.read(boolSettingProvider(AppSettingKeys.useProgressbarNotifications, true)),
+            decoration: const InputDecoration(
+              border: InputBorder.none,
+              isCollapsed: true,
+            ),
+            activeColor: themeData.colorScheme.primary,
+          ),
         const _ProgressNotificationSettingField(),
         const _StateNotificationSettingField(),
+        const _OptOutOfAdPush(),
         const Divider(),
         RichText(
           text: TextSpan(
@@ -398,7 +434,7 @@ class _LanguageSelector extends ConsumerWidget {
 
     if (local.countryCode != null) {
       String country = 'languages.countryCode.${local.countryCode}.nativeName'.tr();
-      out += " ($country)";
+      out += ' ($country)';
     }
     return out;
   }
@@ -751,6 +787,34 @@ class CompanionMissingWarning extends ConsumerWidget {
                 ),
               ),
       ),
+    );
+  }
+}
+
+class _OptOutOfAdPush extends ConsumerWidget {
+  const _OptOutOfAdPush({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return FormBuilderSwitch(
+      name: 'adOptOut',
+      title: const Text('pages.setting.notification.opt_out_marketing').tr(),
+      subtitle: const Text('pages.setting.notification.opt_out_marketing_helper').tr(),
+      onChanged: (b) {
+        var val = b ?? true;
+        logger.i('User opted out of marketing notifications: ${!val}');
+        ref.read(analyticsProvider).updatedAdOptOut(!val);
+        ref.read(settingServiceProvider).writeBool(
+              AppSettingKeys.receiveMarketingNotifications,
+              val,
+            );
+      },
+      initialValue: ref.read(boolSettingProvider(AppSettingKeys.receiveMarketingNotifications, true)),
+      decoration: const InputDecoration(
+        border: InputBorder.none,
+        isCollapsed: true,
+      ),
+      activeColor: Theme.of(context).colorScheme.primary,
     );
   }
 }

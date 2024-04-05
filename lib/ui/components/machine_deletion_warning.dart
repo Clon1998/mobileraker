@@ -58,7 +58,7 @@ class _MachineDeletionWarningController extends _$MachineDeletionWarningControll
 }
 
 class MachineDeletionWarning extends ConsumerWidget {
-  const MachineDeletionWarning({Key? key}) : super(key: key);
+  const MachineDeletionWarning({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

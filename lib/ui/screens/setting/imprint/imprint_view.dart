@@ -12,7 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class ImprintPage extends HookWidget {
-  const ImprintPage({Key? key}) : super(key: key);
+  const ImprintPage({super.key});
 
   @override
   Widget build(BuildContext context) {

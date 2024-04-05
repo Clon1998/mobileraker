@@ -40,7 +40,7 @@ void main() {
     expect(configHeaterFan.cycleTime, 0.01);
     expect(configHeaterFan.hardwarePwm, false);
     expect(configHeaterFan.shutdownSpeed, 0);
-    expect(configHeaterFan.pin, "PD12");
+    expect(configHeaterFan.pin, 'PD12');
     expect(configHeaterFan.fanSpeed, 1);
     expect(configHeaterFan.tachometerPin, isNull);
     expect(configHeaterFan.tachometerPpr, 2);
@@ -83,11 +83,11 @@ void main() {
     expect(configHeaterFan.cycleTime, 0.01);
     expect(configHeaterFan.hardwarePwm, false);
     expect(configHeaterFan.shutdownSpeed, 0);
-    expect(configHeaterFan.pin, "PD12");
+    expect(configHeaterFan.pin, 'PD12');
     expect(configHeaterFan.fanSpeed, 1);
-    expect(configHeaterFan.tachometerPin, "PA2");
+    expect(configHeaterFan.tachometerPin, 'PA2');
     expect(configHeaterFan.tachometerPpr, 4);
     expect(configHeaterFan.tachometerPollInterval, 0.3);
-    expect(configHeaterFan.enablePin, "PA1");
+    expect(configHeaterFan.enablePin, 'PA1');
   });
 }

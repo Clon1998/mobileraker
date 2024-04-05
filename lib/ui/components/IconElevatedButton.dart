@@ -7,12 +7,12 @@ import 'package:flutter/material.dart';
 
 class SquareElevatedIconButton extends StatelessWidget {
   const SquareElevatedIconButton({
-    Key? key,
+    super.key,
     this.onPressed,
     this.style,
     this.margin,
     this.child,
-  }) : super(key: key);
+  });
 
   final VoidCallback? onPressed;
 

@@ -93,7 +93,7 @@ class _CardBody extends ConsumerWidget {
     logger.w('Rebuilding HeaterSensorCard');
     return AdaptiveHorizontalScroll(
       snap: true,
-      pageStorageKey: "temps$machineUUID",
+      pageStorageKey: 'temps$machineUUID',
       children: [
         ..._extruderTiles(extruderCount),
         if (hasPrintBed)
@@ -428,7 +428,7 @@ class _Controller extends _$Controller {
       type: ref.read(settingServiceProvider).readBool(AppSettingKeys.defaultNumEditMode)
           ? DialogType.numEdit
           : DialogType.rangeEdit,
-      title: "Edit ${beautifyName(heater.name)} Temperature",
+      title: 'Edit ${beautifyName(heater.name)} Temperature',
       cancelBtn: tr('general.cancel'),
       confirmBtn: tr('general.confirm'),
       data: NumberEditDialogArguments(

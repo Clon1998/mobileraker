@@ -12,7 +12,7 @@ class LoggerDialog extends StatelessWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const LoggerDialog({Key? key, required this.request, required this.completer}) : super(key: key);
+  const LoggerDialog({super.key, required this.request, required this.completer});
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +48,8 @@ class LoggerDialog extends StatelessWidget {
 
                     Share.shareXFiles(
                       logFiles,
-                      subject: "Debug-Logs",
-                      text: "Most recent Mobileraker logs",
+                      subject: 'Debug-Logs',
+                      text: 'Most recent Mobileraker logs',
                     );
                   },
                   icon: const Icon(Icons.download),

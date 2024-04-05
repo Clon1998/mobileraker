@@ -45,7 +45,7 @@ class PowerApiCard extends ConsumerWidget {
     var model = ref.watch(_powerApiCardControllerProvider(machineUUID));
 
     logger.i('Rebuilding PowerApiCard for $machineUUID');
-
+    logger.w('Model: $model');
     Widget widget = switch (model) {
       // We have a value and the model showCard is true
       AsyncValue(hasValue: true, value: _Model(showCard: true, :final devices, :final isPrinting)) => Card(
@@ -257,15 +257,12 @@ class _PowerApiCardController extends _$PowerApiCardController {
     List<PowerDevice> devices = [];
     bool isPrinting = false;
     if (hasPowerAPI) {
-      var fs = await Future.wait([
-        ref
-            .watch(powerDevicesProvider(machineUUID).future)
-            .then((value) => value.where((element) => !element.name.startsWith('_')).toList()),
-        ref.watch(printerProvider(machineUUID).selectAsync((d) => d.print.state == PrintState.printing)),
-      ]);
-
-      devices = fs[0] as List<PowerDevice>;
-      isPrinting = fs[1] as bool;
+      // We are using the sync version because we do not want to wait for the printer state -> Power Api Card should work even if printer/klipper is not connected
+      isPrinting =
+          ref.watch(printerProvider(machineUUID).select((d) => d.valueOrNull?.print.state == PrintState.printing));
+      devices = await ref
+          .watch(powerDevicesProvider(machineUUID).future)
+          .then((value) => value.where((element) => !element.name.startsWith('_')).toList());
     }
 
     // await Future.delayed(const Duration(milliseconds: 2000));

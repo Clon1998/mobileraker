@@ -334,7 +334,7 @@ class _M117Message extends ConsumerWidget {
                     onPressed: controller.clearM117,
                     icon: Icon(Icons.clear, color: themeData.colorScheme.primary),
                     iconSize: 16,
-                    tooltip: "Clear M117",
+                    tooltip: 'Clear M117',
                   ),
                 ],
               ),

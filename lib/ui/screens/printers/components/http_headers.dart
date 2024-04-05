@@ -58,7 +58,7 @@ class HeadersController extends _$HeadersController {
 }
 
 class HttpHeaders extends ConsumerWidget {
-  const HttpHeaders({Key? key, this.initialValue = const {}}) : super(key: key);
+  const HttpHeaders({super.key, this.initialValue = const {}});
 
   final Map<String, String> initialValue;
 
@@ -102,12 +102,12 @@ class HttpHeaders extends ConsumerWidget {
 
 class _HttpHeader extends StatelessWidget {
   const _HttpHeader({
-    Key? key,
+    super.key,
     required this.header,
     required this.value,
     this.onTap,
     this.onDelete,
-  }) : super(key: key);
+  });
 
   final String header;
   final String value;

@@ -44,7 +44,7 @@ String iso8601PeriodToText(String input) {
 
   // Extract the period value and unit from the duration string
   int periodValue = int.parse(regExpMatch!.group(1)!);
-  String periodUnit = regExpMatch!.group(2)!;
+  String periodUnit = regExpMatch.group(2)!;
 
   String periodLabel = switch (periodUnit) {
     'Y' || 'y' => plural('date_periods.year', periodValue),

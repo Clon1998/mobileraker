@@ -16,7 +16,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '../../../routing/app_router.dart';
 
 class ToolPage extends HookConsumerWidget {
-  const ToolPage({Key? key}) : super(key: key);
+  const ToolPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

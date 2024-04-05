@@ -52,7 +52,7 @@ Stream<List<PowerDevice>> powerDevicesSelected(PowerDevicesSelectedRef ref) asyn
 class PowerService {
   PowerService(AutoDisposeRef ref, this._jRpcClient, String machineUUID) {
     ref.onDispose(dispose);
-    _jRpcClient.addMethodListener(_onPowerChanged, "notify_power_changed");
+    _jRpcClient.addMethodListener(_onPowerChanged, 'notify_power_changed');
     ref.listen(jrpcClientStateProvider(machineUUID), (previous, next) {
       switch (next.valueOrNull) {
         case ClientState.connected:
@@ -142,7 +142,7 @@ class PowerService {
   }
 
   dispose() {
-    _jRpcClient.removeMethodListener(_onPowerChanged, "notify_power_changed");
+    _jRpcClient.removeMethodListener(_onPowerChanged, 'notify_power_changed');
     _devicesStreamCtler.close();
   }
 }

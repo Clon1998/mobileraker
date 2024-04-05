@@ -44,7 +44,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
         actions: [
           IconButton(
             onPressed: downloading ? null : shareFile,
-            icon: Icon(Icons.share),
+            icon: const Icon(Icons.share),
           ),
         ],
       ),
@@ -93,7 +93,7 @@ class _ImageFilePageState extends ConsumerState<ImageFilePage> {
 
       Share.shareXFiles(
         [XFile(downloadFile.file.path, mimeType: mimeType)],
-        subject: "Image ${widget.file.name}",
+        subject: 'Image ${widget.file.name}',
       ).ignore();
     } catch (e) {
       ref.read(snackBarServiceProvider).show(SnackBarConfig(

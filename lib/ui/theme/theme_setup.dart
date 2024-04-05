@@ -397,7 +397,6 @@ ThemePack _vzBot() {
     // To use the playground font, add GoogleFonts package and uncomment
     fontFamily: GoogleFonts.varela().fontFamily,
   );
-  ;
 
   return ThemePack(
     name: 'VzBot',

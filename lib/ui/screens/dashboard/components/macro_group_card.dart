@@ -280,7 +280,9 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
   }
 
   onMacroPressed(ConfigGcodeMacro macro) async {
-    if (macro.params.isNotEmpty) {
+    var alwaysConfirm = _settingService.readBool(AppSettingKeys.confirmMacroExecution, false);
+
+    if (macro.params.isNotEmpty || alwaysConfirm) {
       DialogResponse? response = await _dialogService.show(
         DialogRequest(type: DialogType.gcodeParams, data: macro),
       );
@@ -291,7 +293,7 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
         var paramStr = paramsMap.keys
             .where((e) => paramsMap[e]!.trim().isNotEmpty)
             .map((e) => '${e.toUpperCase()}=${paramsMap[e]}')
-            .join(" ");
+            .join(' ');
         _printerService.gCode('${macro.macroName} $paramStr');
       }
     } else {

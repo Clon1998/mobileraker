@@ -15,10 +15,10 @@ class HttpHeaderDialog extends HookConsumerWidget {
   final DialogCompleter completer;
 
   const HttpHeaderDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,10 +31,10 @@ class HttpHeaderDialog extends HookConsumerWidget {
 
 class _HttpHeaderDialog extends HookConsumerWidget {
   const _HttpHeaderDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   final DialogRequest request;
   final DialogCompleter completer;

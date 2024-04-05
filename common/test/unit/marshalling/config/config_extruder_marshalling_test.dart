@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('ConfigExtruder.fromJson() creates ConfigExtruder instance from JSON', () {
-    final jsonString = '''
+    const jsonString = '''
         {
             "microsteps": 64,
             "sensor_type": "ATC Semitec 104GT-2",
@@ -47,9 +47,9 @@ void main() {
       ''';
 
     final jsonMap = json.decode(jsonString);
-    final configExtruder = ConfigExtruder.fromJson("test_name", jsonMap);
+    final configExtruder = ConfigExtruder.fromJson('test_name', jsonMap);
 
-    expect(configExtruder.name, "test_name");
+    expect(configExtruder.name, 'test_name');
     expect(configExtruder.nozzleDiameter, 0.4);
     expect(configExtruder.maxExtrudeOnlyDistance, 200);
     expect(configExtruder.minTemp, 10);
@@ -62,7 +62,7 @@ void main() {
   });
 
   test('ConfigExtruder.fromJson() creates ConfigExtruder instance from JSON with combined sensor', () {
-    final jsonString = '''
+    const jsonString = '''
         {
             "microsteps": 64,
             "sensor_type": "ATC Semitec 104GT-2",
@@ -100,9 +100,9 @@ void main() {
       ''';
 
     final jsonMap = json.decode(jsonString);
-    final configExtruder = ConfigExtruder.fromJson("test_name", jsonMap);
+    final configExtruder = ConfigExtruder.fromJson('test_name', jsonMap);
 
-    expect(configExtruder.name, "test_name");
+    expect(configExtruder.name, 'test_name');
     expect(configExtruder.nozzleDiameter, 0.4);
     expect(configExtruder.maxExtrudeOnlyDistance, 200);
     expect(configExtruder.minTemp, 10);

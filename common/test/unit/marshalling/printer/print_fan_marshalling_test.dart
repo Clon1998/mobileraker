@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2023. Patrick Schmidt.
+ * Copyright (c) 2023-2024. Patrick Schmidt.
  * All rights reserved.
  */
 
-import 'package:flutter_test/flutter_test.dart';
 import 'package:common/data/dto/machine/fans/print_fan.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import '../../../test_utils.dart';
 
@@ -18,7 +18,7 @@ void main() {
   test('PrintFan partialUpdate - speed', () {
     PrintFan old = printFanObject();
 
-    var updateJson = {"speed": 0.99};
+    var updateJson = {'speed': 0.99};
 
     var updatedObj = PrintFan.partialUpdate(old, updateJson);
 
@@ -31,7 +31,7 @@ PrintFan printFanObject() {
   String input =
       '{"result": {"status": {"fan": {"speed": 0.55, "rpm": null}}, "eventtime": 3801252.15548827}}';
 
-  var jsonRaw = objectFromHttpApiResult(input, "fan");
+  var jsonRaw = objectFromHttpApiResult(input, 'fan');
 
   return PrintFan.fromJson(jsonRaw);
 }

@@ -95,7 +95,7 @@ String urlToHttpUrl(String enteredURL) {
 }
 
 String beautifyName(String name) {
-  return name.replaceAll("_", " ").titleCase();
+  return name.replaceAll('_', ' ').titleCase();
 }
 
 FormFieldValidator<T> notContains<T>(

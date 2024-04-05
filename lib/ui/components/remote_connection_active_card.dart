@@ -13,7 +13,7 @@ import 'package:mobileraker/ui/components/connection/client_type_indicator.dart'
 final dismissiedRemoteInfoProvider = StateProvider<bool>((ref) => false);
 
 class RemoteConnectionActiveCard extends ConsumerWidget {
-  const RemoteConnectionActiveCard({Key? key, required this.machineId}) : super(key: key);
+  const RemoteConnectionActiveCard({super.key, required this.machineId});
 
   final String machineId;
 

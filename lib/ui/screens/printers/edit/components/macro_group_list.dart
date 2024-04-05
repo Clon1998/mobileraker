@@ -314,7 +314,7 @@ class MacroGroupListController extends _$MacroGroupListController {
   }
 
   onMacroGroupReorderStart(int index) {
-    logger.i("on Macro Group Reorder Start. Index: $index");
+    logger.i('on Macro Group Reorder Start. Index: $index');
     var list = state.requireValue;
     _beforeReorderExpandedGroups.clear();
 
@@ -328,7 +328,7 @@ class MacroGroupListController extends _$MacroGroupListController {
   }
 
   onMacroGroupReorder(int oldIndex, int newIndex) {
-    logger.i("on Macro Group Reorder. Old: $oldIndex, New: $newIndex");
+    logger.i('on Macro Group Reorder. Old: $oldIndex, New: $newIndex');
     if (!state.hasValue) return;
 
     state = state.whenData((groups) {
@@ -344,7 +344,7 @@ class MacroGroupListController extends _$MacroGroupListController {
   }
 
   onMacroGroupReorderEnd(int index) async {
-    logger.i("on Macro Group Reorder End. Index: $index");
+    logger.i('on Macro Group Reorder End. Index: $index');
     // Slivers/Reorderable list uses 250ms as default duration
     await Future.delayed(const Duration(milliseconds: 340));
     for (var value in _beforeReorderExpandedGroups) {
@@ -365,7 +365,7 @@ class MacroGroupListController extends _$MacroGroupListController {
   }
 
   onMacroInGroupReorder(MacroGroup group, int oldIdx, int newIdx) {
-    logger.i("on Macro In Group Reorder");
+    logger.i('on Macro In Group Reorder');
 
     state = state.whenData((value) {
       var macros = group.macros.toList();

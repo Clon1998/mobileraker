@@ -32,7 +32,7 @@ void main() {
     expect(configPrintCoolingFan.cycleTime, 0.01);
     expect(configPrintCoolingFan.hardwarePwm, false);
     expect(configPrintCoolingFan.shutdownSpeed, 0);
-    expect(configPrintCoolingFan.pin, "PA8");
+    expect(configPrintCoolingFan.pin, 'PA8');
     expect(configPrintCoolingFan.tachometerPin, isNull);
     expect(configPrintCoolingFan.tachometerPpr, 2);
     expect(configPrintCoolingFan.tachometerPollInterval, 0.0015);
@@ -65,10 +65,10 @@ void main() {
     expect(configPrintCoolingFan.cycleTime, 0.01);
     expect(configPrintCoolingFan.hardwarePwm, false);
     expect(configPrintCoolingFan.shutdownSpeed, 0);
-    expect(configPrintCoolingFan.pin, "PA8");
-    expect(configPrintCoolingFan.tachometerPin, "PA2");
+    expect(configPrintCoolingFan.pin, 'PA8');
+    expect(configPrintCoolingFan.tachometerPin, 'PA2');
     expect(configPrintCoolingFan.tachometerPpr, 4);
     expect(configPrintCoolingFan.tachometerPollInterval, 0.3);
-    expect(configPrintCoolingFan.enablePin, "PA1");
+    expect(configPrintCoolingFan.enablePin, 'PA1');
   });
 }

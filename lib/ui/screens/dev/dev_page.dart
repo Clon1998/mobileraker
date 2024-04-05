@@ -26,8 +26,8 @@ import 'package:path_provider/path_provider.dart';
 
 class DevPage extends HookConsumerWidget {
   DevPage({
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
 
   String? _bla;
 
@@ -72,8 +72,8 @@ class DevPage extends HookConsumerWidget {
                     Row(
                       children: [
                         Expanded(child: Text(entry.value.name, style: Theme.of(context).textTheme.labelLarge)),
-                        IconButton(onPressed: () => null, icon: Icon(Icons.restart_alt)),
-                        IconButton(onPressed: () => null, icon: Icon(Icons.stop)),
+                        IconButton(onPressed: () {}, icon: const Icon(Icons.restart_alt)),
+                        IconButton(onPressed: () {}, icon: const Icon(Icons.stop)),
                       ],
                     ),
 
@@ -114,11 +114,11 @@ class DevPage extends HookConsumerWidget {
   }
 
   stateActivity() async {
-    final _liveActivitiesPlugin = LiveActivities();
+    final liveActivitiesPlugin = LiveActivities();
     logger.i('#1');
-    await _liveActivitiesPlugin.init(appGroupId: "group.mobileraker.liveactivity");
+    await liveActivitiesPlugin.init(appGroupId: 'group.mobileraker.liveactivity');
     logger.i('#2');
-    var activityState = await _liveActivitiesPlugin.getActivityState('123123');
+    var activityState = await liveActivitiesPlugin.getActivityState('123123');
     logger.i('Got state message: $activityState');
   }
 
@@ -217,7 +217,7 @@ void dummyDownload() async {
   ));
 
   // Some file that is rather "large" and takes longer to download
-  var uri = "https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip";
+  var uri = 'https://github.com/cfug/flutter.cn/archive/refs/heads/main.zip';
 
   var response = await dio.download(
     uri,

@@ -12,10 +12,10 @@ class StackTraceDialog extends StatelessWidget {
   final DialogCompleter completer;
 
   const StackTraceDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

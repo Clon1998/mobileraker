@@ -129,7 +129,7 @@ class _PaywallPage extends ConsumerWidget {
           data: (data) => _PaywallOfferings(model: data),
           error: (e, s) {
             if (e is PlatformException) {
-              if (e.code == "3") {
+              if (e.code == '3') {
                 var themeData = Theme.of(context);
                 var textStyleOnError = TextStyle(color: themeData.colorScheme.onErrorContainer);
                 return ErrorCard(

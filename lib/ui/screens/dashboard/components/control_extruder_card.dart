@@ -37,7 +37,7 @@ part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';
 
 class ControlExtruderCard extends ConsumerWidget {
-  const ControlExtruderCard({Key? key, required this.machineUUID}) : super(key: key);
+  const ControlExtruderCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 

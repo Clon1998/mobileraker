@@ -372,7 +372,7 @@ class JsonRpcClient {
     var httpUri = uri.toHttpUri();
     try {
       logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine error reason');
-      var request = await _httpClient.openUrl("GET", httpUri);
+      var request = await _httpClient.openUrl('GET', httpUri);
       headers.forEach((key, value) {
         request.headers.add(key, value);
       });
@@ -404,7 +404,7 @@ class JsonRpcClient {
     try {
       logger.w('$logPrefix Sending GET to ${httpUri.obfuscate()} to determine obico statusCode');
 
-      var request = await client.openUrl("GET", httpUri);
+      var request = await client.openUrl('GET', httpUri);
       headers.forEach((key, value) {
         request.headers.add(key, value);
       });

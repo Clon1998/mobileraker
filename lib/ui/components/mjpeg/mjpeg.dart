@@ -32,7 +32,7 @@ typedef MjpegImageBuilder = Widget Function(
 
 class Mjpeg extends ConsumerWidget {
   const Mjpeg({
-    Key? key,
+    super.key,
     required this.dio,
     required this.config,
     this.stackChild = const [],
@@ -41,7 +41,7 @@ class Mjpeg extends ConsumerWidget {
     this.height,
     this.showFps = false,
     this.imageBuilder,
-  }) : super(key: key);
+  });
 
   final Dio dio;
   final MjpegConfig config;
@@ -104,11 +104,11 @@ class Mjpeg extends ConsumerWidget {
 
 class _ErrorWidget extends StatelessWidget {
   const _ErrorWidget({
-    Key? key,
+    super.key,
     required this.config,
     this.error,
     this.onRetryPressed,
-  }) : super(key: key);
+  });
 
   final MjpegConfig config;
   final Object? error;
@@ -143,14 +143,14 @@ class _ErrorWidget extends StatelessWidget {
 
 class _TransformedImage extends ConsumerWidget {
   const _TransformedImage({
-    Key? key,
+    super.key,
     required this.provider,
     this.rotation = 0,
     this.transform,
     this.fit,
     this.width,
     this.height,
-  }) : super(key: key);
+  });
 
   final _MjpegControllerProvider provider;
   final int rotation;
@@ -191,7 +191,7 @@ class _TransformedImage extends ConsumerWidget {
 }
 
 class _FPSDisplay extends ConsumerWidget {
-  const _FPSDisplay({Key? key, required this.provider}) : super(key: key);
+  const _FPSDisplay({super.key, required this.provider});
 
   final _MjpegControllerProvider provider;
 

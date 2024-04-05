@@ -420,7 +420,7 @@ Future<FileDownload> isolateDownloadFile({
 
     logger.i('Download complete');
     return FileDownloadComplete(file);
-  } on DioException catch (e) {
+  } on DioException {
     rethrow;
   } catch (e) {
     logger.e('Error inside of isolate', e);

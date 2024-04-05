@@ -8,7 +8,7 @@ import 'package:dio/dio.dart';
 import 'mobileraker_exception.dart';
 
 class ObicoException extends MobilerakerException {
-  const ObicoException(String message, {super.parentException, super.parentStack}) : super(message);
+  const ObicoException(super.message, {super.parentException, super.parentStack});
 
   @override
   String toString() {
@@ -17,8 +17,7 @@ class ObicoException extends MobilerakerException {
 }
 
 class ObicoHttpException extends ObicoException {
-  const ObicoHttpException(String message, this.statusCode, {super.parentException, super.parentStack})
-      : super(message);
+  const ObicoHttpException(super.message, this.statusCode, {super.parentException, super.parentStack});
 
   final int statusCode;
 

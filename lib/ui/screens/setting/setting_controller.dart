@@ -62,9 +62,8 @@ class NotificationProgressSettingController extends AutoDisposeNotifier<Progress
   @override
   ProgressNotificationMode build() {
     int progressModeInt = ref.watch(settingServiceProvider).readInt(AppSettingKeys.progressNotificationMode, -1);
-    var progressMode = (progressModeInt < 0)
-        ? ProgressNotificationMode.TWENTY_FIVE
-        : ProgressNotificationMode.values[progressModeInt];
+    var progressMode =
+        (progressModeInt < 0) ? ProgressNotificationMode.TWENTY_FIVE : ProgressNotificationMode.values[progressModeInt];
 
     return progressMode;
   }
@@ -78,9 +77,18 @@ class NotificationProgressSettingController extends AutoDisposeNotifier<Progress
 
     List<Machine> allMachine = await ref.read(allMachinesProvider.future);
     for (var machine in allMachine) {
-      ref
-          .read(machineServiceProvider)
-          .updateMachineFcmNotificationConfig(machine: machine, mode: mode);
+      ref.read(machineServiceProvider).updateMachineFcmNotificationConfig(machine: machine, mode: mode);
+    }
+  }
+
+  void onProgressbarChanged(bool mode) async {
+    ref.read(settingServiceProvider).writeBool(AppSettingKeys.useProgressbarNotifications, mode ?? false);
+
+    // Now also propagate it to all connected machines!
+
+    List<Machine> allMachine = await ref.read(allMachinesProvider.future);
+    for (var machine in allMachine) {
+      ref.read(machineServiceProvider).updateMachineFcmNotificationConfig(machine: machine, progressbar: mode);
     }
   }
 }

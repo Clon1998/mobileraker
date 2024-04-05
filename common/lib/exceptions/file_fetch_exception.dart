@@ -9,7 +9,7 @@ class FileFetchException extends MobilerakerException {
   final String? reqPath;
   final Object? parent;
 
-  const FileFetchException(String message, {this.reqPath, this.parent}) : super(message);
+  const FileFetchException(super.message, {this.reqPath, this.parent});
 
   @override
   String toString() {
@@ -21,7 +21,7 @@ class FileActionException extends MobilerakerException {
   final String? reqPath;
   final Object? parent;
 
-  const FileActionException(String message, {this.reqPath, this.parent}) : super(message);
+  const FileActionException(super.message, {this.reqPath, this.parent});
 
   @override
   String toString() {

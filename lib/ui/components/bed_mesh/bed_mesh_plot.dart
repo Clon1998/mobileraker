@@ -96,8 +96,10 @@ class BedMeshPlot extends StatelessWidget {
                 cord[0],
                 cord[1],
                 cord[2],
-                radius: 15,
-                color: gradient.getColorAtPosition(scaler.scale(cord[2]).toDouble()),
+                dotPainter: FlDotCirclePainter(
+                  color: gradient.getColorAtPosition(scaler.scale(cord[2]).toDouble()),
+                  radius: 15,
+                ),
               ),
           ],
           scatterTouchData: ScatterTouchData(
@@ -133,7 +135,7 @@ class BedMeshPlot extends StatelessWidget {
 }
 
 class _ZScatterSpot extends ScatterSpot {
-  _ZScatterSpot(super.x, super.y, this.z, {super.radius, super.color, super.show});
+  _ZScatterSpot(super.x, super.y, this.z, {super.dotPainter, super.show});
 
   final double z;
 
@@ -143,16 +145,14 @@ class _ZScatterSpot extends ScatterSpot {
     double? y,
     double? z,
     bool? show,
-    double? radius,
-    Color? color,
+    FlDotPainter? dotPainter,
   }) {
     return _ZScatterSpot(
       x ?? this.x,
       y ?? this.y,
       z ?? this.z,
       show: show ?? this.show,
-      radius: radius ?? this.radius,
-      color: color ?? this.color,
+      dotPainter: dotPainter ?? this.dotPainter,
     );
   }
 
@@ -162,8 +162,7 @@ class _ZScatterSpot extends ScatterSpot {
         y,
         z,
         show,
-        radius,
-        color,
+        dotPainter,
       ];
 }
 

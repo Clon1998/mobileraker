@@ -27,8 +27,8 @@ void main() {
     var gcodeMove = gcodeMoveObject();
 
     var parsedJson = {
-      "homing_origin": [0, 23.4, 11.0, 0],
-      "speed_factor": 2.24,
+      'homing_origin': [0, 23.4, 11.0, 0],
+      'speed_factor': 2.24,
     };
 
     var gcodeMoveUpdated = GCodeMove.partialUpdate(gcodeMove, parsedJson);
@@ -49,7 +49,7 @@ void main() {
     String update =
         '{"result": {"status": {"gcode_move": {"homing_origin": [0,0,0,0], "speed_factor": 0.2, "gcode_position": [3.3,0,0,1.0], "absolute_extrude": true, "absolute_coordinates": false, "position": [0, 1, 2, 3], "speed": 1500.0, "extrude_factor": 0.71}}, "eventtime": 3790887.876200505}}';
 
-    var parsedJson = objectFromHttpApiResult(update, "gcode_move");
+    var parsedJson = objectFromHttpApiResult(update, 'gcode_move');
 
     var gcodeMoveUpdated = GCodeMove.partialUpdate(gcodeMove, parsedJson);
 
@@ -69,7 +69,7 @@ GCodeMove gcodeMoveObject() {
   String input =
       '{"result": {"status": {"gcode_move": {"homing_origin": [1.1, 2.2, 3.3, 4.4], "speed_factor": 1.2333, "gcode_position": [0.0, 1.1, 2.2, 3.3], "absolute_extrude": false, "absolute_coordinates": true, "position": [0, 1, 2, 3], "speed": 1500.0, "extrude_factor": 0.71123}}, "eventtime": 3790887.876200505}}';
 
-  var parsedJson = objectFromHttpApiResult(input, "gcode_move");
+  var parsedJson = objectFromHttpApiResult(input, 'gcode_move');
 
   return GCodeMove.fromJson(parsedJson);
 }

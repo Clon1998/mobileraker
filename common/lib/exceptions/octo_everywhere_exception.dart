@@ -8,7 +8,7 @@ import 'package:dio/dio.dart';
 import 'mobileraker_exception.dart';
 
 class OctoEverywhereException extends MobilerakerException {
-  const OctoEverywhereException(String message, {super.parentException, super.parentStack}) : super(message);
+  const OctoEverywhereException(super.message, {super.parentException, super.parentStack});
 
   @override
   String toString() {
@@ -17,8 +17,7 @@ class OctoEverywhereException extends MobilerakerException {
 }
 
 class OctoEverywhereHttpException extends OctoEverywhereException {
-  const OctoEverywhereHttpException(String message, this.statusCode, {super.parentException, super.parentStack})
-      : super(message);
+  const OctoEverywhereHttpException(super.message, this.statusCode, {super.parentException, super.parentStack});
 
   final int statusCode;
 

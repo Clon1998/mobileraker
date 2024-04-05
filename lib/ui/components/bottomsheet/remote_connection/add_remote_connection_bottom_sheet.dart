@@ -24,7 +24,7 @@ import '../../../screens/printers/components/section_header.dart';
 import '../../obico_widgets.dart';
 
 class AddRemoteConnectionBottomSheet extends ConsumerWidget {
-  const AddRemoteConnectionBottomSheet({Key? key, required this.args}) : super(key: key);
+  const AddRemoteConnectionBottomSheet({super.key, required this.args});
 
   final AddRemoteConnectionSheetArgs args;
 
@@ -45,7 +45,7 @@ class AddRemoteConnectionBottomSheet extends ConsumerWidget {
 }
 
 class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
-  const _AddRemoteConnectionBottomSheet({Key? key, required this.scrollController}) : super(key: key);
+  const _AddRemoteConnectionBottomSheet({super.key, required this.scrollController});
 
   final ScrollController scrollController;
 
@@ -142,7 +142,7 @@ class _AddRemoteConnectionBottomSheet extends HookConsumerWidget {
 }
 
 class _OctoTab extends ConsumerWidget {
-  const _OctoTab({Key? key, required this.scrollController}) : super(key: key);
+  const _OctoTab({super.key, required this.scrollController});
   final ScrollController scrollController;
 
   @override
@@ -210,7 +210,7 @@ class _OctoTab extends ConsumerWidget {
 }
 
 class _ManualTab extends ConsumerWidget {
-  const _ManualTab({Key? key, required this.scrollController}) : super(key: key);
+  const _ManualTab({super.key, required this.scrollController});
 
   final ScrollController scrollController;
 
@@ -301,7 +301,7 @@ class _ManualTab extends ConsumerWidget {
 }
 
 class _ObicoTab extends ConsumerWidget {
-  const _ObicoTab({Key? key, required this.scrollController}) : super(key: key);
+  const _ObicoTab({super.key, required this.scrollController});
   final ScrollController scrollController;
 
   @override
@@ -332,6 +332,28 @@ class _ObicoTab extends ConsumerWidget {
                         'bottom_sheets.add_remote_con.obico.description',
                         textAlign: TextAlign.center,
                       ).tr(),
+                      if (model.activeClientType == null) ...[
+                        SectionHeader(title: tr('bottom_sheets.add_remote_con.obico.self_hosted.title')),
+                        Text(
+                          'bottom_sheets.add_remote_con.obico.self_hosted.description',
+                          textAlign: TextAlign.justify,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ).tr(),
+                        FormBuilderTextField(
+                          name: 'obico.uri',
+                          decoration: InputDecoration(
+                            labelText: tr('bottom_sheets.add_remote_con.obico.self_hosted.url_label'),
+                            helperText: tr('bottom_sheets.add_remote_con.obico.self_hosted.url_hint'),
+                            hintText: 'https://app.obico.io',
+                            hintMaxLines: null,
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                          ),
+                          validator: FormBuilderValidators.compose([
+                            // FormBuilderValidators.required(),
+                            FormBuilderValidators.url(requireTld: false),
+                          ]),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -360,6 +382,12 @@ class _ObicoTab extends ConsumerWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall,
           ).tr(namedArgs: {'service': 'Obico'}),
+          // if (model.activeClientType == null)
+          //   TextButton(
+          //     style: TextButton.styleFrom(padding: EdgeInsets.zero, visualDensity: VisualDensity.compact),
+          //     onPressed: controller.linkObico,
+          //     child: Text('Link self hosted Obico'),
+          //   ),
         ],
       ),
     );

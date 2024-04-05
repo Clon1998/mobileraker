@@ -55,5 +55,6 @@ class Extruder with _$Extruder, HeaterMixin {
     return Extruder.fromJson(mergedJson);
   }
 
+  @override
   String get name => 'extruder${this.num > 0 ? this.num : ''}';
 }

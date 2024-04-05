@@ -22,10 +22,10 @@ class ImportSettingsDialog extends ConsumerWidget {
   final DialogCompleter completer;
 
   const ImportSettingsDialog({
-    Key? key,
+    super.key,
     required this.request,
     required this.completer,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,7 +42,7 @@ class ImportSettingsDialog extends ConsumerWidget {
 }
 
 class _ImportSettingsDialog extends ConsumerWidget {
-  const _ImportSettingsDialog({Key? key}) : super(key: key);
+  const _ImportSettingsDialog({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -107,7 +107,7 @@ class _ImportSettingsDialog extends ConsumerWidget {
 }
 
 class _DialogBody extends ConsumerWidget {
-  const _DialogBody({Key? key}) : super(key: key);
+  const _DialogBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -249,7 +249,7 @@ class _DialogBody extends ConsumerWidget {
 }
 
 class _Footer extends ConsumerWidget {
-  const _Footer({Key? key}) : super(key: key);
+  const _Footer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

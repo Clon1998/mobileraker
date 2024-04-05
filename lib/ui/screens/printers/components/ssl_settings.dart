@@ -42,6 +42,7 @@ class SslSettings extends HookConsumerWidget {
         } else {
           textController.text = model.fingerprintSHA256!.toUpperCase();
         }
+        return null;
       },
       [model.fingerprintSHA256],
     );
