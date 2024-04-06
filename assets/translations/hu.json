@@ -47,7 +47,9 @@
     "save": "Mentés",
     "apply": "Alkalmaz",
     "completed": "Befejezve",
-    "activate": "Aktivál"
+    "activate": "Aktivál",
+    "stop": "Stop",
+    "start": "Start"
   },
   "pages": {
     "dashboard": {
@@ -159,7 +161,8 @@
         },
         "power_card": {
           "title": "Energia Panel",
-          "pin_btn": "Tű"
+          "pin_btn": "Tű",
+          "provider_error_title": "Hiba a Power Api eszközök lekérdezésénél"
         },
         "multipl_card": {
           "title": "Szorzók",
@@ -194,7 +197,8 @@
           "title": "Spoolman",
           "no_spool": "Nincs orsó kiválasztva.\nA nyomtatószál-használatot nem követi nyomon.",
           "select_spool": "Válassz orsót",
-          "used": "Használt: {}"
+          "used": "Használt: {}",
+          "provider_error_title": "Hiba a Spoolman adatok lekérdezésében"
         }
       }
     },
@@ -222,8 +226,8 @@
         "meta_card": {
           "title": "G-kód Meta adatok",
           "filament": "Nyomtatószál",
-          "filament_type": "Nyomtatószál típusa",
-          "filament_name": "Nyomtatószál neve",
+          "filament_type": "Típus",
+          "filament_name": "Név",
           "filament_weight": "Súly",
           "filament_length": "Hossz",
           "est_print_time": "Becsült nyomtatási idő",
@@ -259,18 +263,33 @@
       "general": {
         "title": "Általános",
         "ems_confirm": "Vészleállítás megerősítése",
-        "always_baby": "Mindig mutassa a mikroléptető kártyát",
-        "num_edit": "Számbevitelhez billentyűzet használata",
+        "ems_confirm_hint": "Mindig jelenítse meg a Z-Eltolás kártyát a műszerfalon.",
+        "always_baby": "Z-Eltolás kártya üzemmód",
+        "always_baby_hint": "Mindig mutassa a mikroléptető kártyát",
+        "num_edit": "Számbeviteli billentyűzet mód",
+        "num_edit_hint": "Számbillentyűk használata számbevitelhez csúszkák helyett",
         "start_with_overview": "@:pages.overview.title mutatása alapesetben",
+        "start_with_overview_hint": "Alkalmazás indítása a főoldallal az aktív nyomtató műszerfala helyett.",
         "use_offset_pos": "Koordináták megjelenítése adott eltolás mellett",
+        "use_offset_pos_hint": "Hozzáadja az eltolást a megjelenített koordinátákhoz",
         "lcFullCam": "Teljes képernyős webkamera fekvő helyzetben",
+        "lcFullCam_hint": "Kamerakép tájképre váltása teljes képernyős módban",
         "language": "Nyelv",
         "companion": "Ismerd meg, hogyan kell a Mobileraker's Companion-t beállítani ",
-        "sliders_grouping": "Csúszó kártyák csoportosítása"
+        "sliders_grouping": "Csúszó kártyák csoportosítása",
+        "sliders_grouping_hint": "Csúszkák csoportosítása egy kártyába",
+        "time_format": "Idő formátum",
+        "system_theme": "UI téma",
+        "system_theme_mode": "Téma fényerő",
+        "printer_theme_warning": "Jelenleg egy nyomtatóspecifikus témát használsz. Ha módosítani szeretnéd, lépj a nyomtató beállításaihoz.",
+        "filament_sensor_dialog": "Szálérzékelő riasztások megjelenítése",
+        "filament_sensor_dialog_hint": "Egy párbeszédpanel megjelenítése a szálérzékelő működésekor",
+        "confirm_gcode": "Makró végrehajtás megerősítése",
+        "confirm_gcode_hint": "A GCode-Macro végrehajtása előtt mindig megjelenik egy megerősítő párbeszédpanel a műszerfalon."
       },
       "notification": {
         "title": "Értesítés",
-        "progress_label": "Haladási értesítés",
+        "progress_label": "Programsáv értesítés",
         "progress_helper": "Frissítési időköz a nyomtatási folyamatról szóló értesítéshez",
         "state_label": "Állami értesítés",
         "state_helper": "Állapotváltozásról szóló értesítést kiadó államok",
@@ -278,11 +297,16 @@
         "no_permission_desc": "Az értesítések nem jeleníthetők meg.\nKérj engedélyt kattintással!",
         "no_firebase_title": "Az értesítések nem jeleníthetők meg",
         "no_firebase_desc": "A Mobileraker nem tud értesítést küldeni az eszközre.\nÚgy tűnik, hogy eszközödről hiányoznak a Google Play-szolgáltatások, vagy blokkolja a Firebase-kapcsolatot!",
-        "ios_notifications_title": "IOS értesítések kézbesítése",
+        "ios_notifications_title": "iOS értesítések kézbesítése",
         "ios_notifications_desc": "Az értesítésekhez a Mobilerakert legalább egyszer meg kell nyitni, és a háttérben kell futnia.\nElőfordulhat, hogy néhány értesítést még mindig letiltott az operációs rendszer!",
         "missing_companion_title": "Társ nem található!",
         "missing_companion_body": "Úgy tűnik, hogy a társ nincs telepítve, ezért a következő gépek nem tudnak értesítést küldeni: {}\nKoppints további információért!",
-        "enable_live_activity": "Élő tevékenység engedélyezése"
+        "enable_live_activity": "Élő tevékenység engedélyezése",
+        "enable_live_activity_helper": "Engedélyezi az élő tevékenység használatát az alapértelmezett programsáv értesítések mellett.",
+        "opt_out_marketing": "Marketing értesítések",
+        "opt_out_marketing_helper": "Frissítéseket kaphatsz az eladásokról és promóciókról",
+        "use_progressbar_notification": "Programsáv értesítés engedélyezése",
+        "use_progressbar_notification_helper": "Engedélyezi a programsáv értesítés használatát az alapértelmezett szöveges programsáv értesítések mellett."
       },
       "developer": {
         "title": "Fejlesztő",
@@ -664,7 +688,9 @@
       "body": "Megadhatsz egy IP-címet, URL-t vagy teljes URI-t a webes felületen, vagy közvetlenül a moonraker által biztosított websocket példányban.\n\nÉrvényes példák:"
     },
     "gcode_params": {
-      "hint": "Tipp: Ha a makrót alapértelmezett értékekkel szeretnéd elküldeni, akkor hosszan nyomd!"
+      "hint": "Tipp: Ha a makrót alapértelmezett értékekkel szeretnéd elküldeni, akkor hosszan nyomd!",
+      "confirm_title": "Végrehajtás {}?",
+      "confirm_body": "A makró végrehajtása előtt állsz '{}'.\n\nErősítsd meg a műveletet."
     },
     "rgbw": {
       "recent_colors": "Legutóbbi színek"
@@ -741,6 +767,13 @@
     },
     "extruder_feedrate": {
       "title": "Adagoló sebessége [mm/s]"
+    },
+    "fan_speed": {
+      "title": "Szerkesztés {} %"
+    },
+    "filament_sensor_triggered": {
+      "title": "Szálérzékelő aktiválva",
+      "body": "Az '{}' érzékelő működésbe lépett.\n\nKérjük, ellenőrizd a nyomtatót és az érzékelőt, hogy a szál rendelkezésre áll-e, vagy tiltsd le az érzékelőt."
     }
   },
   "bottom_sheets": {
@@ -777,7 +810,13 @@
         "tab_name": "@:bottom_sheets.add_remote_con.obico.service_name",
         "link": "Kapcsolódás Obico",
         "unlink": "Leválasztás Obico",
-        "description": "Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja."
+        "description": "Az Obico egy közösség által irányított, teljesen nyílt forráskódú 3D nyomtatási szoftver. Lehetővé teszi, hogy bárhonnan, ingyenesen vezérelhesd és felügyelhesd Klipper nyomtatódat. Az egyik úttörő megoldás a mesterséges intelligencia alapú hibaérzékelésre, amely csak a nyomtató webkameráját használja.",
+        "self_hosted": {
+          "title": "Self-Hosted",
+          "description": "Alapértelmezés szerint a Mobileraker a hivatalos Obico példányt használja. Ha azonban saját példányt kezelsz, itt megadhatod annak URL-címét.",
+          "url_label": "Saját URL",
+          "url_hint": "A saját üzemeltetésű Obico-példány alap-URL-je"
+        }
       }
     },
     "manage_macros_in_grp": {
@@ -828,6 +867,13 @@
       "scan_again": "Újabb szkennelés",
       "set_active": "Beállítás aktívnak",
       "spool_id_not_found": "Sajnálom, a megadott azonosítóval #{} nem találtam orsót."
+    },
+    "non_printing": {
+      "manage_service": {
+        "title": "Szolgáltatások kezelése",
+        "no_services": "Nincs szolgáltatás!",
+        "provider_error": "Hiba a szolgáltatások lekérése során"
+      }
     }
   },
   "klipper_state": {
@@ -839,6 +885,11 @@
     "unauthorized": "Jogosulatlan",
     "initializing": "Inicializálás",
     "not_connected": "Moonraker nem tud kapcsolatba lépni a Klipperrel. Kérjük, ellenőrizd, hogy a Klipper fut-e a rendszereden."
+  },
+  "theme_mode": {
+    "light": "Világos",
+    "dark": "Sötét",
+    "system": "Rendszer"
   },
   "notifications": {
     "channel_printer_grp": "Nyomtató {}",
