@@ -873,6 +873,20 @@
         "title": "Dienste verwalten",
         "no_services": "Keine Dienste gefunden!",
         "provider_error": "Fehler beim Laden der Dienste!"
+      },
+      "confirm_action": {
+        "title": "Sind Sie sicher?",
+        "hint": {
+          "long_press": "Hinweis: Durch langes Drücken können Sie die Aktion direkt ausführen."
+        },
+        "body": {
+          "pi_restart": "Sie sind dabei, den Raspberry Pi neu zu starten. Sind Sie sicher, dass Sie fortfahren wollen?",
+          "pi_shutdown": "Sie sind im Begriff, den Raspberry Pi herunterzufahren. Dadurch werden alle aktiven Verbindungen getrennt und alle laufenden Prozesse gestoppt. Sind Sie sicher, dass Sie fortfahren möchten?",
+          "fw_restart": "Sie sind im Begriff, die Firmware neu zu starten. Sind Sie sicher, dass Sie fortfahren möchten?",
+          "service_start": "Sie sind im Begriff, den Dienst '{}' zu starten. Sind Sie sicher, dass Sie fortfahren möchten?",
+          "service_restart": "Sie sind im Begriff, den Dienst '{}' neu zu starten. Sind Sie sicher, dass Sie fortfahren möchten?",
+          "service_stop": "Sie sind im Begriff, den Dienst '{}' zu beenden. Sind Sie sicher, dass Sie fortfahren möchten?"
+        }
       }
     }
   },

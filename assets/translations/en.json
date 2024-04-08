@@ -873,6 +873,20 @@
         "title": "Manage Services",
         "no_services": "No services found!",
         "provider_error": "Error while fetching services"
+      },
+      "confirm_action": {
+        "title": "Are you sure?",
+        "hint": {
+          "long_press": "Hint: To skip this, long press the button that opened this confirmation."
+        },
+        "body": {
+          "pi_restart": "You are about to restart the Raspberry Pi. Are you sure you want to proceed?",
+          "pi_shutdown": "You are about to shut down the Raspberry Pi. This will disconnect all active connections and stop all running processes. Are you sure you want to proceed?",
+          "fw_restart": "You are about to restart the firmware. Are you sure you want to proceed?",
+          "service_start": "You are about to start the service '{}'. Are you sure you want to proceed?",
+          "service_restart": "You are about to restart the service '{}'. Are you sure you want to proceed?",
+          "service_stop": "You are about to stop the service '{}'. Are you sure you want to proceed?"
+        }
       }
     }
   },
