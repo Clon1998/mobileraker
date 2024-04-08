@@ -54,7 +54,12 @@
   "pages": {
     "dashboard": {
       "title": "Dashboard",
-      "ems_btn": "Not-Halt",
+      "ems_btn": "Not-Aus",
+      "ems_confirmation": {
+        "title": "Not-Aus bestätigen",
+        "body": "Sie sind im Begriff, einen Not-Aus-Befehl an den Drucker zu senden. Dadurch werden alle Motoren und Heizelemente sofort angehalten.",
+        "confirm": "STOP!"
+      },
       "server_status": {
         "unavailable": "Kein Server verfügbar",
         "available": "Serverstatus ist {} und Klippy ist {}"
@@ -262,7 +267,7 @@
       "title": "App - Einstellungen",
       "general": {
         "title": "Allgemein",
-        "ems_confirm": "Bestätigung für Notaus",
+        "ems_confirm": "Bestätigung für Not-Aus",
         "ems_confirm_hint": "Zeige eine Bestätigungsdialog, bevor der Notaus-Befehl gesendet wird",
         "always_baby": "Z-Versatz Karte",
         "always_baby_hint": "Zeige die Z-Versatz Karte immer auf dem Dashboard",

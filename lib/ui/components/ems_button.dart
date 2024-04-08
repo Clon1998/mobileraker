@@ -32,9 +32,9 @@ class EmergencyStopBtn extends ConsumerWidget {
                   .read(settingServiceProvider)
                   .readBool(AppSettingKeys.confirmEmergencyStop, true)) {
                 var result = await ref.read(dialogServiceProvider).showConfirm(
-                      title: 'Emergency Stop - Confirmation',
-                      body: 'Are you sure?',
-                      confirmBtn: 'STOP!',
+                      title: tr('pages.dashboard.ems_confirmation.title'),
+                      body: tr('pages.dashboard.ems_confirmation.body'),
+                      confirmBtn: tr('pages.dashboard.ems_confirmation.confirm'),
                       confirmBtnColor: Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,
                     );
                 if (!(result?.confirmed ?? false)) return;

@@ -55,6 +55,11 @@
     "dashboard": {
       "title": "Dashboard",
       "ems_btn": "Emergency-Stop",
+      "ems_confirmation": {
+        "title": "Confirm Emergency-Stop",
+        "body": "You are about to send an emergency-stop command to the printer. This will immediately stop all motors and heaters.",
+        "confirm": "STOP!"
+      },
       "server_status": {
         "unavailable": "No Server available",
         "available": "Server State is {} and Klippy is {}"
