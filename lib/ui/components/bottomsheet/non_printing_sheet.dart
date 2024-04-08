@@ -5,6 +5,7 @@
 
 import 'dart:async';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/server/klipper_system_info.dart';
 import 'package:common/data/dto/server/service_status.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
@@ -150,7 +151,7 @@ class _Home extends ConsumerWidget {
                     backgroundColor: themeData.extension<CustomColors>()?.danger ?? Colors.red,
                     foregroundColor: themeData.extension<CustomColors>()?.onDanger ?? Colors.white,
                   ),
-                  child: const Text('general.shutdown').tr(),
+                  child: AutoSizeText(tr('general.shutdown'), maxLines: 1),
                 ),
               ),
             ),
@@ -172,7 +173,7 @@ class _Home extends ConsumerWidget {
                   ),
                   onPressed: () => _btnActionWithConfirm(klippyService.rebootHost, 'pi_restart'),
                   onLongPress: _btnAction(context, klippyService.rebootHost),
-                  child: const Text('general.restart').tr(),
+                  child: AutoSizeText(tr('general.restart'), maxLines: 1),
                 ),
               ),
             ),
@@ -182,13 +183,14 @@ class _Home extends ConsumerWidget {
         OutlinedButton(
           onPressed: () => _btnActionWithConfirm(klippyService.restartMCUs, 'fw_restart'),
           onLongPress: _btnAction(context, klippyService.restartMCUs),
-          child: Text(
-            '${tr('general.firmware')} ${tr('@.lower:general.restart')}',
-          ),
+          child: AutoSizeText('${tr('general.firmware')} ${tr('@.lower:general.restart')}', maxLines: 1),
         ),
         OutlinedButton(
           onPressed: () => pageController.value = 1,
-          child: const Text('bottom_sheets.non_printing.manage_service.title').tr(),
+          child: AutoSizeText(
+            tr('bottom_sheets.non_printing.manage_service.title'),
+            maxLines: 1,
+          ),
         ),
         // OutlinedButton(
         //   onPressed: _btnAction(context, klippyService.restartMoonraker),
@@ -198,7 +200,10 @@ class _Home extends ConsumerWidget {
           onPressed: () => ref
               .read(bottomSheetServiceProvider)
               .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
-          child: const Text('dialogs.supporter_perks.job_queue_perk.title').tr(),
+          child: AutoSizeText(
+            tr('dialogs.supporter_perks.job_queue_perk.title'),
+            maxLines: 1,
+          ),
         ),
 
         /// Dont strech the button
