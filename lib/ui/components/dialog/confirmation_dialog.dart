@@ -34,7 +34,7 @@ class ConfirmationDialog extends StatelessWidget {
         TextButton(
           onPressed: () => completer(DialogResponse.confirmed()),
           child: Text(
-            dialogRequest.confirmBtn ?? 'Confirm',
+            dialogRequest.confirmBtn ?? tr('general.confirm'),
             style: TextStyle(color: dialogRequest.confirmBtnColor),
           ),
         ),
