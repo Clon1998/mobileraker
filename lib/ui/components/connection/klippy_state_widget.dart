@@ -99,7 +99,7 @@ class _StateError extends ConsumerWidget {
                     ),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: data.klippyConnected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
                         onPressed: ref.read(connectionStateControllerProvider.notifier).onRestartKlipperPressed,
@@ -107,12 +107,13 @@ class _StateError extends ConsumerWidget {
                           'pages.dashboard.general.restart_klipper',
                         ).tr(),
                       ),
-                      ElevatedButton(
-                        onPressed: ref.read(connectionStateControllerProvider.notifier).onRestartMCUPressed,
-                        child: const Text(
-                          'pages.dashboard.general.restart_mcu',
-                        ).tr(),
-                      ),
+                      if (data.klippyConnected)
+                        ElevatedButton(
+                          onPressed: ref.read(connectionStateControllerProvider.notifier).onRestartMCUPressed,
+                          child: const Text(
+                            'pages.dashboard.general.restart_mcu',
+                          ).tr(),
+                        ),
                     ],
                   ),
                 ),

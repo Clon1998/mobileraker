@@ -264,13 +264,15 @@ class _KlippyStateActionButtons extends ConsumerWidget {
     var klippyState =
         ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.klipperState));
 
+    var klippyConnected =
+        ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.klippyConnected));
     var buttons = <Widget>[
       if ((const {KlipperState.shutdown, KlipperState.error, KlipperState.disconnected}.contains(klippyState)))
         ElevatedButton(
           onPressed: controller.restartKlipper,
           child: const Text('pages.dashboard.general.restart_klipper').tr(),
         ),
-      if ((const {KlipperState.shutdown, KlipperState.error}.contains(klippyState)))
+      if (klippyConnected && (const {KlipperState.shutdown, KlipperState.error}.contains(klippyState)))
         ElevatedButton(
           onPressed: controller.restartMCU,
           child: const Text('pages.dashboard.general.restart_mcu').tr(),
@@ -460,7 +462,7 @@ class _MachineStatusCard extends _$MachineStatusCard {
       printer,
       klipper,
       (a, b) => _Model(
-        klippyCanReceiveCommands: b.klippyCanReceiveCommands,
+        klippyConnected: b.klippyConnected,
         klippyStatusMessage: b.statusMessage,
         klipperState: b.klippyState,
         printState: a.print.state,
@@ -491,7 +493,7 @@ class _Model with _$Model {
   const _Model._();
 
   const factory _Model({
-    required bool klippyCanReceiveCommands,
+    required bool klippyConnected,
     required String klippyStatusMessage,
     required KlipperState klipperState,
     required PrintState printState,
@@ -507,4 +509,6 @@ class _Model with _$Model {
   bool get showExcludeObject => klippyCanReceiveCommands && isPrintingOrPaused && excludeObject?.available == true;
 
   bool get showToolheadTable => klippyCanReceiveCommands && isPrintingOrPaused;
+
+  bool get klippyCanReceiveCommands => klipperState == KlipperState.ready && klippyConnected;
 }
