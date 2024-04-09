@@ -14,7 +14,6 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
@@ -23,6 +22,7 @@ import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 
@@ -447,9 +447,6 @@ class _Confirm extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyService = ref.watch(klipperServiceSelectedProvider);
-    var dialogService = ref.watch(dialogServiceProvider);
-
     var themeData = Theme.of(context);
     var cc = themeData.extension<CustomColors>();
     return Column(
@@ -477,13 +474,18 @@ class _Confirm extends ConsumerWidget {
             ),
             FilledButton(
               style: FilledButton.styleFrom(backgroundColor: cc?.danger, foregroundColor: cc?.onDanger),
-              onPressed: () => pageController.value = 0,
+              onPressed: () => _onConfirm(context),
               child: const Text('general.confirm').tr(),
             ),
           ],
         ),
       ],
     );
+  }
+
+  _onConfirm(BuildContext ctx) {
+    action();
+    ctx.pop();
   }
 }
 
