@@ -18,6 +18,7 @@ import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,11 @@ typedef _ShowConfirmAction = void Function(String title, String body, VoidCallba
 class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet> {
   final GlobalKey _homeKey = GlobalKey();
 
+  final ValueNotifier<int> _page = ValueNotifier(0);
+
   double _sheetHeight = 300;
+
+  bool _closing = false;
 
   String _confirmTitle = '';
 
@@ -47,8 +52,6 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
 
   String? _confirmHint;
 
-  final ValueNotifier<int> _page = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -56,7 +59,11 @@ class _NonPrintingBottomSheetState extends ConsumerState<NonPrintingBottomSheet>
     ref.listenManual(jrpcClientStateSelectedProvider, (previous, next) {
       if (next.valueOrNull != ClientState.connected) {
         // Close the bottom sheet if the client is disconnected
-        Navigator.of(context).pop();
+        if (mounted && !_closing) {
+          logger.i('Closing bottom sheet because client is disconnected');
+          Navigator.of(context).pop();
+          _closing = true;
+        }
       }
     });
   }
