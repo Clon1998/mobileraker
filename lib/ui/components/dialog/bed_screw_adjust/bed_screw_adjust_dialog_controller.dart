@@ -24,7 +24,7 @@ class BedScrewAdjustDialogController extends _$BedScrewAdjustDialogController {
     // make sure we close the dialog once its resolved externally
     // also prevents opening the dialog by mistake!
     ref.listenSelf((previous, next) {
-      if (next.valueOrNull?.bedScrew.isActive == false) {
+      if (next.valueOrNull?.bedScrew.isActive == false && !_completed) {
         _complete(DialogResponse.aborted());
       }
     });
