@@ -15,6 +15,8 @@ class ConfigScrew with _$ConfigScrew {
   const ConfigScrew._();
 
   const factory ConfigScrew({
+    // NOTE THE INDEX is 1-based (1, 2, 3, ...)
+    required int index,
     required String name,
     required List<double> position,
     @JsonKey(name: 'fine_adjust') List<double>? finePosition,
@@ -42,7 +44,7 @@ List<dynamic> readScrewList(Map input, String key) {
     String screwAtt = (split.length == 1) ? 'position' : split.sublist(1).join('_');
 
     int screwIndex = int.parse(screwName.substring(5));
-    var screwJson = out.putIfAbsent(screwIndex, () => {});
+    var screwJson = out.putIfAbsent(screwIndex, () => {'index': screwIndex});
 
     screwJson[screwAtt] = json[key];
   });

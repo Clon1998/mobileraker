@@ -22,15 +22,20 @@ part 'screw_tilt_result.g.dart';
 
 @freezed
 class ScrewTiltResult with _$ScrewTiltResult {
+  const ScrewTiltResult._();
+
   @JsonSerializable(fieldRename: FieldRename.snake)
   const factory ScrewTiltResult({
     required String screw,
     @Double4PrecisionConverter() required double z,
     required String sign,
+    // Returns the screw adjustment in HH:MM format
     required String adjust,
     // Is it the screw of which the adjustments are based on
     @Default(false) bool isBase,
   }) = _ScrewTiltResult;
+
+  int get adjustMinutes => adjust.split(':').map(int.parse).reduce((a, b) => a * 60 + b);
 
   factory ScrewTiltResult.fromJson(String screw, Map<String, dynamic> json) =>
       _$ScrewTiltResultFromJson({'screw': screw, ...json});

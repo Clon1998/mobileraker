@@ -49,7 +49,8 @@
     "completed": "Abgeschlossen",
     "activate": "Activ",
     "stop": "Stoppen",
-    "start": "Starten"
+    "start": "Starten",
+    "repeat": "Wiederholen"
   },
   "pages": {
     "dashboard": {
@@ -779,6 +780,11 @@
     "filament_sensor_triggered": {
       "title": "Filament Sensor Ausgelöst",
       "body": "Sensor '{}' wurde ausgelöst.\n\nBitte überprüfen Sie sowohl den Drucker als auch den Sensor, um sicherzustellen, dass genügend Filament vorhanden ist oder deaktivieren Sie den Sensor, wenn er nicht benötigt wird."
+    },
+    "screws_tilt_adjust": {
+      "title": "Bettneigung einstellen",
+      "base": "Basis",
+      "hint": "Der Dialog hilft Ihnen, die Bett-Schrauben einzustellen. Für jede Schraube wird die erforderliche Anpassung als Uhrzeit (HH:MM) angezeigt. Zum Beispiel bedeutet 01:15 eine volle Umdrehung plus eine Vierteldrehung in die Richtung, die das Icon angibt."
     }
   },
   "bottom_sheets": {

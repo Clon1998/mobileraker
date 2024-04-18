@@ -66,17 +66,20 @@ class ScrewsTiltAdjust with _$ScrewsTiltAdjust {
   }
 }
 
-List<ScrewTiltResult> _parseResults(Map raw) {
-  return raw.entries
-      .map((e) {
-        String screwName = e.key;
-        Map<String, dynamic> value = (e.value as Map).map((key, value) => MapEntry(key as String, value));
+List<ScrewTiltResult> _parseResults(dynamic raw) {
+  return switch (raw) {
+    Map e => e.entries
+        .map((e) {
+          String screwName = e.key;
+          Map<String, dynamic> value = (e.value as Map).map((key, value) => MapEntry(key as String, value));
 
-        return ScrewTiltResult.fromJson(screwName, value);
-      })
-      // sort the entires by name ignoring case
-      .sorted((a, b) => compareAsciiLowerCaseNatural(a.screw, b.screw))
-      .toList();
+          return ScrewTiltResult.fromJson(screwName, value);
+        })
+        // sort the entires by name ignoring case
+        .sorted((a, b) => compareAsciiLowerCaseNatural(a.screw, b.screw))
+        .toList(),
+    _ => []
+  };
 }
 
 Map _deparseResults(List<ScrewTiltResult> results) {

@@ -49,7 +49,8 @@
     "completed": "Completed",
     "activate": "Activate",
     "stop": "Stop",
-    "start": "Start"
+    "start": "Start",
+    "repeat": "Repeat"
   },
   "pages": {
     "dashboard": {
@@ -779,6 +780,11 @@
     "filament_sensor_triggered": {
       "title": "Filament Sensor Triggered",
       "body": "Sensor '{}' has been triggered.\n\nPlease check the printer and the sensor to ensure filament is available or disable the sensor."
+    },
+    "screws_tilt_adjust": {
+      "title": "Screws Tilt Adjust",
+      "base": "Base",
+      "hint": "The dialog helps you adjust the screws of the bed. For each screw you are seeing the required adjustments as clock in HH:MM format. For example, 01:15 indicates a full rotation plus a quarter turn in the direction the icon indicates."
     }
   },
   "bottom_sheets": {
