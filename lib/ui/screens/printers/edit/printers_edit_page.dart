@@ -901,9 +901,17 @@ class _SegmentsState<T> extends State<Segments<T>> {
     );
   }
 
-  WillPopScope buildEditing(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () => cancel(),
+  Widget buildEditing(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        var pop = await cancel();
+        var naviator = Navigator.of(context);
+        if (pop && naviator.canPop()) {
+          naviator.pop();
+        }
+      },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [

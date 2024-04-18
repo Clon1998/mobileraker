@@ -36,8 +36,16 @@ class ManualOffsetDialog extends HookConsumerWidget {
 
     var numberFormat = NumberFormat('0.0##', context.locale.toStringWithSeparator());
 
-    return WillPopScope(
-      onWillPop: ref.read(controller.notifier).onPopTriggered,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        var pop = await ref.read(controller.notifier).onPopTriggered();
+        var naviator = Navigator.of(context);
+        if (pop && naviator.canPop()) {
+          naviator.pop();
+        }
+      },
       child: Dialog(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15),

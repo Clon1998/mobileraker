@@ -205,8 +205,16 @@ class _FilesBody extends ConsumerWidget {
 
     var controller = ref.watch(filesPageControllerProvider.notifier);
 
-    return WillPopScope(
-      onWillPop: controller.onWillPop,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        var pop = await controller.onWillPop();
+        var naviator = Navigator.of(context);
+        if (pop && naviator.canPop()) {
+          naviator.pop();
+        }
+      },
       child: Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(

@@ -56,8 +56,16 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
 
-    return WillPopScope(
-      onWillPop: ref.read(bedScrewAdjustDialogControllerProvider.notifier).onPopTriggered,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        var pop = await ref.read(bedScrewAdjustDialogControllerProvider.notifier).onPopTriggered();
+        var naviator = Navigator.of(context);
+        if (pop && naviator.canPop()) {
+          naviator.pop();
+        }
+      },
       child: Dialog(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15),
