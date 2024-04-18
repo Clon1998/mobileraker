@@ -110,7 +110,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
 
 // Provider to keep track of triggered filament sensors during the lifetime of the app rather than just the widget
 @riverpod
-Map<String, bool> _triggered(String machineUUID, _TriggeredRef ref) {
+Map<String, bool> _triggered(_TriggeredRef ref, String machineUUID) {
   ref.keepAlive();
   return {};
 }
