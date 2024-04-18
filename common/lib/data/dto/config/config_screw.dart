@@ -35,7 +35,7 @@ List<dynamic> readScrewList(Map input, String key) {
   Map<int, Map<String, dynamic>> out = {};
   var json = input.cast<String, dynamic>();
 
-  json.keys.where((key) => key.startsWith(RegExp(r'screw\d'))).forEach((key) {
+  json.keys.where((key) => key.startsWith(RegExp(r'screw\d+', caseSensitive: false))).forEach((key) {
     var split = key.split('_');
     String screwName = split[0];
     // remap #screw1: -> position
