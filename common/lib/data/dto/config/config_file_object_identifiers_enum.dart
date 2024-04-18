@@ -25,6 +25,7 @@ enum ConfigFileObjectIdentifiers {
   bed_mesh(null),
   filament_switch_sensor(null),
   filament_motion_sensor(null),
+  screws_tilt_adjust(null),
   ;
 
   /// IF it is possible to check a object with a == (null) or startsWith (true)
