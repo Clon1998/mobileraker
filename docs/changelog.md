@@ -6,7 +6,7 @@
 
 - Fixed an issue that, in some cases, prevented the app from refreshing a printer during a pull-to-refresh action.
 - The webcam card no longer displays an error if no webcams were found.
-
+- Filament runout sensor and calibration watcher now work correctly after switching between printers.
 ## [2.6.14] - 2024-03-25
 
 ### Changed Features

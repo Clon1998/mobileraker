@@ -25,16 +25,33 @@ class PrinterCalibrationWatcher extends ConsumerStatefulWidget {
 class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWatcher> {
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
-  @override
-  Widget build(BuildContext context) {
-    return widget.child;
-  }
+  ProviderSubscription<AsyncValue<bool?>>? _manualProbeSubscription;
+  ProviderSubscription<AsyncValue<bool?>>? _bedScrewSubscription;
 
   @override
   void initState() {
     super.initState();
+    _setup();
+  }
+
+  @override
+  void didUpdateWidget(PrinterCalibrationWatcher old) {
+    _setup();
+    super.didUpdateWidget(old);
+  }
+
+  @override
+  void dispose() {
+    _manualProbeSubscription?.close();
+    _bedScrewSubscription?.close();
+    super.dispose();
+  }
+
+  void _setup() {
+    _manualProbeSubscription?.close();
+    _bedScrewSubscription?.close();
     // We dont need to handle any error state here!
-    ref.listenManual(
+    _manualProbeSubscription = ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.manualProbe?.isActive),
       (previous, next) {
         if (next.valueOrNull == true && !_dialogService.isDialogOpen) {
@@ -49,7 +66,7 @@ class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWa
     );
 
     // We dont need to handle any error state here!
-    ref.listenManual(
+    _bedScrewSubscription = ref.listenManual(
       printerProvider(widget.machineUUID).selectAs((d) => d.bedScrew?.isActive),
       (previous, next) {
         if (next.valueOrNull == true && !_dialogService.isDialogOpen) {
@@ -62,5 +79,10 @@ class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWa
       },
       fireImmediately: true,
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
