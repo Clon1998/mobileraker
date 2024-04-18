@@ -40,14 +40,17 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
   @override
   void initState() {
     super.initState();
-    _setup();
-
     ref.listenManual(
       boolSettingProvider(AppSettingKeys.filamentSensorDialog, true),
       (previous, next) {
         logger.w('FilamentSensorWatcher: filamentSensorDialog setting changed from $previous to $next');
         if (next != _enabled) {
           _enabled = next;
+          if (_enabled) {
+            _setup();
+          } else {
+            _subscription?.close();
+          }
         }
       },
       fireImmediately: true,
@@ -56,7 +59,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
 
   @override
   void didUpdateWidget(FilamentSensorWatcher oldWidget) {
-    _setup();
+    if (_enabled) _setup();
     super.didUpdateWidget(oldWidget);
   }
 
