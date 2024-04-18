@@ -217,7 +217,11 @@ class _CardBody extends ConsumerWidget {
               ).tr(),
               onPressed: canExtrude ? () => controller.onMoveE(true) : null,
             ),
-            IconButton(onPressed: controller.onFeedrateButtonPressed, icon: const Icon(Icons.speed)),
+            IconButton(
+              onPressed: controller.onFeedrateButtonPressed,
+              icon: const Icon(Icons.speed),
+              color: Theme.of(context).colorScheme.primary,
+            ),
             ElevatedButton.icon(
               icon: const Icon(FlutterIcons.plus_ant),
               label: const Text(
