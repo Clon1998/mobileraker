@@ -6,6 +6,7 @@
 import 'package:common/data/dto/machine/bed_mesh/bed_mesh.dart';
 import 'package:common/data/dto/machine/filament_sensors/filament_sensor.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
+import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -46,6 +47,7 @@ class PrinterBuilder {
         virtualSdCard = printer.virtualSdCard,
         manualProbe = printer.manualProbe,
         bedScrew = printer.bedScrew,
+        screwsTiltAdjust = printer.screwsTiltAdjust,
         firmwareRetraction = printer.firmwareRetraction,
         bedMesh = printer.bedMesh,
         fans = printer.fans,
@@ -73,6 +75,7 @@ class PrinterBuilder {
   VirtualSdCard? virtualSdCard;
   ManualProbe? manualProbe;
   BedScrew? bedScrew;
+  ScrewsTiltAdjust? screwsTiltAdjust;
   GCodeFile? currentFile;
   FirmwareRetraction? firmwareRetraction;
   BedMesh? bedMesh;
@@ -120,6 +123,7 @@ class PrinterBuilder {
       virtualSdCard: virtualSdCard!,
       manualProbe: manualProbe,
       bedScrew: bedScrew,
+      screwsTiltAdjust: screwsTiltAdjust,
       firmwareRetraction: firmwareRetraction,
       bedMesh: bedMesh,
       currentFile: currentFile,
@@ -154,6 +158,7 @@ class Printer with _$Printer {
     required VirtualSdCard virtualSdCard,
     ManualProbe? manualProbe,
     BedScrew? bedScrew,
+    ScrewsTiltAdjust? screwsTiltAdjust,
     FirmwareRetraction? firmwareRetraction,
     BedMesh? bedMesh,
     GCodeFile? currentFile,

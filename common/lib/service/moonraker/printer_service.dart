@@ -34,6 +34,7 @@ import 'package:common/data/dto/machine/output_pin.dart';
 import 'package:common/data/dto/machine/print_stats.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
+import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
 import 'package:common/data/dto/machine/toolhead.dart';
 import 'package:common/data/dto/machine/virtual_sd_card.dart';
@@ -175,6 +176,7 @@ class PrinterService {
     'pca9632': _updateLed,
     'manual_probe': _updateManualProbe,
     'bed_screws': _updateBedScrew,
+    'screws_tilt_adjust': _updateScrewsTiltAdjust,
     'heater_generic': _updateGenericHeater,
     'firmware_retraction': _updateFirmwareRetraction,
     'bed_mesh': _updateBedMesh,
@@ -815,6 +817,10 @@ class PrinterService {
 
   _updateBedScrew(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
     printer.bedScrew = BedScrew.partialUpdate(printer.bedScrew, jsonResponse);
+  }
+
+  _updateScrewsTiltAdjust(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
+    printer.screwsTiltAdjust = ScrewsTiltAdjust.partialUpdate(printer.screwsTiltAdjust, jsonResponse);
   }
 
   _updateFirmwareRetraction(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
