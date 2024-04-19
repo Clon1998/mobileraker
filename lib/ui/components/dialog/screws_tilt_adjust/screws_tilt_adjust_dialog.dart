@@ -21,7 +21,6 @@ import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'screws_tilt_adjust_dialog.freezed.dart';
-
 part 'screws_tilt_adjust_dialog.g.dart';
 
 class ScrewsTiltAdjustDialog extends HookConsumerWidget {
@@ -170,7 +169,11 @@ class _ScrewsTiltResult extends ConsumerWidget {
                   _ => Chip(
                       backgroundColor: themeData.colorScheme.tertiary,
                       avatar: Icon(
-                        screwData.sign == 'CCW' ? Icons.rotate_left : Icons.rotate_right,
+                        screwData.adjustMinutes == 0
+                            ? Icons.check
+                            : screwData.sign == 'CCW'
+                                ? Icons.rotate_left
+                                : Icons.rotate_right,
                         color: themeData.colorScheme.onTertiary,
                       ),
                       label: Text(
