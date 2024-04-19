@@ -27,7 +27,7 @@ class _QrScannerPageState extends ConsumerState<QrScannerPage> {
   @override
   void initState() {
     super.initState();
-    _cameraController.start();
+    _cameraController.start(cameraDirection: CameraFacing.back);
     _streamSubscription = _cameraController.barcodes.listen((event) {
       if (_scannedBarcode) return;
       _scannedBarcode = true;
