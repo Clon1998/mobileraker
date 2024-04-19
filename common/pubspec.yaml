@@ -25,14 +25,14 @@ dependencies:
 
   #firebase
   firebase_core_platform_interface: ^5.0.0
-  firebase_core: ^2.27.1
-  firebase_analytics: ^10.8.10
-  firebase_app_check: ^0.2.1+18
-  firebase_crashlytics: ^3.4.19
-  firebase_remote_config: ^4.3.18
-  cloud_firestore: ^4.15.9
+  firebase_core: ^2.30.0
+  firebase_analytics: ^10.10.2
+  firebase_app_check: ^0.2.2+2
+  firebase_crashlytics: ^3.5.2
+  firebase_remote_config: ^4.4.2
+  cloud_firestore: ^4.17.0
 
-  firebase_auth: ^4.17.9
+  firebase_auth: ^4.19.2
 
   #purchases
   purchases_flutter: ^6.5.1
@@ -50,7 +50,7 @@ dependencies:
   go_router: ^6.2.0
 
   #architecture
-  freezed_annotation: ^2.1.0
+  freezed_annotation: ^2.4.1
   flutter_hooks: ^0.20.1
   hooks_riverpod: ^2.3.8
   riverpod_annotation: ^2.1.6
@@ -95,8 +95,8 @@ dev_dependencies:
   flutter_lints: ^3.0.1
   riverpod_lint: ^2.3.10
   custom_lint: ^0.6.4
-  build_runner: ^2.4.7
-  freezed: ^2.4.1
+  build_runner: ^2.4.9
+  freezed: ^2.5.2
   json_serializable: ^6.4.1
   riverpod_generator: ^2.4.0
   hive_generator: ^2.0.0
