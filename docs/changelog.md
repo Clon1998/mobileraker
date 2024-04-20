@@ -7,6 +7,8 @@
 - Fixed an issue that, in some cases, prevented the app from refreshing a printer during a pull-to-refresh action.
 - The webcam card no longer displays an error if no webcams were found.
 - Filament runout sensor and calibration watcher now work correctly after switching between printers.
+- Added support for the `screws_tilt_adjust` dialog. [#175](https://github.com/Clon1998/mobileraker/issues/175)
+
 ## [2.6.14] - 2024-03-25
 
 ### Changed Features
