@@ -593,6 +593,63 @@
         "title": "Microphone permission required",
         "subtitle": "The belt tuner uses your phone's microphone to analyze the frequency of your belts.\n\nTap to grant the permission."
       }
+    },
+    "spoolman": {
+      "title": "Spoolman",
+      "not_available": "Spoolman is not available for this printer. Please make sure that Spoolman is installed and enabled on your printer.",
+      "no_spools": "No spools found!",
+      "no_filaments": "No filaments found!",
+      "no_vendors": "No vendors found!",
+      "spool": {
+        "one": "Spool",
+        "other": "Spools"
+      },
+      "filament": {
+        "one": "Filament",
+        "other": "Filaments"
+      },
+      "vendor": {
+        "one": "Vendor",
+        "other": "Vendors"
+      },
+      "properties": {
+        "id": "ID",
+        "name": "Name",
+        "registered": "Registered",
+        "comment": "Comment",
+        "material": "Material",
+        "price": "Price",
+        "density": "Density",
+        "diameter": "Diameter",
+        "weight": "Weight",
+        "spool_weight": "Spool Weight",
+        "article_number": "Article Number",
+        "first_used": "First Used",
+        "last_used": "Last Used",
+        "remaining_weight": "Remaining Weight",
+        "used_weight": "Used Weight",
+        "location": "Location",
+        "lot_number": "Lot Number"
+      },
+      "vendor_details": {
+        "page_title": "Vendor {}",
+        "info_card": "Vendor Info",
+        "filaments_card": "Filaments by Vendor",
+        "spools_card": "Spools by Vendor"
+      },
+      "filament_details": {
+        "info_card": "Filament Info",
+        "spools_card": "Filament Spools"
+      },
+      "spool_details": {
+        "page_title": "Spool {}",
+        "info_card": "Spool Info",
+        "set_active": "Set as Active Spool",
+        "archived_warning": {
+          "title": "Spool is archived",
+          "body": "This spool is archived and can not be used for new prints."
+        }
+      }
     }
   },
   "components": {
@@ -631,7 +688,8 @@
       "printer_add": "You've reached the machine limit. Only Mobileraker Supporters can add more than {} machines.",
       "job_queue": "Sorry, the Job Queue is only available to Supporters.",
       "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
-      "printer_theme": "Sorry, printer specific themes are only available to Supporters."
+      "printer_theme": "Sorry, printer specific themes are only available to Supporters.",
+      "spoolman_page": "Sorry, the Spoolman page is only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",

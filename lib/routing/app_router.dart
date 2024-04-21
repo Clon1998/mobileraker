@@ -10,13 +10,13 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/components/info_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
-import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
 import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
@@ -35,6 +35,12 @@ import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
 import 'package:mobileraker_pro/pro_routes.dart';
+import 'package:mobileraker_pro/spoolman/dto/filament.dart';
+import 'package:mobileraker_pro/spoolman/dto/spool.dart';
+import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/pages/filament_detail_page.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/pages/spool_detail_page.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/pages/vendor_detail_page.dart';
 import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -237,6 +243,23 @@ GoRouter goRouterImpl(GoRouterRef ref) {
         path: '/spoolman',
         name: ProRoutes.spoolman.name,
         builder: (context, state) => const SpoolmanPage(),
+        routes: [
+          GoRoute(
+            path: 'spool-details',
+            name: ProRoutes.spoolman_spoolDetails.name,
+            builder: (context, state) => SpoolDetailPage(spool: state.extra! as Spool),
+          ),
+          GoRoute(
+            path: 'filament-details',
+            name: ProRoutes.spoolman_filamentDetails.name,
+            builder: (context, state) => FilamentDetailPage(filament: state.extra! as Filament),
+          ),
+          GoRoute(
+            path: 'vendor-details',
+            name: ProRoutes.spoolman_vendorDetails.name,
+            builder: (context, state) => VendorDetailPage(vendor: state.extra! as Vendor),
+          ),
+        ],
       ),
     ],
     // errorBuilder: (context, state) => const NotFoundScreen(),

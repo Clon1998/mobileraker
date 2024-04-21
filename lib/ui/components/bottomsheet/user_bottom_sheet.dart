@@ -10,6 +10,7 @@ import 'package:common/service/firebase/auth.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/async_button_.dart';
+import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -24,7 +25,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/error_card.dart';
-import 'package:mobileraker/ui/components/warning_card.dart';
 import 'package:purchases_flutter/errors.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 

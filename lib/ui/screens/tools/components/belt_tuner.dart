@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/misc_providers.dart';
+import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -17,8 +18,6 @@ import 'package:mobileraker/service/fft_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-
-import '../../../components/warning_card.dart';
 
 part 'belt_tuner.g.dart';
 

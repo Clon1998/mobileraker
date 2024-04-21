@@ -593,6 +593,63 @@
         "title": "Berechtigung für das Mikrofon erforderlich",
         "subtitle": "Der Riementuner verwendet das Mikrofon Ihres Telefons, um die Frequenz Ihrer Gurte zu analysieren.\n\nTippen Sie, um die Erlaubnis zu erteilen."
       }
+    },
+    "spoolman": {
+      "title": "Spoolman",
+      "not_available": "Spoolman ist für diesen Drucker nicht verfügbar. Bitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist.",
+      "no_spools": "Keine Spulen gefunden!",
+      "no_filaments": "Keine Filamente gefunden!",
+      "no_vendors": "Keine Anbieter gefunden!",
+      "spool": {
+        "one": "Spule",
+        "other": "Spulen"
+      },
+      "filament": {
+        "one": "Filament",
+        "andere": "Filamente"
+      },
+      "vendor": {
+        "one": "Anbieter",
+        "andere": "Anbieter"
+      },
+      "properties": {
+        "id": "ID",
+        "name": "Name",
+        "registered": "Registriert",
+        "comment": "Kommentar",
+        "material": "Material",
+        "price": "Preis",
+        "density": "Dichte",
+        "diameter": "Durchmesser",
+        "weight": "Gewicht",
+        "spool_weight": "Spulengewicht",
+        "article_number": "Artikelnummer",
+        "first_used": "Erstmals verwendet",
+        "last_used": "Zuletzt verwendet",
+        "remaining_weight": "Verbleibendes Gewicht",
+        "used_weight": "Benutztes Gewicht",
+        "location": "Standort",
+        "lot_number": "Lot Number"
+      },
+      "vendor_details": {
+        "page_title": "Lieferant {}",
+        "info_card": "Anbieter-Info",
+        "filaments_card": "Filamente nach Anbieter",
+        "spools_card": "Spulen nach Anbieter"
+      },
+      "filament_details": {
+        "info_card": "Filament Info",
+        "spools_card": "Filament Spulen"
+      },
+      "spool_details": {
+        "page_title": "Spool {}",
+        "info_card": "Spool Info",
+        "set_active": "Als aktiven Spool einstellen",
+        "archived_warning": {
+          "title": "Spool ist archiviert",
+          "body": "Dieser Spool ist archiviert und kann nicht für neue Drucke verwendet werden."
+        }
+      }
     }
   },
   "components": {
@@ -631,7 +688,8 @@
       "printer_add": "Sie haben das Maschinenlimit erreicht. Nur Mobileraker Supporter können mehr als {} Geräte hinzufügen.",
       "job_queue": "Die Job Queue ist leider nur für Supporter verfügbar.",
       "timelaps_share": "Das Teilen von Zeitrafferaufnahmen ist leider nur für Unterstützer möglich.",
-      "printer_theme": "Druckerspezifische Designs sind leider nur für Supporter verfügbar."
+      "printer_theme": "Druckerspezifische Designs sind leider nur für Supporter verfügbar.",
+      "spoolman_page": "Die Spoolman-Seite ist leider nur für Supporter verfügbar."
     },
     "machine_deletion_warning": {
       "title": "Maschinelle Löschung",

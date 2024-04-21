@@ -5,6 +5,7 @@
 
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/firebase/remote_config.dart';
+import 'package:common/ui/components/info_card.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker/ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
 import 'package:mobileraker/ui/components/connection/client_type_indicator.dart';
-import 'package:mobileraker/ui/components/info_card.dart';
 import 'package:mobileraker/ui/components/octo_widgets.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 
