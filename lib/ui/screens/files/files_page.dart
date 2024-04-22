@@ -219,6 +219,7 @@ class _FilesBody extends ConsumerWidget {
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
+          border: Border.all(color: theme.colorScheme.primary, width: 0.5),
           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
           boxShadow: [
             if (theme.brightness == Brightness.light)
