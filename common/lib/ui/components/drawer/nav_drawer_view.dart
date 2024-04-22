@@ -75,9 +75,9 @@ class NavigationDrawerWidget extends ConsumerWidget {
                     if (ref.watch(remoteConfigProvider).showSpoolmanPage)
                       const _DrawerItem(
                       text: 'Spoolman',
-                      icon: Icons.local_library,
-                      routeName: '/spoolman',
-                    ),
+                        icon: FlutterIcons.database_ent,
+                        routeName: '/spoolman',
+                      ),
                     const Divider(),
                     _DrawerItem(
                       text: 'pages.setting.title'.tr(),

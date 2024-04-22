@@ -9,11 +9,11 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/animation/SizeAndFadeTransition.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../routing/app_router.dart';

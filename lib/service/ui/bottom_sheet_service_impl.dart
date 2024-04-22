@@ -9,8 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/bottomsheet/non_printing_sheet.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
+import 'package:mobileraker_pro/spoolman/dto/spool.dart';
 import 'package:mobileraker_pro/ui/components/bottomsheet/job_queue_sheet.dart';
 import 'package:mobileraker_pro/ui/components/bottomsheet/select_spoolman_sheet.dart';
+import 'package:mobileraker_pro/ui/components/bottomsheet/spool_action_spoolman_sheet.dart';
 
 import '../../ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import '../../ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
@@ -49,6 +51,10 @@ class BottomSheetServiceImpl implements BottomSheetService {
           arguments: data as BedMeshSettingsBottomSheetArguments,
         ),
     ProSheetType.selectSpoolman: (ctx, data) => SelectSpoolmanSheet(machineUUID: data as String),
+    ProSheetType.spoolActionsSpoolman: (ctx, data) => switch (data) {
+          [String machineUUID, Spool spool] => SpoolActionSpoolmanSheet(machineUUID: machineUUID, spool: spool),
+          _ => throw ArgumentError('Invalid data type for ProSheetType.spoolActionsSpoolman: $data'),
+        },
   };
 
   @override

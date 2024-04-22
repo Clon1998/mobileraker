@@ -9,6 +9,7 @@ import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -26,7 +27,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
-import '../../../animation/SizeAndFadeTransition.dart';
 import 'toolhead_info/toolhead_info_table.dart';
 
 part 'machine_status_card.freezed.dart';

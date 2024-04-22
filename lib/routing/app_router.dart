@@ -247,17 +247,27 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           GoRoute(
             path: 'spool-details',
             name: ProRoutes.spoolman_spoolDetails.name,
-            builder: (context, state) => SpoolDetailPage(spool: state.extra! as Spool),
+            builder: (context, state) => switch (state.extra) {
+              [String machineUUID, Spool spool] => SpoolDetailPage(spool: spool, machineUUID: machineUUID),
+              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+            },
           ),
           GoRoute(
             path: 'filament-details',
             name: ProRoutes.spoolman_filamentDetails.name,
-            builder: (context, state) => FilamentDetailPage(filament: state.extra! as Filament),
+            builder: (context, state) => switch (state.extra) {
+              [String machineUUID, Filament filament] =>
+                FilamentDetailPage(filament: filament, machineUUID: machineUUID),
+              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+            },
           ),
           GoRoute(
             path: 'vendor-details',
             name: ProRoutes.spoolman_vendorDetails.name,
-            builder: (context, state) => VendorDetailPage(vendor: state.extra! as Vendor),
+            builder: (context, state) => switch (state.extra) {
+              [String machineUUID, Vendor vendor] => VendorDetailPage(vendor: vendor, machineUUID: machineUUID),
+              _ => throw ArgumentError('Invalid state.extra for spool-details route'),
+            },
           ),
         ],
       ),
