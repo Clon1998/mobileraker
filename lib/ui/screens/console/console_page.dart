@@ -56,6 +56,7 @@ class _ConsoleBody extends HookConsumerWidget {
     var klippyCanReceiveCommands = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
 
     var theme = Theme.of(context);
+    var borderSize = BorderSide(width: 0.5, color: theme.colorScheme.primary);
 
     return SafeArea(
       child: Container(

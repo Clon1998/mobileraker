@@ -204,6 +204,7 @@ class _FilesBody extends ConsumerWidget {
     var theme = Theme.of(context);
 
     var controller = ref.watch(filesPageControllerProvider.notifier);
+    var borderSize = BorderSide(width: 0.5, color: theme.colorScheme.primary);
 
     return PopScope(
       canPop: false,
@@ -219,7 +220,7 @@ class _FilesBody extends ConsumerWidget {
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
-          border: Border.all(color: theme.colorScheme.primary, width: 0.5),
+          border: Border(bottom: borderSize, left: borderSize, right: borderSize),
           borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
           boxShadow: [
             if (theme.brightness == Brightness.light)
