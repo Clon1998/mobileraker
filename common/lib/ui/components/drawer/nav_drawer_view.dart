@@ -5,6 +5,7 @@
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/app_router.dart';
+import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/theme_service.dart';
@@ -71,7 +72,8 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       icon: Icons.file_present,
                       routeName: '/files',
                     ),
-                    const _DrawerItem(
+                    if (ref.watch(remoteConfigProvider).showSpoolmanPage)
+                      const _DrawerItem(
                       text: 'Spoolman',
                       icon: Icons.local_library,
                       routeName: '/spoolman',
