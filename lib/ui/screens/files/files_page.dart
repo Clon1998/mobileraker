@@ -373,18 +373,25 @@ class _FilesError extends ConsumerWidget {
   }
 }
 
-class _FilesData extends ConsumerWidget {
+class _FilesData extends ConsumerStatefulWidget {
   const _FilesData({super.key, required this.files});
 
   final FolderContentWrapper files;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState createState() => _FilesDataState();
+}
+
+class _FilesDataState extends ConsumerState<_FilesData> {
+  RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+  @override
+  Widget build(BuildContext context) {
     var model = ref.watch(filesPageControllerProvider);
     var controller = ref.watch(filesPageControllerProvider.notifier);
 
-    int lenFolders = files.folders.length;
-    int lenGcodes = files.files.length;
+    int lenFolders = widget.files.folders.length;
+    int lenGcodes = widget.files.files.length;
     int lenTotal = lenFolders + lenGcodes;
 
     // Add one of the .. folder to back
@@ -395,7 +402,7 @@ class _FilesData extends ConsumerWidget {
       curve: Curves.easeOutCubic,
       child: SmartRefresher(
         header: const WaterDropMaterialHeader(),
-        controller: RefreshController(),
+        controller: _refreshController,
         onRefresh: controller.refreshFiles,
         child: (lenTotal == 0)
             ? ListTile(
@@ -431,22 +438,28 @@ class _FilesData extends ConsumerWidget {
                   }
 
                   if (index < lenFolders) {
-                    Folder folder = files.folders[index];
-                    return _FolderItem(folder: folder, key: ValueKey(folder));
-                  }
-                  RemoteFile file = files.files[index - lenFolders];
-                  if (file is GCodeFile) {
-                    return _GCodeFileItem(key: ValueKey(file), gCode: file);
-                  }
-                  if (file.isImage) {
-                    return _ImageFileItem(key: ValueKey(file), file: file);
-                  }
+              Folder folder = widget.files.folders[index];
+              return _FolderItem(folder: folder, key: ValueKey(folder));
+            }
+            RemoteFile file = widget.files.files[index - lenFolders];
+            if (file is GCodeFile) {
+              return _GCodeFileItem(key: ValueKey(file), gCode: file);
+            }
+            if (file.isImage) {
+              return _ImageFileItem(key: ValueKey(file), file: file);
+            }
 
                   return _FileItem(file: file, key: ValueKey(file));
                 },
               ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _refreshController.dispose();
+    super.dispose();
   }
 }
 
