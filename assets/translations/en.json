@@ -524,6 +524,7 @@
     },
     "console": {
       "title": "Console",
+      "card_title": "GCode Console",
       "no_entries": "No cached commands found",
       "fetching_console": "@:general.fetching console entries…",
       "command_input": {

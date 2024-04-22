@@ -524,6 +524,7 @@
     },
     "console": {
       "title": "Konsole",
+      "card_title": "GCode Konsole",
       "no_entries": "Keine zwischengespeicherten Befehle gefunden",
       "fetching_console": "@:general.fetching Konsoleneinträge…",
       "command_input": {

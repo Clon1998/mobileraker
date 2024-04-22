@@ -81,9 +81,9 @@ class _ConsoleBody extends HookConsumerWidget {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
                 child: Text(
-                  'GCode Console',
+                  'pages.console.card_title',
                   style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
-                ),
+                ).tr(),
               ),
             ),
             Expanded(
