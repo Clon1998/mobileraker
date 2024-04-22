@@ -71,6 +71,11 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       icon: Icons.file_present,
                       routeName: '/files',
                     ),
+                    const _DrawerItem(
+                      text: 'Spoolman',
+                      icon: Icons.local_library,
+                      routeName: '/spoolman',
+                    ),
                     const Divider(),
                     _DrawerItem(
                       text: 'pages.setting.title'.tr(),
@@ -81,12 +86,6 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       text: 'pages.paywall.title'.tr(),
                       icon: FlutterIcons.hand_holding_heart_faw5s,
                       routeName: '/paywall',
-                    ),
-                    const Divider(),
-                    const _DrawerItem(
-                      text: 'Spoolman',
-                      icon: Icons.local_library,
-                      routeName: '/spoolman',
                     ),
                     const Divider(),
                     _DrawerItem(
