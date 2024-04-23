@@ -11,7 +11,7 @@ import 'package:mobileraker/ui/components/supporter_ad.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/control_xyz_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/machine_status_card.dart';
 import 'package:mobileraker/ui/screens/dashboard/components/webcam_card.dart';
-import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_card.dart';
+import 'package:mobileraker_pro/ui/components/spoolman/spoolman_card.dart';
 
 import '../../../components/remote_announcements.dart';
 import '../../../components/remote_connection_active_card.dart';
