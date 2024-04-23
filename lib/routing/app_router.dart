@@ -40,8 +40,8 @@ import 'package:mobileraker_pro/spoolman/dto/spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
 import 'package:mobileraker_pro/ui/screens/spoolman/pages/filament_detail_page.dart';
 import 'package:mobileraker_pro/ui/screens/spoolman/pages/spool_detail_page.dart';
+import 'package:mobileraker_pro/ui/screens/spoolman/pages/spoolman_page.dart';
 import 'package:mobileraker_pro/ui/screens/spoolman/pages/vendor_detail_page.dart';
-import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/files/details/video_player_page.dart';
