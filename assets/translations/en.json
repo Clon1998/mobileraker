@@ -601,6 +601,8 @@
       "no_spools": "No spools found!",
       "no_filaments": "No filaments found!",
       "no_vendors": "No vendors found!",
+      "error_loading_spools": "Error loading spools",
+      "error_loading_filaments": "Error loading filaments",
       "spool": {
         "one": "Spool",
         "other": "Spools"

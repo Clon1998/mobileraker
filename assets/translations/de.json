@@ -601,6 +601,8 @@
       "no_spools": "Keine Spulen gefunden!",
       "no_filaments": "Keine Filamente gefunden!",
       "no_vendors": "Keine Anbieter gefunden!",
+      "error_loading_spools": "Fehler beim Laden der Spulen",
+      "error_loading_filaments": "Fehler beim Laden der Filamente",
       "spool": {
         "one": "Spule",
         "other": "Spulen"
