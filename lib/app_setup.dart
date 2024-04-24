@@ -229,6 +229,11 @@ initializeAvailableMachines(Ref ref) async {
 
 @riverpod
 Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
+  // Firebase stuff
+  yield StartUpStep.firebaseCore;
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // only start listening after Firebase is initialized
   ref.listenSelf((previous, next) {
     if (next.hasError) {
       var error = next.asError!;
@@ -240,9 +245,6 @@ Stream<StartUpStep> warmupProvider(WarmupProviderRef ref) async* {
       );
     }
   });
-  // Firebase stuff
-  yield StartUpStep.firebaseCore;
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   yield StartUpStep.firebaseAppCheck;
   await FirebaseAppCheck.instance.activate();
