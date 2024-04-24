@@ -162,7 +162,7 @@ dependencies:
   fl_chart: ^0.66.2
   flutter_slidable: ^3.0.0
   code_text_field: ^1.0.2
-  mobile_scanner: ^5.0.0-beta.3
+  mobile_scanner: 5.0.0-beta.3
   touchable: ^1.0.2
   flutter_markdown: ^0.6.14
   flutter_svg: ^2.0.5
