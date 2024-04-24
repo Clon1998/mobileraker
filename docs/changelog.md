@@ -1,6 +1,6 @@
 # Mobileraker - Changelog
 
-## [2.6.15] - 2024-04-xx
+## [2.6.15] - 2024-04-24
 
 ### Bug Fixes
 
@@ -8,6 +8,7 @@
 - The webcam card no longer displays an error if no webcams were found.
 - Filament runout sensor and calibration watcher now work correctly after switching between printers.
 - Added support for the `screws_tilt_adjust` dialog. [#175](https://github.com/Clon1998/mobileraker/issues/175)
+- WebRtc webcam now pauses when the app is in the background.
 
 ## [2.6.14] - 2024-03-25
 
