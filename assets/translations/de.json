@@ -50,7 +50,8 @@
     "activate": "Activ",
     "stop": "Stoppen",
     "start": "Starten",
-    "repeat": "Wiederholen"
+    "repeat": "Wiederholen",
+    "load_more": "Mehr laden"
   },
   "pages": {
     "dashboard": {
