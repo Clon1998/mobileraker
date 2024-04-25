@@ -27,6 +27,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../routing/app_router.dart';
 import '../../components/connection/machine_connection_guard.dart';
+import '../../components/machine_state_indicator.dart';
 
 part 'spoolman_page.g.dart';
 
@@ -53,15 +54,15 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return const SwitchPrinterAppBar(
+    return SwitchPrinterAppBar(
       title: 'Spoolman',
       actions: <Widget>[
-        // Padding(
-        //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        //   child: MachineStateIndicator(
-        //     ref.watch(selectedMachineProvider).valueOrFullNull,
-        //   ),
-        // ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: MachineStateIndicator(
+            ref.watch(selectedMachineProvider).valueOrFullNull,
+          ),
+        ),
         // const FileSortModeSelector(),
       ],
     );
