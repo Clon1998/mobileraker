@@ -403,7 +403,7 @@
         "no_macros_in_grp": "No macros in the group!",
         "deleted_grp": "Deleted group {}",
         "macros": "Macros",
-        "default_name": "New Macro",
+        "default_name": "New Macro Group",
         "macros_to_default": {
           "one": "Moved one macro to default group!",
           "two": "Moved two macro to default group!",

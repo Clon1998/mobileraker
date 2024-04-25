@@ -403,7 +403,7 @@
         "no_macros_in_grp": "Keine Makros in der Gruppe!",
         "deleted_grp": "Gruppe {} gelöscht",
         "macros": "Makros",
-        "default_name": "Neuer Makro",
+        "default_name": "Neue Makro Gruppe",
         "macros_to_default": {
           "one": "Ein Makro in die Standardgruppe verschoben!",
           "two": "Zwei Makro in die Standardgruppe verschoben!",
