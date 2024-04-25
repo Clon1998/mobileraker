@@ -598,7 +598,9 @@
     },
     "spoolman": {
       "title": "Spoolman",
-      "not_available": "Spoolman is not available for this printer. Please make sure that Spoolman is installed and enabled on your printer.",
+      "not_available": "Spoolman is not available for this printer. \nPlease make sure that Spoolman is installed and enabled on your printer.",
+      "learn_more": "To learn more about Spoolman and how to install it, visit the project's",
+      "learn_more_link": "GitHub page.",
       "no_spools": "No spools found!",
       "no_filaments": "No filaments found!",
       "no_vendors": "No vendors found!",

@@ -598,7 +598,9 @@
     },
     "spoolman": {
       "title": "Spoolman",
-      "not_available": "Spoolman ist für diesen Drucker nicht verfügbar. Bitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist.",
+      "not_available": "Spoolman ist für diesen Drucker nicht verfügbar.\nBitte stellen Sie sicher, dass Spoolman auf Ihrem Drucker installiert und aktiviert ist.",
+      "learn_more": "Um mehr über Spoolman zu erfahren und wie Sie ihn installieren können, besuchen Sie die ",
+      "learn_more_link": "GitHub Seite.",
       "no_spools": "Keine Spulen gefunden!",
       "no_filaments": "Keine Filamente gefunden!",
       "no_vendors": "Keine Anbieter gefunden!",
