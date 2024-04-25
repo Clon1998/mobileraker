@@ -49,7 +49,7 @@ import '../ui/screens/tools/tool_page.dart';
 
 part 'app_router.g.dart';
 
-enum AppRoute {
+enum AppRoute implements RouteDefinitionMixin {
   dashBoard,
   overview,
   printerEdit,
@@ -69,7 +69,7 @@ enum AppRoute {
   supportDev,
   videoPlayer,
   tool,
-  beltTuner,
+  beltTuner;
 }
 
 @riverpod
