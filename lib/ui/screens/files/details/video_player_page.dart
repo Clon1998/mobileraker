@@ -12,13 +12,13 @@ import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/util/extensions/remote_file_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:share_plus/share_plus.dart';
 
 class VideoPlayerPage extends ConsumerStatefulWidget {

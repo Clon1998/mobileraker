@@ -9,6 +9,7 @@ import 'package:common/data/dto/machine/screws_tilt_adjust/screws_tilt_adjust.da
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
@@ -17,7 +18,6 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
-import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'screws_tilt_adjust_dialog.freezed.dart';
