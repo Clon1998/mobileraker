@@ -3,6 +3,9 @@
  * All rights reserved.
  */
 
+import 'dart:async';
+
+import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/selected_machine_service.dart';
@@ -16,14 +19,17 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
-import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+part 'machine_connection_guard.g.dart';
 
 typedef OnConnectedBuilder = Widget Function(BuildContext context, String machineUUID);
 
-class ConnectionStateView extends ConsumerWidget {
-  const ConnectionStateView({
+class MachineConnectionGuard extends ConsumerWidget {
+  const MachineConnectionGuard({
     super.key,
     required this.onConnected,
     this.skipKlipperReady = false,
@@ -70,10 +76,10 @@ class _WebsocketStateWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    AsyncValue<ClientState> connectionState = ref.watch(connectionStateControllerProvider);
+    AsyncValue<ClientState> connectionState = ref.watch(_machineConnectionGuardControllerProvider);
     ClientType clientType = ref.watch(jrpcClientSelectedProvider.select((value) => value.clientType));
 
-    var connectionStateController = ref.watch(connectionStateControllerProvider.notifier);
+    var connectionStateController = ref.watch(_machineConnectionGuardControllerProvider.notifier);
 
     return AsyncValueWidget(
       key: ValueKey(clientType),
@@ -200,5 +206,49 @@ class _WelcomeMessage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+@riverpod
+class _MachineConnectionGuardController extends _$MachineConnectionGuardController {
+  @override
+  Future<ClientState> build() => ref.watch(jrpcClientStateSelectedProvider.selectAsync((data) => data));
+
+  onRetryPressed() {
+    ref.read(jrpcClientSelectedProvider).openChannel();
+  }
+
+  String get clientErrorMessage {
+    var jsonRpcClient = ref.read(jrpcClientSelectedProvider);
+    Exception? errorReason = jsonRpcClient.errorReason;
+    if (errorReason is TimeoutException) {
+      return 'A timeout occurred while trying to connect to the machine! Ensure the machine can be reached from your current network...';
+    } else if (errorReason is OctoEverywhereException) {
+      return 'OctoEverywhere returned: ${errorReason.message}';
+    } else if (errorReason != null) {
+      return errorReason.toString();
+    }
+    return 'Error while trying to connect. Please retry later.';
+  }
+
+  bool get errorIsOctoSupportedExpired {
+    var jsonRpcClient = ref.read(jrpcClientSelectedProvider);
+    Exception? errorReason = jsonRpcClient.errorReason;
+    if (errorReason is! OctoEverywhereHttpException) {
+      return false;
+    }
+
+    return errorReason.statusCode == 605;
+  }
+
+  onGoToOE() async {
+    var oeURI = Uri.parse(
+      'https://octoeverywhere.com/appportal/v1/nosupporterperks?moonraker=true&appid=mobileraker',
+    );
+    if (await canLaunchUrl(oeURI)) {
+      await launchUrl(oeURI, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Could not launch $oeURI';
+    }
   }
 }

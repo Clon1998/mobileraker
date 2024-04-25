@@ -33,7 +33,7 @@ import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 
-import '../../components/connection/connection_state_view.dart';
+import '../../components/connection/machine_connection_guard.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
@@ -83,7 +83,7 @@ class _DashboardView extends HookConsumerWidget {
           const EmergencyStopBtn(),
         ],
       ),
-      body: ConnectionStateView(
+      body: MachineConnectionGuard(
         onConnected: (ctx, machineUUID) => PrinterProviderGuard(
           machineUUID: machineUUID,
           child: _DashboardBody(

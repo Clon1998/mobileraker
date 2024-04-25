@@ -38,7 +38,7 @@ import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../components/connection/connection_state_view.dart';
+import '../../components/connection/machine_connection_guard.dart';
 
 class FilesPage extends ConsumerWidget {
   const FilesPage({super.key});
@@ -50,7 +50,7 @@ class FilesPage extends ConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       bottomNavigationBar: const _BottomNav(),
       floatingActionButton: const _Fab(),
-      body: ConnectionStateView(
+      body: MachineConnectionGuard(
         onConnected: (_, __) => const _FilesBody(),
         skipKlipperReady: true,
       ),

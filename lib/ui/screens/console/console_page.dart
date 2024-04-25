@@ -25,7 +25,7 @@ import 'package:mobileraker/util/extensions/text_editing_controller_extension.da
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
-import '../../components/connection/connection_state_view.dart';
+import '../../components/connection/machine_connection_guard.dart';
 
 class ConsolePage extends ConsumerWidget {
   const ConsolePage({super.key});
@@ -41,7 +41,7 @@ class ConsolePage extends ConsumerWidget {
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: ConnectionStateView(onConnected: (_, __) => const _ConsoleBody()),
+      body: MachineConnectionGuard(onConnected: (_, __) => const _ConsoleBody()),
     );
   }
 }

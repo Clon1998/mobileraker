@@ -26,7 +26,7 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../../routing/app_router.dart';
-import '../../components/connection/connection_state_view.dart';
+import '../../components/connection/machine_connection_guard.dart';
 
 part 'spoolman_page.g.dart';
 
@@ -121,7 +121,7 @@ class _Body extends ConsumerWidget {
       );
     }
 
-    return ConnectionStateView(
+    return MachineConnectionGuard(
       onConnected: (BuildContext context, String machineUUID) {
         return Consumer(builder: (context, ref, child) {
           var hasSpoolman =
