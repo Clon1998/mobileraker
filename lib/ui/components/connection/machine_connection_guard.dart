@@ -9,7 +9,7 @@ import 'package:common/exceptions/octo_everywhere_exception.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/ui/components/connection/klippy_state_widget.dart';
+import 'package:common/ui/components/connection/klippy_provider_guard.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -87,7 +87,7 @@ class _WebsocketStateWidget extends ConsumerWidget {
       data: (ClientState clientState) {
         switch (clientState) {
           case ClientState.connected:
-            return KlippyStateWidget(
+            return KlippyProviderGuard(
               machineUUID: machineUUID,
               onConnected: onConnected,
               skipKlipperReady: skipKlipperReady,

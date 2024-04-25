@@ -18,8 +18,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import '../../../service/app_router.dart';
 import '../../../service/machine_service.dart';
 
-class KlippyStateWidget extends HookConsumerWidget {
-  const KlippyStateWidget({
+class KlippyProviderGuard extends HookConsumerWidget {
+  const KlippyProviderGuard({
     super.key,
     required this.machineUUID,
     required this.onConnected,
