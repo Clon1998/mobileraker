@@ -33,15 +33,14 @@ import 'package:mobileraker/ui/screens/printers/edit/printers_edit_page.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:mobileraker/ui/screens/setting/imprint/imprint_view.dart';
 import 'package:mobileraker/ui/screens/setting/setting_page.dart';
+import 'package:mobileraker/ui/screens/spoolman/filament_detail_page.dart';
+import 'package:mobileraker/ui/screens/spoolman/spool_detail_page.dart';
+import 'package:mobileraker/ui/screens/spoolman/spoolman_page.dart';
+import 'package:mobileraker/ui/screens/spoolman/vendor_detail_page.dart';
 import 'package:mobileraker/ui/screens/tools/components/belt_tuner.dart';
-import 'package:mobileraker_pro/pro_routes.dart';
 import 'package:mobileraker_pro/spoolman/dto/filament.dart';
 import 'package:mobileraker_pro/spoolman/dto/spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
-import 'package:mobileraker_pro/ui/screens/spoolman/filament_detail_page.dart';
-import 'package:mobileraker_pro/ui/screens/spoolman/spool_detail_page.dart';
-import 'package:mobileraker_pro/ui/screens/spoolman/spoolman_page.dart';
-import 'package:mobileraker_pro/ui/screens/spoolman/vendor_detail_page.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../ui/screens/files/details/video_player_page.dart';
@@ -69,7 +68,11 @@ enum AppRoute implements RouteDefinitionMixin {
   supportDev,
   videoPlayer,
   tool,
-  beltTuner;
+  beltTuner,
+  spoolman,
+  spoolman_vendorDetails,
+  spoolman_spoolDetails,
+  spoolman_filamentDetails;
 }
 
 @riverpod
@@ -241,12 +244,12 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       ),
       GoRoute(
         path: '/spoolman',
-        name: ProRoutes.spoolman.name,
+        name: AppRoute.spoolman.name,
         builder: (context, state) => const SpoolmanPage(),
         routes: [
           GoRoute(
             path: 'spool-details',
-            name: ProRoutes.spoolman_spoolDetails.name,
+            name: AppRoute.spoolman_spoolDetails.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID, Spool spool] => SpoolDetailPage(spool: spool, machineUUID: machineUUID),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
@@ -254,7 +257,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
           GoRoute(
             path: 'filament-details',
-            name: ProRoutes.spoolman_filamentDetails.name,
+            name: AppRoute.spoolman_filamentDetails.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID, Filament filament] =>
                 FilamentDetailPage(filament: filament, machineUUID: machineUUID),
@@ -263,7 +266,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
           ),
           GoRoute(
             path: 'vendor-details',
-            name: ProRoutes.spoolman_vendorDetails.name,
+            name: AppRoute.spoolman_vendorDetails.name,
             builder: (context, state) => switch (state.extra) {
               [String machineUUID, Vendor vendor] => VendorDetailPage(vendor: vendor, machineUUID: machineUUID),
               _ => throw ArgumentError('Invalid state.extra for spool-details route'),
