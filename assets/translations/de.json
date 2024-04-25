@@ -51,7 +51,8 @@
     "stop": "Stoppen",
     "start": "Starten",
     "repeat": "Wiederholen",
-    "load_more": "Mehr laden"
+    "load_more": "Mehr laden",
+    "archived": "Archiviert"
   },
   "pages": {
     "dashboard": {
