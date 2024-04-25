@@ -15,7 +15,6 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/ui/components/connection/connection_state_view.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
@@ -39,6 +38,7 @@ import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../components/connection/connection_state_view.dart';
 
 class FilesPage extends ConsumerWidget {
   const FilesPage({super.key});

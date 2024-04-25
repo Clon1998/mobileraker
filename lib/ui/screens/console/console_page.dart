@@ -9,7 +9,6 @@ import 'package:common/data/enums/console_entry_type_enum.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/ui/components/connection/connection_state_view.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -25,6 +24,8 @@ import 'package:mobileraker/util/extensions/datetime_extension.dart';
 import 'package:mobileraker/util/extensions/text_editing_controller_extension.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+
+import '../../components/connection/connection_state_view.dart';
 
 class ConsolePage extends ConsumerWidget {
   const ConsolePage({super.key});

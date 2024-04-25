@@ -12,7 +12,6 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/ui/components/connection/connection_state_view.dart';
 import 'package:common/ui/components/connection/printer_provider_guard.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
@@ -34,6 +33,7 @@ import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 
+import '../../components/connection/connection_state_view.dart';
 
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});

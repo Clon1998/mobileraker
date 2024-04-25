@@ -7,6 +7,7 @@ import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/connection/klippy_state_widget.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -16,7 +17,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/connection_state_controller.dart';
-import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/power_api_card.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 
