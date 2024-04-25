@@ -58,11 +58,9 @@ GlobalKey<FormBuilderState> editPrinterFormKey(EditPrinterFormKeyRef _) => Globa
 Machine currentlyEditing(CurrentlyEditingRef ref) => throw UnimplementedError();
 
 @Riverpod(dependencies: [currentlyEditing])
-Future<MachineSettings> machineRemoteSettings(
-  MachineRemoteSettingsRef ref,
-) {
+Future<MachineSettings> machineRemoteSettings(MachineRemoteSettingsRef ref) {
   var machine = ref.watch(currentlyEditingProvider);
-  return ref.watch(machineServiceProvider).fetchSettings(machine: machine);
+  return ref.watch(machineSettingsProvider(machine.uuid).future);
 }
 
 @riverpod

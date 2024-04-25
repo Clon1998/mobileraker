@@ -26,6 +26,7 @@ import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -134,50 +135,24 @@ Future<List<Machine>> hiddenMachines(HiddenMachinesRef ref) async {
 }
 
 @riverpod
-Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) {
+Stream<MachineSettings> machineSettings(MachineSettingsRef ref, String machineUUID) async* {
   ref.keepAliveFor();
 
-  ref.listenSelf((previous, next) {
-    logger.wtf('machineSettings updated to isLoading: ${next.isLoading}, $next');
+  // We listen to macro count changes to trigger a provider rebuild, allowing us to migrate the setting's macros
+  var macroCnt = await ref.watch(printerProvider(machineUUID).selectAsync((data) => data.gcodeMacros.length));
+
+  // Converts Klippy ready state to a stream of settings -> Emits new settings each time the Klippy state is transitioning to ready
+  yield* ref
+      .watchAsSubject(klipperProvider(machineUUID))
+      .where((event) => event.klippyState == KlipperState.ready)
+      .distinct()
+      .asyncMap((event) async {
+    var printerData = await ref.read(printerProvider(machineUUID).future);
+
+    return await ref
+        .read(machineServiceProvider)
+        .fetchSettingsAndAdjustDefaultMacros(machineUUID, printerData.gcodeMacros);
   });
-
-  StreamController<MachineSettings> streamController = StreamController();
-  ref.onDispose(() {
-    streamController.close();
-  });
-
-  ref.listen(
-    klipperProvider(machineUUID),
-    (previous, next) async {
-      switch (next) {
-        // Normal data
-        case AsyncValue(
-            hasValue: true,
-            hasError: false,
-            isLoading: false,
-            value: KlipperInstance(klippyState: KlipperState.ready)
-          ):
-          try {
-            var fetchSettings = await ref.read(machineServiceProvider).fetchSettings(machineUUID: machineUUID);
-            streamController.add(fetchSettings);
-          } catch (e) {
-            logger.e('Error while fetching settings', e);
-            streamController.addError(e);
-          }
-          break;
-        // We have an error
-        case AsyncValue(hasError: true, isLoading: false, error: var err, stackTrace: var trace):
-          if (err != null) {
-            streamController.addError(err, trace);
-          }
-
-        case AsyncValue(isLoading: true) when previous != null:
-          ref.invalidateSelf();
-      }
-    },
-    fireImmediately: true,
-  );
-  return streamController.stream.distinct();
 }
 
 @riverpod
@@ -531,13 +506,30 @@ class MachineService {
     return i;
   }
 
-  Future<void> updateMacrosInSettings(String machineUUID, List<String> macros) async {
+  /// Fetches the settings for a machine and adjusts the default macros.
+  ///
+  /// This method fetches the settings for a machine with the provided UUID.
+  /// It then adjusts the default macros based on the provided list of macros.
+  /// If a macro already exists in the default group, it is not added again.
+  /// If a macro does not exist in the default group, it is added.
+  /// If a macro exists in the default group but not in the provided list, it is removed.
+  ///
+  /// This method is useful for keeping the default macros up to date with the actual macros
+  /// that are available on the machine.
+  ///
+  /// [machineUUID] is the UUID of the machine to fetch the settings for.
+  /// [macros] is the list of macros to adjust the default macros with.
+  ///
+  /// Throws a [MobilerakerException] if the machine with the provided UUID does not exist.
+  ///
+  /// Returns the updated [MachineSettings] for the machine.
+  Future<MachineSettings> fetchSettingsAndAdjustDefaultMacros(String machineUUID, List<String> macros) async {
     // Get the machine with the provided UUID
     final machine = await _machineRepo.get(uuid: machineUUID);
 
     if (machine == null) {
       logger.e('Could not update macros, machine $machineUUID not found!');
-      return;
+      return throw const MobilerakerException('Machine not found');
     }
 
     // Log the machine information
@@ -572,14 +564,15 @@ class MachineService {
         logger.i('Found legacy default group, migrating it to the new default group format!');
         modifiableMacroGrps.remove(legacyDefaultGrp);
 
-        return MacroGroup.defaultGroup(name: 'Default', macros: legacyDefaultGrp.macros);
+        return MacroGroup.defaultGroup(
+            name: tr('pages.printer_edit.macros.default_grp'), macros: legacyDefaultGrp.macros);
       }
 
-      return MacroGroup.defaultGroup(name: 'Default');
+      return MacroGroup.defaultGroup(name: tr('pages.printer_edit.macros.default_grp'));
     });
 
     // If there's no legacy group and no new macros to add, return early
-    if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty) return;
+    if (!hasLegacyDefaultGroup && !hasUnavailableMacro && filteredRawMacros.isEmpty) return machineSettings;
 
     if (hasUnavailableMacro) {
       logger.i('Found some unavailable macros, will update all groups without the unavailable macros!');
@@ -603,6 +596,7 @@ class MachineService {
     // Update the machine settings and save
     machineSettings.macroGroups = modifiableMacroGrps;
     await ref.read(machineSettingsRepositoryProvider(machine.uuid)).update(machineSettings);
+    return machineSettings;
   }
 
   /// Links the machine to the octoEverywhere service

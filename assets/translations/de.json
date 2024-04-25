@@ -397,6 +397,7 @@
         "read_only": "Webcam ist schreibgeschützt"
       },
       "macros": {
+        "default_grp": "Standard",
         "new_macro_grp": "Neue Makro - Gruppe",
         "no_macros_available": "Keine Makros verfügbar!",
         "no_macros_found": "Keine Makros gefunden!",

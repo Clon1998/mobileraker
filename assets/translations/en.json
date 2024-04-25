@@ -397,6 +397,7 @@
         "read_only": "Webcam is read-only"
       },
       "macros": {
+        "default_grp": "Default",
         "new_macro_grp": "New Macro - Group",
         "no_macros_available": "No Macros available!",
         "no_macros_found": "No Macros found!",
