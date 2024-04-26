@@ -141,7 +141,8 @@ dependencies:
   expandable_page_view: ^1.0.17
   badges: ^3.1.1
   easy_stepper: ^0.8.3
-  flutter_colorpicker: ^1.0.3
+  flutter_colorpicker:
+    git: https://github.com/mchome/flutter_colorpicker.git
   percent_indicator: ^4.0.1
   flutter_icons:
     git: https://github.com/jibiel/flutter-icons.git
