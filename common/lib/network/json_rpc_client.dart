@@ -321,18 +321,17 @@ class JsonRpcClient {
         // logger.e('Completing $mId with error $err,\n${StackTrace.current}',);
         request.completer.completeError(JRpcError(err['code'], err['message']), request.stacktrace);
       } else {
-        if (response['result'] == 'ok') {
-          response = {
-            ...response,
-            'result': <String, dynamic>{}
-          }; // do some trickery here because the gcode response (Why idk) returns `result:ok` instead of an empty map/wrapped in a map..
-        } else if (response['result'] is List) {
+        response = switch (response['result']) {
+          // do some trickery here because the gcode response (Why idk) returns `result:ok` instead of an empty map/wrapped in a map..
+          'ok' => {...response, 'result': <String, dynamic>{}},
           // Some trickery for spoolman API
-          response = {
-            ...response,
-            'result': <String, dynamic>{'list': response['result']}
-          };
-        }
+          List() => {
+              ...response,
+              'result': <String, dynamic>{'list': response['result']}
+            },
+          _ => response
+        };
+
         request.completer.complete(RpcResponse.fromJson(response));
       }
     } else {
