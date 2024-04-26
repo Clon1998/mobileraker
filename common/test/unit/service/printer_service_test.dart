@@ -68,31 +68,6 @@ void main() {
 
     var mockMachineService = MockMachineService();
 
-    when(mockMachineService.fetchSettingsAndAdjustDefaultMacros(uuid, [
-      'ECHO_RATOS_VARS',
-      'RatOS',
-      'MAYBE_HOME',
-      'PRIME_LINE',
-      'PRIME_BLOB',
-      '_PARK',
-      'M600',
-      'UNLOAD_FILAMENT',
-      'LOAD_FILAMENT',
-      'SET_CENTER_KINEMATIC_POSITION',
-      'START_PRINT',
-      '_START_PRINT_AFTER_HEATING_BED',
-      '_START_PRINT_BED_MESH',
-      '_START_PRINT_PARK',
-      '_START_PRINT_AFTER_HEATING_EXTRUDER',
-      'END_PRINT',
-      '_END_PRINT_BEFORE_HEATERS_OFF',
-      '_END_PRINT_AFTER_HEATERS_OFF',
-      '_END_PRINT_PARK',
-      'GENERATE_SHAPER_GRAPHS',
-      'MEASURE_COREXY_BELT_TENSION',
-      'COMPILE_FIRMWARE',
-      'CHANGE_HOSTNAME'
-    ])).thenAnswer((_) async {});
 
     var mockSnackBarService = MockSnackBarService();
     var mockDialogService = MockDialogService();
@@ -155,31 +130,6 @@ void main() {
 
     var mockMachineService = MockMachineService();
 
-    when(mockMachineService.fetchSettingsAndAdjustDefaultMacros(uuid, [
-      'ECHO_RATOS_VARS',
-      'RatOS',
-      'MAYBE_HOME',
-      'PRIME_LINE',
-      'PRIME_BLOB',
-      '_PARK',
-      'M600',
-      'UNLOAD_FILAMENT',
-      'LOAD_FILAMENT',
-      'SET_CENTER_KINEMATIC_POSITION',
-      'START_PRINT',
-      '_START_PRINT_AFTER_HEATING_BED',
-      '_START_PRINT_BED_MESH',
-      '_START_PRINT_PARK',
-      '_START_PRINT_AFTER_HEATING_EXTRUDER',
-      'END_PRINT',
-      '_END_PRINT_BEFORE_HEATERS_OFF',
-      '_END_PRINT_AFTER_HEATERS_OFF',
-      '_END_PRINT_PARK',
-      'GENERATE_SHAPER_GRAPHS',
-      'MEASURE_COREXY_BELT_TENSION',
-      'COMPILE_FIRMWARE',
-      'CHANGE_HOSTNAME'
-    ])).thenAnswer((_) async {});
 
     var mockSnackBarService = MockSnackBarService();
     var mockDialogService = MockDialogService();
@@ -264,8 +214,6 @@ void main() {
 
     // when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe', params: ['toolhead']))
     //     .thenReturn(null);
-
-    when(mockMachineService.fetchSettingsAndAdjustDefaultMacros(uuid, any)).thenAnswer((_) async {});
 
     mockKlipyyStreamCtl.add(KlipperInstance(
         klippyConnected: true, klippyState: KlipperState.ready, moonrakerVersion: MoonrakerVersion.fallback()));
