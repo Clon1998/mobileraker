@@ -1,5 +1,19 @@
 # Mobileraker - Changelog
 
+## [2.6.16-ANDROID] - 2024-04-26
+
+This release is an Android-only release that fixes a critical issue that prevented the app from starting on some Android
+devices.
+
+### Bug Fixes
+
+-Fixed default name while adding a new macro group.
+
+### Localization
+
+- Updated the Hungarian translation, thanks
+  to [@AntoszHUN](https://github.com/AntoszHUN). [#353](https://github.com/Clon1998/mobileraker/pull/353)
+
 ## [2.6.15] - 2024-04-24
 
 ### Bug Fixes
