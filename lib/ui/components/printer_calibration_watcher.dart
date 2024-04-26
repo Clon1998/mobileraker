@@ -92,33 +92,30 @@ class _PrinterCalibrationWatcherState extends ConsumerState<PrinterCalibrationWa
       printerProvider(widget.machineUUID).selectAs((data) => data.screwsTiltAdjust),
       (previous, next) {
         logger.w('SCT-got $previous -> $next');
-        switch (next) {
-          case AsyncData(value: var screwsTiltAdjust?) when !_dialogService.isDialogOpen:
-// We only want to show the dialog if we have a result
-            if (screwsTiltAdjust.results.isEmpty) {
-              return;
-            }
-
-            // We do not check if prev and next match, as they can have the same values!
-            // So we only check first run
-            // Dont show the dialog on the first run
-            if (_previousScrewsTiltAdjust == null) {
-              _previousScrewsTiltAdjust = screwsTiltAdjust;
-              return;
-            }
+        if (next case AsyncData(value: var screwsTiltAdjust?, isLoading: false) when !_dialogService.isDialogOpen) {
+          // If we had a refresh (invalidate/refresh) and the value has not changed, we dont want to show the dialog
+          if (previous case AsyncValue(isRefreshing: true, value: var prevScrew) when prevScrew == screwsTiltAdjust) {
             _previousScrewsTiltAdjust = screwsTiltAdjust;
-            logger.i('Detected screwsTiltAdjust... opening Dialog');
+            return;
+          }
 
-            _dialogService.show(DialogRequest(
-              barrierDismissible: false,
-              type: DialogType.screwsTiltAdjust,
-              data: screwsTiltAdjust,
-            ));
-            break;
-          case AsyncError():
-            // If we have an error we want to reset the previous value to prevent showing the dialog after the error is resolved
-            _previousScrewsTiltAdjust = null;
-            break;
+          if (_previousScrewsTiltAdjust == null) {
+            _previousScrewsTiltAdjust = screwsTiltAdjust;
+            return;
+          }
+          // We only want to show the dialog if we have a result
+          if (screwsTiltAdjust.results.isEmpty) {
+            return;
+          }
+          _previousScrewsTiltAdjust = screwsTiltAdjust;
+
+          logger.i('Detected screwsTiltAdjust... opening Dialog');
+
+          _dialogService.show(DialogRequest(
+            barrierDismissible: false,
+            type: DialogType.screwsTiltAdjust,
+            data: screwsTiltAdjust,
+          ));
         }
       },
       fireImmediately: true,
