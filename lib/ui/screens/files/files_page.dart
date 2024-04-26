@@ -16,6 +16,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -30,15 +31,14 @@ import 'package:flutter_cache_manager/src/cache_manager.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/connection/connection_state_view.dart';
 import 'package:mobileraker/ui/components/ease_in.dart';
-import 'package:mobileraker/ui/components/error_card.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/files/components/file_sort_mode_selector.dart';
 import 'package:mobileraker/ui/screens/files/files_controller.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:shimmer/shimmer.dart';
 
+import '../../components/connection/machine_connection_guard.dart';
 
 class FilesPage extends ConsumerWidget {
   const FilesPage({super.key});
@@ -50,7 +50,7 @@ class FilesPage extends ConsumerWidget {
       drawer: const NavigationDrawerWidget(),
       bottomNavigationBar: const _BottomNav(),
       floatingActionButton: const _Fab(),
-      body: ConnectionStateView(
+      body: MachineConnectionGuard(
         onConnected: (_, __) => const _FilesBody(),
         skipKlipperReady: true,
       ),

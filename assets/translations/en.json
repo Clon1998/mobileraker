@@ -50,7 +50,9 @@
     "activate": "Activate",
     "stop": "Stop",
     "start": "Start",
-    "repeat": "Repeat"
+    "repeat": "Repeat",
+    "load_more": "Load more",
+    "archived": "Archived"
   },
   "pages": {
     "dashboard": {
@@ -396,13 +398,14 @@
         "read_only": "Webcam is read-only"
       },
       "macros": {
+        "default_grp": "Default",
         "new_macro_grp": "New Macro - Group",
         "no_macros_available": "No Macros available!",
         "no_macros_found": "No Macros found!",
         "no_macros_in_grp": "No macros in the group!",
         "deleted_grp": "Deleted group {}",
         "macros": "Macros",
-        "default_name": "New Macro",
+        "default_name": "New Macro Group",
         "macros_to_default": {
           "one": "Moved one macro to default group!",
           "two": "Moved two macro to default group!",
@@ -597,7 +600,9 @@
     },
     "spoolman": {
       "title": "Spoolman",
-      "not_available": "Spoolman is not available for this printer. Please make sure that Spoolman is installed and enabled on your printer.",
+      "not_available": "Spoolman is not available for this printer. \nPlease make sure that Spoolman is installed and enabled on your printer.",
+      "learn_more": "To learn more about Spoolman and how to install it, visit the project's",
+      "learn_more_link": "GitHub page.",
       "no_spools": "No spools found!",
       "no_filaments": "No filaments found!",
       "no_vendors": "No vendors found!",

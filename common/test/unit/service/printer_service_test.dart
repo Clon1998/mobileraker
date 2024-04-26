@@ -68,7 +68,7 @@ void main() {
 
     var mockMachineService = MockMachineService();
 
-    when(mockMachineService.updateMacrosInSettings(uuid, [
+    when(mockMachineService.fetchSettingsAndAdjustDefaultMacros(uuid, [
       'ECHO_RATOS_VARS',
       'RatOS',
       'MAYBE_HOME',
@@ -155,7 +155,7 @@ void main() {
 
     var mockMachineService = MockMachineService();
 
-    when(mockMachineService.updateMacrosInSettings(uuid, [
+    when(mockMachineService.fetchSettingsAndAdjustDefaultMacros(uuid, [
       'ECHO_RATOS_VARS',
       'RatOS',
       'MAYBE_HOME',
@@ -265,7 +265,7 @@ void main() {
     // when(mockRpc.sendJsonRpcWithCallback('printer.objects.subscribe', params: ['toolhead']))
     //     .thenReturn(null);
 
-    when(mockMachineService.updateMacrosInSettings(uuid, any)).thenAnswer((_) async {});
+    when(mockMachineService.fetchSettingsAndAdjustDefaultMacros(uuid, any)).thenAnswer((_) async {});
 
     mockKlipyyStreamCtl.add(KlipperInstance(
         klippyConnected: true, klippyState: KlipperState.ready, moonrakerVersion: MoonrakerVersion.fallback()));
