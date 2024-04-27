@@ -1,5 +1,11 @@
 # Mobileraker - Changelog
 
+## [2.6.17] - 2024-05-x
+
+### Changed Features
+
+- Within a machine's settings, users can now reorder the sensors and outputs to their liking.
+
 ## [2.6.16] - 2024-04-26
 
 ### Bug Fixes
