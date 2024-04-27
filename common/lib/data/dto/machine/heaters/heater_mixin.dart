@@ -3,20 +3,14 @@
  * All rights reserved.
  */
 
-mixin HeaterMixin {
-  double get temperature;
+import '../sensor_mixin.dart';
 
+mixin HeaterMixin on SensorMixin {
   double get target;
 
   double get power;
 
-  List<double>? get temperatureHistory;
-
   List<double>? get targetHistory;
 
   List<double>? get powerHistory;
-
-  String get name;
-
-  String get configName => name.toLowerCase();
 }

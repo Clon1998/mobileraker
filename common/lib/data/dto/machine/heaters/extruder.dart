@@ -6,13 +6,14 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../../util/json_util.dart';
+import '../sensor_mixin.dart';
 import 'heater_mixin.dart';
 
 part 'extruder.freezed.dart';
 part 'extruder.g.dart';
 
 @freezed
-class Extruder with _$Extruder, HeaterMixin {
+class Extruder with _$Extruder, SensorMixin, HeaterMixin {
   static Extruder empty([int num = 0]) {
     return Extruder(num: num, lastHistory: DateTime(1990));
   }
