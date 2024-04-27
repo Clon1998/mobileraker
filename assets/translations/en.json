@@ -474,6 +474,11 @@
           "title": "Error while fetching WiFi name!",
           "body": "Please make sure the app has the necessary permissions to access the device's WiFi state."
         }
+      },
+      "temp_ordering": {
+        "title": "Temperature Sensor UI-Ordering",
+        "helper": "Change the order of the temperature sensors on the dashboard.",
+        "no_sensors": "No temperature sensors found!"
       }
     },
     "printer_add": {

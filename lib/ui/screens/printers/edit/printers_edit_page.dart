@@ -40,10 +40,12 @@ import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 
 import 'components/macro_group_list.dart';
+import 'components/temperature_items_list.dart';
 import 'printers_edit_controller.dart';
 
 class PrinterEditPage extends ConsumerWidget {
   const PrinterEditPage({super.key, required this.machine});
+
   final Machine machine;
 
   @override
@@ -555,6 +557,9 @@ class _RemoteSettings extends ConsumerWidget {
                   ),
                 ),
                 const TemperaturePresetList(),
+                const Divider(),
+                TemperatureItemsList(machineUuid: machineUUID),
+                const Divider(),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: TextButton.icon(
@@ -716,6 +721,7 @@ class _TempPresetItem extends HookConsumerWidget {
     required this.idx,
     required this.machine,
   });
+
   final TemperaturePreset preset;
   final int idx;
   final Machine machine; // We cant use the provider here since the reordable cant use the provider while dragging!

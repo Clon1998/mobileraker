@@ -474,6 +474,11 @@
           "title": "Fehler beim Abrufen des WiFi-Namens!",
           "body": "Vergewissern Sie sich, dass die App über die erforderlichen Zugriffsrechte, für das Abrufen des WLAN-Status des Geräts, verfügt."
         }
+      },
+      "temp_ordering": {
+        "title": "Temperatursensor Reihenfolge",
+        "helper": "Ändern Sie die Reihenfolge der Temperatursensoren, die auf dem Dashboard angezeigt werden.",
+        "no_sensors": "Keine Sensoren gefunden!"
       }
     },
     "printer_add": {

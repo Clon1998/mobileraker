@@ -4,6 +4,7 @@
  */
 
 import 'package:collection/collection.dart';
+import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../stamped_entity.dart';
@@ -42,7 +43,7 @@ class MachineSettings extends StampedEntity {
   List<TemperaturePreset> temperaturePresets;
 
   // Ordering of temp UI elements: Extruders, Bed, Sensors, Temp-Fans....
-  List<String> tempOrdering;
+  List<ReordableElement> tempOrdering;
 
   factory MachineSettings.fromJson(Map<String, dynamic> json) => _$MachineSettingsFromJson(json);
 

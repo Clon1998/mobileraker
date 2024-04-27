@@ -20,21 +20,19 @@ class SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var themeData = Theme.of(context);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Padding(
-          padding: padding,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              title.toUpperCase(),
-              style: themeData.textTheme.labelMedium?.copyWith(color: themeData.colorScheme.secondary),
-            ),
+    return Padding(
+      padding: padding,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            title.toUpperCase(),
+            style: themeData.textTheme.labelMedium?.copyWith(color: themeData.colorScheme.secondary),
           ),
-        ),
-        if (trailing != null) trailing!,
-      ],
+          if (trailing != null) trailing!,
+        ],
+      ),
     );
   }
 }
