@@ -7,7 +7,7 @@ import 'package:common/data/dto/config/config_extruder.dart';
 import 'package:common/data/dto/config/config_heater_bed.dart';
 import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/moonraker_db/temperature_preset.dart';
+import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';

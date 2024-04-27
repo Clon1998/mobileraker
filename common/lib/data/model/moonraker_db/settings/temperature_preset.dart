@@ -6,7 +6,7 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
-import 'stamped_entity.dart';
+import '../stamped_entity.dart';
 
 part 'temperature_preset.g.dart';
 

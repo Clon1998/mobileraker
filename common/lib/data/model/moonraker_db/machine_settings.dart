@@ -6,9 +6,9 @@
 import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'macro_group.dart';
+import 'settings/macro_group.dart';
+import 'settings/temperature_preset.dart';
 import 'stamped_entity.dart';
-import 'temperature_preset.dart';
 
 part 'machine_settings.g.dart';
 
