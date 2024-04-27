@@ -77,3 +77,14 @@ class MobilerakerStartupException implements Exception {
     return 'MobilerakerStartupError{$message, parentException: $parentException, parentStack: $parentStack, canResetStorage: $canResetStorage}';
   }
 }
+
+class MoonrakerSpoolmanProxyException extends MobilerakerException {
+  MoonrakerSpoolmanProxyException(this.statusCode, super.message, {super.parentException, super.parentStack});
+
+  int statusCode;
+
+  @override
+  String toString() {
+    return 'MoonrakerSpoolmanProxyException{statusCode: $statusCode, message: $message, parentException: $parentException, parentStack: $parentStack}';
+  }
+}
