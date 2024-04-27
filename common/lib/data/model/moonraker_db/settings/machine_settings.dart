@@ -6,27 +6,28 @@
 import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'settings/macro_group.dart';
-import 'settings/temperature_preset.dart';
-import 'stamped_entity.dart';
+import '../stamped_entity.dart';
+import 'macro_group.dart';
+import 'temperature_preset.dart';
 
 part 'machine_settings.g.dart';
 
 @JsonSerializable()
 class MachineSettings extends StampedEntity {
-  MachineSettings(
-      {DateTime? created,
-      DateTime? lastModified,
-      this.temperaturePresets = const [],
-      this.inverts = const [false, false, false],
-      this.speedXY = 50,
-      this.speedZ = 30,
-      this.extrudeFeedrate = 5,
-      this.moveSteps = const [1, 10, 25, 50],
-      this.babySteps = const [0.005, 0.01, 0.05, 0.1],
-      this.extrudeSteps = const [1, 10, 25, 50],
-      this.macroGroups = const []})
-      : super(created, lastModified ?? DateTime.now());
+  MachineSettings({
+    DateTime? created,
+    DateTime? lastModified,
+    this.temperaturePresets = const [],
+    this.inverts = const [false, false, false],
+    this.speedXY = 50,
+    this.speedZ = 30,
+    this.extrudeFeedrate = 5,
+    this.moveSteps = const [1, 10, 25, 50],
+    this.babySteps = const [0.005, 0.01, 0.05, 0.1],
+    this.extrudeSteps = const [1, 10, 25, 50],
+    this.macroGroups = const [],
+    this.tempOrdering = const [],
+  }) : super(created, lastModified ?? DateTime.now());
 
   MachineSettings.fallback() : this(created: DateTime.now(), lastModified: DateTime.now());
 
@@ -39,6 +40,9 @@ class MachineSettings extends StampedEntity {
   List<int> extrudeSteps;
   List<MacroGroup> macroGroups;
   List<TemperaturePreset> temperaturePresets;
+
+  // Ordering of temp UI elements: Extruders, Bed, Sensors, Temp-Fans....
+  List<String> tempOrdering;
 
   factory MachineSettings.fromJson(Map<String, dynamic> json) => _$MachineSettingsFromJson(json);
 
@@ -58,7 +62,8 @@ class MachineSettings extends StampedEntity {
           const DeepCollectionEquality().equals(other.babySteps, babySteps) &&
           const DeepCollectionEquality().equals(other.extrudeSteps, extrudeSteps) &&
           const DeepCollectionEquality().equals(other.macroGroups, macroGroups) &&
-          const DeepCollectionEquality().equals(other.temperaturePresets, temperaturePresets);
+          const DeepCollectionEquality().equals(other.temperaturePresets, temperaturePresets) &&
+          const DeepCollectionEquality().equals(other.tempOrdering, tempOrdering);
 
   @override
   int get hashCode => Object.hash(
@@ -73,6 +78,7 @@ class MachineSettings extends StampedEntity {
         const DeepCollectionEquality().hash(extrudeSteps),
         const DeepCollectionEquality().hash(macroGroups),
         const DeepCollectionEquality().hash(temperaturePresets),
+        const DeepCollectionEquality().hash(tempOrdering),
       );
 
   @override

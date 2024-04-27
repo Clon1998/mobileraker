@@ -6,7 +6,7 @@
 import 'dart:async';
 
 import 'package:common/data/model/hive/machine.dart';
-import 'package:common/data/model/moonraker_db/machine_settings.dart';
+import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';

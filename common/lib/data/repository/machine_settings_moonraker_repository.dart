@@ -6,7 +6,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../network/moonraker_database_client.dart';
-import '../model/moonraker_db/machine_settings.dart';
+import '../model/moonraker_db/settings/machine_settings.dart';
 import 'machine_settings_repository.dart';
 
 part 'machine_settings_moonraker_repository.g.dart';

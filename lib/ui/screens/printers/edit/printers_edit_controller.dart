@@ -8,7 +8,7 @@ import 'package:common/data/enums/webcam_service_type.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/octoeverywhere.dart';
 import 'package:common/data/model/hive/remote_interface.dart';
-import 'package:common/data/model/moonraker_db/machine_settings.dart';
+import 'package:common/data/model/moonraker_db/settings/machine_settings.dart';
 import 'package:common/data/model/moonraker_db/settings/macro_group.dart';
 import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
