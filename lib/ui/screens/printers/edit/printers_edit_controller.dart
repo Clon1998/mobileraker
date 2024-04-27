@@ -49,6 +49,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../../components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
+import 'components/fans_ordering_list.dart';
 import 'components/macro_group_list.dart';
 
 part 'printers_edit_controller.g.dart';
@@ -175,6 +176,7 @@ class PrinterEditController extends _$PrinterEditController {
       List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).requireValue;
       List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
       List<ReordableElement> tempOrdering = ref.read(sensorOrderingListControllerProvider(_machine.uuid)).requireValue;
+      List<ReordableElement> fanOrdering = ref.read(fansOrderingListControllerProvider(_machine.uuid)).requireValue;
 
       for (var preset in presets) {
         var name = storedValues['${preset.uuid}-presetName'];
@@ -207,6 +209,7 @@ class PrinterEditController extends _$PrinterEditController {
               speedXY: speedXY,
               speedZ: speedZ,
               tempOrdering: tempOrdering,
+              fanOrdering: fanOrdering,
             ),
           );
     }

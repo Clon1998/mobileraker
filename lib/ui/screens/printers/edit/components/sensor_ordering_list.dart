@@ -5,6 +5,7 @@
 
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
 import 'package:common/data/dto/machine/fans/temperature_fan.dart';
 import 'package:common/data/dto/machine/printer.dart';
@@ -177,6 +178,6 @@ class SensorOrderingListController extends _$SensorOrderingListController {
       }
     }
 
-    return normalizedSettings;
+    return normalizedSettings.whereNot((e) => e.name.startsWith('_')).toList();
   }
 }

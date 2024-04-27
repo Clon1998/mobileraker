@@ -479,6 +479,11 @@
         "title": "Temperature Sensor UI-Ordering",
         "helper": "Change the order of the temperature sensors on the dashboard.",
         "no_sensors": "No temperature sensors found!"
+      },
+      "fan_ordering": {
+        "title": "Fan UI-Ordering",
+        "helper": "Change the order of the fans on the dashboard.",
+        "no_fans": "No fans found!"
       }
     },
     "printer_add": {

@@ -5,7 +5,10 @@
 
 import 'dart:ui';
 
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
+import 'package:common/data/dto/machine/fans/controller_fan.dart';
+import 'package:common/data/dto/machine/fans/heater_fan.dart';
 import 'package:common/data/dto/machine/fans/temperature_fan.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
@@ -19,27 +22,27 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../components/async_value_widget.dart';
 import '../../components/section_header.dart';
 
-part 'temperature_items_list.g.dart';
+part 'fans_ordering_list.g.dart';
 
-class TemperatureItemsList extends ConsumerWidget {
-  const TemperatureItemsList({super.key, required this.machineUuid});
+class FansOrderingList extends ConsumerWidget {
+  const FansOrderingList({super.key, required this.machineUuid});
 
   final String machineUuid;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.read(temperatureItemsListControllerProvider(machineUuid).notifier);
-    var model = ref.watch(temperatureItemsListControllerProvider(machineUuid));
+    var controller = ref.read(fansOrderingListControllerProvider(machineUuid).notifier);
+    var model = ref.watch(fansOrderingListControllerProvider(machineUuid));
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SectionHeader(
-          title: tr('pages.printer_edit.temp_ordering.title'),
+          title: tr('pages.printer_edit.fan_ordering.title'),
           trailing: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0),
             child: Tooltip(
                 showDuration: const Duration(seconds: 5),
-                message: tr('pages.printer_edit.temp_ordering.helper'),
+                message: tr('pages.printer_edit.fan_ordering.helper'),
                 margin: const EdgeInsets.symmetric(horizontal: 16.0),
                 triggerMode: TooltipTriggerMode.tap,
                 child: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary)),
@@ -52,7 +55,7 @@ class TemperatureItemsList extends ConsumerWidget {
             if (items.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: const Text('pages.printer_edit.temp_ordering.no_sensors').tr(),
+                child: const Text('pages.printer_edit.fan_ordering.no_sensors').tr(),
               );
             }
 
@@ -108,10 +111,10 @@ class TemperatureItemsList extends ConsumerWidget {
 }
 
 @riverpod
-class TemperatureItemsListController extends _$TemperatureItemsListController {
+class FansOrderingListController extends _$FansOrderingListController {
   @override
   FutureOr<List<ReordableElement>> build(String machineUUID) async {
-    var settings = await ref.read(machineSettingsProvider(machineUUID).selectAsync((v) => v.tempOrdering));
+    var settings = await ref.read(machineSettingsProvider(machineUUID).selectAsync((v) => v.fanOrdering));
     var printerData = await ref.read(printerProvider(machineUUID).future);
 
     // Gather all available elements from Printer
@@ -135,25 +138,19 @@ class TemperatureItemsListController extends _$TemperatureItemsListController {
   List<ReordableElement> _extractAvailableElements(Printer printerData) {
     var availableElements = <ReordableElement>[];
 
-    for (var element in printerData.extruders) {
-      availableElements.add(ReordableElement(name: element.name, kind: ConfigFileObjectIdentifiers.extruder));
+    if (printerData.printFan != null) {
+      availableElements.add(ReordableElement(name: 'print_fan', kind: ConfigFileObjectIdentifiers.fan));
     }
 
-    if (printerData.heaterBed != null) {
-      availableElements
-          .add(ReordableElement(name: printerData.heaterBed!.name, kind: ConfigFileObjectIdentifiers.heater_bed));
-    }
+    for (var fan in printerData.fans.values) {
+      var kind = switch (fan) {
+        HeaterFan() => ConfigFileObjectIdentifiers.heater_fan,
+        TemperatureFan() => ConfigFileObjectIdentifiers.temperature_fan,
+        ControllerFan() => ConfigFileObjectIdentifiers.controller_fan,
+        _ => ConfigFileObjectIdentifiers.fan_generic,
+      };
 
-    for (var element in printerData.genericHeaters.values) {
-      availableElements.add(ReordableElement(name: element.name, kind: ConfigFileObjectIdentifiers.heater_generic));
-    }
-
-    for (var element in printerData.temperatureSensors.values) {
-      availableElements.add(ReordableElement(name: element.name, kind: ConfigFileObjectIdentifiers.temperature_sensor));
-    }
-
-    for (var element in printerData.fans.values.whereType<TemperatureFan>()) {
-      availableElements.add(ReordableElement(name: element.name, kind: ConfigFileObjectIdentifiers.temperature_fan));
+      availableElements.add(ReordableElement(name: fan.name, kind: kind));
     }
 
     return availableElements;
@@ -177,6 +174,6 @@ class TemperatureItemsListController extends _$TemperatureItemsListController {
       }
     }
 
-    return normalizedSettings;
+    return normalizedSettings.whereNot((e) => e.name.startsWith('_')).toList();
   }
 }

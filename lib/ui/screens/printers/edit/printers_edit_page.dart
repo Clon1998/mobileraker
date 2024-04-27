@@ -40,6 +40,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 
+import 'components/fans_ordering_list.dart';
 import 'components/macro_group_list.dart';
 import 'printers_edit_controller.dart';
 
@@ -559,6 +560,8 @@ class _RemoteSettings extends ConsumerWidget {
                 const TemperaturePresetList(),
                 const Divider(),
                 SensorOrderingList(machineUuid: machineUUID),
+                const Divider(),
+                FansOrderingList(machineUuid: machineUUID),
                 const Divider(),
                 Align(
                   alignment: Alignment.bottomCenter,
