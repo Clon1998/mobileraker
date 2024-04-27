@@ -35,12 +35,12 @@ import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/sensor_ordering_list.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:stringr/stringr.dart';
 
 import 'components/macro_group_list.dart';
-import 'components/temperature_items_list.dart';
 import 'printers_edit_controller.dart';
 
 class PrinterEditPage extends ConsumerWidget {
@@ -558,7 +558,7 @@ class _RemoteSettings extends ConsumerWidget {
                 ),
                 const TemperaturePresetList(),
                 const Divider(),
-                TemperatureItemsList(machineUuid: machineUUID),
+                SensorOrderingList(machineUuid: machineUUID),
                 const Divider(),
                 Align(
                   alignment: Alignment.bottomCenter,

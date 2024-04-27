@@ -43,7 +43,7 @@ import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
-import 'package:mobileraker/ui/screens/printers/edit/components/temperature_items_list.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/sensor_ordering_list.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -174,8 +174,7 @@ class PrinterEditController extends _$PrinterEditController {
 
       List<MacroGroup> macroGroups = ref.read(macroGroupListControllerProvider(_machine.uuid)).requireValue;
       List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
-      List<ReordableElement> tempOrdering =
-          ref.read(temperatureItemsListControllerProvider(_machine.uuid)).requireValue;
+      List<ReordableElement> tempOrdering = ref.read(sensorOrderingListControllerProvider(_machine.uuid)).requireValue;
 
       for (var preset in presets) {
         var name = storedValues['${preset.uuid}-presetName'];
