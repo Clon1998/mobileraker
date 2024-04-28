@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
@@ -14,10 +15,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
 import 'package:mobileraker/ui/screens/overview/components/printer_card_controller.dart';
+import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+
+import '../../../components/machine_state_indicator.dart';
 
 class SinglePrinterCard extends ConsumerWidget {
   const SinglePrinterCard(this._machine, {super.key});
@@ -43,16 +46,43 @@ class _PrinterCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var singlePrinterCardController = ref.watch(printerCardControllerProvider.notifier);
     var machine = ref.watch(printerCardMachineProvider);
+    var themeData = Theme.of(context);
     return Card(
       child: Column(
         children: [
           const _Cam(),
-          ListTile(
+          InkWell(
             onTap: singlePrinterCardController.onTapTile,
             onLongPress: singlePrinterCardController.onLongPressTile,
-            title: Text(machine.name),
-            subtitle: Text(machine.httpUri.toString()),
-            trailing: const _Trailing(),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(machine.name, style: themeData.textTheme.titleMedium),
+                      Text(
+                        machine.httpUri.toString(),
+                        style: themeData.textTheme.bodySmall,
+                      ),
+                      Consumer(builder: (context, ref, child) {
+                        var printer = ref.watch(printerProvider(machine.uuid).selectAs((data) => data.print.state));
+
+                        return switch (printer) {
+                          AsyncData(value: var state) => Text(state.displayName, style: themeData.textTheme.bodySmall),
+                          _ => const SizedBox.shrink(),
+                        };
+                      }),
+                    ],
+                  ),
+                  const _Trailing(),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -66,43 +96,70 @@ class _Trailing extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(printerCardMachineProvider);
+    var jrpcClientState = ref.watch(jrpcClientStateProvider(machine.uuid));
+    var printState = ref.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state));
 
-    return ref.watch(jrpcClientStateProvider(machine.uuid)).when(
-          data: (d) {
-            if (d != ClientState.connected) {
-              return Icon(
-                FlutterIcons.disconnect_ant,
-                size: 20,
-                color: Theme.of(context).colorScheme.error,
-              );
+    return switch (jrpcClientState) {
+      AsyncValue(isLoading: true, isRefreshing: false) => FadingText('...'),
+      AsyncData(value: var state) => state == ClientState.connected
+          ? switch (printState) {
+              AsyncData(value: PrintState.printing || PrintState.paused) => const _PrintProgressBar(circular: true),
+              _ => MachineStateIndicator(machine),
             }
-            return MachineStateIndicator(machine);
-          },
-          error: (e, s) => Tooltip(
-            message: e.toString(),
-            child: Icon(
+          : Icon(
               FlutterIcons.disconnect_ant,
               size: 20,
               color: Theme.of(context).colorScheme.error,
             ),
+      AsyncError(error: var e) => Tooltip(
+          message: e.toString(),
+          child: Icon(
+            FlutterIcons.disconnect_ant,
+            size: 20,
+            color: Theme.of(context).colorScheme.error,
           ),
-          loading: () => FadingText('...'),
-        );
+        ),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 
 class _PrintProgressBar extends ConsumerWidget {
-  const _PrintProgressBar({super.key});
+  const _PrintProgressBar({super.key, this.circular = false});
+
+  final bool circular;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var machine = ref.watch(printerCardMachineProvider);
+    var progress = ref.watch(printerProvider(machine.uuid).selectAs((data) => data.printProgress)).valueOrFullNull ?? 0;
+    var numberFormat = NumberFormat.percentPattern(context.locale.toStringWithSeparator());
+
+    if (circular) {
+      return Positioned.fill(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: CircularPercentIndicator(
+            radius: 20,
+            lineWidth: 3,
+            percent: progress,
+            center: AutoSizeText(
+              numberFormat.format(progress),
+              maxLines: 1,
+              minFontSize: 8,
+              maxFontSize: 11,
+            ),
+            progressColor: Theme.of(context).colorScheme.secondary,
+          ),
+        ),
+      );
+    }
 
     return Positioned.fill(
       child: Align(
         alignment: Alignment.bottomCenter,
         child: LinearProgressIndicator(
-          value: ref.watch(printerProvider(machine.uuid).selectAs((data) => data.printProgress)).valueOrFullNull ?? 0,
+          value: progress,
         ),
       ),
     );
