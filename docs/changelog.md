@@ -10,14 +10,14 @@
 ### Bug Fixes
 
 - Optimized the screw tilt dialog to prevent it from triggering excessively when the app was backgrounded for a long
-  period.
+  period. [#362](https://github.com/Clon1998/mobileraker/issues/362)
 
 ## [2.6.16] - 2024-04-26
 
 ### Bug Fixes
 
 - Fixed default name while adding a new macro group.
-- Fixed color picker on IOS. [#360 ](https://github.com/Clon1998/mobileraker/issues/360)
+- Fixed color picker on IOS. [#360](https://github.com/Clon1998/mobileraker/issues/360)
 
 ### Localization
 
