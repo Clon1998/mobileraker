@@ -2,9 +2,15 @@
 
 ## [2.6.17] - 2024-05-x
 
-### Changed Features
+### Enhancements
 
-- Within a machine's settings, users can now reorder the sensors, heaters, fans and outputs to their liking.
+- Introduced a new feature in machine settings that allows users to customize the order of sensors, heaters, fans, and
+  outputs according to their preferences in their respective cards.
+
+### Bug Fixes
+
+- Optimized the screw tilt dialog to prevent it from triggering excessively when the app was backgrounded for a long
+  period.
 
 ## [2.6.16] - 2024-04-26
 
