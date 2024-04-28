@@ -7,9 +7,8 @@ import 'dart:ui';
 
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
-import 'package:common/data/dto/machine/fans/controller_fan.dart';
-import 'package:common/data/dto/machine/fans/heater_fan.dart';
-import 'package:common/data/dto/machine/fans/temperature_fan.dart';
+import 'package:common/data/dto/machine/filament_sensors/filament_motion_sensor.dart';
+import 'package:common/data/dto/machine/filament_sensors/filament_switch_sensor.dart';
 import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/model/moonraker_db/settings/reordable_element.dart';
 import 'package:common/service/machine_service.dart';
@@ -22,27 +21,27 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../../components/async_value_widget.dart';
 import '../../components/section_header.dart';
 
-part 'fans_ordering_list.g.dart';
+part 'misc_ordering_list.g.dart';
 
-class FansOrderingList extends ConsumerWidget {
-  const FansOrderingList({super.key, required this.machineUuid});
+class MiscOrderingList extends ConsumerWidget {
+  const MiscOrderingList({super.key, required this.machineUuid});
 
   final String machineUuid;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.read(fansOrderingListControllerProvider(machineUuid).notifier);
-    var model = ref.watch(fansOrderingListControllerProvider(machineUuid));
+    var controller = ref.read(miscOrderingListControllerProvider(machineUuid).notifier);
+    var model = ref.watch(miscOrderingListControllerProvider(machineUuid));
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SectionHeader(
-          title: tr('pages.printer_edit.fan_ordering.title'),
+          title: tr('pages.printer_edit.misc_ordering.title'),
           trailing: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
             child: Tooltip(
                 showDuration: const Duration(seconds: 5),
-                message: tr('pages.printer_edit.fan_ordering.helper'),
+                message: tr('pages.printer_edit.misc_ordering.helper'),
                 margin: const EdgeInsets.symmetric(horizontal: 16.0),
                 triggerMode: TooltipTriggerMode.tap,
                 child: Icon(Icons.help_outline, color: Theme.of(context).colorScheme.primary)),
@@ -55,7 +54,7 @@ class FansOrderingList extends ConsumerWidget {
             if (items.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: const Text('pages.printer_edit.fan_ordering.no_sensors').tr(),
+                child: const Text('pages.printer_edit.misc_ordering.no_sensors').tr(),
               );
             }
 
@@ -111,10 +110,10 @@ class FansOrderingList extends ConsumerWidget {
 }
 
 @riverpod
-class FansOrderingListController extends _$FansOrderingListController {
+class MiscOrderingListController extends _$MiscOrderingListController {
   @override
   FutureOr<List<ReordableElement>> build(String machineUUID) async {
-    var settings = await ref.read(machineSettingsProvider(machineUUID).selectAsync((v) => v.fanOrdering));
+    var settings = await ref.read(machineSettingsProvider(machineUUID).selectAsync((v) => v.miscOrdering));
     var printerData = await ref.read(printerProvider(machineUUID).future);
 
     // Gather all available elements from Printer
@@ -138,21 +137,32 @@ class FansOrderingListController extends _$FansOrderingListController {
   List<ReordableElement> _extractAvailableElements(Printer printerData) {
     var availableElements = <ReordableElement>[];
 
-    if (printerData.printFan != null) {
-      availableElements.add(ReordableElement(name: 'print_fan', kind: ConfigFileObjectIdentifiers.fan));
+    for (var led in printerData.leds.values) {
+      availableElements.add(ReordableElement(
+        kind: ConfigFileObjectIdentifiers.led,
+        name: led.name,
+      ));
     }
 
-    for (var fan in printerData.fans.values) {
-      var kind = switch (fan) {
-        HeaterFan() => ConfigFileObjectIdentifiers.heater_fan,
-        TemperatureFan() => ConfigFileObjectIdentifiers.temperature_fan,
-        ControllerFan() => ConfigFileObjectIdentifiers.controller_fan,
-        _ => ConfigFileObjectIdentifiers.fan_generic,
+    for (var pin in printerData.outputPins.values) {
+      availableElements.add(ReordableElement(
+        kind: ConfigFileObjectIdentifiers.output_pin,
+        name: pin.name,
+      ));
+    }
+
+    for (var sensor in printerData.filamentSensors.values) {
+      var kind = switch (sensor) {
+        FilamentMotionSensor() => ConfigFileObjectIdentifiers.filament_motion_sensor,
+        FilamentSwitchSensor() => ConfigFileObjectIdentifiers.filament_switch_sensor,
+        _ => throw UnimplementedError('Unknown sensor type: $sensor'),
       };
 
-      availableElements.add(ReordableElement(name: fan.name, kind: kind));
+      availableElements.add(ReordableElement(
+        kind: kind,
+        name: sensor.name,
+      ));
     }
-
     return availableElements;
   }
 

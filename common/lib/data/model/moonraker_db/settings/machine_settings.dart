@@ -29,6 +29,7 @@ class MachineSettings extends StampedEntity {
     this.macroGroups = const [],
     this.tempOrdering = const [],
     this.fanOrdering = const [],
+    this.miscOrdering = const [],
   }) : super(created, lastModified ?? DateTime.now());
 
   MachineSettings.fallback() : this(created: DateTime.now(), lastModified: DateTime.now());
@@ -46,8 +47,11 @@ class MachineSettings extends StampedEntity {
   // Ordering of temp UI elements: Extruders, Bed, Sensors, Temp-Fans....
   List<ReordableElement> tempOrdering;
 
-  // Orodering of fans UI elements: Fans, Sensors, Temp-Fans....
+  // Ordering of fans UI elements: Fans, Sensors, Temp-Fans....
   List<ReordableElement> fanOrdering;
+
+  // Ordering of misc UI elements: Leds, Relays, FilamentSensors
+  List<ReordableElement> miscOrdering;
 
   factory MachineSettings.fromJson(Map<String, dynamic> json) => _$MachineSettingsFromJson(json);
 
@@ -69,7 +73,8 @@ class MachineSettings extends StampedEntity {
           const DeepCollectionEquality().equals(other.macroGroups, macroGroups) &&
           const DeepCollectionEquality().equals(other.temperaturePresets, temperaturePresets) &&
           const DeepCollectionEquality().equals(other.tempOrdering, tempOrdering) &&
-          const DeepCollectionEquality().equals(other.fanOrdering, fanOrdering);
+          const DeepCollectionEquality().equals(other.fanOrdering, fanOrdering) &&
+          const DeepCollectionEquality().equals(other.miscOrdering, miscOrdering);
 
   @override
   int get hashCode => Object.hash(
@@ -86,6 +91,7 @@ class MachineSettings extends StampedEntity {
         const DeepCollectionEquality().hash(temperaturePresets),
         const DeepCollectionEquality().hash(tempOrdering),
         const DeepCollectionEquality().hash(fanOrdering),
+        const DeepCollectionEquality().hash(miscOrdering),
       );
 
   @override

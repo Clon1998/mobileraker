@@ -37,7 +37,7 @@ class SensorOrderingList extends ConsumerWidget {
         SectionHeader(
           title: tr('pages.printer_edit.temp_ordering.title'),
           trailing: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
             child: Tooltip(
                 showDuration: const Duration(seconds: 5),
                 message: tr('pages.printer_edit.temp_ordering.helper'),

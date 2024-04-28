@@ -35,6 +35,7 @@ import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/section_header.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/misc_ordering_list.dart';
 import 'package:mobileraker/ui/screens/printers/edit/components/sensor_ordering_list.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:progress_indicators/progress_indicators.dart';
@@ -562,6 +563,8 @@ class _RemoteSettings extends ConsumerWidget {
                 SensorOrderingList(machineUuid: machineUUID),
                 const Divider(),
                 FansOrderingList(machineUuid: machineUUID),
+                const Divider(),
+                MiscOrderingList(machineUuid: machineUUID),
                 const Divider(),
                 Align(
                   alignment: Alignment.bottomCenter,

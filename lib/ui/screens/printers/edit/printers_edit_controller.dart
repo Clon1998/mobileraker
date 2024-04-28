@@ -43,6 +43,7 @@ import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 import 'package:mobileraker/ui/screens/printers/components/http_headers.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssid_preferences_list.dart';
 import 'package:mobileraker/ui/screens/printers/components/ssl_settings.dart';
+import 'package:mobileraker/ui/screens/printers/edit/components/misc_ordering_list.dart';
 import 'package:mobileraker/ui/screens/printers/edit/components/sensor_ordering_list.dart';
 import 'package:mobileraker/ui/screens/qr_scanner/qr_scanner_page.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -177,6 +178,7 @@ class PrinterEditController extends _$PrinterEditController {
       List<TemperaturePreset> presets = ref.read(temperaturePresetListControllerProvider);
       List<ReordableElement> tempOrdering = ref.read(sensorOrderingListControllerProvider(_machine.uuid)).requireValue;
       List<ReordableElement> fanOrdering = ref.read(fansOrderingListControllerProvider(_machine.uuid)).requireValue;
+      List<ReordableElement> miscOrdering = ref.read(miscOrderingListControllerProvider(_machine.uuid)).requireValue;
 
       for (var preset in presets) {
         var name = storedValues['${preset.uuid}-presetName'];
@@ -210,6 +212,7 @@ class PrinterEditController extends _$PrinterEditController {
               speedZ: speedZ,
               tempOrdering: tempOrdering,
               fanOrdering: fanOrdering,
+              miscOrdering: miscOrdering,
             ),
           );
     }

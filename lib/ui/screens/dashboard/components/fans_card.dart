@@ -17,6 +17,7 @@ import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -272,7 +273,7 @@ class _FansCardController extends _$FansCardController {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
-    // logger.i('Rebuilding fansCardController for $machineUUID');
+    logger.i('Rebuilding fansCardController for $machineUUID');
 
     // This might be WAY to fine grained. Riverpod will check based on the emitted value if the widget should rebuild.
     // This means that if the value is the same, the widget will not rebuild.

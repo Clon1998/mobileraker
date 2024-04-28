@@ -87,7 +87,7 @@ class _CardBody extends ConsumerWidget {
     // ROHE model nutzung ist AA. Wenn eine der listen sich ändert wird alles neu gebaut! Lieber einzelne Selects darauf!
     var provider = _controllerProvider(machineUUID);
 
-    var sensors = ref.watch(provider.selectAs((value) => value.sensors.length)).requireValue;
+    var sensors = ref.watch(provider.selectRequireValue((value) => value.sensors.length));
     logger.w('Rebuilding HeaterSensorCard');
 
     return AdaptiveHorizontalScroll(
@@ -97,7 +97,7 @@ class _CardBody extends ConsumerWidget {
         for (var i = 0; i < sensors; i++)
           _SensorMixinTile(
             machineUUID: machineUUID,
-            sensorProvider: _controllerProvider(machineUUID).select((value) => value.requireValue.sensors[i]),
+            sensorProvider: _controllerProvider(machineUUID).selectRequireValue((value) => value.sensors[i]),
           ),
       ],
     );
@@ -148,7 +148,7 @@ class _HeaterMixinTile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.requireValue.klippyCanReceiveCommands));
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
 
     var spots = useRef(<FlSpot>[]);
 
@@ -290,7 +290,7 @@ class _TemperatureFanTile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands)).requireValue;
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
 
     var spots = useRef(<FlSpot>[]);
     var temperatureHistory = temperatureFan.temperatureHistory;
@@ -349,6 +349,7 @@ class _Controller extends _$Controller {
 
   @override
   Stream<_Model> build(String machineUUID) async* {
+    logger.i('Rebuilding HeaterSensorCard for machine $machineUUID');
     ref.keepAliveFor();
 
     var printerProviderr = printerProvider(machineUUID);
@@ -413,7 +414,7 @@ class _Controller extends _$Controller {
 
   adjustHeater(HeaterMixin heater) {
     double? maxValue;
-    var configFile = ref.read(printerProvider(machineUUID).selectAs((value) => value.configFile)).requireValue;
+    var configFile = ref.read(printerProvider(machineUUID).selectRequireValue((value) => value.configFile));
     if (heater is Extruder) {
       maxValue = configFile.extruders[heater.name]?.maxTemp;
     } else if (heater is HeaterBed) {

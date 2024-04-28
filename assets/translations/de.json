@@ -484,6 +484,11 @@
         "title": "Lüfter Reihenfolge",
         "helper": "Ändern Sie die Reihenfolge der Lüfter, die auf dem Dashboard angezeigt werden.",
         "no_fans": "Keine Lüfter gefunden!"
+      },
+      "misc_ordering": {
+        "title": "Verschiedenes Reihenfolge",
+        "helper": "Ändern Sie die Reihenfolge der verschiedenen Elemente, die auf dem Dashboard angezeigt werden.",
+        "no_controls": "Keine Elemente gefunden!"
       }
     },
     "printer_add": {

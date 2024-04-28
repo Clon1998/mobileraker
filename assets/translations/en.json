@@ -484,6 +484,11 @@
         "title": "Fan UI-Ordering",
         "helper": "Change the order of the fans on the dashboard.",
         "no_fans": "No fans found!"
+      },
+      "misc_ordering": {
+        "title": "Misc Element UI-Ordering",
+        "helper": "Change the order of the miscellaneous elements on the dashboard.",
+        "no_controls": "No misc elements found!"
       }
     },
     "printer_add": {
