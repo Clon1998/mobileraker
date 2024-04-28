@@ -4,7 +4,7 @@
 
 ### Changed Features
 
-- Within a machine's settings, users can now reorder the sensors and outputs to their liking.
+- Within a machine's settings, users can now reorder the sensors, heaters, fans and outputs to their liking.
 
 ## [2.6.16] - 2024-04-26
 
