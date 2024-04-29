@@ -9,6 +9,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:common/data/adapters/uri_adapter.dart';
+import 'package:common/data/model/hive/dashboard_component.dart';
+import 'package:common/data/model/hive/dashboard_component_type.dart';
+import 'package:common/data/model/hive/dashboard_layout.dart';
+import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/data/model/hive/gcode_macro.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/hive/macro_group.dart';
@@ -99,12 +103,32 @@ setupBoxes() async {
     Hive.registerAdapter(nAdapter);
   }
 
+  DashboardLayoutAdapter dlAdapter = DashboardLayoutAdapter();
+  if (!Hive.isAdapterRegistered(dlAdapter.typeId)) {
+    Hive.registerAdapter(dlAdapter);
+  }
+
+  var dtAdapter = DashboardTabAdapter();
+  if (!Hive.isAdapterRegistered(dtAdapter.typeId)) {
+    Hive.registerAdapter(dtAdapter);
+  }
+
+  var dcAdapter = DashboardComponentAdapter();
+  if (!Hive.isAdapterRegistered(dcAdapter.typeId)) {
+    Hive.registerAdapter(dcAdapter);
+  }
+
+  var dctAdapter = DashboardComponentTypeAdapter();
+  if (!Hive.isAdapterRegistered(dctAdapter.typeId)) {
+    Hive.registerAdapter(dctAdapter);
+  }
+
   // Hive.deleteBoxFromDisk('printers');
 
   try {
     // await openBoxes(keyMaterial);
     await openBoxes();
-    Hive.box<Machine>("printers").values.forEach((element) {
+    Hive.box<Machine>('printers').values.forEach((element) {
       logger.i('Machine in box is ${element.logName}#${element.hashCode}');
       // ToDo remove after machine migration!
       element.save();
@@ -179,6 +203,7 @@ Future<List<Box>> openBoxes() {
     Hive.openBox<String>('uuidbox'),
     Hive.openBox('settingsbox'),
     Hive.openBox<Notification>('notifications'),
+    Hive.openBox<DashboardLayout>('dashboard_layouts'),
     // Hive.openBox<OctoEverywhere>('octo', encryptionCipher: HiveAesCipher(keyMaterial))
   ]);
 }
@@ -190,6 +215,7 @@ Future<void> deleteBoxes() {
     Hive.deleteBoxFromDisk('uuidbox'),
     Hive.deleteBoxFromDisk('settingsbox'),
     Hive.deleteBoxFromDisk('notifications'),
+    Hive.deleteBoxFromDisk('dashboard_layouts'),
     // Hive.deleteBoxFromDisk('octo')
   ]);
 }

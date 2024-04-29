@@ -17,6 +17,7 @@ import 'package:common/ui/components/skeletons/square_elevated_icon_button_skele
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -35,6 +36,10 @@ part 'z_offset_card.g.dart';
 class ZOffsetCard extends ConsumerWidget {
   const ZOffsetCard({super.key, required this.machineUUID});
 
+  factory ZOffsetCard.preview() {
+    return const _ZOffsetCardPreview();
+  }
+
   final String machineUUID;
 
   @override
@@ -48,6 +53,7 @@ class ZOffsetCard extends ConsumerWidget {
 
     return Card(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           _CardTitle(machineUUID: machineUUID),
           Padding(
@@ -56,6 +62,24 @@ class ZOffsetCard extends ConsumerWidget {
           ),
           const SizedBox(height: 15),
         ],
+      ),
+    );
+  }
+}
+
+class _ZOffsetCardPreview extends ZOffsetCard {
+  static const String _machineUUID = 'preview';
+
+  const _ZOffsetCardPreview({super.key}) : super(machineUUID: _machineUUID);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ProviderScope(
+      overrides: [
+        _zOffsetCardControllerProvider(_machineUUID).overrideWith(_ZOffsetCardPreviewController.new),
+      ],
+      child: Consumer(
+        builder: (innerContext, innerRef, _) => super.build(innerContext, innerRef),
       ),
     );
   }
@@ -255,6 +279,31 @@ class _ZOffsetCardController extends _$ZOffsetCardController {
     double dirStep = (positive) ? step : -1 * step;
     var zHomed = ref.read(printerProvider(machineUUID)).value?.toolhead.homedAxes.contains(PrinterAxis.Z) ?? false;
     _printerService.setGcodeOffset(z: dirStep, move: zHomed ? 1 : 0);
+  }
+}
+
+class _ZOffsetCardPreviewController extends _ZOffsetCardController {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    logger.i('Using Preview Controller for ZOffsetCard');
+    return Stream.value(const _Model(
+      showCard: true,
+      klippyCanReceiveCommands: true,
+      zOffset: 1.234,
+      steps: [0.1, 0.05, 0.01, 0.005],
+      selected: 1,
+    ));
+  }
+
+  @override
+  // ignore: no-empty-block
+  void onBabyStepping(bool positive) {
+    // Do nothing, preview does not need this
+  }
+
+  @override
+  void onSelectedChanged(int? index) {
+    state = state.whenData((value) => value.copyWith(selected: index ?? 0));
   }
 }
 

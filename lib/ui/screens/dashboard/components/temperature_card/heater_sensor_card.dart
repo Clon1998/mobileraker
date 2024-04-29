@@ -11,6 +11,7 @@ import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
 import 'package:common/data/dto/machine/heaters/heater_bed.dart';
 import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
+import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
 import 'package:common/service/machine_service.dart';
@@ -47,6 +48,10 @@ part 'heater_sensor_card.g.dart';
 class HeaterSensorCard extends ConsumerWidget {
   const HeaterSensorCard({super.key, required this.machineUUID, this.trailing});
 
+  factory HeaterSensorCard.preview() {
+    return const _HeaterSensorCardPreview();
+  }
+
   final String machineUUID;
 
   final Widget? trailing;
@@ -72,6 +77,25 @@ class HeaterSensorCard extends ConsumerWidget {
             _CardBody(machineUUID: machineUUID),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _HeaterSensorCardPreview extends HeaterSensorCard {
+  static const String _machineUUID = 'preview';
+
+  const _HeaterSensorCardPreview({super.key}) : super(machineUUID: _machineUUID);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ProviderScope(
+      overrides: [
+        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
+        printerProvider(_machineUUID).overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
+      ],
+      child: Consumer(
+        builder: (innerContext, innerRef, _) => super.build(innerContext, innerRef),
       ),
     );
   }
@@ -470,6 +494,42 @@ class _Controller extends _$Controller {
       num v = value.data;
       ref.read(printerServiceSelectedProvider).setTemperatureFanTarget(temperatureFan.name, v.toInt());
     });
+  }
+}
+
+class _PreviewController extends _Controller {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    return Stream.value(_Model(
+      klippyCanReceiveCommands: true,
+      sensors: [
+        Extruder(
+          temperature: 150,
+          target: 200,
+          num: 0,
+          lastHistory: DateTime.now(),
+          temperatureHistory: [60, 100, 120, 150],
+        ),
+        HeaterBed(
+          temperature: 40,
+          target: 60,
+          lastHistory: DateTime.now(),
+          temperatureHistory: [100, 88, 70, 40, 44, 52, 60],
+        )
+      ],
+    ));
+  }
+
+  @override
+  // ignore: no-empty-block
+  adjustHeater(HeaterMixin heater) {
+    // No action due to preview
+  }
+
+  @override
+  // ignore: no-empty-block
+  editTemperatureFan(TemperatureFan temperatureFan) {
+    // No action due to preview
   }
 }
 

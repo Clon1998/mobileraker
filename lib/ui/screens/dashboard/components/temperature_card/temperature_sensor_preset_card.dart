@@ -23,6 +23,10 @@ import 'temperature_preset_card.dart';
 class TemperatureSensorPresetCard extends HookConsumerWidget {
   const TemperatureSensorPresetCard({super.key, required this.machineUUID});
 
+  factory TemperatureSensorPresetCard.preview() {
+    return const _TemperatureSensorPresetCardPreview();
+  }
+
   final String machineUUID;
 
   @override
@@ -50,6 +54,17 @@ class TemperatureSensorPresetCard extends HookConsumerWidget {
         onPresetApplied: flipController.value.toggleCard,
       ),
     );
+  }
+}
+
+class _TemperatureSensorPresetCardPreview extends TemperatureSensorPresetCard {
+  static const String _machineUUID = 'preview';
+
+  const _TemperatureSensorPresetCardPreview({super.key}) : super(machineUUID: _machineUUID);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return HeaterSensorCard.preview();
   }
 }
 

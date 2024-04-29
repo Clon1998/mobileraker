@@ -35,6 +35,23 @@ part 'printer.freezed.dart';
 class PrinterBuilder {
   PrinterBuilder();
 
+  factory PrinterBuilder.preview() {
+    var toolhead = const Toolhead();
+    var gCodeMove = const GCodeMove();
+    var motionReport = const MotionReport();
+    var print = const PrintStats();
+    var configFile = ConfigFile();
+    var virtualSdCard = const VirtualSdCard();
+
+    return PrinterBuilder()
+      ..toolhead = toolhead
+      ..gCodeMove = gCodeMove
+      ..motionReport = motionReport
+      ..print = print
+      ..configFile = configFile
+      ..virtualSdCard = virtualSdCard;
+  }
+
   PrinterBuilder.fromPrinter(Printer printer)
       : toolhead = printer.toolhead,
         extruders = printer.extruders,

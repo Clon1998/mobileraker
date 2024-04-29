@@ -35,14 +35,18 @@ part 'machine_status_card.g.dart';
 class MachineStatusCard extends ConsumerWidget {
   const MachineStatusCard({super.key, required this.machineUUID});
 
+  factory MachineStatusCard.preview() {
+    return const _MachineStatusCardPreview();
+  }
+
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     logger.i('Rebuilding MachineStatusCard for $machineUUID');
 
-    var showLoading =
-        ref.watch(_machineStatusCardProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showLoading = ref.watch(
+        _machineStatusCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
 
     if (showLoading) return const _MachineStatusCardLoading();
 
@@ -55,8 +59,8 @@ class MachineStatusCard extends ConsumerWidget {
           _M117Message(machineUUID: machineUUID),
           _ExcludeObject(machineUUID: machineUUID),
           Consumer(builder: (ctx, iref, _) {
-            var model = iref
-                .watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.showToolheadTable));
+            var model = iref.watch(
+                _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.showToolheadTable));
             // logger.i('Rebuilding ToolheadInfoTable for $machineUUID');
             return AnimatedSwitcher(
               duration: kThemeAnimationDuration,
@@ -76,6 +80,24 @@ class MachineStatusCard extends ConsumerWidget {
             );
           }),
         ],
+      ),
+    );
+  }
+}
+
+class _MachineStatusCardPreview extends MachineStatusCard {
+  static const String _machineUUID = 'preview';
+
+  const _MachineStatusCardPreview({super.key}) : super(machineUUID: _machineUUID);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ProviderScope(
+      overrides: [
+        _machineStatusCardControllerProvider(_machineUUID).overrideWith(_MachineStatusCardPreviewController.new),
+      ],
+      child: Consumer(
+        builder: (innerContext, innerRef, _) => super.build(innerContext, innerRef),
       ),
     );
   }
@@ -109,22 +131,23 @@ class _CardTitle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // var controller = ref.watch(_spoolmanCardControllerProvider(machineUUID).notifier);
 
-    var klippyCanReceiveCommands =
-        ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref.watch(
+        _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
     // logger.i('Rebuilding _CardTitle for $machineUUID');
 
-    var printState = ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.printState));
+    var printState =
+        ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.printState));
     return ListTile(
       contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
       leading: Icon(klippyCanReceiveCommands ? FlutterIcons.monitor_dashboard_mco : FlutterIcons.disconnect_ant),
       title: _Title(machineUUID: machineUUID),
       subtitle: switch (printState) {
         PrintState.printing ||
-        PrintState.paused =>
-          Text(ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.filename))),
+        PrintState.paused => Text(
+            ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.filename))),
         PrintState.error =>
-          Text(ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.message))),
+          Text(ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.message))),
         _ => null,
       },
       trailing: _Trailing(machineUUID: machineUUID),
@@ -139,8 +162,8 @@ class _Title extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands =
-        ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
+    var klippyCanReceiveCommands = ref.watch(
+        _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
     // logger.i('Rebuilding _Title for $machineUUID');
 
@@ -148,11 +171,12 @@ class _Title extends ConsumerWidget {
     if (klippyCanReceiveCommands) {
       text = Text(
         key: const ValueKey('klippyState'),
-        ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.printState.displayName)),
+        ref.watch(_machineStatusCardControllerProvider(machineUUID)
+            .selectRequireValue((data) => data.printState.displayName)),
       );
     } else {
-      var klippyStatus =
-          ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.klippyStatusMessage));
+      var klippyStatus = ref.watch(
+          _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyStatusMessage));
       text = Text(
         key: Key(klippyStatus),
         klippyStatus,
@@ -178,9 +202,9 @@ class _Trailing extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_machineStatusCardProvider(machineUUID).notifier);
+    var controller = ref.watch(_machineStatusCardControllerProvider(machineUUID).notifier);
     // Here it is fine to just use the model directly, as the most updates will be triggered via the progress which we are using here
-    var model = ref.watch(_machineStatusCardProvider(machineUUID).requireValue());
+    var model = ref.watch(_machineStatusCardControllerProvider(machineUUID).requireValue());
 
     // logger.i('Rebuilding _Trailing for $machineUUID');
 
@@ -259,13 +283,13 @@ class _KlippyStateActionButtons extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_machineStatusCardProvider(machineUUID).notifier);
+    var controller = ref.watch(_machineStatusCardControllerProvider(machineUUID).notifier);
     // logger.i('Rebuilding _KlippyStateActionButtons for $machineUUID');
     var klippyState =
-        ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.klipperState));
+        ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klipperState));
 
     var klippyConnected =
-        ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.klippyConnected));
+        ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.klippyConnected));
     var buttons = <Widget>[
       if ((const {KlipperState.shutdown, KlipperState.error, KlipperState.disconnected}.contains(klippyState)))
         ElevatedButton(
@@ -304,9 +328,9 @@ class _M117Message extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var controller = ref.watch(_machineStatusCardProvider(machineUUID).notifier);
+    var controller = ref.watch(_machineStatusCardControllerProvider(machineUUID).notifier);
     // logger.i('Rebuilding _M117Message for $machineUUID');
-    var m117 = ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.m117));
+    var m117 = ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.m117));
 
     //TOOD: Animate this. So just use a AnimatedSwitcher and a size
 
@@ -355,14 +379,15 @@ class _ExcludeObject extends ConsumerWidget {
     var themeData = Theme.of(context);
     // logger.i('Rebuilding _ExcludeObject for $machineUUID');
 
-    var controller = ref.watch(_machineStatusCardProvider(machineUUID).notifier);
-    var show = ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.showExcludeObject));
+    var controller = ref.watch(_machineStatusCardControllerProvider(machineUUID).notifier);
+    var show = ref
+        .watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.showExcludeObject));
 
     final Widget child;
 
     if (show) {
       var excludeObject =
-          ref.watch(_machineStatusCardProvider(machineUUID).selectRequireValue((data) => data.excludeObject));
+          ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.excludeObject));
 
       child = Column(
         mainAxisSize: MainAxisSize.min,
@@ -442,7 +467,7 @@ class _ExcludeObject extends ConsumerWidget {
 }
 
 @riverpod
-class _MachineStatusCard extends _$MachineStatusCard {
+class _MachineStatusCardController extends _$MachineStatusCardController {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
 
   KlippyService get _klippyService => ref.read(klipperServiceProvider(machineUUID));
@@ -486,6 +511,58 @@ class _MachineStatusCard extends _$MachineStatusCard {
   Future<void> clearM117() async => await _printerService.m117();
 
   void excludeObject() => ref.read(dialogServiceProvider).show(DialogRequest(type: DialogType.excludeObject));
+}
+
+class _MachineStatusCardPreviewController extends _MachineStatusCardController {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    return Stream.value(const _Model(
+      klippyConnected: true,
+      klippyStatusMessage: 'Ready',
+      klipperState: KlipperState.ready,
+      printState: PrintState.standby,
+      filename: 'Benchy.gcode',
+      message: 'A Message',
+      progress: 0.5,
+      m117: 'M117 Message',
+      excludeObject: null,
+    ));
+  }
+
+  @override
+  Future<void> clearM117() async {
+    state = state.whenData((value) => value.copyWith(m117: null));
+  }
+
+  @override
+  // ignore: no-empty-block
+  void excludeObject() {
+    // Nothing to do here, as this is just a preview
+  }
+
+  @override
+  // ignore: no-empty-block
+  void reprint() {
+    // Nothing to do here, as this is just a preview
+  }
+
+  @override
+  // ignore: no-empty-block
+  void resetPrintState() {
+    // Nothing to do here, as this is just a preview
+  }
+
+  @override
+  // ignore: no-empty-block
+  void restartKlipper() {
+    // Nothing to do here, as this is just a preview
+  }
+
+  @override
+  // ignore: no-empty-block
+  void restartMCU() {
+    // Nothing to do here, as this is just a preview
+  }
 }
 
 @freezed
