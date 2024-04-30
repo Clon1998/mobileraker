@@ -1,5 +1,9 @@
 # Mobileraker - Changelog
 
+## [2.6.18] - 2024-04-30
+
+Hotfixing broken overview page
+
 ## [2.6.17] - 2024-04-29
 
 ### Enhancements

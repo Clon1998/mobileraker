@@ -136,32 +136,22 @@ class _PrintProgressBar extends ConsumerWidget {
     var numberFormat = NumberFormat.percentPattern(context.locale.toStringWithSeparator());
 
     if (circular) {
-      return Positioned.fill(
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: CircularPercentIndicator(
-            radius: 20,
-            lineWidth: 3,
-            percent: progress,
-            center: AutoSizeText(
-              numberFormat.format(progress),
-              maxLines: 1,
-              minFontSize: 8,
-              maxFontSize: 11,
-            ),
-            progressColor: Theme.of(context).colorScheme.secondary,
-          ),
+      return CircularPercentIndicator(
+        radius: 20,
+        lineWidth: 3,
+        percent: progress,
+        center: AutoSizeText(
+          numberFormat.format(progress),
+          maxLines: 1,
+          minFontSize: 8,
+          maxFontSize: 11,
         ),
+        progressColor: Theme.of(context).colorScheme.secondary,
       );
     }
 
-    return Positioned.fill(
-      child: Align(
-        alignment: Alignment.bottomCenter,
-        child: LinearProgressIndicator(
-          value: progress,
-        ),
-      ),
+    return LinearProgressIndicator(
+      value: progress,
     );
   }
 }
@@ -203,7 +193,13 @@ class _Cam extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  if (printState == PrintState.printing) const _PrintProgressBar(),
+                  if (printState == PrintState.printing)
+                    const Positioned.fill(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: _PrintProgressBar(),
+                      ),
+                    ),
                 ],
               ),
             ),
