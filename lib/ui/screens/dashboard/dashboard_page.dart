@@ -338,7 +338,7 @@ class _EditingModeFAB extends ConsumerWidget {
           // ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
           ref.read(_dashboardPageControllerProvider(machineUUID).notifier).stopEditMode();
         },
-        child: const Icon(Icons.settings),
+        child: const Icon(Icons.save_outlined),
       );
 }
 
