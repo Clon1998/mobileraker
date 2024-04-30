@@ -33,15 +33,15 @@ import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
 import 'package:mobileraker/ui/components/ems_button.dart';
-import 'package:mobileraker/ui/components/filament_sensor_watcher.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
-import 'package:mobileraker/ui/components/printer_calibration_watcher.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../components/filament_sensor_watcher.dart';
 import '../../components/machine_deletion_warning.dart';
+import '../../components/printer_calibration_watcher.dart';
 import '../../components/remote_announcements.dart';
 import '../../components/supporter_ad.dart';
 import 'tabs/dashboard_tab_page.dart';
@@ -87,7 +87,16 @@ class _DashboardView extends HookConsumerWidget {
         ],
       ),
       body: MachineConnectionGuard(
-        onConnected: (ctx, machineUUID) => _UserDashboard(machineUUID: machineUUID),
+        onConnected: (ctx, machineUUID) => PrinterProviderGuard(
+          machineUUID: machineUUID,
+          child: PrinterCalibrationWatcher(
+            machineUUID: machineUUID,
+            child: FilamentSensorWatcher(
+              machineUUID: machineUUID,
+              child: _UserDashboard(machineUUID: machineUUID),
+            ),
+          ),
+        ),
       ),
       floatingActionButton: activeMachine?.uuid.let((it) => _FloatingActionBtn(machineUUID: it)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
@@ -116,6 +125,8 @@ class _UserDashboardState extends ConsumerState<_UserDashboard> {
 
   int? _animationPageTarget;
 
+  ProviderSubscription<AsyncValue<_Model>>? _subscription;
+
   @override
   void initState() {
     super.initState();
@@ -138,8 +149,59 @@ class _UserDashboardState extends ConsumerState<_UserDashboard> {
       ref.read(_dashboardPageControllerProvider(machineUUID).notifier).onPageChanged(pageController.page?.round() ?? 0);
     });
 
+    _setupIndexListener();
+  }
+
+  @override
+  void didUpdateWidget(_UserDashboard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.machineUUID != widget.machineUUID) {
+      _lastPage = 0;
+      pageController.jumpToPage(0);
+      _setupIndexListener();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var staticWidgets = [
+      const RemoteAnnouncements(key: Key('RemoteAnnouncements')),
+      const MachineDeletionWarning(key: Key('MachineDeletionWarning')),
+      const SupporterAd(key: Key('SupporterAd')),
+    ];
+
+    var model = ref.watch(_dashboardPageControllerProvider(machineUUID));
+    var controller = ref.watch(_dashboardPageControllerProvider(machineUUID).notifier);
+
+    return AsyncValueWidget(
+        skipLoadingOnReload: true,
+        value: model,
+        data: (model) {
+          return PageView(
+            key: Key('Dash-$machineUUID'),
+            controller: pageController,
+            children: [
+              for (var tab in model.tabs.values)
+                DashboardTabPage(
+                  key: Key('${tab.uuid}$machineUUID'),
+                  machineUUID: machineUUID,
+                  staticWidgets: staticWidgets,
+                  tab: tab,
+                  isEditing: model.isEditing,
+                  onReorder: controller.onTabComponentsReordered,
+                  onAddComponent: controller.onTabComponentAdd,
+                  onRemoveComponent: controller.onTabComponentRemove,
+                  onRemove: controller.onTabRemove,
+                ),
+            ],
+          );
+        });
+  }
+
+  void _setupIndexListener() {
+    _subscription?.close();
     // Move Controller event to the UI
-    ref.listenManual(_dashboardPageControllerProvider(machineUUID), (previous, next) {
+    _subscription = ref.listenManual(_dashboardPageControllerProvider(machineUUID), (previous, next) {
       if (next.valueOrNull != null &&
           previous?.valueOrNull?.activeIndex != next.value!.activeIndex &&
           pageController.hasClients &&
@@ -155,54 +217,8 @@ class _UserDashboardState extends ConsumerState<_UserDashboard> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    var model = ref.watch(_dashboardPageControllerProvider(machineUUID));
-    var controller = ref.watch(_dashboardPageControllerProvider(machineUUID).notifier);
-
-    logger.i('DashboardPage: ${model.valueOrNull?.activeIndex}, tabs available ${model.valueOrNull?.tabs.length}');
-
-    var staticWidgets = [
-      const RemoteAnnouncements(key: Key('RemoteAnnouncements')),
-      const MachineDeletionWarning(key: Key('MachineDeletionWarning')),
-      const SupporterAd(key: Key('SupporterAd')),
-    ];
-
-    return AsyncValueWidget(
-        skipLoadingOnReload: true,
-        value: model,
-        data: (model) {
-          return PrinterProviderGuard(
-            machineUUID: machineUUID,
-            child: PrinterCalibrationWatcher(
-              machineUUID: machineUUID,
-              child: FilamentSensorWatcher(
-                machineUUID: machineUUID,
-                child: PageView(
-                  // key: const PageStorageKey<String>('dashboardPages'),
-                  controller: pageController,
-                  children: [
-                    for (var tab in model.tabs.values)
-                      DashboardTabPage(
-                        key: ValueKey(tab.uuid),
-                        machineUUID: machineUUID,
-                        staticWidgets: staticWidgets,
-                        tab: tab,
-                        isEditing: model.isEditing,
-                        onReorder: controller.onTabComponentsReordered,
-                        onAddComponent: controller.onTabComponentAdd,
-                        onRemoveComponent: controller.onTabComponentRemove,
-                        onRemove: controller.onTabRemove,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
-  }
-
-  @override
   void dispose() {
+    _subscription?.close();
     pageController.dispose();
     super.dispose();
   }
