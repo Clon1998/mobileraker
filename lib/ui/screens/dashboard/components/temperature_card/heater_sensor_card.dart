@@ -19,6 +19,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
@@ -58,23 +59,23 @@ class HeaterSensorCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading = ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoadingOrRefreshWithError));
-    if (showLoading) {
-      return const HeaterSensorPresetCardLoading();
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Column(
-          children: [
-            HeaterSensorPresetCardTitle(
-              machineUUID: machineUUID,
-              title: const Text('pages.dashboard.general.temp_card.title').tr(),
-              trailing: trailing,
-            ),
-            _CardBody(machineUUID: machineUUID),
-          ],
+    return AsyncGuard(
+      debugLabel: 'HeaterSensorCard-$machineUUID',
+      toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
+      childOnLoading: const HeaterSensorPresetCardLoading(),
+      childOnData: Card(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              HeaterSensorPresetCardTitle(
+                machineUUID: machineUUID,
+                title: const Text('pages.dashboard.general.temp_card.title').tr(),
+                trailing: trailing,
+              ),
+              _CardBody(machineUUID: machineUUID),
+            ],
+          ),
         ),
       ),
     );

@@ -11,6 +11,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/async_button_.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/klippy_extension.dart';
@@ -45,40 +46,41 @@ class MachineStatusCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     logger.i('Rebuilding MachineStatusCard for $machineUUID');
 
-    var showLoading = ref.watch(_machineStatusCardControllerProvider(machineUUID).select((value) => value.isLoadingOrRefreshWithError));
-
-    if (showLoading) return const _MachineStatusCardLoading();
-
-    return Card(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          _CardTitle(machineUUID: machineUUID),
-          _KlippyStateActionButtons(machineUUID: machineUUID),
-          _M117Message(machineUUID: machineUUID),
-          _ExcludeObject(machineUUID: machineUUID),
-          Consumer(builder: (ctx, iref, _) {
-            var model = iref.watch(
-                _machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.showToolheadTable));
-            // logger.i('Rebuilding ToolheadInfoTable for $machineUUID');
-            return AnimatedSwitcher(
-              duration: kThemeAnimationDuration,
-              transitionBuilder: (child, animation) => SizeAndFadeTransition(
-                sizeAndFadeFactor: animation,
-                child: child,
-              ),
-              child: model
-                  ? Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Divider(thickness: 1, height: 0),
-                        ToolheadInfoTable(machineUUID: machineUUID),
-                      ],
-                    )
-                  : const SizedBox.shrink(),
-            );
-          }),
-        ],
+    return AsyncGuard(
+      debugLabel: 'MachineStatusCard-$machineUUID',
+      toGuard: _machineStatusCardControllerProvider(machineUUID).selectAs((data) => true),
+      childOnLoading: const _MachineStatusCardLoading(),
+      childOnData: Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            _CardTitle(machineUUID: machineUUID),
+            _KlippyStateActionButtons(machineUUID: machineUUID),
+            _M117Message(machineUUID: machineUUID),
+            _ExcludeObject(machineUUID: machineUUID),
+            Consumer(builder: (ctx, iref, _) {
+              var model = iref.watch(_machineStatusCardControllerProvider(machineUUID)
+                  .selectRequireValue((data) => data.showToolheadTable));
+              // logger.i('Rebuilding ToolheadInfoTable for $machineUUID');
+              return AnimatedSwitcher(
+                duration: kThemeAnimationDuration,
+                transitionBuilder: (child, animation) => SizeAndFadeTransition(
+                  sizeAndFadeFactor: animation,
+                  child: child,
+                ),
+                child: model
+                    ? Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Divider(thickness: 1, height: 0),
+                          ToolheadInfoTable(machineUUID: machineUUID),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -142,8 +144,7 @@ class _CardTitle extends ConsumerWidget {
       leading: Icon(klippyCanReceiveCommands ? FlutterIcons.monitor_dashboard_mco : FlutterIcons.disconnect_ant),
       title: _Title(machineUUID: machineUUID),
       subtitle: switch (printState) {
-        PrintState.printing ||
-        PrintState.paused => Text(
+        PrintState.printing || PrintState.paused => Text(
             ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.filename))),
         PrintState.error =>
           Text(ref.watch(_machineStatusCardControllerProvider(machineUUID).selectRequireValue((data) => data.message))),

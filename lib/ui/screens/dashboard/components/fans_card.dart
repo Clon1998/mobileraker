@@ -13,6 +13,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -44,22 +45,21 @@ class FansCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_fansCardControllerProvider(machineUUID).select((value) => value.isLoadingOrRefreshWithError));
-    logger.i('Rebuilding fans card showLoading: $showLoading');
+    logger.i('Rebuilding fans card for $machineUUID');
 
-    if (showLoading) {
-      return const _FansCardLoading();
-    }
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CardTitle(machineUUID: machineUUID),
-          _CardBody(machineUUID: machineUUID),
-          const SizedBox(height: 8),
-        ],
+    return AsyncGuard(
+      debugLabel: 'FansCard-$machineUUID',
+      toGuard: _fansCardControllerProvider(machineUUID).selectAs((data) => data.fans.isNotEmpty),
+      childOnLoading: const _FansCardLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CardTitle(machineUUID: machineUUID),
+            _CardBody(machineUUID: machineUUID),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }

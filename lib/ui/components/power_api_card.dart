@@ -11,9 +11,11 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/power_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
+import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -42,47 +44,37 @@ class PowerApiCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var hadPowerApi = ref.read(boolSettingProvider(_hadPowerApi));
 
-    var model = ref.watch(_powerApiCardControllerProvider(machineUUID));
-
-    logger.i('Rebuilding PowerApiCard for $machineUUID');
-    logger.w('Model: $model');
-    Widget widget = switch (model) {
-      // We have a value and the model showCard is true
-      AsyncValue(hasValue: true, value: _Model(showCard: true, :final devices, :final isPrinting)) => Card(
-          key: const Key('powCard'),
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(FlutterIcons.power_fea),
-                  title: const Text(
-                    'pages.dashboard.control.power_card.title',
-                  ).tr(),
-                ),
-                AdaptiveHorizontalScroll(
+    return AsyncGuard(
+      debugLabel: 'PowerApiCard-$machineUUID',
+      toGuard: _powerApiCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
+      childOnLoading: hadPowerApi ? const _PowerApiCardLoading() : null,
+      childOnError: (error, _) => _ProviderError(machineUUID: machineUUID, error: error),
+      childOnData: Card(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              ListTile(
+                leading: const Icon(FlutterIcons.power_fea),
+                title: const Text(
+                  'pages.dashboard.control.power_card.title',
+                ).tr(),
+              ),
+              Consumer(builder: (context, ref, child) {
+                var model = ref.watch(_powerApiCardControllerProvider(machineUUID).selectRequireValue((data) => data));
+                return AdaptiveHorizontalScroll(
                   pageStorageKey: 'powers$machineUUID',
                   children: [
-                    for (var device in devices)
-                      _PowerDeviceCard(machineUUID: machineUUID, powerDevice: device, isPrinting: isPrinting),
+                    for (var device in model.devices)
+                      _PowerDeviceCard(machineUUID: machineUUID, powerDevice: device, isPrinting: model.isPrinting),
                   ],
-                ),
-              ],
-            ),
+                );
+              })
+            ],
           ),
         ),
-      // AsyncError(:final error) => Text('A'),
-      // The model is loading for the first time and we previously had a power api card
-      AsyncLoading() when hadPowerApi => const _PowerApiCardLoading(key: Key('powLoading')),
-      // The model returned an error
-      AsyncError(:final error) => _ProviderError(key: const Key('powErr'), machineUUID: machineUUID, error: error),
-      // Default do not show anything. E.g. the model is loading for the first time and we never had a power api card
-      _ => const SizedBox.shrink(
-          key: Key('powNone'),
-        ),
-    };
-
-    return widget;
+      ),
+    );
   }
 }
 
@@ -194,7 +186,7 @@ class _ProviderError extends ConsumerWidget {
   const _ProviderError({super.key, required this.machineUUID, required this.error});
 
   final String machineUUID;
-  final Object error;
+  final Object? error;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

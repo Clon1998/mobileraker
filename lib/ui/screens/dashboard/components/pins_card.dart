@@ -18,6 +18,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/card_with_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -52,23 +53,22 @@ class PinsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showCard = ref.watch(_pinsCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
-    logger.i('Rebuilding pins card. $showCard');
-
-    return switch (showCard) {
-      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _CardTitle(machineUUID: machineUUID),
-              _CardBody(machineUUID: machineUUID),
-              const SizedBox(height: 8),
-            ],
-          ),
+    logger.i('Rebuilding pins card for $machineUUID');
+    return AsyncGuard(
+      debugLabel: 'PinsCard-$machineUUID',
+      toGuard: _pinsCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
+      childOnLoading: const _PinsCardLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CardTitle(machineUUID: machineUUID),
+            _CardBody(machineUUID: machineUUID),
+            const SizedBox(height: 8),
+          ],
         ),
-      AsyncValue(isLoading: true) => const _PinsCardLoading(),
-      _ => const SizedBox.shrink(),
-    };
+      ),
+    );
   }
 }
 

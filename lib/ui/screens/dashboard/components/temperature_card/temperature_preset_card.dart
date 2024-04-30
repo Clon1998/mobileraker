@@ -8,6 +8,7 @@ import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart'
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -38,31 +39,26 @@ class TemperaturePresetCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading = ref.watch(
-      _temperaturePresetControllerProvider(machineUUID, onPresetApplied),
-    );
-    if (showLoading.isLoadingOrRefreshWithError) {
-      return const HeaterSensorPresetCardLoading();
-    }
-    if (showLoading.valueOrNull == null) {
-      return const SizedBox.shrink();
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Column(
-          children: [
-            HeaterSensorPresetCardTitle(
-              machineUUID: machineUUID,
-              title: const Text('pages.dashboard.general.temp_card.temp_presets').tr(),
-              trailing: trailing,
-            ),
-            _CardBody(
-              machineUUID: machineUUID,
-              onPresetApplied: onPresetApplied,
-            ),
-          ],
+    return AsyncGuard(
+      debugLabel: 'TemperaturePresetCard-$machineUUID',
+      toGuard: _temperaturePresetControllerProvider(machineUUID, onPresetApplied).selectAs((data) => true),
+      childOnLoading: const HeaterSensorPresetCardLoading(),
+      childOnData: Card(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              HeaterSensorPresetCardTitle(
+                machineUUID: machineUUID,
+                title: const Text('pages.dashboard.general.temp_card.temp_presets').tr(),
+                trailing: trailing,
+              ),
+              _CardBody(
+                machineUUID: machineUUID,
+                onPresetApplied: onPresetApplied,
+              ),
+            ],
+          ),
         ),
       ),
     );

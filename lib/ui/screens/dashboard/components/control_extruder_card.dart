@@ -12,12 +12,14 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -43,24 +45,25 @@ class ControlExtruderCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showCard = ref.watch(_controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard));
+    logger.i('Rebuilding ControlExtruderCard');
 
-    return switch (showCard) {
-      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _CardTitle(machineUUID: machineUUID),
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-                child: _CardBody(machineUUID: machineUUID),
-              ),
-            ],
-          ),
+    return AsyncGuard(
+      debugLabel: 'ControlExtruderCard-$machineUUID',
+      toGuard: _controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard),
+      childOnLoading: const _ControlExtruderLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _CardTitle(machineUUID: machineUUID),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+              child: _CardBody(machineUUID: machineUUID),
+            ),
+          ],
         ),
-      AsyncValue(isLoading: true) => const _ControlExtruderLoading(),
-      _ => const SizedBox.shrink(),
-    };
+      ),
+    );
   }
 }
 

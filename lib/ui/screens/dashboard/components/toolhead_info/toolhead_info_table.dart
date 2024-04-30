@@ -7,6 +7,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:common/util/time_util.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,8 @@ class _ToolheadData extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    logger.i('Rebuilding ToolheadInfoTable');
+
     var isPrintingOrPaused =
         ref.watch(toolheadInfoProvider(machineUUID).selectAs((data) => data.printingOrPaused)).valueOrNull == true;
     var dateFormat = ref.watch(dateFormatServiceProvider).Hm();

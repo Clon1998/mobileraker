@@ -11,6 +11,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
 import 'package:common/ui/components/skeletons/square_elevated_icon_button_skeleton.dart';
@@ -44,27 +45,26 @@ class ZOffsetCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showCard = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
+    logger.i('Rebuilding ZOffsetCard');
 
-    logger.i('Rebuilding ZOffsetCard with showCard: $showCard');
-
-    return switch (showCard) {
-      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _CardTitle(machineUUID: machineUUID),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: _CardBody(machineUUID: machineUUID),
-              ),
-              const SizedBox(height: 15),
-            ],
-          ),
+    return AsyncGuard(
+      debugLabel: 'ZOffsetCard-$machineUUID',
+      toGuard: _zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
+      childOnLoading: const _ZOffsetLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _CardTitle(machineUUID: machineUUID),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: _CardBody(machineUUID: machineUUID),
+            ),
+            const SizedBox(height: 15),
+          ],
         ),
-      AsyncValue(isLoading: true) => const _ZOffsetLoading(),
-      _ => const SizedBox.shrink(),
-    };
+      ),
+    );
   }
 }
 

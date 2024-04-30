@@ -11,6 +11,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -41,27 +42,26 @@ class BedMeshCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    logger.i('Rebuilding bed mesh card.');
     var hadBedMesh = ref.read(boolSettingProvider(_hadMeshKey));
-    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.hasBedMesh));
 
-    logger.i('Rebuilding bed mesh card. $showCard');
-
-    return switch (showCard) {
-      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _CardTitle(machineUUID: machineUUID),
-              Padding(
-                padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-                child: _CardBody(machineUUID: machineUUID),
-              ),
-            ],
-          ),
+    return AsyncGuard(
+      debugLabel: 'BedMeshCard-$machineUUID',
+      toGuard: _controllerProvider(machineUUID).selectAs((value) => value.hasBedMesh),
+      childOnLoading: hadBedMesh ? const _BedMeshLoading() : null,
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _CardTitle(machineUUID: machineUUID),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+              child: _CardBody(machineUUID: machineUUID),
+            ),
+          ],
         ),
-      AsyncValue(isLoading: true) when hadBedMesh => const _BedMeshLoading(),
-      _ => const SizedBox.shrink(),
-    };
+      ),
+    );
   }
 }
 

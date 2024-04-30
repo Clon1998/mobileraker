@@ -16,9 +16,11 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -41,24 +43,24 @@ class MacroGroupCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showCard = ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
-
-    return switch (showCard) {
-      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _CardTitle(machineUUID: machineUUID),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: _SelectedGroup(machineUUID: machineUUID),
-              ),
-            ],
-          ),
+    logger.i('Building MacroGroupCard for $machineUUID');
+    return AsyncGuard(
+      debugLabel: 'MacroGroupCard-$machineUUID',
+      toGuard: _macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
+      childOnLoading: const _MacroGroupLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _CardTitle(machineUUID: machineUUID),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: _SelectedGroup(machineUUID: machineUUID),
+            ),
+          ],
         ),
-      AsyncValue(isLoading: true) => const _MacroGroupLoading(),
-      _ => const SizedBox.shrink(),
-    };
+      ),
+    );
   }
 }
 
