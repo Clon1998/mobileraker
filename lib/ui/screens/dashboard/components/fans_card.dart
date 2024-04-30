@@ -45,12 +45,12 @@ class FansCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var showLoading =
-        ref.watch(_fansCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+        ref.watch(_fansCardControllerProvider(machineUUID).select((value) => value.isLoadingOrRefreshWithError));
+    logger.i('Rebuilding fans card showLoading: $showLoading');
 
     if (showLoading) {
       return const _FansCardLoading();
     }
-    // logger.i('Rebuilding fans card');
 
     return Card(
       child: Column(

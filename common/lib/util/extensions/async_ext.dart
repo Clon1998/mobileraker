@@ -62,8 +62,8 @@ extension AsyncValueX<T> on AsyncValue<T> {
     return null;
   }
 
-  AsyncValue<T> toLoading() {
-    return AsyncValue<T>.loading().copyWithPrevious(this);
+  AsyncValue<T> toLoading([bool isRefresh = true]) {
+    return AsyncValue<T>.loading().copyWithPrevious(this, isRefresh: isRefresh);
   }
 
   AsyncValue<T> toError(Object error, StackTrace stackTrace) {

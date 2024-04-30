@@ -42,30 +42,26 @@ class BedMeshCard extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var hadBedMesh = ref.read(boolSettingProvider(_hadMeshKey));
+    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.hasBedMesh));
 
-    var showCard = ref.watch(_controllerProvider(machineUUID).selectAs((value) => value.hasBedMesh)).valueOrNull;
+    logger.i('Rebuilding bed mesh card. $showCard');
 
-    if (!hadBedMesh && showCard != true || showCard == false) {
-      return const SizedBox.shrink();
-    }
-
-    var showLoading =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
-
-    if (showLoading) return const _BedMeshLoading();
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _CardTitle(machineUUID: machineUUID),
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-            child: _CardBody(machineUUID: machineUUID),
+    return switch (showCard) {
+      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _CardTitle(machineUUID: machineUUID),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                child: _CardBody(machineUUID: machineUUID),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+      AsyncValue(isLoading: true) when hadBedMesh => const _BedMeshLoading(),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 

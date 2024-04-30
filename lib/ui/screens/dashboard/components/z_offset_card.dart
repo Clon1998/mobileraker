@@ -45,25 +45,26 @@ class ZOffsetCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var showCard = ref.watch(_zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
-    var showLoading = showCard.isLoading && !showCard.isReloading;
 
-    if (showLoading) return const _ZOffsetLoading();
+    logger.i('Rebuilding ZOffsetCard with showCard: $showCard');
 
-    if (showCard.valueOrNull != true) return const SizedBox.shrink();
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _CardTitle(machineUUID: machineUUID),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: _CardBody(machineUUID: machineUUID),
+    return switch (showCard) {
+      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _CardTitle(machineUUID: machineUUID),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: _CardBody(machineUUID: machineUUID),
+              ),
+              const SizedBox(height: 15),
+            ],
           ),
-          const SizedBox(height: 15),
-        ],
-      ),
-    );
+        ),
+      AsyncValue(isLoading: true) => const _ZOffsetLoading(),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 

@@ -82,8 +82,7 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var inputLocked = useState(true);
 
-    var showLoading =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showLoading = ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoadingOrRefreshWithError));
 
     if (showLoading) {
       return const _MultipliersSlidersOrTextsLoading();

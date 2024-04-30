@@ -20,6 +20,7 @@ import 'package:common/ui/components/skeletons/square_elevated_icon_button_skele
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -48,24 +49,24 @@ class ControlXYZCard extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var showCard = ref.watch(_controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
 
-    // logger.i('ControlXYZCard: isLoading:${showCard.isLoading} showCard: $showCard');
+    logger.i('Rebuilding ControlXYZCard. $showCard');
 
-    var showLoading = showCard.isLoading && !showCard.isReloading;
-    if (showLoading) return const _ControlXYZLoading();
-    if (showCard.valueOrNull != true) return const SizedBox();
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _CardTitle(machineUUID: machineUUID),
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-            child: _CardBody(machineUUID: machineUUID),
+    return switch (showCard) {
+      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _CardTitle(machineUUID: machineUUID),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                child: _CardBody(machineUUID: machineUUID),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+      AsyncValue(isLoading: true) => const _ControlXYZLoading(),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 

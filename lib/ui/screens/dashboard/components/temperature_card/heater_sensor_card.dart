@@ -58,8 +58,7 @@ class HeaterSensorCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showLoading = ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoadingOrRefreshWithError));
     if (showLoading) {
       return const HeaterSensorPresetCardLoading();
     }

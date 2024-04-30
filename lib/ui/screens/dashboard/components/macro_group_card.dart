@@ -42,23 +42,23 @@ class MacroGroupCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var showCard = ref.watch(_macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
-    var showLoading = showCard.isLoading && !showCard.isReloading;
 
-    if (showLoading) return const _MacroGroupLoading();
-    if (showCard.valueOrNull != true) return const SizedBox.shrink();
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CardTitle(machineUUID: machineUUID),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: _SelectedGroup(machineUUID: machineUUID),
+    return switch (showCard) {
+      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _CardTitle(machineUUID: machineUUID),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 15),
+                child: _SelectedGroup(machineUUID: machineUUID),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+      AsyncValue(isLoading: true) => const _MacroGroupLoading(),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 

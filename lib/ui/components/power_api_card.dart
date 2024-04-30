@@ -71,10 +71,10 @@ class PowerApiCard extends ConsumerWidget {
             ),
           ),
         ),
-      // The model returned an error
       // AsyncError(:final error) => Text('A'),
       // The model is loading for the first time and we previously had a power api card
       AsyncLoading() when hadPowerApi => const _PowerApiCardLoading(key: Key('powLoading')),
+      // The model returned an error
       AsyncError(:final error) => _ProviderError(key: const Key('powErr'), machineUUID: machineUUID, error: error),
       // Default do not show anything. E.g. the model is loading for the first time and we never had a power api card
       _ => const SizedBox.shrink(

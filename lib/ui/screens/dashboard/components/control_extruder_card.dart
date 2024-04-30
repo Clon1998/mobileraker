@@ -44,22 +44,23 @@ class ControlExtruderCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var showCard = ref.watch(_controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard));
-    var showLoading = showCard.isLoading && !showCard.isReloading;
-    if (showLoading) return const _ControlExtruderLoading();
-    if (showCard.valueOrNull != true) return const SizedBox.shrink();
 
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _CardTitle(machineUUID: machineUUID),
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-            child: _CardBody(machineUUID: machineUUID),
+    return switch (showCard) {
+      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              _CardTitle(machineUUID: machineUUID),
+              Padding(
+                padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+                child: _CardBody(machineUUID: machineUUID),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
+        ),
+      AsyncValue(isLoading: true) => const _ControlExtruderLoading(),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 

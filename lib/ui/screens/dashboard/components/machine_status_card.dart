@@ -45,8 +45,7 @@ class MachineStatusCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     logger.i('Rebuilding MachineStatusCard for $machineUUID');
 
-    var showLoading = ref.watch(
-        _machineStatusCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showLoading = ref.watch(_machineStatusCardControllerProvider(machineUUID).select((value) => value.isLoadingOrRefreshWithError));
 
     if (showLoading) return const _MachineStatusCardLoading();
 

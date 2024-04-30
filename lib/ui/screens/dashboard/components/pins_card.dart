@@ -52,30 +52,23 @@ class PinsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_pinsCardControllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
+    var showCard = ref.watch(_pinsCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
+    logger.i('Rebuilding pins card. $showCard');
 
-    if (showLoading) {
-      return const _PinsCardLoading();
-    }
-    var showCard = ref.watch(_pinsCardControllerProvider(machineUUID).selectRequireValue((data) => data.showCard));
-
-    if (!showCard) {
-      return const SizedBox.shrink();
-    }
-
-    logger.i('Rebuilding pins card');
-
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _CardTitle(machineUUID: machineUUID),
-          _CardBody(machineUUID: machineUUID),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
+    return switch (showCard) {
+      AsyncValue(hasValue: true, hasError: false, value: true) => Card(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _CardTitle(machineUUID: machineUUID),
+              _CardBody(machineUUID: machineUUID),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      AsyncValue(isLoading: true) => const _PinsCardLoading(),
+      _ => const SizedBox.shrink(),
+    };
   }
 }
 
