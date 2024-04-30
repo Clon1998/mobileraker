@@ -39,10 +39,11 @@ import 'ui/theme/theme_setup.dart';
 
 Future<void> main() async {
   var widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
   await setupLogger();
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(ProviderScope(
