@@ -118,11 +118,11 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               CardTitleSkeleton.trailingText(
-                leading: const Icon(
-                  FlutterIcons.fire_alt_faw5s,
-                  color: Colors.white,
-                ),
-              ),
+                  // leading: const Icon(
+                  //   FlutterIcons.fire_alt_faw5s,
+                  //   color: Colors.white,
+                  // ),
+                  ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Column(

@@ -7,6 +7,7 @@ import 'dart:ui';
 
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
+import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -58,13 +59,33 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
   Widget build(BuildContext context) {
     logger.i('Rebuilding tab card page for ${widget.tab.name} (${widget.tab.uuid})');
 
-    var cards = widget.tab.components.map((e) => DasboardCard(type: e.type, machineUUID: widget.machineUUID)).toList();
+    var cards = widget.tab.components.map((e) {
+      if (widget.isEditing) {
+        return DasboardCard.preview(type: e.type);
+      }
+      return DasboardCard(type: e.type, machineUUID: widget.machineUUID);
+    }).toList();
+
+    var themeData = Theme.of(context);
 
     var scroll = PullToRefreshPrinter(
       child: CustomScrollView(
         key: PageStorageKey<String>(widget.tab.uuid),
         slivers: <Widget>[
-          for (var widget in widget.staticWidgets) SliverToBoxAdapter(child: widget),
+          if (widget.isEditing)
+            const SliverPadding(
+              padding: EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+              sliver: SliverToBoxAdapter(
+                child: WarningCard(
+                  leadingIcon: Icon(Icons.dashboard_customize),
+                  margin: EdgeInsets.zero,
+                  title: Text('Editing Mode'),
+                  subtitle: Text('You can now reorder, add and remove cards and pages.'),
+                ),
+              ),
+            ),
+          if (!widget.isEditing)
+            for (var widget in widget.staticWidgets) SliverToBoxAdapter(child: widget),
           SliverReorderableList(
             onReorderStart: _onReorderStart,
             onReorderEnd: _onReorderEnd,
@@ -93,59 +114,13 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
             },
             itemCount: cards.length,
           ),
-          if (widget.isEditing) ...[
-            SliverToBoxAdapter(
-              child: Container(
-                alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                ),
-                child: Material(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(8.0),
-                    onTap: () => widget.onAddComponent!(widget.tab),
-                    child: Container(
-                      width: MediaQuery.sizeOf(context).width - 32,
-                      height: 128,
-                      padding: const EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        // color: Colors.white30,
-                        border: Border.all(color: Colors.grey, width: 1.5),
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Icon(Icons.add),
-                          SizedBox(width: 8.0),
-                          Text('Add Widget'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+          if (widget.isEditing)
+            SliverPadding(
+              padding: const EdgeInsets.only(left: 4.0, right: 4.0, bottom: 40),
+              sliver: SliverToBoxAdapter(
+                child: _EditingSuffix(widget: widget, themeData: themeData),
               ),
             ),
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    FilledButton(
-                      style: FilledButton.styleFrom(backgroundColor: Colors.red),
-                      onPressed: () => widget.onRemove!(widget.tab),
-                      child: Text('Remove Page'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -170,5 +145,70 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
   void _onReorderEnd(int newIndex) {
     logger.i('Reorder End: $newIndex');
     // _selectedIndex = null;
+  }
+}
+
+class _EditingSuffix extends StatelessWidget {
+  const _EditingSuffix({
+    super.key,
+    required this.widget,
+    required this.themeData,
+  });
+
+  //TODO.... dont pass widget
+  final DashboardTabPage widget;
+  final ThemeData themeData;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(8.0),
+          onTap: () => widget.onAddComponent!(widget.tab),
+          child: Container(
+            // width: MediaQuery.sizeOf(context).width - 32,
+            height: 128,
+            padding: const EdgeInsets.all(8.0),
+            decoration: BoxDecoration(
+              color: themeData.colorScheme.primaryContainer.withOpacity(0.25),
+              border: Border.all(color: themeData.colorScheme.primary, width: 1.5),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(Icons.add),
+                SizedBox(width: 8.0),
+                Text('Add Widget'),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 8.0),
+        Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                FilledButton(onPressed: () => null, child: const Text('<<')),
+                FilledButton(onPressed: () => null, child: const Text('>>')),
+              ],
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: themeData.colorScheme.error,
+                foregroundColor: themeData.colorScheme.onError,
+              ),
+              onPressed: () => widget.onRemove!(widget.tab),
+              child: const Text('Remove Page'),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }

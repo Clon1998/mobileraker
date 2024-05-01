@@ -10,6 +10,7 @@ import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
+import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/selected_machine_service.dart';
@@ -79,13 +80,7 @@ class _DashboardView extends HookConsumerWidget {
 
     var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
     return Scaffold(
-      appBar: SwitchPrinterAppBar(
-        title: tr('pages.dashboard.title'),
-        actions: <Widget>[
-          MachineStateIndicator(activeMachine),
-          const EmergencyStopBtn(),
-        ],
-      ),
+      appBar: const _AppBar(),
       body: MachineConnectionGuard(
         onConnected: (ctx, machineUUID) => PrinterProviderGuard(
           machineUUID: machineUUID,
@@ -400,6 +395,59 @@ class _BottomNavigationBar extends ConsumerWidget {
   }
 }
 
+class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const _AppBar({super.key});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
+
+    if (activeMachine == null) {
+      return AppBar(
+        centerTitle: false,
+        title: const Text('pages.dashboard.title').tr(),
+      );
+    }
+
+    return _PrinterAppBar(machine: activeMachine);
+  }
+}
+
+class _PrinterAppBar extends ConsumerWidget {
+  const _PrinterAppBar({super.key, required this.machine});
+
+  final Machine machine;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    logger.i('Rebuilding _PrinterAppBar for ${machine.name}');
+    var model = ref.watch(_dashboardPageControllerProvider(machine.uuid));
+
+    return switch (model) {
+      AsyncData(value: _Model(isEditing: true)) => AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              ref.read(_dashboardPageControllerProvider(machine.uuid).notifier).cancelEditMode();
+            },
+          ),
+          centerTitle: false,
+          title: Text('[WIP] Editing layout...'),
+        ),
+      _ => SwitchPrinterAppBar(
+          title: tr('pages.dashboard.title'),
+          actions: <Widget>[
+            MachineStateIndicator(machine),
+            const EmergencyStopBtn(),
+          ],
+        ),
+    };
+  }
+}
+
 @riverpod
 class _DashboardPageController extends _$DashboardPageController {
   bool inited = false;
@@ -445,6 +493,14 @@ class _DashboardPageController extends _$DashboardPageController {
     if (value.isEditing) return;
     logger.i('Start Edit Mode');
     state = AsyncValue.data(value.copyWith(isEditing: true));
+  }
+
+  void cancelEditMode() {
+    // TODO... this should show a dialog to confirm that all changes will be lost
+    var value = state.requireValue;
+    if (!value.isEditing) return;
+    logger.i('Cancel Edit Mode');
+    state = AsyncValue.data(value.copyWith(isEditing: false));
   }
 
   void stopEditMode() async {

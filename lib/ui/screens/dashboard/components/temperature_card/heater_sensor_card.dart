@@ -500,6 +500,7 @@ class _Controller extends _$Controller {
 class _PreviewController extends _Controller {
   @override
   Stream<_Model> build(String machineUUID) {
+    ref.keepAliveFor();
     return Stream.value(_Model(
       klippyCanReceiveCommands: true,
       sensors: [
