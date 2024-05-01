@@ -17,6 +17,13 @@ class DashboardComponent extends HiveObject {
     this.showBeforePrinterReady = false,
   });
 
+  DashboardComponent._({
+    required this.uuid,
+    required this.type,
+    this.showWhilePrinting = true,
+    this.showBeforePrinterReady = false,
+  });
+
   @HiveField(0)
   String uuid = const Uuid().v4();
 
@@ -28,6 +35,19 @@ class DashboardComponent extends HiveObject {
 
   @HiveField(3)
   bool showBeforePrinterReady;
+
+  DashboardComponent copyWith({
+    DashboardComponentType? type,
+    bool? showWhilePrinting,
+    bool? showBeforePrinterReady,
+  }) {
+    return DashboardComponent._(
+      uuid: uuid,
+      type: type ?? this.type,
+      showWhilePrinting: showWhilePrinting ?? this.showWhilePrinting,
+      showBeforePrinterReady: showBeforePrinterReady ?? this.showBeforePrinterReady,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>

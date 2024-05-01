@@ -60,9 +60,9 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
     logger.i('Rebuilding tab card page for ${widget.tab.name} (${widget.tab.uuid})');
 
     var cards = widget.tab.components.map((e) {
-      if (widget.isEditing) {
-        return DasboardCard.preview(type: e.type);
-      }
+      // if (widget.isEditing) {
+      //   return DasboardCard.preview(type: e.type);
+      // }
       return DasboardCard(type: e.type, machineUUID: widget.machineUUID);
     }).toList();
 
@@ -200,8 +200,8 @@ class _EditingSuffix extends StatelessWidget {
             ),
             FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: themeData.colorScheme.error,
-                foregroundColor: themeData.colorScheme.onError,
+                backgroundColor: themeData.colorScheme.errorContainer,
+                foregroundColor: themeData.colorScheme.onErrorContainer,
               ),
               onPressed: () => widget.onRemove!(widget.tab),
               child: const Text('Remove Page'),

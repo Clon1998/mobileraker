@@ -12,6 +12,14 @@ part 'dashboard_layout.g.dart';
 
 @HiveType(typeId: 12)
 class DashboardLayout extends HiveObject {
+  DashboardLayout._({
+    required this.uuid,
+    required this.created,
+    required this.lastModified,
+    required this.name,
+    required this.tabs,
+  });
+
   DashboardLayout({required this.name, required this.tabs});
 
   @HiveField(0)
@@ -30,6 +38,19 @@ class DashboardLayout extends HiveObject {
   Future<void> save() async {
     lastModified = DateTime.now();
     await super.save();
+  }
+
+  DashboardLayout copyWith({
+    String? name,
+    List<DashboardTab>? tabs,
+  }) {
+    return DashboardLayout._(
+      uuid: uuid,
+      created: created,
+      lastModified: lastModified,
+      name: name ?? this.name,
+      tabs: tabs ?? this.tabs,
+    );
   }
 
   @override

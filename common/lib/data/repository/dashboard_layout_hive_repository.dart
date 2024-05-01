@@ -69,11 +69,11 @@ class DashboardLayoutHiveRepository implements DashboardLayoutRepository {
   }
 
   @override
-  Future<void> update(DashboardLayout entity) {
+  Future<void> update(DashboardLayout entity) async {
     logger.i('[DashboardLayoutHiveRepository] Updating dashboard layout with uuid ${entity.uuid}');
     if (!_box.containsKey(entity.uuid)) {
       throw MobilerakerException('DashboardLayout with uuid ${entity.uuid} does not exist! Please use create instead.');
     }
-    return entity.save();
+    await _box.put(entity.uuid, entity);
   }
 }

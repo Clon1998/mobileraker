@@ -5,10 +5,12 @@
 
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:badges/badges.dart' as badges;
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/dashboard_component.dart';
+import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -153,8 +155,8 @@ class _UserDashboardState extends ConsumerState<_UserDashboard> {
     if (oldWidget.machineUUID != widget.machineUUID) {
       _lastPage = 0;
       pageController.jumpToPage(0);
-      _setupIndexListener();
     }
+    _setupIndexListener();
   }
 
   @override
@@ -165,32 +167,33 @@ class _UserDashboardState extends ConsumerState<_UserDashboard> {
       const SupporterAd(key: Key('SupporterAd')),
     ];
 
-    var model = ref.watch(_dashboardPageControllerProvider(machineUUID));
+    var asyncModel = ref.watch(_dashboardPageControllerProvider(machineUUID));
     var controller = ref.watch(_dashboardPageControllerProvider(machineUUID).notifier);
 
     return AsyncValueWidget(
-        skipLoadingOnReload: true,
-        value: model,
-        data: (model) {
-          return PageView(
-            key: Key('Dash-$machineUUID'),
-            controller: pageController,
-            children: [
-              for (var tab in model.tabs.values)
-                DashboardTabPage(
-                  key: Key('${tab.uuid}$machineUUID'),
-                  machineUUID: machineUUID,
-                  staticWidgets: staticWidgets,
-                  tab: tab,
-                  isEditing: model.isEditing,
-                  onReorder: controller.onTabComponentsReordered,
-                  onAddComponent: controller.onTabComponentAdd,
-                  onRemoveComponent: controller.onTabComponentRemove,
-                  onRemove: controller.onTabRemove,
-                ),
-            ],
-          );
-        });
+      skipLoadingOnReload: true,
+      value: asyncModel,
+      data: (model) {
+        return PageView(
+          key: Key('Dash-$machineUUID'),
+          controller: pageController,
+          children: [
+            for (var tab in model.layout.tabs)
+              DashboardTabPage(
+                key: ValueKey(tab.hashCode),
+                machineUUID: machineUUID,
+                staticWidgets: staticWidgets,
+                tab: tab,
+                isEditing: model.isEditing,
+                onReorder: controller.onTabComponentsReordered,
+                onAddComponent: controller.onTabComponentAdd,
+                onRemoveComponent: controller.onTabComponentRemove,
+                onRemove: controller.onTabRemove,
+              ),
+          ],
+        );
+      },
+    );
   }
 
   void _setupIndexListener() {
@@ -204,8 +207,10 @@ class _UserDashboardState extends ConsumerState<_UserDashboard> {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           logger.i('[Controller->UI] Page Changed: ${next.value!.activeIndex}');
           _animationPageTarget = next.value!.activeIndex;
-          pageController.animateToPage(next.value!.activeIndex,
-              duration: kThemeAnimationDuration, curve: Curves.easeOutCubic);
+          if (pageController.hasClients && pageController.positions.isNotEmpty) {
+            pageController.animateToPage(next.value!.activeIndex,
+                duration: kThemeAnimationDuration, curve: Curves.easeOutCubic);
+          }
         });
       }
     });
@@ -228,21 +233,22 @@ class _FloatingActionBtn extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var klippyState = ref.watch(klipperProvider(machineUUID).selectAs((data) => data.klippyState));
     var printState = ref.watch(printerProvider(machineUUID).selectAs((data) => data.print.state));
-
-    var editing = ref
-        .watch(_dashboardPageControllerProvider(machineUUID).select((value) => value.valueOrNull?.isEditing == true));
-
-    if (editing) {
-      return _EditingModeFAB(machineUUID: machineUUID);
-    }
+    var editing = ref.watch(_dashboardPageControllerProvider(machineUUID).selectAs((value) => value.isEditing == true));
 
     if (!klippyState.hasValue ||
-        !printState.hasValue ||
         klippyState.isLoading ||
-        printState.isLoading ||
         klippyState.hasError ||
-        printState.hasError) {
+        !printState.hasValue ||
+        printState.isLoading ||
+        printState.hasError ||
+        editing.isLoading ||
+        !editing.hasValue ||
+        editing.hasError) {
       return const SizedBox.shrink();
+    }
+
+    if (editing.value == true) {
+      return _EditingModeFAB(machineUUID: machineUUID);
     }
 
     if (klippyState.value == KlipperState.error ||
@@ -347,7 +353,7 @@ class _EditingModeFAB extends ConsumerWidget {
         onPressed: () {
           //TODO show bottom sheet with options to copy. preview.....
           // ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
-          ref.read(_dashboardPageControllerProvider(machineUUID).notifier).stopEditMode();
+          ref.read(_dashboardPageControllerProvider(machineUUID).notifier).saveEditMode();
         },
         child: const Icon(Icons.save_outlined),
       );
@@ -360,16 +366,16 @@ class _BottomNavigationBar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var asyncModel = ref.watch(_dashboardPageControllerProvider(machineUUID!));
+    var asyncModel = ref.watch(_dashboardPageControllerProvider(machineUUID));
 
     var themeData = Theme.of(context);
     var colorScheme = themeData.colorScheme;
 
     return switch (asyncModel) {
-      AsyncData(value: var model) => AnimatedBottomNavigationBar(
+      AsyncData(isLoading: false, value: var model) => AnimatedBottomNavigationBar(
           icons: [
-            for (var tab in model.tabs.values) FlutterIcons.settings_oct,
-            if (model.isEditing && model.tabs.length < 5) FlutterIcons.plus_ant,
+            for (var tab in model.layout.tabs) FlutterIcons.settings_oct,
+            if (model.isEditing && model.layout.tabs.length < 5) FlutterIcons.plus_ant,
             if (!model.isEditing) FlutterIcons.edit_2_fea, //This only is temp to trigger mdoe
           ],
           activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
@@ -380,9 +386,9 @@ class _BottomNavigationBar extends ConsumerWidget {
           activeIndex: model.activeIndex,
           splashSpeedInMilliseconds: kThemeAnimationDuration.inMilliseconds,
           onTap: (index) {
-            if (model.isEditing && index >= model.tabs.length) {
+            if (model.isEditing && index >= model.layout.tabs.length) {
               ref.read(_dashboardPageControllerProvider(machineUUID!).notifier).addEmptyPage();
-            } else if (!model.isEditing && index >= model.tabs.length) {
+            } else if (!model.isEditing && index >= model.layout.tabs.length) {
               ref.read(_dashboardPageControllerProvider(machineUUID!).notifier).startEditMode();
             } else {
               logger.i('[BottomNavigationBar] Page Changed: $index');
@@ -458,6 +464,8 @@ class _DashboardPageController extends _$DashboardPageController {
 
   DashboardLayoutService get _dashboardLayoutService => ref.read(dashboardLayoutServiceProvider);
 
+  DashboardLayout? _originalLayout;
+
   @override
   Future<_Model> build(String machineUUID) async {
     ref.listenSelf((previous, next) {
@@ -465,26 +473,28 @@ class _DashboardPageController extends _$DashboardPageController {
     });
 
     // Listen to the selected machine provider to reset the active index to 0
-    ref.listen(selectedMachineProvider, (previous, next) {
-      if (previous == null) return;
-      if (previous.valueOrNull?.uuid != next.valueOrNull?.uuid) {
-        // Required to ensure widgets of new machine have loaded...
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          if (inited) {
-            state = state.whenData((value) => value.copyWith(activeIndex: 0));
-          }
-        });
-      }
-    });
+    // TODO: Determine if this is still needed -> Different controller for each machine due to machineUUID
+    // ref.listen(selectedMachineProvider, (previous, next) {
+    //   if (previous == null) return;
+    //   if (previous.valueOrNull?.uuid != next.valueOrNull?.uuid) {
+    //     // Required to ensure widgets of new machine have loaded...
+    //     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    //       if (inited) {
+    //         state = state.whenData((value) => value.copyWith(activeIndex: 0));
+    //       }
+    //     });
+    //   }
+    // });
+    // await Future.delayed(const Duration(milliseconds: 2000));
 
     var layout = await ref.watch(dashboardLayoutProvider(machineUUID).future);
 
     inited = true;
     // return;
     return _Model(
+      layout: layout,
       activeIndex: 0,
       isEditing: false,
-      tabs: {for (var e in layout.tabs) e.uuid: e},
     );
   }
 
@@ -492,36 +502,70 @@ class _DashboardPageController extends _$DashboardPageController {
     var value = state.requireValue;
     if (value.isEditing) return;
     logger.i('Start Edit Mode');
-    state = AsyncValue.data(value.copyWith(isEditing: true));
+
+    // Make a copy of the layout to be able to cancel changes
+    _originalLayout = value.layout;
+
+    state = AsyncValue.data(value.copyWith(
+      layout: value.layout.copyWith(),
+      isEditing: true,
+    ));
   }
 
-  void cancelEditMode() {
-    // TODO... this should show a dialog to confirm that all changes will be lost
+  Future<void> cancelEditMode() async {
     var value = state.requireValue;
     if (!value.isEditing) return;
+
+    if (value.layout != _originalLayout) {
+      var res = await _dialogService.showConfirm(
+        title: 'Cancel Edit Mode',
+        cancelBtn: tr('general.abort'),
+        confirmBtn: tr('general.cancel'),
+        body:
+            'Are you sure you want to cancel editing? All changes will be lost. To save your changes, press the save button.',
+      );
+      if (res?.confirmed != true) {
+        logger.i('User cancelled canceling edit mode');
+        return;
+      }
+    }
+
     logger.i('Cancel Edit Mode');
-    state = AsyncValue.data(value.copyWith(isEditing: false));
+
+    state = AsyncValue.data(value.copyWith(
+      activeIndex: 0,
+      isEditing: false,
+      layout: _originalLayout!,
+    ));
+    _originalLayout = null;
   }
 
-  void stopEditMode() async {
+  void saveEditMode() async {
     var value = state.requireValue;
     if (!value.isEditing) return;
     logger.i('Stop Edit Mode');
-    state = AsyncValue.data(value.copyWith(isEditing: false));
-    // TODO: Only call service/save if changes were made... for now just save
 
-    // TODO: ALso... just save the general layout as part of the model. But this works for now
-    var layout = await ref.read(dashboardLayoutProvider(machineUUID).future);
+    if (value.layout == _originalLayout) {
+      logger.i('No changes detected');
+      state = AsyncValue.data(value.copyWith(isEditing: false, layout: _originalLayout!));
+      _originalLayout = null;
+      return;
+    }
 
-    layout.tabs = value.tabs.values.toList();
-
+    state = AsyncValue.data(value.copyWith(isEditing: false)).toLoading();
+    var layout = value.layout;
+    await Future.delayed(const Duration(seconds: 2));
     await _dashboardLayoutService.saveDashboardLayoutForMachine(machineUUID, layout);
+    _originalLayout = null;
+
     _snackbarService.show(SnackBarConfig(
       type: SnackbarType.info,
       title: 'Dashboard Layout Saved',
       message: 'Your changes have been saved',
       duration: const Duration(seconds: 3),
     ));
+
+    // state = AsyncValue.data(value.copyWith(isEditing: false));
   }
 
   void onPageChanged(int index) {
@@ -533,8 +577,9 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   void addEmptyPage() {
-    var value = state.requireValue;
-    if (value.tabs.length > 5) {
+    final value = state.requireValue;
+    if (!value.isEditing) return;
+    if (value.layout.tabs.length > 5) {
       logger.i('Max Pages reached');
       return;
     }
@@ -544,27 +589,40 @@ class _DashboardPageController extends _$DashboardPageController {
       icon: '',
       components: [],
     );
-    state = AsyncValue.data(value.copyWith(activeIndex: value.tabs.length, tabs: {
-      ...value.tabs,
-      nTab.uuid: nTab,
-    }));
+
+    var mLayout = value.layout.copyWith(tabs: [...value.layout.tabs, nTab]);
+
+    state = AsyncValue.data(value.copyWith(
+      activeIndex: mLayout.tabs.length,
+      layout: mLayout,
+    ));
   }
 
   void onTabComponentsReordered(DashboardTab tab, int oldIndex, int newIndex) {
-    var value = state.requireValue;
+    final value = state.requireValue;
+    if (!value.isEditing) return;
+
     if (newIndex > oldIndex) {
       newIndex -= 1;
     }
 
-    // ToDo: This should use immutables
-    final item = tab.components.removeAt(oldIndex);
-    tab.components.insert(newIndex, item);
-    // TODO: DO not use notifiyListeners, but for now this works lmao
-    ref.notifyListeners();
-    // state = AsyncValue.data(value.copyWith(tabs: {...value.tabs, tab.uuid: tab}));
+    // We act like this is an immutable...
+    final mComponents = [...tab.components];
+    final item = mComponents.removeAt(oldIndex);
+    mComponents.insert(newIndex, item);
+
+    final mTab = tab.copyWith(components: mComponents);
+    final mLayout = value.layout.copyWith(
+      tabs: value.layout.tabs.map((e) => e.uuid == tab.uuid ? mTab : e).toList(),
+    );
+
+    state = AsyncValue.data(value.copyWith(layout: mLayout));
   }
 
   void onTabComponentAdd(DashboardTab tab) async {
+    final value = state.requireValue;
+    if (!value.isEditing) return;
+
     logger.i('Add Widget request for tab ${tab.name}');
     var result = await ref
         .read(bottomSheetServiceProvider)
@@ -572,25 +630,36 @@ class _DashboardPageController extends _$DashboardPageController {
 
     if (result.confirmed) {
       logger.i('User wants to add ${result.data}');
-      // Add widget to list
-      // widget.tab.components.add(DashboardComponent(type: result.data));
 
-      tab.components.add(DashboardComponent(type: result.data));
-      // TODO: DO not use notifiyListeners, but for now this works lmao
-      ref.notifyListeners();
-      // state = AsyncValue.data(state.requireValue.copyWith(tabs: {...state.requireValue.tabs, tab.uuid: tab}));
+      // Act like this is an immutable...
+      final mTab = tab.copyWith(components: [...tab.components, DashboardComponent(type: result.data)]);
+      final mLayout = value.layout.copyWith(
+        tabs: value.layout.tabs.map((e) => e == tab ? mTab : e).toList(),
+      );
+
+      state = AsyncValue.data(value.copyWith(layout: mLayout));
     }
   }
 
-  void onTabComponentRemove(DashboardTab tab, DashboardComponent component) {
+  void onTabComponentRemove(DashboardTab tab, DashboardComponent toRemove) {
+    final value = state.requireValue;
+    if (!value.isEditing) return;
     logger.i('Remove Widget request for tab ${tab.name}');
-    tab.components.remove(component);
+
+    final mTab = tab.copyWith(components: tab.components.where((e) => e != toRemove).toList());
+    final mLayout = value.layout.copyWith(
+      tabs: value.layout.tabs.map((e) => e == tab ? mTab : e).toList(),
+    );
+
+    state = AsyncValue.data(value.copyWith(layout: mLayout));
   }
 
   void onTabRemove(DashboardTab tab) async {
+    final value = state.requireValue;
+    if (!value.isEditing) return;
+
     logger.i('Remove Tab request for tab ${tab.name}');
-    var value = state.requireValue;
-    if (value.tabs.length == 1) {
+    if (value.layout.tabs.length == 1) {
       logger.i('Cannot remove last page');
       _snackbarService.show(SnackBarConfig(
         type: SnackbarType.warning,
@@ -609,16 +678,14 @@ class _DashboardPageController extends _$DashboardPageController {
       if (res?.confirmed != true) return;
     }
 
-    if (value.tabs[tab.uuid] == tab) {
-      // var updated = state.tabs.where((element) => !identical(element, tab)).toList();
-      var updated = Map.of(value.tabs);
-      updated.remove(tab.uuid);
+    final mLayout = value.layout.copyWith(
+      tabs: value.layout.tabs.whereNot((e) => e == tab).toList(),
+    );
 
-      state = AsyncValue.data(
-          value.copyWith(activeIndex: (value.activeIndex - 1).clamp(0, updated.length - 1), tabs: updated));
-    } else {
-      logger.w('Active index does not match tab');
-    }
+    state = AsyncValue.data(value.copyWith(
+      activeIndex: (value.activeIndex - 1).clamp(0, mLayout.tabs.length - 1),
+      layout: mLayout,
+    ));
   }
 }
 
@@ -627,7 +694,7 @@ class _Model with _$Model {
   const _Model._();
 
   const factory _Model({
-    @Default(<String, DashboardTab>{}) Map<String, DashboardTab> tabs,
+    required DashboardLayout layout,
     @Default(0) int activeIndex,
     @Default(false) isEditing,
   }) = __Model;

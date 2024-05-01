@@ -13,7 +13,18 @@ part 'dashboard_tab.g.dart';
 
 @HiveType(typeId: 9)
 class DashboardTab extends HiveObject {
-  DashboardTab({required this.name, required this.icon, required this.components});
+  DashboardTab({
+    required this.name,
+    required this.icon,
+    required this.components,
+  });
+
+  DashboardTab._({
+    required this.uuid,
+    required this.name,
+    required this.icon,
+    required this.components,
+  });
 
   @HiveField(0)
   String uuid = const Uuid().v4();
@@ -23,6 +34,19 @@ class DashboardTab extends HiveObject {
   String icon;
   @HiveField(3)
   List<DashboardComponent> components;
+
+  DashboardTab copyWith({
+    String? name,
+    String? icon,
+    List<DashboardComponent>? components,
+  }) {
+    return DashboardTab._(
+      uuid: uuid,
+      name: name ?? this.name,
+      icon: icon ?? this.icon,
+      components: components ?? this.components,
+    );
+  }
 
   @override
   bool operator ==(Object other) =>
