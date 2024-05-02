@@ -33,7 +33,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
-import '../../../components/dialog/edit_form/num_edit_form_controller.dart';
+import '../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 
 part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';

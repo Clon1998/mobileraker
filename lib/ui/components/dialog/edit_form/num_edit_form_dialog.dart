@@ -3,17 +3,21 @@
  * All rights reserved.
  */
 
+import 'dart:math';
+
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/util/extensions/double_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:geekyants_flutter_gauges/geekyants_flutter_gauges.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 
-import 'num_edit_form_controller.dart';
+part 'num_edit_form_dialog.freezed.dart';
 
 class NumEditFormDialog extends ConsumerWidget {
   final DialogRequest request;
@@ -27,201 +31,294 @@ class NumEditFormDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    NumberEditDialogArguments data = request.data;
+    assert(request.data is NumberEditDialogArguments, 'Data must be of type NumberEditDialogArguments');
 
-    return ProviderScope(
-      overrides: [
-        dialogCompleter.overrideWithValue(completer),
-        initialFormType.overrideWithValue(request.type),
-        numFraction.overrideWithValue(data.fraction),
-        numEditFormDialogController,
-      ],
-      child: _FormEditDialog(request: request, data: data),
-    );
+    return _NumberEditDialog(completer: completer, request: request);
   }
 }
 
-class _FormEditDialog extends HookConsumerWidget {
-  const _FormEditDialog({
-    super.key,
-    required this.request,
-    required this.data,
-  });
+class _NumberEditDialog extends ConsumerStatefulWidget {
+  const _NumberEditDialog({super.key, required this.request, required this.completer});
 
   final DialogRequest request;
-  final NumberEditDialogArguments data;
+  final DialogCompleter completer;
+
+  NumberEditDialogArguments get args => request.data as NumberEditDialogArguments;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var isValid = useState(true);
+  ConsumerState createState() => _NumberEditDialogState();
+}
 
+class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
+  final TextEditingController _controller = TextEditingController();
+
+  String? _validation;
+  DialogIdentifierMixin _type = DialogType.numEdit;
+
+  num __value = 0;
+
+  bool get _isValid => _validation == null;
+
+  num get _value => __value;
+
+  set _value(num value) {
+    __value = value;
+    _controller.text = value.toStringAsFixed(widget.args.fraction);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _type = widget.request.type;
+    _value = widget.request.data!.current;
+
+    _controller.addListener(() {
+      logger.i('Controller changed: ${_controller.text}');
+      setState(() {
+        _validation = _validate(_controller.text);
+        if (_isValid) {
+          __value = num.tryParse(_controller.text) ?? 0;
+        }
+      });
+      logger.i('Validation: $_validation');
+      // setState(() {
+      //   if (_isValid) {
+      //     _value = num.tryParse(_controller.text) ?? 0;
+      //   }
+      // });
+    });
+  }
+
+  @override
+  void didUpdateWidget(_NumberEditDialog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _type = widget.request.type;
+    _value = widget.request.data!.current;
+  }
+
+  void onFormConfirm() {
+    if (_isValid) {
+      widget.completer(DialogResponse.confirmed(_value));
+    }
+  }
+
+  void onFormDecline() => widget.completer(DialogResponse.aborted());
+
+  void toggleVariant() {
+    setState(() {
+      _type = _type == DialogType.rangeEdit ? DialogType.numEdit : DialogType.rangeEdit;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     var themeData = Theme.of(context);
 
     return Dialog(
-      child: FormBuilder(
-        autovalidateMode: AutovalidateMode.always,
-        key: ref.watch(numEditFormKeyProvider),
-        onChanged: () {
-          isValid.value =
-              ref.read(numEditFormKeyProvider).currentState!.validate();
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // To make the card compact
-            children: <Widget>[
-              Text(request.title!, style: themeData.textTheme.titleLarge),
-              AnimatedCrossFade(
-                duration: kThemeAnimationDuration,
-                crossFadeState: (ref.watch(numEditFormDialogController) ==
-                        DialogType.numEdit)
-                    ? CrossFadeState.showFirst
-                    : CrossFadeState.showSecond,
-                firstChild: _NumField(
-                  description: request.body,
-                  initialValue: data.current,
-                  upperBorder: data.max,
-                  lowerBorder: data.min,
-                  frac: data.fraction,
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // To make the card compact
+          children: <Widget>[
+            Text(widget.request.title!, style: themeData.textTheme.titleLarge),
+            AnimatedCrossFade(
+              duration: kThemeAnimationDuration,
+              crossFadeState: DialogType.rangeEdit == _type ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+              firstChild: _RangeEditSlider(value: _value, args: widget.args, onChanged: _onSliderChanged),
+              secondChild: _NumField(controller: _controller, args: widget.args, errorText: _validation),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: onFormDecline,
+                  child: Text(widget.request.cancelBtn ?? tr('general.cancel')),
                 ),
-                secondChild: RangeEditSlider(
-                  description: request.body,
-                  initialValue: data.current,
-                  upperBorder: data.max,
-                  lowerBorder: data.min,
-                  frac: data.fraction,
-                ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: ref
-                        .read(numEditFormDialogController.notifier)
-                        .onFormDecline,
-                    child: Text(request.cancelBtn!),
-                  ),
-                  IconButton(
-                    onPressed: isValid.value
-                        ? ref
-                            .read(numEditFormDialogController.notifier)
-                            .switchToOtherVariant
-                        : null,
-                    color: isValid.value
-                        ? themeData.textTheme.bodySmall?.color
-                        : themeData.disabledColor,
-                    iconSize: 18,
-                    icon: AnimatedSwitcher(
-                      duration: kThemeAnimationDuration,
-                      transitionBuilder: (child, anim) => RotationTransition(
-                        turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                        child: ScaleTransition(scale: anim, child: child),
-                      ),
-                      child: ref.watch(numEditFormDialogController) ==
-                              DialogType.rangeEdit
-                          ? const Icon(Icons.text_fields, key: ValueKey('tf'))
-                          : const Icon(
-                              Icons.straighten,
-                              key: ValueKey('unlock'),
-                            ),
+                IconButton(
+                  onPressed: toggleVariant.only(_isValid),
+                  color: _isValid ? themeData.textTheme.bodySmall?.color : themeData.disabledColor,
+                  iconSize: 18,
+                  icon: AnimatedSwitcher(
+                    duration: kThemeAnimationDuration,
+                    transitionBuilder: (child, anim) => RotationTransition(
+                      turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                      child: ScaleTransition(scale: anim, child: child),
                     ),
+                    child: Icon(_type == DialogType.rangeEdit ? Icons.text_fields : Icons.straighten),
                   ),
-                  TextButton(
-                    onPressed: isValid.value
-                        ? ref
-                            .read(numEditFormDialogController.notifier)
-                            .onFormConfirm
-                        : null,
-                    child: Text(request.confirmBtn!),
+                ),
+                TextButton(
+                  onPressed: onFormConfirm.only(_isValid),
+                  child: Text(
+                    widget.request.confirmBtn ?? tr('general.confirm'),
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
+
+  void _onSliderChanged(num newValue) {
+    setState(() {
+      _value = newValue;
+    });
+  }
+
+  String? _validate(String value) {
+    var validator = FormBuilderValidators.compose([
+      FormBuilderValidators.min(widget.args.min),
+      if (widget.args.max != null) FormBuilderValidators.max(widget.args.max!),
+      FormBuilderValidators.numeric(),
+      if (widget.args.fraction == 0) FormBuilderValidators.integer(),
+      FormBuilderValidators.required(),
+    ]);
+
+    return validator(value);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }
 
 class _NumField extends StatelessWidget {
-  final num initialValue;
-  final num lowerBorder;
-  final num? upperBorder;
-  final int frac;
-  final String? description;
+  const _NumField({super.key, required this.args, required this.controller, this.errorText});
 
-  const _NumField({
-    super.key,
-    required this.initialValue,
-    required this.lowerBorder,
-    this.upperBorder,
-    required this.frac,
-    this.description,
-  });
+  final NumberEditDialogArguments args;
+  final TextEditingController controller;
+  final String? errorText;
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderTextField(
-      autofocus: true,
-      validator: FormBuilderValidators.compose([
-        if (upperBorder != null) FormBuilderValidators.max(upperBorder!),
-        FormBuilderValidators.min(lowerBorder),
-        FormBuilderValidators.numeric(),
-        if (frac == 0) FormBuilderValidators.integer(),
-        FormBuilderValidators.required(),
-      ]),
-      valueTransformer: (String? text) => text == null ? 0 : num.tryParse(text),
-      initialValue: initialValue.toStringAsFixed(frac),
-      name: 'textValue',
-      style: Theme.of(context).inputDecorationTheme.counterStyle,
-      keyboardType:
-          const TextInputType.numberWithOptions(signed: false, decimal: false),
+    return TextField(
+      controller: controller,
+      keyboardType: const TextInputType.numberWithOptions(signed: false, decimal: false),
       decoration: InputDecoration(
         border: const UnderlineInputBorder(),
         contentPadding: const EdgeInsets.all(8.0),
-        labelText: description,
+        // labelText: description,
+        errorText: errorText,
         helperText: _helperText(),
       ),
     );
   }
 
   String _helperText() {
-    if (upperBorder == null) return 'Enter a value of at least $lowerBorder';
+    if (args.max == null) return 'Enter a value of at least ${args.min}';
 
-    return 'Enter a value between $lowerBorder and $upperBorder';
+    return 'Enter a value between ${args.min} and ${args.max}';
   }
 }
 
-class RangeEditSlider extends StatelessWidget {
-  const RangeEditSlider({
+class _RangeEditSlider extends HookWidget {
+  const _RangeEditSlider({
     super.key,
-    required this.initialValue,
-    required this.lowerBorder,
-    this.upperBorder,
-    required this.frac,
-    this.description,
+    required this.value,
+    required this.args,
+    required this.onChanged,
   });
 
-  final num initialValue;
-  final num lowerBorder;
-  final num? upperBorder;
-  final int frac;
-  final String? description;
+  final num value;
+  final NumberEditDialogArguments args;
+  final void Function(num) onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return FormBuilderSlider(
-      name: 'rangeValue',
-      initialValue: initialValue.toDouble().toPrecision(frac),
-      min: lowerBorder.toDouble(),
-      max: (upperBorder ?? 100).toDouble(),
-      // divisions: (data.max + data.min.abs()).toInt(),
-      autofocus: true,
-      numberFormat: NumberFormat(
-        frac == 0 ? '0' : "0.${List.filled(frac, '0').join()}",
-        context.locale.toStringWithSeparator(),
-      ),
+    final lowerLimit = args.min.toDouble();
+    final upperLimit = args.max?.toDouble() ?? 100.0;
+
+    final numberFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: args.fraction);
+
+    final themeData = Theme.of(context);
+    return Column(
+      children: [
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  onChanged(max(lowerLimit, value - 1));
+                },
+                icon: const Icon(Icons.remove),
+              ),
+              const Spacer(),
+              Text(numberFormat.format(value)),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  num t = value + 1;
+                  if (t > (upperLimit)) {
+                    t = upperLimit;
+                  }
+                  onChanged(t);
+                },
+                icon: const Icon(Icons.add),
+              ),
+            ],
+          ),
+        ),
+        LinearGauge(
+          start: lowerLimit,
+          end: upperLimit,
+          customLabels: [
+            CustomRulerLabel(text: numberFormat.format(lowerLimit), value: lowerLimit),
+            CustomRulerLabel(text: numberFormat.format(upperLimit), value: upperLimit),
+          ],
+          valueBar: [
+            ValueBar(
+              enableAnimation: false,
+              valueBarThickness: 6.0,
+              value: value.toDouble(),
+              color: themeData.colorScheme.primary,
+              borderRadius: 5,
+            ),
+          ],
+          pointers: [
+            Pointer(
+              value: value.toDouble(),
+              shape: PointerShape.circle,
+              color: themeData.colorScheme.primary,
+              isInteractive: true,
+              enableAnimation: false,
+              height: 20,
+              // width: 10,
+              pointerAlignment: PointerAlignment.center,
+              onChanged: onChanged,
+            ),
+          ],
+          linearGaugeBoxDecoration: LinearGaugeBoxDecoration(
+            thickness: 5,
+            backgroundColor: themeData.colorScheme.primary.withOpacity(0.46),
+            borderRadius: 5,
+          ),
+          rulers: RulerStyle(
+            rulerPosition: RulerPosition.center,
+            showPrimaryRulers: false,
+            showSecondaryRulers: false,
+            showLabel: true,
+            labelOffset: 5,
+          ),
+        ),
+      ],
     );
   }
+}
+
+@freezed
+class NumberEditDialogArguments with _$NumberEditDialogArguments {
+  const factory NumberEditDialogArguments({
+    @Default(0) num min,
+    num? max,
+    required num current,
+    @Default(0) int fraction,
+  }) = _NumberEditDialogArguments;
 }

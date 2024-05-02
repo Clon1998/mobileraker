@@ -40,7 +40,7 @@ import '../../../../service/ui/dialog_service_impl.dart';
 import '../../../components/adaptive_horizontal_scroll.dart';
 import '../../../components/card_with_button.dart';
 import '../../../components/card_with_switch.dart';
-import '../../../components/dialog/edit_form/num_edit_form_controller.dart';
+import '../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 import '../../../components/dialog/led_rgbw/led_rgbw_dialog_controller.dart';
 
 part 'pins_card.freezed.dart';

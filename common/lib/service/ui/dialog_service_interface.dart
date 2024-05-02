@@ -5,6 +5,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -33,7 +34,6 @@ class DialogRequest<T> {
   });
 
   final DialogIdentifierMixin type;
-
   final String? title;
   final String? body;
   final String? confirmBtn;
@@ -48,16 +48,28 @@ class DialogRequest<T> {
       identical(this, other) ||
       other is DialogRequest &&
           runtimeType == other.runtimeType &&
-          type == other.type &&
-          title == other.title &&
-          body == other.body &&
-          confirmBtn == other.confirmBtn &&
-          cancelBtn == other.cancelBtn &&
-          data == other.data;
+          (identical(type, other.type) || type == other.type) &&
+          (identical(title, other.title) || title == other.title) &&
+          (identical(body, other.body) || body == other.body) &&
+          (identical(confirmBtn, other.confirmBtn) || confirmBtn == other.confirmBtn) &&
+          (identical(cancelBtn, other.cancelBtn) || cancelBtn == other.cancelBtn) &&
+          (identical(confirmBtnColor, other.confirmBtnColor) || confirmBtnColor == other.confirmBtnColor) &&
+          (identical(cancelBtnColor, other.cancelBtnColor) || cancelBtnColor == other.cancelBtnColor) &&
+          (identical(barrierDismissible, other.barrierDismissible) || barrierDismissible == other.barrierDismissible) &&
+          const DeepCollectionEquality().equals(data, other.data);
 
   @override
-  int get hashCode =>
-      type.hashCode ^ title.hashCode ^ body.hashCode ^ confirmBtn.hashCode ^ cancelBtn.hashCode ^ data.hashCode;
+  int get hashCode => Object.hash(
+        type,
+        title,
+        body,
+        confirmBtn,
+        cancelBtn,
+        confirmBtnColor,
+        cancelBtnColor,
+        barrierDismissible,
+        const DeepCollectionEquality().hash(data),
+      );
 
   @override
   String toString() {
@@ -82,10 +94,16 @@ class DialogResponse<T> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DialogResponse && runtimeType == other.runtimeType && confirmed == other.confirmed && data == other.data;
+      other is DialogResponse &&
+          runtimeType == other.runtimeType &&
+          (identical(confirmed, other.confirmed) || confirmed == other.confirmed) &&
+          const DeepCollectionEquality().equals(data, other.data);
 
   @override
-  int get hashCode => confirmed.hashCode ^ data.hashCode;
+  int get hashCode => Object.hash(
+        confirmed,
+        const DeepCollectionEquality().hash(data),
+      );
 
   @override
   String toString() {

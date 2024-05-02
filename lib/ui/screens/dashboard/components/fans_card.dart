@@ -32,7 +32,7 @@ import 'package:shimmer/shimmer.dart';
 
 import '../../../components/adaptive_horizontal_scroll.dart';
 import '../../../components/card_with_button.dart';
-import '../../../components/dialog/edit_form/num_edit_form_controller.dart';
+import '../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 import '../../../components/spinning_fan.dart';
 
 part 'fans_card.freezed.dart';
