@@ -306,6 +306,7 @@ class _RangeEditSlider extends HookWidget {
             showSecondaryRulers: false,
             showLabel: true,
             labelOffset: 5,
+            textStyle: themeData.textTheme.bodySmall,
           ),
         ),
       ],
