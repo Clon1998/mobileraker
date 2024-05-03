@@ -244,24 +244,38 @@ class _RangeEditSlider extends HookWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
             children: [
-              IconButton(
-                onPressed: () {
+              InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () {
                   onChanged(max(lowerLimit, value - 1));
                 },
-                icon: const Icon(Icons.remove),
+                onLongPress: () {
+                  onChanged(lowerLimit);
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Icon(Icons.remove),
+                ),
               ),
               const Spacer(),
               Text(numberFormat.format(value)),
               const Spacer(),
-              IconButton(
-                onPressed: () {
+              InkWell(
+                customBorder: const CircleBorder(),
+                onTap: () {
                   num t = value + 1;
                   if (t > (upperLimit)) {
                     t = upperLimit;
                   }
                   onChanged(t);
                 },
-                icon: const Icon(Icons.add),
+                onLongPress: () {
+                  onChanged(upperLimit);
+                },
+                child: const Padding(
+                  padding: EdgeInsets.all(12.0),
+                  child: Icon(Icons.add),
+                ),
               ),
             ],
           ),
