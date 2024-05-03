@@ -92,11 +92,13 @@ class _PrinterCard extends ConsumerWidget {
   }
 }
 
-class _Trailing extends ConsumerWidget {
+class _Trailing extends HookConsumerWidget {
   const _Trailing({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var triedReconnect = useState(false);
+
     var machine = ref.watch(printerCardMachineProvider);
     var jrpcClientState = ref.watch(jrpcClientStateProvider(machine.uuid));
     var printState = ref.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state));
@@ -108,11 +110,20 @@ class _Trailing extends ConsumerWidget {
               AsyncData(value: PrintState.printing || PrintState.paused) => const _PrintProgressBar(circular: true),
               _ => MachineStateIndicator(machine),
             }
-          : Icon(
-              FlutterIcons.disconnect_ant,
-              size: 20,
-              color: Theme.of(context).colorScheme.error,
-            ),
+          : triedReconnect.value
+              ? Icon(
+                  FlutterIcons.disconnect_ant,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.error,
+                )
+              : InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    triedReconnect.value = true;
+                    ref.read(jrpcClientProvider(machine.uuid)).ensureConnection();
+                  },
+                  child: Icon(Icons.restart_alt_outlined, size: 20, color: Theme.of(context).colorScheme.error),
+                ),
       AsyncError(error: var e) => Tooltip(
           message: e.toString(),
           child: Icon(
@@ -150,13 +161,13 @@ class _PrintProgressBar extends ConsumerWidget {
           maxFontSize: 11,
         ),
         progressColor: themeData.colorScheme.primary,
-        backgroundColor: themeData.colorScheme.primary.withOpacity(0.3),
+        backgroundColor: themeData.useMaterial3
+            ? themeData.colorScheme.surfaceVariant
+            : themeData.colorScheme.primary.withOpacity(0.24),
       );
     }
 
-    return LinearProgressIndicator(
-      value: progress,
-    );
+    return LinearProgressIndicator(value: progress);
   }
 }
 

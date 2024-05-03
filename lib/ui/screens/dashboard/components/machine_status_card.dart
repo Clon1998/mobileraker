@@ -13,6 +13,7 @@ import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/klippy_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -209,14 +210,19 @@ class _Trailing extends ConsumerWidget {
     // logger.i('Rebuilding _Trailing for $machineUUID');
 
     var themeData = Theme.of(context);
-
+    // Slider()
     return switch (model.printState) {
       PrintState.printing => CircularPercentIndicator(
           radius: 25,
           lineWidth: 4,
           percent: model.progress,
           center: Text(NumberFormat.percentPattern(context.locale.toStringWithSeparator()).format(model.progress)),
-          progressColor: (model.printState == PrintState.complete) ? Colors.green : Colors.deepOrange,
+          progressColor: (model.printState == PrintState.complete)
+              ? themeData.extension<CustomColors>()?.success
+              : themeData.colorScheme.primary,
+          backgroundColor: themeData.useMaterial3
+              ? themeData.colorScheme.surfaceVariant
+              : themeData.colorScheme.primary.withOpacity(0.24),
         ),
       PrintState.complete || PrintState.cancelled => PopupMenuButton(
           enabled: model.klippyCanReceiveCommands,
