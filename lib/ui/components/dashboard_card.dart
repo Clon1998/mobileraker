@@ -71,9 +71,9 @@ class DasboardCard extends StatelessWidget {
 
   static Widget _resolveDemo(DashboardComponentType type) {
     return switch (type) {
-      DashboardComponentType.zOffset => ZOffsetCard.preview(),
-      DashboardComponentType.machineStatus => MachineStatusCard.preview(),
-      DashboardComponentType.temperatureSensorPreset => TemperatureSensorPresetCard.preview(),
+      // DashboardComponentType.zOffset => ZOffsetCard.preview(),
+      // DashboardComponentType.machineStatus => MachineStatusCard.preview(),
+      // DashboardComponentType.temperatureSensorPreset => TemperatureSensorPresetCard.preview(),
       // DashboardComponentType.controlXYZ => ControlXYZCard(machineUUID: machineUUID),
       // DashboardComponentType.spoolman => SpoolmanCard(machineUUID: machineUUID),
       // DashboardComponentType.macroGroup => MacroGroupCard(machineUUID: machineUUID),

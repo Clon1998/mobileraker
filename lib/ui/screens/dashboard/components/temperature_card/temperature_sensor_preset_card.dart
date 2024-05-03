@@ -65,6 +65,7 @@ class _TemperatureSensorPresetCardPreview extends TemperatureSensorPresetCard {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     return HeaterSensorCard.preview();
   }
 }
