@@ -22,6 +22,7 @@ import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -38,13 +39,14 @@ import '../../../components/spinning_fan.dart';
 part 'fans_card.freezed.dart';
 part 'fans_card.g.dart';
 
-class FansCard extends ConsumerWidget {
+class FansCard extends HookConsumerWidget {
   const FansCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     logger.i('Rebuilding fans card for $machineUUID');
 
     return AsyncGuard(

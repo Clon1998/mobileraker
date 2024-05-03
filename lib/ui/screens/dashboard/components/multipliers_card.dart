@@ -28,13 +28,14 @@ import 'slider_or_text_input.dart';
 part 'multipliers_card.freezed.dart';
 part 'multipliers_card.g.dart';
 
-class MultipliersCard extends StatelessWidget {
+class MultipliersCard extends HookWidget {
   const MultipliersCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 15),

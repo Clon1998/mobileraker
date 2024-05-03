@@ -24,6 +24,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -38,13 +39,14 @@ import '../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';
 
-class ControlExtruderCard extends ConsumerWidget {
+class ControlExtruderCard extends HookConsumerWidget {
   const ControlExtruderCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     logger.i('Rebuilding ControlExtruderCard');
 
     return AsyncGuard(

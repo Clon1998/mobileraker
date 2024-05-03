@@ -30,7 +30,7 @@ import 'slider_or_text_input.dart';
 part 'firmware_retraction_card.freezed.dart';
 part 'firmware_retraction_card.g.dart';
 
-class FirmwareRetractionCard extends ConsumerWidget {
+class FirmwareRetractionCard extends HookConsumerWidget {
   const FirmwareRetractionCard({super.key, required this.machineUUID});
 
   final String machineUUID;
@@ -39,6 +39,7 @@ class FirmwareRetractionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     var hadFwRetract = ref.read(boolSettingProvider(_hadFwRetract));
 
     logger.i('Rebuilding FirmwareRetractionCard for $machineUUID');

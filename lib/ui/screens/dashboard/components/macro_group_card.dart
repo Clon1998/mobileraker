@@ -24,6 +24,7 @@ import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -36,13 +37,14 @@ import '../../../../service/ui/dialog_service_impl.dart';
 part 'macro_group_card.freezed.dart';
 part 'macro_group_card.g.dart';
 
-class MacroGroupCard extends ConsumerWidget {
+class MacroGroupCard extends HookConsumerWidget {
   const MacroGroupCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     logger.i('Building MacroGroupCard for $machineUUID');
     return AsyncGuard(
       debugLabel: 'MacroGroupCard-$machineUUID',

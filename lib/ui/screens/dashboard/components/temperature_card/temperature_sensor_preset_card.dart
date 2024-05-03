@@ -31,6 +31,7 @@ class TemperatureSensorPresetCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     var flipController = useRef(FlipCardController());
 
     return FlipCard(

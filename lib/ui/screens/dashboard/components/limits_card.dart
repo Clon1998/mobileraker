@@ -28,18 +28,22 @@ import 'slider_or_text_input.dart';
 part 'limits_card.freezed.dart';
 part 'limits_card.g.dart';
 
-class LimitsCard extends StatelessWidget {
+class LimitsCard extends HookWidget {
   const LimitsCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
-  Widget build(BuildContext context) => Card(
-        child: Padding(
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+
+    return Card(
+      child: Padding(
           padding: const EdgeInsets.only(bottom: 15),
           child: LimitsSlidersOrTexts(machineUUID: machineUUID),
         ),
       );
+  }
 }
 
 class _LimitsSlidersOrTextsLoading extends StatelessWidget {

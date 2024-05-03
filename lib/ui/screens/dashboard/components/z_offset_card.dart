@@ -21,6 +21,7 @@ import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,7 +35,7 @@ import '../../../components/range_selector.dart';
 part 'z_offset_card.freezed.dart';
 part 'z_offset_card.g.dart';
 
-class ZOffsetCard extends ConsumerWidget {
+class ZOffsetCard extends HookConsumerWidget {
   const ZOffsetCard({super.key, required this.machineUUID});
 
   factory ZOffsetCard.preview() {
@@ -45,6 +46,7 @@ class ZOffsetCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     logger.i('Rebuilding ZOffsetCard');
 
     return AsyncGuard(
@@ -75,6 +77,7 @@ class _ZOffsetCardPreview extends ZOffsetCard {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     return ProviderScope(
       overrides: [
         _zOffsetCardControllerProvider(_machineUUID).overrideWith(_ZOffsetCardPreviewController.new),
