@@ -403,7 +403,7 @@ class _ZThermalAdjustTile extends HookConsumerWidget {
 
     return GraphCardWithButton(
       plotSpots: spots.value,
-      buttonChild: const Text('general.set').tr(),
+      buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
       onTap: null,
       builder: (context) => Tooltip(
         message: beautifiedNamed,
