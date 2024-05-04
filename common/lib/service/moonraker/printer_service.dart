@@ -720,7 +720,6 @@ class PrinterService {
   _updateTemperatureFan(String fanName, Map<String, dynamic> fanJson, {required PrinterBuilder printer}) {
     final TemperatureFan curFan = printer.fans[fanName]! as TemperatureFan;
 
-    //TODO add TempHistory
     printer.fans = {...printer.fans, fanName: TemperatureFan.partialUpdate(curFan, fanJson)};
   }
 

@@ -6,6 +6,8 @@
 import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../util/json_util.dart';
+
 part 'z_thermal_adjust.freezed.dart';
 part 'z_thermal_adjust.g.dart';
 
@@ -41,6 +43,19 @@ class ZThermalAdjust with _$ZThermalAdjust, SensorMixin {
     if (current == null) return ZThermalAdjust.fromJson(partialJson);
 
     var mergedJson = {...current.toJson(), ...partialJson};
+
+    // Ill just put the tempCache here because I am lazy.. kinda sucks but who cares
+    // Update temp cache for graphs!
+    DateTime now = DateTime.now();
+
+    if (now.difference(current.lastHistory).inSeconds >= 1) {
+      mergedJson = {
+        ...mergedJson,
+        'temperatures': updateHistoryListInJson(mergedJson, 'temperatures', 'temperature'),
+        'last_history': now.toIso8601String()
+      };
+    }
+
     return ZThermalAdjust.fromJson(mergedJson);
   }
 
