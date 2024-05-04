@@ -1,5 +1,12 @@
 # Mobileraker - Changelog
 
+## [2.6.19] - 2024-04-30
+
+### Enhancements
+
+- Added support for the `Z Thermal Adjust` sensor in the Temperature
+  card.  [#340](https://github.com/Clon1998/mobileraker/issues/340)
+
 ## [2.6.18] - 2024-04-30
 
 Hotfixing broken overview page
