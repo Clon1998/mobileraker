@@ -9,6 +9,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'z_thermal_adjust.freezed.dart';
 part 'z_thermal_adjust.g.dart';
 
+// z_thermal_adjust
 // {
 // 'temperature': self.smoothed_temp,
 // 'measured_min_temp': round(self.measured_min, 2),

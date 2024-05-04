@@ -54,6 +54,7 @@ import '../../data/dto/console/command.dart';
 import '../../data/dto/console/console_entry.dart';
 import '../../data/dto/machine/filament_sensors/filament_sensor.dart';
 import '../../data/dto/machine/firmware_retraction.dart';
+import '../../data/dto/machine/z_thermal_adjust.dart';
 import '../../data/dto/server/klipper.dart';
 import '../../network/jrpc_client_provider.dart';
 import '../machine_service.dart';
@@ -182,6 +183,7 @@ class PrinterService {
     'bed_mesh': _updateBedMesh,
     'filament_switch_sensor': _updateFilamentSensor,
     'filament_motion_sensor': _updateFilamentSensor,
+    'z_thermal_adjust': _updateZThermalAdjust,
   };
 
   final StreamController<String> _gCodeResponseStreamController = StreamController.broadcast();
@@ -678,6 +680,8 @@ class PrinterService {
         printerBuilder.filamentSensors[objectName] = FilamentMotionSensor(name: objectName);
       } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.filament_motion_sensor)) {
         printerBuilder.filamentSensors[objectName] = FilamentMotionSensor(name: objectName);
+      } else if (objectIdentifier.isKlipperObject(ConfigFileObjectIdentifiers.z_thermal_adjust)) {
+        printerBuilder.zThermalAdjust = ZThermalAdjust(lastHistory: DateTime(1990));
       }
     }
     printerBuilder.extruders =
@@ -836,6 +840,10 @@ class PrinterService {
       ...printer.filamentSensors,
       sensor: FilamentSensor.partialUpdate(printer.filamentSensors[sensor]!, jsonResponse)
     };
+  }
+
+  _updateZThermalAdjust(Map<String, dynamic> jsonResponse, {required PrinterBuilder printer}) {
+    printer.zThermalAdjust = ZThermalAdjust.partialUpdate(printer.zThermalAdjust, jsonResponse);
   }
 
   Map<String, List<String>?> _queryPrinterObjectJson(List<String> queryableObjects) {
