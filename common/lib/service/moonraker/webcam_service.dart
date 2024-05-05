@@ -24,13 +24,13 @@ WebcamService webcamService(WebcamServiceRef ref, String machineUUID) {
 
 @riverpod
 Stream<List<WebcamInfo>> allWebcamInfos(AllWebcamInfosRef ref, String machineUUID) async* {
-  var jrpcState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
-
+  final jrpcState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
   if (jrpcState != ClientState.connected) return;
 
+  final webcamInfos = await ref.watch(webcamServiceProvider(machineUUID)).listWebcamInfos();
   ref.listen(jrpcMethodEventProvider(machineUUID, 'notify_webcams_changed'), (previous, next) => ref.invalidateSelf());
 
-  yield await ref.watch(webcamServiceProvider(machineUUID)).listWebcamInfos();
+  yield webcamInfos;
 }
 
 @riverpod
