@@ -53,6 +53,7 @@ class ControlXYZCard extends HookConsumerWidget {
     logger.i('Rebuilding ControlXYZCard.');
 
     return AsyncGuard(
+      animate: true,
       debugLabel: 'ControlXYZCard-$machineUUID',
       toGuard: _controlXYZCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
       childOnLoading: const _ControlXYZLoading(),

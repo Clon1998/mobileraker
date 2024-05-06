@@ -61,8 +61,8 @@ class Mjpeg extends ConsumerWidget {
     // return Placeholder();
 
     return AsyncGuard(
-      debugLabel: 'Mjpeg-${config.streamUri}',
       animate: true,
+      debugLabel: 'Mjpeg-${config.streamUri}',
       toGuard: provider.selectAs((data) => true),
       childOnError: (error, _) => _ErrorWidget(
         config: config,

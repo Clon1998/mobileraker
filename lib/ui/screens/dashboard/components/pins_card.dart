@@ -57,6 +57,7 @@ class PinsCard extends HookConsumerWidget {
     useAutomaticKeepAlive();
     logger.i('Rebuilding pins card for $machineUUID');
     return AsyncGuard(
+      animate: true,
       debugLabel: 'PinsCard-$machineUUID',
       toGuard: _pinsCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
       childOnLoading: const _PinsCardLoading(),

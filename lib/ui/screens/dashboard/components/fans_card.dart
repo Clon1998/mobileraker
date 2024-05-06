@@ -50,6 +50,7 @@ class FansCard extends HookConsumerWidget {
     logger.i('Rebuilding fans card for $machineUUID');
 
     return AsyncGuard(
+      animate: true,
       debugLabel: 'FansCard-$machineUUID',
       toGuard: _fansCardControllerProvider(machineUUID).selectAs((data) => data.fans.isNotEmpty),
       childOnLoading: const _FansCardLoading(),

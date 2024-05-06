@@ -50,6 +50,7 @@ class ControlExtruderCard extends HookConsumerWidget {
     logger.i('Rebuilding ControlExtruderCard');
 
     return AsyncGuard(
+      animate: true,
       debugLabel: 'ControlExtruderCard-$machineUUID',
       toGuard: _controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard),
       childOnLoading: const _ControlExtruderLoading(),

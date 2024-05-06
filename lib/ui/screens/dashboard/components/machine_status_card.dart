@@ -10,6 +10,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/async_button_.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
@@ -50,6 +51,7 @@ class MachineStatusCard extends HookConsumerWidget {
     logger.i('Rebuilding MachineStatusCard for $machineUUID');
 
     return AsyncGuard(
+      animate: true,
       debugLabel: 'MachineStatusCard-$machineUUID',
       toGuard: _machineStatusCardControllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const _MachineStatusCardLoading(),
@@ -65,12 +67,9 @@ class MachineStatusCard extends HookConsumerWidget {
               var model = iref.watch(_machineStatusCardControllerProvider(machineUUID)
                   .selectRequireValue((data) => data.showToolheadTable));
               // logger.i('Rebuilding ToolheadInfoTable for $machineUUID');
-              return AnimatedSwitcher(
-                duration: kThemeAnimationDuration,
-                transitionBuilder: (child, animation) => SizeAndFadeTransition(
-                  sizeAndFadeFactor: animation,
-                  child: child,
-                ),
+              return AnimatedSizeAndFade(
+                sizeDuration: kThemeAnimationDuration,
+                fadeDuration: kThemeAnimationDuration,
                 child: model
                     ? Column(
                         mainAxisSize: MainAxisSize.min,

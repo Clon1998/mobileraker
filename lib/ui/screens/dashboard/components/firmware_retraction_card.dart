@@ -45,6 +45,7 @@ class FirmwareRetractionCard extends HookConsumerWidget {
     logger.i('Rebuilding FirmwareRetractionCard for $machineUUID');
 
     return AsyncGuard(
+      animate: true,
       debugLabel: 'FirmwareRetractionCard-$machineUUID',
       toGuard: _firmwareRetractionCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
       childOnLoading: hadFwRetract

@@ -85,6 +85,7 @@ class LimitsSlidersOrTexts extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AsyncGuard(
+      animate: true,
       debugLabel: 'LimitsSlidersOrTexts-$machineUUID',
       toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const _LimitsSlidersOrTextsLoading(),

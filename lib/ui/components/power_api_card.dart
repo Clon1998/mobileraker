@@ -47,6 +47,7 @@ class PowerApiCard extends HookConsumerWidget {
     var hadPowerApi = ref.read(boolSettingProvider(_hadPowerApi));
 
     return AsyncGuard(
+      animate: true,
       debugLabel: 'PowerApiCard-$machineUUID',
       toGuard: _powerApiCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
       childOnLoading: hadPowerApi ? const _PowerApiCardLoading() : null,

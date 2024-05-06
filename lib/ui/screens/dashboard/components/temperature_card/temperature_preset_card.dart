@@ -40,6 +40,7 @@ class TemperaturePresetCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AsyncGuard(
+      animate: true,
       debugLabel: 'TemperaturePresetCard-$machineUUID',
       toGuard: _temperaturePresetControllerProvider(machineUUID, onPresetApplied).selectAs((data) => true),
       childOnLoading: const HeaterSensorPresetCardLoading(),

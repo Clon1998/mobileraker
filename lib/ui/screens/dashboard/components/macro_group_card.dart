@@ -47,6 +47,7 @@ class MacroGroupCard extends HookConsumerWidget {
     useAutomaticKeepAlive();
     logger.i('Building MacroGroupCard for $machineUUID');
     return AsyncGuard(
+      animate: true,
       debugLabel: 'MacroGroupCard-$machineUUID',
       toGuard: _macroGroupCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
       childOnLoading: const _MacroGroupLoading(),

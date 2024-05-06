@@ -76,8 +76,8 @@ class AsyncGuard extends ConsumerWidget {
     // If animation is not enabled, return the widget as is.
     if (!animate) return w;
 
-    const animationDuration = Duration(seconds: 15);
-    // const animationDuration = kThemeAnimationDuration;
+    // const animationDuration = Duration(seconds: 15);
+    const animationDuration = kThemeAnimationDuration;
 
     return AnimatedSizeAndFade(
         alignment: Alignment.topCenter, fadeDuration: animationDuration, sizeDuration: animationDuration, child: w);

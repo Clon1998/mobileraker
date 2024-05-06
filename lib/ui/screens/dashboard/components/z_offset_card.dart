@@ -50,6 +50,7 @@ class ZOffsetCard extends HookConsumerWidget {
     logger.i('Rebuilding ZOffsetCard');
 
     return AsyncGuard(
+      animate: true,
       debugLabel: 'ZOffsetCard-$machineUUID',
       toGuard: _zOffsetCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
       childOnLoading: const _ZOffsetLoading(),

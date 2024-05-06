@@ -62,6 +62,7 @@ class HeaterSensorCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return AsyncGuard(
+      animate: true,
       debugLabel: 'HeaterSensorCard-$machineUUID',
       toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
       childOnLoading: const HeaterSensorPresetCardLoading(),

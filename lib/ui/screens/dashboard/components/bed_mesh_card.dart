@@ -48,6 +48,7 @@ class BedMeshCard extends HookConsumerWidget {
     var hadBedMesh = ref.read(boolSettingProvider(_hadMeshKey));
 
     return AsyncGuard(
+      animate: true,
       debugLabel: 'BedMeshCard-$machineUUID',
       toGuard: _controllerProvider(machineUUID).selectAs((value) => value.hasBedMesh),
       childOnLoading: hadBedMesh ? const _BedMeshLoading() : null,
