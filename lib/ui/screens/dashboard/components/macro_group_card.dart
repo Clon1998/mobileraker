@@ -15,7 +15,7 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/ui/animation/SizeAndFadeTransition.dart';
+import 'package:common/ui/animation/animated_size_and_fade.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -149,16 +149,10 @@ class _SelectedGroup extends ConsumerWidget {
 
     if (group == null) return const Text('No group found');
 
-    return AnimatedSwitcher(
-      // duration: Duration(seconds: 2),
-      duration: kThemeAnimationDuration,
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
-      transitionBuilder: (child, anim) => SizeAndFadeTransition(
-        sizeAxisAlignment: 1,
-        sizeAndFadeFactor: anim,
-        child: child,
-      ),
+    return AnimatedSizeAndFade(
+      alignment: Alignment.bottomCenter,
+      sizeDuration: kThemeAnimationDuration,
+      fadeDuration: kThemeAnimationDuration,
       // The column is required to make it stretch
       child: group.hasMacros(isPrinting)
           ? Column(
