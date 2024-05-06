@@ -3,10 +3,11 @@
  * All rights reserved.
  */
 
-import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+import '../animation/animated_size_and_fade.dart';
 
 /// A widget that guards the rendering of its children based on the state of a provided asynchronous value.
 ///
@@ -47,7 +48,7 @@ class AsyncGuard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var asyncValue = ref.watch(toGuard);
-    if (debugLabel != null) logger.i('Rebuilding Guarded Card: $debugLabel with $asyncValue');
+    if (debugLabel != null) logger.i('Rebuilding Async Guard: $debugLabel with $asyncValue');
 
     // Switch on the state of the async value to determine which widget to render.
     var w = switch (asyncValue) {
@@ -75,31 +76,34 @@ class AsyncGuard extends ConsumerWidget {
     // If animation is not enabled, return the widget as is.
     if (!animate) return w;
 
-    // const animationDuration = Duration(seconds: 2);
-    const animationDuration = kThemeAnimationDuration;
+    const animationDuration = Duration(seconds: 15);
+    // const animationDuration = kThemeAnimationDuration;
 
-    // Return an AnimatedSwitcher that transitions between the different states.
-    return AnimatedSwitcher(
-      // duration: kThemeAnimationDuration,
-      duration: animationDuration,
-      switchInCurve: Curves.easeInOut,
-      switchOutCurve: Curves.easeInOut,
-      transitionBuilder: (child, anim) => SizeAndFadeTransition(
-        sizeAndFadeFactor: anim,
-        sizeAxisAlignment: -1,
-        child: child,
-      ),
-      child: w,
-    );
+    return AnimatedSizeAndFade(
+        alignment: Alignment.topCenter, fadeDuration: animationDuration, sizeDuration: animationDuration, child: w);
 
+    // THIS might also be a good consideration
     // return AnimatedSwitcher(
-    //   key: Key('guardSwitch-$key'),
+    //   // duration: kThemeAnimationDuration,
     //   duration: animationDuration,
-    //   child: AnimatedSize(
-    //     alignment: Alignment.topCenter,
-    //     duration: animationDuration,
-    //     child: w,
+    //   switchInCurve: Curves.easeInOut,
+    //   switchOutCurve: Curves.easeInOut,
+    //   layoutBuilder: (currentChild, previousChildren) {
+    //     return Stack(
+    //       clipBehavior: Clip.none,
+    //       alignment: Alignment.topCenter,
+    //       children: <Widget>[
+    //         ...previousChildren,
+    //         if (currentChild != null) currentChild,
+    //       ],
+    //     );
+    //   },
+    //   transitionBuilder: (child, anim) => SizeTransition(
+    //     sizeFactor: anim,
+    //     axisAlignment: -1,
+    //     child: child,
     //   ),
+    //   child: w,
     // );
   }
 }
