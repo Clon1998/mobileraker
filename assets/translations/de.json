@@ -916,7 +916,32 @@
       "hint": "Makros für die Gruppe {} auswählen"
     },
     "signIn": {
-      "subtitle": "Die Einrichtung eines Nutzerkontos ist zwar freiwillig, jedoch notwendig, um Käufe, die auf einem anderen Gerät oder einer anderen Plattform getätigt wurden, wiederherzustellen."
+      "subtitle": "Die Einrichtung eines Nutzerkontos ist zwar freiwillig, jedoch notwendig, um Käufe, die auf einem anderen Gerät oder einer anderen Plattform getätigt wurden, wiederherzustellen.",
+      "forgot_password": "Passwort vergessen?",
+      "forgot_password_success": "E-Mail zum Zurücksetzen des Passworts gesendet!",
+      "hint": {
+        "sign_in": "Haben Sie noch kein Konto?",
+        "sign_up": "Haben Sie bereits ein Konto?",
+        "reset_password": "Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten."
+      },
+      "action": {
+        "sign_in": "Anmelden",
+        "sign_up": "Registrieren",
+        "reset_password": "Passwort zurücksetzen"
+      },
+      "email": {
+        "label": "E-Mail",
+        "hint": "Ihre E-Mail-Adresse"
+      },
+      "password": {
+        "label": "Passwort",
+        "hint": "Ihr Passwort"
+      },
+      "confirm_password": {
+        "label": "Passwort bestätigen",
+        "hint": "Bestätigen Sie Ihr Passwort",
+        "error": "Passwörter stimmen nicht überein!"
+      }
     },
     "profile": {
       "title": "Sie sind eingeloggt.",
