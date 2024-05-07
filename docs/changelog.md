@@ -1,11 +1,22 @@
 # Mobileraker - Changelog
 
-## [2.6.19] - 2024-04-30
+## [2.6.19] - 2024-05-09
 
 ### Enhancements
 
-- Added support for the `Z Thermal Adjust` sensor in the Temperature
-  card.  [#340](https://github.com/Clon1998/mobileraker/issues/340)
+- Implemented support for the `Z Thermal Adjust` sensor in the Temperature
+  card. [#340](https://github.com/Clon1998/mobileraker/issues/340)
+- Enhanced animations and transitions on the dashboard page.
+- Updated Number Edit Dialog in slider mode to include buttons for incremental value adjustment.
+- Refined coloring of circular print progress bar to align with the theme.
+- MJPEG webcams now exhibit smoother transition when opened in fullscreen.
+
+### Bug Fixes
+
+- Eliminated dependency on firebase_ui_auth to resolve crashing on Android attributed to dynamic
+  links. [#359](https://github.com/Clon1998/mobileraker/issues/359)
+- Rectified overview page "jumping" in certain scenarios.
+- Corrected faulty state of dashboard cards in case of prolonged or failed klipper/moonraker data fetching.
 
 ## [2.6.18] - 2024-04-30
 
