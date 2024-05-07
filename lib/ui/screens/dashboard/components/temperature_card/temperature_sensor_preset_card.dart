@@ -23,10 +23,15 @@ import 'temperature_preset_card.dart';
 class TemperatureSensorPresetCard extends HookConsumerWidget {
   const TemperatureSensorPresetCard({super.key, required this.machineUUID});
 
+  factory TemperatureSensorPresetCard.preview() {
+    return const _TemperatureSensorPresetCardPreview();
+  }
+
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     var flipController = useRef(FlipCardController());
 
     return FlipCard(
@@ -50,6 +55,18 @@ class TemperatureSensorPresetCard extends HookConsumerWidget {
         onPresetApplied: flipController.value.toggleCard,
       ),
     );
+  }
+}
+
+class _TemperatureSensorPresetCardPreview extends TemperatureSensorPresetCard {
+  static const String _machineUUID = 'preview';
+
+  const _TemperatureSensorPresetCardPreview({super.key}) : super(machineUUID: _machineUUID);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
+    return HeaterSensorCard.preview();
   }
 }
 
@@ -103,11 +120,11 @@ class HeaterSensorPresetCardLoading extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               CardTitleSkeleton.trailingText(
-                leading: const Icon(
-                  FlutterIcons.fire_alt_faw5s,
-                  color: Colors.white,
-                ),
-              ),
+                  // leading: const Icon(
+                  //   FlutterIcons.fire_alt_faw5s,
+                  //   color: Colors.white,
+                  // ),
+                  ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Column(

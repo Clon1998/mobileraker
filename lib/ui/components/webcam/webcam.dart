@@ -49,6 +49,12 @@ class Webcam extends HookConsumerWidget {
       return const Text('Webcams via Obico are still Work in Progress!');
     }
 
+    if (webcamInfo.service.forSupporters && !ref.watch(isSupporterProvider)) {
+      return SupporterOnlyFeature(
+        text: const Text('components.supporter_only_feature.webcam').tr(args: [webcamInfo.service.name.titleCase()]),
+      );
+    }
+
     var modifiedStack = [
       ...stackContent,
       if (machine.octoEverywhere != null)
@@ -81,12 +87,6 @@ class Webcam extends HookConsumerWidget {
     ];
 
     logger.wtf('webcamInfo.service: ${modifiedStack.length}');
-
-    if (webcamInfo.service.forSupporters && !ref.watch(isSupporterProvider)) {
-      return SupporterOnlyFeature(
-        text: const Text('components.supporter_only_feature.webcam').tr(args: [webcamInfo.service.name.titleCase()]),
-      );
-    }
 
     switch (webcamInfo.service) {
       case WebcamServiceType.mjpegStreamer:

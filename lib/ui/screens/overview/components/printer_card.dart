@@ -13,6 +13,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
@@ -22,13 +23,14 @@ import 'package:progress_indicators/progress_indicators.dart';
 
 import '../../../components/machine_state_indicator.dart';
 
-class SinglePrinterCard extends ConsumerWidget {
+class SinglePrinterCard extends HookConsumerWidget {
   const SinglePrinterCard(this._machine, {super.key});
 
   final Machine _machine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     return ProviderScope(
       overrides: [
         printerCardMachineProvider.overrideWithValue(_machine),
@@ -90,11 +92,13 @@ class _PrinterCard extends ConsumerWidget {
   }
 }
 
-class _Trailing extends ConsumerWidget {
+class _Trailing extends HookConsumerWidget {
   const _Trailing({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    var triedReconnect = useState(false);
+
     var machine = ref.watch(printerCardMachineProvider);
     var jrpcClientState = ref.watch(jrpcClientStateProvider(machine.uuid));
     var printState = ref.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state));
@@ -106,11 +110,20 @@ class _Trailing extends ConsumerWidget {
               AsyncData(value: PrintState.printing || PrintState.paused) => const _PrintProgressBar(circular: true),
               _ => MachineStateIndicator(machine),
             }
-          : Icon(
-              FlutterIcons.disconnect_ant,
-              size: 20,
-              color: Theme.of(context).colorScheme.error,
-            ),
+          : triedReconnect.value
+              ? Icon(
+                  FlutterIcons.disconnect_ant,
+                  size: 20,
+                  color: Theme.of(context).colorScheme.error,
+                )
+              : InkWell(
+                  customBorder: const CircleBorder(),
+                  onTap: () {
+                    triedReconnect.value = true;
+                    ref.read(jrpcClientProvider(machine.uuid)).ensureConnection();
+                  },
+                  child: Icon(Icons.restart_alt_outlined, size: 20, color: Theme.of(context).colorScheme.error),
+                ),
       AsyncError(error: var e) => Tooltip(
           message: e.toString(),
           child: Icon(
@@ -136,6 +149,7 @@ class _PrintProgressBar extends ConsumerWidget {
     var numberFormat = NumberFormat.percentPattern(context.locale.toStringWithSeparator());
 
     if (circular) {
+      var themeData = Theme.of(context);
       return CircularPercentIndicator(
         radius: 20,
         lineWidth: 3,
@@ -146,13 +160,14 @@ class _PrintProgressBar extends ConsumerWidget {
           minFontSize: 8,
           maxFontSize: 11,
         ),
-        progressColor: Theme.of(context).colorScheme.secondary,
+        progressColor: themeData.colorScheme.primary,
+        backgroundColor: themeData.useMaterial3
+            ? themeData.colorScheme.surfaceVariant
+            : themeData.colorScheme.primary.withOpacity(0.24),
       );
     }
 
-    return LinearProgressIndicator(
-      value: progress,
-    );
+    return LinearProgressIndicator(value: progress);
   }
 }
 

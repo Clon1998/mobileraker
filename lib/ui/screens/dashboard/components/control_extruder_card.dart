@@ -12,16 +12,19 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/range_selector_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -31,33 +34,37 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../../../service/ui/dialog_service_impl.dart';
-import '../../../components/dialog/edit_form/num_edit_form_controller.dart';
+import '../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 
 part 'control_extruder_card.freezed.dart';
 part 'control_extruder_card.g.dart';
 
-class ControlExtruderCard extends ConsumerWidget {
+class ControlExtruderCard extends HookConsumerWidget {
   const ControlExtruderCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showCard = ref.watch(_controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard));
-    var showLoading = showCard.isLoading && !showCard.isReloading;
-    if (showLoading) return const _ControlExtruderLoading();
-    if (showCard.valueOrNull != true) return const SizedBox.shrink();
+    useAutomaticKeepAlive();
+    logger.i('Rebuilding ControlExtruderCard');
 
-    return Card(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          _CardTitle(machineUUID: machineUUID),
-          Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
-            child: _CardBody(machineUUID: machineUUID),
-          ),
-        ],
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'ControlExtruderCard-$machineUUID',
+      toGuard: _controlExtruderCardControllerProvider(machineUUID).selectAs((value) => value.showCard),
+      childOnLoading: const _ControlExtruderLoading(),
+      childOnData: Card(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _CardTitle(machineUUID: machineUUID),
+            Padding(
+              padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+              child: _CardBody(machineUUID: machineUUID),
+            ),
+          ],
+        ),
       ),
     );
   }

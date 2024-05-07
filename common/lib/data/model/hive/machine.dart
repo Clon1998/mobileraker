@@ -58,6 +58,8 @@ class Machine extends HiveObject {
   int printerThemePack;
   @HiveField(26)
   String? pinnedCertificateDERBase64; // Base64 encoded DER certificate
+  @HiveField(27)
+  String? dashboardLayout;
 
   PrintState? get lastPrintState => _lastPrintState?.let(PrintState.tryFromJson);
 
@@ -88,6 +90,7 @@ class Machine extends HiveObject {
     this.printerThemePack = -1,
     this.obicoTunnel,
     this.pinnedCertificateDERBase64,
+    this.dashboardLayout,
   })  : name = name.trim(),
         apiKey = apiKey?.trim();
 
@@ -126,6 +129,7 @@ class Machine extends HiveObject {
               pinnedCertificateDERBase64 == other.pinnedCertificateDERBase64) &&
           (identical(trustUntrustedCertificate, other.trustUntrustedCertificate) ||
               trustUntrustedCertificate == other.trustUntrustedCertificate) &&
+          (identical(dashboardLayout, other.dashboardLayout) || dashboardLayout == other.dashboardLayout) &&
           const DeepCollectionEquality().equals(other.temperaturePresets, temperaturePresets) &&
           const DeepCollectionEquality().equals(other.camOrdering, camOrdering) &&
           const DeepCollectionEquality().equals(other.localSsids, localSsids) &&
@@ -154,10 +158,11 @@ class Machine extends HiveObject {
         obicoTunnel,
         pinnedCertificateDERBase64,
         trustUntrustedCertificate,
+        dashboardLayout,
       ]);
 
   @override
   String toString() {
-    return 'Machine{name: $name, wsUri: $wsUri, httpUri: $httpUri, uuid: $uuid, apiKey: $apiKey, httpHeaders: $httpHeaders, timeout: $timeout, temperaturePresets: $temperaturePresets, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified, trustUntrustedCertificate: $trustUntrustedCertificate, octoEverywhere: $octoEverywhere, camOrdering: $camOrdering, remoteInterface: $remoteInterface, obicoTunnel: $obicoTunnel, localSsids: $localSsids, printerThemePack: $printerThemePack, pinnedCertificateDERBase64: $pinnedCertificateDERBase64}';
+    return 'Machine{name: $name, wsUri: $wsUri, httpUri: $httpUri, uuid: $uuid, apiKey: $apiKey, httpHeaders: $httpHeaders, timeout: $timeout, temperaturePresets: $temperaturePresets, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified, trustUntrustedCertificate: $trustUntrustedCertificate, octoEverywhere: $octoEverywhere, camOrdering: $camOrdering, remoteInterface: $remoteInterface, obicoTunnel: $obicoTunnel, localSsids: $localSsids, printerThemePack: $printerThemePack, pinnedCertificateDERBase64: $pinnedCertificateDERBase64, dashboardLayout: $dashboardLayout}';
   }
 }

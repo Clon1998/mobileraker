@@ -5,8 +5,10 @@
 
 import 'dart:async';
 
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/uri_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
@@ -14,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/ease_in.dart';
 import 'package:mobileraker/ui/components/mjpeg/mjpeg_manager.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -56,19 +57,19 @@ class Mjpeg extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     var provider = _mjpegControllerProvider(dio, config);
     var controller = ref.watch(provider.notifier);
-    var error = ref.watch(provider.select((value) => value.error));
-    var isLoading = ref.watch(provider.select((value) => value.isLoading));
 
-    if (error != null) {
-      return _ErrorWidget(
+    // return Placeholder();
+
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'Mjpeg-${config.streamUri}',
+      toGuard: provider.selectAs((data) => true),
+      childOnError: (error, _) => _ErrorWidget(
         config: config,
         error: error,
         onRetryPressed: controller.onRetryPressed,
-      );
-    }
-
-    if (isLoading) {
-      return Column(
+      ),
+      childOnLoading: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -78,26 +79,25 @@ class Mjpeg extends ConsumerWidget {
           const SizedBox(height: 15),
           FadingText(tr('components.connection_watcher.trying_connect')),
         ],
-      );
-    }
-
-    Widget img = _TransformedImage(
-      provider: provider,
-      transform: config.transformation,
-      rotation: config.rotation,
-      fit: fit,
-      width: width,
-      height: height,
-    );
-
-    return EaseIn(
-      child: Stack(
-        children: [
-          (imageBuilder == null) ? img : imageBuilder!(context, img),
-          if (showFps) _FPSDisplay(provider: provider),
-          ...stackChild,
-        ],
       ),
+      childOnData: Builder(builder: (ctx) {
+        Widget img = _TransformedImage(
+          provider: provider,
+          transform: config.transformation,
+          rotation: config.rotation,
+          fit: fit,
+          width: width,
+          height: height,
+        );
+
+        return Stack(
+          children: [
+            (imageBuilder == null) ? img : imageBuilder!(ctx, img),
+            if (showFps) _FPSDisplay(provider: provider),
+            ...stackChild,
+          ],
+        );
+      }),
     );
   }
 }
@@ -242,15 +242,18 @@ class _MjpegController extends _$MjpegController with WidgetsBindingObserver {
   MjpegManager get _manager => ref.read(mjpegManagerProvider(dio, config));
 
   @override
-  Stream<_Model> build(Dio dio, MjpegConfig config) {
+  Stream<_Model> build(Dio dio, MjpegConfig config) async* {
+    // await Future.delayed(const Duration(seconds: 15));
+
     ref.onDispose(dispose);
     var manager = ref.watch(mjpegManagerProvider(dio, config));
     manager.start();
-    return manager.jpegStream.doOnData(_frameReceived).map((event) => _Model(fps: _fps, image: event));
+    yield* manager.jpegStream.doOnData(_frameReceived).map((event) => _Model(fps: _fps, image: event));
   }
 
   onRetryPressed() {
     state = const AsyncValue.loading();
+    logger.i('Retrying Mjpeg Connection');
     _manager.start();
   }
 

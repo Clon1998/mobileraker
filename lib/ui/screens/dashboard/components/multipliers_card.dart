@@ -7,10 +7,12 @@
 
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/slider_or_text_input_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -26,13 +28,14 @@ import 'slider_or_text_input.dart';
 part 'multipliers_card.freezed.dart';
 part 'multipliers_card.g.dart';
 
-class MultipliersCard extends StatelessWidget {
+class MultipliersCard extends HookWidget {
   const MultipliersCard({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
   Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 15),
@@ -80,19 +83,31 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    return AsyncGuard(
+      debugLabel: 'MultipliersSlidersOrTexts-$machineUUID',
+      toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
+      childOnLoading: const _MultipliersSlidersOrTextsLoading(),
+      childOnData: _Body(
+        machineUUID: machineUUID,
+      ),
+    );
+  }
+}
+
+class _Body extends HookConsumerWidget {
+  const _Body({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    logger.i('Building MultipliersBody for $machineUUID');
+
     var inputLocked = useState(true);
-
-    var showLoading =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
-
-    if (showLoading) {
-      return const _MultipliersSlidersOrTextsLoading();
-    }
-
-
     var controller = ref.watch(_controllerProvider(machineUUID).notifier);
+
     var klippyCanReceiveCommands =
-        ref.watch(_controllerProvider(machineUUID).selectAs((data) => data.klippyCanReceiveCommands)).requireValue;
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((data) => data.klippyCanReceiveCommands));
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
 
@@ -124,23 +139,23 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
           child: Column(
             children: [
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select(
-                  (data) => data.requireValue.speedFactor,
+                provider: _controllerProvider(machineUUID).selectRequireValue(
+                  (data) => data.speedFactor,
                 ),
                 prefixText: 'pages.dashboard.general.print_card.speed'.tr(),
                 onChange: canEdit ? controller.onEditedSpeedMultiplier : null,
                 addToMax: true,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select(
-                  (data) => data.requireValue.extrudeFactor,
+                provider: _controllerProvider(machineUUID).selectRequireValue(
+                  (data) => data.extrudeFactor,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.flow'.tr(),
                 onChange: canEdit ? controller.onEditedFlowMultiplier : null,
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select(
-                  (data) => data.requireValue.pressureAdvance,
+                provider: _controllerProvider(machineUUID).selectRequireValue(
+                  (data) => data.pressureAdvance,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.press_adv'.tr(),
                 onChange: canEdit ? controller.onEditedPressureAdvanced : null,
@@ -148,8 +163,8 @@ class MultipliersSlidersOrTexts extends HookConsumerWidget {
                 unit: 'mm/s',
               ),
               SliderOrTextInput(
-                provider: _controllerProvider(machineUUID).select(
-                  (data) => data.requireValue.smoothTime,
+                provider: _controllerProvider(machineUUID).selectRequireValue(
+                  (data) => data.smoothTime,
                 ),
                 prefixText: 'pages.dashboard.control.multipl_card.smooth_time'.tr(),
                 onChange: canEdit ? controller.onEditedSmoothTime : null,

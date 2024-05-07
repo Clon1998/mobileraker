@@ -11,14 +11,18 @@ import 'package:common/data/dto/machine/heaters/extruder.dart';
 import 'package:common/data/dto/machine/heaters/generic_heater.dart';
 import 'package:common/data/dto/machine/heaters/heater_bed.dart';
 import 'package:common/data/dto/machine/heaters/heater_mixin.dart';
+import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/machine/sensor_mixin.dart';
 import 'package:common/data/dto/machine/temperature_sensor.dart';
+import 'package:common/data/dto/machine/z_thermal_adjust.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/double_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -36,7 +40,7 @@ import 'package:stringr/stringr.dart';
 
 import '../../../../../service/ui/dialog_service_impl.dart';
 import '../../../../components/adaptive_horizontal_scroll.dart';
-import '../../../../components/dialog/edit_form/num_edit_form_controller.dart';
+import '../../../../components/dialog/edit_form/num_edit_form_dialog.dart';
 import '../../../../components/graph_card_with_button.dart';
 import '../../../../components/spinning_fan.dart';
 import 'temperature_sensor_preset_card.dart';
@@ -47,31 +51,54 @@ part 'heater_sensor_card.g.dart';
 class HeaterSensorCard extends ConsumerWidget {
   const HeaterSensorCard({super.key, required this.machineUUID, this.trailing});
 
+  factory HeaterSensorCard.preview() {
+    return const _HeaterSensorCardPreview();
+  }
+
   final String machineUUID;
 
   final Widget? trailing;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var showLoading =
-        ref.watch(_controllerProvider(machineUUID).select((value) => value.isLoading && !value.isReloading));
-    if (showLoading) {
-      return const HeaterSensorPresetCardLoading();
-    }
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: Column(
-          children: [
-            HeaterSensorPresetCardTitle(
-              machineUUID: machineUUID,
-              title: const Text('pages.dashboard.general.temp_card.title').tr(),
-              trailing: trailing,
-            ),
-            _CardBody(machineUUID: machineUUID),
-          ],
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'HeaterSensorCard-$machineUUID',
+      toGuard: _controllerProvider(machineUUID).selectAs((data) => true),
+      childOnLoading: const HeaterSensorPresetCardLoading(),
+      childOnData: Card(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 8.0),
+          child: Column(
+            children: [
+              HeaterSensorPresetCardTitle(
+                machineUUID: machineUUID,
+                title: const Text('pages.dashboard.general.temp_card.title').tr(),
+                trailing: trailing,
+              ),
+              _CardBody(machineUUID: machineUUID),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+class _HeaterSensorCardPreview extends HeaterSensorCard {
+  static const String _machineUUID = 'preview';
+
+  const _HeaterSensorCardPreview({super.key}) : super(machineUUID: _machineUUID);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return ProviderScope(
+      overrides: [
+        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
+        printerProvider(_machineUUID).overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
+      ],
+      child: Consumer(
+        builder: (innerContext, innerRef, _) => super.build(innerContext, innerRef),
       ),
     );
   }
@@ -126,6 +153,10 @@ class _SensorMixinTile extends ConsumerWidget {
       TemperatureFan() => _TemperatureFanTile(
           machineUUID: machineUUID,
           temperatureFan: sensor,
+        ),
+      ZThermalAdjust() => _ZThermalAdjustTile(
+          machineUUID: machineUUID,
+          zThermalAdjust: sensor,
         ),
       _ => throw UnimplementedError(),
     };
@@ -341,6 +372,65 @@ class _TemperatureFanTile extends HookConsumerWidget {
   }
 }
 
+class _ZThermalAdjustTile extends HookConsumerWidget {
+  static const double icoSize = 30;
+
+  const _ZThermalAdjustTile({
+    super.key,
+    required this.zThermalAdjust,
+    required this.machineUUID,
+  });
+
+  final ZThermalAdjust zThermalAdjust;
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var controller = ref.watch(_controllerProvider(machineUUID).notifier);
+    var klippyCanReceiveCommands =
+        ref.watch(_controllerProvider(machineUUID).selectRequireValue((value) => value.klippyCanReceiveCommands));
+
+    var spots = useRef(<FlSpot>[]);
+    var temperatureHistory = zThermalAdjust.temperatureHistory;
+    //
+    if (temperatureHistory != null) {
+      List<double> sublist = temperatureHistory.sublist(max(0, temperatureHistory.length - 300));
+      spots.value.clear();
+      spots.value.addAll(sublist.mapIndex((e, i) => FlSpot(i.toDouble(), e)));
+    }
+    var beautifiedNamed = beautifyName(zThermalAdjust.name);
+    var numberFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 1);
+
+    return GraphCardWithButton(
+      plotSpots: spots.value,
+      buttonChild: const Text('pages.dashboard.general.temp_card.btn_thermistor').tr(),
+      onTap: null,
+      builder: (context) => Tooltip(
+        message: beautifiedNamed,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              beautifiedNamed,
+              style: Theme.of(context).textTheme.bodySmall,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            Text(
+              '${numberFormat.format(zThermalAdjust.temperature)} °C',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            Text(
+              zThermalAdjust.currentZAdjust.formatMiliMeters(numberFormat, true),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 @riverpod
 class _Controller extends _$Controller {
   PrinterService get _printerService => ref.read(printerServiceProvider(machineUUID));
@@ -366,11 +456,12 @@ class _Controller extends _$Controller {
     // - More boilerPlate
     // - Potentially more updates since more streams are listened to?
 
-    var senors = ref.watchAsSubject(printerProviderr.selectAs((value) {
-      var extruders = value.extruders;
-      var genericHeaters = value.genericHeaters;
-      var tempSensors = value.temperatureSensors;
-      var tempFans = value.fans.values.whereType<TemperatureFan>().toList();
+    final senors = ref.watchAsSubject(printerProviderr.selectAs((value) {
+      final extruders = value.extruders;
+      final genericHeaters = value.genericHeaters;
+      final tempSensors = value.temperatureSensors;
+      final tempFans = value.fans.values.whereType<TemperatureFan>().toList();
+      final zAdjust = value.zThermalAdjust;
 
       return [
         ...extruders,
@@ -378,6 +469,7 @@ class _Controller extends _$Controller {
         ...genericHeaters.values,
         ...tempSensors.values,
         ...tempFans,
+        if (zAdjust != null) zAdjust,
       ];
     }))
         // Use map here since this prevents to many operations if the original list not changes!
@@ -405,10 +497,7 @@ class _Controller extends _$Controller {
     yield* Rx.combineLatest2(
       klippyCanReceiveCommands,
       senors,
-      (a, b) => _Model(
-        klippyCanReceiveCommands: a,
-        sensors: b,
-      ),
+      (a, b) => _Model(klippyCanReceiveCommands: a, sensors: b),
     );
   }
 
@@ -470,6 +559,43 @@ class _Controller extends _$Controller {
       num v = value.data;
       ref.read(printerServiceSelectedProvider).setTemperatureFanTarget(temperatureFan.name, v.toInt());
     });
+  }
+}
+
+class _PreviewController extends _Controller {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    ref.keepAliveFor();
+    return Stream.value(_Model(
+      klippyCanReceiveCommands: true,
+      sensors: [
+        Extruder(
+          temperature: 150,
+          target: 200,
+          num: 0,
+          lastHistory: DateTime.now(),
+          temperatureHistory: [60, 100, 120, 150],
+        ),
+        HeaterBed(
+          temperature: 40,
+          target: 60,
+          lastHistory: DateTime.now(),
+          temperatureHistory: [100, 88, 70, 40, 44, 52, 60],
+        )
+      ],
+    ));
+  }
+
+  @override
+  // ignore: no-empty-block
+  adjustHeater(HeaterMixin heater) {
+    // No action due to preview
+  }
+
+  @override
+  // ignore: no-empty-block
+  editTemperatureFan(TemperatureFan temperatureFan) {
+    // No action due to preview
   }
 }
 

@@ -38,22 +38,17 @@ class _OverviewBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return ref.watch(allMachinesProvider).when<Widget>(
           data: (d) {
-            return SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ...d.map((machine) => SinglePrinterCard(machine)),
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: () => ref
-                          .read(goRouterProvider)
-                          .pushNamed(AppRoute.printerAdd.name),
-                      icon: const Icon(Icons.add),
-                      label: const Text('pages.overview.add_machine').tr(),
-                    ),
+            return ListView(
+              children: [
+                ...d.map((machine) => SinglePrinterCard(machine)),
+                Center(
+                  child: ElevatedButton.icon(
+                    onPressed: () => ref.read(goRouterProvider).pushNamed(AppRoute.printerAdd.name),
+                    icon: const Icon(Icons.add),
+                    label: const Text('pages.overview.add_machine').tr(),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
           error: (e, s) {

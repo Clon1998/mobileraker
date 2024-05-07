@@ -9,6 +9,7 @@ import 'package:common/data/dto/machine/firmware_retraction.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/setting_service.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/ui/components/skeletons/slider_or_text_input_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
@@ -29,7 +30,7 @@ import 'slider_or_text_input.dart';
 part 'firmware_retraction_card.freezed.dart';
 part 'firmware_retraction_card.g.dart';
 
-class FirmwareRetractionCard extends ConsumerWidget {
+class FirmwareRetractionCard extends HookConsumerWidget {
   const FirmwareRetractionCard({super.key, required this.machineUUID});
 
   final String machineUUID;
@@ -38,22 +39,51 @@ class FirmwareRetractionCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     var hadFwRetract = ref.read(boolSettingProvider(_hadFwRetract));
-
-    var model = ref.watch(_firmwareRetractionCardControllerProvider(machineUUID).selectAs((data) => data.showCard));
 
     logger.i('Rebuilding FirmwareRetractionCard for $machineUUID');
 
-    return switch (model) {
-      AsyncValue(hasValue: true, value: false) => const SizedBox.shrink(),
-      AsyncLoading() when !hadFwRetract => const SizedBox.shrink(),
-      _ => Card(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 15),
-            child: FirmwareRetractionSlidersOrTexts(machineUUID: machineUUID),
-          ),
+    return AsyncGuard(
+      animate: true,
+      debugLabel: 'FirmwareRetractionCard-$machineUUID',
+      toGuard: _firmwareRetractionCardControllerProvider(machineUUID).selectAs((data) => data.showCard),
+      childOnLoading: hadFwRetract
+          ? Card(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: FirmwareRetractionSlidersOrTexts(machineUUID: machineUUID),
+              ),
+            )
+          : null,
+      childOnData: Card(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 15),
+          child: _CardBody(machineUUID: machineUUID),
         ),
-    };
+      ),
+    );
+  }
+}
+
+class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
+  const FirmwareRetractionSlidersOrTexts({
+    super.key,
+    required this.machineUUID,
+  });
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    logger.i('Rebuilding FirmwareRetractionSlidersOrTexts for $machineUUID');
+
+    return AsyncGuard(
+      debugLabel: 'FirmwareRetractionSlidersOrTexts-$machineUUID',
+      toGuard: _firmwareRetractionCardControllerProvider(machineUUID).selectAs((data) => true),
+      childOnLoading: const _FirmwareRetractionSlidersOrTextsLoading(),
+      childOnData: _CardBody(machineUUID: machineUUID),
+    );
   }
 }
 
@@ -88,37 +118,19 @@ class _FirmwareRetractionSlidersOrTextsLoading extends StatelessWidget {
   }
 }
 
-class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
-  const FirmwareRetractionSlidersOrTexts({
-    super.key,
-    required this.machineUUID,
-  });
-
-  final String machineUUID;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var klippyCanReceiveCommands = ref.watch(
-        _firmwareRetractionCardControllerProvider(machineUUID).selectAs((value) => value.klippyCanReceiveCommands));
-
-    return switch (klippyCanReceiveCommands) {
-      AsyncValue(hasValue: true, :final value?) => _CardBody(machineUUID: machineUUID, klippyCanReceiveCommands: value),
-      AsyncLoading() => const _FirmwareRetractionSlidersOrTextsLoading(),
-      _ => const SizedBox.shrink(),
-    };
-  }
-}
-
 class _CardBody extends HookConsumerWidget {
-  const _CardBody({super.key, required this.machineUUID, required this.klippyCanReceiveCommands});
+  const _CardBody({super.key, required this.machineUUID});
 
   final String machineUUID;
-  final bool klippyCanReceiveCommands;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    logger.i('Building FirmwareRetractionBody for $machineUUID');
     var inputLocked = useState(true);
     var controller = ref.watch(_firmwareRetractionCardControllerProvider(machineUUID).notifier);
+
+    var klippyCanReceiveCommands = ref.watch(_firmwareRetractionCardControllerProvider(machineUUID)
+        .selectRequireValue((data) => data.klippyCanReceiveCommands));
 
     var canEdit = klippyCanReceiveCommands && !inputLocked.value;
 

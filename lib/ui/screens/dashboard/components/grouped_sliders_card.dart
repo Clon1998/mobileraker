@@ -22,6 +22,7 @@ class GroupedSlidersCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     var pageController = usePageController();
 
     var showFwRetract =

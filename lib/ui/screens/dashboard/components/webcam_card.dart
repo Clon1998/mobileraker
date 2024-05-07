@@ -9,7 +9,7 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/webcam_service.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:common/ui/animation/SizeAndFadeTransition.dart';
+import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
@@ -17,6 +17,7 @@ import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -38,76 +39,57 @@ class WebcamCard extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    useAutomaticKeepAlive();
     var controller = ref.watch(_webcamCardControllerProvider(machineUUID).notifier);
     var hadWebcam = ref.read(boolSettingProvider(_hadWebcamKey));
 
-    // Only show card if there is a webcam
-    var model = ref.watch(_webcamCardControllerProvider(machineUUID).selectAs((data) => data.allCams.isNotEmpty));
-
-    Widget widget = switch (model) {
-      // We have a value and the model (allCams != empty) is true
-      AsyncValue(hasValue: true, value: true) => Card(
-          key: const Key('wcD'),
+    return AsyncGuard(
+      debugLabel: 'WebcamCard-$machineUUID',
+      animate: true,
+      toGuard: _webcamCardControllerProvider(machineUUID).selectAs((data) => data.allCams.isNotEmpty),
+      childOnLoading: hadWebcam ? const _WebcamCardLoading(key: Key('wcL')) : const SizedBox.shrink(key: Key('wcL')),
+      childOnError: (error, _) => _Card(
+        key: const Key('wcE'),
+        machineUUID: machineUUID,
+        child: Center(
           child: Column(
+            key: UniqueKey(),
+            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _CardTitle(machineUUID: machineUUID),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
-                child: _CardBody(machineUUID: machineUUID),
+            children: [
+              const Icon(Icons.error_outline),
+              const SizedBox(height: 30),
+              Text(
+                error.toString(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+              TextButton.icon(
+                onPressed: controller.onRetry,
+                icon: const Icon(
+                  Icons.restart_alt_outlined,
+                ),
+                label: const Text('general.retry').tr(),
               ),
             ],
           ),
         ),
-      // The model returned an error
-      AsyncError(:final error) => _Card(
-          key: const Key('wcE'),
-          machineUUID: machineUUID,
-          child: Center(
-            child: Column(
-              key: UniqueKey(),
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline),
-                const SizedBox(height: 30),
-                Text(
-                  error.toString(),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: controller.onRetry,
-                  icon: const Icon(
-                    Icons.restart_alt_outlined,
-                  ),
-                  label: const Text('general.retry').tr(),
-                ),
-              ],
-            ),
-          ),
-        ),
-      // The model is loading for the first time and we previously had a webcam -> show loading
-      AsyncLoading() when hadWebcam => const _WebcamCardLoading(key: Key('wcL')),
-      // Default do not show anything. E.g. if we never had a webcam or we have a model with empty webcam
-      _ => const SizedBox.shrink(key: Key('wcN')),
-    };
-
-    return AnimatedSwitcher(
-      duration: kThemeAnimationDuration,
-      // reverseDuration: Duration(seconds: 3),
-      switchInCurve: Curves.easeInOut,
-      switchOutCurve: Curves.easeInOut,
-      // duration: kThemeAnimationDuration,
-      transitionBuilder: (child, anim) => SizeAndFadeTransition(
-        sizeAndFadeFactor: anim,
-        sizeAxisAlignment: -1,
-        child: child,
       ),
-      // transitionBuilder: (child, anim) => SizeAndFadeTransition(sizeAndFadeFactor: anim, child: child),
-      child: widget,
+      childOnData: Card(
+        key: const Key('wcD'),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            _CardTitle(machineUUID: machineUUID),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
+              child: _CardBody(machineUUID: machineUUID),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -285,6 +267,9 @@ class _WebcamCardController extends _$WebcamCardController {
       _wroteValue = allWebcams.isNotEmpty;
       _settingService.writeBool(_hadWebcamKey, allWebcams.isNotEmpty);
     }
+
+    // await Future.delayed(const Duration(milliseconds: 5000));
+
     return _Model(machine: machine!, selected: idx, allCams: allWebcams);
   }
 
