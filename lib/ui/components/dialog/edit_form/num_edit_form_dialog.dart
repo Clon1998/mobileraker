@@ -123,7 +123,7 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
         children: [
           TextButton(
             onPressed: onFormDecline,
-            child: Text(widget.request.cancelBtn ?? tr('general.cancel')),
+            child: Text(widget.request.dismissLabel ?? tr('general.cancel')),
           ),
           IconButton(
             onPressed: toggleVariant.only(_isValid),
@@ -141,7 +141,7 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
           TextButton(
             onPressed: onFormConfirm.only(_isValid),
             child: Text(
-              widget.request.confirmBtn ?? tr('general.confirm'),
+              widget.request.actionLabel ?? tr('general.confirm'),
             ),
           ),
         ],

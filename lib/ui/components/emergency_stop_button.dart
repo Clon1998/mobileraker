@@ -1,7 +1,9 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2024. Patrick Schmidt.
  * All rights reserved.
  */
+
+// ignore_for_file: avoid-passing-async-when-sync-expected
 
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -13,8 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class EmergencyStopBtn extends ConsumerWidget {
-  const EmergencyStopBtn({super.key});
+class EmergencyStopButton extends ConsumerWidget {
+  const EmergencyStopButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,14 +30,11 @@ class EmergencyStopBtn extends ConsumerWidget {
       tooltip: tr('pages.dashboard.ems_btn'),
       onPressed: klippyState == KlipperState.ready
           ? () async {
-              if (ref
-                  .read(settingServiceProvider)
-                  .readBool(AppSettingKeys.confirmEmergencyStop, true)) {
-                var result = await ref.read(dialogServiceProvider).showConfirm(
+              if (ref.read(settingServiceProvider).readBool(AppSettingKeys.confirmEmergencyStop, true)) {
+                var result = await ref.read(dialogServiceProvider).showDangerConfirm(
                       title: tr('pages.dashboard.ems_confirmation.title'),
                       body: tr('pages.dashboard.ems_confirmation.body'),
-                      confirmBtn: tr('pages.dashboard.ems_confirmation.confirm'),
-                      confirmBtnColor: Theme.of(context).extension<CustomColors>()?.danger ?? Colors.red,
+                      actionLabel: tr('pages.dashboard.ems_confirmation.confirm'),
                     );
                 if (!(result?.confirmed ?? false)) return;
               }

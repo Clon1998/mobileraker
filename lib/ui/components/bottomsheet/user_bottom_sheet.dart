@@ -692,11 +692,10 @@ class _UserBottomSheetController extends _$UserBottomSheetController {
     var usr = state.valueOrNull?.user;
     if (usr == null) return;
 
-    var result = await _dialogService.showConfirm(
+    var result = await _dialogService.showDangerConfirm(
       title: tr('bottom_sheets.profile.delete_account_dialog.title'),
       body: tr('bottom_sheets.profile.delete_account_dialog.body'),
-      confirmBtn: tr('general.delete'),
-      confirmBtnColor: Colors.red,
+      actionLabel: tr('general.delete'),
     );
 
     if (result?.confirmed != true) return;

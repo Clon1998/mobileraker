@@ -131,7 +131,7 @@ class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBott
 
   removeRemoteConnection(bool is3p) async {
     var gender = is3p ? 'oe' : 'other';
-    var dialogResponse = await _dialogService.showConfirm(
+    var dialogResponse = await _dialogService.showDangerConfirm(
       title: tr(
         'pages.printer_edit.confirm_remote_interface_removal.title',
         args: [_machine.name],
@@ -142,11 +142,10 @@ class AddRemoteConnectionBottomSheetController extends _$AddRemoteConnectionBott
         args: [_machine.name],
         gender: gender,
       ),
-      confirmBtn: tr(
+      actionLabel: tr(
         'pages.printer_edit.confirm_remote_interface_removal.button',
         gender: gender,
       ),
-      confirmBtnColor: Colors.red,
     );
 
     if (dialogResponse?.confirmed == true) {

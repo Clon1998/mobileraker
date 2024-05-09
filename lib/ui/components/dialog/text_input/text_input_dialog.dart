@@ -43,14 +43,14 @@ class TextInputDialog extends HookWidget {
     var dialogArgs = request.data as TextInputDialogArguments;
 
     return MobilerakerDialog(
-      actionText: request.confirmBtn ?? tr('general.confirm'),
+      actionText: request.actionLabel ?? tr('general.confirm'),
       onAction: () {
         if (formKey.value.currentState!.saveAndValidate()) {
           String formValue = formKey.value.currentState!.value['newValue'];
           completer(DialogResponse(confirmed: true, data: formValue));
         }
       },
-      dismissText: request.cancelBtn ?? tr('general.cancel'),
+      dismissText: request.dismissLabel ?? tr('general.cancel'),
       onDismiss: () => completer(DialogResponse(confirmed: false)),
       child: FormBuilder(
         autovalidateMode: AutovalidateMode.onUserInteraction,

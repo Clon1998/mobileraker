@@ -563,8 +563,8 @@ class _PinsCardController extends _$PinsCardController {
     var result = await _dialogService.show(DialogRequest(
       type: _dialogMode,
       title: '${tr('general.edit')} ${beautifyName(pin.name)}',
-      cancelBtn: tr('general.cancel'),
-      confirmBtn: tr('general.confirm'),
+      dismissLabel: tr('general.cancel'),
+      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: pin.value * (configOutput?.scale ?? 1),
         min: 0,
@@ -596,8 +596,8 @@ class _PinsCardController extends _$PinsCardController {
       var result = await _dialogService.show(DialogRequest(
         type: _dialogMode,
         title: '${tr('general.edit')} $name %',
-        cancelBtn: tr('general.cancel'),
-        confirmBtn: tr('general.confirm'),
+        dismissLabel: tr('general.cancel'),
+        actionLabel: tr('general.confirm'),
         data: NumberEditDialogArguments(
           current: (led as DumbLed).color.asList().reduce(max) * 100.round(),
           min: 0,

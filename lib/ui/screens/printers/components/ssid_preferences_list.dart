@@ -46,7 +46,7 @@ class SsidPreferenceListController extends _$SsidPreferenceListController {
             title: tr(initial == null
                 ? 'pages.printer_edit.local_ssid.dialog.title_add'
                 : 'pages.printer_edit.local_ssid.dialog.title_edit'),
-            confirmBtn: tr(initial == null ? 'general.add' : 'general.save'),
+            actionLabel: tr(initial == null ? 'general.add' : 'general.save'),
             data: TextInputDialogArguments(
               initialValue: initial ?? '',
               labelText: tr('pages.printer_edit.local_ssid.dialog.label'),

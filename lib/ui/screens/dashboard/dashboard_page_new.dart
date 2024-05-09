@@ -38,7 +38,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
-import 'package:mobileraker/ui/components/ems_button.dart';
+import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
@@ -566,7 +566,7 @@ class _PrinterAppBar extends ConsumerWidget {
           title: tr('pages.dashboard.title'),
           actions: <Widget>[
             MachineStateIndicator(machine),
-            const EmergencyStopBtn(),
+            const EmergencyStopButton(),
           ],
         ),
     };
@@ -638,8 +638,8 @@ class _DashboardPageController extends _$DashboardPageController {
     if (value.layout != _originalLayout) {
       var res = await _dialogService.showConfirm(
         title: 'Cancel Edit Mode',
-        cancelBtn: tr('general.abort'),
-        confirmBtn: tr('general.cancel'),
+        dismissLabel: tr('general.abort'),
+        actionLabel: tr('general.cancel'),
         body:
             'Are you sure you want to cancel editing? All changes will be lost. To save your changes, press the save button.',
       );

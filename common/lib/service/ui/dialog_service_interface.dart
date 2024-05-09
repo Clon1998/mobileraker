@@ -25,10 +25,10 @@ class DialogRequest<T> {
     required this.type,
     this.title,
     this.body,
-    this.confirmBtn,
-    this.cancelBtn,
-    this.confirmBtnColor,
-    this.cancelBtnColor,
+    this.actionLabel,
+    this.dismissLabel,
+    this.actionForegroundColor,
+    this.actionBackgroundColor,
     this.barrierDismissible = true,
     this.data,
   });
@@ -36,10 +36,10 @@ class DialogRequest<T> {
   final DialogIdentifierMixin type;
   final String? title;
   final String? body;
-  final String? confirmBtn;
-  final String? cancelBtn;
-  final Color? confirmBtnColor;
-  final Color? cancelBtnColor;
+  final String? actionLabel;
+  final String? dismissLabel;
+  final Color? actionForegroundColor;
+  final Color? actionBackgroundColor;
   final bool barrierDismissible;
   final T? data;
 
@@ -51,10 +51,12 @@ class DialogRequest<T> {
           (identical(type, other.type) || type == other.type) &&
           (identical(title, other.title) || title == other.title) &&
           (identical(body, other.body) || body == other.body) &&
-          (identical(confirmBtn, other.confirmBtn) || confirmBtn == other.confirmBtn) &&
-          (identical(cancelBtn, other.cancelBtn) || cancelBtn == other.cancelBtn) &&
-          (identical(confirmBtnColor, other.confirmBtnColor) || confirmBtnColor == other.confirmBtnColor) &&
-          (identical(cancelBtnColor, other.cancelBtnColor) || cancelBtnColor == other.cancelBtnColor) &&
+          (identical(actionLabel, other.actionLabel) || actionLabel == other.actionLabel) &&
+          (identical(dismissLabel, other.dismissLabel) || dismissLabel == other.dismissLabel) &&
+          (identical(actionForegroundColor, other.actionForegroundColor) ||
+              actionForegroundColor == other.actionForegroundColor) &&
+          (identical(actionBackgroundColor, other.actionBackgroundColor) ||
+              actionBackgroundColor == other.actionBackgroundColor) &&
           (identical(barrierDismissible, other.barrierDismissible) || barrierDismissible == other.barrierDismissible) &&
           const DeepCollectionEquality().equals(data, other.data);
 
@@ -63,17 +65,17 @@ class DialogRequest<T> {
         type,
         title,
         body,
-        confirmBtn,
-        cancelBtn,
-        confirmBtnColor,
-        cancelBtnColor,
+        actionLabel,
+        dismissLabel,
+        actionForegroundColor,
+        actionBackgroundColor,
         barrierDismissible,
         const DeepCollectionEquality().hash(data),
       );
 
   @override
   String toString() {
-    return 'DialogRequest{type: $type, title: $title, body: $body, confirmBtn: $confirmBtn, cancelBtn: $cancelBtn}';
+    return 'DialogRequest{type: $type, title: $title, body: $body, actionLabel: $actionLabel, dismissLabel: $dismissLabel}';
   }
 }
 
@@ -122,10 +124,17 @@ abstract interface class DialogService {
   Future<DialogResponse?> showConfirm({
     String? title,
     String? body,
-    String? confirmBtn,
-    String? cancelBtn,
-    Color? confirmBtnColor,
-    Color? cancelBtnColor,
+    String? actionLabel,
+    String? dismissLabel,
+    Color? actionForegroundColor,
+    Color? actionBackgroundColor,
+  });
+
+  Future<DialogResponse?> showDangerConfirm({
+    String? title,
+    String? body,
+    String? actionLabel,
+    String? dismissLabel,
   });
 
   Future<DialogResponse?> show(DialogRequest request);

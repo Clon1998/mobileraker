@@ -93,7 +93,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
               type: DialogType.info,
               title: 'dialogs.filament_sensor_triggered.title'.tr(),
               body: 'dialogs.filament_sensor_triggered.body'.tr(args: [beautifyName(sensor.name)]),
-              cancelBtn: 'general.close'.tr(),
+              dismissLabel: 'general.close'.tr(),
             ));
             return;
           } else if (sensor.enabled && sensor.filamentDetected) {

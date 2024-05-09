@@ -417,7 +417,7 @@ class _GCodeFileDetailsController extends _$GCodeFileDetailsController {
         .showConfirm(
       title: 'pages.files.details.preheat_dialog.title'.tr(),
       body: tr('pages.files.details.preheat_dialog.body', args: tempArgs),
-      confirmBtn: 'pages.files.details.preheat'.tr(),
+      actionLabel: 'pages.files.details.preheat'.tr(),
     )
         .then((dialogResponse) {
       if (dialogResponse?.confirmed ?? false) {

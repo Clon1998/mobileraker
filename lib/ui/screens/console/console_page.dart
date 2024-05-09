@@ -19,7 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:mobileraker/ui/components/ems_button.dart';
+import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/screens/console/console_controller.dart';
 import 'package:mobileraker/util/extensions/datetime_extension.dart';
@@ -49,7 +49,7 @@ class ConsolePage extends ConsumerWidget {
         title: 'pages.console.title'.tr(),
         actions: [
           MachineStateIndicator(ref.watch(selectedMachineProvider).valueOrNull),
-          const EmergencyStopBtn(),
+          const EmergencyStopButton(),
         ],
       ),
       drawer: const NavigationDrawerWidget(),

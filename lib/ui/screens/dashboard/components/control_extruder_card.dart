@@ -356,8 +356,8 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
           ? DialogType.numEdit
           : DialogType.rangeEdit,
       title: tr('dialogs.extruder_feedrate.title'),
-      cancelBtn: tr('general.cancel'),
-      confirmBtn: tr('general.confirm'),
+      dismissLabel: tr('general.cancel'),
+      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: state.requireValue.extruderVelocity,
         min: 0.1,

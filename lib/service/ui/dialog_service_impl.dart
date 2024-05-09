@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:common/exceptions/mobileraker_exception.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
@@ -103,20 +104,35 @@ class DialogServiceImpl implements DialogService {
   Future<DialogResponse?> showConfirm({
     String? title,
     String? body,
-    String? confirmBtn,
-    String? cancelBtn,
-    Color? confirmBtnColor,
-    Color? cancelBtnColor,
+    String? actionLabel,
+    String? dismissLabel,
+    Color? actionForegroundColor,
+    Color? actionBackgroundColor,
   }) {
     return show(DialogRequest(
       type: DialogType.confirm,
       title: title,
       body: body,
-      confirmBtn: confirmBtn,
-      cancelBtn: cancelBtn,
-      confirmBtnColor: confirmBtnColor,
-      cancelBtnColor: cancelBtnColor,
+      actionLabel: actionLabel,
+      dismissLabel: dismissLabel,
+      actionForegroundColor: actionForegroundColor,
+      actionBackgroundColor: actionBackgroundColor,
     ));
+  }
+
+  @override
+  Future<DialogResponse?> showDangerConfirm({String? title, String? body, String? actionLabel, String? dismissLabel}) {
+    BuildContext ctx = _ref.read(goRouterProvider).routerDelegate.navigatorKey.currentContext!;
+
+    var customColors = Theme.of(ctx).extension<CustomColors>();
+    return showConfirm(
+      title: title,
+      body: body,
+      actionLabel: actionLabel,
+      dismissLabel: dismissLabel,
+      actionForegroundColor: customColors?.onDanger ?? Colors.white,
+      actionBackgroundColor: customColors?.danger ?? Colors.red,
+    );
   }
 
   @override

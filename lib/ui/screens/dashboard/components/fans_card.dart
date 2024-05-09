@@ -344,8 +344,8 @@ class _FansCardController extends _$FansCardController {
     var resp = await _dialogService.show(DialogRequest(
       type: _dialogMode,
       title: tr('dialogs.fan_speed.title', args: [tr('pages.dashboard.control.fan_card.part_fan')]),
-      cancelBtn: tr('general.cancel'),
-      confirmBtn: tr('general.confirm'),
+      dismissLabel: tr('general.cancel'),
+      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: fan.speed * 100.round(),
         min: 0,
@@ -365,8 +365,8 @@ class _FansCardController extends _$FansCardController {
     var resp = await _dialogService.show(DialogRequest(
       type: _dialogMode,
       title: tr('dialogs.fan_speed.title', args: [beautifyName(fan.name)]),
-      cancelBtn: tr('general.cancel'),
-      confirmBtn: tr('general.confirm'),
+      dismissLabel: tr('general.cancel'),
+      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: fan.speed * 100.round(),
         min: 0,

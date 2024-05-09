@@ -518,8 +518,8 @@ class _Controller extends _$Controller {
           ? DialogType.numEdit
           : DialogType.rangeEdit,
       title: 'Edit ${beautifyName(heater.name)} Temperature',
-      cancelBtn: tr('general.cancel'),
-      confirmBtn: tr('general.confirm'),
+      dismissLabel: tr('general.cancel'),
+      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: heater.target,
         min: 0,
@@ -546,8 +546,8 @@ class _Controller extends _$Controller {
               ? DialogType.numEdit
               : DialogType.rangeEdit,
           title: 'Edit Temperature Fan ${beautifyName(temperatureFan.name)}',
-          cancelBtn: tr('general.cancel'),
-          confirmBtn: tr('general.confirm'),
+          dismissLabel: tr('general.cancel'),
+          actionLabel: tr('general.confirm'),
           data: NumberEditDialogArguments(
             current: temperatureFan.target.round(),
             min: (configFan is ConfigTemperatureFan) ? configFan.minTemp : 0,
