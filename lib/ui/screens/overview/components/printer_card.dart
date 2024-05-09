@@ -53,7 +53,9 @@ class _PrinterCard extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const _Cam(),
+          Flexible(
+            child: const _Cam(),
+          ),
           InkWell(
             onTap: singlePrinterCardController.onTapTile,
             onLongPress: singlePrinterCardController.onLongPressTile,
