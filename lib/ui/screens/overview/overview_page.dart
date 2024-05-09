@@ -7,6 +7,7 @@ import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -23,16 +24,28 @@ class OverviewPage extends StatelessWidget {
   const OverviewPage({super.key});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'pages.overview.title',
-            overflow: TextOverflow.fade,
-          ).tr(),
-        ),
-        body: const _OverviewBody(),
-        drawer: const NavigationDrawerWidget(),
+  Widget build(BuildContext context) {
+    Widget body = const _OverviewBody();
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
       );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'pages.overview.title',
+          overflow: TextOverflow.fade,
+        ).tr(),
+      ),
+      body: body,
+      drawer: const NavigationDrawerWidget(),
+    );
+  }
 }
 
 class _OverviewBody extends ConsumerWidget {
@@ -72,7 +85,7 @@ class _Data extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CustomScrollView(
-      shrinkWrap: true,
+      // shrinkWrap: true,
       slivers: [
         if (context.isLargerThanMobile)
           SliverAlignedGrid.count(

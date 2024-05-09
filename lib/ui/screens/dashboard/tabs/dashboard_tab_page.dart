@@ -89,16 +89,14 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
           SliverList.list(children: widget.staticWidgets),
 
           if (context.isLargerThanMobile)
-            SliverToBoxAdapter(
-              child:
-                  // Wrap(
-                  //
-                  //   children: [
-                  //     for (var i = 0; i < cards.length; i++) _buildWrapItem(cards[i], i),
-                  //   ],
-                  // ),
+            // SliverAlignedGrid.count(
+            //   crossAxisCount: 2,
+            //   itemCount: cards.length,
+            //   itemBuilder: (context, index) => _buildListItem(cards[index], index),
+            // ),
 
-                  MasonryGridView.count(
+            SliverToBoxAdapter(
+              child: MasonryGridView.count(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 crossAxisCount: 2,
