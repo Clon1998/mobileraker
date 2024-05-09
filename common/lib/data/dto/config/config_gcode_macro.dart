@@ -36,8 +36,8 @@ class ConfigGcodeMacro with _$ConfigGcodeMacro {
   const factory ConfigGcodeMacro({
     @JsonKey(name: 'name') required String macroName,
     required String gcode,
-    required String? description,
-    @JsonKey(readValue: _parseParams) required Map<String, String> params,
+    String? description,
+    @Default({}) @JsonKey(readValue: _parseParams) Map<String, String> params,
   }) = _ConfigGcodeMacro;
 
   factory ConfigGcodeMacro.fromJson(String name, Map<String, dynamic> json) =>

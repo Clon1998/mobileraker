@@ -10,6 +10,7 @@ import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
@@ -56,71 +57,45 @@ class _BedScrewAdjustDialog extends ConsumerWidget {
     var themeData = Theme.of(context);
     var model = ref.watch(_screwsTiltAdjustDialogControllerProvider);
 
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Text(
-                request.title ?? tr('dialogs.screws_tilt_adjust.title'),
-                style: themeData.textTheme.headlineSmall,
-              ),
-            ),
-            Flexible(
-              child: AnimatedSwitcher(
-                switchInCurve: Curves.easeInCirc,
-                switchOutCurve: Curves.easeOutExpo,
-                transitionBuilder: (child, anim) => SizeAndFadeTransition(
-                  sizeAndFadeFactor: anim,
-                  child: child,
-                ),
-                duration: kThemeAnimationDuration,
-                child: switch (model) {
-                  AsyncValue(isLoading: true, isReloading: false) => IntrinsicHeight(
-                      child: SpinKitWave(
-                        size: 33,
-                        color: themeData.colorScheme.primary,
-                      ),
-                    ),
-                  AsyncData(value: var data) => _ScrewsTiltResult(model: data),
-                  AsyncError(error: var e) => IntrinsicHeight(
-                      child: ErrorCard(
-                        title: const Text('Error loading Screws Tilt Adjust data'),
-                        body: Text(e.toString()),
-                      ),
-                    ),
-                  _ => const SizedBox.shrink(),
-                },
-              ),
-            ),
-            const _Footer(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Footer extends ConsumerWidget {
-  const _Footer({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return MobilerakerDialog(
+      actionText: tr('general.repeat'),
+      onAction: ref.read(_screwsTiltAdjustDialogControllerProvider.notifier).onRepeatPressed,
+      dismissText: MaterialLocalizations.of(context).closeButtonLabel,
+      onDismiss: ref.read(_screwsTiltAdjustDialogControllerProvider.notifier).onClosePressed,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          TextButton(
-            onPressed: ref.read(_screwsTiltAdjustDialogControllerProvider.notifier).onClosePressed,
-            child: const Text('general.close').tr(),
+          Text(
+            tr('dialogs.screws_tilt_adjust.title'),
+            style: themeData.textTheme.headlineSmall,
           ),
-          TextButton(
-            onPressed: ref.read(_screwsTiltAdjustDialogControllerProvider.notifier).onRepeatPressed,
-            child: const Text('general.repeat').tr(),
+          SizedBox(height: 16),
+          Flexible(
+            child: AnimatedSwitcher(
+              switchInCurve: Curves.easeInCirc,
+              switchOutCurve: Curves.easeOutExpo,
+              transitionBuilder: (child, anim) => SizeAndFadeTransition(
+                sizeAndFadeFactor: anim,
+                child: child,
+              ),
+              duration: kThemeAnimationDuration,
+              child: switch (model) {
+                AsyncValue(isLoading: true, isReloading: false) => IntrinsicHeight(
+                    child: SpinKitWave(
+                      size: 33,
+                      color: themeData.colorScheme.primary,
+                    ),
+                  ),
+                AsyncData(value: var data) => _ScrewsTiltResult(model: data),
+                AsyncError(error: var e) => IntrinsicHeight(
+                    child: ErrorCard(
+                      title: const Text('Error loading Screws Tilt Adjust data'),
+                      body: Text(e.toString()),
+                    ),
+                  ),
+                _ => const SizedBox.shrink(),
+              },
+            ),
           ),
         ],
       ),
@@ -142,68 +117,65 @@ class _ScrewsTiltResult extends ConsumerWidget {
 
     var config = model.config.configScrewsTiltAdjust!;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: config.screws.length,
-              itemBuilder: (BuildContext context, int index) {
-                // ignore: avoid-unsafe-collection-methods
-                var screw = config.screws[index];
-                var screwData = model.screwsTiltAdjust.results.elementAtOrNull(screw.index - 1);
-                if (screwData == null) return const SizedBox.shrink();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Flexible(
+          child: ListView.builder(
+            shrinkWrap: true,
+            itemCount: config.screws.length,
+            itemBuilder: (BuildContext context, int index) {
+              // ignore: avoid-unsafe-collection-methods
+              var screw = config.screws[index];
+              var screwData = model.screwsTiltAdjust.results.elementAtOrNull(screw.index - 1);
+              if (screwData == null) return const SizedBox.shrink();
 
-                Widget trailing = switch (screwData) {
-                  ScrewTiltResult(isBase: true) => Chip(
-                      backgroundColor: themeData.colorScheme.primary,
-                      label: Text(
-                        'dialogs.screws_tilt_adjust.base',
-                        style: TextStyle(color: themeData.colorScheme.onPrimary),
-                      ).tr(),
-                    ),
-                  _ => Chip(
-                      backgroundColor: themeData.colorScheme.tertiary,
-                      avatar: Icon(
-                        screwData.adjustMinutes == 0
-                            ? Icons.check
-                            : screwData.sign == 'CCW'
-                                ? Icons.rotate_left
-                                : Icons.rotate_right,
-                        color: themeData.colorScheme.onTertiary,
-                      ),
-                      label: Text(
-                        screwData.adjust,
-                        style: TextStyle(color: themeData.colorScheme.onTertiary),
-                      ),
-                    ),
-                };
-
-                return ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  title: Text(beautifyName(screw.name)),
-                  subtitle: Text(
-                    'X: ${numberFormatXY.format(screw.x)}, Y: ${numberFormatXY.format(screw.y)}, Z: ${numberFormatZ.format(screwData.z)}',
+              Widget trailing = switch (screwData) {
+                ScrewTiltResult(isBase: true) => Chip(
+                    backgroundColor: themeData.colorScheme.primary,
+                    label: Text(
+                      'dialogs.screws_tilt_adjust.base',
+                      style: TextStyle(color: themeData.colorScheme.onPrimary),
+                    ).tr(),
                   ),
-                  trailing: trailing,
-                  // subtitle: Text(screw.adjust),
-                );
-              },
-            ),
+                _ => Chip(
+                    backgroundColor: themeData.colorScheme.tertiary,
+                    avatar: Icon(
+                      screwData.adjustMinutes == 0
+                          ? Icons.check
+                          : screwData.sign == 'CCW'
+                              ? Icons.rotate_left
+                              : Icons.rotate_right,
+                      color: themeData.colorScheme.onTertiary,
+                    ),
+                    label: Text(
+                      screwData.adjust,
+                      style: TextStyle(color: themeData.colorScheme.onTertiary),
+                    ),
+                  ),
+              };
+
+              return ListTile(
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                title: Text(beautifyName(screw.name)),
+                subtitle: Text(
+                  'X: ${numberFormatXY.format(screw.x)}, Y: ${numberFormatXY.format(screw.y)}, Z: ${numberFormatZ.format(screwData.z)}',
+                ),
+                trailing: trailing,
+                // subtitle: Text(screw.adjust),
+              );
+            },
           ),
-          Divider(),
-          Text(
-            'dialogs.screws_tilt_adjust.hint',
-            textAlign: TextAlign.center,
-            style: themeData.textTheme.bodySmall,
-          ).tr(),
-        ],
-      ),
+        ),
+        Divider(),
+        Text(
+          'dialogs.screws_tilt_adjust.hint',
+          textAlign: TextAlign.center,
+          style: themeData.textTheme.bodySmall,
+        ).tr(),
+      ],
     );
   }
 }

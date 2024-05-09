@@ -20,8 +20,9 @@ part 'machine.g.dart';
 class Machine extends HiveObject {
   @HiveField(0)
   String name;
-  @HiveField(1)
-  Uri wsUri;
+
+  // @HiveField(1)
+  // Uri wsUri;
   @HiveField(6)
   Uri httpUri;
   @HiveField(2)
@@ -77,7 +78,6 @@ class Machine extends HiveObject {
 
   Machine({
     required String name,
-    required this.wsUri,
     required this.httpUri,
     String? apiKey,
     this.temperaturePresets = const [],
@@ -112,7 +112,6 @@ class Machine extends HiveObject {
       other is Machine &&
           runtimeType == other.runtimeType &&
           (identical(name, other.name) || name == other.name) &&
-          (identical(wsUri, other.wsUri) || wsUri == other.wsUri) &&
           (identical(uuid, other.uuid) || uuid == other.uuid) &&
           (identical(apiKey, other.apiKey) || apiKey == other.apiKey) &&
           (identical(httpUri, other.httpUri) || httpUri == other.httpUri) &&
@@ -139,7 +138,6 @@ class Machine extends HiveObject {
   int get hashCode => Object.hashAll([
         runtimeType,
         name,
-        wsUri,
         uuid,
         apiKey,
         const DeepCollectionEquality().hash(temperaturePresets),
@@ -163,6 +161,6 @@ class Machine extends HiveObject {
 
   @override
   String toString() {
-    return 'Machine{name: $name, wsUri: $wsUri, httpUri: $httpUri, uuid: $uuid, apiKey: $apiKey, httpHeaders: $httpHeaders, timeout: $timeout, temperaturePresets: $temperaturePresets, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified, trustUntrustedCertificate: $trustUntrustedCertificate, octoEverywhere: $octoEverywhere, camOrdering: $camOrdering, remoteInterface: $remoteInterface, obicoTunnel: $obicoTunnel, localSsids: $localSsids, printerThemePack: $printerThemePack, pinnedCertificateDERBase64: $pinnedCertificateDERBase64, dashboardLayout: $dashboardLayout}';
+    return 'Machine{name: $name, httpUri: $httpUri, uuid: $uuid, apiKey: $apiKey, httpHeaders: $httpHeaders, timeout: $timeout, temperaturePresets: $temperaturePresets, lastPrintProgress: $lastPrintProgress, _lastPrintState: $_lastPrintState, fcmIdentifier: $fcmIdentifier, lastModified: $lastModified, trustUntrustedCertificate: $trustUntrustedCertificate, octoEverywhere: $octoEverywhere, camOrdering: $camOrdering, remoteInterface: $remoteInterface, obicoTunnel: $obicoTunnel, localSsids: $localSsids, printerThemePack: $printerThemePack, pinnedCertificateDERBase64: $pinnedCertificateDERBase64, dashboardLayout: $dashboardLayout}';
   }
 }

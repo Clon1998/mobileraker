@@ -1,5 +1,25 @@
 # Mobileraker - Changelog
 
+## [2.7.0] - 2024-xx-xx
+
+### New Features
+
+- Added more layout options offering more flexibility in the dahsboard layout.
+- [Supporters] Added the ability to create custom and configurable dashboards. This allows users to create dashboards
+  with up to five tabs and customize them with various cards.
+
+### Enhancements
+
+- Added flags to the language selection to improve accessibility.
+- Added a disclaimer whenever a remote connection fails to connect to make the distinction between
+  _Mobileraker-Supporters_ and _OctoEverywhere_/_Obico-Supporters_ clearer.
+- Removed the `Websocket Address` field from the printer settings, as it is redundant, unused, and
+  confusing.
+
+### Bug Fixes
+
+- Fixed Back Button on the printer add page.
+
 ## [2.6.19] - 2024-05-09
 
 ### Enhancements

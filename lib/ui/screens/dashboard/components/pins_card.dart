@@ -50,6 +50,10 @@ part 'pins_card.g.dart';
 class PinsCard extends HookConsumerWidget {
   const PinsCard({super.key, required this.machineUUID});
 
+  static Widget preview() {
+    return const _Preview();
+  }
+
   final String machineUUID;
 
   @override
@@ -71,6 +75,23 @@ class PinsCard extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _pinsCardControllerProvider(_machineUUID).overrideWith(_PinsCardPreviewController.new),
+      ],
+      child: const PinsCard(machineUUID: _machineUUID),
     );
   }
 }
@@ -563,8 +584,8 @@ class _PinsCardController extends _$PinsCardController {
     var result = await _dialogService.show(DialogRequest(
       type: _dialogMode,
       title: '${tr('general.edit')} ${beautifyName(pin.name)}',
-      cancelBtn: tr('general.cancel'),
-      confirmBtn: tr('general.confirm'),
+      dismissLabel: tr('general.cancel'),
+      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: pin.value * (configOutput?.scale ?? 1),
         min: 0,
@@ -596,8 +617,8 @@ class _PinsCardController extends _$PinsCardController {
       var result = await _dialogService.show(DialogRequest(
         type: _dialogMode,
         title: '${tr('general.edit')} $name %',
-        cancelBtn: tr('general.cancel'),
-        confirmBtn: tr('general.confirm'),
+        dismissLabel: tr('general.cancel'),
+        actionLabel: tr('general.confirm'),
         data: NumberEditDialogArguments(
           current: (led as DumbLed).color.asList().reduce(max) * 100.round(),
           min: 0,
@@ -643,6 +664,53 @@ class _PinsCardController extends _$PinsCardController {
 
       _printerService.led(led.name, pixel);
     }
+  }
+}
+
+class _PinsCardPreviewController extends _PinsCardController {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    state = const AsyncValue.data(_Model(
+      klippyCanReceiveCommands: true,
+      elements: [
+        OutputPin(name: 'Preview Pin', value: 0),
+        DumbLed(name: 'Preview Led'),
+      ],
+      ledConfig: {
+        'preview led': ConfigDumbLed(
+          name: 'preview led',
+        ),
+      },
+      pinConfig: {
+        'preview pin': ConfigOutput(
+          name: 'preview pin',
+          pwm: true,
+          scale: 1,
+        ),
+      },
+    ));
+
+    return const Stream.empty();
+  }
+
+  @override
+  Future<void> onEditPin(OutputPin pin) async {
+    // Do nothing in preview mode
+  }
+
+  @override
+  void onUpdateBinaryPin(OutputPin pin, bool value) {
+    // Do nothing in preview mode
+  }
+
+  @override
+  Future<void> onUpdateFilamentSensor(FilamentSensor sensor, bool value) async {
+    // Do nothing in preview mode
+  }
+
+  @override
+  Future<void> onEditLed(Led led) async {
+    // Do nothing in preview mode
   }
 }
 

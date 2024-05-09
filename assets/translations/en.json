@@ -52,7 +52,8 @@
     "start": "Start",
     "repeat": "Repeat",
     "load_more": "Load more",
-    "archived": "Archived"
+    "archived": "Archived",
+    "leave": "Leave"
   },
   "pages": {
     "dashboard": {
@@ -208,6 +209,31 @@
           "used": "Used: {}",
           "provider_error_title": "Error fetching Spoolman data"
         }
+      }
+    },
+    "customizing_dashboard": {
+      "title": "Editing layout...",
+      "cancel_confirm": {
+        "title": "Discard changes?",
+        "body": "Are you sure you want to leave the layout editing mode?\nAll changes will be lost. To save your changes, press the save button."
+      },
+      "add_card": "Add Card",
+      "remove_page": "Remove Page",
+      "saved_snack": {
+        "title": "Layout saved!",
+        "body": "Your changes have been saved."
+      },
+      "cant_remove_snack": {
+        "title": "Can't remove page!",
+        "body": "You need at least 2 pages to be able to remove one."
+      },
+      "confirm_removal": {
+        "title": "Remove Page?",
+        "body": "Are you sure you want to remove this page?"
+      },
+      "editing_card": {
+        "title": "Editing Mode",
+        "body": "You can now reorder, add and remove cards and pages. All cards show preview data."
       }
     },
     "files": {
@@ -712,7 +738,8 @@
       "job_queue": "Sorry, the Job Queue is only available to Supporters.",
       "timelaps_share": "Sorry, sharing timelapses is only available to Supporters.",
       "printer_theme": "Sorry, printer specific themes are only available to Supporters.",
-      "spoolman_page": "Sorry, the Spoolman page is only available to Supporters."
+      "spoolman_page": "Sorry, the Spoolman page is only available to Supporters.",
+      "custom_dashboard": "Sorry, customizing the dashboard is only available to Supporters."
     },
     "machine_deletion_warning": {
       "title": "Machine Deletion",
@@ -1005,6 +1032,10 @@
           "service_stop": "You are about to stop the service '{}'. Are you sure you want to proceed?"
         }
       }
+    },
+    "dashboard_cards": {
+      "title": "Add a card",
+      "subtitle": "Select a card to add to the dashboard"
     }
   },
   "klipper_state": {

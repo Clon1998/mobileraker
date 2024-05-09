@@ -6,6 +6,7 @@
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/settings/temperature_preset.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -46,60 +47,64 @@ class _ImportSettingsDialog extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Dialog(
+    return MobilerakerDialog(
+      actionText: MaterialLocalizations.of(context).copyButtonLabel,
+      onAction: ref.watch(importSources.select((value) => value.valueOrNull?.isNotEmpty == true))
+          ? ref.read(importSettingsDialogController.notifier).onFormConfirm
+          : null,
+      dismissText: MaterialLocalizations.of(context).cancelButtonLabel,
+      onDismiss: () {
+        ref.read(dialogCompleter)(DialogResponse.aborted());
+      },
       child: FormBuilder(
         key: ref.watch(importSettingsFormKeyProvider),
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // To make the card compact
-            children: [
-              Text(
-                'Import Settings',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              ref.watch(importSources).when<Widget>(
-                data: (data) {
-                  // ref.watch(footerControllerProvider.notifier).state = true;
-                  return const _DialogBody();
-                },
-                error: (e, s) {
-                  logger.e('Error in importSettings', e, s);
-                  return Column(
-                    children: [
-                      ListTile(
-                        leading: const Icon(
-                          Icons.warning_amber_outlined,
-                          size: 36,
-                        ),
-                        title: const Text(
-                          'dialogs.import_setting.fetching_error_title',
-                        ).tr(),
-                        subtitle: const Text(
-                          'dialogs.import_setting.fetching_error_sub',
-                        ).tr(),
-                        iconColor: Theme.of(context).colorScheme.error,
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // To make the card compact
+          children: [
+            Text(
+              'Import Settings',
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            ref.watch(importSources).when<Widget>(
+              data: (data) {
+                // ref.watch(footerControllerProvider.notifier).state = true;
+                return const _DialogBody();
+              },
+              error: (e, s) {
+                logger.e('Error in importSettings', e, s);
+                return Column(
+                  children: [
+                    ListTile(
+                      leading: const Icon(
+                        Icons.warning_amber_outlined,
+                        size: 36,
                       ),
-                    ],
-                  );
-                },
-                loading: () {
-                  return Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: SpinKitRipple(
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
+                      title: const Text(
+                        'dialogs.import_setting.fetching_error_title',
+                      ).tr(),
+                      subtitle: const Text(
+                        'dialogs.import_setting.fetching_error_sub',
+                      ).tr(),
+                      iconColor: Theme.of(context).colorScheme.error,
+                    ),
+                  ],
+                );
+              },
+              loading: () {
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: SpinKitRipple(
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
-                      FadingText(tr('dialogs.import_setting.fetching')),
-                    ],
-                  );
-                },
-              ),
-              const _Footer(),
-            ],
-          ),
+                    ),
+                    FadingText(tr('dialogs.import_setting.fetching')),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -130,7 +135,7 @@ class _DialogBody extends ConsumerWidget {
                   .map(
                     (e) => DropdownMenuItem<ImportMachineSettingsResult>(
                       value: e,
-                      child: Text('${e.machine.name} (${e.machine.wsUri.host})'),
+                      child: Text('${e.machine.name} (${e.machine.httpUri.host})'),
                     ),
                   )
                   .toList(growable: false),
@@ -244,33 +249,6 @@ class _DialogBody extends ConsumerWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _Footer extends ConsumerWidget {
-  const _Footer({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var materialLocalizations = MaterialLocalizations.of(context);
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        TextButton(
-          onPressed: () {
-            ref.read(dialogCompleter)(DialogResponse.aborted());
-          },
-          child: Text(tr('general.cancel')),
-        ),
-        TextButton(
-          onPressed: ref.watch(importSources.select((value) => value.valueOrNull?.isNotEmpty == true))
-              ? ref.read(importSettingsDialogController.notifier).onFormConfirm
-              : null,
-          child: Text(materialLocalizations.copyButtonLabel),
-        ),
-      ],
     );
   }
 }

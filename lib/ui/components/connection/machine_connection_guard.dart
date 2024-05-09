@@ -137,34 +137,46 @@ class _WebsocketStateWidget extends ConsumerWidget {
             return Padding(
               padding: const EdgeInsets.all(22),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.warning_amber_outlined,
-                    size: 50,
-                    color: Theme.of(context).colorScheme.error,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    connectionStateController.clientErrorMessage,
-                    textAlign: TextAlign.center,
-                  ),
-                  if (!connectionStateController.errorIsOctoSupportedExpired)
-                    TextButton.icon(
-                      onPressed: connectionStateController.onRetryPressed,
-                      icon: const Icon(Icons.restart_alt_outlined),
-                      label: const Text(
-                        'components.connection_watcher.reconnect',
-                      ).tr(),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.warning_amber_outlined,
+                          size: 50,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                        const SizedBox(height: 20),
+                        Text(
+                          connectionStateController.clientErrorMessage,
+                          textAlign: TextAlign.center,
+                        ),
+                        if (!connectionStateController.errorIsOctoSupportedExpired)
+                          TextButton.icon(
+                            onPressed: connectionStateController.onRetryPressed,
+                            icon: const Icon(Icons.restart_alt_outlined),
+                            label: const Text(
+                              'components.connection_watcher.reconnect',
+                            ).tr(),
+                          ),
+                        if (connectionStateController.errorIsOctoSupportedExpired)
+                          TextButton.icon(
+                            onPressed: connectionStateController.onGoToOE,
+                            icon: const Icon(Icons.open_in_browser),
+                            label: const Text(
+                              'components.connection_watcher.more_details',
+                            ).tr(),
+                          ),
+                      ],
                     ),
-                  if (connectionStateController.errorIsOctoSupportedExpired)
-                    TextButton.icon(
-                      onPressed: connectionStateController.onGoToOE,
-                      icon: const Icon(Icons.open_in_browser),
-                      label: const Text(
-                        'components.connection_watcher.more_details',
-                      ).tr(),
-                    ),
+                  ),
+                  if (clientType == ClientType.octo || clientType == ClientType.obico)
+                    Text(
+                      'bottom_sheets.add_remote_con.disclosure',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ).tr(namedArgs: {'service': (clientType == ClientType.octo) ? 'OctoEverywhere' : 'Obico'}),
                 ],
               ),
             );

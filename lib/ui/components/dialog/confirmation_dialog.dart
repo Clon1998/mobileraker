@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
@@ -13,32 +14,30 @@ class ConfirmationDialog extends StatelessWidget {
     required this.dialogRequest,
     required this.completer,
   });
+
   final DialogRequest dialogRequest;
   final Function(DialogResponse) completer;
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      titleTextStyle: Theme.of(context).dialogTheme.titleTextStyle,
-      contentTextStyle: Theme.of(context).dialogTheme.contentTextStyle,
-      title: dialogRequest.title != null ? Text(key: const Key('dialog_text_title'), dialogRequest.title!) : null,
-      content: dialogRequest.body != null ? Text(key: const Key('dialog_text_content'), dialogRequest.body!) : null,
-      actions: [
-        TextButton(
-          onPressed: () => completer(DialogResponse()),
-          child: Text(
-            dialogRequest.cancelBtn ?? tr('general.cancel'),
-            style: TextStyle(color: dialogRequest.cancelBtnColor),
-          ),
-        ),
-        TextButton(
-          onPressed: () => completer(DialogResponse.confirmed()),
-          child: Text(
-            dialogRequest.confirmBtn ?? tr('general.confirm'),
-            style: TextStyle(color: dialogRequest.confirmBtnColor),
-          ),
-        ),
-      ],
+    return MobilerakerDialog(
+      actionText: dialogRequest.actionLabel ?? tr('general.confirm'),
+      onAction: () => completer(DialogResponse.confirmed()),
+      actionStyle: OutlinedButton.styleFrom(
+          foregroundColor: dialogRequest.actionForegroundColor, backgroundColor: dialogRequest.actionBackgroundColor),
+      dismissText: dialogRequest.dismissLabel ?? tr('general.cancel'),
+      onDismiss: () => completer(DialogResponse()),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (dialogRequest.title != null)
+            Text(
+              dialogRequest.title!,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+          if (dialogRequest.body != null) Text(dialogRequest.body!),
+        ],
+      ),
     );
   }
 }

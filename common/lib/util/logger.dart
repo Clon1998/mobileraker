@@ -87,12 +87,13 @@ class RiverPodLogger extends ProviderObserver {
   const RiverPodLogger();
 
   @override
-  void providerDidFail(ProviderBase provider, Object error, StackTrace stackTrace, ProviderContainer container) {
+  void providerDidFail(
+      ProviderBase<Object?> provider, Object error, StackTrace stackTrace, ProviderContainer container) {
     logger.e('[RiverPodLogger]::FAILED ${provider.toIdentityString()} failed with', error, stackTrace);
   }
 
   @override
-  void didDisposeProvider(ProviderBase provider, ProviderContainer container) {
+  void didDisposeProvider(ProviderBase<Object?> provider, ProviderContainer container) {
     if (['toolheadInfoProvider'].contains(provider.name)) return;
 
     var familiy = provider.from?.toString() ?? '';
@@ -104,13 +105,12 @@ class RiverPodLogger extends ProviderObserver {
   }
 
   @override
-  void didAddProvider(ProviderBase provider, Object? value, ProviderContainer container) {
-    logger.wtf('[RiverPodLogger]::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth}');
+  void didAddProvider(ProviderBase<Object?> provider, Object? value, ProviderContainer container) {
+    logger.wtf('[RiverPodLogger]::CREATED-> ${provider.toIdentityString()} WITH PARENT? ${container.depth} ');
   }
 
   @override
-  void didUpdateProvider(
-    ProviderBase provider,
+  void didUpdateProvider(ProviderBase<Object?> provider,
     Object? previousValue,
     Object? newValue,
     ProviderContainer container,

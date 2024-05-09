@@ -74,4 +74,13 @@ class DashboardComponent extends HiveObject {
   String toString() {
     return 'DashboardComponent{uuid: $uuid, type: $type, showWhilePrinting: $showWhilePrinting}';
   }
+
+  Map<String, dynamic> export() {
+    return {
+      'version': 1,
+      'type': type.name,
+      'showWhilePrinting': showWhilePrinting,
+      'showBeforePrinterReady': showBeforePrinterReady,
+    };
+  }
 }

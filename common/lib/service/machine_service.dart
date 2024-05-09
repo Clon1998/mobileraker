@@ -24,7 +24,6 @@ import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
-import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -191,7 +190,7 @@ class MachineService {
 
   Future<void> updateMachine(Machine machine) async {
     await _machineRepo.update(machine);
-    logger.i('Updated machine: ${machine.name}');
+    logger.i('Updated machine: ${machine.logName}');
     ref.read(analyticsProvider).logEvent(name: 'updated_machine');
     _machineEventStreamCtler.add(ModelEvent.update(machine, machine.uuid));
     await ref.refresh(machineProvider(machine.uuid).future);
@@ -218,9 +217,9 @@ class MachineService {
   }
 
   Future<Machine> addMachine(Machine machine) async {
-    logger.i('Trying to inser machine ${machine.name} (${machine.uuid})');
+    logger.i('Trying to inser machine ${machine.logName}');
     await _machineRepo.insert(machine);
-    logger.i('Inserted machine ${machine.name} (${machine.uuid})');
+    logger.i('Inserted machine ${machine.logName}');
     await _selectedMachineService.selectMachine(machine);
     ref.invalidate(allMachinesProvider);
     FirebaseAnalytics firebaseAnalytics = ref.read(analyticsProvider);
@@ -386,13 +385,13 @@ class MachineService {
     try {
       var notificationSettingsRepository = keepAliveExternally.read();
 
-      logger.i('Updating FCM Config for machine ${machine.name} (${machine.uuid})');
+      logger.i('Updating FCM Config for machine ${machine.logName}');
 
       var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
           (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
       if (connectionResult != ClientState.connected) {
         logger.w(
-            '[${machine.name}@${machine.wsUri}]Unable to propagate new notification settings because JRPC was not connected!');
+            '${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!');
         return;
       }
 
@@ -410,7 +409,7 @@ class MachineService {
         updateReq.add(future);
       }
       if (updateReq.isNotEmpty) await Future.wait(updateReq);
-      logger.i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new notification settings');
+      logger.i('${machine.logTagExtended} Propagated new notification settings');
     } finally {
       keepAliveExternally.close();
     }
@@ -424,13 +423,12 @@ class MachineService {
     try {
       var repo = ref.read(apnsRepositoryProvider(machine.uuid));
 
-      logger.i('Updating live activity in FCM for machine ${machine.name} (${machine.uuid})');
+      logger.i('Updating live activity in FCM for machine ${machine.logName}');
 
       var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
           (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
       if (connectionResult != ClientState.connected) {
-        logger.w(
-            '[${machine.name}@${machine.wsUri}] Unable to Propagated live activity in FCM because JRPC was not connected!');
+        logger.w('${machine.logTagExtended} Unable to Propagated live activity in FCM because JRPC was not connected!');
         return;
       }
       if (liveActivityPushToken == null) {
@@ -438,7 +436,7 @@ class MachineService {
       } else {
         await repo.update(machine.uuid, APNs(liveActivity: liveActivityPushToken));
       }
-      logger.i('[${machine.name}@${machine.wsUri.obfuscate()}] Propagated new live activity in FCM');
+      logger.i('${machine.logTagExtended} Propagated new live activity in FCM');
     } finally {
       keepAliveExternally.close();
     }
@@ -467,8 +465,7 @@ class MachineService {
     var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
         (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
     if (connectionResult != ClientState.connected) {
-      logger.w(
-          '[${machine.name}@${machine.wsUri}]Unable to propagate new notification settings because JRPC was not connected!');
+      logger.w('${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!');
       throw const MobilerakerException('Machine not connected');
     }
 
@@ -490,7 +487,7 @@ class MachineService {
         var meta = await fetchCompanionMetaData(machine);
         if (meta == null) noCompanion.add(machine);
       } catch (e) {
-        logger.w('Error while trying to fetch CompanionMeta for machine ${machine.name} (${machine.uuid})', e);
+        logger.w('Error while trying to fetch CompanionMeta for machine ${machine.logName}', e);
       }
     }
     return noCompanion;
@@ -533,7 +530,7 @@ class MachineService {
     }
 
     // Log the machine information
-    logger.i('Updating Default Macros for "${machine.name}(${machine.wsUri.obfuscate()})"!');
+    logger.i('Updating Default Macros for "${machine.logNameExtended})"!');
 
     // Fetch the machine settings
     final machineSettings = await fetchSettings(machineUUID: machineUUID);

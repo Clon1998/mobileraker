@@ -77,7 +77,7 @@ class AdaptiveHorizontalPage extends HookWidget {
               // Add a scroll indicator if there are more widgets than can be displayed at once
               if (children.length > 1)
                 HorizontalScrollIndicator(
-                  steps: children.length,
+                  dots: children.length,
                   controller: scrollCtrler,
                   childsPerScreen: 1,
                 ),

@@ -1,4 +1,5 @@
 # Mobileraker - A free mobile app for klipper
+
 [![GitHub Tag](https://img.shields.io/github/v/tag/clon1998/mobileraker?filter=android*&style=for-the-badge&logo=android&label=Version&color=%2334A853)](https://play.google.com/store/apps/details?id=com.mobileraker.android)
 [![GitHub Tag](https://img.shields.io/github/v/tag/clon1998/mobileraker?filter=ios*&style=for-the-badge&logo=apple&label=Version&color=%23000000)](https://apps.apple.com/us/app/mobileraker/id1581451248)
 
@@ -158,12 +159,16 @@ The changelog can be found in [docs/changelog.md](docs/changelog.md).
 
 ## License
 
-The project is licensed under a modified MIT license, known as the Mobileraker License v1, crafted by Patrick Schmidt.
-It allows non-commercial use, redistribution, and modification of the software and documentation, provided that
-copyright and permission notices are preserved. However, commercial usage is restricted unless explicit written consent
-is obtained from Patrick Schmidt, who also maintains all intellectual property rights.
+The project is licensed under the Mobileraker License v2, an updated version of the Mobileraker License v1 crafted by
+Patrick Schmidt which itself was based on the MIT license.
+This license permits non-commercial use, redistribution, and modification of the software and documentation, provided
+that copyright and permission notices are preserved. However, commercial usage is restricted unless explicit written
+consent is obtained from Patrick Schmidt, who also maintains all intellectual property rights.
 
-The project's license can be found here [LICENSE](LICENSE).
+The project was initially licensed under the MIT License until the 11th of June 2023. Afterward, it transitioned to the
+Mobileraker License v1 until the 19th of May 2024. Since then, the project is licensed under the Mobileraker License v2.
+
+For more details, please refer to the [LICENSE](LICENSE) file.
 
 ## Repobeats
 

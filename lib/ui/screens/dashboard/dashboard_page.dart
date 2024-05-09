@@ -23,7 +23,7 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
-import 'package:mobileraker/ui/components/ems_button.dart';
+import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/filament_sensor_watcher.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker/ui/components/printer_calibration_watcher.dart';
@@ -80,7 +80,7 @@ class _DashboardView extends HookConsumerWidget {
         title: tr('pages.dashboard.title'),
         actions: <Widget>[
           MachineStateIndicator(activeMachine),
-          const EmergencyStopBtn(),
+          const EmergencyStopButton(),
         ],
       ),
       body: MachineConnectionGuard(

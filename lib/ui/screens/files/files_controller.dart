@@ -209,7 +209,7 @@ class FilesPageController extends _$FilesPageController {
         file is Folder ? 'dialogs.delete_folder.description' : 'dialogs.delete_file.description',
         args: [file.name],
       ),
-      confirmBtn: tr('general.delete'),
+      actionLabel: tr('general.delete'),
     );
 
     if (dialogResponse?.confirmed == true) {
@@ -238,7 +238,7 @@ class FilesPageController extends _$FilesPageController {
       DialogRequest(
         type: DialogType.textInput,
         title: file is Folder ? tr('dialogs.rename_folder.title') : tr('dialogs.rename_file.title'),
-        confirmBtn: tr('general.rename'),
+        actionLabel: tr('general.rename'),
         data: TextInputDialogArguments(
           initialValue: file.fileName,
           labelText: file is Folder ? tr('dialogs.rename_folder.label') : tr('dialogs.rename_file.label'),
@@ -295,7 +295,7 @@ class FilesPageController extends _$FilesPageController {
       DialogRequest(
         type: DialogType.textInput,
         title: tr('dialogs.create_folder.title'),
-        confirmBtn: tr('general.create'),
+        actionLabel: tr('general.create'),
         data: TextInputDialogArguments(
           initialValue: '',
           labelText: tr('dialogs.create_folder.label'),

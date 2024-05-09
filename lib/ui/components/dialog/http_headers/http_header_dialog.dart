@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -45,71 +46,44 @@ class _HttpHeaderDialog extends HookConsumerWidget {
     var headerController = useTextEditingController(text: request.title);
     var valueController = useTextEditingController(text: request.body);
 
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Text(
-                tr('dialogs.http_header.title'),
-                style: themeData.textTheme.titleLarge,
-              ),
+    return MobilerakerDialog(
+      actionText: MaterialLocalizations.of(context).saveButtonLabel,
+      onAction: () {
+        completer(DialogResponse.confirmed(MapEntry(
+          headerController.text.trim(),
+          valueController.text.trim(),
+        )));
+      },
+      dismissText: MaterialLocalizations.of(context).cancelButtonLabel,
+      onDismiss: () => completer(DialogResponse.aborted()),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            tr('dialogs.http_header.title'),
+            style: themeData.textTheme.titleLarge,
+          ),
+          SizedBox(height: 16),
+          TextField(
+            autofocus: true,
+            decoration: InputDecoration(
+              labelText: tr('dialogs.http_header.header'),
+              hintText: tr('dialogs.http_header.header_hint'),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      labelText: tr('dialogs.http_header.header'),
-                      hintText: tr('dialogs.http_header.header_hint'),
-                    ),
-                    controller: headerController,
-                    enableSuggestions: false,
-                  ),
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: tr('dialogs.http_header.value'),
-                      hintText: tr('dialogs.http_header.value_hint'),
-                    ),
-                    minLines: 1,
-                    maxLines: 10,
-                    controller: valueController,
-                    enableSuggestions: false,
-                  ),
-                ],
-              ),
+            controller: headerController,
+            enableSuggestions: false,
+          ),
+          TextField(
+            decoration: InputDecoration(
+              labelText: tr('dialogs.http_header.value'),
+              hintText: tr('dialogs.http_header.value_hint'),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => completer(DialogResponse.aborted()),
-                    child: Text(
-                      MaterialLocalizations.of(context).cancelButtonLabel,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      completer(DialogResponse.confirmed(MapEntry(
-                        headerController.text.trim(),
-                        valueController.text.trim(),
-                      )));
-                    },
-                    child: Text(MaterialLocalizations.of(context).saveButtonLabel),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+            minLines: 1,
+            maxLines: 10,
+            controller: valueController,
+            enableSuggestions: false,
+          ),
+        ],
       ),
     );
   }

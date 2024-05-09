@@ -237,10 +237,6 @@ class PrinterEditController extends _$PrinterEditController {
       _machine.httpUri = httpUri;
     }
 
-    var wsUri = buildMoonrakerWebSocketUri(storedValues['wsUrl']);
-    if (wsUri != null) {
-      _machine.wsUri = wsUri;
-    }
     var sslSettings = ref
         .read(sslSettingsControllerProvider(_machine.pinnedCertificateDERBase64, _machine.trustUntrustedCertificate));
     _machine.trustUntrustedCertificate = sslSettings.trustSelfSigned;
@@ -277,7 +273,7 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   resetFcmCache() async {
-    var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
+    var dialogResponse = await ref.read(dialogServiceProvider).showDangerConfirm(
           title: tr(
             'pages.printer_edit.confirm_fcm_reset.title',
             args: [_machine.name],
@@ -286,8 +282,7 @@ class PrinterEditController extends _$PrinterEditController {
             'pages.printer_edit.confirm_fcm_reset.body',
             args: [_machine.name, _machine.httpUri.toString()],
           ),
-          confirmBtn: tr('general.clear'),
-          confirmBtnColor: Colors.red,
+          actionLabel: tr('general.clear'),
         );
 
     try {
@@ -322,7 +317,7 @@ class PrinterEditController extends _$PrinterEditController {
   }
 
   deleteIt() async {
-    var dialogResponse = await ref.read(dialogServiceProvider).showConfirm(
+    var dialogResponse = await ref.read(dialogServiceProvider).showDangerConfirm(
           title: tr(
             'pages.printer_edit.confirm_deletion.title',
             args: [_machine.name],
@@ -331,8 +326,7 @@ class PrinterEditController extends _$PrinterEditController {
             'pages.printer_edit.confirm_deletion.body',
             args: [_machine.name, _machine.httpUri.toString()],
           ),
-          confirmBtn: tr('general.delete'),
-          confirmBtnColor: Colors.red,
+          actionLabel: tr('general.delete'),
         );
 
     if (dialogResponse?.confirmed ?? false) {

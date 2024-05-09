@@ -57,14 +57,13 @@ class JsonRpcClientBuilder {
   JsonRpcClientBuilder();
 
   factory JsonRpcClientBuilder.fromBaseOptions(BaseOptions options, Machine machine) {
-    var localWsUir = machine.wsUri;
     var baseURL = Uri.parse(options.baseUrl);
 
     var builder = JsonRpcClientBuilder()
       ..headers = options.headers
       ..clientType = options.clientType
       ..timeout = options.receiveTimeout ?? const Duration(seconds: 10)
-      ..uri = baseURL.replace(path: localWsUir.path, query: localWsUir.query).toWebsocketUri();
+      ..uri = baseURL.appendPath('websocket').toWebsocketUri();
 
     return builder;
   }

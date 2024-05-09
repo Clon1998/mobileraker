@@ -40,6 +40,10 @@ part 'macro_group_card.g.dart';
 class MacroGroupCard extends HookConsumerWidget {
   const MacroGroupCard({super.key, required this.machineUUID});
 
+  static Widget preview() {
+    return const _Preview();
+  }
+
   final String machineUUID;
 
   @override
@@ -63,6 +67,23 @@ class MacroGroupCard extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _macroGroupCardControllerProvider(_machineUUID).overrideWith(_MacroGroupCardPreviewController.new),
+      ],
+      child: const MacroGroupCard(machineUUID: _machineUUID),
     );
   }
 }
@@ -304,6 +325,56 @@ class _MacroGroupCardController extends _$MacroGroupCardController {
   onMacroLongPressed(ConfigGcodeMacro macro) {
     HapticFeedback.vibrate();
     _printerService.gCode(macro.macroName);
+  }
+}
+
+class _MacroGroupCardPreviewController extends _MacroGroupCardController {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    state = AsyncValue.data(_Model(
+      klippyCanReceiveCommands: true,
+      isPrinting: false,
+      groups: [
+        MacroGroup(
+          name: 'Preview Group',
+          macros: [
+            GCodeMacro(name: 'Preview Macros'),
+            GCodeMacro(
+              name: 'Home all',
+            ),
+            GCodeMacro(name: 'Clean nozzle'),
+            GCodeMacro(name: 'M600'),
+            GCodeMacro(name: 'Park Toolhead'),
+          ],
+        ),
+      ],
+      selected: 0,
+      configMacros: {
+        'home all': ConfigGcodeMacro(macroName: 'Home all', gcode: ''),
+        'clean nozzle': ConfigGcodeMacro(macroName: 'Clean nozzle', gcode: ''),
+        'm600': ConfigGcodeMacro(macroName: 'M600', gcode: ''),
+        'park toolhead': ConfigGcodeMacro(macroName: 'Park Toolhead', gcode: ''),
+        'preview macros': ConfigGcodeMacro(macroName: 'Preview Macros', gcode: ''),
+      },
+    ));
+
+    return const Stream.empty();
+  }
+
+  @override
+  void onDropDownChanged(int? index) {
+    // Do nothing preview
+  }
+
+  @override
+  onMacroPressed(ConfigGcodeMacro macro) async {
+    // Do nothing preview
+  }
+
+  @override
+  onMacroLongPressed(ConfigGcodeMacro macro) {
+    HapticFeedback.vibrate();
+    // Do nothing preview
   }
 }
 

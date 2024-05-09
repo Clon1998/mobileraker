@@ -4,6 +4,7 @@
  */
 
 import 'package:common/data/dto/config/config_file_object_identifiers_enum.dart';
+import 'package:common/data/dto/machine/fans/controller_fan.dart';
 import 'package:common/data/dto/machine/fans/fan.dart';
 import 'package:common/data/dto/machine/fans/generic_fan.dart';
 import 'package:common/data/dto/machine/fans/named_fan.dart';
@@ -42,6 +43,10 @@ part 'fans_card.g.dart';
 class FansCard extends HookConsumerWidget {
   const FansCard({super.key, required this.machineUUID});
 
+  static Widget preview() {
+    return const _Preview();
+  }
+
   final String machineUUID;
 
   @override
@@ -64,6 +69,23 @@ class FansCard extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _fansCardControllerProvider(_machineUUID).overrideWith(_FansCardPreviewController.new),
+      ],
+      child: const FansCard(machineUUID: _machineUUID),
     );
   }
 }
@@ -344,8 +366,8 @@ class _FansCardController extends _$FansCardController {
     var resp = await _dialogService.show(DialogRequest(
       type: _dialogMode,
       title: tr('dialogs.fan_speed.title', args: [tr('pages.dashboard.control.fan_card.part_fan')]),
-      cancelBtn: tr('general.cancel'),
-      confirmBtn: tr('general.confirm'),
+      dismissLabel: tr('general.cancel'),
+      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: fan.speed * 100.round(),
         min: 0,
@@ -365,8 +387,8 @@ class _FansCardController extends _$FansCardController {
     var resp = await _dialogService.show(DialogRequest(
       type: _dialogMode,
       title: tr('dialogs.fan_speed.title', args: [beautifyName(fan.name)]),
-      cancelBtn: tr('general.cancel'),
-      confirmBtn: tr('general.confirm'),
+      dismissLabel: tr('general.cancel'),
+      actionLabel: tr('general.confirm'),
       data: NumberEditDialogArguments(
         current: fan.speed * 100.round(),
         min: 0,
@@ -378,6 +400,33 @@ class _FansCardController extends _$FansCardController {
       num v = resp.data;
       _printerService.genericFanFan(fan.name, v.toDouble() / 100);
     }
+  }
+}
+
+class _FansCardPreviewController extends _FansCardController {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    logger.i('Rebuilding fansCardController for $machineUUID');
+
+    state = const AsyncValue.data(_Model(
+      klippyCanReceiveCommands: true,
+      fans: [
+        PrintFan(speed: 0.69),
+        ControllerFan(name: 'Preview Fan', speed: 0),
+      ],
+    ));
+
+    return const Stream.empty();
+  }
+
+  @override
+  Future<void> onEditPartFan(PrintFan fan) async {
+    // Do nothing preview
+  }
+
+  @override
+  Future<void> onEditGenericFan(GenericFan fan) async {
+    // Do nothing preview
   }
 }
 

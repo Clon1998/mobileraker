@@ -5,6 +5,7 @@
 
 import 'package:common/data/model/moonraker_db/settings/gcode_macro.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -49,48 +50,37 @@ class _MacroSettingsDialog extends ConsumerWidget {
     var model = ref.watch(provider);
 
     var themeData = Theme.of(context);
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // To make the card compact
-          children: [
-            Text(model.beautifiedName, style: themeData.textTheme.headlineSmall),
-            Flexible(
-              child: ListView(
-                physics: const ClampingScrollPhysics(),
-                shrinkWrap: true,
-                children: [
-                  _Switch(
-                    value: model.visible,
-                    onChanged: controller.onVisibleChanged,
-                    title: const Text('dialogs.macro_settings.visible').tr(),
-                  ),
-                  _Switch(
-                    value: model.showWhilePrinting,
-                    onChanged: controller.onShowWhilePrintingChanged,
-                    title: const Text('dialogs.macro_settings.show_while_printing').tr(),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return MobilerakerDialog(
+      actionText: MaterialLocalizations.of(context).saveButtonLabel,
+      onAction: controller.save,
+      dismissText: MaterialLocalizations.of(context).cancelButtonLabel,
+      onDismiss: controller.cancel,
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // To make the card compact
+        children: [
+          Text(model.beautifiedName, style: themeData.textTheme.headlineSmall),
+          Flexible(
+            child: ListView(
+              physics: const ClampingScrollPhysics(),
+              shrinkWrap: true,
               children: [
-                TextButton(
-                  onPressed: controller.cancel,
-                  child: const Text('general.cancel').tr(),
+                _Switch(
+                  value: model.visible,
+                  onChanged: controller.onVisibleChanged,
+                  title: const Text('dialogs.macro_settings.visible').tr(),
                 ),
-                TextButton(
-                  onPressed: controller.save,
-                  child: const Text('general.save').tr(),
+                _Switch(
+                  value: model.showWhilePrinting,
+                  onChanged: controller.onShowWhilePrintingChanged,
+                  title: const Text('dialogs.macro_settings.show_while_printing').tr(),
                 ),
               ],
             ),
-            // const _Footer()
-          ],
-        ),
+          ),
+          const Divider(),
+
+          // const _Footer()
+        ],
       ),
     );
   }

@@ -20,7 +20,7 @@ class HomedAxisChip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var provider = printerProvider(machineUUID);
-    int homedAxisCnt = ref.watch(provider.selectAs((value) => value.toolhead.homedAxes.length)).requireValue;
+    int homedAxisCnt = ref.watch(provider.selectAs((value) => value.toolhead.homedAxes.length)).valueOrNull ?? 0;
 
     return Tooltip(
       message: 'pages.dashboard.general.move_card.homed'.tr(),
@@ -36,7 +36,7 @@ class HomedAxisChip extends ConsumerWidget {
           width: 3,
         ),
         // shape: ContinuousRectangleBorder(side: BorderSide(width: 1),),
-        label: Text(_homedChipTitle(ref.read(provider).requireValue.toolhead.homedAxes)),
+        label: Text(_homedChipTitle(ref.read(provider).valueOrNull?.toolhead.homedAxes ?? {})),
         // backgroundColor:
         //     (homedAxisCnt > 0) ? Colors.lightGreen : Colors.orangeAccent,
       ),
