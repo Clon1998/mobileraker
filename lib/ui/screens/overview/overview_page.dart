@@ -5,7 +5,7 @@
 
 import 'package:common/service/app_router.dart';
 import 'package:common/service/machine_service.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';

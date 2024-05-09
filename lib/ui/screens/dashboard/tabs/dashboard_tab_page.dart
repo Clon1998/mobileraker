@@ -8,8 +8,10 @@ import 'dart:ui';
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/ui/components/warning_card.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../components/dashboard_card.dart';
@@ -84,36 +86,74 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
                 ),
               ),
             ),
-          if (!widget.isEditing)
-            for (var widget in widget.staticWidgets) SliverToBoxAdapter(child: widget),
-          SliverReorderableList(
-            onReorderStart: _onReorderStart,
-            onReorderEnd: _onReorderEnd,
-            onReorder: (oldIndex, newIndex) {
-              if (!widget.isEditing) return;
-              widget.onReorder!(widget.tab, oldIndex, newIndex);
-            },
-            proxyDecorator: (child, index, animation) {
-              // logger.i('Proxy Decorator: $index, $animation');
-              return AnimatedBuilder(
-                animation: animation,
-                builder: (BuildContext ctx, Widget? c) {
-                  final double animValue = Curves.easeInOut.transform(animation.value);
-                  final double elevation = lerpDouble(1, 0.85, animValue)!;
-                  return Transform.scale(
-                    scale: elevation,
-                    child: c,
-                  );
+          SliverList.list(children: widget.staticWidgets),
+
+          if (context.isLargerThanMobile)
+            SliverToBoxAdapter(
+              child:
+                  // Wrap(
+                  //
+                  //   children: [
+                  //     for (var i = 0; i < cards.length; i++) _buildWrapItem(cards[i], i),
+                  //   ],
+                  // ),
+
+                  MasonryGridView.count(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                mainAxisSpacing: 4,
+                crossAxisSpacing: 4,
+                itemCount: cards.length,
+                itemBuilder: (context, index) {
+                  final even = index.isEven;
+
+                  return _buildListItem(cards[index], index);
                 },
-                child: child,
-              );
-            },
-            itemBuilder: (BuildContext context, int index) {
-              // return childs[index];
-              return _buildListItem(cards[index], index);
-            },
-            itemCount: cards.length,
-          ),
+              ),
+            ),
+
+          // SliverGrid(
+          //   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          //     crossAxisCount: 2,
+          //
+          //   ),
+          //   delegate: SliverChildBuilderDelegate(
+          //     (BuildContext context, int index) {
+          //       return _buildListItem(cards[index], index);
+          //     },
+          //     childCount: cards.length,
+          //   ),
+          // ),
+          if (context.isMobile)
+            SliverReorderableList(
+              onReorderStart: _onReorderStart,
+              onReorderEnd: _onReorderEnd,
+              onReorder: (oldIndex, newIndex) {
+                if (!widget.isEditing) return;
+                widget.onReorder!(widget.tab, oldIndex, newIndex);
+              },
+              proxyDecorator: (child, index, animation) {
+                // logger.i('Proxy Decorator: $index, $animation');
+                return AnimatedBuilder(
+                  animation: animation,
+                  builder: (BuildContext ctx, Widget? c) {
+                    final double animValue = Curves.easeInOut.transform(animation.value);
+                    final double elevation = lerpDouble(1, 0.85, animValue)!;
+                    return Transform.scale(
+                      scale: elevation,
+                      child: c,
+                    );
+                  },
+                  child: child,
+                );
+              },
+              itemBuilder: (BuildContext context, int index) {
+                // return childs[index];
+                return _buildListItem(cards[index], index);
+              },
+              itemCount: cards.length,
+            ),
           if (widget.isEditing)
             SliverPadding(
               padding: const EdgeInsets.only(left: 4.0, right: 4.0, bottom: 40),
@@ -126,6 +166,13 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
     );
 
     return scroll;
+  }
+
+  Widget _buildWrapItem(Widget child, int index) {
+    var x = MediaQuery.sizeOf(context);
+    //1108
+    logger.i('MediaQuery.sizeOf(context): $x');
+    return ConstrainedBox(constraints: BoxConstraints.tightFor(width: (x.width - 200) / 2), child: child);
   }
 
   Widget _buildListItem(Widget child, int index) {

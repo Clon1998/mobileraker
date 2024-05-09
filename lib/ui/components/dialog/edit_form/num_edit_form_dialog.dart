@@ -116,47 +116,51 @@ class _NumberEditDialogState extends ConsumerState<_NumberEditDialog> {
     var themeData = Theme.of(context);
 
     return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // To make the card compact
-          children: <Widget>[
-            Text(widget.request.title!, style: themeData.textTheme.titleLarge),
-            AnimatedCrossFade(
-              duration: kThemeAnimationDuration,
-              crossFadeState: DialogType.rangeEdit == _type ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-              firstChild: _RangeEditSlider(value: _value, args: widget.args, onChanged: _onSliderChanged),
-              secondChild: _NumField(controller: _controller, args: widget.args, errorText: _validation),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton(
-                  onPressed: onFormDecline,
-                  child: Text(widget.request.cancelBtn ?? tr('general.cancel')),
-                ),
-                IconButton(
-                  onPressed: toggleVariant.only(_isValid),
-                  color: _isValid ? themeData.textTheme.bodySmall?.color : themeData.disabledColor,
-                  iconSize: 18,
-                  icon: AnimatedSwitcher(
-                    duration: kThemeAnimationDuration,
-                    transitionBuilder: (child, anim) => RotationTransition(
-                      turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
-                      child: ScaleTransition(scale: anim, child: child),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: 400),
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // To make the card compact
+            children: <Widget>[
+              Text(widget.request.title!, style: themeData.textTheme.titleLarge),
+              AnimatedCrossFade(
+                duration: kThemeAnimationDuration,
+                crossFadeState: DialogType.rangeEdit == _type ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+                firstChild: _RangeEditSlider(value: _value, args: widget.args, onChanged: _onSliderChanged),
+                secondChild: _NumField(controller: _controller, args: widget.args, errorText: _validation),
+              ),
+              Row(
+                // mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: onFormDecline,
+                    child: Text(widget.request.cancelBtn ?? tr('general.cancel')),
+                  ),
+                  IconButton(
+                    onPressed: toggleVariant.only(_isValid),
+                    color: _isValid ? themeData.textTheme.bodySmall?.color : themeData.disabledColor,
+                    iconSize: 18,
+                    icon: AnimatedSwitcher(
+                      duration: kThemeAnimationDuration,
+                      transitionBuilder: (child, anim) => RotationTransition(
+                        turns: Tween<double>(begin: 0.5, end: 1).animate(anim),
+                        child: ScaleTransition(scale: anim, child: child),
+                      ),
+                      child: Icon(_type == DialogType.rangeEdit ? Icons.text_fields : Icons.straighten),
                     ),
-                    child: Icon(_type == DialogType.rangeEdit ? Icons.text_fields : Icons.straighten),
                   ),
-                ),
-                TextButton(
-                  onPressed: onFormConfirm.only(_isValid),
-                  child: Text(
-                    widget.request.confirmBtn ?? tr('general.confirm'),
+                  TextButton(
+                    onPressed: onFormConfirm.only(_isValid),
+                    child: Text(
+                      widget.request.confirmBtn ?? tr('general.confirm'),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -18,7 +18,6 @@ import 'package:flutter_icons/flutter_icons.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobileraker/ui/components/app_version_text.dart';
 import 'package:mobileraker/ui/screens/console/console_page.dart';
-import 'package:mobileraker/ui/screens/dashboard/dashboard_page.dart';
 import 'package:mobileraker/ui/screens/dev/dev_page.dart';
 import 'package:mobileraker/ui/screens/files/details/config_file_details_page.dart';
 import 'package:mobileraker/ui/screens/files/details/gcode_file_details_page.dart';
@@ -43,6 +42,7 @@ import 'package:mobileraker_pro/spoolman/dto/spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../ui/screens/dashboard/dashboard_page_new.dart';
 import '../ui/screens/files/details/video_player_page.dart';
 import '../ui/screens/tools/tool_page.dart';
 
@@ -107,7 +107,8 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       GoRoute(
         path: '/',
         name: AppRoute.dashBoard.name,
-        builder: (context, state) => const DashboardPage(),
+        builder: (context, state) => const DynamicDashboardPage(),
+        // builder: (context, state) => const DashboardPage(),
       ),
       GoRoute(
         path: '/overview',

@@ -11,10 +11,12 @@ import 'package:common/service/misc_providers.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -35,261 +37,281 @@ class SettingPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var settingService = ref.watch(settingServiceProvider);
-    var themeData = Theme.of(context);
+    Widget body = const _Body();
+
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('pages.setting.title').tr()),
-      body: FormBuilder(
-        key: ref.watch(settingPageFormKeyProvider),
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ListView(
-            children: <Widget>[
-              _SectionHeader(title: 'pages.setting.general.title'.tr()),
-              const _LanguageSelector(),
-              const _TimeFormatSelector(),
-              FormBuilderSwitch(
-                name: 'emsConfirmation',
-                title: const Text('pages.setting.general.ems_confirm').tr(),
-                subtitle: const Text('pages.setting.general.ems_confirm_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.confirmEmergencyStop,
-                  b ?? false,
-                ),
-                initialValue: ref.read(boolSettingProvider(
-                  AppSettingKeys.confirmEmergencyStop,
-                  true,
-                )),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+      body: body,
+      drawer: const NavigationDrawerWidget(),
+    );
+  }
+}
+
+class _Body extends ConsumerWidget {
+  const _Body({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var settingService = ref.watch(settingServiceProvider);
+    var themeData = Theme.of(context);
+
+    return FormBuilder(
+      key: ref.watch(settingPageFormKeyProvider),
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: ListView(
+          children: <Widget>[
+            _SectionHeader(title: 'pages.setting.general.title'.tr()),
+            const _LanguageSelector(),
+            const _TimeFormatSelector(),
+            FormBuilderSwitch(
+              name: 'emsConfirmation',
+              title: const Text('pages.setting.general.ems_confirm').tr(),
+              subtitle: const Text('pages.setting.general.ems_confirm_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.confirmEmergencyStop,
+                b ?? false,
               ),
-              FormBuilderSwitch(
-                name: 'useTextInputForNum',
-                title: const Text('pages.setting.general.num_edit').tr(),
-                subtitle: const Text('pages.setting.general.num_edit_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.defaultNumEditMode,
-                  b ?? false,
-                ),
-                initialValue: ref.read(
-                  boolSettingProvider(AppSettingKeys.defaultNumEditMode),
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+              initialValue: ref.read(boolSettingProvider(
+                AppSettingKeys.confirmEmergencyStop,
+                true,
+              )),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
               ),
-              FormBuilderSwitch(
-                name: 'startWithOverview',
-                title: const Text('pages.setting.general.start_with_overview').tr(),
-                subtitle: const Text('pages.setting.general.start_with_overview_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.overviewIsHomescreen,
-                  b ?? false,
-                ),
-                initialValue: ref.read(
-                  boolSettingProvider(AppSettingKeys.overviewIsHomescreen),
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+              activeColor: themeData.colorScheme.primary,
+            ),
+            FormBuilderSwitch(
+              name: 'useTextInputForNum',
+              title: const Text('pages.setting.general.num_edit').tr(),
+              subtitle: const Text('pages.setting.general.num_edit_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.defaultNumEditMode,
+                b ?? false,
               ),
-              FormBuilderSwitch(
-                name: 'useLivePos',
-                title: const Text('pages.setting.general.use_offset_pos').tr(),
-                subtitle: const Text('pages.setting.general.use_offset_pos_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.applyOffsetsToPostion,
-                  b ?? false,
-                ),
-                initialValue: ref.read(
-                  boolSettingProvider(AppSettingKeys.applyOffsetsToPostion),
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+              initialValue: ref.read(
+                boolSettingProvider(AppSettingKeys.defaultNumEditMode),
               ),
-              FormBuilderSwitch(
-                name: 'confirmGCode',
-                title: const Text('pages.setting.general.confirm_gcode').tr(),
-                subtitle: const Text('pages.setting.general.confirm_gcode_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.confirmMacroExecution,
-                  b ?? false,
-                ),
-                initialValue: ref.read(
-                  boolSettingProvider(AppSettingKeys.confirmMacroExecution),
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
               ),
-              const _SectionHeader(title: 'UI'),
-              const _ThemeSelector(),
-              const _ThemeModeSelector(),
-              FormBuilderSwitch(
-                name: 'alwaysShowBaby',
-                title: const Text('pages.setting.general.always_baby').tr(),
-                subtitle: const Text('pages.setting.general.always_baby_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.alwaysShowBabyStepping,
-                  b ?? false,
-                ),
-                initialValue: ref.read(
-                  boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping),
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+              activeColor: themeData.colorScheme.primary,
+            ),
+            FormBuilderSwitch(
+              name: 'startWithOverview',
+              title: const Text('pages.setting.general.start_with_overview').tr(),
+              subtitle: const Text('pages.setting.general.start_with_overview_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.overviewIsHomescreen,
+                b ?? false,
               ),
-              FormBuilderSwitch(
-                name: 'sliders_grouping',
-                title: const Text('pages.setting.general.sliders_grouping').tr(),
-                subtitle: const Text('pages.setting.general.sliders_grouping_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.groupSliders,
-                  b ?? false,
-                ),
-                initialValue: ref.read(
-                  boolSettingProvider(AppSettingKeys.groupSliders, true),
-                ),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+              initialValue: ref.read(
+                boolSettingProvider(AppSettingKeys.overviewIsHomescreen),
               ),
-              FormBuilderSwitch(
-                name: 'lcFullCam',
-                title: const Text('pages.setting.general.lcFullCam').tr(),
-                subtitle: const Text('pages.setting.general.lcFullCam_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.fullscreenCamOrientation,
-                  b ?? false,
-                ),
-                initialValue: ref.read(boolSettingProvider(
-                  AppSettingKeys.fullscreenCamOrientation,
-                )),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
               ),
-              FormBuilderSwitch(
-                name: 'fSensorDialog',
-                title: const Text('pages.setting.general.filament_sensor_dialog').tr(),
-                subtitle: const Text('pages.setting.general.filament_sensor_dialog_hint').tr(),
-                onChanged: (b) => settingService.writeBool(
-                  AppSettingKeys.filamentSensorDialog,
-                  b ?? true,
-                ),
-                initialValue: ref.read(boolSettingProvider(AppSettingKeys.filamentSensorDialog, true)),
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  isCollapsed: true,
-                ),
-                activeColor: themeData.colorScheme.primary,
+              activeColor: themeData.colorScheme.primary,
+            ),
+            FormBuilderSwitch(
+              name: 'useLivePos',
+              title: const Text('pages.setting.general.use_offset_pos').tr(),
+              subtitle: const Text('pages.setting.general.use_offset_pos_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.applyOffsetsToPostion,
+                b ?? false,
               ),
-              const _NotificationSection(),
-              const Divider(),
-              const _DeveloperSection(),
-              const Divider(),
-              if (Platform.isIOS)
-                TextButton(
-                  style: TextButton.styleFrom(
-                    minimumSize: Size.zero, // Set this
-                    padding: EdgeInsets.zero,
-                    textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
-                  ),
-                  child: const Text('EULA'),
-                  onPressed: () async {
-                    const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
-                    if (await canLaunchUrlString(url)) {
-                      await launchUrlString(
-                        url,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    } else {
-                      throw 'Could not launch $url';
-                    }
-                  },
-                ),
-              if (Platform.isAndroid)
-                TextButton(
-                  style: TextButton.styleFrom(
-                    minimumSize: Size.zero, // Set this
-                    padding: EdgeInsets.zero,
-                    textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
-                  ),
-                  child: const Text('EULA'),
-                  onPressed: () async {
-                    const String url = 'https://mobileraker.com/eula.html';
-                    if (await canLaunchUrlString(url)) {
-                      await launchUrlString(
-                        url,
-                        mode: LaunchMode.externalApplication,
-                      );
-                    } else {
-                      throw 'Could not launch $url';
-                    }
-                  },
-                ),
+              initialValue: ref.read(
+                boolSettingProvider(AppSettingKeys.applyOffsetsToPostion),
+              ),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+              activeColor: themeData.colorScheme.primary,
+            ),
+            FormBuilderSwitch(
+              name: 'confirmGCode',
+              title: const Text('pages.setting.general.confirm_gcode').tr(),
+              subtitle: const Text('pages.setting.general.confirm_gcode_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.confirmMacroExecution,
+                b ?? false,
+              ),
+              initialValue: ref.read(
+                boolSettingProvider(AppSettingKeys.confirmMacroExecution),
+              ),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+              activeColor: themeData.colorScheme.primary,
+            ),
+            const _SectionHeader(title: 'UI'),
+            const _ThemeSelector(),
+            const _ThemeModeSelector(),
+            FormBuilderSwitch(
+              name: 'alwaysShowBaby',
+              title: const Text('pages.setting.general.always_baby').tr(),
+              subtitle: const Text('pages.setting.general.always_baby_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.alwaysShowBabyStepping,
+                b ?? false,
+              ),
+              initialValue: ref.read(
+                boolSettingProvider(AppSettingKeys.alwaysShowBabyStepping),
+              ),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+              activeColor: themeData.colorScheme.primary,
+            ),
+            FormBuilderSwitch(
+              name: 'sliders_grouping',
+              title: const Text('pages.setting.general.sliders_grouping').tr(),
+              subtitle: const Text('pages.setting.general.sliders_grouping_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.groupSliders,
+                b ?? false,
+              ),
+              initialValue: ref.read(
+                boolSettingProvider(AppSettingKeys.groupSliders, true),
+              ),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+              activeColor: themeData.colorScheme.primary,
+            ),
+            FormBuilderSwitch(
+              name: 'lcFullCam',
+              title: const Text('pages.setting.general.lcFullCam').tr(),
+              subtitle: const Text('pages.setting.general.lcFullCam_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.fullscreenCamOrientation,
+                b ?? false,
+              ),
+              initialValue: ref.read(boolSettingProvider(
+                AppSettingKeys.fullscreenCamOrientation,
+              )),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+              activeColor: themeData.colorScheme.primary,
+            ),
+            FormBuilderSwitch(
+              name: 'fSensorDialog',
+              title: const Text('pages.setting.general.filament_sensor_dialog').tr(),
+              subtitle: const Text('pages.setting.general.filament_sensor_dialog_hint').tr(),
+              onChanged: (b) => settingService.writeBool(
+                AppSettingKeys.filamentSensorDialog,
+                b ?? true,
+              ),
+              initialValue: ref.read(boolSettingProvider(AppSettingKeys.filamentSensorDialog, true)),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                isCollapsed: true,
+              ),
+              activeColor: themeData.colorScheme.primary,
+            ),
+            const _NotificationSection(),
+            const Divider(),
+            const _DeveloperSection(),
+            const Divider(),
+            if (Platform.isIOS)
               TextButton(
                 style: TextButton.styleFrom(
                   minimumSize: Size.zero, // Set this
                   padding: EdgeInsets.zero,
                   textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
                 ),
-                child: Text(
-                  MaterialLocalizations.of(context).viewLicensesButtonLabel,
-                ),
-                onPressed: () {
-                  var version = ref.watch(versionInfoProvider).maybeWhen(
-                        orElse: () => 'unavailable',
-                        data: (d) => '${d.version}-${d.buildNumber}',
-                      );
-
-                  showLicensePage(
-                    context: context,
-                    applicationVersion: version,
-                    applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
-                    applicationIcon: Center(
-                      child: SvgPicture.asset(
-                        'assets/vector/mr_logo.svg',
-                        width: 80,
-                        height: 80,
-                      ),
-                    ),
-                  );
+                child: const Text('EULA'),
+                onPressed: () async {
+                  const String url = 'https://www.apple.com/legal/internet-services/itunes/dev/stdeula/';
+                  if (await canLaunchUrlString(url)) {
+                    await launchUrlString(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                    );
+                  } else {
+                    throw 'Could not launch $url';
+                  }
                 },
               ),
-              Align(
-                alignment: Alignment.center,
-                child: AppVersionText(
-                  prefix: tr('components.app_version_display.version'),
+            if (Platform.isAndroid)
+              TextButton(
+                style: TextButton.styleFrom(
+                  minimumSize: Size.zero, // Set this
+                  padding: EdgeInsets.zero,
+                  textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
                 ),
+                child: const Text('EULA'),
+                onPressed: () async {
+                  const String url = 'https://mobileraker.com/eula.html';
+                  if (await canLaunchUrlString(url)) {
+                    await launchUrlString(
+                      url,
+                      mode: LaunchMode.externalApplication,
+                    );
+                  } else {
+                    throw 'Could not launch $url';
+                  }
+                },
               ),
-              // _SectionHeader(title: 'Notifications'),
-            ],
-          ),
+            TextButton(
+              style: TextButton.styleFrom(
+                minimumSize: Size.zero, // Set this
+                padding: EdgeInsets.zero,
+                textStyle: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.secondary),
+              ),
+              child: Text(
+                MaterialLocalizations.of(context).viewLicensesButtonLabel,
+              ),
+              onPressed: () {
+                var version = ref.watch(versionInfoProvider).maybeWhen(
+                      orElse: () => 'unavailable',
+                      data: (d) => '${d.version}-${d.buildNumber}',
+                    );
+
+                showLicensePage(
+                  context: context,
+                  applicationVersion: version,
+                  applicationLegalese: 'Copyright (c) 2021 - ${DateTime.now().year} Patrick Schmidt',
+                  applicationIcon: Center(
+                    child: SvgPicture.asset(
+                      'assets/vector/mr_logo.svg',
+                      width: 80,
+                      height: 80,
+                    ),
+                  ),
+                );
+              },
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: AppVersionText(
+                prefix: tr('components.app_version_display.version'),
+              ),
+            ),
+            // _SectionHeader(title: 'Notifications'),
+          ],
         ),
       ),
-      drawer: const NavigationDrawerWidget(),
     );
   }
 }

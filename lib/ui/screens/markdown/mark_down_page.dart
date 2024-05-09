@@ -5,7 +5,9 @@
 
 import 'dart:io';
 
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -48,6 +50,27 @@ class MarkDownPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget body = Column(
+      children: [
+        if (topWidget != null) topWidget!,
+        Expanded(
+          child: _MarkDownBody(
+            mdHuman: mdHuman,
+            mdRoot: mdRoot,
+            title: title,
+          ),
+        ),
+      ],
+    );
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -60,18 +83,7 @@ class MarkDownPage extends StatelessWidget {
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: Column(
-        children: [
-          if (topWidget != null) topWidget!,
-          Expanded(
-            child: _MarkDownBody(
-              mdHuman: mdHuman,
-              mdRoot: mdRoot,
-              title: title,
-            ),
-          ),
-        ],
-      ),
+      body: body,
     );
   }
 }

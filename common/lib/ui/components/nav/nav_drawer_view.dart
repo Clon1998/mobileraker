@@ -5,39 +5,40 @@
 
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/app_router.dart';
-import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/theme_service.dart';
+import 'package:common/ui/components/nav/nav_widget_controller.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import 'nav_drawer_controller.dart';
-
 const double baseIconSize = 20;
 const basePadding = EdgeInsets.only(left: 16, right: 16);
 
-class NavigationDrawerWidget extends ConsumerWidget {
+class NavigationDrawerWidget extends HookConsumerWidget {
   const NavigationDrawerWidget({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
+    final model = ref.watch(navWidgetControllerProvider);
+    final controller = ref.watch(navWidgetControllerProvider.notifier);
+    final themeData = Theme.of(context);
+
+    final machineSelectionExt = useValueNotifier(false);
 
     return Drawer(
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
-          const _NavHeader(),
+          _NavHeader(machineSelectionExt),
           Expanded(
             child: SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
@@ -45,7 +46,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
                 type: MaterialType.transparency,
                 child: Column(
                   children: [
-                    const _PrinterSelection(),
+                    _PrinterSelection(machineSelectionExt),
                     if ((ref.watch(allMachinesProvider.select(
                               (value) => value.valueOrNull?.length,
                             )) ??
@@ -58,60 +59,14 @@ class NavigationDrawerWidget extends ConsumerWidget {
                       ),
                       const Divider(),
                     ],
-                    _DrawerItem(
-                      text: 'pages.dashboard.title'.tr(),
-                      icon: FlutterIcons.printer_3d_nozzle_mco,
-                      routeName: '/',
-                    ),
-                    _DrawerItem(
-                      text: 'pages.console.title'.tr(),
-                      icon: Icons.terminal,
-                      routeName: '/console',
-                    ),
-                    _DrawerItem(
-                      text: 'pages.files.title'.tr(),
-                      icon: Icons.file_present,
-                      routeName: '/files',
-                    ),
-                    if (ref.watch(remoteConfigProvider).showSpoolmanPage)
-                      const _DrawerItem(
-                      text: 'Spoolman',
-                        icon: FlutterIcons.database_ent,
-                        routeName: '/spoolman',
-                      ),
-                    const Divider(),
-                    _DrawerItem(
-                      text: 'pages.setting.title'.tr(),
-                      icon: Icons.engineering_outlined,
-                      routeName: '/setting',
-                    ),
-                    _DrawerItem(
-                      text: 'pages.paywall.title'.tr(),
-                      icon: FlutterIcons.hand_holding_heart_faw5s,
-                      routeName: '/paywall',
-                    ),
-                    const Divider(),
-                    _DrawerItem(
-                      text: tr('pages.faq.title'),
-                      icon: Icons.help,
-                      routeName: '/faq',
-                    ),
-                    _DrawerItem(
-                      text: tr('pages.changelog.title'),
-                      icon: Icons.history,
-                      routeName: '/changelog',
-                    ),
-                    if (kDebugMode)
-                      const _DrawerItem(
-                        text: 'DEV',
-                        icon: FlutterIcons.build_mdi,
-                        routeName: '/dev',
-                      ),
-                    const _DrawerItem(
-                      text: 'Tools',
-                      icon: FlutterIcons.toolbox_faw5s,
-                      routeName: '/tool',
-                    ),
+                    for (var entry in model.entries)
+                      entry.isDivider
+                          ? const Divider()
+                          : _DrawerItem(
+                              text: entry.label,
+                              icon: entry.icon,
+                              routeName: entry.route,
+                            ),
                   ],
                 ),
               ),
@@ -152,8 +107,7 @@ class NavigationDrawerWidget extends ConsumerWidget {
                     TextSpan(
                       text: tr('pages.setting.imprint'),
                       style: TextStyle(color: themeData.colorScheme.secondary),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () => ref.read(navDrawerControllerProvider.notifier).pushingTo('/imprint'),
+                      recognizer: TapGestureRecognizer()..onTap = () => controller.pushingTo('/imprint'),
                     ),
                   ],
                 ),
@@ -167,22 +121,28 @@ class NavigationDrawerWidget extends ConsumerWidget {
   } // Note always the first is the currently selected!
 }
 
-class _NavHeader extends ConsumerWidget {
-  const _NavHeader({super.key});
+class _NavHeader extends HookConsumerWidget {
+  const _NavHeader(this.machineSelectionExt, {super.key});
+
+  final ValueNotifier<bool> machineSelectionExt;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
-    var themePack = ref.watch(activeThemeProvider).requireValue.themePack;
-    var brandingIcon = (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
-    var background = (themeData.brightness == Brightness.light)
+    final controller = ref.watch(navWidgetControllerProvider.notifier);
+    final selectedMachine = ref.watch(selectedMachineProvider);
+
+    // UI Stuff
+    final themeData = Theme.of(context);
+    final themePack = ref.watch(activeThemeProvider).requireValue.themePack;
+    final brandingIcon =
+        (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
+    final background = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.primary
         : themeData.colorScheme.primaryContainer;
-    var onBackground = (themeData.brightness == Brightness.light)
+    final onBackground = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.onPrimary
         : themeData.colorScheme.onPrimaryContainer;
 
-    var selectedMachine = ref.watch(selectedMachineProvider);
     return DrawerHeader(
       margin: EdgeInsets.zero,
       padding: const EdgeInsets.only(left: 10, right: 10, top: 30),
@@ -193,12 +153,12 @@ class _NavHeader extends ConsumerWidget {
           InkWell(
             onTap: () {
               if (selectedMachine.hasValue && selectedMachine.value != null) {
-                ref.read(navDrawerControllerProvider.notifier).pushingTo(
-                      '/printer/edit',
-                      arguments: selectedMachine.requireValue!,
-                    );
+                controller.pushingTo(
+                  '/printer/edit',
+                  arguments: selectedMachine.requireValue!,
+                );
               } else {
-                ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add');
+                controller.pushingTo('/printer/add');
               }
             },
             child: Row(
@@ -257,13 +217,17 @@ class _NavHeader extends ConsumerWidget {
               'components.nav_drawer.manage_printers',
               style: TextStyle(color: onBackground),
             ).tr(),
-            trailing: AnimatedRotation(
-              duration: kThemeAnimationDuration,
-              curve: Curves.easeInOutCubic,
-              turns: ref.watch(navDrawerControllerProvider) ? 0 : 0.5,
+            trailing: ValueListenableBuilder(
+              valueListenable: machineSelectionExt,
+              builder: (context, value, child) => AnimatedRotation(
+                duration: kThemeAnimationDuration,
+                curve: Curves.easeInOutCubic,
+                turns: value ? 0 : 0.5,
+                child: child,
+              ),
               child: Icon(Icons.expand_less, color: onBackground),
             ),
-            onTap: ref.read(navDrawerControllerProvider.notifier).toggleManagePrintersExpanded,
+            onTap: () => machineSelectionExt.value = !machineSelectionExt.value,
           ),
         ],
       ),
@@ -296,18 +260,20 @@ class _DrawerItem extends ConsumerWidget {
       textColor: themeData.colorScheme.onBackground,
       leading: Icon(icon),
       title: Text(text),
-      onTap: () => ref.read(navDrawerControllerProvider.notifier).navigateTo(routeName),
+      onTap: () => ref.read(navWidgetControllerProvider.notifier).navigateTo(routeName),
     );
   }
 }
 
-class _PrinterSelection extends ConsumerWidget {
-  const _PrinterSelection({super.key});
+class _PrinterSelection extends HookConsumerWidget {
+  const _PrinterSelection(this.machineSelectionExt, {super.key});
+
+  final ValueNotifier<bool> machineSelectionExt;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    var isExpanded = ref.watch(navDrawerControllerProvider);
+    var isExpanded = useListenable(machineSelectionExt);
     var selMachine = ref.watch(selectedMachineProvider);
 
     return AnimatedSwitcher(
@@ -318,7 +284,7 @@ class _PrinterSelection extends ConsumerWidget {
         sizeFactor: anim,
         child: FadeTransition(opacity: anim, child: child),
       ),
-      child: (isExpanded)
+      child: (isExpanded.value)
           ? Column(
               children: [
                 if (selMachine.valueOrNull != null) _MachineTile(machine: selMachine.requireValue!, isSelected: true),
@@ -348,7 +314,7 @@ class _PrinterSelection extends ConsumerWidget {
                   textColor: themeData.colorScheme.onBackground,
                   iconColor: themeData.colorScheme.onBackground,
                   trailing: const Icon(Icons.add, size: baseIconSize),
-                  onTap: () => ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/add'),
+                  onTap: () => ref.read(navWidgetControllerProvider.notifier).pushingTo('/printer/add'),
                 ),
               ],
             )
@@ -392,7 +358,7 @@ class _MachineTile extends ConsumerWidget {
               Navigator.pop(context);
               ref.read(selectedMachineServiceProvider).selectMachine(machine);
             },
-      onLongPress: () => ref.read(navDrawerControllerProvider.notifier).pushingTo('/printer/edit', arguments: machine),
+      onLongPress: () => ref.read(navWidgetControllerProvider.notifier).pushingTo('/printer/edit', arguments: machine),
     );
   }
 }

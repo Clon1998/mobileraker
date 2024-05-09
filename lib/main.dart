@@ -32,6 +32,7 @@ import 'package:mobileraker/service/ui/snackbar_service_impl.dart';
 import 'package:mobileraker/ui/components/theme_builder.dart';
 import 'package:mobileraker_pro/mobileraker_pro.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 import 'service/ui/bottom_sheet_service_impl.dart';
 import 'service/ui/dialog_service_impl.dart';
@@ -43,7 +44,6 @@ Future<void> main() async {
 
   await setupLogger();
   EasyLocalization.logger.enableLevels = [LevelMessages.error];
-
 
   // FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   runApp(ProviderScope(
@@ -106,25 +106,32 @@ class MyApp extends ConsumerWidget {
             ThemeData? darkTheme,
             ThemeMode? themeMode,
           ) {
-            return MaterialApp.router(
-              debugShowCheckedModeBanner: false,
-              routerDelegate: goRouter.routerDelegate,
-              routeInformationProvider: goRouter.routeInformationProvider,
-              routeInformationParser: goRouter.routeInformationParser,
-              title: 'Mobileraker',
-              theme: regularTheme,
-              darkTheme: darkTheme,
-              themeMode: themeMode,
-              localizationsDelegates: [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-                FormBuilderLocalizations.delegate,
-                ...context.localizationDelegates,
-                RefreshLocalizations.delegate,
+            return ResponsiveBreakpoints.builder(
+              breakpoints: [
+                const Breakpoint(start: 0, end: 450, name: MOBILE),
+                const Breakpoint(start: 451, end: 800, name: TABLET),
+                const Breakpoint(start: 801, end: 1920, name: DESKTOP),
               ],
-              supportedLocales: context.supportedLocales,
-              locale: context.locale,
+              child: MaterialApp.router(
+                debugShowCheckedModeBanner: false,
+                routerDelegate: goRouter.routerDelegate,
+                routeInformationProvider: goRouter.routeInformationProvider,
+                routeInformationParser: goRouter.routeInformationParser,
+                title: 'Mobileraker',
+                theme: regularTheme,
+                darkTheme: darkTheme,
+                themeMode: themeMode,
+                localizationsDelegates: [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                  FormBuilderLocalizations.delegate,
+                  ...context.localizationDelegates,
+                  RefreshLocalizations.delegate,
+                ],
+                supportedLocales: context.supportedLocales,
+                locale: context.locale,
+              ),
             );
           },
         ),

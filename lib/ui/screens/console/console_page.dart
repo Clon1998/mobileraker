@@ -9,8 +9,10 @@ import 'package:common/data/enums/console_entry_type_enum.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -32,6 +34,16 @@ class ConsolePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Widget body = MachineConnectionGuard(onConnected: (_, __) => const _ConsoleBody());
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
     return Scaffold(
       appBar: SwitchPrinterAppBar(
         title: 'pages.console.title'.tr(),
@@ -41,7 +53,7 @@ class ConsolePage extends ConsumerWidget {
         ],
       ),
       drawer: const NavigationDrawerWidget(),
-      body: MachineConnectionGuard(onConnected: (_, __) => const _ConsoleBody()),
+      body: body,
     );
   }
 }

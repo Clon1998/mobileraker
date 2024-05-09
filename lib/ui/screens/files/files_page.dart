@@ -15,11 +15,13 @@ import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
 import 'package:common/util/extensions/remote_file_extension.dart';
 import 'package:common/util/logger.dart';
@@ -45,15 +47,25 @@ class FilesPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    Widget body = MachineConnectionGuard(
+      onConnected: (_, __) => const _FilesBody(),
+      skipKlipperReady: true,
+    );
+
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
     return Scaffold(
       appBar: const _AppBar(),
       drawer: const NavigationDrawerWidget(),
       bottomNavigationBar: const _BottomNav(),
       floatingActionButton: const _Fab(),
-      body: MachineConnectionGuard(
-        onConnected: (_, __) => const _FilesBody(),
-        skipKlipperReady: true,
-      ),
+      body: body,
     );
   }
 }

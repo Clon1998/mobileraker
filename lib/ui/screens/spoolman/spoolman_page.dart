@@ -8,10 +8,12 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -36,14 +38,25 @@ class SpoolmanPage extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      appBar: _AppBar(),
-      drawer: NavigationDrawerWidget(),
-      bottomNavigationBar: _BottomNav(),
+    Widget body = const _Body();
+
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
+    return Scaffold(
+      appBar: const _AppBar(),
+      drawer: const NavigationDrawerWidget(),
+      bottomNavigationBar: const _BottomNav(),
       // floatingActionButton: _Fab(),
 
       //ToDo: Add ConnectionStateView !!!!
-      body: _Body(),
+      body: body,
       // body: _SpoolTab(),
     );
   }
@@ -137,7 +150,7 @@ class _Body extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.warning_amber, size: 50),
+                  const Icon(Icons.warning_amber, size: 50),
                   const SizedBox(height: 8),
                   Text.rich(
                     TextSpan(

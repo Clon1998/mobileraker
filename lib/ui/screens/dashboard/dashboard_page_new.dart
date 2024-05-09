@@ -21,15 +21,18 @@ import 'package:common/service/ui/dashboard_layout_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/connection/printer_provider_guard.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
@@ -40,8 +43,10 @@ import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../components/dashboard_card.dart';
 import '../../components/filament_sensor_watcher.dart';
 import '../../components/machine_deletion_warning.dart';
 import '../../components/printer_calibration_watcher.dart';
@@ -52,8 +57,8 @@ import 'tabs/dashboard_tab_page.dart';
 part 'dashboard_page_new.freezed.dart';
 part 'dashboard_page_new.g.dart';
 
-class DashboardPage extends StatelessWidget {
-  const DashboardPage({super.key});
+class DynamicDashboardPage extends StatelessWidget {
+  const DynamicDashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -80,39 +85,57 @@ class _DashboardView extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Check if the selected machine has changed and reset the page controller to the first page
 
-    var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
-    return Scaffold(
-      appBar: const _AppBar(),
-      body: MachineConnectionGuard(
-        onConnected: (ctx, machineUUID) => PrinterProviderGuard(
+    final activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    Widget body = MachineConnectionGuard(
+      onConnected: (ctx, machineUUID) => PrinterProviderGuard(
+        machineUUID: machineUUID,
+        child: PrinterCalibrationWatcher(
           machineUUID: machineUUID,
-          child: PrinterCalibrationWatcher(
+          child: FilamentSensorWatcher(
             machineUUID: machineUUID,
-            child: FilamentSensorWatcher(
-              machineUUID: machineUUID,
-              child: _UserDashboard(machineUUID: machineUUID),
-            ),
+            child: Builder(builder: (context) {
+              // if (context.layoutLargerThan(MOBILE)) {
+              //   return _UserDashboardTablet(machineUUID: machineUUID);
+              // }
+
+              return _UserDashboardMobile(machineUUID: machineUUID);
+            }),
           ),
         ),
       ),
+    );
+
+    if (context.layoutLargerThan(MOBILE)) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
+    return Scaffold(
+      appBar: const _AppBar(),
+      body: body,
       floatingActionButton: activeMachine?.uuid.let((it) => _FloatingActionBtn(machineUUID: it)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: activeMachine?.uuid.let((it) => _BottomNavigationBar(machineUUID: it)),
+      bottomNavigationBar:
+          activeMachine?.uuid.let((it) => _BottomNavigationBar(machineUUID: it)).only(context.isMobile),
       drawer: const NavigationDrawerWidget(),
     );
   }
 }
 
-class _UserDashboard extends ConsumerStatefulWidget {
-  const _UserDashboard({super.key, required this.machineUUID});
+class _UserDashboardMobile extends ConsumerStatefulWidget {
+  const _UserDashboardMobile({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
-  ConsumerState createState() => _UserDashboardState();
+  ConsumerState createState() => _UserDashboardMobileState();
 }
 
-class _UserDashboardState extends ConsumerState<_UserDashboard> {
+class _UserDashboardMobileState extends ConsumerState<_UserDashboardMobile> {
   final PageController pageController = PageController();
 
   String get machineUUID => widget.machineUUID;
@@ -150,7 +173,7 @@ class _UserDashboardState extends ConsumerState<_UserDashboard> {
   }
 
   @override
-  void didUpdateWidget(_UserDashboard oldWidget) {
+  void didUpdateWidget(_UserDashboardMobile oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.machineUUID != widget.machineUUID) {
       _lastPage = 0;
@@ -221,6 +244,102 @@ class _UserDashboardState extends ConsumerState<_UserDashboard> {
     _subscription?.close();
     pageController.dispose();
     super.dispose();
+  }
+}
+
+class _UserDashboardTablet extends ConsumerStatefulWidget {
+  const _UserDashboardTablet({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  ConsumerState createState() => _UserDashboardTabletState();
+}
+
+class _UserDashboardTabletState extends ConsumerState<_UserDashboardTablet> {
+  @override
+  Widget build(BuildContext context) {
+    var staticWidgets = [
+      const RemoteAnnouncements(key: Key('RemoteAnnouncements')),
+      const MachineDeletionWarning(key: Key('MachineDeletionWarning')),
+      const SupporterAd(key: Key('SupporterAd')),
+    ];
+
+    var asyncModel = ref.watch(_dashboardPageControllerProvider(widget.machineUUID));
+    var controller = ref.watch(_dashboardPageControllerProvider(widget.machineUUID).notifier);
+
+    var size = MediaQuery.sizeOf(context);
+
+    // for now split the screen in half!
+
+    return AsyncValueWidget(
+      skipLoadingOnReload: true,
+      value: asyncModel,
+      data: (model) {
+        var cards = <Widget>[];
+
+        for (var tab in model.layout.tabs) {
+          cards.addAll(tab.components.map((e) => DasboardCard(
+                type: e.type,
+                machineUUID: widget.machineUUID,
+              )));
+        }
+
+        return GridView.custom(
+          gridDelegate: SliverQuiltedGridDelegate(
+            crossAxisCount: 4,
+            mainAxisSpacing: 4,
+            crossAxisSpacing: 4,
+            repeatPattern: QuiltedGridRepeatPattern.inverted,
+            pattern: [
+              const QuiltedGridTile(2, 2),
+              const QuiltedGridTile(1, 1),
+              const QuiltedGridTile(1, 1),
+              const QuiltedGridTile(1, 2),
+            ],
+          ),
+          childrenDelegate: SliverChildBuilderDelegate(
+            (context, index) => cards[index],
+          ),
+        );
+
+        return MasonryGridView.count(
+          crossAxisCount: 2,
+          mainAxisSpacing: 4,
+          crossAxisSpacing: 4,
+          itemCount: cards.length,
+          itemBuilder: (context, index) {
+            return cards[index];
+          },
+        );
+
+        // return GridView.count(crossAxisCount: 2, children: cards);
+
+        return SafeArea(
+          child: Row(
+            children: [
+              for (var tab in model.layout.tabs)
+                Flexible(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: size.width / 2),
+                    child: DashboardTabPage(
+                      key: ValueKey(tab.hashCode),
+                      machineUUID: widget.machineUUID,
+                      staticWidgets: staticWidgets,
+                      tab: tab,
+                      isEditing: model.isEditing,
+                      onReorder: controller.onTabComponentsReordered,
+                      onAddComponent: controller.onTabComponentAdd,
+                      onRemoveComponent: controller.onTabComponentRemove,
+                      onRemove: controller.onTabRemove,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -413,7 +532,7 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (activeMachine == null) {
       return AppBar(
-        centerTitle: false,
+        centerTitle: !context.isMobile,
         title: const Text('pages.dashboard.title').tr(),
       );
     }
@@ -441,7 +560,7 @@ class _PrinterAppBar extends ConsumerWidget {
             },
           ),
           centerTitle: false,
-          title: Text('[WIP] Editing layout...'),
+          title: const Text('[WIP] Editing layout...'),
         ),
       _ => SwitchPrinterAppBar(
           title: tr('pages.dashboard.title'),

@@ -7,9 +7,11 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:common/service/payment_service.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -33,46 +35,57 @@ class PaywallPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      drawer: const NavigationDrawerWidget(),
-      body: LoaderOverlay(
-        useDefaultLoading: false,
-        overlayWidgetBuilder: (_) => Center(
-          child: Column(
-            key: UniqueKey(),
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SpinKitFadingCube(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              const SizedBox(height: 30),
-              FadingText(tr('pages.paywall.calling_store')),
-              // Text("Fetching printer ...")
-            ],
-          ),
-        ),
-        child: CustomScrollView(
-          physics: const ClampingScrollPhysics(),
-          slivers: [
-            SliverLayoutBuilder(builder: (context, constraints) {
-              return SliverAppBar(
-                expandedHeight: 210,
-                floating: false,
-                flexibleSpace: FlexibleSpaceBar(
-                  collapseMode: CollapseMode.parallax,
-                  background: SvgPicture.asset(
-                    'assets/vector/undraw_pair_programming_re_or4x.svg',
-                  ),
-                ),
-              );
-            }),
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: _PaywallPage(),
+    Widget body = LoaderOverlay(
+      useDefaultLoading: false,
+      overlayWidgetBuilder: (_) => Center(
+        child: Column(
+          key: UniqueKey(),
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitFadingCube(
+              color: Theme.of(context).colorScheme.secondary,
             ),
+            const SizedBox(height: 30),
+            FadingText(tr('pages.paywall.calling_store')),
+            // Text("Fetching printer ...")
           ],
         ),
       ),
+      child: CustomScrollView(
+        physics: const ClampingScrollPhysics(),
+        slivers: [
+          SliverLayoutBuilder(builder: (context, constraints) {
+            return SliverAppBar(
+              expandedHeight: 210,
+              floating: false,
+              flexibleSpace: FlexibleSpaceBar(
+                collapseMode: CollapseMode.parallax,
+                background: SvgPicture.asset(
+                  'assets/vector/undraw_pair_programming_re_or4x.svg',
+                ),
+              ),
+            );
+          }),
+          const SliverFillRemaining(
+            hasScrollBody: false,
+            child: _PaywallPage(),
+          ),
+        ],
+      ),
+    );
+
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
+    return Scaffold(
+      drawer: const NavigationDrawerWidget(),
+      body: body,
     );
   }
 }
