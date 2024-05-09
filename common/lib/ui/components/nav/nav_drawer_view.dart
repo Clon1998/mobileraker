@@ -47,18 +47,6 @@ class NavigationDrawerWidget extends HookConsumerWidget {
                 child: Column(
                   children: [
                     _PrinterSelection(machineSelectionExt),
-                    if ((ref.watch(allMachinesProvider.select(
-                              (value) => value.valueOrNull?.length,
-                            )) ??
-                            0) >
-                        1) ...[
-                      _DrawerItem(
-                        text: 'pages.overview.title'.tr(),
-                        icon: FlutterIcons.view_dashboard_mco,
-                        routeName: '/overview',
-                      ),
-                      const Divider(),
-                    ],
                     for (var entry in model.entries)
                       entry.isDivider
                           ? const Divider()
