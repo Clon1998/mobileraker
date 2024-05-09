@@ -7,6 +7,7 @@ import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/exclude_object.dart';
 import 'package:common/service/moonraker/printer_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:easy_localization/easy_localization.dart' hide TextDirection;
@@ -49,86 +50,83 @@ class _ExcludeObjectDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ThemeData themeData = Theme.of(context);
 
-    return Dialog(
+    return MobilerakerDialog(
       child: FormBuilder(
         key: ref.watch(excludeObjectFormKey),
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ref.watch(excludeObjectProvider).when<Widget>(
-                data: (ExcludeObject? data) {
-                  var isConfirmed = ref.watch(conirmedProvider);
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'dialogs.exclude_object.title',
-                        style: themeData.textTheme.titleLarge,
-                        textAlign: TextAlign.center,
-                      ).tr(),
-                      const Divider(),
-                      const Flexible(
-                        child: Padding(
-                          padding: EdgeInsets.only(bottom: 8),
-                          child: ExcludeObjectMap(),
-                        ),
+        child: ref.watch(excludeObjectProvider).when<Widget>(
+              data: (ExcludeObject? data) {
+                var isConfirmed = ref.watch(conirmedProvider);
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'dialogs.exclude_object.title',
+                      style: themeData.textTheme.titleLarge,
+                      textAlign: TextAlign.center,
+                    ).tr(),
+                    const Divider(),
+                    const Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: ExcludeObjectMap(),
                       ),
-                      AnimatedSwitcher(
-                        duration: kThemeAnimationDuration,
-                        switchInCurve: Curves.easeInCubic,
-                        switchOutCurve: Curves.easeOutCubic,
-                        transitionBuilder: (child, anim) => SizeTransition(
-                          sizeFactor: anim,
-                          child: ScaleTransition(
-                            scale: anim,
-                            child: FadeTransition(
-                              opacity: anim,
-                              child: child,
-                            ),
+                    ),
+                    AnimatedSwitcher(
+                      duration: kThemeAnimationDuration,
+                      switchInCurve: Curves.easeInCubic,
+                      switchOutCurve: Curves.easeOutCubic,
+                      transitionBuilder: (child, anim) => SizeTransition(
+                        sizeFactor: anim,
+                        child: ScaleTransition(
+                          scale: anim,
+                          child: FadeTransition(
+                            opacity: anim,
+                            child: child,
                           ),
                         ),
-                        child: (isConfirmed)
-                            ? ListTile(
-                                tileColor: themeData.colorScheme.errorContainer,
-                                textColor: themeData.colorScheme.onErrorContainer,
-                                iconColor: themeData.colorScheme.onErrorContainer,
-                                leading: const Icon(
-                                  Icons.warning_amber_outlined,
-                                  size: 40,
-                                ),
-                                title: const Text(
-                                  'dialogs.exclude_object.confirm_tile_title',
-                                ).tr(),
-                                subtitle: const Text(
-                                  'dialogs.exclude_object.confirm_tile_subtitle',
-                                ).tr(),
-                              )
-                            : const SizedBox.shrink(),
                       ),
-                      FormBuilderDropdown<ParsedObject?>(
-                        enabled: !isConfirmed,
-                        validator: FormBuilderValidators.compose(
-                          [FormBuilderValidators.required()],
-                        ),
-                        name: 'selected',
-                        items: data!.canBeExcluded
-                            .map((parsedObj) => DropdownMenuItem(
-                                  value: parsedObj,
-                                  child: Text(parsedObj.name),
-                                ))
-                            .toList(),
-                        onChanged: ref.watch(excludeObjectControllerProvider.notifier).onSelectedObjectChanged,
-                        decoration: InputDecoration(
-                          labelText: 'dialogs.exclude_object.label'.tr(),
-                        ),
+                      child: (isConfirmed)
+                          ? ListTile(
+                              tileColor: themeData.colorScheme.errorContainer,
+                              textColor: themeData.colorScheme.onErrorContainer,
+                              iconColor: themeData.colorScheme.onErrorContainer,
+                              leading: const Icon(
+                                Icons.warning_amber_outlined,
+                                size: 40,
+                              ),
+                              title: const Text(
+                                'dialogs.exclude_object.confirm_tile_title',
+                              ).tr(),
+                              subtitle: const Text(
+                                'dialogs.exclude_object.confirm_tile_subtitle',
+                              ).tr(),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                    FormBuilderDropdown<ParsedObject?>(
+                      enabled: !isConfirmed,
+                      validator: FormBuilderValidators.compose(
+                        [FormBuilderValidators.required()],
                       ),
-                      (isConfirmed) ? const ExcludeBtnRow() : const DefaultBtnRow(),
-                    ],
-                  );
-                },
-                error: (e, s) => const Text('Error while loading excludeObject'),
-                loading: () => FadingText('Waiting for data...'),
-              ),
-        ),
+                      name: 'selected',
+                      items: data!.canBeExcluded
+                          .map((parsedObj) => DropdownMenuItem(
+                                value: parsedObj,
+                                child: Text(parsedObj.name),
+                              ))
+                          .toList(),
+                      onChanged: ref.watch(excludeObjectControllerProvider.notifier).onSelectedObjectChanged,
+                      decoration: InputDecoration(
+                        labelText: 'dialogs.exclude_object.label'.tr(),
+                      ),
+                    ),
+                    (isConfirmed) ? const ExcludeBtnRow() : const DefaultBtnRow(),
+                  ],
+                );
+              },
+              error: (e, s) => const Text('Error while loading excludeObject'),
+              loading: () => FadingText('Waiting for data...'),
+            ),
       ),
     );
   }

@@ -6,6 +6,7 @@
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
@@ -34,14 +35,13 @@ class WebcamPreviewDialog extends HookWidget {
   Widget build(BuildContext context) {
     WebcamPreviewDialogArguments arg = request.data;
 
-    return Dialog(
+    return MobilerakerDialog(
+      padding: const EdgeInsets.all(4.0),
+      maxWidth: double.infinity,
       clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(4.0),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 200),
-          child: Webcam(machine: arg.machine, webcamInfo: arg.webcamInfo),
-        ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 200),
+        child: Webcam(machine: arg.machine, webcamInfo: arg.webcamInfo),
       ),
     );
   }

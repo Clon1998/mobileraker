@@ -5,6 +5,7 @@
 
 import 'package:common/service/setting_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/misc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -45,73 +46,59 @@ class _LedRGBWDialog extends HookConsumerWidget {
     LedRGBWDialogState ledRGBWDialogState =
         ref.watch(ledRGBWDialogControllerProvider);
 
+    var controller = ref.watch(ledRGBWDialogControllerProvider.notifier);
+
     var themeData = Theme.of(context);
-    return Dialog(
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min, // To make the card compact
-          children: [
-            Text(
-              '${tr('general.edit')} ${beautifyName(ledRGBWDialogState.ledConfig.name)}',
-              style: themeData.textTheme.headlineSmall,
-            ),
-            const Divider(),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  HueRingPicker(
-                    hueRingStrokeWidth: 30,
-                    pickerColor: ledRGBWDialogState.selectedColor,
-                    onColorChanged: ref.watch(ledRGBWDialogControllerProvider.notifier).onColorChange,
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      '${tr('dialogs.rgbw.recent_colors')}:',
-                      style: themeData.textTheme.labelLarge,
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4.0),
-                    child: SizedBox(
-                      height: 50,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        children: ledRGBWDialogState.recentColors
-                            .map((col) => _ColorIndicator(
-                                  color: col,
-                                  onTap: ref
-                                      .watch(ledRGBWDialogControllerProvider
-                                          .notifier)
-                                      .onColorChange,
-                                ))
-                            .toList(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return MobilerakerDialog(
+      actionText: tr('general.confirm'),
+      onAction: controller.onSubmit,
+      dismissText: MaterialLocalizations.of(context).cancelButtonLabel,
+      onDismiss: controller.onCancel,
+      child: Column(
+        mainAxisSize: MainAxisSize.min, // To make the card compact
+        children: [
+          Text(
+            '${tr('general.edit')} ${beautifyName(ledRGBWDialogState.ledConfig.name)}',
+            style: themeData.textTheme.headlineSmall,
+          ),
+          const Divider(),
+          Flexible(
+            child: ListView(
+              shrinkWrap: true,
               children: [
-                TextButton(
-                  onPressed: ref.watch(ledRGBWDialogControllerProvider.notifier).onCancel,
-                  child: const Text('general.cancel').tr(),
+                HueRingPicker(
+                  hueRingStrokeWidth: 30,
+                  pickerColor: ledRGBWDialogState.selectedColor,
+                  onColorChanged: ref.watch(ledRGBWDialogControllerProvider.notifier).onColorChange,
                 ),
-                TextButton(
-                  onPressed: ref.watch(ledRGBWDialogControllerProvider.notifier).onSubmit,
-                  child: const Text('general.confirm').tr(),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '${tr('dialogs.rgbw.recent_colors')}:',
+                    style: themeData.textTheme.labelLarge,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: SizedBox(
+                    height: 50,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      children: ledRGBWDialogState.recentColors
+                          .map((col) => _ColorIndicator(
+                                color: col,
+                                onTap: ref.watch(ledRGBWDialogControllerProvider.notifier).onColorChange,
+                              ))
+                          .toList(),
+                    ),
+                  ),
                 ),
               ],
             ),
-            // const _Footer()
-          ],
-        ),
+          ),
+          const Divider(),
+        ],
       ),
     );
   }

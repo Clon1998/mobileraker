@@ -5,6 +5,7 @@
 
 import 'package:common/data/dto/config/config_gcode_macro.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -52,41 +53,30 @@ class _MacroParamsDialog extends ConsumerWidget {
     var paramNames = macro.params.keys.toList(growable: false);
 
     var themeData = Theme.of(context);
-    return Dialog(
+    return MobilerakerDialog(
+      actionText: tr('general.confirm'),
+      onAction: () => _submit(ref),
+      dismissText: MaterialLocalizations.of(context).cancelButtonLabel,
+      onDismiss: () => ref.read(dialogCompleter)(DialogResponse.aborted()),
       child: FormBuilder(
         autovalidateMode: AutovalidateMode.always,
         key: ref.watch(macroParamsFormKeyProvider),
-        child: Padding(
-          padding: const EdgeInsets.all(15.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // To make the card compact
-            children: [
-              if (paramNames.isNotEmpty)
-                _ParamsDialog(macro: macro, paramNames: paramNames)
-              else
-                _ConfirmDialog(macro: macro),
-              const Divider(),
-              Text(
-                'dialogs.gcode_params.hint',
-                textAlign: TextAlign.center,
-                style: themeData.textTheme.bodySmall,
-              ).tr(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => ref.read(dialogCompleter)(DialogResponse.aborted()),
-                    child: const Text('general.cancel').tr(),
-                  ),
-                  TextButton(
-                    onPressed: () => _submit(ref),
-                    child: const Text('general.confirm').tr(),
-                  ),
-                ],
-              ),
-              // const _Footer()
-            ],
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // To make the card compact
+          children: [
+            if (paramNames.isNotEmpty)
+              _ParamsDialog(macro: macro, paramNames: paramNames)
+            else
+              _ConfirmDialog(macro: macro),
+            const Divider(),
+            Text(
+              'dialogs.gcode_params.hint',
+              textAlign: TextAlign.center,
+              style: themeData.textTheme.bodySmall,
+            ).tr(),
+
+            // const _Footer()
+          ],
         ),
       ),
     );
