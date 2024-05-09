@@ -51,6 +51,7 @@ class _PrinterCard extends ConsumerWidget {
     var themeData = Theme.of(context);
     return Card(
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const _Cam(),
           InkWell(
