@@ -12,20 +12,25 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/async_guard.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/horizontal_scroll_indicator.dart';
 import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../dashboard_card.dart';
+import '../dialog/text_input/text_input_dialog.dart';
 
 part 'dashboard_layout_sheet.g.dart';
 
@@ -64,8 +69,23 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
                       style: themeData.textTheme.titleLarge,
                       textAlign: TextAlign.center,
                     ),
-                    Text(
-                      'Current Layout: ${currentLayout.name}',
+                    // Text(
+                    //   'Current Layout: ${currentLayout.name}',
+                    //   style: themeData.textTheme.bodySmall,
+                    //   textAlign: TextAlign.center,
+                    // ),
+                    Text.rich(
+                      TextSpan(
+                        text: 'Current Layout: ',
+                        children: [
+                          TextSpan(
+                            text: currentLayout.name,
+                            // recognizer: TapGestureRecognizer()..onTap = () => controller.onRenameLayout(currentLayout),
+                            style:
+                                TextStyle(color: themeData.colorScheme.primary, decoration: TextDecoration.underline),
+                          ),
+                        ],
+                      ),
                       style: themeData.textTheme.bodySmall,
                       textAlign: TextAlign.center,
                     ),
@@ -97,7 +117,8 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
                     Text('Available Layouts:', style: themeData.textTheme.labelLarge),
                     Expanded(
                       child: AsyncGuard(
-                        toGuard: _dashboardLayoutControllerProvider(currentLayout).selectAs((_) => true),
+                        debugLabel: 'Available Layouts-list',
+                        toGuard: _dashboardLayoutControllerProvider(currentLayout).selectAs((d) => true),
                         childOnData: _AvailableLayouts(
                           scrollController: scrollController,
                           currentLayout: currentLayout,
@@ -131,7 +152,8 @@ class _AvailableLayouts extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final availableLayouts = ref.watch(_dashboardLayoutControllerProvider(currentLayout)).requireValue;
+    var aa = ref.watch(_dashboardLayoutControllerProvider(currentLayout));
+    final availableLayouts = aa.requireValue;
     final controller = ref.watch(_dashboardLayoutControllerProvider(currentLayout).notifier);
 
     var theme = Theme.of(context);
@@ -147,8 +169,9 @@ class _AvailableLayouts extends ConsumerWidget {
                 layout: layout,
                 isCurrent: layout.uuid == currentLayout.uuid,
                 onTapLoad: controller.onLayoutSelected,
-                onTapDelete: (_) => null,
+                onTapDelete: (l) => controller.onDeleteLayout(l),
                 onTapReset: controller.onResetLayout,
+                onTapRename: (l) => controller.onRenameLayout(l),
               ),
           ],
         ),
@@ -182,6 +205,7 @@ class _LayoutPreview extends HookWidget {
     required this.onTapLoad,
     required this.onTapDelete,
     required this.onTapReset,
+    required this.onTapRename,
   });
 
   final DashboardLayout layout;
@@ -189,6 +213,7 @@ class _LayoutPreview extends HookWidget {
   final void Function(DashboardLayout layout) onTapLoad;
   final void Function(DashboardLayout layout) onTapDelete;
   final void Function(DashboardLayout layout) onTapReset;
+  final void Function(DashboardLayout layout) onTapRename;
   static const int _pagesOnScreen = 3;
 
   @override
@@ -198,6 +223,7 @@ class _LayoutPreview extends HookWidget {
     final width = MediaQuery.maybeSizeOf(context)?.width ?? 300;
     final scollSteps = layout.tabs.length / _pagesOnScreen;
     final themeData = Theme.of(context);
+    final colorExt = themeData.extension<CustomColors>();
 
     // FilledButton(
     //   onPressed: () => onTapLoad(layout),
@@ -222,6 +248,13 @@ class _LayoutPreview extends HookWidget {
                   children: [
                     Text(layout.name, style: themeData.textTheme.titleMedium),
                     const Spacer(),
+                    if (layout.created == null)
+                      Chip(
+                        visualDensity: VisualDensity.compact,
+                        label: Text('Not Saved', style: TextStyle(color: themeData.colorScheme.onSecondary)),
+                        backgroundColor: themeData.colorScheme.secondary,
+                      ),
+                    SizedBox(width: 4),
                     if (isCurrent)
                       Chip(
                         visualDensity: VisualDensity.compact,
@@ -242,17 +275,32 @@ class _LayoutPreview extends HookWidget {
                         children: [
                           for (var tab in layout.tabs)
                             Builder(builder: (ctx) {
+                              var maxWidth = scrollWidth / _pagesOnScreen;
+
+                              Widget child;
+                              if (tab.components.isEmpty) {
+                                child = Padding(
+                                  padding: EdgeInsets.symmetric(vertical: width / 4),
+                                  child: SvgPicture.asset(
+                                    'assets/vector/undraw_taken_re_yn20.svg',
+                                    alignment: Alignment.center,
+                                    width: width * 0.5,
+                                  ),
+                                );
+                              } else {
+                                child = Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    for (var card in tab.components) DasboardCard.preview(type: card.type),
+                                  ],
+                                );
+                              }
                               return ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: scrollWidth / _pagesOnScreen),
+                                constraints: BoxConstraints(maxWidth: maxWidth),
                                 child: FittedBox(
                                   child: SizedBox(
                                     width: width,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        for (var card in tab.components) DasboardCard.preview(type: card.type),
-                                      ],
-                                    ),
+                                    child: child,
                                   ),
                                 ),
                               );
@@ -282,20 +330,33 @@ class _LayoutPreview extends HookWidget {
               right: 0,
               child: Row(
                 children: [
-                  //TODO: Add management of layouts
-                  // ElevatedButton.icon(
-                  //   onPressed: () => onTapLoad(layout),
-                  //   style: ElevatedButton.styleFrom(
-                  //     // elevation: 2,
-                  //     foregroundColor: themeData.extension<CustomColors>()?.onDanger,
-                  //     backgroundColor: themeData.extension<CustomColors>()?.danger,
-                  //     visualDensity: VisualDensity.compact,
-                  //     textStyle: themeData.textTheme.bodySmall,
-                  //   ),
-                  //   icon: const Icon(Icons.delete_forever, size: 18),
-                  //   label: const Text('Delete'),
-                  // ),
-                  // const SizedBox(width: 8),
+                  if (layout.created != null)
+                    ElevatedButton.icon(
+                      onPressed: () => onTapDelete(layout),
+                      style: ElevatedButton.styleFrom(
+                        // elevation: 2,
+                        foregroundColor: colorExt?.onDanger,
+                        backgroundColor: colorExt?.danger,
+                        visualDensity: VisualDensity.compact,
+                        textStyle: themeData.textTheme.bodySmall,
+                      ),
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      label: const Text('Delete'),
+                    ),
+                  const SizedBox(width: 2),
+                  ElevatedButton.icon(
+                    onPressed: () => onTapRename(layout),
+                    style: ElevatedButton.styleFrom(
+                      // elevation: 2,
+                      visualDensity: VisualDensity.compact,
+                      textStyle: themeData.textTheme.bodySmall,
+                      foregroundColor: themeData.colorScheme.onSecondaryContainer,
+                      backgroundColor: themeData.colorScheme.secondaryContainer,
+                    ),
+                    icon: const Icon(Icons.abc, size: 18),
+                    label: const Text('Rename'),
+                  ),
+                  const SizedBox(width: 2),
                   if (isCurrent)
                     ElevatedButton.icon(
                       onPressed: () => onTapReset(layout),
@@ -343,11 +404,20 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
   @override
   Future<List<DashboardLayout>> build(DashboardLayout layout) async {
     final availableLayouts = [...await _dashboardService.availableLayouts()];
-
     // Add the current layout to the list, if it is not already there
     if (!availableLayouts.any((element) => element.uuid == layout.uuid)) {
-      availableLayouts.add(layout);
+      // do not modify the original layout -> causes issues due to "Provider" changes
+      availableLayouts.add(layout.copyWith());
     }
+
+    // Sort by name and put the current layout on top
+    availableLayouts.sort((a, b) {
+      // Current layout should always be on top
+      if (a.uuid == layout.uuid) return 0;
+      if (b.uuid == layout.uuid) return 1;
+
+      return a.name.compareTo(b.name);
+    });
 
     return availableLayouts;
   }
@@ -395,6 +465,52 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
         stack: s,
         snackTitle: 'Error importing layout',
       ));
+    }
+  }
+
+  Future<void> onRenameLayout(DashboardLayout layout) async {
+    logger.i('Renaming layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
+
+    final result = await _dialogService.show(DialogRequest(
+      type: DialogType.textInput,
+      title: 'Rename Layout',
+      body: 'Enter a new name for the layout',
+      data: TextInputDialogArguments(
+        initialValue: layout.name,
+        labelText: 'Layout Name',
+        validator: FormBuilderValidators.compose([
+          FormBuilderValidators.required(),
+          FormBuilderValidators.minLength(3),
+          FormBuilderValidators.maxLength(40),
+        ]),
+      ),
+    ));
+
+    if (result case DialogResponse(confirmed: true, data: String newName) when newName != layout.name) {
+      layout.name = newName;
+      await _dashboardService.persistLayout(layout);
+      // TODO: This works, but reloads the whole list. Should be optimized to only replace the changed layout
+      ref.invalidateSelf();
+    }
+  }
+
+  Future<void> onDeleteLayout(DashboardLayout layout) async {
+    logger.i('Deleting layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
+
+    final result = await _dialogService.showDangerConfirm(
+      title: 'Delete Layout',
+      body:
+          'Are you sure you want to delete the layout "${layout.name}"? All machines using this layout will fall back to the default layout.',
+    );
+
+    if (result?.confirmed == true) {
+      await _dashboardService.removeLayout(layout);
+      // TODO: This works, but reloads the whole list. Should be optimized to only remove the deleted layout
+      if (layout.uuid == this.layout.uuid) {
+        onLayoutSelected(_dashboardService.defaultDashboardLayout());
+      } else {
+        ref.invalidateSelf();
+      }
     }
   }
 }
