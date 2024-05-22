@@ -90,7 +90,7 @@ class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
           ),
         if (widget.isEditing && !ref.watch(isSupporterProvider))
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 0),
+            padding: const EdgeInsets.only(left: 4, right: 4, bottom: 8),
             sliver: SliverToBoxAdapter(
               child: WarningCard(
                 margin: EdgeInsets.zero,

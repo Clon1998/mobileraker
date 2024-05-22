@@ -4,6 +4,7 @@
  */
 
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
@@ -262,6 +263,8 @@ class _LayoutPreview extends HookWidget {
                 const Divider(),
                 LayoutBuilder(
                   builder: (BuildContext context, BoxConstraints constraints) {
+                    final availableTabs = layout.tabs.length;
+
                     final scrollWidth = constraints.maxWidth;
                     return SingleChildScrollView(
                       controller: controller,
@@ -269,12 +272,12 @@ class _LayoutPreview extends HookWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          for (var tab in layout.tabs)
+                          for (var i = 0; i < max(availableTabs, _pagesOnScreen); i++)
                             Builder(builder: (ctx) {
-                              var maxWidth = scrollWidth / _pagesOnScreen;
+                              final tab = layout.tabs.elementAtOrNull(i);
 
                               Widget child;
-                              if (tab.components.isEmpty) {
+                              if (tab == null || tab.components.isEmpty) {
                                 child = Padding(
                                   padding: EdgeInsets.symmetric(vertical: width / 4),
                                   child: SvgPicture.asset(
@@ -292,7 +295,7 @@ class _LayoutPreview extends HookWidget {
                                 );
                               }
                               return ConstrainedBox(
-                                constraints: BoxConstraints(maxWidth: maxWidth),
+                                constraints: BoxConstraints(maxWidth: scrollWidth / _pagesOnScreen),
                                 child: FittedBox(
                                   child: SizedBox(
                                     width: width,
