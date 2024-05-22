@@ -53,7 +53,11 @@
     "repeat": "Repeat",
     "load_more": "Load more",
     "archived": "Archived",
-    "leave": "Leave"
+    "leave": "Leave",
+    "export": "Export",
+    "import": "Import",
+    "current": "Current",
+    "load": "Load"
   },
   "pages": {
     "dashboard": {
@@ -1036,6 +1040,30 @@
     "dashboard_cards": {
       "title": "Add a card",
       "subtitle": "Select a card to add to the dashboard"
+    },
+    "dashboard_layout": {
+      "title": "Dashboard Layout",
+      "subtitle": "Current Layout:",
+      "available_layouts": {
+        "label": "Available Layouts:",
+        "empty": "No layouts available",
+        "add_empty": "Add Empty Layout"
+      },
+      "layout_preview": {
+        "not_saved": "Not saved"
+      },
+      "rename_layout": {
+        "title": "Rename Layout",
+        "label": "Layout Name"
+      },
+      "delete_layout": {
+        "title": "Delete Layout",
+        "body": "Are you sure you want to delete the layout {}?\nAll machines using this layout will fall back to the default layout."
+      },
+      "import_snackbar": {
+        "title": "Layout imported!",
+        "body": "Make sure to hit the save button to apply the changes."
+      }
     }
   },
   "klipper_state": {

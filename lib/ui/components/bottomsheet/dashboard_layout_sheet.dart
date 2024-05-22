@@ -16,6 +16,7 @@ import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
 import 'package:dots_indicator/dots_indicator.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -65,10 +66,10 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
                   mainAxisSize: MainAxisSize.min, // To make the card compact
                   children: [
                     Text(
-                      'Dashboard Layout',
+                      'bottom_sheets.dashboard_layout.title',
                       style: themeData.textTheme.titleLarge,
                       textAlign: TextAlign.center,
-                    ),
+                    ).tr(),
                     // Text(
                     //   'Current Layout: ${currentLayout.name}',
                     //   style: themeData.textTheme.bodySmall,
@@ -76,7 +77,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
                     // ),
                     Text.rich(
                       TextSpan(
-                        text: 'Current Layout: ',
+                        text: '${tr('bottom_sheets.dashboard_layout.subtitle')} ',
                         children: [
                           TextSpan(
                             text: currentLayout.name,
@@ -99,14 +100,14 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
                             Expanded(
                               child: OutlinedButton(
                                 onPressed: exportLayout,
-                                child: const AutoSizeText('Export', maxLines: 1),
+                                child: AutoSizeText(tr('general.export'), maxLines: 1),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: OutlinedButton(
                                 onPressed: controller.onImportLayout,
-                                child: const AutoSizeText('Import', maxLines: 1),
+                                child: AutoSizeText(tr('general.import'), maxLines: 1),
                               ),
                             ),
                           ],
@@ -114,7 +115,9 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
                       ],
                     ),
                     const Divider(),
-                    Text('Available Layouts:', style: themeData.textTheme.labelLarge),
+                    Text('bottom_sheets.dashboard_layout.available_layouts.label',
+                            style: themeData.textTheme.labelLarge)
+                        .tr(),
                     Expanded(
                       child: AsyncGuard(
                         debugLabel: 'Available Layouts-list',
@@ -140,7 +143,7 @@ class DashboardLayoutBottomSheet extends HookConsumerWidget {
     var str = jsonEncode(json);
     // Copy to clipboard
 
-    Share.share(str, subject: 'Dashboard Layout');
+    Share.share(str, subject: '${tr('bottom_sheets.dashboard_layout.title')}: ${currentLayout.name}');
   }
 }
 
@@ -181,7 +184,8 @@ class _AvailableLayouts extends ConsumerWidget {
               height: 150,
               width: double.infinity,
               child: Center(
-                child: Text('No Layouts available', style: theme.textTheme.bodySmall),
+                child: Text('bottom_sheets.dashboard_layout.available_layouts.empty', style: theme.textTheme.bodySmall)
+                    .tr(),
               ),
             ),
           ),
@@ -189,7 +193,7 @@ class _AvailableLayouts extends ConsumerWidget {
           child: ElevatedButton.icon(
             onPressed: controller.onAddEmptyLayout,
             icon: const Icon(Icons.add),
-            label: const Text('Add Empty Layout'),
+            label: const Text('bottom_sheets.dashboard_layout.available_layouts.add_empty').tr(),
           ),
         ),
       ],
@@ -225,17 +229,6 @@ class _LayoutPreview extends HookWidget {
     final themeData = Theme.of(context);
     final colorExt = themeData.extension<CustomColors>();
 
-    // FilledButton(
-    //   onPressed: () => onTapLoad(layout),
-    //   style: FilledButton.styleFrom(
-    //     foregroundColor: themeData.extension<CustomColors>()?.onDanger,
-    //     backgroundColor: themeData.extension<CustomColors>()?.danger,
-    //   ),
-    //   child: const Text('Delete'),
-    // ),
-    // const SizedBox(width: 8),
-    // FilledButton(onPressed: () => onTapLoad(layout), child: const Text('Load')),
-
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -251,14 +244,17 @@ class _LayoutPreview extends HookWidget {
                     if (layout.created == null)
                       Chip(
                         visualDensity: VisualDensity.compact,
-                        label: Text('Not Saved', style: TextStyle(color: themeData.colorScheme.onSecondary)),
+                        label: Text(
+                          'bottom_sheets.dashboard_layout.layout_preview.not_saved',
+                          style: TextStyle(color: themeData.colorScheme.onSecondary),
+                        ).tr(),
                         backgroundColor: themeData.colorScheme.secondary,
                       ),
-                    SizedBox(width: 4),
+                    const SizedBox(width: 4),
                     if (isCurrent)
                       Chip(
                         visualDensity: VisualDensity.compact,
-                        label: Text('Current', style: TextStyle(color: themeData.colorScheme.onPrimary)),
+                        label: Text('general.current', style: TextStyle(color: themeData.colorScheme.onPrimary)).tr(),
                         backgroundColor: themeData.colorScheme.primary,
                       ),
                   ],
@@ -328,7 +324,11 @@ class _LayoutPreview extends HookWidget {
             Positioned(
               bottom: 0,
               right: 0,
-              child: Row(
+              left: 0,
+              child: Wrap(
+                // runAlignment: WrapAlignment.end,
+                alignment: WrapAlignment.end,
+                spacing: 4,
                 children: [
                   if (layout.created != null)
                     ElevatedButton.icon(
@@ -341,9 +341,8 @@ class _LayoutPreview extends HookWidget {
                         textStyle: themeData.textTheme.bodySmall,
                       ),
                       icon: const Icon(Icons.delete_outline, size: 18),
-                      label: const Text('Delete'),
+                      label: const Text('general.delete').tr(),
                     ),
-                  const SizedBox(width: 2),
                   ElevatedButton.icon(
                     onPressed: () => onTapRename(layout),
                     style: ElevatedButton.styleFrom(
@@ -354,9 +353,8 @@ class _LayoutPreview extends HookWidget {
                       backgroundColor: themeData.colorScheme.secondaryContainer,
                     ),
                     icon: const Icon(Icons.abc, size: 18),
-                    label: const Text('Rename'),
+                    label: const Text('general.rename').tr(),
                   ),
-                  const SizedBox(width: 2),
                   if (isCurrent)
                     ElevatedButton.icon(
                       onPressed: () => onTapReset(layout),
@@ -368,7 +366,7 @@ class _LayoutPreview extends HookWidget {
                         backgroundColor: themeData.colorScheme.secondary,
                       ),
                       icon: const Icon(Icons.restart_alt, size: 18),
-                      label: const Text('Reset'),
+                      label: const Text('pages.dashboard.general.print_card.reset').tr(),
                     ),
                   if (!isCurrent)
                     ElevatedButton.icon(
@@ -379,7 +377,7 @@ class _LayoutPreview extends HookWidget {
                         textStyle: themeData.textTheme.bodySmall,
                       ),
                       icon: const Icon(Icons.upload, size: 18),
-                      label: const Text('Load'),
+                      label: const Text('general.load').tr(),
                     ),
                 ],
               ),
@@ -453,8 +451,8 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
 
       onLayoutSelected(layout);
       _snackBarService.show(SnackBarConfig(
-        title: 'Layout imported',
-        message: 'Remember to save the layout',
+        title: tr('bottom_sheets.dashboard_layout.import_snackbar.title'),
+        message: tr('bottom_sheets.dashboard_layout.import_snackbar.body'),
         duration: const Duration(seconds: 5),
       ));
     } catch (e, s) {
@@ -473,11 +471,11 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
 
     final result = await _dialogService.show(DialogRequest(
       type: DialogType.textInput,
-      title: 'Rename Layout',
-      body: 'Enter a new name for the layout',
+      actionLabel: tr('general.rename'),
+      title: tr('bottom_sheets.dashboard_layout.rename_layout.title'),
       data: TextInputDialogArguments(
         initialValue: layout.name,
-        labelText: 'Layout Name',
+        labelText: tr('bottom_sheets.dashboard_layout.rename_layout.label'),
         validator: FormBuilderValidators.compose([
           FormBuilderValidators.required(),
           FormBuilderValidators.minLength(3),
@@ -498,9 +496,9 @@ class _DashboardLayoutController extends _$DashboardLayoutController {
     logger.i('Deleting layout ${layout.name} (${layout.uuid})#${identityHashCode(layout)}');
 
     final result = await _dialogService.showDangerConfirm(
-      title: 'Delete Layout',
-      body:
-          'Are you sure you want to delete the layout "${layout.name}"? All machines using this layout will fall back to the default layout.',
+      title: tr('bottom_sheets.dashboard_layout.delete_layout.title'),
+      body: tr('bottom_sheets.dashboard_layout.delete_layout.body', args: [layout.name]),
+      actionLabel: tr('general.delete'),
     );
 
     if (result?.confirmed == true) {

@@ -53,7 +53,11 @@
     "repeat": "Wiederholen",
     "load_more": "Mehr laden",
     "archived": "Archiviert",
-    "leave": "Verlassen"
+    "leave": "Verlassen",
+    "export": "Exportieren",
+    "import": "Importieren",
+    "current": "Aktuell",
+    "load": "Laden"
   },
   "pages": {
     "dashboard": {
@@ -1036,6 +1040,30 @@
     "dashboard_cards": {
       "title": "Karte hinzufügen",
       "subtitle": "Wählen Sie eine Karte aus, die Sie hinzufügen möchten"
+    },
+    "dashboard_layout": {
+      "title": "Dashboard Layout",
+      "subtitle": "Aktuelles Layout:",
+      "available_layouts": {
+        "label": "Verfügbare Layouts:",
+        "empty": "Keine Layouts gefunden",
+        "add_empty": "Leeres Layout hinzufügen"
+      },
+      "layout_preview": {
+        "not_saved": "Nicht gespeichert"
+      },
+      "rename_layout": {
+        "title": "Layout umbenennen",
+        "label": "Layout Name"
+      },
+      "delete_layout": {
+        "title": "Layout löschen",
+        "body": "Sind Sie sicher, dass Sie das Layout '{}' löschen möchten? Alle Maschinen welche dieses Layout verwenden, werden auf das Standardlayout zurückgesetzt."
+      },
+      "import_snackbar": {
+        "title": "Layout importiert!",
+        "body": "Stellen Sie sicher, dass Sie das Layout speichern, um es zu behalten."
+      }
     }
   },
   "klipper_state": {
