@@ -4,7 +4,6 @@
 
 ### New Features
 
-- Added more layout options offering more flexibility in the dahsboard layout.
 - [Supporters] Added the ability to create custom and configurable dashboards. This allows users to create dashboards
   with up to five tabs and customize them with various cards.
 
