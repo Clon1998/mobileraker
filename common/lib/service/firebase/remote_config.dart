@@ -22,7 +22,36 @@ FirebaseRemoteConfig remoteConfig(RemoteConfigRef ref) {
 @Riverpod(keepAlive: true)
 DeveloperAnnouncement developerAnnouncement(DeveloperAnnouncementRef ref) {
   return DeveloperAnnouncement.fromJson(
-    json.decode(ref.watch(remoteConfigProvider).getString('developer_announcements')),
+    // json.decode(ref.watch(remoteConfigProvider).getString('developer_announcements')),
+    json.decode('''
+{
+  "enabled": true,
+  "messages": [
+    {
+      "show": true,
+      "type": "info",
+      "title": "Info-Test",
+      "body": "THis is a test for an info message....",
+      "showCount": 3,
+      "link": "https://test.com"
+    },
+    {
+      "show": true,
+      "type": "critical",
+      "title": "critical-Test",
+      "body": "THis is a test for an critical message....",
+      "showCount": 1
+    },
+    {
+      "show": true,
+      "type": "advertisement",
+      "title": "Ad For Sale",
+      "body": "Hier könnte ihre Werbung stehen! Aber eigentlich soll das hier nur eine sehr sehr lange message sein. !! Okay cool lol lmao!",
+      "showCount": 3
+    }
+  ]
+}
+    '''),
   );
 }
 

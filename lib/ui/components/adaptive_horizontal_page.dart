@@ -23,6 +23,7 @@ class AdaptiveHorizontalPage extends HookWidget {
     this.pageStorageKey,
     this.children = const [],
     this.padding,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
   });
 
   // List of child widgets to be displayed in the scroll view
@@ -33,6 +34,9 @@ class AdaptiveHorizontalPage extends HookWidget {
 
   // Padding around the scroll view
   final EdgeInsets? padding;
+
+  // Alignment of the child widgets
+  final CrossAxisAlignment crossAxisAlignment;
 
   // Builds the widget
   @override
@@ -63,6 +67,7 @@ class AdaptiveHorizontalPage extends HookWidget {
                 child: SizedBox(
                   width: max(width * children.length, constraints.maxWidth),
                   child: Row(
+                    crossAxisAlignment: crossAxisAlignment,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       for (var child in children)
