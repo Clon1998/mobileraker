@@ -18,6 +18,8 @@
 ### Bug Fixes
 
 - Fixed Back Button on the printer add page.
+- Spoolman card now shows two decimal places for the remaining
+  filament. [#364](https://github.com/Clon1998/mobileraker/issues/364)
 
 ## [2.6.19] - 2024-05-09
 
