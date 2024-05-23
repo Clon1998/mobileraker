@@ -86,7 +86,7 @@ class _MessageBoard extends HookWidget {
   Widget build(BuildContext context) {
     return AdaptiveHorizontalPage(
       pageStorageKey: 'asdasd',
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.only(top: 8),
       // crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         for (var message in messages) _MessageCard(message: message),
@@ -136,18 +136,15 @@ class _MessageCard extends ConsumerWidget {
     /// with a circular corner radius of 12.0 and if [ThemeData.useMaterial3] is
     /// false, then the circular corner radius will be 4.0.
     final cardTheme = themeData.cardTheme;
+    final borderRadius = BorderRadius.circular(themeData.useMaterial3 ? 12.0 : 4.0);
     final shape = Border(left: BorderSide(color: borderColor ?? themeData.colorScheme.primary, width: 3)) +
-        (cardTheme.shape ??
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(themeData.useMaterial3 ? 12.0 : 4.0),
-            ));
+        (cardTheme.shape ?? RoundedRectangleBorder(borderRadius: borderRadius));
 
-    return InkWell(
-      onTap: onTap,
-      child: Card(
-        // Left side border in red
-        // shape: cardTheme.shape + Border( top: BorderSide(color: Colors.black), ),
-        shape: shape,
+    return Card(
+      shape: shape,
+      child: InkWell(
+        borderRadius: borderRadius,
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(

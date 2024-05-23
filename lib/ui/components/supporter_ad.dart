@@ -5,6 +5,7 @@
 
 import 'package:common/service/app_router.dart';
 import 'package:common/service/payment_service.dart';
+import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -65,11 +66,12 @@ class SupporterAd extends ConsumerWidget {
                 children: [
                   ListTile(
                     onTap: ref.read(_supporterAdControllerProvider.notifier).navigateToSupporterPage,
-                    contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 16),
+                    contentPadding: const EdgeInsets.only(top: 3, left: 16, right: 12),
                     leading: const Icon(FlutterIcons.hand_holding_heart_faw5s),
                     title: const Text('components.supporter_add.title').tr(),
                     subtitle: const Text('components.supporter_add.subtitle').tr(),
-                    trailing: IconButton(
+                    trailing: MobilerakerIconButton(
+                      padding: const EdgeInsets.all(0),
                       onPressed: ref.read(_supporterAdControllerProvider.notifier).dismissAd,
                       icon: const Icon(Icons.close),
                     ),
