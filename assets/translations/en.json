@@ -57,7 +57,8 @@
     "export": "Export",
     "import": "Import",
     "current": "Current",
-    "load": "Load"
+    "load": "Load",
+    "discard": "Discard"
   },
   "pages": {
     "dashboard": {

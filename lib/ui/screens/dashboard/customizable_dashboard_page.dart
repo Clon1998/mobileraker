@@ -523,7 +523,7 @@ class _DashboardPageController extends _$DashboardPageController {
     if (value.layout != _originalLayout) {
       var res = await _dialogService.showConfirm(
         dismissLabel: tr('general.cancel'),
-        actionLabel: tr('general.leave'),
+        actionLabel: tr('general.discard'),
         title: tr('pages.customizing_dashboard.cancel_confirm.title'),
         body: tr('pages.customizing_dashboard.cancel_confirm.body'),
       );

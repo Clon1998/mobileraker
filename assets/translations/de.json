@@ -57,7 +57,8 @@
     "export": "Exportieren",
     "import": "Importieren",
     "current": "Aktuell",
-    "load": "Laden"
+    "load": "Laden",
+    "discard": "Verwerfen"
   },
   "pages": {
     "dashboard": {
