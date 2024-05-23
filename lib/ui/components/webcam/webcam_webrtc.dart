@@ -23,6 +23,7 @@ class WebcamWebRtc extends ConsumerWidget {
     required this.machine,
     this.stackContent = const [],
     this.imageBuilder,
+    this.onHidePressed,
   });
 
   final WebcamInfo webcamInfo;
@@ -32,6 +33,8 @@ class WebcamWebRtc extends ConsumerWidget {
   final List<Widget> stackContent;
 
   final ImageBuilder? imageBuilder;
+
+  final VoidCallback? onHidePressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -83,6 +86,7 @@ class WebcamWebRtc extends ConsumerWidget {
       rotation: webcamInfo.rotation,
       transform: webcamInfo.transformMatrix,
       imageBuilder: imageBuilder,
+      onHidePressed: onHidePressed,
     );
   }
 }

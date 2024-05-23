@@ -58,7 +58,8 @@
     "import": "Import",
     "current": "Current",
     "load": "Load",
-    "discard": "Discard"
+    "discard": "Discard",
+    "hide": "Hide"
   },
   "pages": {
     "dashboard": {
@@ -92,7 +93,8 @@
         },
         "cam_card": {
           "webcam": "Webcam",
-          "fullscreen": "Fullscreen"
+          "fullscreen": "Fullscreen",
+          "error_connecting": "Error connecting to {}.\nPlease check the connection settings and ensure the webcam is online."
         },
         "temp_card": {
           "title": "Temperature Controls",

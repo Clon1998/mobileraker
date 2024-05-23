@@ -42,6 +42,7 @@ class Mjpeg extends ConsumerWidget {
     this.height,
     this.showFps = false,
     this.imageBuilder,
+    this.onHidePressed,
   });
 
   final Dio dio;
@@ -52,6 +53,7 @@ class Mjpeg extends ConsumerWidget {
   final double? height;
   final bool showFps;
   final MjpegImageBuilder? imageBuilder;
+  final VoidCallback? onHidePressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -68,6 +70,7 @@ class Mjpeg extends ConsumerWidget {
         config: config,
         error: error,
         onRetryPressed: controller.onRetryPressed,
+        onHidePressed: onHidePressed,
       ),
       childOnLoading: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -108,33 +111,61 @@ class _ErrorWidget extends StatelessWidget {
     required this.config,
     this.error,
     this.onRetryPressed,
+    this.onHidePressed,
   });
 
   final MjpegConfig config;
   final Object? error;
   final VoidCallback? onRetryPressed;
+  final VoidCallback? onHidePressed;
 
   @override
   Widget build(BuildContext context) {
     // TODO: Decide if we want to show error specific messages
 
+    var themeData = Theme.of(context);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Icon(Icons.error_outline),
         const SizedBox(height: 30),
-        Text('WebCam streamURI: ${config.streamUri.obfuscate()}'),
-        if (config.snapshotUri != null) Text('WebCam snapshotURI: ${config.snapshotUri!.obfuscate()}'),
-        Text(
-          error.toString(),
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        const Text('pages.dashboard.general.cam_card.error_connecting', textAlign: TextAlign.center)
+            .tr(args: [config.streamUri.obfuscate().toString()]),
+        Wrap(
+          spacing: 4,
+          alignment: WrapAlignment.spaceEvenly,
+          children: [
+            if (onHidePressed != null)
+              TextButton.icon(
+                onPressed: onHidePressed,
+                icon: const Icon(Icons.visibility_off),
+                label: const Text('general.hide').tr(),
+              ),
+            TextButton.icon(
+              onPressed: onRetryPressed,
+              icon: const Icon(Icons.restart_alt_outlined),
+              label: const Text('components.connection_watcher.reconnect').tr(),
+            ),
+          ],
         ),
-        TextButton.icon(
-          onPressed: onRetryPressed,
-          icon: const Icon(Icons.restart_alt_outlined),
-          label: const Text('components.connection_watcher.reconnect').tr(),
+        const Divider(),
+        Text.rich(
+          TextSpan(
+            text: 'Mjpeg streamURI:\n${config.streamUri.obfuscate()}\n',
+            children: [
+              if (config.snapshotUri != null)
+                TextSpan(text: 'Mjpeg snapshotURI:\n${config.snapshotUri!.obfuscate()}\n'),
+              TextSpan(text: '\nError Details:\n', style: themeData.textTheme.bodySmall),
+              TextSpan(
+                text: error.toString(),
+                style: themeData.textTheme.bodySmall?.copyWith(color: themeData.colorScheme.error),
+              ),
+            ],
+          ),
+          style: themeData.textTheme.bodySmall,
+          textAlign: TextAlign.justify,
         ),
       ],
     );

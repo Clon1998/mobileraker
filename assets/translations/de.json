@@ -58,7 +58,8 @@
     "import": "Importieren",
     "current": "Aktuell",
     "load": "Laden",
-    "discard": "Verwerfen"
+    "discard": "Verwerfen",
+    "hide": "Verstecken"
   },
   "pages": {
     "dashboard": {
@@ -92,7 +93,8 @@
         },
         "cam_card": {
           "webcam": "Webcam",
-          "fullscreen": "Vollbild"
+          "fullscreen": "Vollbild",
+          "error_connecting": "Fehler beim Verbinden mit {}.\nBitte überprüfen Sie die Verbindungseinstellungen und stellen Sie sicher, dass die Webcam online ist."
         },
         "temp_card": {
           "title": "Thermik",

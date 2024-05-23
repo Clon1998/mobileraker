@@ -13,6 +13,7 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/ui/components/async_guard.dart';
 import 'package:common/ui/components/skeletons/card_title_skeleton.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:common/util/misc.dart';
@@ -52,7 +53,8 @@ class WebcamCard extends HookConsumerWidget {
     return AsyncGuard(
       debugLabel: 'WebcamCard-$machineUUID',
       animate: true,
-      toGuard: _webcamCardControllerProvider(machineUUID).selectAs((data) => data.allCams.isNotEmpty),
+      toGuard: _webcamCardControllerProvider(machineUUID)
+          .selectAs((data) => !data.userRequestedHide && data.allCams.isNotEmpty),
       childOnLoading: hadWebcam ? const _WebcamCardLoading(key: Key('wcL')) : const SizedBox.shrink(key: Key('wcL')),
       childOnError: (error, _) => _Card(
         key: const Key('wcE'),
@@ -256,6 +258,7 @@ class _CardBody extends ConsumerWidget {
         ],
         imageBuilder: _imageBuilder,
         showFpsIfAvailable: true,
+        onHidePressed: controller.hideCard.unless(model.allCams.length > 1),
       ),
     );
   }
@@ -327,6 +330,11 @@ class _WebcamCardController extends _$WebcamCardController {
     ref.invalidate(allWebcamInfosProvider(machineUUID));
     // ref.invalidateSelf();
   }
+
+  void hideCard() {
+    logger.i('Hiding Webcam Card');
+    state = AsyncValue.data(state.requireValue.copyWith(userRequestedHide: true));
+  }
 }
 
 class _WebcamCardPreviewController extends _WebcamCardController {
@@ -361,6 +369,11 @@ class _WebcamCardPreviewController extends _WebcamCardController {
   void onRetry() {
     // do nothing in preview
   }
+
+  @override
+  void hideCard() {
+    // do nothing in preview
+  }
 }
 
 @freezed
@@ -371,6 +384,7 @@ class _Model with _$Model {
     required List<WebcamInfo> allCams,
     required int? selected,
     required Machine machine,
+    @Default(false) bool userRequestedHide,
   }) = __Model;
 
   bool get camSelected => allCams.isNotEmpty && selected != null;
