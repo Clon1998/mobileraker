@@ -288,6 +288,8 @@ class _PrintingFAB extends ConsumerWidget {
     return SpeedDial(
       icon: FlutterIcons.options_vertical_sli,
       activeIcon: Icons.close,
+      spacing: 5,
+      renderOverlay: false,
       children: [
         SpeedDialChild(
           child: const Icon(Icons.cleaning_services),
@@ -338,8 +340,6 @@ class _PrintingFAB extends ConsumerWidget {
                 .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
           ),
       ],
-      spacing: 5,
-      overlayOpacity: 0,
     );
   }
 }
