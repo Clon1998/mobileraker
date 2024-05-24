@@ -48,10 +48,10 @@ import 'temperature_sensor_preset_card.dart';
 part 'heater_sensor_card.freezed.dart';
 part 'heater_sensor_card.g.dart';
 
-class HeaterSensorCard extends ConsumerWidget {
+class HeaterSensorCard extends StatelessWidget {
   const HeaterSensorCard({super.key, required this.machineUUID, this.trailing});
 
-  factory HeaterSensorCard.preview() {
+  static Widget preview() {
     return const _HeaterSensorCardPreview();
   }
 
@@ -60,7 +60,7 @@ class HeaterSensorCard extends ConsumerWidget {
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return AsyncGuard(
       animate: true,
       debugLabel: 'HeaterSensorCard-$machineUUID',
@@ -85,22 +85,61 @@ class HeaterSensorCard extends ConsumerWidget {
   }
 }
 
-class _HeaterSensorCardPreview extends HeaterSensorCard {
+class _HeaterSensorCardPreview extends StatefulWidget {
   static const String _machineUUID = 'preview';
 
-  const _HeaterSensorCardPreview({super.key}) : super(machineUUID: _machineUUID);
+  const _HeaterSensorCardPreview({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return ProviderScope(
+  State<_HeaterSensorCardPreview> createState() => _HeaterSensorCardPreviewState();
+}
+
+class _HeaterSensorCardPreviewState extends State<_HeaterSensorCardPreview> {
+  late final Widget s;
+
+  @override
+  void initState() {
+    super.initState();
+    s = ProviderScope(
       overrides: [
-        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
-        printerProvider(_machineUUID).overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
+        _controllerProvider(_HeaterSensorCardPreview._machineUUID).overrideWith(() {
+          logger.e('1312312312312312321');
+          return _PreviewController();
+        }),
+        printerProvider(_HeaterSensorCardPreview._machineUUID)
+            .overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
       ],
-      child: Consumer(
-        builder: (innerContext, innerRef, _) => super.build(innerContext, innerRef),
-      ),
+      child: const HeaterSensorCard(machineUUID: _HeaterSensorCardPreview._machineUUID),
     );
+
+    logger.i('INIT of _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    logger.i(
+        'Dependencies changed of _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
+  }
+
+  @override
+  void didUpdateWidget(_HeaterSensorCardPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    logger.i('didUpdateWidget _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // super.build(context);
+    logger.i('Rebuilding _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
+
+    return s;
+  }
+
+  @override
+  void dispose() {
+    logger.i('Disposing _HeaterSensorCardPreview #${identityHashCode(this)}, scope #${identityHashCode(s)}');
+    super.dispose();
   }
 }
 
@@ -565,8 +604,12 @@ class _Controller extends _$Controller {
 class _PreviewController extends _Controller {
   @override
   Stream<_Model> build(String machineUUID) {
+    logger.i('Rebuilding (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
+    ref.onDispose(() {
+      logger.i('Disposing (preview) HeaterSensorCard._PreviewController for machine $machineUUID');
+    });
     ref.keepAliveFor();
-    return Stream.value(_Model(
+    state = AsyncValue.data(_Model(
       klippyCanReceiveCommands: true,
       sensors: [
         Extruder(
@@ -584,6 +627,8 @@ class _PreviewController extends _Controller {
         )
       ],
     ));
+
+    return const Stream.empty();
   }
 
   @override

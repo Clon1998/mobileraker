@@ -33,6 +33,10 @@ part 'firmware_retraction_card.g.dart';
 class FirmwareRetractionCard extends HookConsumerWidget {
   const FirmwareRetractionCard({super.key, required this.machineUUID});
 
+  static Widget preview() {
+    return const _Preview();
+  }
+
   final String machineUUID;
 
   CompositeKey get _hadFwRetract => CompositeKey.keyWithString(UiKeys.hadFirmwareRetraction, machineUUID);
@@ -66,11 +70,37 @@ class FirmwareRetractionCard extends HookConsumerWidget {
   }
 }
 
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key, this.isCard = true});
+
+  final bool isCard;
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _firmwareRetractionCardControllerProvider(_machineUUID)
+            .overrideWith(_FirmwareRetractionCardPreviewController.new),
+      ],
+      child: isCard
+          ? const FirmwareRetractionCard(machineUUID: _machineUUID)
+          : const FirmwareRetractionSlidersOrTexts(machineUUID: _machineUUID),
+    );
+  }
+}
+
 class FirmwareRetractionSlidersOrTexts extends HookConsumerWidget {
   const FirmwareRetractionSlidersOrTexts({
     super.key,
     required this.machineUUID,
   });
+
+  static Widget preview() {
+    return const _Preview(isCard: false);
+  }
 
   final String machineUUID;
 
@@ -258,6 +288,43 @@ class _FirmwareRetractionCardController extends _$FirmwareRetractionCardControll
 
   onEditUnretractSpeed(double value) {
     _printerService.firmwareRetraction(unretractSpeed: value);
+  }
+}
+
+class _FirmwareRetractionCardPreviewController extends _FirmwareRetractionCardController {
+  @override
+  Future<_Model> build(String machineUUID) {
+    const model = _Model(
+      klippyCanReceiveCommands: true,
+      firmwareRetraction: FirmwareRetraction(
+        retractLength: 0.7,
+        unretractExtraLength: 0.32,
+        retractSpeed: 15,
+        unretractSpeed: 22,
+      ),
+    );
+    state = const AsyncValue.data(model);
+    return Future.value(model);
+  }
+
+  @override
+  onEditRetractLength(double value) {
+    // do nothing in preview
+  }
+
+  @override
+  onEditUnretractLength(double value) {
+    // do nothing in preview
+  }
+
+  @override
+  onEditRetractSpeed(double value) {
+    // do nothing in preview
+  }
+
+  @override
+  onEditUnretractSpeed(double value) {
+    // do nothing in preview
   }
 }
 

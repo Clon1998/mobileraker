@@ -8,6 +8,7 @@ import 'dart:math';
 
 import 'package:common/data/dto/config/config_file.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
+import 'package:common/data/dto/machine/printer.dart';
 import 'package:common/data/dto/machine/printer_axis_enum.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
@@ -37,6 +38,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'toolhead_info/toolhead_info_table_controller.dart';
+
 part 'control_xyz_card.freezed.dart';
 part 'control_xyz_card.g.dart';
 
@@ -44,6 +47,10 @@ const _marginForBtns = EdgeInsets.all(10);
 
 class ControlXYZCard extends HookConsumerWidget {
   const ControlXYZCard({super.key, required this.machineUUID});
+
+  static Widget preview() {
+    return const _Preview();
+  }
 
   final String machineUUID;
 
@@ -69,6 +76,37 @@ class ControlXYZCard extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _controlXYZCardControllerProvider(_machineUUID).overrideWith(_ControlXYZCardPreviewController.new),
+        printerProvider(_machineUUID).overrideWith((provider) => Stream.value(PrinterBuilder.preview().build())),
+        toolheadInfoProvider(_machineUUID).overrideWith(
+          (provider) => Stream.value(
+            const ToolheadInfo(
+              postion: [5, 5, 10],
+              printingOrPaused: false,
+              mmSpeed: 200,
+              currentLayer: 1,
+              maxLayers: 10,
+              usedFilamentPerc: 0,
+              totalDuration: 0,
+            ),
+          ),
+        ),
+      ],
+      child: const ControlXYZCard(machineUUID: _machineUUID),
     );
   }
 }
@@ -658,6 +696,115 @@ class _ControlXYZCardController extends _$ControlXYZCardController {
     }
 
     return (directActions, calibrationActions);
+  }
+}
+
+class _ControlXYZCardPreviewController extends _ControlXYZCardController {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    logger.i('Building ControlXYZCardPreviewController for $machineUUID.');
+
+    state = AsyncValue.data(_Model(
+      showCard: true,
+      klippyCanReceiveCommands: true,
+      selected: 2,
+      steps: [1, 5, 25, 50, 100],
+      directActions: [
+        _QuickAction(
+          title: tr('pages.dashboard.general.move_card.home_all_btn'),
+          description: tr('pages.dashboard.general.move_card.home_all_tooltip'),
+          icon: Icons.home,
+          callback: () => null,
+        ),
+        _QuickAction(
+          title: tr('pages.dashboard.general.move_card.m84_btn'),
+          description: tr('pages.dashboard.general.move_card.m84_tooltip'),
+          icon: Icons.near_me_disabled,
+          callback: () => null,
+        ),
+      ],
+      moreActions: [
+        _QuickAction(
+          title: 'pages.dashboard.general.move_card.save_btn'.tr(),
+          description: 'pages.dashboard.general.move_card.save_tooltip'.tr(),
+          icon: Icons.save_alt,
+          callback: () => null,
+        ),
+      ],
+    ));
+
+    return const Stream.empty();
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onBedMesh() async {
+    // Do nothing, preview does not need this
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onBedScrewAdjust() async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onHomeAxisBtn(Set<PrinterAxis> axis) async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onMotorOff() async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onMoveBtn(PrinterAxis axis, [bool positive = true]) async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onProbeCalibration() async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onQuadGantry() async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onSaveConfig() async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onScrewTiltCalc() async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  void onSelectedChanged(int? index) {
+    state = state.whenData((value) => value.copyWith(selected: index ?? 0));
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onZEndstopCalibration() async {
+    // Do nothing, preview does not need
+  }
+
+  @override
+  // ignore: no-empty-block
+  Future<void> onZTiltAdjust() async {
+    // Do nothing, preview does not need
   }
 }
 

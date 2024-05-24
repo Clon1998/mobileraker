@@ -25,6 +25,7 @@ class WebcamMjpeg extends ConsumerWidget {
     this.imageBuilder,
     this.stackChild = const [],
     this.showFps = false,
+    this.onHidePressed,
   });
 
   final WebcamInfo webcamInfo;
@@ -36,6 +37,8 @@ class WebcamMjpeg extends ConsumerWidget {
   final List<Widget> stackChild;
 
   final bool showFps;
+
+  final VoidCallback? onHidePressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -91,6 +94,7 @@ class WebcamMjpeg extends ConsumerWidget {
       config: configBuilder.build(),
       showFps: showFps,
       stackChild: stackChild,
+      onHidePressed: onHidePressed,
     );
   }
 }

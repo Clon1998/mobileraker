@@ -32,6 +32,7 @@ class Webcam extends HookConsumerWidget {
     this.imageBuilder,
     this.showFpsIfAvailable = false,
     this.showRemoteIndicator = true,
+    this.onHidePressed,
   });
   final Machine machine;
   final WebcamInfo webcamInfo;
@@ -39,6 +40,7 @@ class Webcam extends HookConsumerWidget {
   final ImageBuilder? imageBuilder;
   final bool showFpsIfAvailable;
   final bool showRemoteIndicator;
+  final VoidCallback? onHidePressed;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -98,6 +100,7 @@ class Webcam extends HookConsumerWidget {
           imageBuilder: imageBuilder,
           showFps: showFpsIfAvailable,
           stackChild: modifiedStack,
+          onHidePressed: onHidePressed,
         );
 
       case WebcamServiceType.webRtcGo2Rtc:
@@ -107,6 +110,7 @@ class Webcam extends HookConsumerWidget {
           webcamInfo: webcamInfo,
           stackContent: modifiedStack,
           imageBuilder: imageBuilder,
+          onHidePressed: onHidePressed,
         );
       default:
         return Text(

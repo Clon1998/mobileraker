@@ -31,6 +31,10 @@ part 'limits_card.g.dart';
 class LimitsCard extends HookWidget {
   const LimitsCard({super.key, required this.machineUUID});
 
+  static Widget preview() {
+    return const _Preview();
+  }
+
   final String machineUUID;
 
   @override
@@ -39,10 +43,30 @@ class LimitsCard extends HookWidget {
 
     return Card(
       child: Padding(
-          padding: const EdgeInsets.only(bottom: 15),
-          child: LimitsSlidersOrTexts(machineUUID: machineUUID),
-        ),
-      );
+        padding: const EdgeInsets.only(bottom: 15),
+        child: LimitsSlidersOrTexts(machineUUID: machineUUID),
+      ),
+    );
+  }
+}
+
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key, this.isCard = true});
+
+  final bool isCard;
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
+      ],
+      child:
+          isCard ? const LimitsCard(machineUUID: _machineUUID) : const LimitsSlidersOrTexts(machineUUID: _machineUUID),
+    );
   }
 }
 
@@ -79,6 +103,10 @@ class _LimitsSlidersOrTextsLoading extends StatelessWidget {
 
 class LimitsSlidersOrTexts extends HookConsumerWidget {
   const LimitsSlidersOrTexts({super.key, required this.machineUUID});
+
+  static Widget preview() {
+    return const _Preview(isCard: false);
+  }
 
   final String machineUUID;
 
@@ -222,6 +250,41 @@ class _Controller extends _$Controller {
 
   onEditedMaxAccelToDecel(double value) {
     _printerService.setAccelToDecel(value.toInt());
+  }
+}
+
+class _PreviewController extends _Controller {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    state = const AsyncValue.data(_Model(
+      klippyCanReceiveCommands: true,
+      maxVelocity: 250,
+      maxAccel: 4000,
+      squareCornerVelocity: 5,
+      maxAccelToDecel: 2000,
+    ));
+
+    return const Stream.empty();
+  }
+
+  @override
+  onEditedMaxVelocity(double value) {
+    // do nothing in preview
+  }
+
+  @override
+  onEditedMaxAccel(double value) {
+    // do nothing in preview
+  }
+
+  @override
+  onEditedMaxSquareCornerVelocity(double value) {
+    // do nothing in preview
+  }
+
+  @override
+  onEditedMaxAccelToDecel(double value) {
+    // do nothing in preview
   }
 }
 

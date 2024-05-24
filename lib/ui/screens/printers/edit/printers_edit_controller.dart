@@ -237,10 +237,6 @@ class PrinterEditController extends _$PrinterEditController {
       _machine.httpUri = httpUri;
     }
 
-    var wsUri = buildMoonrakerWebSocketUri(storedValues['wsUrl']);
-    if (wsUri != null) {
-      _machine.wsUri = wsUri;
-    }
     var sslSettings = ref
         .read(sslSettingsControllerProvider(_machine.pinnedCertificateDERBase64, _machine.trustUntrustedCertificate));
     _machine.trustUntrustedCertificate = sslSettings.trustSelfSigned;

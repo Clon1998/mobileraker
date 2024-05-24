@@ -31,6 +31,10 @@ part 'multipliers_card.g.dart';
 class MultipliersCard extends HookWidget {
   const MultipliersCard({super.key, required this.machineUUID});
 
+  static Widget preview() {
+    return const _Preview();
+  }
+
   final String machineUUID;
 
   @override
@@ -41,6 +45,27 @@ class MultipliersCard extends HookWidget {
         padding: const EdgeInsets.only(bottom: 15),
         child: MultipliersSlidersOrTexts(machineUUID: machineUUID),
       ),
+    );
+  }
+}
+
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key, this.isCard = true});
+
+  final bool isCard;
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _controllerProvider(_machineUUID).overrideWith(_PreviewController.new),
+      ],
+      child: isCard
+          ? const MultipliersCard(machineUUID: _machineUUID)
+          : const MultipliersSlidersOrTexts(machineUUID: _machineUUID),
     );
   }
 }
@@ -78,6 +103,10 @@ class _MultipliersSlidersOrTextsLoading extends StatelessWidget {
 
 class MultipliersSlidersOrTexts extends HookConsumerWidget {
   const MultipliersSlidersOrTexts({super.key, required this.machineUUID});
+
+  static Widget preview() {
+    return const _Preview(isCard: false);
+  }
 
   final String machineUUID;
 
@@ -226,6 +255,42 @@ class _Controller extends _$Controller {
 
   onEditedSmoothTime(double value) {
     _printerService.smoothTime(value);
+  }
+}
+
+@riverpod
+class _PreviewController extends _Controller {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    state = const AsyncValue.data(_Model(
+      klippyCanReceiveCommands: true,
+      speedFactor: 1.25,
+      extrudeFactor: 0.98,
+      pressureAdvance: 0.65,
+      smoothTime: 0.069,
+    ));
+
+    return const Stream.empty();
+  }
+
+  @override
+  onEditedSpeedMultiplier(double value) {
+    // do nothing preview
+  }
+
+  @override
+  onEditedFlowMultiplier(double value) {
+    // do nothing preview
+  }
+
+  @override
+  onEditedPressureAdvanced(double value) {
+    // do nothing preview
+  }
+
+  @override
+  onEditedSmoothTime(double value) {
+    // do nothing preview
   }
 }
 

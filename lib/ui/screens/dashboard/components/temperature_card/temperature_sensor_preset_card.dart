@@ -23,7 +23,7 @@ import 'temperature_preset_card.dart';
 class TemperatureSensorPresetCard extends HookConsumerWidget {
   const TemperatureSensorPresetCard({super.key, required this.machineUUID});
 
-  factory TemperatureSensorPresetCard.preview() {
+  static Widget preview() {
     return const _TemperatureSensorPresetCardPreview();
   }
 
@@ -58,13 +58,13 @@ class TemperatureSensorPresetCard extends HookConsumerWidget {
   }
 }
 
-class _TemperatureSensorPresetCardPreview extends TemperatureSensorPresetCard {
+class _TemperatureSensorPresetCardPreview extends HookWidget {
   static const String _machineUUID = 'preview';
 
-  const _TemperatureSensorPresetCardPreview({super.key}) : super(machineUUID: _machineUUID);
+  const _TemperatureSensorPresetCardPreview({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return HeaterSensorCard.preview();
   }

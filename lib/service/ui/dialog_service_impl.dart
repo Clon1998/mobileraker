@@ -15,6 +15,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
+import 'package:mobileraker/ui/components/dialog/dashboard_page_settings.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/http_headers/http_header_dialog.dart';
@@ -55,6 +56,7 @@ enum DialogType implements DialogIdentifierMixin {
   supporterOnlyFeature,
   macroSettings,
   screwsTiltAdjust,
+  dashboardPageSettings,
 }
 
 DialogService dialogServiceImpl(DialogServiceRef ref) => DialogServiceImpl(ref);
@@ -98,6 +100,7 @@ class DialogServiceImpl implements DialogService {
     DialogType.supporterOnlyFeature: (r, c) => SupporterOnlyDialog(request: r, completer: c),
     DialogType.macroSettings: (r, c) => MacroSettingsDialog(request: r, completer: c),
     DialogType.screwsTiltAdjust: (r, c) => ScrewsTiltAdjustDialog(request: r, completer: c),
+    DialogType.dashboardPageSettings: (r, c) => DashboardPageSettings(request: r, completer: c),
   };
 
   @override

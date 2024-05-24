@@ -12,6 +12,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_stepper/easy_stepper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -260,8 +261,12 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var simpleFormState = ref.watch(simpleFormControllerProvider);
-    var simpleFormController = ref.watch(simpleFormControllerProvider.notifier);
+    final simpleFormState = ref.watch(simpleFormControllerProvider);
+    final simpleFormController = ref.watch(simpleFormControllerProvider.notifier);
+
+    final nameFocusNode = useFocusNode();
+    final addFocusNode = useFocusNode();
+    final apiFocusNode = useFocusNode();
 
     var scheme = Theme.of(context).colorScheme;
     return Column(
@@ -277,6 +282,7 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
         ),
         SectionHeader(title: tr('pages.setting.general.title')),
         FormBuilderTextField(
+          focusNode: nameFocusNode,
           keyboardType: TextInputType.text,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
@@ -285,8 +291,11 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
           name: 'simple.name',
           initialValue: tr('pages.printer_add.initial_name'),
           validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+          onSubmitted: (txt) => simpleFormController.focusNext('simple.name', nameFocusNode, addFocusNode),
+          textInputAction: TextInputAction.next,
         ),
         FormBuilderTextField(
+          focusNode: addFocusNode,
           keyboardType: TextInputType.url,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           // initialValue: simpleFormState.httpUri?.skipScheme(),
@@ -307,11 +316,14 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
             FormBuilderValidators.url(requireTld: false),
             MobilerakerFormBuilderValidator.simpleUrl(),
           ]),
+          onSubmitted: (txt) => simpleFormController.focusNext('simple.url', addFocusNode, apiFocusNode),
+          textInputAction: TextInputAction.next,
         ),
         Row(
           children: [
             Flexible(
               child: FormBuilderTextField(
+                focusNode: apiFocusNode,
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
@@ -319,6 +331,8 @@ class _SimpleUrlInputStepScreen extends HookConsumerWidget {
                   helperMaxLines: 3,
                 ),
                 name: 'simple.apikey',
+                textInputAction: TextInputAction.done,
+                onSubmitted: (txt) => simpleFormController.proceed(),
               ),
             ),
             IconButton(
@@ -361,6 +375,11 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
     var advancedFormState = ref.watch(advancedFormControllerProvider);
     var advancedFormController = ref.watch(advancedFormControllerProvider.notifier);
 
+    final nameFocusNode = useFocusNode();
+    final addressFocusNode = useFocusNode();
+    final timeoutFocusNode = useFocusNode();
+    final apiFocusNode = useFocusNode();
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,6 +394,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
         ),
         SectionHeader(title: tr('pages.setting.general.title')),
         FormBuilderTextField(
+          focusNode: nameFocusNode,
           keyboardType: TextInputType.text,
           autovalidateMode: AutovalidateMode.onUserInteraction,
           decoration: InputDecoration(
@@ -383,8 +403,11 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
           name: 'advanced.name',
           initialValue: tr('pages.printer_add.initial_name'),
           validator: FormBuilderValidators.compose([FormBuilderValidators.required()]),
+          onSubmitted: (txt) => advancedFormController.focusNext('advanced.name', nameFocusNode, addressFocusNode),
+          textInputAction: TextInputAction.next,
         ),
         FormBuilderTextField(
+          focusNode: addressFocusNode,
           decoration: InputDecoration(
             labelText: 'pages.printer_edit.general.printer_addr'.tr(),
             hintText: 'E.g.: 192.1.1.1',
@@ -392,7 +415,6 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
           ),
           name: 'advanced.http',
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          onChanged: advancedFormController.onHttpUriChanged,
           // initialValue: advancedFormState.httpUri?.toString(),
           validator: FormBuilderValidators.compose([
             FormBuilderValidators.required(),
@@ -402,25 +424,11 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
               protocols: ['http', 'https'],
             ),
           ]),
+          onSubmitted: (txt) => advancedFormController.focusNext('advanced.http', addressFocusNode, timeoutFocusNode),
+          textInputAction: TextInputAction.next,
         ),
         FormBuilderTextField(
-          decoration: InputDecoration(
-            labelText: 'pages.printer_edit.general.ws_addr'.tr(),
-            hintText: advancedFormState.wsUriFromHttpUri?.toString() ?? 'E.g.: 192.1.1.1/websocket',
-            helperText: tr('pages.printer_add.advanced_form.ws_helper'),
-          ),
-          name: 'advanced.ws',
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          // initialValue: advancedFormState.wsUri?.toString(),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.url(
-              requireTld: false,
-              requireProtocol: false,
-              protocols: ['ws', 'wss'],
-            ),
-          ]),
-        ),
-        FormBuilderTextField(
+          focusNode: timeoutFocusNode,
           keyboardType: const TextInputType.numberWithOptions(),
           decoration: InputDecoration(
             labelText: 'pages.printer_edit.general.timeout_label'.tr(),
@@ -437,6 +445,9 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             FormBuilderValidators.max(600),
             FormBuilderValidators.integer(),
           ]),
+          onSubmitted: (txt) =>
+              advancedFormController.focusNext('advanced.localTimeout', timeoutFocusNode, apiFocusNode),
+          textInputAction: TextInputAction.next,
         ),
         SectionHeader(
           title: tr('pages.printer_add.advanced_form.section_security'),
@@ -445,6 +456,7 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
           children: [
             Flexible(
               child: FormBuilderTextField(
+                focusNode: apiFocusNode,
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),
@@ -452,6 +464,8 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
                   helperMaxLines: 3,
                 ),
                 name: 'advanced.apikey',
+                onSubmitted: (txt) => advancedFormController.focusNext('advanced.localTimeout', apiFocusNode),
+                textInputAction: TextInputAction.next,
               ),
             ),
             IconButton(

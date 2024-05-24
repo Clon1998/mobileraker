@@ -38,7 +38,7 @@ part 'z_offset_card.g.dart';
 class ZOffsetCard extends HookConsumerWidget {
   const ZOffsetCard({super.key, required this.machineUUID});
 
-  factory ZOffsetCard.preview() {
+  static Widget preview() {
     return const _ZOffsetCardPreview();
   }
 
@@ -71,21 +71,19 @@ class ZOffsetCard extends HookConsumerWidget {
   }
 }
 
-class _ZOffsetCardPreview extends ZOffsetCard {
+class _ZOffsetCardPreview extends HookWidget {
   static const String _machineUUID = 'preview';
 
-  const _ZOffsetCardPreview({super.key}) : super(machineUUID: _machineUUID);
+  const _ZOffsetCardPreview({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     useAutomaticKeepAlive();
     return ProviderScope(
       overrides: [
         _zOffsetCardControllerProvider(_machineUUID).overrideWith(_ZOffsetCardPreviewController.new),
       ],
-      child: Consumer(
-        builder: (innerContext, innerRef, _) => super.build(innerContext, innerRef),
-      ),
+      child: const ZOffsetCard(machineUUID: _machineUUID),
     );
   }
 }
@@ -291,13 +289,15 @@ class _ZOffsetCardPreviewController extends _ZOffsetCardController {
   @override
   Stream<_Model> build(String machineUUID) {
     logger.i('Using Preview Controller for ZOffsetCard');
-    return Stream.value(const _Model(
+    state = const AsyncValue.data(_Model(
       showCard: true,
       klippyCanReceiveCommands: true,
       zOffset: 1.234,
       steps: [0.1, 0.05, 0.01, 0.005],
       selected: 1,
     ));
+
+    return const Stream.empty();
   }
 
   @override

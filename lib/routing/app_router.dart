@@ -42,7 +42,7 @@ import 'package:mobileraker_pro/spoolman/dto/spool.dart';
 import 'package:mobileraker_pro/spoolman/dto/vendor.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../ui/screens/dashboard/dashboard_page_new.dart';
+import '../ui/screens/dashboard/customizable_dashboard_page.dart';
 import '../ui/screens/files/details/video_player_page.dart';
 import '../ui/screens/tools/tool_page.dart';
 
@@ -107,7 +107,7 @@ GoRouter goRouterImpl(GoRouterRef ref) {
       GoRoute(
         path: '/',
         name: AppRoute.dashBoard.name,
-        builder: (context, state) => const DynamicDashboardPage(),
+        builder: (context, state) => const CustomizableDashboardPage(),
         // builder: (context, state) => const DashboardPage(),
       ),
       GoRoute(

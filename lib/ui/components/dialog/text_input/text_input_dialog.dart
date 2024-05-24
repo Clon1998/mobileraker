@@ -39,17 +39,20 @@ class TextInputDialog extends HookWidget {
   @override
   Widget build(BuildContext context) {
     var formKey = useState(GlobalKey<FormBuilderState>());
+    var isValid = useState(true);
 
     var dialogArgs = request.data as TextInputDialogArguments;
 
     return MobilerakerDialog(
       actionText: request.actionLabel ?? tr('general.confirm'),
-      onAction: () {
-        if (formKey.value.currentState!.saveAndValidate()) {
-          String formValue = formKey.value.currentState!.value['newValue'];
-          completer(DialogResponse(confirmed: true, data: formValue));
-        }
-      },
+      onAction: isValid.value
+          ? () {
+              if (formKey.value.currentState!.saveAndValidate()) {
+                String formValue = formKey.value.currentState!.value['newValue'];
+                completer(DialogResponse(confirmed: true, data: formValue));
+              }
+            }
+          : null,
       dismissText: request.dismissLabel ?? tr('general.cancel'),
       onDismiss: () => completer(DialogResponse(confirmed: false)),
       child: FormBuilder(
@@ -68,6 +71,9 @@ class TextInputDialog extends HookWidget {
               initialValue: dialogArgs.initialValue,
               name: 'newValue',
               keyboardType: TextInputType.text,
+              onChanged: (value) {
+                isValid.value = formKey.value.currentState!.saveAndValidate();
+              },
               decoration: InputDecoration(
                 border: const UnderlineInputBorder(),
                 contentPadding: const EdgeInsets.all(8.0),

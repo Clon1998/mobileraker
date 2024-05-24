@@ -448,17 +448,52 @@ class _SectionHeader extends StatelessWidget {
   }
 }
 
+const Map<String, String> languageToCountry = {
+  'af': 'ZA',
+  'en': 'US',
+  'de': 'DE',
+  'fr': 'FR',
+  'es': 'ES',
+  'it': 'IT',
+  'ja': 'JP',
+  'zh': 'CN',
+  'ru': 'RU',
+  'uk': 'UA',
+  // Add more mappings as needed
+};
+
 class _LanguageSelector extends ConsumerWidget {
   const _LanguageSelector({super.key});
 
-  String constructLanguageText(Locale local) {
-    String out = 'languages.languageCode.${local.languageCode}.nativeName'.tr();
+  //Fallback
 
-    if (local.countryCode != null) {
-      String country = 'languages.countryCode.${local.countryCode}.nativeName'.tr();
+  String countryCodeToEmoji(String languageCode) {
+    String? countryCode = languageToCountry[languageCode] ?? languageCode;
+
+    // Convert the country code to uppercase
+    countryCode = countryCode.toUpperCase();
+
+    // Ensure the country code is exactly two letters
+    if (countryCode.length != 2) {
+      return 'Invalid country code';
+    }
+
+    // Convert the country code to a flag emoji
+    final int firstLetter = countryCode.codeUnitAt(0) - 0x41 + 0x1F1E6;
+    final int secondLetter = countryCode.codeUnitAt(1) - 0x41 + 0x1F1E6;
+
+    return String.fromCharCode(firstLetter) + String.fromCharCode(secondLetter);
+  }
+
+  String constructLanguageText(Locale locale) {
+    String out = 'languages.languageCode.${locale.languageCode}.nativeName'.tr();
+
+    if (locale.countryCode != null) {
+      String country = 'languages.countryCode.${locale.countryCode}.nativeName'.tr();
       out += ' ($country)';
     }
-    return out;
+
+    return '${countryCodeToEmoji(locale.languageCode)} $out';
   }
 
   @override

@@ -1,5 +1,28 @@
 # Mobileraker - Changelog
 
+## [2.7.0] - 2024-xx-xx
+
+### New Features
+
+- [Supporters] Introduced customizable dashboards, allowing users to create up to five tabs and personalize them with
+  various cards. [#11](https://github.com/Clon1998/mobileraker/issues/11)
+
+### Enhancements
+
+- Added country-flags to the language selection for better accessibility.
+- Included a disclaimer for remote connection failures to clarify the differences between _Mobileraker-Supporters_ and
+  _OctoEverywhere_/_Obico-Supporters_.
+- Removed the `Websocket Address` field from printer settings as it was unnecessary and confusing.
+- Improved the display of error messages for webcam cards to ensure clarity and consistency.
+- If only one webcam is present, and it fails to load, the entire webcam card can now be
+  hidden. [#217](https://github.com/Clon1998/mobileraker/issues/217)
+
+### Bug Fixes
+
+- Fixed the Back Button on the printer add page.
+- The Spoolman card now displays the remaining filament with two decimal
+  places. [#364](https://github.com/Clon1998/mobileraker/issues/364)
+
 ## [2.6.19] - 2024-05-09
 
 ### Enhancements

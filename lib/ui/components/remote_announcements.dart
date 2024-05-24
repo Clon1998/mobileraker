@@ -10,11 +10,14 @@ import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
+import 'package:common/ui/components/mobileraker_icon_button.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../routing/app_router.dart';
 import 'adaptive_horizontal_page.dart';
@@ -81,6 +84,15 @@ class _MessageBoard extends HookWidget {
 
   @override
   Widget build(BuildContext context) {
+    return AdaptiveHorizontalPage(
+      pageStorageKey: 'asdasd',
+      padding: const EdgeInsets.only(top: 8),
+      // crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (var message in messages) _MessageCard(message: message),
+      ],
+    );
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
@@ -103,28 +115,57 @@ class _MessageCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
+    VoidCallback? onTap = switch (message) {
+      DeveloperAnnouncementEntry(:final link?) => () => openUrl(link),
+      DeveloperAnnouncementEntry(type: DeveloperAnnouncementEntryType.advertisement) =>
+        ref.read(_remoteAnnouncementsControllerProvider.notifier).navigateToSupporterPage,
+      _ => null,
+    };
 
-    var isAd = message.type == DeveloperAnnouncementEntryType.advertisement;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    final themeData = Theme.of(context);
+    final customColors = themeData.extension<CustomColors>()!;
+    final Color? borderColor = switch (message.type) {
+      DeveloperAnnouncementEntryType.advertisement => themeData.colorScheme.tertiary,
+      DeveloperAnnouncementEntryType.info => themeData.colorScheme.secondary,
+      DeveloperAnnouncementEntryType.critical => customColors.warning,
+      _ => themeData.colorScheme.primary,
+    };
+
+    /// If this property is null then [CardTheme.shape] of [ThemeData.cardTheme]
+    /// is used. If that's null then the shape will be a [RoundedRectangleBorder]
+    /// with a circular corner radius of 12.0 and if [ThemeData.useMaterial3] is
+    /// false, then the circular corner radius will be 4.0.
+    final cardTheme = themeData.cardTheme;
+    final borderRadius = BorderRadius.circular(themeData.useMaterial3 ? 12.0 : 4.0);
+    final shape = Border(left: BorderSide(color: borderColor ?? themeData.colorScheme.primary, width: 3)) +
+        (cardTheme.shape ?? RoundedRectangleBorder(borderRadius: borderRadius));
+
+    return Card(
+      shape: shape,
       child: InkWell(
-        onTap: isAd ? ref.read(_remoteAnnouncementsControllerProvider.notifier).navigateToSupporterPage : null,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(message.title, style: themeData.textTheme.labelLarge),
-                IconButton(
-                  onPressed: () => ref.read(_remoteAnnouncementsControllerProvider.notifier).dismiss(message),
-                  icon: const Icon(Icons.close),
+        borderRadius: borderRadius,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              const SizedBox(width: 4),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(message.title, style: themeData.textTheme.labelLarge),
+                    Text(message.body, style: _bodyColor(themeData), textAlign: TextAlign.justify),
+                  ],
                 ),
-              ],
-            ),
-            Text(message.body, style: _bodyColor(themeData), textAlign: TextAlign.justify),
-          ],
+              ),
+              MobilerakerIconButton(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                onPressed: () => ref.read(_remoteAnnouncementsControllerProvider.notifier).dismiss(message),
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -133,5 +174,9 @@ class _MessageCard extends ConsumerWidget {
   TextStyle? _bodyColor(ThemeData themeData) {
     var col = (themeData.useMaterial3) ? themeData.colorScheme.onSurface : themeData.textTheme.bodySmall?.color;
     return themeData.textTheme.bodyMedium?.copyWith(color: col);
+  }
+
+  void openUrl(String url) {
+    launchUrlString(url, mode: LaunchMode.externalApplication).ignore();
   }
 }

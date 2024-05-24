@@ -162,24 +162,6 @@ class _Body extends ConsumerWidget {
                 contextMenuBuilder: defaultContextMenuBuilder,
               ),
               FormBuilderTextField(
-                keyboardType: TextInputType.url,
-                decoration: InputDecoration(
-                  labelText: 'pages.printer_edit.general.ws_addr'.tr(),
-                  hintText: 'pages.printer_edit.general.full_url'.tr(),
-                ),
-                name: 'wsUrl',
-                initialValue: machine.wsUri.toString(),
-                validator: FormBuilderValidators.compose([
-                  FormBuilderValidators.required(),
-                  FormBuilderValidators.url(
-                    requireTld: false,
-                    requireProtocol: false,
-                    protocols: ['ws', 'wss'],
-                  ),
-                ]),
-                contextMenuBuilder: defaultContextMenuBuilder,
-              ),
-              FormBuilderTextField(
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
                   labelText: 'pages.printer_edit.general.moonraker_api_key'.tr(),

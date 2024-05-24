@@ -135,7 +135,7 @@ class _DialogBody extends ConsumerWidget {
                   .map(
                     (e) => DropdownMenuItem<ImportMachineSettingsResult>(
                       value: e,
-                      child: Text('${e.machine.name} (${e.machine.wsUri.host})'),
+                      child: Text('${e.machine.name} (${e.machine.httpUri.host})'),
                     ),
                   )
                   .toList(growable: false),

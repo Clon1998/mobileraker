@@ -10,16 +10,18 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 
 class HorizontalScrollIndicator extends StatefulWidget {
-  final int steps;
+  final int dots;
   final ScrollController controller;
   final int? childsPerScreen;
+  final DotsDecorator? decorator;
 
   const HorizontalScrollIndicator({
     super.key,
-    required this.steps,
+    required this.dots,
     required this.controller,
     this.childsPerScreen,
-  }) : assert(steps > 0);
+    this.decorator,
+  }) : assert(dots > 0, 'dots must be greater than 0');
 
   @override
   State<HorizontalScrollIndicator> createState() => _HorizontalScrollIndicatorState();
@@ -47,7 +49,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
   }
 
   _init() {
-    steps = (widget.childsPerScreen == null) ? widget.steps : (widget.steps / widget.childsPerScreen!).ceil();
+    steps = (widget.childsPerScreen == null) ? widget.dots : (widget.dots / widget.childsPerScreen!).ceil();
 
     // Ensure that only one listener is attached
     controller.removeListener(_updateIndexFromOffset);
@@ -103,7 +105,7 @@ class _HorizontalScrollIndicatorState extends State<HorizontalScrollIndicator> {
     return DotsIndicator(
       dotsCount: steps,
       position: max(_curIndex, 0),
-      decorator: DotsDecorator(activeColor: Theme.of(context).colorScheme.primary),
+      decorator: widget.decorator ?? DotsDecorator(activeColor: Theme.of(context).colorScheme.primary),
     );
   }
 

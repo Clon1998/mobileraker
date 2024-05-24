@@ -3,6 +3,7 @@
  * All rights reserved.
  */
 
+import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ import 'package:mobileraker_pro/ui/components/bottomsheet/spool_action_spoolman_
 
 import '../../ui/components/bottomsheet/bed_mesh_settings_sheet.dart';
 import '../../ui/components/bottomsheet/dashboard_cards_sheet.dart';
+import '../../ui/components/bottomsheet/dashboard_layout_sheet.dart';
 import '../../ui/components/bottomsheet/macro_group/manage_macro_group_macros_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet.dart';
 import '../../ui/components/bottomsheet/remote_connection/add_remote_connection_bottom_sheet_controller.dart';
@@ -28,6 +30,7 @@ enum SheetType implements BottomSheetIdentifierMixin {
   userManagement,
   bedMeshSettings,
   dashboardCards,
+  dashobardLayout,
   ;
 }
 
@@ -57,6 +60,11 @@ class BottomSheetServiceImpl implements BottomSheetService {
     ProSheetType.spoolActionsSpoolman: (ctx, data) => switch (data) {
           [String machineUUID, Spool spool] => SpoolActionSpoolmanSheet(machineUUID: machineUUID, spool: spool),
           _ => throw ArgumentError('Invalid data type for ProSheetType.spoolActionsSpoolman: $data'),
+        },
+    SheetType.dashobardLayout: (ctx, data) => switch (data) {
+          [String machineUUID, DashboardLayout layout] =>
+            DashboardLayoutBottomSheet(machineUUID: machineUUID, currentLayout: layout),
+          _ => throw ArgumentError('Invalid data type for ProSheetType.dashobardLayout: $data'),
         },
   };
 

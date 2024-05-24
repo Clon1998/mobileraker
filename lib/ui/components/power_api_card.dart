@@ -37,6 +37,10 @@ part 'power_api_card.g.dart';
 class PowerApiCard extends HookConsumerWidget {
   const PowerApiCard({super.key, required this.machineUUID});
 
+  static Widget preview() {
+    return const _Preview();
+  }
+
   final String machineUUID;
 
   CompositeKey get _hadPowerApi => CompositeKey.keyWithString(UiKeys.hadPowerAPI, machineUUID);
@@ -77,6 +81,23 @@ class PowerApiCard extends HookConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _powerApiCardControllerProvider(_machineUUID).overrideWith(_PowerApiCardPreviewController.new),
+      ],
+      child: const PowerApiCard(machineUUID: _machineUUID),
     );
   }
 }
@@ -273,6 +294,35 @@ class _PowerApiCardController extends _$PowerApiCardController {
 
   Future<PowerState> updateDeviceState(PowerDevice device, PowerState state) async {
     return _powerService.setDeviceStatus(device.name, state);
+  }
+}
+
+class _PowerApiCardPreviewController extends _PowerApiCardController {
+  @override
+  Future<_Model> build(String machineUUID) {
+    const model = _Model(
+      devices: [
+        PowerDevice(name: 'Preview Device', status: PowerState.on, type: PowerDeviceType.gpio),
+        PowerDevice(name: 'Preview Pi', status: PowerState.off, type: PowerDeviceType.mqtt),
+      ],
+      isPrinting: false,
+    );
+    state = const AsyncValue.data(model);
+    return Future.value(model);
+  }
+
+  @override
+  Future<PowerState> updateDeviceState(PowerDevice device, PowerState state) async {
+    // Some fake data processing
+    await Future.delayed(const Duration(milliseconds: 100));
+    final cModel = this.state.requireValue;
+
+    final uModel = cModel.copyWith(
+        devices: cModel.devices.map((d) => d.name == device.name ? d.copyWith(status: state) : d).toList());
+
+    this.state = AsyncValue.data(uModel);
+
+    return state;
   }
 }
 

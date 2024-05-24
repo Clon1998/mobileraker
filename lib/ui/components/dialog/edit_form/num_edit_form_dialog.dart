@@ -6,6 +6,7 @@
 import 'dart:math';
 
 import 'package:common/service/ui/dialog_service_interface.dart';
+import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
@@ -243,38 +244,30 @@ class _RangeEditSlider extends HookWidget {
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
             children: [
-              InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () {
+              MobilerakerIconButton(
+                onPressed: () {
                   onChanged(max(lowerLimit, value - 1));
                 },
-                onLongPress: () {
+                onLongPressed: () {
                   onChanged(lowerLimit);
                 },
-                child: const Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Icon(Icons.remove),
-                ),
+                icon: const Icon(Icons.remove),
               ),
               const Spacer(),
               Text(numberFormat.format(value)),
               const Spacer(),
-              InkWell(
-                customBorder: const CircleBorder(),
-                onTap: () {
+              MobilerakerIconButton(
+                onPressed: () {
                   num t = value + 1;
                   if (t > (upperLimit)) {
                     t = upperLimit;
                   }
                   onChanged(t);
                 },
-                onLongPress: () {
+                onLongPressed: () {
                   onChanged(upperLimit);
                 },
-                child: const Padding(
-                  padding: EdgeInsets.all(12.0),
-                  child: Icon(Icons.add),
-                ),
+                icon: const Icon(Icons.add),
               ),
             ],
           ),

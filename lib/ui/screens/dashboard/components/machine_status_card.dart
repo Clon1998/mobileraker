@@ -39,7 +39,7 @@ part 'machine_status_card.g.dart';
 class MachineStatusCard extends HookConsumerWidget {
   const MachineStatusCard({super.key, required this.machineUUID});
 
-  factory MachineStatusCard.preview() {
+  static Widget preview() {
     return const _MachineStatusCardPreview();
   }
 
@@ -88,20 +88,19 @@ class MachineStatusCard extends HookConsumerWidget {
   }
 }
 
-class _MachineStatusCardPreview extends MachineStatusCard {
+class _MachineStatusCardPreview extends HookWidget {
   static const String _machineUUID = 'preview';
 
-  const _MachineStatusCardPreview({super.key}) : super(machineUUID: _machineUUID);
+  const _MachineStatusCardPreview({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
     return ProviderScope(
       overrides: [
         _machineStatusCardControllerProvider(_machineUUID).overrideWith(_MachineStatusCardPreviewController.new),
       ],
-      child: Consumer(
-        builder: (innerContext, innerRef, _) => super.build(innerContext, innerRef),
-      ),
+      child: const MachineStatusCard(machineUUID: _machineUUID),
     );
   }
 }
@@ -482,6 +481,7 @@ class _MachineStatusCardController extends _$MachineStatusCardController {
   @override
   Stream<_Model> build(String machineUUID) async* {
     ref.keepAliveFor();
+    // updateShouldNotify(previous, next)
     // await Future.delayed(const Duration(seconds: 5));
     // logger.i('Building content for MachineStatusCard for $machineUUID');
     var printerProviderr = printerProvider(machineUUID);
@@ -523,7 +523,7 @@ class _MachineStatusCardController extends _$MachineStatusCardController {
 class _MachineStatusCardPreviewController extends _MachineStatusCardController {
   @override
   Stream<_Model> build(String machineUUID) {
-    return Stream.value(const _Model(
+    state = const AsyncValue.data(_Model(
       klippyConnected: true,
       klippyStatusMessage: 'Ready',
       klipperState: KlipperState.ready,
@@ -534,6 +534,8 @@ class _MachineStatusCardPreviewController extends _MachineStatusCardController {
       m117: 'M117 Message',
       excludeObject: null,
     ));
+
+    return const Stream.empty();
   }
 
   @override

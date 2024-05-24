@@ -21,7 +21,6 @@ import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
-import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart' hide Notification;
@@ -374,10 +373,10 @@ class NotificationService {
       if (next.valueOrFullNull == KlipperState.ready) {
         var fcmToken = await _notifyFCM.requestFirebaseAppToken();
         try {
-          logger.i('Updating FCM settings on ${machine.name}(${machine.wsUri.obfuscate()})');
+          logger.i('Updating FCM settings on ${machine.logNameExtended}');
           await _machineService.updateMachineFcmSettings(machine, fcmToken);
         } catch (e, s) {
-          logger.w('Could not updateMachineFcmSettings on ${machine.name}(${machine.wsUri.obfuscate()})', e, s);
+          logger.w('Could not updateMachineFcmSettings on ${machine.logNameExtended}', e, s);
         }
       }
     });
@@ -387,7 +386,7 @@ class NotificationService {
   }
 
   Future<void> _wipeFCMOnPrinterOnceConnected(Machine machine) async {
-    logger.i('Wiping FCM data on ${machine.name}(${machine.wsUri.obfuscate()})');
+    logger.i('Wiping FCM data on ${machine.logNameExtended}');
     var mProvider = machineProvider(machine.uuid);
     var keepAliveExternally = _ref.keepAliveExternally(mProvider);
     try {
@@ -396,10 +395,10 @@ class NotificationService {
       await _ref.read(mProvider.future);
       // Wait until connected
       await _ref.readWhere<KlipperInstance>(klipperProvider(machine.uuid), (c) => c.klippyState == KlipperState.ready);
-      logger.i('Jrpc Client of ${machine.name}(${machine.wsUri}) is connected, WIPING FCM data on printer now!');
+      logger.i('Jrpc Client of ${machine.logNameExtended} is connected, WIPING FCM data on printer now!');
       await _machineService.removeFCMCapability(machine);
     } catch (e, s) {
-      logger.w('Could not WIPE fcm data on ${machine.name}(${machine.wsUri.obfuscate()})', e, s);
+      logger.w('Could not WIPE fcm data on ${machine.logNameExtended}', e, s);
     } finally {
       // Since I initited the provider before and all hidden machines dont have a machineProvider setup, also remove it again!
       keepAliveExternally.close();

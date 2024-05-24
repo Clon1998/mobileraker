@@ -77,4 +77,10 @@ class DashboardLayout extends HiveObject {
   String toString() {
     return 'DashboardLayout{uuid: $uuid, name: $name, tabs: $tabs}';
   }
+
+  Map<String, dynamic> export() => {
+        'version': 1,
+        'name': name,
+        'tabs': tabs.map((e) => e.export()).toList(),
+      };
 }

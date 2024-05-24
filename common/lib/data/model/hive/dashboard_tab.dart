@@ -4,6 +4,8 @@
  */
 
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
@@ -13,6 +15,19 @@ part 'dashboard_tab.g.dart';
 
 @HiveType(typeId: 9)
 class DashboardTab extends HiveObject {
+  static Map<String, IconData> availableIcons = {
+    'settings': Icons.settings,
+    'dashboard': Icons.dashboard,
+    'info': Icons.info,
+    'tach': FlutterIcons.tachometer_faw,
+    'sliders': FlutterIcons.settings_oct,
+    'printer': FlutterIcons.printer_3d_mco,
+    'nozzle': FlutterIcons.printer_3d_nozzle_mco,
+    'fan': FlutterIcons.fan_mco,
+  };
+
+  static String defaultIcon = 'dashboard';
+
   DashboardTab({
     required this.name,
     required this.icon,
@@ -34,6 +49,8 @@ class DashboardTab extends HiveObject {
   String icon;
   @HiveField(3)
   List<DashboardComponent> components;
+
+  IconData get iconData => availableIcons[icon] ?? Icons.dashboard;
 
   DashboardTab copyWith({
     String? name,
@@ -69,5 +86,14 @@ class DashboardTab extends HiveObject {
   @override
   String toString() {
     return 'DashboardTab{uuid: $uuid, name: $name, components: $components}';
+  }
+
+  Map<String, dynamic> export() {
+    return {
+      'version': 1,
+      'name': name,
+      'icon': icon,
+      'components': components.map((e) => e.export()).toList(),
+    };
   }
 }

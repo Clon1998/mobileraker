@@ -42,6 +42,10 @@ part 'control_extruder_card.g.dart';
 class ControlExtruderCard extends HookConsumerWidget {
   const ControlExtruderCard({super.key, required this.machineUUID});
 
+  static Widget preview() {
+    return const _Preview();
+  }
+
   final String machineUUID;
 
   @override
@@ -66,6 +70,23 @@ class ControlExtruderCard extends HookConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _Preview extends HookWidget {
+  static const String _machineUUID = 'preview';
+
+  const _Preview({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    useAutomaticKeepAlive();
+    return ProviderScope(
+      overrides: [
+        _controlExtruderCardControllerProvider(_machineUUID).overrideWith(_ControlExtruderCardPreviewController.new),
+      ],
+      child: const ControlExtruderCard(machineUUID: _machineUUID),
     );
   }
 }
@@ -371,6 +392,47 @@ class _ControlExtruderCardController extends _$ControlExtruderCardController {
         state = state.whenData((s) => s.copyWith(extruderVelocity: v.toDouble().toPrecision(1)));
       }
     });
+  }
+}
+
+class _ControlExtruderCardPreviewController extends _ControlExtruderCardController {
+  @override
+  Stream<_Model> build(String machineUUID) {
+    state = const AsyncValue.data(
+      _Model(
+        showCard: true,
+        klippyCanReceiveCommands: true,
+        extruderCount: 1,
+        extruderIndex: 0,
+        stepIndex: 0,
+        steps: [1, 5, 10, 20, 50],
+        minExtrudeTemp: 170,
+        minExtrudeTempReached: true,
+        extruderVelocity: 10,
+      ),
+    );
+
+    return const Stream.empty();
+  }
+
+  @override
+  void onExtruderSelected(int? idx) {
+    // Do nothing preview
+  }
+
+  @override
+  Future<void> onMoveE([bool isRetract = false]) async {
+    // Do nothing preview
+  }
+
+  @override
+  void onSelectedStepChanged(int? index) {
+    state = state.whenData((value) => value.copyWith(stepIndex: index ?? 0));
+  }
+
+  @override
+  void onFeedrateButtonPressed() {
+    // Do nothing preview
   }
 }
 

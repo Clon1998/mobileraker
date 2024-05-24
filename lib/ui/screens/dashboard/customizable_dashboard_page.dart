@@ -1,7 +1,9 @@
 /*
- * Copyright (c) 2023-2024. Patrick Schmidt.
+ * Copyright (c) 2024. Patrick Schmidt.
  * All rights reserved.
  */
+
+// ignore_for_file: avoid-passing-async-when-sync-expected
 
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:badges/badges.dart' as badges;
@@ -15,38 +17,35 @@ import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
-import 'package:common/service/ui/dashboard_layout_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/connection/printer_provider_guard.dart';
-import 'package:common/ui/components/nav/nav_drawer_view.dart';
-import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/ui/components/drawer/nav_drawer_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/service/ui/bottom_sheet_service_impl.dart';
+import 'package:mobileraker/service/ui/dialog_service_impl.dart';
 import 'package:mobileraker/ui/components/async_value_widget.dart';
 import 'package:mobileraker/ui/components/connection/machine_connection_guard.dart';
 import 'package:mobileraker/ui/components/emergency_stop_button.dart';
 import 'package:mobileraker/ui/components/machine_state_indicator.dart';
 import 'package:mobileraker_pro/service/moonraker/job_queue_service.dart';
+import 'package:mobileraker_pro/service/ui/dashboard_layout_service.dart';
 import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
-import 'package:responsive_framework/responsive_framework.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../components/dashboard_card.dart';
 import '../../components/filament_sensor_watcher.dart';
 import '../../components/machine_deletion_warning.dart';
 import '../../components/printer_calibration_watcher.dart';
@@ -54,11 +53,11 @@ import '../../components/remote_announcements.dart';
 import '../../components/supporter_ad.dart';
 import 'tabs/dashboard_tab_page.dart';
 
-part 'dashboard_page_new.freezed.dart';
-part 'dashboard_page_new.g.dart';
+part 'customizable_dashboard_page.freezed.dart';
+part 'customizable_dashboard_page.g.dart';
 
-class DynamicDashboardPage extends StatelessWidget {
-  const DynamicDashboardPage({super.key});
+class CustomizableDashboardPage extends StatelessWidget {
+  const CustomizableDashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -85,57 +84,39 @@ class _DashboardView extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Check if the selected machine has changed and reset the page controller to the first page
 
-    final activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
-    Widget body = MachineConnectionGuard(
-      onConnected: (ctx, machineUUID) => PrinterProviderGuard(
-        machineUUID: machineUUID,
-        child: PrinterCalibrationWatcher(
+    var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
+    return Scaffold(
+      appBar: const _AppBar(),
+      body: MachineConnectionGuard(
+        onConnected: (ctx, machineUUID) => PrinterProviderGuard(
           machineUUID: machineUUID,
-          child: FilamentSensorWatcher(
+          child: PrinterCalibrationWatcher(
             machineUUID: machineUUID,
-            child: Builder(builder: (context) {
-              // if (context.layoutLargerThan(MOBILE)) {
-              //   return _UserDashboardTablet(machineUUID: machineUUID);
-              // }
-
-              return _UserDashboardMobile(machineUUID: machineUUID);
-            }),
+            child: FilamentSensorWatcher(
+              machineUUID: machineUUID,
+              child: _Body(machineUUID: machineUUID),
+            ),
           ),
         ),
       ),
-    );
-
-    if (context.layoutLargerThan(MOBILE)) {
-      body = Row(
-        children: [
-          const NavigationRailView(),
-          Expanded(child: body),
-        ],
-      );
-    }
-
-    return Scaffold(
-      appBar: const _AppBar(),
-      body: body,
       floatingActionButton: activeMachine?.uuid.let((it) => _FloatingActionBtn(machineUUID: it)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar:
-          activeMachine?.uuid.let((it) => _BottomNavigationBar(machineUUID: it)).only(context.isMobile),
+      bottomNavigationBar: activeMachine?.uuid.let((it) => _BottomNavigationBar(machineUUID: it)),
       drawer: const NavigationDrawerWidget(),
     );
   }
 }
 
-class _UserDashboardMobile extends ConsumerStatefulWidget {
-  const _UserDashboardMobile({super.key, required this.machineUUID});
+class _Body extends ConsumerStatefulWidget {
+  const _Body({super.key, required this.machineUUID});
 
   final String machineUUID;
 
   @override
-  ConsumerState createState() => _UserDashboardMobileState();
+  ConsumerState createState() => _BodyState();
 }
 
-class _UserDashboardMobileState extends ConsumerState<_UserDashboardMobile> {
+class _BodyState extends ConsumerState<_Body> {
   final PageController pageController = PageController();
 
   String get machineUUID => widget.machineUUID;
@@ -173,7 +154,7 @@ class _UserDashboardMobileState extends ConsumerState<_UserDashboardMobile> {
   }
 
   @override
-  void didUpdateWidget(_UserDashboardMobile oldWidget) {
+  void didUpdateWidget(_Body oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.machineUUID != widget.machineUUID) {
       _lastPage = 0;
@@ -212,6 +193,7 @@ class _UserDashboardMobileState extends ConsumerState<_UserDashboardMobile> {
                 onAddComponent: controller.onTabComponentAdd,
                 onRemoveComponent: controller.onTabComponentRemove,
                 onRemove: controller.onTabRemove,
+                onRequestedEdit: controller.startEditMode,
               ),
           ],
         );
@@ -222,21 +204,31 @@ class _UserDashboardMobileState extends ConsumerState<_UserDashboardMobile> {
   void _setupIndexListener() {
     _subscription?.close();
     // Move Controller event to the UI
-    _subscription = ref.listenManual(_dashboardPageControllerProvider(machineUUID), (previous, next) {
-      if (next.valueOrNull != null &&
-          previous?.valueOrNull?.activeIndex != next.value!.activeIndex &&
-          pageController.hasClients &&
-          _lastPage != next.value!.activeIndex) {
-        WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-          logger.i('[Controller->UI] Page Changed: ${next.value!.activeIndex}');
-          _animationPageTarget = next.value!.activeIndex;
-          if (pageController.hasClients && pageController.positions.isNotEmpty) {
-            pageController.animateToPage(next.value!.activeIndex,
-                duration: kThemeAnimationDuration, curve: Curves.easeOutCubic);
-          }
-        });
-      }
-    });
+    _subscription = ref.listenManual(
+      _dashboardPageControllerProvider(machineUUID),
+      (previous, next) {
+        logger.wtf('previous: ${previous?.valueOrNull?.activeIndex}, next: ${next.valueOrNull?.activeIndex}');
+        logger.wtf('pageController.hasClients: ${pageController.hasClients}, _lastPage: $_lastPage');
+        if (next.valueOrNull != null &&
+            previous?.valueOrNull?.activeIndex != next.value!.activeIndex &&
+            pageController.hasClients &&
+            _lastPage != next.value!.activeIndex) {
+          // ignore: avoid-passing-async-when-sync-expected
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
+            logger.i('[Controller->UI] Page Changed: ${next.value!.activeIndex}');
+            _animationPageTarget = next.value!.activeIndex;
+            if (pageController.hasClients && pageController.positions.isNotEmpty) {
+              logger.i('[Controller->UI] Animating to: ${next.value!.activeIndex}');
+              await pageController.animateToPage(next.value!.activeIndex,
+                  duration: kThemeAnimationDuration, curve: Curves.easeOutCubic);
+              _lastPage = next.value!.activeIndex;
+              logger.i('[Controller->UI] PageController finished animating to: ${pageController.page?.round()}');
+            }
+          });
+        }
+      },
+      fireImmediately: true,
+    );
   }
 
   @override
@@ -244,102 +236,6 @@ class _UserDashboardMobileState extends ConsumerState<_UserDashboardMobile> {
     _subscription?.close();
     pageController.dispose();
     super.dispose();
-  }
-}
-
-class _UserDashboardTablet extends ConsumerStatefulWidget {
-  const _UserDashboardTablet({super.key, required this.machineUUID});
-
-  final String machineUUID;
-
-  @override
-  ConsumerState createState() => _UserDashboardTabletState();
-}
-
-class _UserDashboardTabletState extends ConsumerState<_UserDashboardTablet> {
-  @override
-  Widget build(BuildContext context) {
-    var staticWidgets = [
-      const RemoteAnnouncements(key: Key('RemoteAnnouncements')),
-      const MachineDeletionWarning(key: Key('MachineDeletionWarning')),
-      const SupporterAd(key: Key('SupporterAd')),
-    ];
-
-    var asyncModel = ref.watch(_dashboardPageControllerProvider(widget.machineUUID));
-    var controller = ref.watch(_dashboardPageControllerProvider(widget.machineUUID).notifier);
-
-    var size = MediaQuery.sizeOf(context);
-
-    // for now split the screen in half!
-
-    return AsyncValueWidget(
-      skipLoadingOnReload: true,
-      value: asyncModel,
-      data: (model) {
-        var cards = <Widget>[];
-
-        for (var tab in model.layout.tabs) {
-          cards.addAll(tab.components.map((e) => DasboardCard(
-                type: e.type,
-                machineUUID: widget.machineUUID,
-              )));
-        }
-
-        return GridView.custom(
-          gridDelegate: SliverQuiltedGridDelegate(
-            crossAxisCount: 4,
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
-            repeatPattern: QuiltedGridRepeatPattern.inverted,
-            pattern: [
-              const QuiltedGridTile(2, 2),
-              const QuiltedGridTile(1, 1),
-              const QuiltedGridTile(1, 1),
-              const QuiltedGridTile(1, 2),
-            ],
-          ),
-          childrenDelegate: SliverChildBuilderDelegate(
-            (context, index) => cards[index],
-          ),
-        );
-
-        return MasonryGridView.count(
-          crossAxisCount: 2,
-          mainAxisSpacing: 4,
-          crossAxisSpacing: 4,
-          itemCount: cards.length,
-          itemBuilder: (context, index) {
-            return cards[index];
-          },
-        );
-
-        // return GridView.count(crossAxisCount: 2, children: cards);
-
-        return SafeArea(
-          child: Row(
-            children: [
-              for (var tab in model.layout.tabs)
-                Flexible(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: size.width / 2),
-                    child: DashboardTabPage(
-                      key: ValueKey(tab.hashCode),
-                      machineUUID: widget.machineUUID,
-                      staticWidgets: staticWidgets,
-                      tab: tab,
-                      isEditing: model.isEditing,
-                      onReorder: controller.onTabComponentsReordered,
-                      onAddComponent: controller.onTabComponentAdd,
-                      onRemoveComponent: controller.onTabComponentRemove,
-                      onRemove: controller.onTabRemove,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
-    );
   }
 }
 
@@ -392,6 +288,8 @@ class _PrintingFAB extends ConsumerWidget {
     return SpeedDial(
       icon: FlutterIcons.options_vertical_sli,
       activeIcon: Icons.close,
+      spacing: 5,
+      renderOverlay: false,
       children: [
         SpeedDialChild(
           child: const Icon(Icons.cleaning_services),
@@ -442,8 +340,6 @@ class _PrintingFAB extends ConsumerWidget {
                 .show(BottomSheetConfig(type: ProSheetType.jobQueueMenu, isScrollControlled: true)),
           ),
       ],
-      spacing: 5,
-      overlayOpacity: 0,
     );
   }
 }
@@ -470,11 +366,9 @@ class _EditingModeFAB extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) => FloatingActionButton(
         onPressed: () {
-          //TODO show bottom sheet with options to copy. preview.....
-          // ref.read(bottomSheetServiceProvider).show(BottomSheetConfig(type: SheetType.nonPrintingMenu));
-          ref.read(_dashboardPageControllerProvider(machineUUID).notifier).saveEditMode();
+          ref.read(_dashboardPageControllerProvider(machineUUID).notifier).showLayoutOptionsSheet();
         },
-        child: const Icon(Icons.save_outlined),
+        child: const Icon(Icons.list),
       );
 }
 
@@ -493,9 +387,8 @@ class _BottomNavigationBar extends ConsumerWidget {
     return switch (asyncModel) {
       AsyncData(isLoading: false, value: var model) => AnimatedBottomNavigationBar(
           icons: [
-            for (var tab in model.layout.tabs) FlutterIcons.settings_oct,
+            for (var tab in model.layout.tabs) tab.iconData,
             if (model.isEditing && model.layout.tabs.length < 5) FlutterIcons.plus_ant,
-            if (!model.isEditing) FlutterIcons.edit_2_fea, //This only is temp to trigger mdoe
           ],
           activeColor: themeData.bottomNavigationBarTheme.selectedItemColor ?? colorScheme.onPrimary,
           inactiveColor: themeData.bottomNavigationBarTheme.unselectedItemColor,
@@ -505,13 +398,15 @@ class _BottomNavigationBar extends ConsumerWidget {
           activeIndex: model.activeIndex,
           splashSpeedInMilliseconds: kThemeAnimationDuration.inMilliseconds,
           onTap: (index) {
-            if (model.isEditing && index >= model.layout.tabs.length) {
-              ref.read(_dashboardPageControllerProvider(machineUUID!).notifier).addEmptyPage();
-            } else if (!model.isEditing && index >= model.layout.tabs.length) {
-              ref.read(_dashboardPageControllerProvider(machineUUID!).notifier).startEditMode();
+            if (model.isEditing && index == model.activeIndex) {
+              ref
+                  .read(_dashboardPageControllerProvider(machineUUID).notifier)
+                  .editTapSettings(model.layout.tabs[index]);
+            } else if (model.isEditing && index >= model.layout.tabs.length) {
+              ref.read(_dashboardPageControllerProvider(machineUUID).notifier).addEmptyPage();
             } else {
               logger.i('[BottomNavigationBar] Page Changed: $index');
-              ref.read(_dashboardPageControllerProvider(machineUUID!).notifier).onPageChanged(index);
+              ref.read(_dashboardPageControllerProvider(machineUUID).notifier).onPageChanged(index);
             }
           },
         ),
@@ -532,7 +427,7 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (activeMachine == null) {
       return AppBar(
-        centerTitle: !context.isMobile,
+        centerTitle: false,
         title: const Text('pages.dashboard.title').tr(),
       );
     }
@@ -549,18 +444,20 @@ class _PrinterAppBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     logger.i('Rebuilding _PrinterAppBar for ${machine.name}');
-    var model = ref.watch(_dashboardPageControllerProvider(machine.uuid));
+    final model = ref.watch(_dashboardPageControllerProvider(machine.uuid));
+    final controller = ref.watch(_dashboardPageControllerProvider(machine.uuid).notifier);
 
     return switch (model) {
       AsyncData(value: _Model(isEditing: true)) => AppBar(
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              ref.read(_dashboardPageControllerProvider(machine.uuid).notifier).cancelEditMode();
-            },
+            onPressed: controller.cancelEditMode,
           ),
           centerTitle: false,
-          title: const Text('[WIP] Editing layout...'),
+          title: const Text('pages.customizing_dashboard.title').tr(),
+          actions: [
+            IconButton(icon: const Icon(Icons.save), onPressed: controller.saveCurrentLayout),
+          ],
         ),
       _ => SwitchPrinterAppBar(
           title: tr('pages.dashboard.title'),
@@ -581,6 +478,8 @@ class _DashboardPageController extends _$DashboardPageController {
 
   DialogService get _dialogService => ref.read(dialogServiceProvider);
 
+  BottomSheetService get _bottomSheetService => ref.read(bottomSheetServiceProvider);
+
   DashboardLayoutService get _dashboardLayoutService => ref.read(dashboardLayoutServiceProvider);
 
   DashboardLayout? _originalLayout;
@@ -588,23 +487,9 @@ class _DashboardPageController extends _$DashboardPageController {
   @override
   Future<_Model> build(String machineUUID) async {
     ref.listenSelf((previous, next) {
-      logger.i('DashboardPageController: ${previous?.valueOrNull?.activeIndex}, ${next.valueOrNull?.activeIndex}');
+      logger.i(
+          'DashboardPageController: (aIdx: ${previous?.valueOrNull?.activeIndex}, l:  ${previous?.valueOrNull?.layout.tabs.length}) -> (aIdx: ${next?.valueOrNull?.activeIndex}, l:  ${next?.valueOrNull?.layout.tabs.length})');
     });
-
-    // Listen to the selected machine provider to reset the active index to 0
-    // TODO: Determine if this is still needed -> Different controller for each machine due to machineUUID
-    // ref.listen(selectedMachineProvider, (previous, next) {
-    //   if (previous == null) return;
-    //   if (previous.valueOrNull?.uuid != next.valueOrNull?.uuid) {
-    //     // Required to ensure widgets of new machine have loaded...
-    //     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-    //       if (inited) {
-    //         state = state.whenData((value) => value.copyWith(activeIndex: 0));
-    //       }
-    //     });
-    //   }
-    // });
-    // await Future.delayed(const Duration(milliseconds: 2000));
 
     var layout = await ref.watch(dashboardLayoutProvider(machineUUID).future);
 
@@ -637,11 +522,10 @@ class _DashboardPageController extends _$DashboardPageController {
 
     if (value.layout != _originalLayout) {
       var res = await _dialogService.showConfirm(
-        title: 'Cancel Edit Mode',
-        dismissLabel: tr('general.abort'),
-        actionLabel: tr('general.cancel'),
-        body:
-            'Are you sure you want to cancel editing? All changes will be lost. To save your changes, press the save button.',
+        dismissLabel: tr('general.cancel'),
+        actionLabel: tr('general.discard'),
+        title: tr('pages.customizing_dashboard.cancel_confirm.title'),
+        body: tr('pages.customizing_dashboard.cancel_confirm.body'),
       );
       if (res?.confirmed != true) {
         logger.i('User cancelled canceling edit mode');
@@ -659,12 +543,32 @@ class _DashboardPageController extends _$DashboardPageController {
     _originalLayout = null;
   }
 
-  void saveEditMode() async {
+  void saveCurrentLayout() {
+    var isSupporter = ref.read(isSupporterProvider);
+
+    if (!isSupporter) {
+      _snackbarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.custom_dashboard'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
+
     var value = state.requireValue;
+    if (!value.isEditing) return;
+    logger.i('Save Current Layout');
+    updateLayout(value.layout);
+  }
+
+  ///TODO: ReName, this "Saves" the provided layout and updates the state!
+  void updateLayout(DashboardLayout toUpdate) async {
+    final value = state.requireValue;
     if (!value.isEditing) return;
     logger.i('Stop Edit Mode');
 
-    if (value.layout == _originalLayout) {
+    if (toUpdate == _originalLayout && _originalLayout?.created != null) {
       logger.i('No changes detected');
       state = AsyncValue.data(value.copyWith(isEditing: false, layout: _originalLayout!));
       _originalLayout = null;
@@ -672,16 +576,15 @@ class _DashboardPageController extends _$DashboardPageController {
     }
 
     state = AsyncValue.data(value.copyWith(isEditing: false)).toLoading();
-    var layout = value.layout;
-    await Future.delayed(const Duration(seconds: 2));
-    await _dashboardLayoutService.saveDashboardLayoutForMachine(machineUUID, layout);
+    // await Future.delayed(const Duration(seconds: 2));
+    await _dashboardLayoutService.saveDashboardLayoutForMachine(machineUUID, toUpdate);
     _originalLayout = null;
 
     _snackbarService.show(SnackBarConfig(
       type: SnackbarType.info,
-      title: 'Dashboard Layout Saved',
-      message: 'Your changes have been saved',
-      duration: const Duration(seconds: 3),
+      title: tr('pages.customizing_dashboard.saved_snack.title'),
+      message: tr('pages.customizing_dashboard.saved_snack.body'),
+      duration: const Duration(seconds: 5),
     ));
 
     // state = AsyncValue.data(value.copyWith(isEditing: false));
@@ -695,6 +598,28 @@ class _DashboardPageController extends _$DashboardPageController {
     state = AsyncValue.data(value.copyWith(activeIndex: index));
   }
 
+  Future<void> showLayoutOptionsSheet() async {
+    var result = await _bottomSheetService.show(BottomSheetConfig(
+        type: SheetType.dashobardLayout, data: [machineUUID, state.requireValue.layout], isScrollControlled: true));
+    // switch (result ){
+    //   case BottomSheetResult(confirmed: true, data: DashboardLayoutSheetResult(layout: var layout!, type: DashboardLayoutSheetResultType.save)):
+    //     updateLayout(layout);
+    //     break;
+    // }
+
+    if (result case BottomSheetResult(confirmed: true, data: DashboardLayout() && var toLoad)) {
+      if (toLoad == state.requireValue.layout) {
+        logger.i('No changes detected');
+        return;
+      }
+      logger.i('Changing layout...');
+      // logger.w('Old Layout: ${state.requireValue.layout}');
+      // logger.e('New Layout: $toLoad');
+
+      state = AsyncValue.data(state.requireValue.copyWith(layout: toLoad, activeIndex: 0));
+    }
+  }
+
   void addEmptyPage() {
     final value = state.requireValue;
     if (!value.isEditing) return;
@@ -703,18 +628,31 @@ class _DashboardPageController extends _$DashboardPageController {
       return;
     }
     logger.i('Add Empty Page');
-    var nTab = DashboardTab(
-      name: 'New Page',
-      icon: '',
-      components: [],
-    );
+    var nTab = _dashboardLayoutService.emptyDashboardTab();
 
     var mLayout = value.layout.copyWith(tabs: [...value.layout.tabs, nTab]);
 
     state = AsyncValue.data(value.copyWith(
-      activeIndex: mLayout.tabs.length,
+      activeIndex: mLayout.tabs.length - 1,
       layout: mLayout,
     ));
+  }
+
+  void editTapSettings(DashboardTab tab) async {
+    final result = await _dialogService.show(
+      DialogRequest(type: DialogType.dashboardPageSettings, data: tab),
+    );
+    if (result != null && result.confirmed == true) {
+      if (tab.icon == result.data) return;
+
+      // We act like this is an immutable...
+      final value = state.requireValue;
+      final mTab = tab.copyWith(icon: result.data as String);
+      final mLayout = value.layout.copyWith(
+        tabs: value.layout.tabs.map((e) => e.uuid == tab.uuid ? mTab : e).toList(),
+      );
+      state = AsyncValue.data(value.copyWith(layout: mLayout));
+    }
   }
 
   void onTabComponentsReordered(DashboardTab tab, int oldIndex, int newIndex) {
@@ -778,12 +716,12 @@ class _DashboardPageController extends _$DashboardPageController {
     if (!value.isEditing) return;
 
     logger.i('Remove Tab request for tab ${tab.name}');
-    if (value.layout.tabs.length == 1) {
+    if (value.layout.tabs.length <= 2) {
       logger.i('Cannot remove last page');
       _snackbarService.show(SnackBarConfig(
         type: SnackbarType.warning,
-        title: 'Cannot remove last page',
-        message: 'You cannot remove the last page',
+        title: tr('pages.customizing_dashboard.cant_remove_snack.title'),
+        message: tr('pages.customizing_dashboard.cant_remove_snack.body'),
         duration: const Duration(seconds: 3),
       ));
       return;
@@ -791,8 +729,8 @@ class _DashboardPageController extends _$DashboardPageController {
 
     if (tab.components.isNotEmpty) {
       var res = await _dialogService.showConfirm(
-        title: 'Remove Page',
-        body: 'Are you sure you want to remove this page?',
+        title: tr('pages.customizing_dashboard.confirm_removal.title'),
+        body: tr('pages.customizing_dashboard.confirm_removal.body'),
       );
       if (res?.confirmed != true) return;
     }
