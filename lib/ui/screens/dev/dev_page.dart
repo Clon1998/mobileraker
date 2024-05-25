@@ -13,6 +13,8 @@ import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:dio/dio.dart';
@@ -38,13 +40,8 @@ class DevPage extends HookConsumerWidget {
 
     var systemInfo = ref.watch(klipperSystemInfoProvider(selMachine!.uuid));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dev'),
-      ),
-      drawer: const NavigationDrawerWidget(),
-      body: ListView(
-        children: [
+    Widget body = ListView(
+      children: [
           // PowerApiCardLoading(),
 
           // BedMeshCard(machineUUID: selMachine!.uuid),
@@ -109,7 +106,23 @@ class DevPage extends HookConsumerWidget {
           //   data: (data) => getMeshChart(data),
           // ),
         ],
+    );
+
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dev'),
       ),
+      drawer: const NavigationDrawerWidget(),
+      body: body,
     );
   }
 

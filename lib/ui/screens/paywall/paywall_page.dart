@@ -35,57 +35,46 @@ class PaywallPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    Widget body = LoaderOverlay(
-      useDefaultLoading: false,
-      overlayWidgetBuilder: (_) => Center(
-        child: Column(
-          key: UniqueKey(),
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SpinKitFadingCube(
-              color: Theme.of(context).colorScheme.secondary,
+    return Scaffold(
+      drawer: const NavigationDrawerWidget(),
+      body: LoaderOverlay(
+        useDefaultLoading: false,
+        overlayWidgetBuilder: (_) => Center(
+          child: Column(
+            key: UniqueKey(),
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SpinKitFadingCube(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              const SizedBox(height: 30),
+              FadingText(tr('pages.paywall.calling_store')),
+              // Text("Fetching printer ...")
+            ],
+          ),
+        ),
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
+          slivers: [
+            SliverLayoutBuilder(builder: (context, constraints) {
+              return SliverAppBar(
+                expandedHeight: 210,
+                floating: false,
+                flexibleSpace: FlexibleSpaceBar(
+                  collapseMode: CollapseMode.parallax,
+                  background: SvgPicture.asset(
+                    'assets/vector/undraw_pair_programming_re_or4x.svg',
+                  ),
+                ),
+              );
+            }),
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: _PaywallPage(),
             ),
-            const SizedBox(height: 30),
-            FadingText(tr('pages.paywall.calling_store')),
-            // Text("Fetching printer ...")
           ],
         ),
       ),
-      child: CustomScrollView(
-        physics: const ClampingScrollPhysics(),
-        slivers: [
-          SliverLayoutBuilder(builder: (context, constraints) {
-            return SliverAppBar(
-              expandedHeight: 210,
-              floating: false,
-              flexibleSpace: FlexibleSpaceBar(
-                collapseMode: CollapseMode.parallax,
-                background: SvgPicture.asset(
-                  'assets/vector/undraw_pair_programming_re_or4x.svg',
-                ),
-              ),
-            );
-          }),
-          const SliverFillRemaining(
-            hasScrollBody: false,
-            child: _PaywallPage(),
-          ),
-        ],
-      ),
-    );
-
-    if (context.isLargerThanMobile) {
-      body = Row(
-        children: [
-          const NavigationRailView(),
-          Expanded(child: body),
-        ],
-      );
-    }
-
-    return Scaffold(
-      drawer: const NavigationDrawerWidget(),
-      body: body,
     );
   }
 }
@@ -138,7 +127,7 @@ class _PaywallPage extends ConsumerWidget {
       },
     );
 
-    return ref.watch(paywallPageControllerProvider).when(
+    Widget widget = ref.watch(paywallPageControllerProvider).when(
           data: (data) => _PaywallOfferings(model: data),
           error: (e, s) {
             if (e is PlatformException) {
@@ -221,6 +210,17 @@ class _PaywallPage extends ConsumerWidget {
             ],
           ),
         );
+
+    if (context.isLargerThanMobile) {
+      return Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: widget),
+        ],
+      );
+    }
+
+    return widget;
   }
 }
 
