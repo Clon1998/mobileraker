@@ -191,18 +191,23 @@ class _WelcomeMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: 600),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        // mainAxisSize: MainAxisSize.min,
         children: [
           Flexible(
-            child: SvgPicture.asset(
-              'assets/vector/undraw_hello_re_3evm.svg',
+            child: FractionallySizedBox(
+              heightFactor: 0.5,
+              child: SvgPicture.asset(
+                'assets/vector/undraw_hello_re_3evm.svg',
+                // fit: BoxFit.fitHeight,
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(bottom: 24.0),
+            padding: const EdgeInsets.only(bottom: 24.0, top: 8),
             child: Text(
               'components.connection_watcher.add_printer',
               textAlign: TextAlign.center,
@@ -214,7 +219,7 @@ class _WelcomeMessage extends StatelessWidget {
             icon: const Icon(Icons.add),
             label: const Text('pages.overview.add_machine').tr(),
           ),
-          const Spacer(),
+          // const Spacer(),
         ],
       ),
     );

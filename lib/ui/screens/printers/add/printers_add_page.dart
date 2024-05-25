@@ -58,14 +58,9 @@ class PrinterAddPage extends HookConsumerWidget {
                   _AddPrinterStepperFlow(),
                   Divider(),
                   Expanded(
-                    child: CustomScrollView(
+                    child: SingleChildScrollView(
                       physics: ClampingScrollPhysics(),
-                      slivers: [
-                        SliverFillRemaining(
-                          hasScrollBody: false,
-                          child: _StepperBody(),
-                        ),
-                      ],
+                      child: _StepperBody(),
                     ),
                   ),
                   _StepperFooter(),
@@ -96,7 +91,7 @@ class _StepperBody extends ConsumerWidget {
             sizeAndFadeFactor: anim,
             child: child,
           ),
-          child: stepperBody(model.step, model.isExpert),
+          child: Center(child: stepperBody(model.step, model.isExpert)),
         ),
       ),
     );
@@ -151,6 +146,8 @@ class _AddPrinterStepperFlow extends HookConsumerWidget {
       activeStep: model.step,
       showLoadingAnimation: false,
       enableStepTapping: model.step != 3,
+      padding: const EdgeInsets.only(top: 8, left: 8, right: 8, bottom: 0),
+      showScrollbar: false,
       steps: [
         EasyStep(
           title: tr('pages.printer_add.steps.mode'),
@@ -183,75 +180,78 @@ class _InputModeStepScreen extends ConsumerWidget {
     var controller = ref.watch(printerAddViewControllerProvider.notifier);
 
     var themeData = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 800),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          ConstrainedBox(
             constraints: BoxConstraints.loose(const Size(256, 256)),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
               child: SvgPicture.asset(
                 'assets/vector/undraw_maker_launch_re_rq81.svg',
-                // 'assets/vector/undraw_choice_re_2hkp.svg',
-                // 'assets/vector/undraw_select_option_re_u4qn.svg',
+                alignment: Alignment.center,
               ),
             ),
           ),
-        ),
-        Text(
-          'pages.printer_add.select_mode.title',
-          style: themeData.textTheme.labelLarge,
-        ).tr(),
-        Text(
-          'pages.printer_add.select_mode.body',
-          textAlign: TextAlign.justify,
-          style: themeData.textTheme.bodySmall,
-        ).tr(),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            FilledButton.icon(
-              onPressed: () => controller.selectMode(false),
-              icon: const Icon(Icons.person_outline),
-              label: const Text('pages.printer_add.select_mode.simple').tr(),
-            ),
-            FilledButton.icon(
-              onPressed: () => controller.selectMode(true),
-              icon: const Icon(Icons.engineering_outlined),
-              label: const Text('pages.printer_add.select_mode.advanced').tr(),
-            ),
-          ],
-        ),
-        Align(
-          alignment: Alignment.center,
-          child: TextButton.icon(
-            onPressed: controller.addFromOcto,
-            icon: SvgPicture.asset(
-              'assets/vector/oe_rocket.svg',
-              width: 24,
-              height: 24,
-            ),
-            label: const Text('pages.printer_add.select_mode.add_via_oe').tr(),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'pages.printer_add.select_mode.title',
+              style: themeData.textTheme.labelLarge,
+            ).tr(),
           ),
-        ),
-        Align(
-          alignment: Alignment.center,
-          child: TextButton.icon(
-            onPressed: controller.addFromObico,
-            icon: SvgPicture.asset(
-              'assets/vector/obico_logo.svg',
-              width: 24,
-              height: 24,
-            ),
-            label: const Text('pages.printer_add.select_mode.add_via_obico').tr(),
+          Text(
+            'pages.printer_add.select_mode.body',
+            textAlign: TextAlign.justify,
+            style: themeData.textTheme.bodySmall,
+          ).tr(),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              FilledButton.icon(
+                onPressed: () => controller.selectMode(false),
+                icon: const Icon(Icons.person_outline),
+                label: const Text('pages.printer_add.select_mode.simple').tr(),
+              ),
+              FilledButton.icon(
+                onPressed: () => controller.selectMode(true),
+                icon: const Icon(Icons.engineering_outlined),
+                label: const Text('pages.printer_add.select_mode.advanced').tr(),
+              ),
+            ],
           ),
-        ),
-        // OctoEveryWhereBtn(
-        //     title: 'Add using OctoEverywhere', onPressed: () => null),
-      ],
+          Align(
+            alignment: Alignment.center,
+            child: TextButton.icon(
+              onPressed: controller.addFromOcto,
+              icon: SvgPicture.asset(
+                'assets/vector/oe_rocket.svg',
+                width: 24,
+                height: 24,
+              ),
+              label: const Text('pages.printer_add.select_mode.add_via_oe').tr(),
+            ),
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: TextButton.icon(
+              onPressed: controller.addFromObico,
+              icon: SvgPicture.asset(
+                'assets/vector/obico_logo.svg',
+                width: 24,
+                height: 24,
+              ),
+              label: const Text('pages.printer_add.select_mode.add_via_obico').tr(),
+            ),
+          ),
+          // OctoEveryWhereBtn(
+          //     title: 'Add using OctoEverywhere', onPressed: () => null),
+        ],
+      ),
     );
   }
 }
@@ -602,34 +602,33 @@ class _ConfirmationStepScreen extends ConsumerWidget {
       return SpinKitWave(color: themeData.colorScheme.primary);
     }
 
-    return SizedBox(
-      width: double.infinity,
-      child: Column(
-        children: [
-          Text(
-            'pages.printer_add.confirmed.title',
-            style: themeData.textTheme.titleLarge,
-            textAlign: TextAlign.center,
-          ).tr(args: [model.machineToAdd!.name]),
-          Flexible(
-            child: ConstrainedBox(
-              constraints: BoxConstraints.loose(const Size(256, 256)),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: SvgPicture.asset(
-                  'assets/vector/undraw_astronaut_re_8c33.svg',
-                  // 'assets/vector/undraw_confirmed_re_sef7.svg',
-                ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          'pages.printer_add.confirmed.title',
+          style: themeData.textTheme.titleLarge,
+          textAlign: TextAlign.center,
+        ).tr(args: [model.machineToAdd!.name]),
+        Flexible(
+          child: ConstrainedBox(
+            constraints: BoxConstraints.loose(const Size(256, 256)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SvgPicture.asset(
+                'assets/vector/undraw_astronaut_re_8c33.svg',
+                // 'assets/vector/undraw_confirmed_re_sef7.svg',
               ),
             ),
           ),
-          FilledButton.tonalIcon(
-            onPressed: controller.goToDashboard,
-            icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
-            label: const Text('pages.printer_add.confirmed.to_dashboard').tr(),
-          ),
-        ],
-      ),
+        ),
+        FilledButton.tonalIcon(
+          onPressed: controller.goToDashboard,
+          icon: const Icon(FlutterIcons.printer_3d_nozzle_mco),
+          label: const Text('pages.printer_add.confirmed.to_dashboard').tr(),
+        ),
+      ],
     );
   }
 }

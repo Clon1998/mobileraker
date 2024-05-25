@@ -23,9 +23,11 @@ import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/connection/printer_provider_guard.dart';
-import 'package:common/ui/components/drawer/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_drawer_view.dart';
+import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -85,20 +87,31 @@ class _DashboardView extends HookConsumerWidget {
     // Check if the selected machine has changed and reset the page controller to the first page
 
     var activeMachine = ref.watch(selectedMachineProvider).valueOrNull;
-    return Scaffold(
-      appBar: const _AppBar(),
-      body: MachineConnectionGuard(
-        onConnected: (ctx, machineUUID) => PrinterProviderGuard(
+
+    Widget body = MachineConnectionGuard(
+      onConnected: (ctx, machineUUID) => PrinterProviderGuard(
+        machineUUID: machineUUID,
+        child: PrinterCalibrationWatcher(
           machineUUID: machineUUID,
-          child: PrinterCalibrationWatcher(
+          child: FilamentSensorWatcher(
             machineUUID: machineUUID,
-            child: FilamentSensorWatcher(
-              machineUUID: machineUUID,
-              child: _Body(machineUUID: machineUUID),
-            ),
+            child: _Body(machineUUID: machineUUID),
           ),
         ),
       ),
+    );
+    if (context.isLargerThanMobile) {
+      body = Row(
+        children: [
+          const NavigationRailView(),
+          Expanded(child: body),
+        ],
+      );
+    }
+
+    return Scaffold(
+      appBar: const _AppBar(),
+      body: body,
       floatingActionButton: activeMachine?.uuid.let((it) => _FloatingActionBtn(machineUUID: it)),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar: activeMachine?.uuid.let((it) => _BottomNavigationBar(machineUUID: it)),
