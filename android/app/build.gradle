@@ -1,8 +1,15 @@
+/*
+ * Copyright (c) 2024. Patrick Schmidt.
+ * All rights reserved.
+ */
+
 plugins {
     id "com.android.application"
+    // START: FlutterFire Configuration
+    id 'com.google.gms.google-services'
+    // END: FlutterFire Configuration
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
-    id "com.google.gms.google-services"
     id "com.google.firebase.crashlytics"
 }
 
@@ -81,7 +88,6 @@ flutter {
 }
 
 dependencies {
-    implementation platform('com.google.firebase:firebase-bom:32.7.4')
-
-    implementation 'com.google.firebase:firebase-analytics'
+    implementation platform('com.google.firebase:firebase-bom:33.0.0')
+    implementation('com.google.firebase:firebase-analytics')
 }
