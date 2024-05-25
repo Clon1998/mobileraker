@@ -110,6 +110,12 @@ class NavWidgetController extends _$NavWidgetController {
 
     await goRouter.push(route, extra: arguments);
   }
+
+  replace(String route, {dynamic arguments}) async {
+    // if (goRouter.canPop()) goRouter.pop();
+
+    goRouter.replace(route, extra: arguments);
+  }
 }
 
 @freezed

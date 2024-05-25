@@ -31,38 +31,45 @@ class NavigationRailView extends ConsumerWidget {
         : themeData.colorScheme.primaryContainer.withOpacity(.1);
 
     return IntrinsicWidth(
-        child: Material(
-            elevation: 2,
-            child: Column(
-              // mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 16),
-                for (final entry in model.entries)
-                  entry.isDivider
-                      ? const Divider()
-                      : InkWell(
-                          // title: Text(entry.label),
-                          onTap: () => controller.pushingTo(entry.route),
-                          child: Ink(
-                            color: selectedTileColor.only(current == entry.route),
-                            child: Padding(
-                              padding: const EdgeInsets.all(14),
-                              child: Icon(entry.icon),
-                            ),
-                          )
-                          // selected: active == model.entries.indexOf(entry),
-                          ),
-                Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(4.0),
-                  child: SvgPicture.asset(
-                        'assets/vector/mr_logo.svg',
-                        width: 44,
-                        height: 44,
-                      ).unless(brandingIcon != null) ??
-                      Image(image: brandingIcon!, width: 44, height: 44),
+      child: Material(
+          elevation: 2,
+          child: Column(
+            // mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: Column(mainAxisSize: MainAxisSize.min, children: [
+                    const SizedBox(height: 8),
+                    for (final entry in model.entries)
+                      entry.isDivider
+                          ? const Divider()
+                          : InkWell(
+                              // title: Text(entry.label),
+                              onTap: () => controller.replace(entry.route),
+                              child: Ink(
+                                color: selectedTileColor.only(current == entry.route),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14),
+                                  child: Icon(entry.icon),
+                                ),
+                              )
+                              // selected: active == model.entries.indexOf(entry),
+                              ),
+                  ]),
                 ),
-              ],
-            )));
+              ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: SvgPicture.asset(
+                      'assets/vector/mr_logo.svg',
+                      width: 44,
+                      height: 44,
+                    ).unless(brandingIcon != null) ??
+                    Image(image: brandingIcon!, width: 44, height: 44),
+              ),
+            ],
+          )),
+    );
   }
 }
