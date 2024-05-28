@@ -599,8 +599,6 @@ class _ConsoleListController extends _$ConsoleListController {
 
   @override
   FutureOr<_Model> build(String machineUUID) async {
-    await Future.delayed(const Duration(seconds: 2));
-
     final klippyCanReceiveCommandsFuture =
         ref.watch(klipperProvider(machineUUID).selectAsync((data) => data.klippyCanReceiveCommands));
 
