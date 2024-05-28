@@ -582,6 +582,7 @@
       "no_entries": "Keine zwischengespeicherten Befehle gefunden",
       "fetching_console": "@:general.fetching Konsoleneinträge…",
       "macro_suggestions": "G-Code Vorschläge",
+      "no_suggestions": "Keine Vorschläge gefunden",
       "command_input": {
         "hint": "Geben Sie einen Befehl ein"
       }

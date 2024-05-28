@@ -92,6 +92,11 @@ Stream<Printer> printer(PrinterRef ref, String machineUUID) {
 }
 
 @riverpod
+Future<List<Command>> printerAvailableCommands(PrinterAvailableCommandsRef ref, String machineUUID) async {
+  return ref.watch(printerServiceProvider(machineUUID)).gcodeHelp();
+}
+
+@riverpod
 PrinterService printerServiceSelected(PrinterServiceSelectedRef ref) {
   return ref.watch(printerServiceProvider(ref.watch(selectedMachineProvider).requireValue!.uuid));
 }
@@ -190,6 +195,7 @@ class PrinterService {
 
   bool _queriedForSession = false;
 
+  //TODO: Make this private and offer a riverpod provider
   Stream<String> get gCodeResponseStream => _gCodeResponseStreamController.stream;
 
   Printer? _current;

@@ -582,6 +582,7 @@
       "no_entries": "No cached commands found",
       "fetching_console": "@:general.fetching console entries…",
       "macro_suggestions": "G-Code Suggestions",
+      "no_suggestions": "No suggestions found!",
       "command_input": {
         "hint": "Enter console command"
       }
