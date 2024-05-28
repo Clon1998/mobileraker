@@ -11,7 +11,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../service/app_router.dart';
 import '../../../service/ui/theme_service.dart';
-import '../../../util/logger.dart';
 
 class NavigationRailView extends ConsumerWidget {
   const NavigationRailView({super.key, this.leading});
@@ -41,8 +40,6 @@ class NavigationRailView extends ConsumerWidget {
         ? themeData.colorScheme.surfaceVariant
         : themeData.colorScheme.primaryContainer.withOpacity(.1);
 
-    logger.i('FAB THEME: ${themeData.floatingActionButtonTheme.sizeConstraints}');
-
     return IntrinsicWidth(
       child: Material(
           color: backgroundColor,
@@ -51,41 +48,47 @@ class NavigationRailView extends ConsumerWidget {
             constraints: const BoxConstraints(minWidth: 72),
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56),
-                    child: leading,
-                  ),
-                ),
                 Expanded(
                   child: Align(
                     alignment: Alignment.bottomCenter,
-                    child: SingleChildScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          for (final entry in model.entries)
-                            entry.isDivider
-                                ? const Divider()
-                                : InkWell(
-                                    // title: Text(entry.label),
-                                    onTap: () => controller.replace(entry.route),
-                                    child: Ink(
-                                      color: selectedBackgroundColor.only(current == entry.route),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(12),
-                                        child: Icon(entry.icon,
-                                            color: current == entry.route ? selectedForegroundColor : foregroundColor),
-                                      ),
-                                    )
-                                    // selected: active == model.entries.indexOf(entry),
-                                    ),
-                        ],
-                      ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                                minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56),
+                            child: leading,
+                          ),
+                        ),
+                        SingleChildScrollView(
+                          physics: const ClampingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              for (final entry in model.entries)
+                                entry.isDivider
+                                    ? const Divider()
+                                    : InkWell(
+                                        // title: Text(entry.label),
+                                        onTap: () => controller.replace(entry.route),
+                                        child: Ink(
+                                          color: selectedBackgroundColor.only(current == entry.route),
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(12),
+                                            child: Icon(entry.icon,
+                                                color:
+                                                    current == entry.route ? selectedForegroundColor : foregroundColor),
+                                          ),
+                                        )
+                                        // selected: active == model.entries.indexOf(entry),
+                                        ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
