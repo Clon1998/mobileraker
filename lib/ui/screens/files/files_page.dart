@@ -283,7 +283,6 @@ class _FilesLoading extends StatelessWidget {
       baseColor: Colors.grey,
       highlightColor: theme.colorScheme.background,
       child: ListView.builder(
-        itemCount: 15,
         itemBuilder: (context, index) {
           return ListTile(
             contentPadding: const EdgeInsets.symmetric(
