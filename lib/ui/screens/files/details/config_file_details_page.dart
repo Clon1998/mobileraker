@@ -22,6 +22,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 
 class ConfigFileDetailPage extends ConsumerWidget {
   const ConfigFileDetailPage({super.key, required this.file});
+
   final GenericFile file;
 
   @override
@@ -51,6 +52,7 @@ class _ConfigFileDetail extends HookConsumerWidget {
     );
 
     return Scaffold(
+      backgroundColor: atomOneDarkTheme['root']!.backgroundColor,
       appBar: AppBar(
         title: Text(file.name, overflow: TextOverflow.fade),
         actions: const [
@@ -59,11 +61,7 @@ class _ConfigFileDetail extends HookConsumerWidget {
         ],
       ),
       body: Column(
-        children: [
-          Expanded(
-            child: _Editor(codeController: codeController),
-          ),
-        ],
+        children: [Expanded(child: _Editor(codeController: codeController))],
       ),
       floatingActionButton: (ref.watch(configFileDetailsControllerProvider.select((value) => value.config)).hasValue)
           ? _Fab(codeController: codeController)
@@ -152,9 +150,8 @@ class _Fab extends ConsumerWidget {
                 backgroundColor: themeData.colorScheme.primaryContainer,
                 foregroundColor: themeData.colorScheme.onPrimaryContainer,
                 label: 'Save',
-                onTap: () => ref
-                    .read(configFileDetailsControllerProvider.notifier)
-                    .onSaveTapped(codeController.value.text),
+                onTap: () =>
+                    ref.read(configFileDetailsControllerProvider.notifier).onSaveTapped(codeController.value.text),
               ),
               if (!{PrintState.paused, PrintState.printing}.contains(ref.watch(
                 printerSelectedProvider.select((value) => value.valueOrFullNull?.print.state),

@@ -7,6 +7,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/info_card.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_stepper/easy_stepper.dart';
@@ -181,7 +182,7 @@ class _InputModeStepScreen extends ConsumerWidget {
 
     var themeData = Theme.of(context);
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 800),
+      constraints: BoxConstraints(maxWidth: context.mediumBreakpoint.end),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,

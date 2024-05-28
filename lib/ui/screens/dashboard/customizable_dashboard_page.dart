@@ -12,6 +12,7 @@ import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/dashboard_component.dart';
+import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/data/model/hive/machine.dart';
@@ -48,15 +49,23 @@ import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../components/dashboard_card.dart';
 import '../../components/filament_sensor_watcher.dart';
 import '../../components/machine_deletion_warning.dart';
 import '../../components/printer_calibration_watcher.dart';
+import '../../components/pull_to_refresh_printer.dart';
 import '../../components/remote_announcements.dart';
 import '../../components/supporter_ad.dart';
 import 'tabs/dashboard_tab_page.dart';
 
 part 'customizable_dashboard_page.freezed.dart';
 part 'customizable_dashboard_page.g.dart';
+
+const _staticWidgets = [
+  RemoteAnnouncements(key: Key('RemoteAnnouncements')),
+  MachineDeletionWarning(key: Key('MachineDeletionWarning')),
+  SupporterAd(key: Key('SupporterAd')),
+];
 
 class CustomizableDashboardPage extends StatelessWidget {
   const CustomizableDashboardPage({super.key});
@@ -100,10 +109,14 @@ class _DashboardView extends HookConsumerWidget {
         ),
       ),
     );
-    if (context.isLargerThanMobile) {
+    final fab = activeMachine?.uuid.let((it) => _FloatingActionBtn(machineUUID: it));
+
+    if (context.isLargerThanCompact) {
       body = Row(
         children: [
-          const NavigationRailView(),
+          NavigationRailView(
+            leading: fab,
+          ),
           Expanded(child: body),
         ],
       );
@@ -112,9 +125,10 @@ class _DashboardView extends HookConsumerWidget {
     return Scaffold(
       appBar: const _AppBar(),
       body: body,
-      floatingActionButton: activeMachine?.uuid.let((it) => _FloatingActionBtn(machineUUID: it)),
+      floatingActionButton: fab.unless(context.isLargerThanCompact),
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: activeMachine?.uuid.let((it) => _BottomNavigationBar(machineUUID: it)),
+      bottomNavigationBar:
+          activeMachine?.uuid.let((it) => _BottomNavigationBar(machineUUID: it)).unless(context.isLargerThanCompact),
       drawer: const NavigationDrawerWidget(),
     );
   }
@@ -171,19 +185,15 @@ class _BodyState extends ConsumerState<_Body> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.machineUUID != widget.machineUUID) {
       _lastPage = 0;
-      pageController.jumpToPage(0);
+      if (pageController.hasClients) {
+        pageController.jumpToPage(0);
+      }
     }
     _setupIndexListener();
   }
 
   @override
   Widget build(BuildContext context) {
-    var staticWidgets = [
-      const RemoteAnnouncements(key: Key('RemoteAnnouncements')),
-      const MachineDeletionWarning(key: Key('MachineDeletionWarning')),
-      const SupporterAd(key: Key('SupporterAd')),
-    ];
-
     var asyncModel = ref.watch(_dashboardPageControllerProvider(machineUUID));
     var controller = ref.watch(_dashboardPageControllerProvider(machineUUID).notifier);
 
@@ -191,6 +201,11 @@ class _BodyState extends ConsumerState<_Body> {
       skipLoadingOnReload: true,
       value: asyncModel,
       data: (model) {
+        if (context.isLargerThanCompact) {
+          return _TabletBody(machineUUID: machineUUID, model: model);
+        }
+
+        /// THIS IS FOR MOBILE!
         return PageView(
           key: Key('Dash-$machineUUID'),
           controller: pageController,
@@ -199,7 +214,7 @@ class _BodyState extends ConsumerState<_Body> {
               DashboardTabPage(
                 key: ValueKey(tab.hashCode),
                 machineUUID: machineUUID,
-                staticWidgets: staticWidgets,
+                staticWidgets: _staticWidgets,
                 tab: tab,
                 isEditing: model.isEditing,
                 onReorder: controller.onTabComponentsReordered,
@@ -252,6 +267,72 @@ class _BodyState extends ConsumerState<_Body> {
   }
 }
 
+class _TabletBody extends StatelessWidget {
+  const _TabletBody({super.key, required this.machineUUID, required this.model});
+
+  final String machineUUID;
+  final _Model model;
+
+  @override
+  Widget build(BuildContext context) {
+    // For the POC we make this a two column layout and ignore the new fance Tab Page....
+
+    final left = <DashboardComponentType>[
+      DashboardComponentType.webcam,
+      DashboardComponentType.controlExtruder,
+      DashboardComponentType.temperatureSensorPreset,
+      DashboardComponentType.fans,
+      DashboardComponentType.pins,
+      DashboardComponentType.powerApi,
+      DashboardComponentType.spoolman,
+    ];
+
+    final right = <DashboardComponentType>[
+      DashboardComponentType.machineStatus,
+      DashboardComponentType.controlXYZ,
+      DashboardComponentType.zOffset,
+      DashboardComponentType.macroGroup,
+      DashboardComponentType.groupedSliders,
+      DashboardComponentType.bedMesh,
+    ];
+
+    return PullToRefreshPrinter(
+      child: SingleChildScrollView(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ..._staticWidgets,
+                  for (var type in left)
+                    DasboardCard(
+                      type: type,
+                      machineUUID: machineUUID,
+                    ),
+                ],
+              ),
+            ),
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var type in right)
+                    DasboardCard(
+                      type: type,
+                      machineUUID: machineUUID,
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _FloatingActionBtn extends ConsumerWidget {
   const _FloatingActionBtn({super.key, required this.machineUUID});
 
@@ -259,9 +340,12 @@ class _FloatingActionBtn extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var klippyState = ref.watch(klipperProvider(machineUUID).selectAs((data) => data.klippyState));
-    var printState = ref.watch(printerProvider(machineUUID).selectAs((data) => data.print.state));
-    var editing = ref.watch(_dashboardPageControllerProvider(machineUUID).selectAs((value) => value.isEditing == true));
+    final klippyState = ref.watch(klipperProvider(machineUUID).selectAs((data) => data.klippyState));
+    final printState = ref.watch(printerProvider(machineUUID).selectAs((data) => data.print.state));
+    final editing =
+        ref.watch(_dashboardPageControllerProvider(machineUUID).selectAs((value) => value.isEditing == true));
+
+    Widget fab;
 
     if (!klippyState.hasValue ||
         klippyState.isLoading ||
@@ -272,19 +356,30 @@ class _FloatingActionBtn extends ConsumerWidget {
         editing.isLoading ||
         !editing.hasValue ||
         editing.hasError) {
-      return const SizedBox.shrink();
-    }
-
-    if (editing.value == true) {
-      return _EditingModeFAB(machineUUID: machineUUID);
-    }
-
-    if (klippyState.value == KlipperState.error ||
+      fab = const SizedBox.shrink(
+        key: Key('noFab'),
+      );
+    } else if (editing.value == true) {
+      fab = _EditingModeFAB(machineUUID: machineUUID, key: const Key('_EditingModeFAB'));
+    } else if (klippyState.value == KlipperState.error ||
         !{PrintState.printing, PrintState.paused}.contains(printState.value)) {
-      return const _IdleFAB();
+      fab = const _IdleFAB(
+        key: Key('idleFab'),
+      );
+    } else {
+      fab = _PrintingFAB(machineUUID: machineUUID, printState: printState.value, key: const Key('_PrintingFAB'));
     }
 
-    return _PrintingFAB(machineUUID: machineUUID, printState: printState.value);
+    return AnimatedSwitcher(
+      // duration: kThemeChangeDuration,
+      duration: const Duration(milliseconds: 320),
+      switchInCurve: Curves.easeInOutCirc,
+      transitionBuilder: (child, anim) => ScaleTransition(
+        scale: anim,
+        child: child,
+      ),
+      child: fab,
+    );
   }
 }
 
@@ -367,7 +462,7 @@ class _IdleFAB extends ConsumerWidget {
         },
 
         // onPressed: mdodel.showNonPrintingMenu,
-        child: const Icon(Icons.menu),
+        child: const Icon(Icons.tune),
       );
 }
 
@@ -440,8 +535,9 @@ class _AppBar extends ConsumerWidget implements PreferredSizeWidget {
 
     if (activeMachine == null) {
       return AppBar(
-        centerTitle: false,
+        centerTitle: context.isLargerThanCompact,
         title: const Text('pages.dashboard.title').tr(),
+        automaticallyImplyLeading: !context.isLargerThanCompact,
       );
     }
 
@@ -482,6 +578,15 @@ class _PrinterAppBar extends ConsumerWidget {
     };
   }
 }
+
+// class _TabletTrailingBar extends ConsumerWidget {
+//   const _TabletTrailingBar({super.key});
+//
+//   @override
+//   Widget build(BuildContext context, WidgetRef ref) {
+//     return ;
+//   }
+// }
 
 @riverpod
 class _DashboardPageController extends _$DashboardPageController {

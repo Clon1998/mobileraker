@@ -3,8 +3,13 @@
  * All rights reserved.
  */
 
+import 'package:common/util/extensions/responsive_breakpoints_extension.dart';
 import 'package:flutter/widgets.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+
+const String COMPACT = 'compact';
+const String MEDIUM = 'medium';
+const String EXPANDED = 'expanded';
 
 extension ResponsiveFrameworkBuildContext on BuildContext {
 //   // Booleans
@@ -19,15 +24,18 @@ extension ResponsiveFrameworkBuildContext on BuildContext {
 //   ResponsiveBreakpoints.of(context).smallerThan(TABLET)
 //   ResponsiveBreakpoints.of(context).between(MOBILE, TABLET)
 //   ...
-  bool get isMobile => ResponsiveBreakpoints.of(this).isMobile;
+  bool get isCompact => ResponsiveBreakpoints.of(this).isCompact;
 
-  bool get isTablet => ResponsiveBreakpoints.of(this).isTablet;
+  bool get isMedium => ResponsiveBreakpoints.of(this).isMedium;
 
-  bool get isDesktop => ResponsiveBreakpoints.of(this).isDesktop;
+  bool get isExpanded => ResponsiveBreakpoints.of(this).isExpanded;
 
-  bool get isLargerThanMobile => ResponsiveBreakpoints.of(this).largerThan(MOBILE);
+  bool get isLargerThanCompact => layoutLargerThan(COMPACT);
 
-  bool get isSmallerThanTablet => ResponsiveBreakpoints.of(this).smallerThan(TABLET);
+  bool get isSmallerThanMedium => layoutSmallerThan(MEDIUM);
+
+  Breakpoint get mediumBreakpoint =>
+      ResponsiveBreakpoints.of(this).breakpoints.firstWhere((element) => element.name == MEDIUM);
 
   bool layoutEquals(String breakpoint) => ResponsiveBreakpoints.of(this).equals(breakpoint);
 

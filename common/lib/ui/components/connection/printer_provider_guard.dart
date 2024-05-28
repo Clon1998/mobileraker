@@ -11,6 +11,8 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import '../responsive_limit.dart';
+
 /// This widget watches the ASYNCVALUE (AsyncError) of the printerProvider and handles the error state of the provider to prevent any issues down the widget tree
 class PrinterProviderGuard extends ConsumerWidget {
   const PrinterProviderGuard({
@@ -62,18 +64,20 @@ class _ProviderError extends ConsumerWidget {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SimpleErrorWidget(
-        title: Text(title),
-        body: Text(message),
-        action: TextButton.icon(
-          onPressed: () {
-            logger.i('Invalidating printer service provider, to retry printer fetching');
-            ref.invalidate(printerServiceProvider(machineUUID));
-          },
-          icon: const Icon(Icons.restart_alt_outlined),
-          label: const Text('general.retry').tr(),
+    return ResponsiveLimit(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SimpleErrorWidget(
+          title: Text(title),
+          body: Text(message),
+          action: TextButton.icon(
+            onPressed: () {
+              logger.i('Invalidating printer service provider, to retry printer fetching');
+              ref.invalidate(printerServiceProvider(machineUUID));
+            },
+            icon: const Icon(Icons.restart_alt_outlined),
+            label: const Text('general.retry').tr(),
+          ),
         ),
       ),
     );

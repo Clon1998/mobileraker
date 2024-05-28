@@ -255,6 +255,9 @@
       "no_files_found": "Keine Datei gefunden!",
       "no_matches_file_pattern": "Es sind nur Buchstaben, Zahlen, Unterstriche, Bindestriche und Punkte erlaubt!",
       "file_name_in_use": "Der Dateiname wird bereits verwendet!",
+      "gcode_tab": "GCodes",
+      "config_tab": "Konfigs",
+      "timelapse_tab": "Zeitraffer",
       "details": {
         "preheat": "Vorheizen",
         "print": "Drucken",
@@ -578,6 +581,7 @@
       "card_title": "GCode Konsole",
       "no_entries": "Keine zwischengespeicherten Befehle gefunden",
       "fetching_console": "@:general.fetching Konsoleneinträge…",
+      "macro_suggestions": "G-Code Vorschläge",
       "command_input": {
         "hint": "Geben Sie einen Befehl ein"
       }
@@ -637,13 +641,13 @@
       "title": "Tools"
     },
     "beltTuner": {
-      "title": "Riementuner",
+      "title": "Zahnriemen-Tuner",
       "description": "Die richtige Riemenspannung ist für eine optimale Leistung des 3D-Druckers unerlässlich. Eine falsche Spannung, ob zu stark oder zu schwach, kann zu mechanischen Problemen, frühzeitiger Ermüdung und verminderter Druckqualität führen. Die angegebenen Werte dienen als Richtwerte; es wird jedoch empfohlen, die Empfehlungen des Herstellers zu beachten, um konkrete, auf Ihr Druckermodell zugeschnittene Richtwerte zu erhalten. Anpassungen sollten sowohl auf der Grundlage dieser empfohlenen Werte als auch auf der Grundlage der individuellen Anforderungen und Bedingungen des Druckers vorgenommen werden.",
       "beltType": "Wählen deine Zahnriemen Typ:",
       "target": "Ziel: {} Hz über {} mm",
       "permissionWarning": {
         "title": "Berechtigung für das Mikrofon erforderlich",
-        "subtitle": "Der Riementuner verwendet das Mikrofon Ihres Telefons, um die Frequenz Ihrer Gurte zu analysieren.\n\nTippen Sie, um die Erlaubnis zu erteilen."
+        "subtitle": "Der Zahnriemen-Tuner verwendet das Mikrofon Ihres Telefons, um die Frequenz Ihrer Zahnriemen zu analysieren.\n\nTippen Sie, um die Erlaubnis zu erteilen."
       }
     },
     "spoolman": {

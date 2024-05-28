@@ -35,12 +35,9 @@ class ConsolePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Widget body = MachineConnectionGuard(onConnected: (_, __) => const _ConsoleBody());
-    if (context.isLargerThanMobile) {
+    if (context.isLargerThanCompact) {
       body = Row(
-        children: [
-          const NavigationRailView(),
-          Expanded(child: body),
-        ],
+        children: [const NavigationRailView(), Expanded(child: body)],
       );
     }
 
@@ -87,78 +84,106 @@ class _ConsoleBody extends HookConsumerWidget {
           //     ),
           // ],
         ),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: BoxDecoration(color: theme.colorScheme.primary),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-                child: Text(
-                  'pages.console.card_title',
-                  style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
-                ).tr(),
+        child: Flexible(
+          flex: 2,
+          child: Column(
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(color: theme.colorScheme.primary),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+                  child: Text(
+                    'pages.console.card_title',
+                    style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
+                  ).tr(),
+                ),
               ),
-            ),
-            Expanded(
-              flex: 1,
-              child: _Console(
-                onCommandTap: (s) => consoleTextEditor.textAndMoveCursor = s,
+              Expanded(
+                flex: 1,
+                child: Row(
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      child: _Console(
+                        onCommandTap: (s) => consoleTextEditor.textAndMoveCursor = s,
+                      ),
+                    ),
+                    if (context.isLargerThanCompact) ...[
+                      VerticalDivider(),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const Text('@:pages.console.macro_suggestions:').tr(),
+                            Flexible(
+                              child: _GCodeSuggestions(
+                                onMacroTap: (s) => consoleTextEditor.textAndMoveCursor = s,
+                                consoleInputNotifier: consoleTextEditor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-            const Divider(),
-            GCodeSuggestionBar(
-              onMacroTap: (s) => consoleTextEditor.textAndMoveCursor = s,
-              consoleInputNotifier: consoleTextEditor,
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              child: RawKeyboardListener(
-                focusNode: focusNode,
-                onKey: klippyCanReceiveCommands
-                    ? (event) {
-                        if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
-                          ref.read(consoleListControllerProvider.notifier).onCommandSubmit(consoleTextEditor.text);
-                          consoleTextEditor.clear();
+              const Divider(),
+              if (context.isSmallerThanMedium)
+                _GCodeSuggestions(
+                  onMacroTap: (s) => consoleTextEditor.textAndMoveCursor = s,
+                  consoleInputNotifier: consoleTextEditor,
+                ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                child: RawKeyboardListener(
+                  focusNode: focusNode,
+                  onKey: klippyCanReceiveCommands
+                      ? (event) {
+                          if (event.isKeyPressed(LogicalKeyboardKey.enter)) {
+                            ref.read(consoleListControllerProvider.notifier).onCommandSubmit(consoleTextEditor.text);
+                            consoleTextEditor.clear();
+                          }
                         }
-                      }
-                    : null,
-                child: TextField(
-                  enableSuggestions: false,
-                  autocorrect: false,
-                  controller: consoleTextEditor,
-                  enabled: klippyCanReceiveCommands,
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.send),
-                      onPressed: klippyCanReceiveCommands
-                          ? () {
-                              ref
-                                  .read(
-                                    consoleListControllerProvider.notifier,
-                                  )
-                                  .onCommandSubmit(consoleTextEditor.text);
-                              consoleTextEditor.clear();
-                            }
-                          : null,
+                      : null,
+                  child: TextField(
+                    enableSuggestions: false,
+                    autocorrect: false,
+                    controller: consoleTextEditor,
+                    enabled: klippyCanReceiveCommands,
+                    decoration: InputDecoration(
+                      suffixIcon: IconButton(
+                        icon: const Icon(Icons.send),
+                        onPressed: klippyCanReceiveCommands
+                            ? () {
+                                ref
+                                    .read(
+                                      consoleListControllerProvider.notifier,
+                                    )
+                                    .onCommandSubmit(consoleTextEditor.text);
+                                consoleTextEditor.clear();
+                              }
+                            : null,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      hintText: tr('pages.console.command_input.hint'),
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    hintText: tr('pages.console.command_input.hint'),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class GCodeSuggestionBar extends StatefulHookConsumerWidget {
-  const GCodeSuggestionBar({
+class _GCodeSuggestions extends StatefulHookConsumerWidget {
+  const _GCodeSuggestions({
     super.key,
     required this.onMacroTap,
     required this.consoleInputNotifier,
@@ -172,7 +197,7 @@ class GCodeSuggestionBar extends StatefulHookConsumerWidget {
   ConsumerState createState() => _GCodeSuggestionBarState();
 }
 
-class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
+class _GCodeSuggestionBarState extends ConsumerState<_GCodeSuggestions> {
   List<String> calculateSuggestedMacros(
     String currentInput,
     List<String> history,
@@ -200,15 +225,42 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
 
   @override
   Widget build(BuildContext context) {
-    var themeData = Theme.of(context);
+    final themeData = Theme.of(context);
 
-    var consoleInput = useValueListenable(widget.consoleInputNotifier).text;
+    final consoleInput = useValueListenable(widget.consoleInputNotifier).text;
 
-    var history = ref.watch(commandHistoryProvider);
-    var available = ref.watch(availableMacrosProvider).valueOrNull ?? [];
-    var suggestions = calculateSuggestedMacros(consoleInput, history, available);
+    final history = ref.watch(commandHistoryProvider);
+    final available = ref.watch(availableMacrosProvider).valueOrNull ?? [];
+    final suggestions = calculateSuggestedMacros(consoleInput, history, available);
     if (suggestions.isEmpty) return const SizedBox.shrink();
-    var canSend = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
+    final canSend = ref.watch(klipperSelectedProvider).valueOrNull?.klippyCanReceiveCommands ?? false;
+
+    final chips = suggestions
+        .map(
+          (cmd) => ActionChip(
+            label: Text(cmd),
+            onPressed: canSend ? () => widget.onMacroTap(cmd) : null,
+            backgroundColor: canSend ? themeData.colorScheme.primary : themeData.disabledColor,
+            labelStyle: TextStyle(
+              color: canSend ? themeData.colorScheme.onPrimary : themeData.disabledColor,
+            ),
+          ),
+        )
+        .toList();
+
+    if (context.isLargerThanCompact) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 8, right: 8),
+        child: SingleChildScrollView(
+          child: Wrap(
+            spacing: 8,
+            alignment: WrapAlignment.spaceEvenly,
+            children: chips,
+          ),
+        ),
+      );
+    }
+
     return SizedBox(
       height: 33,
       child: ChipTheme(
@@ -222,16 +274,7 @@ class _GCodeSuggestionBarState extends ConsumerState<GCodeSuggestionBar> {
           scrollDirection: Axis.horizontal,
           itemCount: suggestions.length,
           itemBuilder: (BuildContext context, int index) {
-            String cmd = suggestions[index];
-
-            return Container(
-              margin: const EdgeInsets.symmetric(horizontal: 2),
-              child: RawChip(
-                label: Text(cmd),
-                backgroundColor: canSend ? themeData.colorScheme.primary : themeData.disabledColor,
-                onPressed: canSend ? () => widget.onMacroTap(cmd) : null,
-              ),
-            );
+            return chips[index];
           },
         ),
       ),

@@ -108,7 +108,7 @@ class DevPage extends HookConsumerWidget {
         ],
     );
 
-    if (context.isLargerThanMobile) {
+    if (context.isLargerThanCompact) {
       body = Row(
         children: [
           const NavigationRailView(),

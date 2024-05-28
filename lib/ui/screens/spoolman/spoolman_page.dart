@@ -14,6 +14,7 @@ import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +41,7 @@ class SpoolmanPage extends HookWidget {
   Widget build(BuildContext context) {
     Widget body = const _Body();
 
-    if (context.isLargerThanMobile) {
+    if (context.isLargerThanCompact) {
       body = Row(
         children: [
           const NavigationRailView(),
@@ -52,7 +53,7 @@ class SpoolmanPage extends HookWidget {
     return Scaffold(
       appBar: const _AppBar(),
       drawer: const NavigationDrawerWidget(),
-      bottomNavigationBar: const _BottomNav(),
+      bottomNavigationBar: const _BottomNav().unless(context.isLargerThanCompact),
       // floatingActionButton: _Fab(),
 
       //ToDo: Add ConnectionStateView !!!!
@@ -90,14 +91,14 @@ class _BottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var selectedMachine = ref.watch(selectedMachineProvider);
+    final selectedMachine = ref.watch(selectedMachineProvider);
 
     if (ref.watch(selectedMachineProvider).valueOrNull == null) {
       return const SizedBox.shrink();
     }
 
-    var controller = ref.watch(_spoolmanPageControllerProvider(selectedMachine.value!.uuid).notifier);
-    var currentIndex = ref.watch(_spoolmanPageControllerProvider(selectedMachine.value!.uuid));
+    final controller = ref.watch(_spoolmanPageControllerProvider(selectedMachine.value!.uuid).notifier);
+    final currentIndex = ref.watch(_spoolmanPageControllerProvider(selectedMachine.value!.uuid));
 
     return BottomNavigationBar(
       showSelectedLabels: true,
@@ -138,12 +139,12 @@ class _Body extends ConsumerWidget {
     return MachineConnectionGuard(
       onConnected: (BuildContext context, String machineUUID) {
         return Consumer(builder: (context, ref, child) {
-          var hasSpoolman =
+          final hasSpoolman =
               ref.watch(klipperProvider(machineUUID).selectAs((value) => value.hasSpoolmanComponent)).value!;
-          var page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
-          var controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
+          final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
+          final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
 
-          var themeData = Theme.of(context);
+          final themeData = Theme.of(context);
           if (!hasSpoolman) {
             return Padding(
               padding: const EdgeInsets.all(8.0),
@@ -182,9 +183,8 @@ class _Body extends ConsumerWidget {
               ),
             );
           }
-          var theme = themeData;
-          var borderSize = BorderSide(width: 0.5, color: theme.colorScheme.primary);
-          var list = switch (page) {
+          final borderSize = BorderSide(width: 0.5, color: themeData.colorScheme.primary);
+          final list = switch (page) {
             1 => SpoolmanScrollPagination(
                 machineUUID: machineUUID,
                 type: SpoolmanListType.filaments,
@@ -206,11 +206,11 @@ class _Body extends ConsumerWidget {
             margin: const EdgeInsets.all(4.0),
             decoration: BoxDecoration(
               // color: Colors.yellow,
-              color: theme.colorScheme.surface,
+              color: themeData.colorScheme.surface,
               border: Border(bottom: borderSize, left: borderSize, right: borderSize),
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(10)),
               boxShadow: [
-                if (theme.brightness == Brightness.light)
+                if (themeData.brightness == Brightness.light)
                   const BoxShadow(
                     color: Colors.grey,
                     offset: Offset(0.0, 4.0), //(x,y)
@@ -220,21 +220,7 @@ class _Body extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: theme.colorScheme.primary),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-                    child: Text(
-                      switch (page) {
-                        1 => 'pages.spoolman.filament',
-                        2 => 'pages.spoolman.vendor',
-                        _ => 'pages.spoolman.spool',
-                      },
-                      style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onPrimary),
-                    ).plural(2),
-                  ),
-                ),
+                _Header(machineUUID: machineUUID),
                 Expanded(
                   child: list,
                 ),
@@ -243,6 +229,70 @@ class _Body extends ConsumerWidget {
           );
         });
       },
+    );
+  }
+}
+
+class _Header extends HookConsumerWidget {
+  const _Header({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(_spoolmanPageControllerProvider(machineUUID).notifier);
+    final page = ref.watch(_spoolmanPageControllerProvider(machineUUID));
+
+    final tabController = useTabController(initialLength: 3);
+
+    if (tabController.index != page && !tabController.indexIsChanging) {
+      tabController.index = page;
+    }
+
+    final themeData = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(color: themeData.colorScheme.primary),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (context.isLargerThanCompact)
+            TabBar(
+              onTap: controller.onBottomItemTapped,
+              controller: tabController,
+              labelStyle: themeData.textTheme.labelLarge,
+              labelColor: themeData.colorScheme.onPrimary,
+              dividerHeight: 0.5,
+              indicatorColor: themeData.colorScheme.onPrimary,
+              enableFeedback: true,
+              tabs: [
+                Tab(
+                  icon: const Icon(Icons.spoke_outlined),
+                  text: plural('pages.spoolman.spool', 2),
+                ),
+                Tab(
+                  icon: const Icon(Icons.color_lens_outlined),
+                  text: plural('pages.spoolman.filament', 2),
+                ),
+                Tab(
+                  icon: const Icon(Icons.factory_outlined),
+                  text: plural('pages.spoolman.vendor', 2),
+                ),
+              ],
+            ),
+          if (!context.isLargerThanCompact)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+              child: Text(
+                switch (page) {
+                  1 => 'pages.spoolman.filament',
+                  2 => 'pages.spoolman.vendor',
+                  _ => 'pages.spoolman.spool',
+                },
+                style: themeData.textTheme.titleSmall?.copyWith(color: themeData.colorScheme.onPrimary),
+              ).plural(2),
+            ),
+        ],
+      ),
     );
   }
 }

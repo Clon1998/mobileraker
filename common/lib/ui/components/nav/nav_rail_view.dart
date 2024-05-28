@@ -11,9 +11,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../service/app_router.dart';
 import '../../../service/ui/theme_service.dart';
+import '../../../util/logger.dart';
 
 class NavigationRailView extends ConsumerWidget {
-  const NavigationRailView({super.key});
+  const NavigationRailView({super.key, this.leading});
+
+  final Widget? leading;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,49 +29,79 @@ class NavigationRailView extends ConsumerWidget {
     final themePack = ref.watch(activeThemeProvider).requireValue.themePack;
     final brandingIcon =
         (themeData.brightness == Brightness.light) ? themePack.brandingIcon : themePack.brandingIconDark;
-    final selectedTileColor = (themeData.brightness == Brightness.light)
+
+    final foregroundColor = themeData.colorScheme.onSurface;
+    final backgroundColor = themeData.colorScheme.surface;
+
+    final selectedForegroundColor = (themeData.brightness == Brightness.light)
+        ? themeData.colorScheme.onSurfaceVariant
+        : themeData.colorScheme.onPrimaryContainer;
+
+    final selectedBackgroundColor = (themeData.brightness == Brightness.light)
         ? themeData.colorScheme.surfaceVariant
         : themeData.colorScheme.primaryContainer.withOpacity(.1);
 
+    logger.i('FAB THEME: ${themeData.floatingActionButtonTheme.sizeConstraints}');
+
     return IntrinsicWidth(
       child: Material(
+          color: backgroundColor,
           elevation: 2,
-          child: Column(
-            // mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  child: Column(mainAxisSize: MainAxisSize.min, children: [
-                    const SizedBox(height: 8),
-                    for (final entry in model.entries)
-                      entry.isDivider
-                          ? const Divider()
-                          : InkWell(
-                              // title: Text(entry.label),
-                              onTap: () => controller.replace(entry.route),
-                              child: Ink(
-                                color: selectedTileColor.only(current == entry.route),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(14),
-                                  child: Icon(entry.icon),
-                                ),
-                              )
-                              // selected: active == model.entries.indexOf(entry),
-                              ),
-                  ]),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 72),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56),
+                    child: leading,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: SvgPicture.asset(
-                      'assets/vector/mr_logo.svg',
-                      width: 44,
-                      height: 44,
-                    ).unless(brandingIcon != null) ??
-                    Image(image: brandingIcon!, width: 44, height: 44),
-              ),
-            ],
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (final entry in model.entries)
+                            entry.isDivider
+                                ? const Divider()
+                                : InkWell(
+                                    // title: Text(entry.label),
+                                    onTap: () => controller.replace(entry.route),
+                                    child: Ink(
+                                      color: selectedBackgroundColor.only(current == entry.route),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(12),
+                                        child: Icon(entry.icon,
+                                            color: current == entry.route ? selectedForegroundColor : foregroundColor),
+                                      ),
+                                    )
+                                    // selected: active == model.entries.indexOf(entry),
+                                    ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  color: themeData.colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: SvgPicture.asset(
+                        'assets/vector/mr_logo.svg',
+                        width: 44,
+                        height: 44,
+                      ).unless(brandingIcon != null) ??
+                      Image(image: brandingIcon!, width: 44, height: 44),
+                ),
+              ],
+            ),
           )),
     );
   }

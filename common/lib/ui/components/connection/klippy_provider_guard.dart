@@ -17,6 +17,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../service/app_router.dart';
 import '../../../service/machine_service.dart';
+import '../responsive_limit.dart';
 
 class KlippyProviderGuard extends HookConsumerWidget {
   const KlippyProviderGuard({
@@ -78,59 +79,62 @@ class _StateError extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var themeData = Theme.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(FlutterIcons.disconnect_ant),
-                  title: Text('Klippy: @:${data.klippyState.name}').tr(),
-                ),
-                Text(
-                  data.statusMessage,
-                  style: TextStyle(color: themeData.colorScheme.error),
-                  textAlign: TextAlign.center,
-                ),
-                ElevatedButtonTheme(
-                  data: ElevatedButtonThemeData(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: themeData.colorScheme.error,
-                      foregroundColor: themeData.colorScheme.onError,
-                    ),
+    return ResponsiveLimit(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(FlutterIcons.disconnect_ant),
+                    title: Text('Klippy: @:${data.klippyState.name}').tr(),
                   ),
-                  child: Row(
-                    mainAxisAlignment: data.klippyConnected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.read(klipperServiceProvider(machineUUID)).restartKlipper();
-                        },
-                        child: const Text(
-                          'pages.dashboard.general.restart_klipper',
-                        ).tr(),
+                  Text(
+                    data.statusMessage,
+                    style: TextStyle(color: themeData.colorScheme.error),
+                    textAlign: TextAlign.center,
+                  ),
+                  ElevatedButtonTheme(
+                    data: ElevatedButtonThemeData(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: themeData.colorScheme.error,
+                        foregroundColor: themeData.colorScheme.onError,
                       ),
-                      if (data.klippyConnected)
+                    ),
+                    child: Row(
+                      mainAxisAlignment:
+                          data.klippyConnected ? MainAxisAlignment.spaceBetween : MainAxisAlignment.center,
+                      children: [
                         ElevatedButton(
                           onPressed: () {
-                            ref.read(klipperServiceProvider(machineUUID)).restartMCUs();
+                            ref.read(klipperServiceProvider(machineUUID)).restartKlipper();
                           },
                           child: const Text(
-                            'pages.dashboard.general.restart_mcu',
+                            'pages.dashboard.general.restart_klipper',
                           ).tr(),
                         ),
-                    ],
+                        if (data.klippyConnected)
+                          ElevatedButton(
+                            onPressed: () {
+                              ref.read(klipperServiceProvider(machineUUID)).restartMCUs();
+                            },
+                            child: const Text(
+                              'pages.dashboard.general.restart_mcu',
+                            ).tr(),
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        if (onErrorChildren != null) ...onErrorChildren!,
-      ],
+          if (onErrorChildren != null) ...onErrorChildren!,
+        ],
+      ),
     );
   }
 }
@@ -140,22 +144,24 @@ class _StateUnauthorized extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Icon(Icons.gpp_bad, size: 70),
-        const SizedBox(height: 30),
-        const Text(
-          'It seems like you configured trusted clients for Moonraker. Please add the API key in the printers settings!\n',
-          textAlign: TextAlign.center,
-        ),
-        TextButton(
-          onPressed: () {
-            ref.read(goRouterProvider).pushNamed('printerEdit', extra: machine);
-          },
-          child: Text('components.nav_drawer.printer_settings'.tr()),
-        ),
-      ],
+    return ResponsiveLimit(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.gpp_bad, size: 70),
+          const SizedBox(height: 30),
+          const Text(
+            'It seems like you configured trusted clients for Moonraker. Please add the API key in the printers settings!\n',
+            textAlign: TextAlign.center,
+          ),
+          TextButton(
+            onPressed: () {
+              ref.read(goRouterProvider).pushNamed('printerEdit', extra: machine);
+            },
+            child: Text('components.nav_drawer.printer_settings'.tr()),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -178,18 +184,20 @@ class _ProviderError extends ConsumerWidget {
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: SimpleErrorWidget(
-        title: Text(title),
-        body: Text(message),
-        action: TextButton.icon(
-          onPressed: () {
-            logger.i('Invalidating klipper service provider, to retry klippy fetching');
-            ref.invalidate(klipperServiceProvider(machineUUID));
-          },
-          icon: const Icon(Icons.restart_alt_outlined),
-          label: const Text('general.retry').tr(),
+    return ResponsiveLimit(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SimpleErrorWidget(
+          title: Text(title),
+          body: Text(message),
+          action: TextButton.icon(
+            onPressed: () {
+              logger.i('Invalidating klipper service provider, to retry klippy fetching');
+              ref.invalidate(klipperServiceProvider(machineUUID));
+            },
+            icon: const Icon(Icons.restart_alt_outlined),
+            label: const Text('general.retry').tr(),
+          ),
         ),
       ),
     );

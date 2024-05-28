@@ -14,6 +14,7 @@ import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/service/ui/theme_service.dart';
 import 'package:common/ui/components/error_card.dart';
 import 'package:common/ui/locale_spy.dart';
+import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_logger/src/enums.dart';
@@ -108,9 +109,9 @@ class MyApp extends ConsumerWidget {
           ) {
             return ResponsiveBreakpoints.builder(
               breakpoints: [
-                const Breakpoint(start: 0, end: 450, name: MOBILE),
-                const Breakpoint(start: 451, end: 800, name: TABLET),
-                const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+                const Breakpoint(start: 0, end: 600, name: COMPACT),
+                const Breakpoint(start: 601, end: 840, name: MEDIUM),
+                const Breakpoint(start: 841, end: 1200, name: EXPANDED),
               ],
               child: MaterialApp.router(
                 debugShowCheckedModeBanner: false,

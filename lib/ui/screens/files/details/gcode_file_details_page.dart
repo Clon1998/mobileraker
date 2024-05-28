@@ -57,24 +57,24 @@ class _GCodeFileDetailPage extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var animCtrler = useAnimationController(duration: const Duration(milliseconds: 400))..forward();
+    final animCtrler = useAnimationController(duration: const Duration(milliseconds: 400))..forward();
 
     logger.w('Rebuilding _GCodeFileDetailPage');
-    var controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
-    var model = ref.watch(_gCodeFileDetailsControllerProvider);
+    final controller = ref.watch(_gCodeFileDetailsControllerProvider.notifier);
+    final model = ref.watch(_gCodeFileDetailsControllerProvider);
 
-    var cacheManager = ref.watch(httpCacheManagerProvider(model.machineUUID));
+    final cacheManager = ref.watch(httpCacheManagerProvider(model.machineUUID));
 
-    var machineUri = ref.watch(previewImageUriProvider);
+    final machineUri = ref.watch(previewImageUriProvider);
 
-    var bigImageUri = model.file.constructBigImageUri(machineUri);
+    final bigImageUri = model.file.constructBigImageUri(machineUri);
 
-    var dateFormatService = ref.watch(dateFormatServiceProvider);
-    var dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
-    var dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
-    var numFormat = NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
-    var numFormatInt =
-        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 0);
+    final dateFormatService = ref.watch(dateFormatServiceProvider);
+    final dateFormatGeneral = dateFormatService.add_Hm(DateFormat.yMMMd());
+    final dateFormatEta = dateFormatService.add_Hm(DateFormat.MMMEd());
+    final numFormat =
+        NumberFormat.decimalPatternDigits(locale: context.locale.toStringWithSeparator(), decimalDigits: 2);
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text(

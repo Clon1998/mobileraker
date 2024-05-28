@@ -11,6 +11,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/ui/components/connection/klippy_provider_guard.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/responsive_limit.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -50,9 +51,11 @@ class MachineConnectionGuard extends ConsumerWidget {
             skipKlipperReady: skipKlipperReady,
             onConnected: onConnected,
           ),
-        AsyncError(:var error) => ErrorCard(
-            title: const Text('Error selecting active machine'),
-            body: Text(error.toString()),
+        AsyncError(:var error) => ResponsiveLimit(
+            child: ErrorCard(
+              title: const Text('Error selecting active machine'),
+              body: Text(error.toString()),
+            ),
           ),
         _ => const CircularProgressIndicator.adaptive(),
       },
@@ -95,89 +98,95 @@ class _WebsocketStateWidget extends ConsumerWidget {
             );
 
           case ClientState.disconnected:
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.warning_amber_outlined,
-                  size: 50,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                const SizedBox(height: 30),
-                const Text('@:klipper_state.disconnected !').tr(),
-                TextButton.icon(
-                  onPressed: connectionStateController.onRetryPressed,
-                  icon: const Icon(Icons.restart_alt_outlined),
-                  label: const Text('components.connection_watcher.reconnect').tr(),
-                ),
-              ],
+            return ResponsiveLimit(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.warning_amber_outlined,
+                    size: 50,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(height: 30),
+                  const Text('@:klipper_state.disconnected !').tr(),
+                  TextButton.icon(
+                    onPressed: connectionStateController.onRetryPressed,
+                    icon: const Icon(Icons.restart_alt_outlined),
+                    label: const Text('components.connection_watcher.reconnect').tr(),
+                  ),
+                ],
+              ),
             );
           case ClientState.connecting:
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (clientType == ClientType.local)
-                  SpinKitPulse(
-                    size: 100,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                if (clientType == ClientType.octo)
-                  SpinKitPouringHourGlassRefined(
-                    size: 100,
-                    color: Theme.of(context).colorScheme.secondary,
-                  ),
-                const SizedBox(height: 30),
-                FadingText(tr(clientType == ClientType.local
-                    ? 'components.connection_watcher.trying_connect'
-                    : 'components.connection_watcher.trying_connect_remote')),
-              ],
+            return ResponsiveLimit(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (clientType == ClientType.local)
+                    SpinKitPulse(
+                      size: 100,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  if (clientType == ClientType.octo)
+                    SpinKitPouringHourGlassRefined(
+                      size: 100,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                  const SizedBox(height: 30),
+                  FadingText(tr(clientType == ClientType.local
+                      ? 'components.connection_watcher.trying_connect'
+                      : 'components.connection_watcher.trying_connect_remote')),
+                ],
+              ),
             );
           case ClientState.error:
           default:
-            return Padding(
-              padding: const EdgeInsets.all(22),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.warning_amber_outlined,
-                          size: 50,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                        const SizedBox(height: 20),
-                        Text(
-                          connectionStateController.clientErrorMessage,
-                          textAlign: TextAlign.center,
-                        ),
-                        if (!connectionStateController.errorIsOctoSupportedExpired)
-                          TextButton.icon(
-                            onPressed: connectionStateController.onRetryPressed,
-                            icon: const Icon(Icons.restart_alt_outlined),
-                            label: const Text(
-                              'components.connection_watcher.reconnect',
-                            ).tr(),
+            return ResponsiveLimit(
+              child: Padding(
+                padding: const EdgeInsets.all(22),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.warning_amber_outlined,
+                            size: 50,
+                            color: Theme.of(context).colorScheme.error,
                           ),
-                        if (connectionStateController.errorIsOctoSupportedExpired)
-                          TextButton.icon(
-                            onPressed: connectionStateController.onGoToOE,
-                            icon: const Icon(Icons.open_in_browser),
-                            label: const Text(
-                              'components.connection_watcher.more_details',
-                            ).tr(),
+                          const SizedBox(height: 20),
+                          Text(
+                            connectionStateController.clientErrorMessage,
+                            textAlign: TextAlign.center,
                           ),
-                      ],
+                          if (!connectionStateController.errorIsOctoSupportedExpired)
+                            TextButton.icon(
+                              onPressed: connectionStateController.onRetryPressed,
+                              icon: const Icon(Icons.restart_alt_outlined),
+                              label: const Text(
+                                'components.connection_watcher.reconnect',
+                              ).tr(),
+                            ),
+                          if (connectionStateController.errorIsOctoSupportedExpired)
+                            TextButton.icon(
+                              onPressed: connectionStateController.onGoToOE,
+                              icon: const Icon(Icons.open_in_browser),
+                              label: const Text(
+                                'components.connection_watcher.more_details',
+                              ).tr(),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  if (clientType == ClientType.octo || clientType == ClientType.obico)
-                    Text(
-                      'bottom_sheets.add_remote_con.disclosure',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ).tr(namedArgs: {'service': (clientType == ClientType.octo) ? 'OctoEverywhere' : 'Obico'}),
-                ],
+                    if (clientType == ClientType.octo || clientType == ClientType.obico)
+                      Text(
+                        'bottom_sheets.add_remote_con.disclosure',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ).tr(namedArgs: {'service': (clientType == ClientType.octo) ? 'OctoEverywhere' : 'Obico'}),
+                  ],
+                ),
               ),
             );
         }
@@ -191,8 +200,7 @@ class _WelcomeMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: 600),
+    return ResponsiveLimit(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         // mainAxisSize: MainAxisSize.min,

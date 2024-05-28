@@ -4,6 +4,7 @@
  */
 
 import 'package:common/service/misc_providers.dart';
+import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/logger.dart';
@@ -35,86 +36,90 @@ class BeltTuner extends HookWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('pages.beltTuner.title').tr()),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(4.0),
-          child: Column(
-            children: [
-              Expanded(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints.loose(const Size(300, 300)),
-                  child: SvgPicture.asset(
-                    'assets/vector/undraw_settings_re_b08x.svg',
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              Text(
-                'pages.beltTuner.description',
-                textAlign: TextAlign.justify,
-                style: themeData.textTheme.bodySmall,
-              ).tr(),
-              const SizedBox(height: 32),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: _PeakFrequency(
-                  targetFrequency: target.value.$1.toDouble(),
-                ),
-              ),
-              Text('pages.beltTuner.target', style: themeData.textTheme.bodySmall)
-                  .tr(args: [target.value.$1.toString(), target.value.$2.toString()]),
-              const SizedBox(height: 32),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'pages.beltTuner.beltType',
-                  style: themeData.textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ).tr(),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        child: Center(
+          child: ResponsiveLimit(
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Column(
                 children: [
-                  TextButton(
-                    onPressed: () => updateTarget(110, 150),
-                    child: const Text('6mm'),
+                  Expanded(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints.loose(const Size(300, 300)),
+                      child: SvgPicture.asset(
+                        'assets/vector/undraw_settings_re_b08x.svg',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () => updateTarget(140, 150),
-                    child: const Text('9mm'),
+                  Text(
+                    'pages.beltTuner.description',
+                    textAlign: TextAlign.justify,
+                    style: themeData.textTheme.bodySmall,
+                  ).tr(),
+                  const SizedBox(height: 32),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: _PeakFrequency(
+                      targetFrequency: target.value.$1.toDouble(),
+                    ),
+                  ),
+                  Text('pages.beltTuner.target', style: themeData.textTheme.bodySmall)
+                      .tr(args: [target.value.$1.toString(), target.value.$2.toString()]),
+                  const SizedBox(height: 32),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'pages.beltTuner.beltType',
+                      style: themeData.textTheme.titleMedium,
+                      textAlign: TextAlign.center,
+                    ).tr(),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () => updateTarget(110, 150),
+                        child: const Text('6mm'),
+                      ),
+                      TextButton(
+                        onPressed: () => updateTarget(140, 150),
+                        child: const Text('9mm'),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Text.rich(
+                    TextSpan(
+                      text: 'This tool is still in development and based on the ',
+                      style: themeData.textTheme.bodySmall,
+                      children: [
+                        TextSpan(
+                          text: 'Voron Design tuning guide',
+                          style: TextStyle(color: themeData.colorScheme.secondary),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () async {
+                              // Open the Voron documentation link
+                              // Example: launch('https://vorondesign.com/');
+                              const String url =
+                                  'https://docs.vorondesign.com/tuning/secondary_printer_tuning.html#belt-tension';
+                              if (await canLaunchUrlString(url)) {
+                                await launchUrlString(
+                                  url,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            },
+                        ),
+                        const TextSpan(text: '. Please use with caution.'),
+                      ],
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
-              const Spacer(),
-              Text.rich(
-                TextSpan(
-                  text: 'This tool is still in development and based on the ',
-                  style: themeData.textTheme.bodySmall,
-                  children: [
-                    TextSpan(
-                      text: 'Voron Design tuning guide',
-                      style: TextStyle(color: themeData.colorScheme.secondary),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () async {
-                          // Open the Voron documentation link
-                          // Example: launch('https://vorondesign.com/');
-                          const String url =
-                              'https://docs.vorondesign.com/tuning/secondary_printer_tuning.html#belt-tension';
-                          if (await canLaunchUrlString(url)) {
-                            await launchUrlString(
-                              url,
-                              mode: LaunchMode.externalApplication,
-                            );
-                          } else {
-                            throw 'Could not launch $url';
-                          }
-                        },
-                    ),
-                    const TextSpan(text: '. Please use with caution.'),
-                  ],
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+            ),
           ),
         ),
       ),

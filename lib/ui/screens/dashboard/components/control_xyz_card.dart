@@ -490,6 +490,7 @@ class _StepSelectorWidget extends ConsumerWidget {
         Flexible(
           child: Text(
             '${'pages.dashboard.general.move_card.step_size'.tr()} [mm]',
+            textAlign: TextAlign.center,
           ),
         ),
         RangeSelector(

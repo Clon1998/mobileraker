@@ -211,7 +211,7 @@ class _PaywallPage extends ConsumerWidget {
           ),
         );
 
-    if (context.isLargerThanMobile) {
+    if (context.isLargerThanCompact) {
       return Row(
         children: [
           const NavigationRailView(),

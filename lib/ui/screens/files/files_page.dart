@@ -16,6 +16,7 @@ import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/error_card.dart';
+import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
 import 'package:common/ui/components/simple_error_widget.dart';
@@ -23,6 +24,7 @@ import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/gcode_file_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/remote_file_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -30,6 +32,7 @@ import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_breadcrumb/flutter_breadcrumb.dart';
 import 'package:flutter_cache_manager/src/cache_manager.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -48,22 +51,19 @@ class FilesPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     Widget body = MachineConnectionGuard(
-      onConnected: (_, __) => const _FilesBody(),
+      onConnected: (_, machineUUID) => _FilesBody(machineUUID: machineUUID),
       skipKlipperReady: true,
     );
 
-    if (context.isLargerThanMobile) {
+    if (context.isLargerThanCompact) {
       body = Row(
-        children: [
-          const NavigationRailView(),
-          Expanded(child: body),
-        ],
+        children: [const NavigationRailView(), Expanded(child: body)],
       );
     }
     return Scaffold(
       appBar: const _AppBar(),
       drawer: const NavigationDrawerWidget(),
-      bottomNavigationBar: const _BottomNav(),
+      bottomNavigationBar: const _BottomNav().unless(context.isLargerThanCompact),
       floatingActionButton: const _Fab(),
       body: body,
     );
@@ -119,21 +119,21 @@ class _BottomNav extends ConsumerWidget {
     return BottomNavigationBar(
       showSelectedLabels: true,
       currentIndex: ref.watch(filePageProvider),
-      onTap: (i) => ref.read(filePageProvider.notifier).state = i,
+      onTap: ref.read(filePageProvider.notifier).onPageTapped,
       // onTap: model.onBottomItemTapped,
       items: [
-        const BottomNavigationBarItem(
-          label: 'GCodes',
-          icon: Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
+        BottomNavigationBarItem(
+          label: tr('pages.files.gcode_tab'),
+          icon: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
         ),
-        const BottomNavigationBarItem(
-          label: 'Configs',
-          icon: Icon(FlutterIcons.file_code_faw5),
+        BottomNavigationBarItem(
+          label: tr('pages.files.config_tab'),
+          icon: const Icon(FlutterIcons.file_code_faw5),
         ),
         if (ref.watch(klipperSelectedProvider.selectAs((data) => data.hasTimelapseComponent)).valueOrNull == true)
-          const BottomNavigationBarItem(
-            label: 'Timelaps',
-            icon: Icon(Icons.subscriptions_outlined),
+          BottomNavigationBarItem(
+            label: tr('pages.files.timelapse_tab'),
+            icon: const Icon(Icons.subscriptions_outlined),
           ),
       ],
     );
@@ -145,16 +145,16 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
+    final themeData = Theme.of(context);
 
-    var onBackground = themeData.appBarTheme.foregroundColor ??
+    final onBackground = themeData.appBarTheme.foregroundColor ??
         (themeData.colorScheme.brightness == Brightness.dark
             ? themeData.colorScheme.onSurface
             : themeData.colorScheme.onPrimary);
 
     TextEditingController textCtler = ref.watch(searchTextEditingControllerProvider);
 
-    var areFilesReady = ref.watch(filesPageControllerProvider.select((value) => value.areFilesReady));
+    final areFilesReady = ref.watch(filesPageControllerProvider.select((value) => value.areFilesReady));
 
     if (ref.watch(isSearchingProvider)) {
       return AppBar(
@@ -209,7 +209,9 @@ class _AppBar extends HookConsumerWidget implements PreferredSizeWidget {
 }
 
 class _FilesBody extends ConsumerWidget {
-  const _FilesBody({super.key});
+  const _FilesBody({super.key, required this.machineUUID});
+
+  final String machineUUID;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -245,7 +247,7 @@ class _FilesBody extends ConsumerWidget {
         ),
         child: Column(
           children: [
-            const _BreadCrumb(),
+            _Header(machineUUID: machineUUID),
             Expanded(
               child: ref
                   .watch(
@@ -259,6 +261,7 @@ class _FilesBody extends ConsumerWidget {
                     loading: () => _FilesLoading(theme: theme),
                   ),
             ),
+            // _BottomNav(),
           ],
         ),
       ),
@@ -450,16 +453,16 @@ class _FilesDataState extends ConsumerState<_FilesData> {
                   }
 
                   if (index < lenFolders) {
-              Folder folder = widget.files.folders[index];
-              return _FolderItem(folder: folder, key: ValueKey(folder));
-            }
-            RemoteFile file = widget.files.files[index - lenFolders];
-            if (file is GCodeFile) {
-              return _GCodeFileItem(key: ValueKey(file), gCode: file);
-            }
-            if (file.isImage) {
-              return _ImageFileItem(key: ValueKey(file), file: file);
-            }
+                    Folder folder = widget.files.folders[index];
+                    return _FolderItem(folder: folder, key: ValueKey(folder));
+                  }
+                  RemoteFile file = widget.files.files[index - lenFolders];
+                  if (file is GCodeFile) {
+                    return _GCodeFileItem(key: ValueKey(file), gCode: file);
+                  }
+                  if (file.isImage) {
+                    return _ImageFileItem(key: ValueKey(file), file: file);
+                  }
 
                   return _FileItem(file: file, key: ValueKey(file));
                 },
@@ -475,61 +478,110 @@ class _FilesDataState extends ConsumerState<_FilesData> {
   }
 }
 
+class _Header extends HookConsumerWidget {
+  const _Header({super.key, required this.machineUUID});
+
+  final String machineUUID;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final hasTimelapse =
+        ref.watch(klipperProvider(machineUUID).selectAs((data) => data.hasTimelapseComponent)).requireValue == true;
+
+    final tabController = useTabController(initialLength: hasTimelapse ? 3 : 2, keys: [machineUUID, hasTimelapse]);
+
+    // That is used to sync Riverpod and tab controller (Also it would be better to refactor that...)
+    final filePageIdx = ref.read(filePageProvider);
+    if (tabController.index != filePageIdx && !tabController.indexIsChanging) {
+      tabController.index = filePageIdx;
+    }
+
+    final themeData = Theme.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(color: themeData.colorScheme.primary),
+      child: Column(
+        children: [
+          if (context.isLargerThanCompact)
+            TabBar(
+              onTap: ref.read(filePageProvider.notifier).onPageTapped,
+              controller: tabController,
+              labelStyle: themeData.textTheme.labelLarge,
+              labelColor: themeData.colorScheme.onPrimary,
+              dividerHeight: 0.5,
+              indicatorColor: themeData.colorScheme.onPrimary,
+              enableFeedback: true,
+              tabs: [
+                Tab(
+                  icon: const Icon(FlutterIcons.printer_3d_nozzle_outline_mco),
+                  text: tr('pages.files.gcode_tab'),
+                ),
+                Tab(
+                  icon: const Icon(FlutterIcons.file_code_faw5),
+                  text: tr('pages.files.config_tab'),
+                ),
+                if (hasTimelapse)
+                  Tab(
+                    icon: const Icon(Icons.subscriptions_outlined),
+                    text: tr('pages.files.timelapse_tab'),
+                  ),
+              ],
+            ),
+          const _BreadCrumb(),
+        ],
+      ),
+    );
+  }
+}
+
 class _BreadCrumb extends ConsumerWidget {
   const _BreadCrumb({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ThemeData theme = Theme.of(context);
-    var model = ref.watch(filesPageControllerProvider.select((value) => value.path));
-    var enableButton = ref.watch(filesPageControllerProvider.select((value) => value.areFilesReady));
-    var controller = ref.watch(filesPageControllerProvider.notifier);
+    final model = ref.watch(filesPageControllerProvider.select((value) => value.path));
+    final enableButton = ref.watch(filesPageControllerProvider.select((value) => value.areFilesReady));
+    final controller = ref.watch(filesPageControllerProvider.notifier);
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(color: theme.colorScheme.primary),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: BreadCrumb.builder(
-                itemCount: model.length,
-                builder: (index) {
-                  String p = model[index];
-                  List<String> target = model.sublist(0, index + 1);
-                  return BreadCrumbItem(
-                    content: Text(
-                      p.toUpperCase(),
-                      style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimary),
-                    ),
-                    onTap: () => controller.goToPath(target),
-                  );
-                },
-                divider: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: Text(
-                    '/',
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Flexible(
+            child: BreadCrumb.builder(
+              itemCount: model.length,
+              builder: (index) {
+                String p = model[index];
+                List<String> target = model.sublist(0, index + 1);
+                return BreadCrumbItem(
+                  content: Text(
+                    p.toUpperCase(),
                     style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimary),
                   ),
+                  onTap: () => controller.goToPath(target),
+                );
+              },
+              divider: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Text(
+                  '/',
+                  style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.onPrimary),
                 ),
               ),
             ),
-            if (enableButton)
-              Padding(
-                padding: const EdgeInsets.only(left: 4),
-                child: InkWell(
-                  onTap: ref.watch(filesPageControllerProvider.notifier).onCreateDirTapped,
-                  child: Icon(
-                    Icons.create_new_folder_outlined,
-                    color: theme.colorScheme.onPrimary,
-                    size: 20,
-                  ),
-                ),
-              ),
-          ],
-        ),
+          ),
+          MobilerakerIconButton(
+            padding: const EdgeInsets.only(left: 4),
+            onPressed: ref.watch(filesPageControllerProvider.notifier).onCreateDirTapped.only(enableButton),
+            color: theme.colorScheme.onPrimary,
+            // disabledColor: Colors.redAccent,
+            icon: const Icon(
+              Icons.create_new_folder_outlined,
+              size: 20,
+            ),
+          ),
+        ],
       ),
     );
   }

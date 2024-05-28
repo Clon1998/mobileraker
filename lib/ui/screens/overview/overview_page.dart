@@ -26,7 +26,7 @@ class OverviewPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget body = const _OverviewBody();
-    if (context.isLargerThanMobile) {
+    if (context.isLargerThanCompact) {
       body = Row(
         children: [
           const NavigationRailView(),
@@ -87,13 +87,13 @@ class _Data extends ConsumerWidget {
     return CustomScrollView(
       // shrinkWrap: true,
       slivers: [
-        if (context.isLargerThanMobile)
+        if (context.isLargerThanCompact)
           SliverAlignedGrid.count(
             crossAxisCount: 3,
             itemCount: machines.length,
             itemBuilder: (context, index) => SinglePrinterCard(machines[index]),
           ),
-        if (context.isMobile)
+        if (context.isCompact)
           SliverList.builder(
             itemCount: machines.length,
             itemBuilder: (context, index) => SinglePrinterCard(machines[index]),

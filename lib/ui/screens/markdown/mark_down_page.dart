@@ -7,6 +7,7 @@ import 'dart:io';
 
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -50,19 +51,27 @@ class MarkDownPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget body = Column(
-      children: [
-        if (topWidget != null) topWidget!,
-        Expanded(
-          child: _MarkDownBody(
-            mdHuman: mdHuman,
-            mdRoot: mdRoot,
-            title: title,
-          ),
+    Widget body = Center(
+      child: ResponsiveLimit(
+        child: Column(
+          children: [
+            if (topWidget != null)
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: topWidget!,
+              ),
+            Expanded(
+              child: _MarkDownBody(
+                mdHuman: mdHuman,
+                mdRoot: mdRoot,
+                title: title,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
-    if (context.isLargerThanMobile) {
+    if (context.isLargerThanCompact) {
       body = Row(
         children: [
           const NavigationRailView(),

@@ -255,6 +255,9 @@
       "no_files_found": "No files found!",
       "no_matches_file_pattern": "Only letters, numbers, underscores, dashes and dots are allowed!",
       "file_name_in_use": "File name already in use!",
+      "gcode_tab": "GCodes",
+      "config_tab": "Configs",
+      "timelapse_tab": "Timelapses",
       "details": {
         "preheat": "Preheat",
         "print": "Print",
@@ -578,6 +581,7 @@
       "card_title": "GCode Console",
       "no_entries": "No cached commands found",
       "fetching_console": "@:general.fetching console entries…",
+      "macro_suggestions": "G-Code Suggestions",
       "command_input": {
         "hint": "Enter console command"
       }
