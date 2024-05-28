@@ -16,6 +16,7 @@
 - Improved the display of error messages for webcam cards to ensure clarity and consistency.
 - If only one webcam is present, and it fails to load, the entire webcam card can now be
   hidden. [#217](https://github.com/Clon1998/mobileraker/issues/217)
+- The console page now provides more accurate suggestions for commands based on the user's input.
 
 ### Bug Fixes
 

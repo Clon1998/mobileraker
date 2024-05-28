@@ -234,8 +234,8 @@ class _GCodeSuggestions extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeData = Theme.of(context);
-
     final consoleInput = useValueListenable(consoleInputNotifier).text;
+    final scrollController = useScrollController();
 
     final model = ref.watch(_consoleListControllerProvider(machineUUID)
         .selectAs((data) => (data.klippyCanReceiveCommands, data.availableCommands, data.commandHistory)));
@@ -307,6 +307,7 @@ class _GCodeSuggestions extends HookConsumerWidget {
       return Padding(
         padding: const EdgeInsets.only(left: 8, right: 8),
         child: SingleChildScrollView(
+          controller: scrollController,
           child: Wrap(
             spacing: 8,
             alignment: WrapAlignment.spaceEvenly,
@@ -335,6 +336,7 @@ class _GCodeSuggestions extends HookConsumerWidget {
           deleteIconColor: themeData.colorScheme.onPrimary,
         ),
         child: ListView.builder(
+          controller: scrollController,
           shrinkWrap: true,
           padding: const EdgeInsets.symmetric(horizontal: 4),
           scrollDirection: Axis.horizontal,
@@ -350,29 +352,104 @@ class _GCodeSuggestions extends HookConsumerWidget {
     );
   }
 
+  /// This function calculates the suggested macros based on the user's input.
+  /// It takes three parameters: `currentInput`, `history`, and `available`.
+  /// The `currentInput` is the text entered by the user, `history` is a list of previously entered commands,
+  /// and `available` is a list of available commands.
+  ///
+  /// The function first adds all the commands from the `history` to the `potential` list and `seen` set.
+  /// Then it adds all the available commands that are not starting with an underscore and are not already in the `seen` set to the `potential` list.
+  ///
+  /// The function then calculates a score for each command in the `potential` list based on how well it matches the `currentInput`.
+  /// The scoring system is as follows: an exact match gets a score of 100, a command that starts with the `currentInput` gets a score of 50,
+  /// a command that contains the `currentInput` gets a score of 25, and a command that contains any term in the `currentInput` gets a score of 10.
+  /// The score is then reduced by the Levenshtein distance between the command and the `currentInput`.
+  ///
+  /// Finally, the function returns the commands in the `potential` list sorted by their scores in descending order.
+
   List<String> _calculateSuggestedMacros(
     String currentInput,
     List<String> history,
     List<Command> available,
   ) {
     List<String> potential = [];
-    potential.addAll(history);
+    Set<String> seen = <String>{};
 
+    // Add history first
+    potential.addAll(history);
+    seen.addAll(history);
+
+    // Add available commands that are not in the potential list yet
     Iterable<String> filteredAvailable = available.map((e) => e.cmd).where(
-          (element) => !element.startsWith('_') && !potential.contains(element),
+          (element) => !element.startsWith('_') && !seen.contains(element),
         );
-    potential.addAll(additionalCmds);
     potential.addAll(filteredAvailable);
+
     String text = currentInput.toLowerCase();
     if (text.isEmpty) return potential;
 
     List<String> terms = text.split(RegExp(r'\W+'));
 
-    return potential
-        .where(
-          (element) => terms.every((t) => element.toLowerCase().contains(t)),
-        )
-        .toList(growable: false);
+    // Create a map to score the suggestions
+    Map<String, int> scoredSuggestions = {};
+
+    for (var suggestion in potential) {
+      int score = 0;
+      String lowerSuggestion = suggestion.toLowerCase();
+
+      // Exact match
+      if (lowerSuggestion == text) {
+        score += 100;
+      }
+
+      // Partial matches
+      if (lowerSuggestion.startsWith(text)) {
+        score += 50;
+      } else if (lowerSuggestion.contains(text)) {
+        score += 25;
+      }
+
+      // Check each term in the split input
+      for (var term in terms) {
+        if (lowerSuggestion.contains(term)) {
+          score += 10;
+        }
+      }
+
+      // Apply Levenshtein distance for additional similarity check
+      int levenshteinScore = _levenshteinDistance(lowerSuggestion, text);
+      score -= levenshteinScore;
+
+      // Assign score to the suggestion
+      if (score > 0) {
+        scoredSuggestions[suggestion] = score;
+      }
+    }
+
+    // Sort by score descending and return the keys
+    List<String> sortedSuggestions = scoredSuggestions.keys.toList()
+      ..sort((a, b) => scoredSuggestions[b]!.compareTo(scoredSuggestions[a]!));
+
+    return sortedSuggestions;
+  }
+
+  /// This function calculates the Levenshtein distance between two strings.
+  /// The Levenshtein distance is a measure of the difference between two strings,
+  /// defined as the minimum number of single-character edits (insertions, deletions, or substitutions) required to change one string into the other.
+  /// This function is used in the `_calculateSuggestedMacros` function to reduce the score of a command based on how different it is from the `currentInput`.
+  int _levenshteinDistance(String s1, String s2) {
+    var dp = List.generate(s1.length + 1, (_) => List<int>.filled(s2.length + 1, 0), growable: false);
+
+    for (var i = 0; i <= s1.length; i++) dp[i][0] = i;
+    for (var j = 0; j <= s2.length; j++) dp[0][j] = j;
+
+    for (var i = 1; i <= s1.length; i++) {
+      for (var j = 1; j <= s2.length; j++) {
+        var cost = (s1[i - 1] == s2[j - 1]) ? 0 : 1;
+        dp[i][j] = [dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost].reduce((a, b) => a < b ? a : b);
+      }
+    }
+    return dp[s1.length][s2.length];
   }
 }
 
