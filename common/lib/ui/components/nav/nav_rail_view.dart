@@ -44,55 +44,64 @@ class NavigationRailView extends ConsumerWidget {
       child: Material(
           color: backgroundColor,
           elevation: 2,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 72),
-            child: Column(
-              children: [
-                Expanded(
-                  child: SafeArea(
-                    bottom: false,
-                    top: false,
-                    right: false,
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
+          child: Column(
+            children: [
+              Expanded(
+                child: SafeArea(
+                  bottom: false,
+                  top: false,
+                  right: false,
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minWidth: 72),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(
-                                  minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56,
-                                  minWidth: themeData.floatingActionButtonTheme.sizeConstraints?.minWidth ?? 56),
-                              child: leading,
+                          if (leading != null)
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                    minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56,
+                                    minWidth: themeData.floatingActionButtonTheme.sizeConstraints?.minWidth ?? 56),
+                                child: leading,
+                              ),
                             ),
-                          ),
                           Flexible(
-                            child: SingleChildScrollView(
-                              physics: const ClampingScrollPhysics(),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  for (final entry in model.entries)
-                                    entry.isDivider
-                                        ? const Divider()
-                                        : InkWell(
-                                            // title: Text(entry.label),
-                                            onTap: () => controller.replace(entry.route),
-                                            child: Ink(
-                                              color: selectedBackgroundColor.only(current == entry.route),
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(12),
-                                                child: Icon(entry.icon,
-                                                    color: current == entry.route
-                                                        ? selectedForegroundColor
-                                                        : foregroundColor),
+                            child: Material(
+                              color: Colors.transparent,
+                              child: SingleChildScrollView(
+                                padding: leading == null
+                                    ? EdgeInsets.only(
+                                        top:
+                                            16 + (themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56))
+                                    : null,
+                                physics: const ClampingScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    for (final entry in model.entries)
+                                      entry.isDivider
+                                          ? const Divider()
+                                          : InkWell(
+                                              // title: Text(entry.label),
+                                              onTap: () => controller.replace(entry.route),
+                                              child: Ink(
+                                                color: selectedBackgroundColor.only(current == entry.route),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(12),
+                                                  child: Icon(entry.icon,
+                                                      color: current == entry.route
+                                                          ? selectedForegroundColor
+                                                          : foregroundColor),
+                                                ),
+                                              )
+                                              // selected: active == model.entries.indexOf(entry),
                                               ),
-                                            )
-                                            // selected: active == model.entries.indexOf(entry),
-                                            ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -101,24 +110,24 @@ class NavigationRailView extends ConsumerWidget {
                     ),
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  color: themeData.colorScheme.primary,
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: SafeArea(
-                    bottom: false,
-                    top: false,
-                    right: false,
-                    child: SvgPicture.asset(
-                          'assets/vector/mr_logo.svg',
-                          width: 44,
-                          height: 44,
-                        ).unless(brandingIcon != null) ??
-                        Image(image: brandingIcon!, width: 44, height: 44),
-                  ),
+              ),
+              Container(
+                width: double.infinity,
+                color: themeData.colorScheme.primary,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: SafeArea(
+                  bottom: false,
+                  top: false,
+                  right: false,
+                  child: SvgPicture.asset(
+                        'assets/vector/mr_logo.svg',
+                        width: 44,
+                        height: 44,
+                      ).unless(brandingIcon != null) ??
+                      Image(image: brandingIcon!, width: 44, height: 44),
                 ),
-              ],
-            ),
+              ),
+            ],
           )),
     );
   }
