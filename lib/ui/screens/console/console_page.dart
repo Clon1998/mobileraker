@@ -74,6 +74,8 @@ class _ConsoleBody extends HookConsumerWidget {
 
     final theme = Theme.of(context);
     return SafeArea(
+      left: false,
+      right: false,
       child: Container(
         margin: const EdgeInsets.all(4.0),
         decoration: BoxDecoration(

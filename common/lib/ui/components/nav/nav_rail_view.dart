@@ -49,46 +49,55 @@ class NavigationRailView extends ConsumerWidget {
             child: Column(
               children: [
                 Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                                minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56),
-                            child: leading,
+                  child: SafeArea(
+                    bottom: false,
+                    top: false,
+                    right: false,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                  minHeight: themeData.floatingActionButtonTheme.sizeConstraints?.minHeight ?? 56,
+                                  minWidth: themeData.floatingActionButtonTheme.sizeConstraints?.minWidth ?? 56),
+                              child: leading,
+                            ),
                           ),
-                        ),
-                        SingleChildScrollView(
-                          physics: const ClampingScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              for (final entry in model.entries)
-                                entry.isDivider
-                                    ? const Divider()
-                                    : InkWell(
-                                        // title: Text(entry.label),
-                                        onTap: () => controller.replace(entry.route),
-                                        child: Ink(
-                                          color: selectedBackgroundColor.only(current == entry.route),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(12),
-                                            child: Icon(entry.icon,
-                                                color:
-                                                    current == entry.route ? selectedForegroundColor : foregroundColor),
-                                          ),
-                                        )
-                                        // selected: active == model.entries.indexOf(entry),
-                                        ),
-                            ],
+                          Flexible(
+                            child: SingleChildScrollView(
+                              physics: const ClampingScrollPhysics(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  for (final entry in model.entries)
+                                    entry.isDivider
+                                        ? const Divider()
+                                        : InkWell(
+                                            // title: Text(entry.label),
+                                            onTap: () => controller.replace(entry.route),
+                                            child: Ink(
+                                              color: selectedBackgroundColor.only(current == entry.route),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(12),
+                                                child: Icon(entry.icon,
+                                                    color: current == entry.route
+                                                        ? selectedForegroundColor
+                                                        : foregroundColor),
+                                              ),
+                                            )
+                                            // selected: active == model.entries.indexOf(entry),
+                                            ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -96,12 +105,17 @@ class NavigationRailView extends ConsumerWidget {
                   width: double.infinity,
                   color: themeData.colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: SvgPicture.asset(
-                        'assets/vector/mr_logo.svg',
-                        width: 44,
-                        height: 44,
-                      ).unless(brandingIcon != null) ??
-                      Image(image: brandingIcon!, width: 44, height: 44),
+                  child: SafeArea(
+                    bottom: false,
+                    top: false,
+                    right: false,
+                    child: SvgPicture.asset(
+                          'assets/vector/mr_logo.svg',
+                          width: 44,
+                          height: 44,
+                        ).unless(brandingIcon != null) ??
+                        Image(image: brandingIcon!, width: 44, height: 44),
+                  ),
                 ),
               ],
             ),
