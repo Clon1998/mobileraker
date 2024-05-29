@@ -372,12 +372,8 @@ class _GCodeSuggestions extends HookConsumerWidget {
     List<String> history,
     List<Command> available,
   ) {
-    List<String> potential = [];
-    Set<String> seen = <String>{};
-
-    // Add history first
-    potential.addAll(history);
-    seen.addAll(history);
+    List<String> potential = [...history, ...additionalCmds];
+    Set<String> seen = <String>{...history};
 
     // Add available commands that are not in the potential list yet
     Iterable<String> filteredAvailable = available.map((e) => e.cmd).where(
