@@ -50,12 +50,11 @@ class _PrinterCard extends ConsumerWidget {
     var machine = ref.watch(printerCardMachineProvider);
     var themeData = Theme.of(context);
     return Card(
+      clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(
-            child: const _Cam(),
-          ),
+          Flexible(child: const _Cam()),
           InkWell(
             onTap: singlePrinterCardController.onTapTile,
             onLongPress: singlePrinterCardController.onLongPressTile,
@@ -170,7 +169,10 @@ class _PrintProgressBar extends ConsumerWidget {
       );
     }
 
-    return LinearProgressIndicator(value: progress);
+    return LinearProgressIndicator(
+      value: progress,
+      backgroundColor: Colors.transparent,
+    );
   }
 }
 
@@ -193,7 +195,8 @@ class _Cam extends ConsumerWidget {
       ),
       child: (webcamInfo == null)
           ? const SizedBox.shrink()
-          : Center(
+          : Align(
+              alignment: Alignment.bottomCenter,
               child: Webcam(
                 key: ValueKey(machine.uuid + webcamInfo.uuid),
                 webcamInfo: webcamInfo,

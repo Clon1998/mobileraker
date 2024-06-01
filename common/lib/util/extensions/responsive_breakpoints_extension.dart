@@ -5,6 +5,8 @@
 
 import 'package:responsive_framework/responsive_framework.dart';
 
+import 'build_context_extension.dart';
+
 extension ResponsiveFrameworkBuildContext on ResponsiveBreakpointsData {
 //   // Booleans
 //   ResponsiveBreakpoints.of(context).isDesktop;
@@ -18,9 +20,9 @@ extension ResponsiveFrameworkBuildContext on ResponsiveBreakpointsData {
 //   ResponsiveBreakpoints.of(context).smallerThan(TABLET)
 //   ResponsiveBreakpoints.of(context).between(MOBILE, TABLET)
 //   ...
-  bool get isCompact => isMobile;
+  bool get isCompact => breakpoint.name == COMPACT;
 
-  bool get isMedium => isTablet;
+  bool get isMedium => breakpoint.name == MEDIUM;
 
-  bool get isExpanded => isDesktop;
+  bool get isExpanded => breakpoint.name == EXPANDED;
 }
