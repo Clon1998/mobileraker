@@ -9,9 +9,9 @@ import 'package:common/service/app_router.dart';
 import 'package:common/service/firebase/remote_config.dart';
 import 'package:common/service/payment_service.dart';
 import 'package:common/service/setting_service.dart';
-import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/mobileraker_icon_button.dart';
 import 'package:common/ui/theme/theme_pack.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -62,56 +62,64 @@ class _RemoteAnnouncementsController extends _$RemoteAnnouncementsController {
 }
 
 class RemoteAnnouncements extends ConsumerWidget {
-  const RemoteAnnouncements({super.key});
+  const RemoteAnnouncements({super.key, this.horizontalScroll = false});
+
+  final bool horizontalScroll;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var model = ref.watch(_remoteAnnouncementsControllerProvider);
-    return AnimatedSwitcher(
-      duration: kThemeAnimationDuration,
-      switchInCurve: Curves.easeInCubic,
-      switchOutCurve: Curves.easeOutCubic,
-      transitionBuilder: (child, anim) => SizeAndFadeTransition(sizeAndFadeFactor: anim, child: child),
-      child: (model.isNotEmpty) ? _MessageBoard(messages: model) : const SizedBox.shrink(),
-    );
+    return _MessageBoard(horizontalScroll: horizontalScroll);
   }
 }
 
-class _MessageBoard extends HookWidget {
-  const _MessageBoard({super.key, required this.messages});
+class _MessageBoard extends ConsumerWidget {
+  const _MessageBoard({super.key, this.horizontalScroll = false});
 
-  final List<DeveloperAnnouncementEntry> messages;
+  final bool horizontalScroll;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var messages = ref.watch(_remoteAnnouncementsControllerProvider);
+
+    logger.i('Messages to show: ${messages.length}');
+
+    // Horizontal Version
+    var children = [
+      for (var message in messages) _MessageCard(key: ValueKey(message), message: message, animate: !horizontalScroll),
+    ];
+
+    if (!horizontalScroll) {
+      return Column(mainAxisSize: MainAxisSize.min, children: children);
+    }
+
     return AdaptiveHorizontalPage(
       pageStorageKey: 'asdasd',
       padding: const EdgeInsets.only(top: 8),
       // crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        for (var message in messages) _MessageCard(message: message),
-      ],
+      children: children,
     );
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child: AdaptiveHorizontalPage(
-          pageStorageKey: 'asdasd',
-          padding: EdgeInsets.zero,
-          children: [
-            for (var message in messages) _MessageCard(message: message),
-          ],
-        ),
-      ),
-    );
+    // return Card(
+    //   child: Padding(
+    //     padding: const EdgeInsets.only(bottom: 8.0),
+    //     child: AdaptiveHorizontalPage(
+    //       pageStorageKey: 'asdasd',
+    //       padding: EdgeInsets.zero,
+    //       children: [
+    //         for (var message in messages) _MessageCard(message: message),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 }
 
-class _MessageCard extends ConsumerWidget {
-  const _MessageCard({super.key, required this.message});
+class _MessageCard extends HookConsumerWidget {
+  const _MessageCard({super.key, required this.message, this.animate = true});
 
   final DeveloperAnnouncementEntry message;
+
+  final bool animate;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -140,11 +148,16 @@ class _MessageCard extends ConsumerWidget {
     final shape = Border(left: BorderSide(color: borderColor ?? themeData.colorScheme.primary, width: 3)) +
         (cardTheme.shape ?? RoundedRectangleBorder(borderRadius: borderRadius));
 
-    return Card(
+    final animCtrl = useAnimationController(initialValue: 1, duration: kThemeAnimationDuration);
+
+    dismissNotifcation() => ref.read(_remoteAnnouncementsControllerProvider.notifier).dismiss(message);
+
+    final card = Card(
       shape: shape,
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         borderRadius: borderRadius,
-        onTap: onTap,
+        onTap: onTap.unless(animCtrl.isAnimating),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -161,13 +174,26 @@ class _MessageCard extends ConsumerWidget {
               ),
               MobilerakerIconButton(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                onPressed: () => ref.read(_remoteAnnouncementsControllerProvider.notifier).dismiss(message),
-                icon: const Icon(Icons.close),
+                onPressed: () {
+                  if (animate) {
+                    animCtrl.animateTo(0).then((value) => dismissNotifcation());
+                  } else {
+                    dismissNotifcation();
+                  }
+                }.unless(animCtrl.isAnimating),
+                icon: const Icon(Icons.close, size: 20),
               ),
             ],
           ),
         ),
       ),
+    );
+
+    if (!animate) return card;
+
+    return SizeTransition(
+      sizeFactor: animCtrl.drive(CurveTween(curve: Curves.easeInOutCubic)),
+      child: card,
     );
   }
 

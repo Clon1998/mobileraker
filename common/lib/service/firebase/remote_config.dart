@@ -23,6 +23,33 @@ FirebaseRemoteConfig remoteConfig(RemoteConfigRef ref) {
 DeveloperAnnouncement developerAnnouncement(DeveloperAnnouncementRef ref) {
   return DeveloperAnnouncement.fromJson(
     json.decode(ref.watch(remoteConfigProvider).getString('developer_announcements')),
+    //   {
+    //     "enabled": true,
+    //     "messages": [
+    //       {
+    //         "show": true,
+    //         "type": "info",
+    //         "title": "Info-Test",
+    //         "body": "THis is a test for an info message...s.",
+    //         "showCount": 50,
+    //         "link": "https://test.com"
+    //       },
+    //       {
+    //         "show": true,
+    //         "type": "critical",
+    //         "title": "critical-Test",
+    //         "body": "THis is a test for an critical message...s.",
+    //         "showCount": 50
+    //       },
+    //       {
+    //         "show": true,
+    //         "type": "advertisement",
+    //         "title": "Ad For Sale",
+    //         "body": "Hier könnte ihre Werbung stehen!s",
+    //         "showCount": 50
+    //       }
+    //     ]
+    //   }
   );
 }
 
