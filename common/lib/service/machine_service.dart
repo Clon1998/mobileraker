@@ -434,9 +434,41 @@ class MachineService {
       if (liveActivityPushToken == null) {
         await repo.delete(machine.uuid);
       } else {
-        await repo.update(machine.uuid, APNs(liveActivity: liveActivityPushToken));
+        await repo.write(machine.uuid, APNs(liveActivity: liveActivityPushToken));
       }
       logger.i('${machine.logTagExtended} Propagated new live activity in FCM');
+    } finally {
+      keepAliveExternally.close();
+    }
+  }
+
+  Future<void> updateApplePushNotificationToken(
+    String machineUUID,
+    String? liveActivityPushToken,
+  ) async {
+    final keepAliveExternally = ref.keepAliveExternally(apnsRepositoryProvider(machineUUID));
+    try {
+      logger.i('Trying to update Apple Push Notification Token for machine $machineUUID');
+      final repo = ref.read(apnsRepositoryProvider(machineUUID));
+
+      final connectionResult = await ref.readWhere(jrpcClientStateProvider(machineUUID),
+          (state) => state == ClientState.connected || state == ClientState.connecting);
+
+      if (connectionResult != ClientState.connected) {
+        logger.w(
+            'Unable to update Apple Push Notification Token because JRPC was not connected for machine $machineUUID');
+        return;
+      }
+
+      if (liveActivityPushToken == null) {
+        await repo.delete(machineUUID);
+      } else {
+        await repo.write(machineUUID, APNs(liveActivity: liveActivityPushToken));
+      }
+      logger.i('Successfully updated Apple Push Notification Token for machine $machineUUID');
+    } catch (e) {
+      logger.w('Error while trying to update Apple Push Notification Token for machine $machineUUID. Rethrowing...', e);
+      rethrow;
     } finally {
       keepAliveExternally.close();
     }
@@ -465,7 +497,8 @@ class MachineService {
     var connectionResult = await ref.readWhere(jrpcClientStateProvider(machine.uuid),
         (state) => ![ClientState.connecting, ClientState.disconnected].contains(state));
     if (connectionResult != ClientState.connected) {
-      logger.w('${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!');
+      logger
+          .w('${machine.logTagExtended} Unable to propagate new notification settings because JRPC was not connected!');
       throw const MobilerakerException('Machine not connected');
     }
 

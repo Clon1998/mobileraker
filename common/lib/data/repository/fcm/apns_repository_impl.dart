@@ -27,7 +27,7 @@ class APNsRepositoryImpl extends APNsRepository {
   }
 
   @override
-  Future<APNs?> get(String machineId) async {
+  Future<APNs?> read(String machineId) async {
     var json = await _databaseService.getDatabaseItem('mobileraker', key: 'fcm.$machineId.apns');
 
     if (json == null) return null;
@@ -35,7 +35,7 @@ class APNsRepositoryImpl extends APNsRepository {
   }
 
   @override
-  Future<void> update(String machineId, APNs apns) async {
+  Future<void> write(String machineId, APNs apns) async {
     apns.lastModified = DateTime.now();
 
     await _databaseService.addDatabaseItem('mobileraker', 'fcm.$machineId.apns', apns);

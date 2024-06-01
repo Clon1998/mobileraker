@@ -8,6 +8,7 @@
 import 'dart:io';
 
 import 'package:common/service/live_activity_service.dart';
+import 'package:common/service/live_activity_service_v2.dart';
 import 'package:common/service/moonraker/klipper_system_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
@@ -82,8 +83,9 @@ class DevPage extends HookConsumerWidget {
             },
           ),
 
-          OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
-          OutlinedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
+        OutlinedButton(onPressed: () => v2Activity(ref), child: const Text('V2 activity')),
+        OutlinedButton(onPressed: () => startLiveActivity(ref), child: const Text('start activity')),
+        OutlinedButton(onPressed: () => updateLiveActivity(ref), child: const Text('update activity')),
           OutlinedButton(
               onPressed: () => ref
                   .read(bottomSheetServiceProvider)
@@ -133,6 +135,10 @@ class DevPage extends HookConsumerWidget {
     logger.i('#2');
     var activityState = await liveActivitiesPlugin.getActivityState('123123');
     logger.i('Got state message: $activityState');
+  }
+
+  v2Activity(WidgetRef ref) async {
+    ref.read(v2LiveActivityProvider).initialize();
   }
 
   startLiveActivity(WidgetRef ref) async {
