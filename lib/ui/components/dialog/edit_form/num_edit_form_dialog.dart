@@ -295,7 +295,7 @@ class _RangeEditSlider extends HookWidget {
               color: themeData.colorScheme.primary,
               isInteractive: true,
               enableAnimation: false,
-              height: 20,
+              height: 25,
               // width: 10,
               pointerAlignment: PointerAlignment.center,
               onChanged: onChanged,
