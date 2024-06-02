@@ -130,7 +130,7 @@ class LiveActivityServiceV2 {
 
           logger.i('LiveActivity update is for machine ${entry.key}');
           // Track in this service
-          _writeToMap(entry.key, entry.value.copyWith(pushToken: event.activityToken));
+          _machineActivityMapping[entry.key] = entry.value.copyWith(pushToken: event.activityToken);
 
           // We also need to sync that token to the machine to be able to send push notifications/updates
           _machineService.updateApplePushNotificationToken(entry.key, event.activityToken).ignore();
@@ -145,7 +145,7 @@ class LiveActivityServiceV2 {
             return;
           }
           _machineService.updateApplePushNotificationToken(entry.key, null).ignore();
-          _removeFromMap(entry.key);
+          _machineActivityMapping.remove(entry.key);
           break;
       }
     });
@@ -333,7 +333,7 @@ class LiveActivityServiceV2 {
           return false;
         }
         // Remove the activity if the printer is not printing or paused
-        _removeFromMap(machineUUID)?.also((it) => _liveActivityAPI.endActivity(it.activityId).ignore());
+        _machineActivityMapping.remove(machineUUID)?.also((it) => _liveActivityAPI.endActivity(it.activityId).ignore());
         // Also remove the push token from the machine
         _machineService.updateApplePushNotificationToken(machineUUID, null);
       }
@@ -363,7 +363,7 @@ class LiveActivityServiceV2 {
       }
       // Okay we can not update the activity remove and end it
       await _liveActivityAPI.endActivity(activityEntry.activityId);
-      _removeFromMap(machineUUID);
+      _machineActivityMapping.remove(machineUUID);
     }
 
     // Get platform info about the current active activities
@@ -376,32 +376,10 @@ class LiveActivityServiceV2 {
     // Okay I guess we need to create a new activity for this machine
     final activityId = await _liveActivityAPI.createActivity(activityData, removeWhenAppIsKilled: true);
     if (activityId != null) {
-      _writeToMap(machineUUID, _ActivityEntry(activityId));
+      _machineActivityMapping[machineUUID] = _ActivityEntry(activityId);
     }
     logger.i('Created new LiveActivity for $machineUUID with id: $activityId');
     return activityId;
-  }
-
-  void _writeToMap(String key, _ActivityEntry entry) {
-    _machineActivityMapping[key] = entry;
-    _backupActivityData();
-  }
-
-  _ActivityEntry? _removeFromMap(String key) {
-    final t = _machineActivityMapping.remove(key);
-    _backupActivityData();
-    return t;
-  }
-
-  void _backupActivityData() {
-    // Backup the activity data to the machine service
-    //TODO: Cant write _ActivityEntry directly. Only primitives are allowed (Or Map Entry)
-    // _settingsService.writeMap(UtilityKeys.liveActivityStore, _activityData);
-  }
-
-  void _restoreActivityData() {
-    final data = _settingsService.readMap<String, _ActivityEntry>(UtilityKeys.liveActivityStore);
-    _machineActivityMapping.addAll(data);
   }
 
   Future<void> _dummyForId(String machineUUID) async {
@@ -442,7 +420,7 @@ class LiveActivityServiceV2 {
         return;
       }
       logger.i('Created activity with id: $id');
-      _writeToMap(machineUUID, _ActivityEntry(id));
+      _machineActivityMapping[machineUUID] = _ActivityEntry(id);
     } else {
       _liveActivityAPI.updateActivity(_liveActivityIdForMachine, data);
     }
