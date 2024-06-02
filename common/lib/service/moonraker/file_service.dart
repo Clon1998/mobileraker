@@ -184,12 +184,22 @@ class FileService {
   Future<GCodeFile> getGCodeMetadata(String filename) async {
     logger.i('Getting meta for file: `$filename`');
 
+    final parentPathParts = filename.split('/')
+      ..removeLast()
+      ..insert(0, 'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
+    final parentPath = parentPathParts.join('/');
+
     try {
       RpcResponse blockingResp =
           await _jRpcClient.sendJRpcMethod('server.files.metadata', params: {'filename': filename});
 
-      return _parseFileMeta(blockingResp, filename);
+      return GCodeFile.fromJson(blockingResp.result, parentPath);
     } on JRpcError catch (e) {
+      if (e.message.contains('Metadata not available for')) {
+        logger.w('Metadata not available for $filename');
+        return GCodeFile(name: filename, parentPath: parentPath);
+      }
+
       throw FileFetchException('Jrpc error while trying to get metadata.', reqPath: filename, parent: e);
     }
   }
@@ -371,17 +381,6 @@ class FileService {
 
     return FolderContentWrapper(forPath, listOfFolder, listOfFiles);
   }
-
-  GCodeFile _parseFileMeta(RpcResponse blockingResponse, String forFile) {
-    Map<String, dynamic> response = blockingResponse.result;
-
-    var split = forFile.split('/');
-    split.removeLast();
-    split.insert(0, 'gcodes'); // we need to add the gcodes here since the getMetaInfo omits gcodes path.
-
-    return GCodeFile.fromJson(response, split.join('/'));
-  }
-
 
   dispose() {
     _fileActionStreamCtrler.close();

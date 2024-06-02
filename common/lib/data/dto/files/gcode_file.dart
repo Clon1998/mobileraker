@@ -75,8 +75,8 @@ class GCodeFile with _$GCodeFile, RemoteFile {
   const factory GCodeFile({
     @JsonKey(name: 'filename') required String name,
     required String parentPath,
-    required double modified,
-    @IntegerConverter() required int size,
+    double? modified,
+    @IntegerConverter() int? size,
     double? printStartTime,
     String? jobId,
     String? slicer,
