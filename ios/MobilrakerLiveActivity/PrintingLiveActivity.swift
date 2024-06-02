@@ -36,11 +36,12 @@ struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key: "progress"))
-            let isPrintDone = abs(progress - 1) < 0.0001
+            
             
             let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
             let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
             
+            let isPrintDone = abs(progress - 1) < 0.0001 || state == "complete"
             
             
             
@@ -98,11 +99,11 @@ struct PrintingLiveActivity: Widget {
                         Text(completedLabel)
                             .foregroundStyle(.green)
                             .fontWeight(.bold)
-                    } else if (shouldShowAsTimer(etaDate)) {
-                        if let eta = etaDate {
-                            FormattedDateTextView(eta: eta)
-                        }
-                        //LabeledEtaView(activityContext: context, etaDate: etaDate)
+                    } else if let eta = etaDate, shouldShowAsTimer(eta) {
+                        FormattedDateTextView(eta: eta)
+                    } else {
+                        Text(String(format: "%.0f%%", progress*100))
+                            .monospacedDigit()
                     }
                 }
                 .font(.caption)
@@ -139,11 +140,13 @@ struct PrintingLiveActivity: Widget {
             
         } dynamicIsland: { context in
             let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
-            let isPrintDone = abs(progress - 1) < 0.0001
+            
             
             
             let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"state"))!
             let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"file"))!
+            
+            let isPrintDone = abs(progress - 1) < 0.0001 || state == "complete"
             
             
             let eta = context.state.eta ?? sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"eta"))
@@ -184,8 +187,9 @@ struct PrintingLiveActivity: Widget {
                     }
                 }
             } compactLeading: {
+                let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"state"))!
                 let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
-                let isPrintDone = abs(progress - 1) < 0.0001
+                let isPrintDone = abs(progress - 1) < 0.0001 || state == "complete"
                 
                 if isPrintDone {
                  Image("mr_logo")
@@ -198,8 +202,12 @@ struct PrintingLiveActivity: Widget {
                         .padding(.horizontal, 2.0)
                 }
             } compactTrailing: {
+                let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key:"state"))!
                 let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key:"progress"))
-                let isPrintDone = abs(progress - 1) < 0.0001
+                
+                let isPrintDone = abs(progress - 1) < 0.0001 || state == "complete"
+                
+                
                 let primaryColor = sharedDefault.integer(forKey: context.attributes.prefixedKey(key:"primary_color_dark"))
                 CircularProgressView(progress: progress, widthHeight: 15, lineWidth: 2.5, color_int: UInt32(primaryColor))
                     .padding(.horizontal, 2.0)
