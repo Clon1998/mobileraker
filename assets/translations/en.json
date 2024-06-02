@@ -1084,6 +1084,14 @@
     "initializing": "Initializing",
     "not_connected": "Moonraker cannot establish a connection with Klipper. Please verify that Klipper is running on your system."
   },
+  "print_state": {
+    "standby": "Standby",
+    "printing": "Printing",
+    "paused": "Paused",
+    "complete": "Complete",
+    "cancelled": "Cancelled",
+    "error": "Error"
+  },
   "theme_mode": {
     "light": "Light",
     "dark": "Dark",

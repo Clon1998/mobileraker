@@ -5,13 +5,13 @@
 
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:common/data/model/hive/notification.dart';
 import 'package:common/service/machine_service.dart';
 import 'package:common/service/setting_service.dart';
 import 'package:common/util/extensions/date_time_extension.dart';
-import 'package:common/util/extensions/logging_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -36,7 +36,7 @@ import 'ui/theme_service.dart';
 
 part 'live_activity_service_v2.g.dart';
 
-const int PRINTER_DATA_REFRESH_INTERVAL = 30; // SECONDS
+const int PRINTER_DATA_REFRESH_INTERVAL = 5; // SECONDS
 
 @riverpod
 LiveActivityServiceV2 v2LiveActivity(V2LiveActivityRef ref) {
@@ -91,6 +91,10 @@ class LiveActivityServiceV2 {
       logger.i('Connecting with Platform live_activity');
       await _liveActivityAPI.init(appGroupId: 'group.mobileraker.liveactivity');
 
+      final all = await _liveActivityAPI.getAllActivitiesIds();
+      logger.i('Found ${all.length} active activities. Ending all of them.');
+      await _liveActivityAPI.endAllActivities();
+
       _setupLiveActivityListener();
       _setupPrinterDataListeners();
       _registerAppLifecycleHandler();
@@ -134,8 +138,14 @@ class LiveActivityServiceV2 {
           break;
         case EndedActivityUpdate():
           logger.i('Received activity ended update for ${event.activityId}');
-          _machineActivityMapping.removeWhere((key, value) => value.activityId == event.activityId);
-          _machineService.updateApplePushNotificationToken(event.activityId, null).ignore();
+          final entry = _machineActivityMapping.entries
+              .firstWhereOrNull((element) => element.value.activityId == event.activityId);
+          if (entry == null) {
+            logger.w('Received ended activity update for unknown activity ${event.activityId}');
+            return;
+          }
+          _machineService.updateApplePushNotificationToken(entry.key, null).ignore();
+          _removeFromMap(entry.key);
           break;
       }
     });
@@ -211,52 +221,69 @@ class LiveActivityServiceV2 {
 
     // Use locks to prevent multiple async updates at the same time
     // No need to actually wait for the lock since printerData updates are really frequent skipping some is fine!
-    if (_handlePrinterDataThrottleLocks[machineUUID]?.let((it) => !it.isCompleted) ?? false) return;
-    _handlePrinterDataThrottleLocks[machineUUID] = Completer();
 
+    if (_handlePrinterDataThrottleLocks[machineUUID]?.let((it) => !it.isCompleted) ?? false) return;
+    final lock = Completer();
+    _handlePrinterDataThrottleLocks[machineUUID] = lock;
     try {
       final notification =
           await _notificationsRepository.getByMachineUuid(machineUUID) ?? Notification(machineUuid: machineUUID);
 
+      // Data that needs to be present to be shown!
+      final hasDataReady = printer.currentFile?.name != null;
+
+      // Conditions for a refresh based on the printer data
       final printState = printer.print.state;
       final isPrinting = {PrintState.printing, PrintState.paused}.contains(printState);
       final hasProgressChange = isPrinting &&
           (notification.progress == null || ((notification.progress! - printer.printProgress) * 100).abs() > 2);
-
       final hasStateChange = notification.printState != printState;
       final hasFileChange =
           isPrinting && printer.currentFile?.name != null && notification.file != printer.currentFile?.name;
 
-      // Also update of the ETA is unset, more than 15 minutes off but only if we are printing
+      // We use the slicer estimate to get a delta window. If the delta is more than 5% of the estimated time or 15 minutes we update the ETA. (Whichever is higher)
+      final deltaWindow = max((printer.currentFile?.estimatedTime?.let((it) => (it * 0.05) ~/ 60)) ?? 15, 15);
       final hasEtaChange = isPrinting &&
           printer.eta != null &&
-          (notification.eta == null || printer.eta!.difference(notification.eta!).inMinutes.abs() >= 15);
+          (notification.eta == null || printer.eta!.difference(notification.eta!).inMinutes.abs() >= deltaWindow);
 
+      // Check if we need to create or clear the live activity
+      final createLiveActivity = isPrinting && !_machineActivityMapping.containsKey(machineUUID);
       final clearLiveActivity = !isPrinting && _machineActivityMapping.containsKey(machineUUID);
 
-      if (!hasProgressChange && !hasStateChange && !hasFileChange && !hasEtaChange && !clearLiveActivity) return;
-      logger.i(
-          'Passed the refresh check for machine $machineUUID (Progress: $hasProgressChange, State: $hasStateChange, File: $hasFileChange, ETA: $hasEtaChange)');
-      await _notificationsRepository.save(
-        Notification(machineUuid: machineUUID)
-          ..progress = printer.printProgress
-          ..eta = printer.eta
-          ..file = printer.currentFile?.name
-          ..printState = printer.print.state,
-      );
+      // logger.i('Progress: $hasProgressChange, State: $hasStateChange, File: $hasFileChange, ETA: $hasEtaChange, Clear: $clearLiveActivity, Create: $createLiveActivity, Delta: $deltaWindow');
+      if (!hasDataReady ||
+          !createLiveActivity &&
+              !clearLiveActivity &&
+              !hasProgressChange &&
+              !hasStateChange &&
+              !hasFileChange &&
+              !hasEtaChange) return;
+      // logger.i('Passed the refresh check for machine $machineUUID (Progress: $hasProgressChange, State: $hasStateChange, File: $hasFileChange, ETA: $hasEtaChange, Clear: $clearLiveActivity, Create: $createLiveActivity)');
+      final activityChanged = await _refreshLiveActivityForMachine(machineUUID, printer);
 
-      await _refreshLiveActivityForMachine(machineUUID, printer);
+      // Save the notification data if the activity was changed
+      if (activityChanged) {
+        await _notificationsRepository.save(
+          Notification(machineUuid: machineUUID)
+            ..progress = printer.printProgress
+            ..eta = printer.eta
+            ..file = printer.currentFile?.name
+            ..printState = printer.print.state,
+        );
+      }
     } finally {
-      // Release the lock with a delay to prevent too frequent updates (Throttle)
-      _handlePrinterDataThrottleLocks[machineUUID]
-          ?.complete(Future.delayed(const Duration(seconds: PRINTER_DATA_REFRESH_INTERVAL)));
+      // Need to do it like that because nothing is awaiting the actual completer!
+      await Future.delayed(const Duration(seconds: PRINTER_DATA_REFRESH_INTERVAL));
+      lock.complete();
     }
   }
 
   /// Refreshes the live activity or a machine (Creates or updates the activity)
   /// It does not check if a refresh is needed. It just creates/updates the activity.
-  Future<void> _refreshLiveActivityForMachine(String machineUUID, Printer printer) async {
-    _refreshActivityLocks[machineUUID] ??= Completer();
+  /// This method is also responsible for removing the activity if the printer is not printing or paused.
+  /// Returns true if the activity was created, updated or removed and false if nothing was done.
+  Future<bool> _refreshLiveActivityForMachine(String machineUUID, Printer printer) async {
     Completer? lock;
     try {
       // Check lock
@@ -270,9 +297,9 @@ class LiveActivityServiceV2 {
 
       // Get machine data
       final machine = await ref.read(machineProvider(machineUUID).future);
-      if (machine == null) return;
+      if (machine == null) return false;
 
-      logger.i('Refreshing live activity for machine ${machine.logNameExtended}');
+      // logger.i('Refreshing live activity for machine ${machine.logNameExtended}');
       var themePack = ref.read(themeServiceProvider).activeTheme.themePack;
       Map<String, dynamic> data = {
         'progress': printer.printProgress,
@@ -291,7 +318,7 @@ class LiveActivityServiceV2 {
         'eta_label': tr('pages.dashboard.general.print_card.eta'),
         'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
         'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
-        'completed_label': tr('general.completed'),
+        for (var state in PrintState.values) '${state.name}_label': state.displayName,
       };
 
       var isPrinting = {PrintState.printing, PrintState.paused}.contains(printer.print.state);
@@ -300,11 +327,17 @@ class LiveActivityServiceV2 {
       if (isPrinting || isDone) {
         await _updateOrCreateLiveActivity(data, machineUUID);
       } else {
+        // Only remove the activity if the app is not in the resumed state -> This is to prevent the activity from being removed when the app is in the background and usefull for the user to see
+        if (ref.read(appLifecycleProvider) != AppLifecycleState.resumed) {
+          logger.i('App is not in resumed state. Skipping activity removal for machine $machineUUID');
+          return false;
+        }
         // Remove the activity if the printer is not printing or paused
         _removeFromMap(machineUUID)?.also((it) => _liveActivityAPI.endActivity(it.activityId).ignore());
         // Also remove the push token from the machine
         _machineService.updateApplePushNotificationToken(machineUUID, null);
       }
+      return true;
     } finally {
       // Release lock if acquired
       lock?.complete();
@@ -320,11 +353,11 @@ class LiveActivityServiceV2 {
 
       LiveActivityState? activityState = await _liveActivityAPI.getActivityState(activityEntry.activityId);
 
-      logger.i('Found a live activity for $machineUUID with state: $activityState');
+      // logger.i('Found a live activity for $machineUUID with state: $activityState');
 
       // If the activity is still active we can update it and return
       if (activityState == LiveActivityState.active) {
-        logger.i('Can update LiveActivity for $machineUUID with id: $activityEntry');
+        // logger.i('Can update LiveActivity for $machineUUID with id: $activityEntry');
         await _liveActivityAPI.updateActivity(activityEntry.activityId, activityData);
         return activityEntry.activityId;
       }
@@ -397,7 +430,9 @@ class LiveActivityServiceV2 {
       'eta_label': tr('pages.dashboard.general.print_card.eta'),
       'elapsed_label': tr('pages.dashboard.general.print_card.elapsed'),
       'remaining_label': tr('pages.dashboard.general.print_card.remaining'),
-      'completed_label': tr('general.completed'),
+
+      // Labels for the print states
+      for (var state in PrintState.values) '${state.name}_label': state.displayName,
     };
 
     if (_liveActivityIdForMachine == null) {

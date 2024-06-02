@@ -16,6 +16,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		CD1B916429FFEE170062AE26 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD1B916329FFEE170062AE26 /* StoreKit.framework */; };
 		CD1E1FD82ACF654400A311C3 /* ViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD1E1FD72ACF654400A311C3 /* ViewExtension.swift */; };
+		CD54F7E42C0CD9D000BC3025 /* PrintStatusIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicator.swift */; };
 		CDCC27F52AAB9A0800116FFF /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */; };
 		CDCC27F72AAB9A0800116FFF /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CDCC27F62AAB9A0800116FFF /* SwiftUI.framework */; };
 		CDCC28002AAB9A0A00116FFF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CDCC27FF2AAB9A0A00116FFF /* Assets.xcassets */; };
@@ -101,6 +102,7 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CD1B916329FFEE170062AE26 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		CD1E1FD72ACF654400A311C3 /* ViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewExtension.swift; sourceTree = "<group>"; };
+		CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintStatusIndicator.swift; sourceTree = "<group>"; };
 		CDCC27F32AAB9A0800116FFF /* MobilrakerLiveActivityExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = MobilrakerLiveActivityExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDCC27F42AAB9A0800116FFF /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		CDCC27F62AAB9A0800116FFF /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -237,6 +239,7 @@
 			children = (
 				CDCC280E2AABA70000116FFF /* CircularProgressView.swift */,
 				CDF967FD2AB5EAE500D7FF15 /* EtaDisplayView.swift */,
+				CD54F7E32C0CD9D000BC3025 /* PrintStatusIndicator.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -531,6 +534,7 @@
 				CDCC280F2AABA70000116FFF /* CircularProgressView.swift in Sources */,
 				CDF967FE2AB5EAE500D7FF15 /* EtaDisplayView.swift in Sources */,
 				CDCC280C2AAB9F2400116FFF /* PrintingLiveActivity.swift in Sources */,
+				CD54F7E42C0CD9D000BC3025 /* PrintStatusIndicator.swift in Sources */,
 				CD1E1FD82ACF654400A311C3 /* ViewExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
