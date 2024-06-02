@@ -35,11 +35,10 @@ let sharedDefault = UserDefaults(suiteName: "group.mobileraker.liveactivity")!
 struct PrintingLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: LiveActivitiesAppAttributes.self) { context in
-            let progress = context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key: "progress"))
-            
-            
             let state = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "state"))!
             let file = sharedDefault.string(forKey: context.attributes.prefixedKey(key: "file"))!
+            
+            let progress = state == "complete" ?  1 : context.state.progress ?? sharedDefault.double(forKey: context.attributes.prefixedKey(key: "progress"))
             
             //let isPrintDone = abs(progress - 1) < 0.0001 || state == "complete"
             

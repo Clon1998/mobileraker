@@ -24,7 +24,7 @@ struct PrintStatusIndicator: View {
     }
     
     var progress: Double {
-        activityContext.state.progress ?? sharedDefault.double(forKey: activityContext.attributes.prefixedKey(key: "progress"))
+        printerState == "complete" ? 1: activityContext.state.progress ?? sharedDefault.double(forKey: activityContext.attributes.prefixedKey(key: "progress"))
     }
     
     var body: some View {
