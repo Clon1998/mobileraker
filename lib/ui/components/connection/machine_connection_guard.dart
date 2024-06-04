@@ -42,7 +42,7 @@ class MachineConnectionGuard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(selectedMachineProvider);
+    final machine = ref.watch(selectedMachineProvider);
     return Center(
       child: switch (machine) {
         AsyncData(value: null) => const _WelcomeMessage(),
@@ -79,15 +79,15 @@ class _WebsocketStateWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    AsyncValue<ClientState> connectionState = ref.watch(_machineConnectionGuardControllerProvider);
-    ClientType clientType = ref.watch(jrpcClientSelectedProvider.select((value) => value.clientType));
-
-    var connectionStateController = ref.watch(_machineConnectionGuardControllerProvider.notifier);
+    final model = ref.watch(_machineConnectionGuardControllerProvider(machineUUID));
+    final controller = ref.watch(_machineConnectionGuardControllerProvider(machineUUID).notifier);
 
     return AsyncValueWidget(
-      key: ValueKey(clientType),
-      value: connectionState,
-      data: (ClientState clientState) {
+      key: ValueKey(model),
+      value: model,
+      data: (data) {
+        final (clientState, clientType) = data;
+
         switch (clientState) {
           case ClientState.connected:
             return KlippyProviderGuard(
@@ -110,7 +110,7 @@ class _WebsocketStateWidget extends ConsumerWidget {
                   const SizedBox(height: 30),
                   const Text('@:klipper_state.disconnected !').tr(),
                   TextButton.icon(
-                    onPressed: connectionStateController.onRetryPressed,
+                    onPressed: controller.onRetryPressed,
                     icon: const Icon(Icons.restart_alt_outlined),
                     label: const Text('components.connection_watcher.reconnect').tr(),
                   ),
@@ -157,20 +157,20 @@ class _WebsocketStateWidget extends ConsumerWidget {
                           ),
                           const SizedBox(height: 20),
                           Text(
-                            connectionStateController.clientErrorMessage,
+                            controller.clientErrorMessage,
                             textAlign: TextAlign.center,
                           ),
-                          if (!connectionStateController.errorIsOctoSupportedExpired)
+                          if (!controller.errorIsOctoSupportedExpired)
                             TextButton.icon(
-                              onPressed: connectionStateController.onRetryPressed,
+                              onPressed: controller.onRetryPressed,
                               icon: const Icon(Icons.restart_alt_outlined),
                               label: const Text(
                                 'components.connection_watcher.reconnect',
                               ).tr(),
                             ),
-                          if (connectionStateController.errorIsOctoSupportedExpired)
+                          if (controller.errorIsOctoSupportedExpired)
                             TextButton.icon(
-                              onPressed: connectionStateController.onGoToOE,
+                              onPressed: controller.onGoToOE,
                               icon: const Icon(Icons.open_in_browser),
                               label: const Text(
                                 'components.connection_watcher.more_details',
@@ -237,14 +237,24 @@ class _WelcomeMessage extends StatelessWidget {
 @riverpod
 class _MachineConnectionGuardController extends _$MachineConnectionGuardController {
   @override
-  Future<ClientState> build() => ref.watch(jrpcClientStateSelectedProvider.selectAsync((data) => data));
+  Future<(ClientState, ClientType)> build(String machineUUID) async {
+    final clientType = ref.watch(jrpcClientTypeProvider(machineUUID));
+    final cState = await ref.watch(jrpcClientStateProvider(machineUUID).future);
+
+    return (cState, clientType);
+  }
 
   onRetryPressed() {
-    ref.read(jrpcClientSelectedProvider).openChannel();
+    ref.read(jrpcClientProvider(machineUUID)).openChannel();
+  }
+
+  @override
+  bool updateShouldNotify(AsyncValue<(ClientState, ClientType)> previous, AsyncValue<(ClientState, ClientType)> next) {
+    return previous != next;
   }
 
   String get clientErrorMessage {
-    var jsonRpcClient = ref.read(jrpcClientSelectedProvider);
+    var jsonRpcClient = ref.read(jrpcClientProvider(machineUUID));
     Exception? errorReason = jsonRpcClient.errorReason;
     if (errorReason is TimeoutException) {
       return 'A timeout occurred while trying to connect to the machine! Ensure the machine can be reached from your current network...';
@@ -257,7 +267,7 @@ class _MachineConnectionGuardController extends _$MachineConnectionGuardControll
   }
 
   bool get errorIsOctoSupportedExpired {
-    var jsonRpcClient = ref.read(jrpcClientSelectedProvider);
+    var jsonRpcClient = ref.read(jrpcClientProvider(machineUUID));
     Exception? errorReason = jsonRpcClient.errorReason;
     if (errorReason is! OctoEverywhereHttpException) {
       return false;
