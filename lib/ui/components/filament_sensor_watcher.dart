@@ -59,7 +59,7 @@ class _FilamentSensorWatcherState extends ConsumerState<FilamentSensorWatcher> {
 
   @override
   void didUpdateWidget(FilamentSensorWatcher oldWidget) {
-    if (_enabled) _setup();
+    if (_enabled && oldWidget.machineUUID != widget.machineUUID) _setup();
     super.didUpdateWidget(oldWidget);
   }
 
