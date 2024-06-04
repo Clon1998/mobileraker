@@ -54,6 +54,8 @@ class _ProviderError extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    logger.w('Showing PrinterProviderGuard.error for $machineUUID: $error');
+
     String title = 'Error while fetching Printer Data';
     String message = error.toString();
     var e = error;
