@@ -324,7 +324,7 @@ class LiveActivityServiceV2 {
       var isPrinting = {PrintState.printing, PrintState.paused}.contains(printer.print.state);
       var isDone = {PrintState.complete, PrintState.cancelled}.contains(printer.print.state);
 
-      if (isPrinting || isDone) {
+      if (isPrinting) {
         await _updateOrCreateLiveActivity(data, machineUUID);
       } else {
         // Only remove the activity if the app is not in the resumed state -> This is to prevent the activity from being removed when the app is in the background and usefull for the user to see
