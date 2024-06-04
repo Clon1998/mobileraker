@@ -154,11 +154,12 @@ class LiveActivityServiceV2 {
 
   /// Setups the listeners for the printer data for all machines.
   void _setupPrinterDataListeners() {
+    logger.i('Setting up printerData listeners');
     ref.listen(
       allMachinesProvider,
       (_, next) => next.whenData((machines) {
-        final listenersToOpen = machines.whereNot((e) => _printerDataListeners.containsKey(e.uuid));
-        final listenersToClose = _printerDataListeners.keys.whereNot((e) => machines.any((m) => m.uuid == e));
+        final listenersToOpen = machines.whereNot((e) => _printerDataListeners.containsKey(e.uuid)).toList();
+        final listenersToClose = _printerDataListeners.keys.whereNot((e) => machines.any((m) => m.uuid == e)).toList();
 
         for (var uuid in listenersToClose) {
           _printerDataListeners[uuid]?.close();
