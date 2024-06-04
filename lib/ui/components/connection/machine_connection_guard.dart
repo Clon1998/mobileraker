@@ -83,7 +83,8 @@ class _WebsocketStateWidget extends ConsumerWidget {
     final controller = ref.watch(_machineConnectionGuardControllerProvider(machineUUID).notifier);
 
     return AsyncValueWidget(
-      key: ValueKey(model),
+      // Warum brauche ich den key?
+      // key: ValueKey(model),
       value: model,
       data: (data) {
         final (clientState, clientType) = data;
@@ -127,7 +128,7 @@ class _WebsocketStateWidget extends ConsumerWidget {
                       size: 100,
                       color: Theme.of(context).colorScheme.secondary,
                     ),
-                  if (clientType == ClientType.octo)
+                  if (clientType != ClientType.local)
                     SpinKitPouringHourGlassRefined(
                       size: 100,
                       color: Theme.of(context).colorScheme.secondary,
@@ -244,7 +245,7 @@ class _MachineConnectionGuardController extends _$MachineConnectionGuardControll
     return (cState, clientType);
   }
 
-  onRetryPressed() {
+  void onRetryPressed() {
     ref.read(jrpcClientProvider(machineUUID)).openChannel();
   }
 
@@ -276,7 +277,7 @@ class _MachineConnectionGuardController extends _$MachineConnectionGuardControll
     return errorReason.statusCode == 605;
   }
 
-  onGoToOE() async {
+  void onGoToOE() async {
     var oeURI = Uri.parse(
       'https://octoeverywhere.com/appportal/v1/nosupporterperks?moonraker=true&appid=mobileraker',
     );
