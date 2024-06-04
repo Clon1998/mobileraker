@@ -44,6 +44,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/extensions/string_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -123,7 +124,9 @@ class PrinterService {
     ref.onDispose(dispose);
 
     ref.listen(klipperProvider(ownerUUID).selectAs((value) => value.klippyState), (previous, next) {
-      logger.i('Printer Service received klippyState: ${next.valueOrNull}');
+      logger.i('[Printer Service ${_jRpcClient.clientType}@${_jRpcClient.uri
+          .obfuscate()}] Received new klippyState: $previous -> $next: ${previous?.valueOrFullNull} -> ${next
+          .valueOrFullNull}');
       switch (next.valueOrFullNull) {
         case KlipperState.ready:
           if (!_queriedForSession) {

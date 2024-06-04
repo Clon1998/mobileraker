@@ -13,6 +13,7 @@ import 'package:common/service/machine_service.dart';
 import 'package:common/service/misc_providers.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/ref_extension.dart';
+import 'package:common/util/extensions/uri_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -62,6 +63,8 @@ class KlippyService {
     _jRpcClient.addMethodListener(_onNotifyKlippyDisconnected, 'notify_klippy_disconnected');
 
     ref.listen(jrpcClientStateProvider(ownerUUID), (previous, next) {
+      logger.i(
+          '[Klippy Service ${_jRpcClient.clientType}@${_jRpcClient.uri.obfuscate()}] Received new JRpcClientState: $previous -> $next');
       switch (next.valueOrFullNull) {
         case ClientState.connected:
           refreshKlippy().ignore();
