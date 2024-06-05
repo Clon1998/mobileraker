@@ -14,13 +14,15 @@ class CardWithButton extends StatelessWidget {
     this.backgroundColor,
     required this.builder,
     required this.buttonChild,
-    required this.onTap,
+    this.onTap,
+    this.onLongTap,
   });
 
   final Color? backgroundColor;
   final WidgetBuilder builder;
   final Widget buttonChild;
   final VoidCallback? onTap;
+  final VoidCallback? onLongTap;
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +77,7 @@ class CardWithButton extends StatelessWidget {
               disabledForegroundColor: themeData.colorScheme.onPrimary.withOpacity(0.38),
             ),
             onPressed: onTap,
+            onLongPress: onLongTap,
             child: buttonChild,
           ),
         ],

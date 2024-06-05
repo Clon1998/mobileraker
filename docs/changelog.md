@@ -4,23 +4,27 @@
 
 ### New Features
 
-- [Supporters] Introduced customizable dashboards, allowing users to create up to five tabs and personalize them with various cards. [#11](https://github.com/Clon1998/mobileraker/issues/11)
+- [Supporters] Introduced customizable dashboards, allowing users to create up to five tabs and personalize them with
+  various cards. [#11](https://github.com/Clon1998/mobileraker/issues/11)
 
 ### Enhancements
 
 - Added country flags to the language selection menu for improved accessibility.
-- Included a disclaimer for remote connection failures, clarifying the differences between _Mobileraker-Supporters_ and _OctoEverywhere_/_Obico-Supporters_.
+- Included a disclaimer for remote connection failures, clarifying the differences between _Mobileraker-Supporters_ and
+  _OctoEverywhere_/_Obico-Supporters_.
 - Removed the `Websocket Address` field from printer settings to eliminate unnecessary complexity and confusion.
 - Enhanced the display of error messages for webcam cards to ensure clarity and consistency.
-- If a single webcam is present and it fails to load, the entire webcam card can now be hidden. [#217](https://github.com/Clon1998/mobileraker/issues/217)
+- If a single webcam is present and it fails to load, the entire webcam card can now be
+  hidden. [#217](https://github.com/Clon1998/mobileraker/issues/217)
 - The console page now offers more accurate command suggestions based on user input.
 - Increased the size of the slider in the num-edit dialog for easier usability.
+- Its now possible to toggle fans to 100%/0% in the fans card by long pressing the _Set_ button.
 
 ### Bug Fixes
 
 - Fixed the Back button on the printer add page.
-- The Spoolman card now displays the remaining filament with two decimal places. [#364](https://github.com/Clon1998/mobileraker/issues/364)
-
+- The Spoolman card now displays the remaining filament with two decimal
+  places. [#364](https://github.com/Clon1998/mobileraker/issues/364)
 
 ## [2.6.19] - 2024-05-09
 
