@@ -13,6 +13,10 @@ import '../animation/animated_size_and_fade.dart';
 ///
 /// This widget can be used to handle different states of an asynchronous operation and render different widgets accordingly.
 /// It can handle loading, error and data states.
+///
+/// Compared to [AsyncValueWidget], this widget only "guards" the asyncValue[toGuard].
+/// That means that the childs are expected to listen to the same asyncValue using [Consumer] or [ConsumerWidget] for the data state.
+/// An usecase for that would be to have a provider "A" that is used by the childOnData's provider "B" and "C".
 class AsyncGuard extends ConsumerWidget {
   /// Creates an instance of [AsyncGuard].
   ///

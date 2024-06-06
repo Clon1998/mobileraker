@@ -45,6 +45,16 @@ Type objectSetting<Type>(ObjectSettingRef ref, KeyValueStoreKey key, Type fallba
   return ref.watch(settingServiceProvider).read(key, fallback);
 }
 
+@riverpod
+List<String> stringListSetting(StringListSettingRef ref, KeyValueStoreKey key, [List<String>? fallback]) {
+  // This is a nice way to listen to changes in the settings box.
+  // However, we might want to move this logic to the Service (Well it would just move the responsibility)
+  var box = Hive.box('settingsbox');
+  var sub = box.watch(key: key.key).listen((event) => ref.invalidateSelf());
+  ref.onDispose(sub.cancel);
+  return ref.watch(settingServiceProvider).readList(key, fallback);
+}
+
 /// Actually this class turned more into a KeyValue store than just storing app setings
 /// Settings related to the App!
 class SettingService {
@@ -144,6 +154,7 @@ enum UtilityKeys implements KeyValueStoreKey {
   extruderStepIndex('extruderStepIndex'),
   meshViewMode('meshViewMode'),
   devAnnouncementDismiss('devAnnouncementDismiss'),
+  machineOrdering('machineOrdering'),
   ;
 
   @override

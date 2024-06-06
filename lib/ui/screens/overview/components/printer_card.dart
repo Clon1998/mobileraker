@@ -4,134 +4,165 @@
  */
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:collection/collection.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/model/hive/machine.dart';
 import 'package:common/data/model/moonraker_db/webcam_info.dart';
 import 'package:common/network/jrpc_client_provider.dart';
 import 'package:common/network/json_rpc_client.dart';
+import 'package:common/service/app_router.dart';
+import 'package:common/service/machine_service.dart';
 import 'package:common/service/moonraker/printer_service.dart';
+import 'package:common/service/moonraker/webcam_service.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/service/selected_machine_service.dart';
+import 'package:common/service/setting_service.dart';
+import 'package:common/ui/components/mobileraker_icon_button.dart';
+import 'package:common/ui/theme/theme_pack.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/extensions/logging_extension.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/webcam/webcam.dart';
-import 'package:mobileraker/ui/screens/overview/components/printer_card_controller.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../../../routing/app_router.dart';
 import '../../../components/machine_state_indicator.dart';
 
-class SinglePrinterCard extends HookConsumerWidget {
-  const SinglePrinterCard(this._machine, {super.key});
+part 'printer_card.freezed.dart';
+part 'printer_card.g.dart';
 
-  final Machine _machine;
+class PrinterCard extends HookConsumerWidget {
+  const PrinterCard(this.machine, {super.key});
+
+  final Machine machine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     useAutomaticKeepAlive();
-    return ProviderScope(
-      overrides: [
-        printerCardMachineProvider.overrideWithValue(_machine),
-        printerCardControllerProvider,
-      ],
-      child: const _PrinterCard(),
-    );
-  }
-}
-
-class _PrinterCard extends ConsumerWidget {
-  const _PrinterCard({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    var singlePrinterCardController = ref.watch(printerCardControllerProvider.notifier);
-    var machine = ref.watch(printerCardMachineProvider);
-    var themeData = Theme.of(context);
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Flexible(child: const _Cam()),
-          InkWell(
-            onTap: singlePrinterCardController.onTapTile,
-            onLongPress: singlePrinterCardController.onLongPressTile,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(machine.name, style: themeData.textTheme.titleMedium),
-                      Text(
-                        machine.httpUri.toString(),
-                        style: themeData.textTheme.bodySmall,
-                      ),
-                      Consumer(builder: (context, ref, child) {
-                        var printer = ref.watch(printerProvider(machine.uuid).selectAs((data) => data.print.state));
-
-                        return switch (printer) {
-                          AsyncData(value: var state) => Text(state.displayName, style: themeData.textTheme.bodySmall),
-                          _ => const SizedBox.shrink(),
-                        };
-                      }),
-                    ],
-                  ),
-                  const _Trailing(),
-                ],
-              ),
-            ),
-          ),
+          Flexible(child: _Cam(machine: machine)),
+          _Body(machine: machine),
         ],
       ),
     );
   }
 }
 
-class _Trailing extends HookConsumerWidget {
-  const _Trailing({super.key});
+class _Body extends ConsumerWidget {
+  const _Body({super.key, required this.machine});
+
+  final Machine machine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var triedReconnect = useState(false);
+    final controller = ref.watch(_printerCardControllerProvider(machine).notifier);
+    final themeData = Theme.of(context);
 
-    var machine = ref.watch(printerCardMachineProvider);
-    var jrpcClientState = ref.watch(jrpcClientStateProvider(machine.uuid));
-    var printState = ref.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state));
+    // logger.i('Rebuilding _Body for ${machine.logName}');
 
-    return switch (jrpcClientState) {
-      AsyncValue(isLoading: true, isRefreshing: false) => FadingText('...'),
-      AsyncData(value: var state) => state == ClientState.connected
-          ? switch (printState) {
-              AsyncData(value: PrintState.printing || PrintState.paused) => const _PrintProgressBar(circular: true),
-              _ => MachineStateIndicator(machine),
-            }
-          : triedReconnect.value
-              ? Icon(
-                  FlutterIcons.disconnect_ant,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.error,
-                )
-              : InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: () {
-                    triedReconnect.value = true;
-                    ref.read(jrpcClientProvider(machine.uuid)).ensureConnection();
-                  },
-                  child: Icon(Icons.restart_alt_outlined, size: 20, color: Theme.of(context).colorScheme.error),
+    return InkWell(
+      onTap: controller.onTapTile,
+      // onLongPress: singlePrinterCardController.onLongPressTile,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(machine.name, style: themeData.textTheme.titleMedium),
+                Text(
+                  machine.httpUri.toString(),
+                  style: themeData.textTheme.bodySmall,
                 ),
+                Consumer(builder: (context, ref, child) {
+                  var printer = ref.watch(printerProvider(machine.uuid).selectAs((data) => data.print.state));
+
+                  return AnimatedSwitcher(
+                    duration: kThemeAnimationDuration,
+                    // duration: const Duration(seconds: 2),
+                    child: switch (printer) {
+                      AsyncData(value: var state) => Text(state.displayName, style: themeData.textTheme.bodySmall),
+                      _ => FadingText(tr('general.unknown'), style: themeData.textTheme.bodySmall),
+                    },
+                  );
+                }),
+              ],
+            ),
+            _Trailing(machine: machine),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _Trailing extends HookConsumerWidget {
+  const _Trailing({super.key, required this.machine});
+
+  final Machine machine;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final triedReconnect = useState(false);
+    final model = ref.watch(_printerCardControllerProvider(machine));
+
+    // logger.i('Rebuilding _Trailing for ${machine.logName}');
+
+    final themeData = Theme.of(context);
+    return switch (model) {
+      // AsyncValue(isLoading: true, isRefreshing: false) => const SizedBox(
+      //   height: 20,
+      //   width: 20,
+      //   child: CircularProgressIndicator(
+      //     strokeWidth: 2
+      //   ),
+      // ),
+      AsyncValue(isLoading: true, isRefreshing: false) => FadingText('...'),
+      // Handle connected
+      AsyncData(
+        value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.printing, :final printProgress?)
+      ) =>
+        _PrintProgressBar(progress: printProgress, circular: true),
+      AsyncData(value: _Model(jrpcClientState: ClientState.connected, printState: PrintState.paused)) =>
+        const Icon(Icons.pause_circle_outline, size: 20),
+      AsyncData(value: _Model(jrpcClientState: ClientState.connected)) => MachineStateIndicator(machine),
+      // Handle other jrpc states
+      AsyncData() when triedReconnect.value => Icon(
+          FlutterIcons.disconnect_ant,
+          size: 20,
+          color: themeData.colorScheme.error,
+        ),
+      AsyncData() => MobilerakerIconButton(
+          icon: const Icon(Icons.restart_alt_outlined),
+          color: themeData.extension<CustomColors>()?.danger,
+          onPressed: () {
+            triedReconnect.value = true;
+            ref.read(jrpcClientProvider(machine.uuid)).ensureConnection();
+          },
+        ),
       AsyncError(error: var e) => Tooltip(
           message: e.toString(),
           child: Icon(
             FlutterIcons.disconnect_ant,
             size: 20,
-            color: Theme.of(context).colorScheme.error,
+            color: themeData.colorScheme.error,
           ),
         ),
       _ => const SizedBox.shrink(),
@@ -140,18 +171,16 @@ class _Trailing extends HookConsumerWidget {
 }
 
 class _PrintProgressBar extends ConsumerWidget {
-  const _PrintProgressBar({super.key, this.circular = false});
+  const _PrintProgressBar({super.key, required this.progress, this.circular = false});
 
+  final double progress;
   final bool circular;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(printerCardMachineProvider);
-    var progress = ref.watch(printerProvider(machine.uuid).selectAs((data) => data.printProgress)).valueOrFullNull ?? 0;
-    var numberFormat = NumberFormat.percentPattern(context.locale.toStringWithSeparator());
-
     if (circular) {
-      var themeData = Theme.of(context);
+      final numberFormat = NumberFormat.percentPattern(context.locale.toStringWithSeparator());
+      final themeData = Theme.of(context);
       return CircularPercentIndicator(
         radius: 20,
         lineWidth: 3,
@@ -164,7 +193,7 @@ class _PrintProgressBar extends ConsumerWidget {
         ),
         progressColor: themeData.colorScheme.primary,
         backgroundColor: themeData.useMaterial3
-            ? themeData.colorScheme.surfaceVariant
+            ? themeData.colorScheme.surfaceContainerHighest
             : themeData.colorScheme.primary.withOpacity(0.24),
       );
     }
@@ -177,60 +206,135 @@ class _PrintProgressBar extends ConsumerWidget {
 }
 
 class _Cam extends ConsumerWidget {
-  const _Cam({super.key});
+  const _Cam({super.key, required this.machine});
+
+  final Machine machine;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var machine = ref.watch(printerCardMachineProvider);
-    var printState = ref.watch(printerProvider(machine.uuid).selectAs((d) => d.print.state)).valueOrFullNull;
+    // logger.i('Rebuilding _Cam for ${machine.logName}');
+    final model = ref.watch(_printerCardControllerProvider(machine)).valueOrNull;
+    final controller = ref.watch(_printerCardControllerProvider(machine).notifier);
+    if (model == null || model.previewCam == null) return const SizedBox.shrink();
 
-    WebcamInfo? webcamInfo = ref.watch(printerCardControllerProvider).valueOrFullNull;
+    logger.w('Rebuilding _Cam for ${machine.logName} with ${model}');
 
-    return AnimatedSwitcher(
-      switchInCurve: Curves.easeInOutBack,
-      duration: const Duration(milliseconds: 600),
-      transitionBuilder: (child, anim) => SizeTransition(
-        sizeFactor: anim,
-        child: FadeTransition(opacity: anim, child: child),
-      ),
-      child: (webcamInfo == null)
-          ? const SizedBox.shrink()
-          : Align(
-              alignment: Alignment.bottomCenter,
-              child: Webcam(
-                key: ValueKey(machine.uuid + webcamInfo.uuid),
-                webcamInfo: webcamInfo,
-                machine: machine,
-                showRemoteIndicator: false,
-                stackContent: [
-                  Positioned.fill(
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: IconButton(
-                        color: Colors.white,
-                        icon: const Icon(Icons.aspect_ratio),
-                        tooltip: tr('pages.dashboard.general.cam_card.fullscreen'),
-                        onPressed: ref.read(printerCardControllerProvider.notifier).onFullScreenTap,
-                      ),
-                    ),
-                  ),
-                  if (printState == PrintState.printing)
-                    const Positioned.fill(
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: _PrintProgressBar(),
-                      ),
-                    ),
-                ],
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Webcam(
+        webcamInfo: model.previewCam!,
+        machine: machine,
+        showRemoteIndicator: false,
+        stackContent: [
+          Positioned.fill(
+            child: Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.aspect_ratio),
+                tooltip: tr('pages.dashboard.general.cam_card.fullscreen'),
+                onPressed: controller.onFullScreenTap,
               ),
             ),
+          ),
+          if (model.printState == PrintState.printing)
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: _PrintProgressBar(progress: model.printProgress!),
+              ),
+            ),
+        ],
+      ),
+    );
+
+    // return AnimatedSwitcher(
+    //   switchInCurve: Curves.easeInOutBack,
+    //   duration: const Duration(milliseconds: 600),
+    //   transitionBuilder: (child, anim) => SizeTransition(
+    //     sizeFactor: anim,
+    //     child: FadeTransition(opacity: anim, child: child),
+    //   ),
+    //   child: (webcamInfo == null)
+    //       ? const SizedBox.shrink()
+    //       : ,
+    // );
+  }
+}
+
+@riverpod
+class _PrinterCardController extends _$PrinterCardController {
+  SelectedMachineService get _selectedMachineService => ref.read(selectedMachineServiceProvider);
+
+  GoRouter get _goRouter => ref.read(goRouterProvider);
+
+  @override
+  Future<_Model> build(Machine machine) async {
+    final previewCamFuture = _previewCam();
+    final printerDataFuture =
+        ref.watch(printerProvider(machine.uuid).selectAsync((d) => (d.print.state, d.printProgress)));
+    final jrpcStateFuture = ref.watch(jrpcClientStateProvider(machine.uuid).future);
+    // await Future.delayed(const Duration(seconds: 60));
+
+    final res = await Future.wait([previewCamFuture, printerDataFuture, jrpcStateFuture]);
+    final previewCam = res[0] as WebcamInfo?;
+    final printerData = res[1] as (PrintState, double);
+    final jrpcState = res[2] as ClientState;
+
+    return _Model(
+      previewCam: previewCam,
+      jrpcClientState: jrpcState,
+      printState: printerData.$1,
+      printProgress: printerData.$2,
     );
   }
 
-  Widget _imageBuilder(Widget imageTransformed) {
-    return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(5)),
-      child: imageTransformed,
+  Future<WebcamInfo?> _previewCam() async {
+    final isSupporter = ref.watch(isSupporterProvider);
+
+    final cams = await ref.watch(allSupportedWebcamInfosProvider(this.machine.uuid).future);
+    if (cams.isEmpty) {
+      return null;
+    }
+
+    final webcamIndexKey = CompositeKey.keyWithString(UtilityKeys.webcamIndex, this.machine.uuid);
+    final selIndex = ref.watch(intSettingProvider(webcamIndexKey)).clamp(0, cams.length - 1);
+
+    WebcamInfo? previewCam = cams.elementAtOrNull(selIndex);
+
+    // If there is no preview cam or the preview cam is not for supporters or the user is a supporter
+    if (previewCam == null || previewCam.service.forSupporters == false || isSupporter) {
+      return previewCam;
+    }
+
+    // If the user is not a supporter and the cam he selected is for supporters only just select the first cam that is not for supporters
+    return cams.firstWhereOrNull((element) => element.service.forSupporters == false);
+  }
+
+  onTapTile() {
+    ref.read(selectedMachineServiceProvider).selectMachine(this.machine);
+    _goRouter.pushNamed(AppRoute.dashBoard.name);
+  }
+
+  onLongPressTile() {
+    _selectedMachineService.selectMachine(this.machine);
+    _goRouter.pushNamed(AppRoute.printerEdit.name, extra: this.machine);
+  }
+
+  onFullScreenTap() {
+    _goRouter.pushNamed(
+      AppRoute.fullCam.name,
+      extra: {'machine': machine, 'selectedCam': state.requireValue},
     );
   }
+}
+
+@freezed
+class _Model with _$Model {
+  const factory _Model({
+    WebcamInfo? previewCam,
+    required ClientState jrpcClientState,
+    required PrintState printState,
+    required double printProgress,
+  }) = __Model;
 }

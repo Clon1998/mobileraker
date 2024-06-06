@@ -245,7 +245,7 @@ class _DrawerItem extends ConsumerWidget {
       selected: ref.watch(goRouterProvider).location == routeName,
       selectedTileColor: selectedTileColor,
       selectedColor: themeData.colorScheme.secondary,
-      textColor: themeData.colorScheme.onBackground,
+      textColor: themeData.colorScheme.onSurface,
       leading: Icon(icon),
       title: Text(text),
       onTap: () => ref.read(navWidgetControllerProvider.notifier).navigateTo(routeName),
@@ -260,17 +260,20 @@ class _PrinterSelection extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var themeData = Theme.of(context);
-    var isExpanded = useListenable(machineSelectionExt);
-    var selMachine = ref.watch(selectedMachineProvider);
+    final themeData = Theme.of(context);
+    final isExpanded = useListenable(machineSelectionExt);
+    final selMachine = ref.watch(selectedMachineProvider);
 
     return AnimatedSwitcher(
+      // duration: Duration(seconds: 2),
       duration: kThemeAnimationDuration,
-      switchInCurve: Curves.easeOutCubic,
-      switchOutCurve: Curves.easeOutBack,
+      switchInCurve: Curves.easeOutQuad,
+      switchOutCurve: Curves.easeInQuad,
       transitionBuilder: (child, anim) => SizeTransition(
+        axisAlignment: 1,
         sizeFactor: anim,
-        child: FadeTransition(opacity: anim, child: child),
+        child: child,
+        // child: FadeTransition(opacity: anim, child: child),
       ),
       child: (isExpanded.value)
           ? Column(

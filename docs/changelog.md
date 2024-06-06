@@ -6,6 +6,8 @@
 
 - [Supporters] Introduced customizable dashboards, allowing users to create up to five tabs and personalize them with
   various cards. [#11](https://github.com/Clon1998/mobileraker/issues/11)
+- It is now possible to reorder printers via the overview page. Just long press a printer and drag it to the desired
+  position.
 
 ### Enhancements
 

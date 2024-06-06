@@ -18,8 +18,11 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/routing/app_router.dart';
 import 'package:progress_indicators/progress_indicators.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'components/printer_card.dart';
+
+part 'overview_page.g.dart';
 
 class OverviewPage extends StatelessWidget {
   const OverviewPage({super.key});
@@ -48,12 +51,13 @@ class OverviewPage extends StatelessWidget {
   }
 }
 
-class _OverviewBody extends ConsumerWidget {
+class _OverviewBody extends HookConsumerWidget {
   const _OverviewBody({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ref.watch(allMachinesProvider).when<Widget>(
+    return ref.watch(_overviewPageControllerProvider).when<Widget>(
+          skipLoadingOnReload: true,
           data: (d) => _Data(machines: d),
           error: (e, s) {
             logger.e('Error in OverView', e, StackTrace.current);
@@ -91,12 +95,20 @@ class _Data extends ConsumerWidget {
           SliverAlignedGrid.count(
             crossAxisCount: 3,
             itemCount: machines.length,
-            itemBuilder: (context, index) => SinglePrinterCard(machines[index]),
+            itemBuilder: (context, index) => PrinterCard(machines[index]),
           ),
         if (context.isCompact)
-          SliverList.builder(
+          SliverReorderableList(
             itemCount: machines.length,
-            itemBuilder: (context, index) => SinglePrinterCard(machines[index]),
+            itemBuilder: (context, index) {
+              final machine = machines[index];
+              return ReorderableDelayedDragStartListener(
+                key: ValueKey(machine.uuid),
+                index: index,
+                child: PrinterCard(machine),
+              );
+            },
+            onReorder: ref.read(_overviewPageControllerProvider.notifier).onReorder,
           ),
         SliverToBoxAdapter(
           child: Center(
@@ -109,5 +121,40 @@ class _Data extends ConsumerWidget {
         ),
       ],
     );
+  }
+}
+
+@riverpod
+class _OverviewPageController extends _$OverviewPageController {
+  MachineService get _machineService => ref.read(machineServiceProvider);
+
+  @override
+  FutureOr<List<Machine>> build() async {
+    final all = await ref.watch(allMachinesProvider.future);
+    return all;
+  }
+
+  void onReorder(int oldIndex, int newIndex, [bool adjust = true]) {
+    if (oldIndex < newIndex && adjust) {
+      newIndex -= 1;
+    }
+
+    // .reordered(oldIndex, newIndex);
+    logger.i('Reordering $oldIndex -> $newIndex');
+    state = state.whenData((old) {
+      final n = [...old];
+      return n..insert(newIndex, n.removeAt(oldIndex));
+    });
+    final machineUUID = state.requireValue.elementAt(oldIndex).uuid;
+    _machineService.reordered(machineUUID, oldIndex, newIndex);
+  }
+
+  @override
+  bool updateShouldNotify(AsyncValue<List<Machine>> previous, AsyncValue<List<Machine>> next) {
+    return previous.isLoading != next.isLoading ||
+        previous.hasValue != next.hasValue ||
+        previous.error != next.error ||
+        previous.stackTrace != next.stackTrace ||
+        previous.valueOrNull?.length != next.valueOrNull?.length;
   }
 }

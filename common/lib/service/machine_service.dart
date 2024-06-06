@@ -23,6 +23,7 @@ import 'package:common/service/obico/obico_tunnel_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/util/extensions/analytics_extension.dart';
 import 'package:common/util/extensions/logging_extension.dart';
+import 'package:common/util/extensions/object_extension.dart';
 import 'package:common/util/extensions/ref_extension.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -80,10 +81,19 @@ Future<List<Machine>> allMachines(AllMachinesRef ref) async {
     next.whenData((value) => logger.i('Updated allMachinesProvider: ${value.map((e) => e.logName).join()}'));
   });
 
+  logger.i('Received fetchAll');
+
   var settingService = ref.watch(settingServiceProvider);
   // Since the machineServiceProvider invalidates this provider, we need to use read. This is fine since machineServiceProvider is a service and non reactive!
   var machines = await ref.read(machineServiceProvider).fetchAll();
-  logger.i('Received fetchAll');
+  final ordering = ref.watch(stringListSettingProvider(UtilityKeys.machineOrdering, []));
+
+  logger.i('Received ordering $ordering');
+  machines = machines.sorted((a, b) {
+    final aOrder = ordering.indexOf(a.uuid).let((it) => it == -1 ? double.infinity : it);
+    final bOrder = ordering.indexOf(b.uuid).let((it) => it == -1 ? double.infinity : it);
+    return aOrder.compareTo(bOrder);
+  });
 
   var isSupporter = await ref.watch(isSupporterAsyncProvider.future);
   logger.i('Received isSupporter $isSupporter');
@@ -526,16 +536,6 @@ class MachineService {
     return noCompanion;
   }
 
-  Future<int> indexOfMachine(Machine setting) async {
-    int i = -1;
-    List<Machine> machines = await fetchAll();
-    for (Machine element in machines) {
-      i++;
-      if (element == setting) return i;
-    }
-    return i;
-  }
-
   /// Fetches the settings for a machine and adjusts the default macros.
   ///
   /// This method fetches the settings for a machine with the provided UUID.
@@ -652,6 +652,32 @@ class MachineService {
     }
 
     return ref.watch(obicoTunnelServiceProvider(baseUrl)).linkApp(printerId: obicoPrinterId);
+  }
+
+  Future<void> reordered(String machineUUID, int oldIndex, int newIndex) async {
+    final allMachines = await ref.read(allMachinesProvider.future);
+    if (oldIndex >= allMachines.length || newIndex >= allMachines.length) {
+      logger.w('Invalid index for reordering machines: $oldIndex -> $newIndex');
+      return;
+    }
+    final machine = allMachines[oldIndex];
+
+    logger.i('Reordering machine ${machine.logName} from $oldIndex to $newIndex');
+    final readList = [..._settingService.readList(UtilityKeys.machineOrdering, <String>[])];
+
+    // add all missing machines to the list
+    for (var m in allMachines) {
+      if (!readList.contains(m.uuid)) {
+        readList.add(m.uuid);
+      }
+    }
+
+    // remove the machine from the list
+    readList.remove(machine.uuid);
+    // insert the machine at the new index
+    readList.insert(newIndex, machine.uuid);
+
+    _settingService.write(UtilityKeys.machineOrdering, readList);
   }
 
   Future<void> dispose() async {
