@@ -53,28 +53,32 @@ class SelectPrinterDialog extends HookConsumerWidget {
             'dialogs.select_machine.active_machine',
             style: themeData.textTheme.bodyMedium,
           ).tr(args: [beautifyName(activeName ?? tr('general.unknown'))]),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: AsyncValueWidget<List<Machine>>(
-              value: ref.watch(selectPrinterDialogControllerProvider),
-              data: (d) => ListView.builder(
-                shrinkWrap: true,
-                itemCount: d.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var machine = d[index];
-                  return ListTile(
-                    tileColor: themeData.colorScheme.surfaceVariant.withOpacity(.5),
-                    textColor: themeData.colorScheme.onSurfaceVariant,
-                    title: Text(beautifyName(machine.name)),
-                    subtitle: Text(machine.httpUri.toString()),
-                    onTap: () {
-                      selected.value = true;
-                      ref.read(selectPrinterDialogControllerProvider.notifier).selectMachine(machine);
-                      completer(DialogResponse.confirmed());
+          Flexible(
+            child: Material(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: AsyncValueWidget<List<Machine>>(
+                  value: ref.watch(selectPrinterDialogControllerProvider),
+                  data: (d) => ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: d.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var machine = d[index];
+                      return ListTile(
+                        tileColor: themeData.colorScheme.surfaceVariant.withOpacity(.5),
+                        textColor: themeData.colorScheme.onSurfaceVariant,
+                        title: Text(beautifyName(machine.name)),
+                        subtitle: Text(machine.httpUri.toString()),
+                        onTap: () {
+                          selected.value = true;
+                          ref.read(selectPrinterDialogControllerProvider.notifier).selectMachine(machine);
+                          completer(DialogResponse.confirmed());
+                        },
+                        trailing: MachineStateIndicator(machine),
+                      );
                     },
-                    trailing: MachineStateIndicator(machine),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ),
