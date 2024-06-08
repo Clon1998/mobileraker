@@ -905,6 +905,10 @@
       "title": "Screws Tilt Adjust",
       "base": "Base",
       "hint": "The dialog helps you adjust the screws of the bed. For each screw you are seeing the required adjustments as clock in HH:MM format. For example, 01:15 indicates a full rotation plus a quarter turn in the direction the icon indicates."
+    },
+    "dashboard_page_settings": {
+      "title": "Dashboard Page Settings",
+      "icon_label": "Select the icon for the page:"
     }
   },
   "bottom_sheets": {
@@ -1009,7 +1013,8 @@
       "no_profile_active": "No profile active",
       "no_mesh": "No Mesh",
       "clear_loaded_profile": "Clear loaded profile",
-      "range_between_highest_and_lowest_point": "Range between highest and lowest point"
+      "range_between_highest_and_lowest_point": "Range between highest and lowest point",
+      "cant_render": "Rendering of the bed mesh for the printer's kinematics is not supported yet."
     },
     "select_spool": {
       "header": {

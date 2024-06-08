@@ -15,7 +15,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:mobileraker/ui/components/dialog/bed_screw_adjust/bed_screw_adjust_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/confirmation_dialog.dart';
-import 'package:mobileraker/ui/components/dialog/dashboard_page_settings.dart';
+import 'package:mobileraker/ui/components/dialog/dashboard_page_settings_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/edit_form/num_edit_form_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/exclude_object/exclude_object_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/http_headers/http_header_dialog.dart';
@@ -32,6 +32,7 @@ import 'package:mobileraker/ui/components/dialog/stacktrace_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/tipping_dialog.dart';
 import 'package:mobileraker/ui/components/dialog/webcam_preview_dialog.dart';
 
+import '../../ui/components/dialog/dashboard_component_settings_dialog.dart';
 import '../../ui/components/dialog/macro_settings/macro_settings_dialog.dart';
 import '../../ui/components/dialog/supporter_only_dialog.dart';
 import '../../ui/components/dialog/text_input/text_input_dialog.dart';
@@ -57,6 +58,7 @@ enum DialogType implements DialogIdentifierMixin {
   macroSettings,
   screwsTiltAdjust,
   dashboardPageSettings,
+  dashboardComponentSettings,
 }
 
 DialogService dialogServiceImpl(DialogServiceRef ref) => DialogServiceImpl(ref);
@@ -100,7 +102,8 @@ class DialogServiceImpl implements DialogService {
     DialogType.supporterOnlyFeature: (r, c) => SupporterOnlyDialog(request: r, completer: c),
     DialogType.macroSettings: (r, c) => MacroSettingsDialog(request: r, completer: c),
     DialogType.screwsTiltAdjust: (r, c) => ScrewsTiltAdjustDialog(request: r, completer: c),
-    DialogType.dashboardPageSettings: (r, c) => DashboardPageSettings(request: r, completer: c),
+    DialogType.dashboardPageSettings: (r, c) => DashboardPageSettingsDialog(request: r, completer: c),
+    DialogType.dashboardComponentSettings: (r, c) => DashboardComponentSettingsDialog(request: r, completer: c),
   };
 
   @override

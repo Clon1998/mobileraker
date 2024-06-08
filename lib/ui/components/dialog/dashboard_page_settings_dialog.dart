@@ -7,14 +7,15 @@ import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/dialog/mobileraker_dialog.dart';
 import 'package:common/util/extensions/object_extension.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 
-class DashboardPageSettings extends HookWidget {
+class DashboardPageSettingsDialog extends HookWidget {
   final DialogRequest request;
   final DialogCompleter completer;
 
-  const DashboardPageSettings({
+  const DashboardPageSettingsDialog({
     super.key,
     required this.request,
     required this.completer,
@@ -37,14 +38,14 @@ class DashboardPageSettings extends HookWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Dashboard Page Settings',
+            'dialogs.dashboard_page_settings.title',
             style: Theme.of(context).textTheme.headlineSmall,
             textAlign: TextAlign.center,
-          ),
+          ).tr(),
           const SizedBox(height: 10),
           InputDecorator(
-            decoration: const InputDecoration(
-              labelText: 'Select the icon for the page:',
+            decoration: InputDecoration(
+              labelText: tr('dialogs.dashboard_page_settings.icon_label'),
               border: InputBorder.none,
             ),
             child: Center(

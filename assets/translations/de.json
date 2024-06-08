@@ -905,6 +905,10 @@
       "title": "Bettneigung einstellen",
       "base": "Basis",
       "hint": "Der Dialog hilft Ihnen, die Bett-Schrauben einzustellen. Für jede Schraube wird die erforderliche Anpassung als Uhrzeit (HH:MM) angezeigt. Zum Beispiel bedeutet 01:15 eine volle Umdrehung plus eine Vierteldrehung in die Richtung, die das Icon angibt."
+    },
+    "dashboard_page_settings": {
+      "title": "Dashboard-Seiteneinstellungen",
+      "icon_label": "Wählen Sie das Symbol für die Seite:"
     }
   },
   "bottom_sheets": {
@@ -1009,7 +1013,8 @@
       "no_profile_active": "Kein aktives Profil",
       "no_mesh": "Kein Netz",
       "clear_loaded_profile": "Geladenes Profil zurücksetzen",
-      "range_between_highest_and_lowest_point": "Abstand zwischen höchstem und tiefstem Punkt"
+      "range_between_highest_and_lowest_point": "Abstand zwischen höchstem und tiefstem Punkt",
+      "cant_render": "Das Rendering des Bettnetzes für die  Drucker-Kinematik wird noch nicht unterstützt."
     },
     "select_spool": {
       "header": {
