@@ -12,7 +12,6 @@ import 'package:common/data/dto/job_queue/job_queue_status.dart';
 import 'package:common/data/dto/machine/print_state_enum.dart';
 import 'package:common/data/dto/server/klipper.dart';
 import 'package:common/data/model/hive/dashboard_component.dart';
-import 'package:common/data/model/hive/dashboard_component_type.dart';
 import 'package:common/data/model/hive/dashboard_layout.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
 import 'package:common/data/model/hive/machine.dart';
@@ -49,14 +48,13 @@ import 'package:mobileraker_pro/service/ui/pro_sheet_type.dart';
 import 'package:rate_my_app/rate_my_app.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../components/dashboard_card.dart';
 import '../../components/filament_sensor_watcher.dart';
 import '../../components/machine_deletion_warning.dart';
 import '../../components/printer_calibration_watcher.dart';
-import '../../components/pull_to_refresh_printer.dart';
 import '../../components/remote_announcements.dart';
 import '../../components/supporter_ad.dart';
 import 'tabs/dashboard_tab_page.dart';
+import 'tabs/dashboard_tablet_layout.dart';
 
 part 'customizable_dashboard_page.freezed.dart';
 part 'customizable_dashboard_page.g.dart';
@@ -114,6 +112,7 @@ class _DashboardView extends HookConsumerWidget {
     if (context.isLargerThanCompact) {
       body = Row(
         children: [
+          //TODO: Disable rail while editing!
           NavigationRailView(
             leading: fab,
           ),
@@ -202,7 +201,17 @@ class _BodyState extends ConsumerState<_Body> {
       value: asyncModel,
       data: (model) {
         if (context.isLargerThanCompact) {
-          return _TabletBody(machineUUID: machineUUID, model: model);
+          return DashboardTabletLayout(
+            machineUUID: machineUUID,
+            isEditing: model.isEditing,
+            tabs: model.layout.tabs,
+            staticWidgets: _staticWidgets,
+            onReorder: controller.onComponentReorderedAcrossTabs,
+            onAddComponent: controller.onTabComponentAdd,
+            onRemoveComponent: controller.onTabComponentRemove,
+            onRemove: controller.onTabRemove,
+            onRequestedEdit: controller.startEditMode,
+          );
         }
 
         /// THIS IS FOR MOBILE!
@@ -264,72 +273,6 @@ class _BodyState extends ConsumerState<_Body> {
     _subscription?.close();
     pageController.dispose();
     super.dispose();
-  }
-}
-
-class _TabletBody extends StatelessWidget {
-  const _TabletBody({super.key, required this.machineUUID, required this.model});
-
-  final String machineUUID;
-  final _Model model;
-
-  @override
-  Widget build(BuildContext context) {
-    // For the POC we make this a two column layout and ignore the new fance Tab Page....
-
-    final left = <DashboardComponentType>[
-      DashboardComponentType.webcam,
-      DashboardComponentType.controlExtruder,
-      DashboardComponentType.temperatureSensorPreset,
-      DashboardComponentType.fans,
-      DashboardComponentType.pins,
-      DashboardComponentType.powerApi,
-      DashboardComponentType.spoolman,
-    ];
-
-    final right = <DashboardComponentType>[
-      DashboardComponentType.machineStatus,
-      DashboardComponentType.controlXYZ,
-      DashboardComponentType.zOffset,
-      DashboardComponentType.macroGroup,
-      DashboardComponentType.groupedSliders,
-      DashboardComponentType.bedMesh,
-    ];
-
-    return PullToRefreshPrinter(
-      child: SingleChildScrollView(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Flexible(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ..._staticWidgets,
-                  for (var type in left)
-                    DasboardCard(
-                      type: type,
-                      machineUUID: machineUUID,
-                    ),
-                ],
-              ),
-            ),
-            Flexible(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (var type in right)
-                    DasboardCard(
-                      type: type,
-                      machineUUID: machineUUID,
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -789,6 +732,50 @@ class _DashboardPageController extends _$DashboardPageController {
     final mTab = tab.copyWith(components: mComponents);
     final mLayout = value.layout.copyWith(
       tabs: value.layout.tabs.map((e) => e.uuid == tab.uuid ? mTab : e).toList(),
+    );
+
+    state = AsyncValue.data(value.copyWith(layout: mLayout));
+  }
+
+  void onComponentReorderedAcrossTabs(DashboardTab oldTab, DashboardTab newTab, int oldIndex, int newIndex) {
+    final value = state.requireValue;
+    if (!value.isEditing) return;
+
+    //TODO: Do I need this here??
+    // if (oldTab == newTab && newIndex > oldIndex) {
+    //   newIndex += 1;
+    // }
+
+    logger.i('Reordering from ${oldTab.name} to ${newTab.name} from $oldIndex to $newIndex');
+    // We act like this is an immutable...
+    if (oldTab == newTab) {
+      logger.i('Reordering in same tab');
+      onTabComponentsReordered(oldTab, oldIndex, newIndex);
+      return;
+    }
+    // if (newIndex > oldIndex) {
+    //   newIndex -= 1;
+    // }
+    // Remove from old
+    final mComponentsOld = [...oldTab.components];
+    final item = mComponentsOld.removeAt(oldIndex);
+    final mTabOld = oldTab.copyWith(components: mComponentsOld);
+
+    // Add to new
+    final mComponentsNew = [...newTab.components];
+    mComponentsNew.insert(newIndex, item);
+    final mTabNew = newTab.copyWith(components: mComponentsNew);
+
+    // Update layout
+    final mLayout = value.layout.copyWith(
+      tabs: value.layout.tabs.map((e) {
+        if (e.uuid == oldTab.uuid) {
+          return mTabOld;
+        } else if (e.uuid == newTab.uuid) {
+          return mTabNew;
+        }
+        return e;
+      }).toList(),
     );
 
     state = AsyncValue.data(value.copyWith(layout: mLayout));

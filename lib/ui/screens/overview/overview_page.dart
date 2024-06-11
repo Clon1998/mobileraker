@@ -90,6 +90,7 @@ class _Data extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CustomScrollView(
       // shrinkWrap: true,
+      physics: const ClampingScrollPhysics(),
       slivers: [
         if (context.isLargerThanCompact)
           SliverAlignedGrid.count(
