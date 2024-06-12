@@ -223,6 +223,9 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
   // The origin of the dragged widget.
   (int, int) _dragStartIndex = (-1, -1);
 
+  // The index that the dragging widget previously occupied.
+  (int, int) _prevIndex = (-1, -1);
+
   // The index that the dragging widget preview currently occupies.
   (int, int) _currentIndex = (-1, -1);
 
@@ -360,7 +363,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       setState(() {
         _draggingWidget = draggedItem;
         _dragStartIndex = currentPos;
-        // _ghostIndex = currentPos;
+        _prevIndex = currentPos;
         _currentIndex = currentPos;
         // _entranceController.value = 1.0;
         _draggingFeedbackSize = keyIndexGlobalKey.currentContext?.size;
@@ -388,6 +391,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
         _reorder(_dragStartIndex, _currentIndex);
         _dragStartIndex = (-1, -1);
         _currentIndex = (-1, -1);
+        _prevIndex = (-1, -1);
         _draggingWidget = null;
       });
     }
@@ -468,57 +472,62 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
         builder: buildDragTarget,
         onWillAcceptWithDetails: (DragTargetDetails<(int, int)> details) {
           final (int, int) toAccept = details.data;
-          // If toAccept is the one we started dragging and its not the origin
+          // If toAccept is the one we started dragging and it's not the origin
           bool willAccept = _dragStartIndex == toAccept && _dragStartIndex != currentPos;
 
-//          debugPrint('${DateTime.now().toString().substring(5, 22)} reorderable_flex.dart(609) $this._wrap: '
-//            'onWillAccept: toAccept:$toAccept return:$willAccept _nextIndex:$_nextIndex index:$index _currentIndex:$_currentIndex _dragStartIndex:$_dragStartIndex');
+          // Uncomment for detailed debugging information
+          // debugPrint('${DateTime.now().toString().substring(5, 22)} reorderable_flex.dart(609) $this._wrap: '
+          //   'onWillAccept: toAccept:$toAccept return:$willAccept _nextIndex:$_nextIndex index:$index _currentIndex:$_currentIndex _dragStartIndex:$_dragStartIndex');
 
           setState(() {
             (int, int) newPos = currentPos;
 
             if (willAccept) {
-              // Its not the original position that we started dragging off from so we might need to shift!
+              // It's not the original position that we started dragging from, so we might need to shift
               // currentPos == _dragStartIndex is never reached because of the willAccept check above
 
-              // We need to check if we are in the same row as the last drop position (_currentIndex)
+              // We need to check if we are in the same col as the last drop position (_currentIndex)
               if (currentPos.$1 == _currentIndex.$1) {
-                // We are in the same row
-                logger.i('In same row as last drop position');
+                // We are in the same col
+                logger.i('In the same col as the last drop position');
 
                 // Now we need to determine if we need to shift or not (Handles all indexes below _dragStartIndex)
                 if (currentPos.$2 == _currentIndex.$2) {
                   newPos = (currentPos.$1, currentPos.$2 + 1);
                 }
 
-                // If we are passed the _dragStartIndex we need to shift the next index by one
-                if (currentPos.$1 == _dragStartIndex.$1 && // We are int same row as the dragStart (to skip) index
+                // If we are past the _dragStartIndex, we need to shift the next index by one
+                if (currentPos.$1 == _dragStartIndex.$1 && // We are in the same col as the dragStart index
                     currentPos.$2 >= _dragStartIndex.$2 &&
                     _currentIndex.$2 == _dragStartIndex.$2) {
-                  // This should only happen once during the start!
+                  // This should only happen once during the start
                   newPos = (newPos.$1, newPos.$2 + 1);
                 }
               } else {
-                // We are in a differnet row
-                logger.i('In diff row as last drop position');
+                // We are in a different col
+                logger.i('In a different col from the last drop position');
                 if (currentPos.$2 == _currentIndex.$2) {
                   // Handles the "Skip over" or scroll from top onto the widget
                   newPos = (currentPos.$1, currentPos.$2 + 1);
                 }
               }
             }
+
             // We skip over the _dragStartIndex in any case
             if (newPos == _dragStartIndex) {
               newPos = (newPos.$1, newPos.$2 + 1);
             }
-            logger.i(
-                'Will accept: $willAccept for ${toWrap.key} at $currentPos. _start: $_dragStartIndex, _current: $_currentIndex, newPos: $newPos');
+            _prevIndex = _currentIndex;
             _currentIndex = newPos;
+            logger.i(
+                'Will accept: $willAccept for ${toWrap.key} at $currentPos. _start: $_dragStartIndex, _prevIndex: $_prevIndex, _currentIndex: $_currentIndex');
             // _requestAnimationToNextIndex(isAcceptingNewTarget: true);
           });
+
           // If the target is not the original starting point, then we will accept the drop.
-          return willAccept; //_dragging == toAccept && toAccept != toWrap.key;
+          return willAccept; // _dragging == toAccept && toAccept != toWrap.key;
         },
+
         // onAccept: (int accepted) {},
         // onLeave: (Object? leaving) {},
       );
