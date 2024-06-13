@@ -122,6 +122,12 @@ class _DashboardView extends HookConsumerWidget {
       );
     }
 
+    var isEditing = activeMachine?.let((it) =>
+            ref.watch(_dashboardPageControllerProvider(it.uuid).selectAs((d) => d.isEditing)).valueOrNull == true) ==
+        true;
+
+    logger.i('isEditing!: $isEditing');
+
     return Scaffold(
       appBar: const _AppBar(),
       body: body,
@@ -129,7 +135,7 @@ class _DashboardView extends HookConsumerWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       bottomNavigationBar:
           activeMachine?.uuid.let((it) => _BottomNavigationBar(machineUUID: it)).unless(context.isLargerThanCompact),
-      drawer: const NavigationDrawerWidget(),
+      drawer: const NavigationDrawerWidget().unless(isEditing),
     );
   }
 }
