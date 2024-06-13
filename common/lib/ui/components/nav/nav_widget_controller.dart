@@ -5,6 +5,7 @@
 
 import 'package:common/service/machine_service.dart';
 import 'package:common/util/extensions/async_ext.dart';
+import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class NavWidgetController extends _$NavWidgetController {
 
   @override
   NavWidgetModel build() {
-    final current = ref.watch(goRouterProvider).location;
+    // final current = ref.watch(goRouterProvider).location;
 
     final showOverview = ref.watch(allMachinesProvider.selectAs((d) => d.length > 1)).valueOrNull ?? false;
     final showSpoolman = ref.watch(remoteConfigProvider).showSpoolmanPage;
@@ -116,6 +117,16 @@ class NavWidgetController extends _$NavWidgetController {
 
     goRouter.replace(route, extra: arguments);
   }
+
+  void disable() {
+    logger.i('Disabling NavWidget');
+    state = state.copyWith(enabled: false);
+  }
+
+  void enable() {
+    logger.i('Enabling NavWidget');
+    state = state.copyWith(enabled: true);
+  }
 }
 
 @freezed
@@ -124,6 +135,7 @@ class NavWidgetModel with _$NavWidgetModel {
 
   const factory NavWidgetModel({
     @Default([]) List<NavEntry> entries,
+    @Default(true) enabled,
   }) = _NavWidgetModel;
 }
 

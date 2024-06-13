@@ -87,8 +87,9 @@ class NavigationRailView extends ConsumerWidget {
                                       entry.isDivider
                                           ? const Divider()
                                           : InkWell(
+
                                               // title: Text(entry.label),
-                                              onTap: () => controller.replace(entry.route),
+                                              onTap: (() => controller.replace(entry.route)).only(model.enabled),
                                               child: Ink(
                                                 color: selectedBackgroundColor.only(current == entry.route),
                                                 child: Padding(
@@ -121,7 +122,9 @@ class NavigationRailView extends ConsumerWidget {
                   top: false,
                   right: false,
                   child: GestureDetector(
-                    onTap: () => ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine)),
+                    onTap: (() =>
+                            ref.read(dialogServiceProvider).show(DialogRequest(type: CommonDialogs.activeMachine)))
+                        .only(model.enabled),
                     child: SvgPicture.asset(
                           'assets/vector/mr_logo.svg',
                           width: 44,

@@ -25,6 +25,7 @@ import 'package:common/service/ui/snackbar_service_interface.dart';
 import 'package:common/ui/components/connection/printer_provider_guard.dart';
 import 'package:common/ui/components/nav/nav_drawer_view.dart';
 import 'package:common/ui/components/nav/nav_rail_view.dart';
+import 'package:common/ui/components/nav/nav_widget_controller.dart';
 import 'package:common/ui/components/switch_printer_app_bar.dart';
 import 'package:common/util/extensions/async_ext.dart';
 import 'package:common/util/extensions/build_context_extension.dart';
@@ -556,14 +557,12 @@ class _DashboardPageController extends _$DashboardPageController {
 
     inited = true;
     // return;
-    return _Model(
-      layout: layout,
-      activeIndex: 0,
-      isEditing: false,
-    );
+    return _Model(layout: layout, activeIndex: 0, isEditing: false);
   }
 
   void startEditMode() {
+    ref.read(navWidgetControllerProvider.notifier).disable();
+
     var value = state.requireValue;
     if (value.isEditing) return;
     logger.i('Start Edit Mode');
@@ -578,6 +577,8 @@ class _DashboardPageController extends _$DashboardPageController {
   }
 
   Future<void> cancelEditMode() async {
+    ref.read(navWidgetControllerProvider.notifier).enable();
+
     var value = state.requireValue;
     if (!value.isEditing) return;
 

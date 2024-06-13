@@ -96,13 +96,16 @@ class DashboardTabletLayout extends HookWidget {
         ],
         footer: [
           for (var tab in tabs)
-            _EditingSuffix(
-              key: Key('ED-${tab.uuid}:suffix'),
-              onAddComponent: () {
-                if (onAddComponent != null) {
-                  onAddComponent!(tab);
-                }
-              },
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: _EditingSuffix(
+                key: Key('ED-${tab.uuid}:suffix'),
+                onAddComponent: () {
+                  if (onAddComponent != null) {
+                    onAddComponent!(tab);
+                  }
+                },
+              ),
             ),
         ],
         buildDraggableFeedback: (BuildContext context, BoxConstraints constraints, Widget child) {
