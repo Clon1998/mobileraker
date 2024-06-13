@@ -5,6 +5,8 @@
 
 // ignore_for_file: avoid-missing-image-alt
 
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:collection/collection.dart';
 import 'package:common/data/dto/files/gcode_file.dart';
@@ -308,6 +310,171 @@ class _MediumBody extends HookConsumerWidget {
         logger.i('Constraints ${constraints.widthConstraints()}');
 
         final maxWidthCard = constraints.maxWidth / 2;
+
+        return SingleChildScrollView(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: maxWidthCard,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: SizedBox(
+                        height: max(MediaQuery.sizeOf(context).height / 3, 250),
+                        child: Card(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                leading: const Icon(
+                                  FlutterIcons.image_faw5,
+                                ),
+                                title: const Text('general.preview').tr(),
+                              ),
+                              const Divider(),
+                              Flexible(
+                                child: Hero(
+                                  transitionOnUserGestures: true,
+                                  tag: 'gCodeImage-${model.file.hashCode}',
+                                  child: IconTheme(
+                                    data: IconThemeData(
+                                      color: Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                    child: (bigImageUri != null)
+                                        ? CachedNetworkImage(
+                                            cacheManager: cacheManager,
+                                            imageUrl: bigImageUri.toString(),
+                                            cacheKey: '${bigImageUri.hashCode}-${model.file.hashCode}',
+                                            httpHeaders: ref.watch(previewImageHttpHeaderProvider),
+                                            imageBuilder: (context, imageProvider) => Image(
+                                              image: imageProvider,
+                                              fit: BoxFit.contain,
+                                              width: double.infinity,
+                                            ),
+                                            placeholder: (context, url) => const Icon(Icons.insert_drive_file),
+                                            errorWidget: (context, url, error) => const Icon(Icons.file_present),
+                                          )
+                                        : const Icon(Icons.insert_drive_file),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Card(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          ListTile(
+                            leading: const Icon(
+                              FlutterIcons.printer_3d_nozzle_outline_mco,
+                            ),
+                            title: const Text('pages.setting.general.title').tr(),
+                          ),
+                          const Divider(),
+                          _PropertyTile(
+                            title: 'pages.files.details.general_card.path'.tr(),
+                            subtitle: model.file.absolutPath,
+                          ),
+                          _PropertyTile(
+                            title: 'pages.files.details.general_card.last_mod'.tr(),
+                            subtitle: dateFormatGeneral.format(model.file.modifiedDate),
+                          ),
+                          _PropertyTile(
+                            title: 'pages.files.details.general_card.last_printed'.tr(),
+                            subtitle: (model.file.printStartTime != null)
+                                ? dateFormatGeneral.format(model.file.lastPrintDate!)
+                                : 'pages.files.details.general_card.no_data'.tr(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: maxWidthCard,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    WarningCard(
+                      show: model.materialMissmatch != null,
+                      onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                      leadingIcon: const Icon(Icons.layers_clear),
+                      // leadingIcon: Icon(Icons.layers_clear),
+                      title: const Text('pages.files.details.spoolman_warnings.material_mismatch_title').tr(),
+                      subtitle: const Text('pages.files.details.spoolman_warnings.material_mismatch_body')
+                          .tr(args: [model.file.filamentType ?? '--', model.materialMissmatch ?? '--']),
+                    ),
+                    WarningCard(
+                      show: model.insufficientFilament != null,
+                      onTap: model.canStartPrint ? controller.changeActiveSpool : null,
+                      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                      leadingIcon: const Icon(Icons.scale),
+                      title: const Text('pages.files.details.spoolman_warnings.insufficient_filament_title').tr(),
+                      subtitle: const Text('pages.files.details.spoolman_warnings.insufficient_filament_body')
+                          .tr(args: [model.insufficientFilament?.let((it) => it.formatGramms(numFormat)) ?? '--']),
+                    ),
+                    Card(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          ListTile(
+                            leading: const Icon(FlutterIcons.tags_ant),
+                            title: const Text('pages.files.details.meta_card.title').tr(),
+                          ),
+                          const Divider(),
+                          _PropertyTile(
+                            title: 'pages.files.details.meta_card.filament'.tr(),
+                            subtitle: [
+                              '${tr('pages.files.details.meta_card.filament_type')}: ${model.file.filamentType ?? tr('general.unknown')}',
+                              '${tr('pages.files.details.meta_card.filament_name')}: ${model.file.filamentName ?? tr('general.unknown')}',
+                              if (model.file.filamentWeightTotal != null)
+                                '${tr('pages.files.details.meta_card.filament_weight')}: ${model.file.filamentWeightTotal!.formatGramms(numFormat)}',
+                              if (model.file.filamentTotal != null)
+                                '${tr('pages.files.details.meta_card.filament_length')}: ${model.file.filamentTotal!.formatMiliMeters(numFormat)}',
+                            ].join('\n'),
+                          ),
+                          _PropertyTile(
+                            title: 'pages.files.details.meta_card.est_print_time'.tr(),
+                            subtitle:
+                                '${secondsToDurationText(model.file.estimatedTime?.toInt() ?? 0)}, ${tr('pages.dashboard.general.print_card.eta')}: ${model.file.formatPotentialEta(dateFormatEta)}',
+                          ),
+                          _PropertyTile(
+                            title: 'pages.files.details.meta_card.slicer'.tr(),
+                            subtitle: model.file.slicerAndVersion,
+                          ),
+                          _PropertyTile(
+                            title: 'pages.files.details.meta_card.nozzle_diameter'.tr(),
+                            subtitle: '${model.file.nozzleDiameter} mm',
+                          ),
+                          _PropertyTile(
+                            title: 'pages.files.details.meta_card.layer_higher'.tr(),
+                            subtitle:
+                                '${tr('pages.files.details.meta_card.first_layer')}: ${model.file.firstLayerHeight?.let(numFormat.format) ?? '?'} mm\n'
+                                '${tr('pages.files.details.meta_card.others')}: ${model.file.layerHeight?.let(numFormat.format) ?? '?'} mm',
+                          ),
+                          _PropertyTile(
+                            title: 'pages.files.details.meta_card.first_layer_temps'.tr(),
+                            subtitle: 'pages.files.details.meta_card.first_layer_temps_value'.tr(args: [
+                              model.file.firstLayerTempExtruder?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                              model.file.firstLayerTempBed?.toStringAsFixed(0) ?? 'general.unknown'.tr(),
+                            ]),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
 
         return StaggeredGrid.count(
           crossAxisCount: 2,
