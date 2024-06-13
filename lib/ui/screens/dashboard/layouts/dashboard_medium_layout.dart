@@ -117,7 +117,7 @@ class DashboardMediumLayout extends HookWidget {
               builder: (BuildContext ctx, Widget? c) {
                 final double animValue = Curves.easeInOut.transform(animation.value);
                 final double scale = lerpDouble(1, 0.75, animValue)!;
-                return Transform.scale(scale: scale, child: c);
+                return Transform.scale(scale: scale, alignment: Alignment.topCenter, child: c);
               },
               child: Material(
                 // elevation: 10.0,
