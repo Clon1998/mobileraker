@@ -12,7 +12,6 @@ import 'package:common/exceptions/file_fetch_exception.dart';
 import 'package:common/service/date_format_service.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
-import 'package:common/service/payment_service.dart';
 import 'package:common/service/selected_machine_service.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/ui/components/error_card.dart';
@@ -730,12 +729,9 @@ class _GCodeFileItem extends ConsumerWidget {
       startActionPane: ActionPane(motion: const StretchMotion(), children: [
         SlidableAction(
           // An action can be bigger than the others.
-          onPressed: ref.watch(isSupporterProvider)
-              ? (_) => ref.read(filesPageControllerProvider.notifier).onAddToQueueTapped(gCode)
-              : null,
+          onPressed: (_) => ref.read(filesPageControllerProvider.notifier).onAddToQueueTapped(gCode),
           backgroundColor: themeData.colorScheme.primaryContainer,
-          foregroundColor:
-              ref.watch(isSupporterProvider) ? themeData.colorScheme.onPrimaryContainer : themeData.disabledColor,
+          foregroundColor: themeData.colorScheme.onPrimaryContainer,
           icon: Icons.queue_outlined,
           label: 'Queue',
         ),

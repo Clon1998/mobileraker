@@ -15,6 +15,7 @@ import 'package:common/network/json_rpc_client.dart';
 import 'package:common/service/app_router.dart';
 import 'package:common/service/moonraker/file_service.dart';
 import 'package:common/service/moonraker/klippy_service.dart';
+import 'package:common/service/payment_service.dart';
 import 'package:common/service/ui/bottom_sheet_service_interface.dart';
 import 'package:common/service/ui/dialog_service_interface.dart';
 import 'package:common/service/ui/snackbar_service_interface.dart';
@@ -280,6 +281,17 @@ class FilesPageController extends _$FilesPageController {
   }
 
   onAddToQueueTapped(GCodeFile file) async {
+    var isSup = await ref.read(isSupporterAsyncProvider.future);
+    if (!isSup) {
+      _snackBarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('components.supporter_only_feature.dialog_title'),
+        message: tr('components.supporter_only_feature.job_queue'),
+        duration: const Duration(seconds: 5),
+      ));
+      return;
+    }
+
     try {
       await _jobQueueService.enqueueJob(file.pathForPrint);
     } on JRpcError catch (e) {
