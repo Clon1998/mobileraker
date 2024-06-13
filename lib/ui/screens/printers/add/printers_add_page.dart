@@ -6,8 +6,8 @@
 import 'package:common/network/json_rpc_client.dart';
 import 'package:common/ui/animation/SizeAndFadeTransition.dart';
 import 'package:common/ui/components/info_card.dart';
+import 'package:common/ui/components/responsive_limit.dart';
 import 'package:common/ui/components/supporter_only_feature.dart';
-import 'package:common/util/extensions/build_context_extension.dart';
 import 'package:common/util/extensions/object_extension.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:easy_stepper/easy_stepper.dart';
@@ -92,7 +92,7 @@ class _StepperBody extends ConsumerWidget {
             sizeAndFadeFactor: anim,
             child: child,
           ),
-          child: Center(child: stepperBody(model.step, model.isExpert)),
+          child: Center(child: ResponsiveLimit(child: stepperBody(model.step, model.isExpert))),
         ),
       ),
     );
@@ -181,78 +181,75 @@ class _InputModeStepScreen extends ConsumerWidget {
     var controller = ref.watch(printerAddViewControllerProvider.notifier);
 
     var themeData = Theme.of(context);
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: context.mediumBreakpoint.end),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          ConstrainedBox(
-            constraints: BoxConstraints.loose(const Size(256, 256)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: SvgPicture.asset(
-                'assets/vector/undraw_maker_launch_re_rq81.svg',
-                alignment: Alignment.center,
-              ),
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        ConstrainedBox(
+          constraints: BoxConstraints.loose(const Size(256, 256)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: SvgPicture.asset(
+              'assets/vector/undraw_maker_launch_re_rq81.svg',
+              alignment: Alignment.center,
             ),
           ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              'pages.printer_add.select_mode.title',
-              style: themeData.textTheme.labelLarge,
-            ).tr(),
-          ),
-          Text(
-            'pages.printer_add.select_mode.body',
-            textAlign: TextAlign.justify,
-            style: themeData.textTheme.bodySmall,
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            'pages.printer_add.select_mode.title',
+            style: themeData.textTheme.labelLarge,
           ).tr(),
-          const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              FilledButton.icon(
-                onPressed: () => controller.selectMode(false),
-                icon: const Icon(Icons.person_outline),
-                label: const Text('pages.printer_add.select_mode.simple').tr(),
-              ),
-              FilledButton.icon(
-                onPressed: () => controller.selectMode(true),
-                icon: const Icon(Icons.engineering_outlined),
-                label: const Text('pages.printer_add.select_mode.advanced').tr(),
-              ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: TextButton.icon(
-              onPressed: controller.addFromOcto,
-              icon: SvgPicture.asset(
-                'assets/vector/oe_rocket.svg',
-                width: 24,
-                height: 24,
-              ),
-              label: const Text('pages.printer_add.select_mode.add_via_oe').tr(),
+        ),
+        Text(
+          'pages.printer_add.select_mode.body',
+          textAlign: TextAlign.justify,
+          style: themeData.textTheme.bodySmall,
+        ).tr(),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            FilledButton.icon(
+              onPressed: () => controller.selectMode(false),
+              icon: const Icon(Icons.person_outline),
+              label: const Text('pages.printer_add.select_mode.simple').tr(),
             ),
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: TextButton.icon(
-              onPressed: controller.addFromObico,
-              icon: SvgPicture.asset(
-                'assets/vector/obico_logo.svg',
-                width: 24,
-                height: 24,
-              ),
-              label: const Text('pages.printer_add.select_mode.add_via_obico').tr(),
+            FilledButton.icon(
+              onPressed: () => controller.selectMode(true),
+              icon: const Icon(Icons.engineering_outlined),
+              label: const Text('pages.printer_add.select_mode.advanced').tr(),
             ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: TextButton.icon(
+            onPressed: controller.addFromOcto,
+            icon: SvgPicture.asset(
+              'assets/vector/oe_rocket.svg',
+              width: 24,
+              height: 24,
+            ),
+            label: const Text('pages.printer_add.select_mode.add_via_oe').tr(),
           ),
-          // OctoEveryWhereBtn(
-          //     title: 'Add using OctoEverywhere', onPressed: () => null),
-        ],
-      ),
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: TextButton.icon(
+            onPressed: controller.addFromObico,
+            icon: SvgPicture.asset(
+              'assets/vector/obico_logo.svg',
+              width: 24,
+              height: 24,
+            ),
+            label: const Text('pages.printer_add.select_mode.add_via_obico').tr(),
+          ),
+        ),
+        // OctoEveryWhereBtn(
+        //     title: 'Add using OctoEverywhere', onPressed: () => null),
+      ],
     );
   }
 }
@@ -477,11 +474,12 @@ class _AdvancedInputStepScreen extends HookConsumerWidget {
             ),
           ],
         ),
-        Expanded(
-            child: SslSettings(
-          initialCertificateDER: advancedFormState.pinnedCertificateDER,
-          initialTrustSelfSigned: advancedFormState.trustUntrustedCertificate,
-        )),
+        Flexible(
+          child: SslSettings(
+            initialCertificateDER: advancedFormState.pinnedCertificateDER,
+            initialTrustSelfSigned: advancedFormState.trustUntrustedCertificate,
+          ),
+        ),
         HttpHeaders(initialValue: advancedFormState.headers),
       ],
     );
