@@ -22,8 +22,8 @@ import 'package:mobileraker/ui/screens/dashboard/components/editing_dashboard_ca
 import '../../../components/dashboard_card.dart';
 import '../../../components/pull_to_refresh_printer.dart';
 
-class DashboardTabPage extends ConsumerStatefulWidget {
-  const DashboardTabPage({
+class DashboardCompactLayoutPage extends ConsumerStatefulWidget {
+  const DashboardCompactLayoutPage({
     super.key,
     required this.machineUUID,
     required this.tab,
@@ -61,10 +61,10 @@ class DashboardTabPage extends ConsumerStatefulWidget {
   final void Function() onRequestedEdit;
 
   @override
-  ConsumerState<DashboardTabPage> createState() => DashboardTabPageState();
+  ConsumerState<DashboardCompactLayoutPage> createState() => DashboardTabPageState();
 }
 
-class DashboardTabPageState extends ConsumerState<DashboardTabPage> {
+class DashboardTabPageState extends ConsumerState<DashboardCompactLayoutPage> {
   @override
   Widget build(BuildContext context) {
     logger.i('Rebuilding tab card page for ${widget.tab.name} (${widget.tab.uuid})');

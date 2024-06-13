@@ -54,8 +54,8 @@ import '../../components/machine_deletion_warning.dart';
 import '../../components/printer_calibration_watcher.dart';
 import '../../components/remote_announcements.dart';
 import '../../components/supporter_ad.dart';
-import 'tabs/dashboard_tab_page.dart';
-import 'tabs/dashboard_tablet_layout.dart';
+import 'layouts/dashboard_compact_layout_page.dart';
+import 'layouts/dashboard_medium_layout.dart';
 
 part 'customizable_dashboard_page.freezed.dart';
 part 'customizable_dashboard_page.g.dart';
@@ -202,7 +202,7 @@ class _BodyState extends ConsumerState<_Body> {
       value: asyncModel,
       data: (model) {
         if (context.isLargerThanCompact) {
-          return DashboardTabletLayout(
+          return DashboardMediumLayout(
             machineUUID: machineUUID,
             isEditing: model.isEditing,
             tabs: model.layout.tabs,
@@ -221,7 +221,7 @@ class _BodyState extends ConsumerState<_Body> {
           controller: pageController,
           children: [
             for (var tab in model.layout.tabs)
-              DashboardTabPage(
+              DashboardCompactLayoutPage(
                 key: ValueKey(tab.hashCode),
                 machineUUID: machineUUID,
                 staticWidgets: _staticWidgets,

@@ -19,8 +19,8 @@ import '../../../components/dashboard_card.dart';
 import '../../../components/reordable_multi_col_row.dart';
 import '../components/editing_dashboard_card.dart';
 
-class DashboardTabletLayout extends HookWidget {
-  const DashboardTabletLayout({
+class DashboardMediumLayout extends HookWidget {
+  const DashboardMediumLayout({
     super.key,
     required this.machineUUID,
     required this.tabs,
