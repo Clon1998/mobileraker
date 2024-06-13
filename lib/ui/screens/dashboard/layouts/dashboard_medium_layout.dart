@@ -9,17 +9,20 @@ import 'dart:ui';
 
 import 'package:common/data/model/hive/dashboard_component.dart';
 import 'package:common/data/model/hive/dashboard_tab.dart';
+import 'package:common/service/payment_service.dart';
+import 'package:common/ui/components/supporter_only_feature.dart';
 import 'package:common/ui/components/warning_card.dart';
 import 'package:common/util/logger.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../components/dashboard_card.dart';
 import '../../../components/reordable_multi_col_row.dart';
 import '../components/editing_dashboard_card.dart';
 
-class DashboardMediumLayout extends HookWidget {
+class DashboardMediumLayout extends HookConsumerWidget {
   const DashboardMediumLayout({
     super.key,
     required this.machineUUID,
@@ -56,7 +59,7 @@ class DashboardMediumLayout extends HookWidget {
   final void Function() onRequestedEdit;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final sc = useScrollController(debugLabel: 'DashboardTabletLayout');
 
     final Widget body;
@@ -71,27 +74,27 @@ class DashboardMediumLayout extends HookWidget {
           }
         },
         direction: null,
-        children: [
-          for (var tab in tabs)
-            [
-              for (var component in tab.components)
-                EditingDashboardCard(
-                  key: Key('ED-${tab.uuid}:${component.type.name}:${component.uuid}'),
-                  child: DasboardCard.preview(type: component.type),
-                  onRemovedTap: () {
-                    if (onRemoveComponent != null) {
-                      onRemoveComponent!(tab, component);
-                    }
-                  },
+        header: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              WarningCard(
+                leadingIcon: const Icon(Icons.dashboard_customize),
+                margin: const EdgeInsets.all(4),
+                title: const Text('pages.customizing_dashboard.editing_card.title').tr(),
+                subtitle: const Text('pages.customizing_dashboard.editing_card.body').tr(),
+              ),
+              if (!ref.watch(isSupporterProvider))
+                WarningCard(
+                  margin: const EdgeInsets.all(4),
+                  title: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SupporterOnlyFeature(
+                      text: const Text('components.supporter_only_feature.custom_dashboard').tr(),
+                    ),
+                  ),
                 ),
             ],
-        ],
-        header: [
-          WarningCard(
-            leadingIcon: const Icon(Icons.dashboard_customize),
-            margin: const EdgeInsets.all(4),
-            title: const Text('pages.customizing_dashboard.editing_card.title').tr(),
-            subtitle: const Text('pages.customizing_dashboard.editing_card.body').tr(),
           ),
         ],
         footer: [
@@ -128,6 +131,21 @@ class DashboardMediumLayout extends HookWidget {
             );
           });
         },
+        children: [
+          for (var tab in tabs)
+            [
+              for (var component in tab.components)
+                EditingDashboardCard(
+                  key: Key('ED-${tab.uuid}:${component.type.name}:${component.uuid}'),
+                  child: DasboardCard.preview(type: component.type),
+                  onRemovedTap: () {
+                    if (onRemoveComponent != null) {
+                      onRemoveComponent!(tab, component);
+                    }
+                  },
+                ),
+            ],
+        ],
       );
     } else {
       body = Row(
