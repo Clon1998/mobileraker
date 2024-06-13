@@ -14,7 +14,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 
 import '../../../components/dashboard_card.dart';
 import '../components/editing_dashboard_card.dart';
-import '../test2.dart';
+import '../reordable_multi_col_row.dart';
 
 class DashboardTabletLayout extends HookWidget {
   const DashboardTabletLayout({
@@ -58,7 +58,7 @@ class DashboardTabletLayout extends HookWidget {
 
     final Widget body;
     if (isEditing) {
-      body = ReorderableFlexi(
+      body = ReorderableMultiColRow(
         scrollController: sc,
         reorderAnimationDuration: const Duration(milliseconds: 200),
         onReorder: (oldIndex, newIndex) {

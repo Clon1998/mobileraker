@@ -14,16 +14,16 @@ import 'package:reorderables/src/widgets/reorderable_mixin.dart';
 import 'package:reorderables/src/widgets/reorderable_widget.dart';
 import 'package:reorderables/src/widgets/typedefs.dart';
 
-typedef BuildItemsContainerV2 = Widget Function(BuildContext context, Axis? direction, List<List<Widget>> children,
-    [Widget? header, Widget? footer]);
+typedef ReorderableMultiColRowItemBuilder = Widget
+    Function(BuildContext context, Axis? direction, List<List<Widget>> children, [Widget? header, Widget? footer]);
 
 typedef OnPositionReorder = void Function((int, int) oldPos, (int, int) newPos);
 typedef OnPositionReorderStarted = void Function((int, int) pos);
 typedef OnNoPositionReorder = void Function((int, int) pos);
 
-class ReorderableFlexi extends StatefulWidget {
+class ReorderableMultiColRow extends StatefulWidget {
   /// Creates a reorderable list.
-  ReorderableFlexi({
+  ReorderableMultiColRow({
     super.key,
     this.header,
     this.footer,
@@ -80,7 +80,7 @@ class ReorderableFlexi extends StatefulWidget {
   /// Called when the draggable starts being dragged.
   final OnPositionReorderStarted? onReorderStarted;
 
-  final BuildItemsContainerV2? buildItemsContainer;
+  final ReorderableMultiColRowItemBuilder? buildItemsContainer;
   final BuildDraggableFeedback? buildDraggableFeedback;
 
   final MainAxisAlignment mainAxisAlignment;
@@ -91,7 +91,7 @@ class ReorderableFlexi extends StatefulWidget {
   final Duration? reorderAnimationDuration;
 
   @override
-  State<ReorderableFlexi> createState() => _ReorderableFlexiState();
+  State<ReorderableMultiColRow> createState() => _ReorderableMultiColRowState();
 }
 
 // This top-level state manages an Overlay that contains the list and
@@ -103,9 +103,9 @@ class ReorderableFlexi extends StatefulWidget {
 // and so we cache a single OverlayEntry for use as the list layer.
 // That overlay entry then builds a _ReorderableListContent which may
 // insert Draggables into the Overlay above itself.
-class _ReorderableFlexiState extends State<ReorderableFlexi> {
+class _ReorderableMultiColRowState extends State<ReorderableMultiColRow> {
   // We use an inner overlay so that the dragging list item doesn't draw outside of the list itself.
-  final GlobalKey _overlayKey = GlobalKey(debugLabel: '$ReorderableFlexi overlay key');
+  final GlobalKey _overlayKey = GlobalKey(debugLabel: '$ReorderableMultiColRow overlay key');
 
   // This entry contains the scrolling list itself.
   late PassthroughOverlayEntry _listOverlayEntry;
@@ -181,7 +181,7 @@ class _ReorderableFlexContent extends StatefulWidget {
   final OnPositionReorder onReorder;
   final OnNoPositionReorder? onNoReorder;
   final OnPositionReorderStarted? onReorderStarted;
-  final BuildItemsContainerV2? buildItemsContainer;
+  final ReorderableMultiColRowItemBuilder? buildItemsContainer;
   final BuildDraggableFeedback? buildDraggableFeedback;
   final ScrollController? scrollController;
   final EdgeInsets? padding;
@@ -196,22 +196,9 @@ class _ReorderableFlexContent extends StatefulWidget {
   _ReorderableFlexContentState createState() => _ReorderableFlexContentState();
 }
 
-class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
-    with TickerProviderStateMixin<_ReorderableFlexContent>, ReorderableMixin {
-  // The extent along the [widget.scrollDirection] axis to allow a child to
-  // drop into when the user reorders list children.
-  //
-  // This value is used when the extents haven't yet been calculated from
-  // the currently dragging widget, such as when it first builds.
-//  static const double _defaultDropAreaExtent = 1.0;
-
-  // final GlobalKey _contentKey = GlobalKey(debugLabel: 'MultiFlex item');
-
+class _ReorderableFlexContentState extends State<_ReorderableFlexContent> with ReorderableMixin {
   // The additional margin to place around a computed drop area.
   static const double _dropAreaMargin = 0.0;
-
-  // How long an animation to reorder an element in the list takes.
-  late Duration _reorderAnimationDuration;
 
   // The member of widget.children currently being dragged.
   //
@@ -240,44 +227,8 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
     return _draggingFeedbackSize! + const Offset(_dropAreaMargin, _dropAreaMargin);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _reorderAnimationDuration = widget.reorderAnimationDuration;
-    // _entranceController = AnimationController(value: 1.0, vsync: this, duration: _reorderAnimationDuration);
-    // _ghostController = AnimationController(value: 0, vsync: this, duration: _reorderAnimationDuration);
-    // _entranceController.addStatusListener(_onEntranceStatusChanged);
-  }
-
-  @override
-  void dispose() {
-    // _entranceController.dispose();
-    // _ghostController.dispose();
-    super.dispose();
-  }
-
-//   // Animates the droppable space from _currentIndex to _nextIndex.
-//   void _requestAnimationToNextIndex({bool isAcceptingNewTarget = false}) {
-// //    debugPrint('${DateTime.now().toString().substring(5, 22)} reorderable_flex.dart(285) $this._requestAnimationToNextIndex: '
-// //      '_dragStartIndex:$_dragStartIndex _ghostIndex:$_ghostIndex _currentIndex:$_currentIndex _nextIndex:$_nextIndex isAcceptingNewTarget:$isAcceptingNewTarget isCompleted:${_entranceController.isCompleted}');
-//
-//     if (_entranceController.isCompleted) {
-//       _ghostIndex = _currentIndex;
-//       if (!isAcceptingNewTarget && _nextIndex == _currentIndex) {
-//         // && _dragStartIndex == _ghostIndex
-//         return;
-//       }
-//
-//       _currentIndex = _nextIndex;
-//       _ghostController.reverse(from: 1.0);
-//       _entranceController.forward(from: 0.0).then((_) => logger.i('----- DONE ANIM ------'));
-//     }
-//   }
-
   void _autoScroll(Offset position) {
     if (widget.scrollController == null) return;
-    final scrollController = widget.scrollController!;
-
     // logger.i('AutoScroll: $position, sc: $scrollController');
 
     final screenHeight = MediaQuery.sizeOf(context).height;
@@ -320,13 +271,11 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       duration: Duration(milliseconds: 15),
       curve: Curves.easeIn,
     );
-    // await Future.delayed(Duration(milliseconds: 5));
     _scroll(speed, accel);
   }
 
   void _onDragUpdate(DragUpdateDetails details) {
     _autoScroll(details.globalPosition);
-    // _autoScroller?.startAutoScrollIfNecessary(Rect.fromLTWH(details.globalPosition.dx, details.globalPosition.dy, _draggingFeedbackSize!.width, _draggingFeedbackSize!.height));
   }
 
   void _onDragEnd(DraggableDetails details) {
@@ -386,9 +335,7 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
 
     // Drops toWrap into the last position it was hovering over.
     void onDragEnded() {
-      // reorder(_dragStartIndex, _currentIndex);
       setState(() {
-        //TODO: Why was this _current index! -> Anim thats why
         _reorder(_dragStartIndex, _currentIndex);
         _dragStartIndex = (-1, -1);
         _currentIndex = (-1, -1);
@@ -400,8 +347,6 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
     Widget buildDragTarget(
         BuildContext context, List<(int, int)?> acceptedCandidates, List<dynamic> rejectedCandidates) {
       Widget feedbackBuilder = Builder(builder: (BuildContext context) {
-//          RenderRepaintBoundary renderObject = _contentKey.currentContext.findRenderObject();
-//          BoxConstraints contentSizeConstraints = BoxConstraints.loose(renderObject.size);
         BoxConstraints contentSizeConstraints = BoxConstraints.loose(_draggingFeedbackSize!); //renderObject.constraints
 //          debugPrint('${DateTime.now().toString().substring(5, 22)} reorderable_flex.dart(515) $this.buildDragTarget: contentConstraints:$contentSizeConstraints _draggingFeedbackSize:$_draggingFeedbackSize');
         return (widget.buildDraggableFeedback ?? defaultBuildDraggableFeedback)(
@@ -528,9 +473,6 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
           // If the target is not the original starting point, then we will accept the drop.
           return willAccept; // _dragging == toAccept && toAccept != toWrap.key;
         },
-
-        // onAccept: (int accepted) {},
-        // onLeave: (Object? leaving) {},
       );
 
       dragTarget = KeyedSubtree(key: keyIndexGlobalKey, child: dragTarget);
