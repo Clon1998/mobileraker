@@ -241,6 +241,14 @@
       "editing_card": {
         "title": "Editing Mode",
         "body": "You can now reorder, add and remove cards and pages. All cards show preview data."
+      },
+      "error_save_snack": {
+        "title": "Error saving layout!",
+        "body": "An error occurred while trying to save the layout."
+      },
+      "error_no_components": {
+        "title": "Empty Layout!",
+        "body": "You have not added any widgets. Add at least one widget to save the layout."
       }
     },
     "files": {

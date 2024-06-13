@@ -64,13 +64,13 @@ class NavWidgetController extends _$NavWidgetController {
       if (kDebugMode)
         const NavEntry(
           label: 'Debug',
-          icon: FlutterIcons.build_mdi,
+          icon: Icons.engineering_outlined,
           route: '/dev',
         ),
       NavEntry.divider(),
       NavEntry(
         label: tr('pages.setting.title'),
-        icon: Icons.engineering_outlined,
+        icon: FlutterIcons.build_mdi,
         route: '/setting',
       ),
       NavEntry(

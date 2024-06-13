@@ -333,8 +333,8 @@ class _LayoutPreview extends HookWidget {
               right: 0,
               left: 0,
               child: Wrap(
-                // runAlignment: WrapAlignment.end,
                 alignment: WrapAlignment.end,
+                verticalDirection: VerticalDirection.up,
                 spacing: 4,
                 children: [
                   if (layout.created != null)

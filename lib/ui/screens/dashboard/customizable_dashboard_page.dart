@@ -113,6 +113,7 @@ class _DashboardView extends HookConsumerWidget {
 
     if (context.isLargerThanCompact) {
       body = Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           NavigationRailView(leading: fab),
           Expanded(child: body),
@@ -567,6 +568,9 @@ class _DashboardPageController extends _$DashboardPageController {
     var layout = await ref.watch(dashboardLayoutProvider(machineUUID).future);
 
     inited = true;
+
+    logger.i('Current Layout: ${layout.name} (${layout.uuid}), ${layout.created}');
+
     // return;
     return _Model(layout: layout, activeIndex: 0, isEditing: false);
   }
@@ -635,31 +639,60 @@ class _DashboardPageController extends _$DashboardPageController {
     updateLayout(value.layout);
   }
 
+  bool validateLayout(DashboardLayout toUpdate) {
+    final isValid = _dashboardLayoutService.validateLayout(toUpdate);
+
+    if (!isValid) {
+      _snackbarService.show(SnackBarConfig(
+        type: SnackbarType.warning,
+        title: tr('pages.customizing_dashboard.error_no_components.title'),
+        message: tr('pages.customizing_dashboard.error_no_components.body'),
+        duration: const Duration(seconds: 20),
+      ));
+    }
+    return isValid;
+  }
+
   ///TODO: ReName, this "Saves" the provided layout and updates the state!
   void updateLayout(DashboardLayout toUpdate) async {
     final value = state.requireValue;
     if (!value.isEditing) return;
-    logger.i('Stop Edit Mode');
+    logger.i('Trying to save layout ${toUpdate.name} (${toUpdate.uuid}) for machine $machineUUID');
+    try {
+      if (toUpdate == _originalLayout && _originalLayout?.created != null) {
+        logger.i('No changes detected');
+        state = AsyncValue.data(value.copyWith(isEditing: false, layout: _originalLayout!));
+        _originalLayout = null;
+        return;
+      }
 
-    if (toUpdate == _originalLayout && _originalLayout?.created != null) {
-      logger.i('No changes detected');
-      state = AsyncValue.data(value.copyWith(isEditing: false, layout: _originalLayout!));
+      if (!validateLayout(toUpdate)) {
+        return;
+      }
+
+      state = AsyncValue.data(value.copyWith(isEditing: false)).toLoading();
+      // await Future.delayed(const Duration(seconds: 2));
+      await _dashboardLayoutService.saveDashboardLayoutForMachine(machineUUID, toUpdate);
       _originalLayout = null;
-      return;
+      ref.read(navWidgetControllerProvider.notifier).enable();
+      _snackbarService.show(SnackBarConfig(
+        type: SnackbarType.info,
+        title: tr('pages.customizing_dashboard.saved_snack.title'),
+        message: tr('pages.customizing_dashboard.saved_snack.body'),
+        duration: const Duration(seconds: 5),
+      ));
+    } catch (e, s) {
+      logger.e('Error saving layout', e, s);
+
+      _snackbarService.show(SnackBarConfig.stacktraceDialog(
+        dialogService: _dialogService,
+        exception: e,
+        stack: s,
+        snackTitle: tr('pages.customizing_dashboard.error_save_snack.title'),
+        snackMessage: tr('pages.customizing_dashboard.error_save_snack.body'),
+      ));
+      state = AsyncValue.data(value.copyWith(isEditing: true));
     }
-
-    state = AsyncValue.data(value.copyWith(isEditing: false)).toLoading();
-    // await Future.delayed(const Duration(seconds: 2));
-    await _dashboardLayoutService.saveDashboardLayoutForMachine(machineUUID, toUpdate);
-    _originalLayout = null;
-
-    _snackbarService.show(SnackBarConfig(
-      type: SnackbarType.info,
-      title: tr('pages.customizing_dashboard.saved_snack.title'),
-      message: tr('pages.customizing_dashboard.saved_snack.body'),
-      duration: const Duration(seconds: 5),
-    ));
-
     // state = AsyncValue.data(value.copyWith(isEditing: false));
   }
 

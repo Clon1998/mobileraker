@@ -241,6 +241,14 @@
       "editing_card": {
         "title": "Editiermodus",
         "body": "Sie können jetzt Layout Karten und Seiten neu anordnen, hinzufügen und entfernen. Alle Karten zeigen Vorschau-Daten an."
+      },
+      "error_save_snack": {
+        "title": "Fehler beim Speichern!",
+        "body": "Ihre Änderungen konnten nicht gespeichert werden."
+      },
+      "error_no_components": {
+        "title": "Leeres Layout!",
+        "body": "Du hast keine Widgets hinzugefügt. Füge mindestens ein Widget hinzu, um das Layout zu speichern."
       }
     },
     "files": {
