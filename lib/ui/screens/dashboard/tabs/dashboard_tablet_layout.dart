@@ -60,7 +60,7 @@ class DashboardTabletLayout extends HookWidget {
     if (isEditing) {
       body = ReorderableFlexi(
         scrollController: sc,
-        reorderAnimationDuration: const Duration(milliseconds: 2000),
+        reorderAnimationDuration: const Duration(milliseconds: 200),
         onReorder: (oldIndex, newIndex) {
           logger.i('On Reorder: $oldIndex -> $newIndex');
           if (onReorder != null) {

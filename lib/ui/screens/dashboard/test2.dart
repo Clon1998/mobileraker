@@ -8,6 +8,7 @@
 import 'package:collection/collection.dart';
 import 'package:common/util/logger.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:reorderables/src/widgets/passthrough_overlay.dart';
 import 'package:reorderables/src/widgets/reorderable_mixin.dart';
 import 'package:reorderables/src/widgets/reorderable_widget.dart';
@@ -543,91 +544,53 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
       if (_draggingWidget == null) return _buildContainerForMainAxis(children: [dragTarget]);
 
       // The next widget is outside of the list, so we need to build a space for it.
-      final isOverScroll = _currentIndex.$2 >= (widget.children[_currentIndex.$1].length);
-      final isLastItemForOverscroll = isOverScroll && currentPos == (_currentIndex.$1, _currentIndex.$2 - 1);
 
-      if (currentPos != _currentIndex && !isLastItemForOverscroll) {
+      final isLastInCol = currentPos.$2 == widget.children[currentPos.$1].length - 1;
+      final currentIndexOverscroll = isLastInCol && currentPos == (_currentIndex.$1, _currentIndex.$2 - 1);
+      final prevIndexOverscroll = isLastInCol && currentPos == (_prevIndex.$1, _prevIndex.$2 - 1);
+
+      if (currentPos != _currentIndex && currentPos != _prevIndex && !currentIndexOverscroll && !prevIndexOverscroll) {
         // No need to build a space for the next widget as it is not the next widget
         return _buildContainerForMainAxis(children: [dragTarget]);
       }
-      logger.i('Building space for ${toWrap.key} at $currentPos. _start: $_dragStartIndex, _current: $_currentIndex');
+      logger.i(
+          'Building space for ${toWrap.key} at $currentPos. _start: $_dragStartIndex, _prevIndex: $_prevIndex, _currentIndex: $_currentIndex, isLastInCol: $isLastInCol, currentIndexOverscroll: $currentIndexOverscroll, prevIndexOverscroll: $prevIndexOverscroll');
 
-      Widget preview = Container(color: Colors.blue, child: spacing);
+      Widget preview = _AnimPreview(
+        duration: widget.reorderAnimationDuration,
+        constraints: _draggingFeedbackSize ?? Size(0, 0),
+        inOut: true,
+        child: spacing,
+      );
 
-      if (isLastItemForOverscroll) {
-        // We overshoot the list so we make space for the last item
-        return _buildContainerForMainAxis(children: [dragTarget, preview]);
+      Widget disappearingPos = _AnimPreview(
+        duration: widget.reorderAnimationDuration,
+        constraints: _draggingFeedbackSize ?? Size(0, 0),
+        inOut: false,
+        child: spacing,
+      );
+
+      // Special case for the inital drag start where no animation is needed
+      if (currentPos == _dragStartIndex && _currentIndex == _dragStartIndex && _prevIndex == _dragStartIndex) {
+        return _buildContainerForMainAxis(children: [spacing, dragTarget]);
       }
-      return _buildContainerForMainAxis(children: [preview, dragTarget]);
 
-      //
-      // // The Appearing widget at the new target position
-      // Widget entranceSpacing = Container(color: Colors.greenAccent, child: _makeAppearingWidget(spacing));
-      // // The ghost/dissapearing widget at the old position
-      // Widget ghostSpacing = Container(color: Colors.red, child: _makeDisappearingWidget(spacing));
-      //
-      //
+      if (currentPos == _currentIndex) {
+        // We need to add the disappearing widget at the end of the list if the we are at the end of the list and the next widget is the last widget
+        return _buildContainerForMainAxis(children: [preview, dragTarget, if (prevIndexOverscroll) disappearingPos]);
+      }
+      if (currentIndexOverscroll) {
+        // We need to add the disappearing widget at the end of the list if the we are at the end of the list and the next widget is the last widget
+        return _buildContainerForMainAxis(
+            children: [if (currentPos == _prevIndex) disappearingPos, dragTarget, preview]);
+      }
 
-      // if (currentPos.$1 != _nextIndex.$1) {
-      //   // The target is dragged to a different col!
-      //   // So from left to right or right to left
-      //
-      //   if (currentPos == _ghostIndex) {
-      //     // The ghost is
-      //     return _buildContainerForMainAxis(children: [ghostSpacing, dragTarget]);
-      //   }
-      //
-      //   return _buildContainerForMainAxis(children: [entranceSpacing, dragTarget]);
-      // } else {
-      //   // The target is dragged to the same col!
-      //   if (isLastInCol) {
-      //     // Is last entry special case as it needs to render stuff!
-      //
-      //     if (currentPos == _dragStartIndex) {
-      //       return _buildContainerForMainAxis(children: [dragTarget]);
-      //     } else if (_nextIndex.$2 >= _ghostIndex.$2) {
-      //       logger.i(
-      //           'Building LAST item (${(_ghostIndex.$2 >= currentPos.$2) ? 'GHOST,' : ''} drag, APPEAR) ${toWrap.key} $currentPos');
-      //       return _buildContainerForMainAxis(children: [ghostSpacing, dragTarget, entranceSpacing]);
-      //     } else {
-      //       logger.i('Building LAST item (APPEAR, drag, GHOST) ${toWrap.key} $currentPos');
-      //       return _buildContainerForMainAxis(children: [entranceSpacing, dragTarget, ghostSpacing]);
-      //     }
-      //   } else
-      //   // So either from top to bottom or bottom to top
-      //   if (_nextIndex.$2 > _ghostIndex.$2) {
-      //     //the ghost is moving down, i.e. the tile below the ghost is moving up
-      //
-      //     if (currentPos == _ghostIndex && currentPos == _nextIndex) {
-      //       // It seems like we are at the top of the list
-      //       logger.i('Building ghost and entrance DOWN for ${toWrap.key} $currentPos');
-      //       return _buildContainerForMainAxis(children: [ghostSpacing, dragTarget, entranceSpacing]);
-      //     } else if (currentPos == _nextIndex) {
-      //       logger.i('Building entrance DOWN for ${toWrap.key} $currentPos');
-      //       return _buildContainerForMainAxis(children: [entranceSpacing, dragTarget]);
-      //     } else {
-      //       logger.i('Building ghost DOWN for ${toWrap.key} $currentPos');
-      //       return _buildContainerForMainAxis(children: [ghostSpacing, dragTarget]);
-      //     }
-      //   } else if (_nextIndex.$2 < _ghostIndex.$2) {
-      //     // the ghost is moving up, i.e. the tile above the ghost is moving down
-      //
-      //     if (currentPos == _ghostIndex && currentPos == _nextIndex) {
-      //       logger.i('Building ghost and entrance UP for ${toWrap.key} $currentPos');
-      //       // It seems like we are at the top of the list
-      //       return _buildContainerForMainAxis(children: [entranceSpacing, dragTarget, ghostSpacing]);
-      //     } else if (currentPos == _nextIndex) {
-      //       logger.i('Building entrance UP for ${toWrap.key} $currentPos');
-      //       return _buildContainerForMainAxis(children: [entranceSpacing, dragTarget]);
-      //     } else {
-      //       logger.i('Building ghost UP for ${toWrap.key} $currentPos');
-      //       return _buildContainerForMainAxis(children: [ghostSpacing, dragTarget]);
-      //     }
-      //   } else {
-      //     // This is most likely the dragStart item
-      //     return _buildContainerForMainAxis(children: [entranceSpacing, dragTarget]);
-      //   }
-      // }
+      if (currentPos == _prevIndex || prevIndexOverscroll) {
+        return _buildContainerForMainAxis(children: [disappearingPos, dragTarget]);
+      }
+
+      // Default case, should never be reached as it is handled above
+      return _buildContainerForMainAxis(children: [dragTarget]);
     });
   }
 
@@ -674,5 +637,39 @@ class _ReorderableFlexContentState extends State<_ReorderableFlexContent>
         child: Card(child: ConstrainedBox(constraints: constraints, child: child)),
       ),
     );
+  }
+}
+
+class _AnimPreview extends HookWidget {
+  const _AnimPreview({
+    super.key,
+    required this.child,
+    this.duration = const Duration(milliseconds: 200),
+    required this.constraints,
+    this.inOut = false,
+  });
+
+  final Widget child;
+  final Duration duration;
+  final Size constraints;
+  final bool inOut; // true = in, false = out
+
+  @override
+  Widget build(BuildContext context) {
+    final ctl = useAnimationController(duration: duration, initialValue: inOut ? 0 : 1);
+    if (inOut) {
+      ctl.forward();
+    } else {
+      ctl.reverse();
+    }
+
+    final transition = SizeTransition(
+      sizeFactor: ctl,
+      axis: Axis.vertical,
+      child: FadeTransition(opacity: ctl, child: child),
+    );
+
+    BoxConstraints contentSizeConstraints = BoxConstraints.loose(constraints);
+    return ConstrainedBox(constraints: contentSizeConstraints, child: transition);
   }
 }
