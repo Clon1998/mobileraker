@@ -54,16 +54,21 @@ class FilesPage extends ConsumerWidget {
       skipKlipperReady: true,
     );
 
+    const fab = _Fab();
+
     if (context.isLargerThanCompact) {
       body = Row(
-        children: [const NavigationRailView(), Expanded(child: body)],
+        children: [
+          const NavigationRailView(leading: fab),
+          Expanded(child: body),
+        ],
       );
     }
     return Scaffold(
       appBar: const _AppBar(),
       drawer: const NavigationDrawerWidget(),
       bottomNavigationBar: const _BottomNav().unless(context.isLargerThanCompact),
-      floatingActionButton: const _Fab(),
+      floatingActionButton: fab.unless(context.isLargerThanCompact),
       body: body,
     );
   }

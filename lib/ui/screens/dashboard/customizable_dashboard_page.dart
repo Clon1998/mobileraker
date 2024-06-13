@@ -114,10 +114,7 @@ class _DashboardView extends HookConsumerWidget {
     if (context.isLargerThanCompact) {
       body = Row(
         children: [
-          //TODO: Disable rail while editing!
-          NavigationRailView(
-            leading: fab,
-          ),
+          NavigationRailView(leading: fab),
           Expanded(child: body),
         ],
       );
