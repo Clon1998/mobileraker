@@ -162,6 +162,7 @@ ThemePack _mobilerakerPack() {
       bottomSheetTheme: light.bottomSheetTheme.copyWith(
         modalBackgroundColor: light.colorScheme.background,
         shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
       ),
       extensions: [CustomColors.light],
     ),
@@ -181,6 +182,7 @@ ThemePack _mobilerakerPack() {
       bottomSheetTheme: dark.bottomSheetTheme.copyWith(
         modalBackgroundColor: dark.colorScheme.background,
         shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
       ),
       cardTheme: dark.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.dark],
@@ -245,7 +247,10 @@ ThemePack _voronPack() {
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
-      bottomSheetTheme: light.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
+      bottomSheetTheme: light.bottomSheetTheme.copyWith(
+        shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
+      ),
       inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
       cardTheme: light.cardTheme.copyWith(elevation: 3),
       extensions: [
@@ -268,6 +273,7 @@ ThemePack _voronPack() {
       bottomSheetTheme: dark.bottomSheetTheme.copyWith(
         modalBackgroundColor: dark.colorScheme.background,
         shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
       ),
       cardTheme: dark.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.dark],
@@ -341,6 +347,7 @@ ThemePack _ratRigPack() {
       bottomSheetTheme: light.bottomSheetTheme.copyWith(
         modalBackgroundColor: light.colorScheme.background,
         shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
       ),
       extensions: [CustomColors.light],
     ),
@@ -357,7 +364,10 @@ ThemePack _ratRigPack() {
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
-      bottomSheetTheme: dark.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
+      bottomSheetTheme: dark.bottomSheetTheme.copyWith(
+        shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
+      ),
       cardTheme: dark.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.dark],
     ),
@@ -412,7 +422,10 @@ ThemePack _vzBot() {
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
-      bottomSheetTheme: light.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
+      bottomSheetTheme: light.bottomSheetTheme.copyWith(
+        shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
+      ),
       inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
       cardTheme: light.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.light],
@@ -433,6 +446,7 @@ ThemePack _vzBot() {
       bottomSheetTheme: dark.bottomSheetTheme.copyWith(
         modalBackgroundColor: dark.colorScheme.background,
         shape: _bottomSheetShape,
+        constraints: const BoxConstraints(maxWidth: 640),
       ),
       cardTheme: dark.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.dark],
@@ -601,8 +615,10 @@ ThemePack _oePack() {
       ),
       inputDecorationTheme: light.inputDecorationTheme.copyWith(filled: false),
       // cardTheme: light.cardTheme.copyWith(elevation: 3, color: light.colorScheme.surface),
-      bottomSheetTheme:
-          light.bottomSheetTheme.copyWith(modalBackgroundColor: light.colorScheme.background, shape: _bottomSheetShape),
+      bottomSheetTheme: light.bottomSheetTheme.copyWith(
+          modalBackgroundColor: light.colorScheme.background,
+          shape: _bottomSheetShape,
+          constraints: const BoxConstraints(maxWidth: 640)),
       extensions: [
         CustomColors.light,
       ],
@@ -620,7 +636,8 @@ ThemePack _oePack() {
         showSelectedLabels: false,
         showUnselectedLabels: false,
       ),
-      bottomSheetTheme: dark.bottomSheetTheme.copyWith(shape: _bottomSheetShape),
+      bottomSheetTheme:
+          dark.bottomSheetTheme.copyWith(shape: _bottomSheetShape, constraints: const BoxConstraints(maxWidth: 640)),
       cardTheme: dark.cardTheme.copyWith(elevation: 3),
       extensions: [CustomColors.dark],
     ),
