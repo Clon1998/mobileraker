@@ -219,7 +219,7 @@
       }
     },
     "customizing_dashboard": {
-      "title": "Editing layout...",
+      "title": "Personalize Dashboard",
       "cancel_confirm": {
         "title": "Discard changes?",
         "body": "Are you sure you want to leave the layout editing mode?\nAll changes will be lost. To save your changes, press the save button."

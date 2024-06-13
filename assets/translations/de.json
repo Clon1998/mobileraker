@@ -219,7 +219,7 @@
       }
     },
     "customizing_dashboard": {
-      "title": "Layout bearbeiten...",
+      "title": "Dashboard-Layout Personalisieren",
       "cancel_confirm": {
         "title": "Änderungen verwerfen?",
         "body": "Möchten Sie den Layout-Bearbeitungsmodus wirklich verlassen? Dadurch werden alle Änderungen verworfen. Um Ihre Änderungen zu speichern, drücken Sie die Speichertaste."
